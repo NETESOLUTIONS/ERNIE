@@ -1,0 +1,506 @@
+<!-- ========================================================================= -->
+<!-- This DTD has been retired as of 12/14/2011                                -->
+<!-- Please start using the XML schema available at                            -->
+<!--   http://clinicaltrials.gov/ct2/html/images/info/public.xsd               -->
+<!-- ========================================================================= -->
+
+<!-- ========================================================================= -->
+<!-- XML DTD for ClinicalTrials.gov public XML                                 -->
+<!-- http://clinicaltrials.gov/ct2/html/images/info/public.dtd                 -->
+<!-- National Library of Medicine, National Institutes of Health               -->
+<!-- DTD Version: 2011.12.14                                                   -->
+<!--                                                                           -->
+<!-- This DTD is subject to change without notice.                             -->
+<!-- Any data displayed to the public must include attribution                 -->
+<!--  to http://ClinicalTrials.gov and contain the information                 -->
+<!--  in the <required_header> from each trial record.                         -->
+<!--                                                                           -->
+<!-- Changes:                                                                  -->
+<!-- 02/22/2006 Fixed error indicating citation contained textblock            -->
+<!-- 05/19/2006 Added withdrawn status                                         -->
+<!-- 12/12/2006 Added oversight_info                                           -->
+<!-- 01/10/2007 Added nct_alias                                                -->
+<!-- 03/02/2007 Added has_dmc, why_stopped                                     -->
+<!-- 03/15/2007 Removed last_follow_up, last_data_entry dates                  -->
+<!--            (end_date contains last_follow_up)                             -->
+<!-- 04/11/2007 added acronym, removed erroneous abbrev                        -->
+<!-- 04/16/2007 added expanded access status values to overall_status          -->
+<!-- 04/19/2007 added measure, time_frame, and number_of_arms                  -->
+<!--            Moved and renamed expected_enrollment to enrollment            -->
+<!-- 07/18/2007 added tags related to arms and more intervention details       -->
+<!--            <arm_group> and child nodes                                    -->
+<!--            intervention /description, /arm_group_label, /other_name       -->
+<!-- 07/21/2007 removed redundant tags (description, arm_group_label)          -->
+<!-- 09/20/2007 changed possible values for overall_status                     -->
+<!-- 10/08/2007 added new elements related to observational studies            -->
+<!--            (number_of_groups, biospec_retention, biospec_descr,           -->
+<!--            study_pop, sampling_method)                                    -->
+<!-- 10/11/2007 added optional rank attribute to clinical_study                -->
+<!-- 01/10/2008 added study_type                                               -->
+<!-- 05/20/2008 added healthy_volunteers to eligibility                        -->
+<!-- 06/19/2008 added primary_completion_date                                  -->
+<!--            Date when measurement of the primary outcome measure           -->
+<!--            will be complete                                               -->
+<!-- 06/19/2008 added safety_issue to outcomes                                 -->
+<!-- 02/20/2009 updated comment on phase to match reality                      -->
+<!-- 05/12/2009 added tag <completion_date>                                    -->
+<!--            This field is the last followup date, when available,          -->
+<!--            otherwise, end date.  <end_date> tag is now obsolete.          -->
+<!-- 05/12/2009 added optional type attribute to <enrollment>,                 -->
+<!--            <completion_date>, and <primary_completion_date>.              -->
+<!--            Attribute will be type="Actual" or type="Anticipated"          -->
+<!--            when available.                                                -->
+<!-- 06/04/2009 moved comment which caused validation failure                  -->
+<!-- 10/15/2009 added responsible party when available                         -->
+<!-- 12/01/2009 corrected format for a couple of dates that include day        -->
+<!-- 03/04/2010 removed obsolete always-empty tags, first_name, middle_name,   -->
+<!--            and degrees.  The tag, last_name holds the entire name.        -->
+<!-- 03/04/2010 added description tag to primary_outcome and                   -->
+<!--            secondary_outcome.                                             -->
+<!-- 04/02/2010 removed obsolete end_date tag - use completion_date instead    -->
+<!-- 05/21/2010 made more tags optional                                        -->
+<!-- 07/01/2010 made more tags optional - trying to avoid writing empty tags.  -->
+<!--            Most missing data is due to delayed posting of device records. -->
+<!--            A device NOT previously approved or cleared by the US FDA for  -->
+<!--            any use, as specified in US Public Law 110-85, Title VIII,     -->
+<!--            Section 801 can delay full posting of the trial information    -->
+<!--            on ClinicalTrials.gov until after the device has been approved -->
+<!--            or cleared.  These records have the following title:  [Trial   -->
+<!--            of device that is not approved or cleared by the U.S. FDA]     -->
+<!-- 07/14/2010 Added keywords, is_fda_regulated, is_section_801, and          -->
+<!--            has_expanded_access, when given by data provider               -->
+<!-- 07/14/2010 Added condition_browse and intervention_browse, which are      -->
+<!--            lists of mesh_terms that are (probably) relevant to the trial  -->
+<!--            record.  Relevancy is determine programmatically, and can be   -->
+<!--            wrong.  We fix errors when we see them.                        -->
+<!-- 09/07/2010 Added firstreceived_results_date.  The presence of this tag    -->
+<!--            indicates that results are available for this trial on         -->
+<!--            ClinicalTrials.gov.  An XML format of the results info is      -->
+<!--            currently under review and may soon be available for download. -->
+<!-- 09/10/2010 Added agency_class to sponsor and collaborators.  Possible     -->
+<!--            values: NIH, U.S. Fed, Industry, and Other                     -->
+<!-- 10/12/2010 Added location_countries, a list of all countries with a       -->
+<!--            trial location.  Added removed_countries, a list of all        -->
+<!--            countries that no longer have a trial location, but had        -->
+<!--            one in a previous version of the trial record.  The union      -->
+<!--            of these two lists is all countries that have ever had a       -->
+<!--            trial location listed in the trial record.                     -->
+<!-- 08/03/2011 Indicate optionality of facility in location                   -->
+<!-- 11/28/2011 Added 4 additional optional fields to <responsible_party>      -->
+<!--            <responsible_party_type> <investigator_affiliation>            -->
+<!--            <investigator_full_name> and <investigator_title>.             -->
+<!--            See comments on responsible party definition below.            -->
+<!-- 12/14/2011 Added optional element, clinical_results, but set no           -->
+<!--            restrictions on its content.                                   -->
+<!-- 12/14/2011 Retiring this DTD.  Now recommending use of XML Schema at      -->
+<!--            http://clinicaltrials.gov/ct2/html/images/info/public.xsd      -->
+<!-- ========================================================================= -->
+
+<!ELEMENT clinical_study (
+          required_header,
+          id_info,
+          brief_title,
+          acronym?,
+          official_title?,
+          sponsors,
+          source,
+          oversight_info?,
+          brief_summary?,
+          detailed_description?,
+          overall_status,
+          why_stopped?,
+          start_date?,
+          completion_date?,
+          primary_completion_date?,
+          phase,
+          study_type,
+          study_design,
+          primary_outcome*,
+          secondary_outcome*,
+          number_of_arms?,
+          number_of_groups?,
+          enrollment?,
+          condition*,
+          arm_group*,
+          intervention*,
+          biospec_retention?,
+          biospec_descr?,
+          eligibility?,
+          overall_official*,
+          overall_contact?,
+          overall_contact_backup?,
+          location*,
+          location_countries?,
+          removed_countries?,
+          link*,
+          reference*,
+          results_reference*,
+          verification_date?,
+          lastchanged_date?,
+          firstreceived_date,
+          firstreceived_results_date?,
+          responsible_party?,
+          keyword*,
+          is_fda_regulated?,
+          is_section_801?,
+          has_expanded_access?,
+          condition_browse?,
+          intervention_browse?,
+          clinical_results?)>
+
+<!ATTLIST clinical_study rank CDATA "0">
+
+<!-- === Required Header =================================================== -->
+
+<!ELEMENT required_header (
+          download_date,
+          link_text,
+          url)>
+
+<!ELEMENT download_date (#PCDATA)>
+<!ELEMENT link_text (#PCDATA)>
+<!ELEMENT url (#PCDATA)>
+
+
+<!-- === Id Info =========================================================== -->
+
+<!ELEMENT id_info (
+          org_study_id,
+          secondary_id*,
+          nct_id,
+          nct_alias*)>
+
+<!ELEMENT org_study_id (#PCDATA)>
+<!ELEMENT secondary_id (#PCDATA)>
+<!ELEMENT nct_id (#PCDATA)>
+<!ELEMENT nct_alias (#PCDATA)>
+
+
+<!-- === Titles ============================================================ -->
+
+<!ELEMENT brief_title (#PCDATA)>
+<!ELEMENT acronym (#PCDATA)>
+<!ELEMENT official_title (#PCDATA)>
+
+
+<!-- === Sponsors ========================================================== -->
+
+<!ELEMENT sponsors (
+          lead_sponsor,
+          collaborator*)>
+
+<!ELEMENT lead_sponsor (
+          agency, 
+          agency_class)>
+          
+<!ELEMENT collaborator (
+          agency, 
+          agency_class)>
+          
+<!ELEMENT agency (#PCDATA)>
+<!ELEMENT agency_class (#PCDATA)> <!-- Possible values: NIH | U.S. Fed | Industry | Other -->
+
+<!ELEMENT source (#PCDATA)>
+
+
+<!-- === Oversight ========================================================= -->
+
+<!ELEMENT oversight_info (
+          authority*,
+          has_dmc?)>
+
+<!ELEMENT authority (#PCDATA)>
+<!ELEMENT has_dmc (#PCDATA)>       <!-- data monitoring committee: Yes | No -->
+
+
+<!-- === Description ======================================================= -->
+
+<!ELEMENT brief_summary (textblock)>
+<!ELEMENT detailed_description (textblock)>
+<!ELEMENT textblock (#PCDATA)>
+
+
+<!-- === Status ============================================================ -->
+
+<!ELEMENT overall_status (#PCDATA)>   <!-- Possible values:
+          Not yet recruiting | Recruiting | Enrolling by invitation |
+          Active, not recruiting | Completed | Suspended | Terminated |
+          Withdrawn | Available | No Longer Available -->
+          <!-- last two are for expanded access records -->
+
+<!ELEMENT why_stopped (#PCDATA)>   <!-- brief explanation -->
+
+
+<!-- === Misc ============================================================== -->
+
+<!ELEMENT phase (#PCDATA)>            <!-- Phase [1,2,3,4] [/ Phase [1,2,3,4]] | N/A -->
+<!ELEMENT study_type (#PCDATA)>       <!-- Interventional | Observational | Expanded Access -->
+<!ELEMENT study_design (#PCDATA)>
+
+<!ELEMENT number_of_arms (#PCDATA)>    <!-- integer -->
+<!ELEMENT number_of_groups (#PCDATA)>  <!-- integer -->
+
+<!ELEMENT enrollment (#PCDATA)>            <!-- integer -->
+<!ATTLIST enrollment type CDATA #IMPLIED>  <!-- Can be missing.  Possible values: Actual | Anticipated -->
+
+
+<!-- === Outcomes ========================================================== -->
+
+<!ELEMENT primary_outcome (
+          measure,
+          time_frame?,
+          safety_issue?,
+          description?)>
+
+<!ELEMENT secondary_outcome (
+          measure,
+          time_frame?,
+          safety_issue?,
+          description?)>
+
+<!ELEMENT measure (#PCDATA)>
+<!ELEMENT time_frame (#PCDATA)>
+<!ELEMENT safety_issue (#PCDATA)>
+
+<!ELEMENT description (#PCDATA)>         <!-- used in several contexts -->
+
+
+<!-- === Conditions ======================================================== -->
+
+<!ELEMENT condition (#PCDATA)>
+
+
+<!-- === Arms ============================================================== -->
+
+<!ELEMENT arm_group (
+          arm_group_label,
+          arm_group_type?,
+          description?)>
+
+<!ELEMENT arm_group_label (#PCDATA)>    <!-- join key with intervention field -->
+<!ELEMENT arm_group_type (#PCDATA)> <!-- Possible values:
+            Experimental | Active Comparator | Placebo Comparator |
+            Sham Comparator | No Intervention | Other | Case |
+            Control | Treatment Comparison | Exposure Comparison -->
+
+
+<!-- === Interventions ===================================================== -->
+
+<!ELEMENT intervention (
+          intervention_type,
+          intervention_name,
+          description?,
+          arm_group_label*,
+          other_name*)>
+
+<!ELEMENT intervention_type (#PCDATA)>   <!-- Possible values:
+          Drug | Device | Biological/Vaccine | Genetic | Behavioral |
+          Radiation | Procedure/Surgery Dietary Supplement | Other -->
+
+<!ELEMENT intervention_name (#PCDATA)>
+<!ELEMENT other_name (#PCDATA)>    <!-- synonyms for intervention_name -->
+
+
+<!-- === Bio Specimen ====================================================== -->
+
+<!ELEMENT biospec_retention (#PCDATA)>   <!-- None Retained | Samples With DNA | Samples Without DNA -->
+<!ELEMENT biospec_descr (textblock)>     <!-- describes nature of specifimen -->
+
+
+<!-- === Eligibility ======================================================= -->
+
+<!ELEMENT eligibility (
+          study_pop?,
+          sampling_method?,
+          criteria?,
+          gender,
+          minimum_age,
+          maximum_age,
+          healthy_volunteers?)>
+
+<!ELEMENT study_pop (textblock)>
+<!ELEMENT sampling_method (#PCDATA)>   <!-- Probability Sample | Non-Probability Sample -->
+<!ELEMENT criteria (textblock)>
+<!ELEMENT gender (#PCDATA)>  <!-- Both | Female | Male -->
+
+<!-- Ages are a WholeNumber followed by units: eg. "12 Years" -->
+<!-- Units may be one of: years, months, weeks, days, hours, minutes -->
+<!ELEMENT minimum_age (#PCDATA)>         <!-- 12 years -->
+<!ELEMENT maximum_age (#PCDATA)>         <!-- N/A -->
+
+<!ELEMENT healthy_volunteers (#PCDATA)>
+
+
+<!-- === Contacts ========================================================== -->
+
+<!ELEMENT overall_official (
+          last_name?,
+          role?,
+          affiliation?)>
+
+<!ELEMENT last_name (#PCDATA)>      <!-- holds entire name -->
+<!ELEMENT role (#PCDATA)>           <!-- Principal Investigator | Sub-Investigator -->
+<!ELEMENT affiliation (#PCDATA)>
+
+<!ELEMENT overall_contact (
+          last_name?,
+          phone?,
+          phone_ext?,
+          email?)>
+
+<!ELEMENT phone (#PCDATA)>
+<!ELEMENT phone_ext (#PCDATA)>
+<!ELEMENT email (#PCDATA)>
+
+<!ELEMENT overall_contact_backup (
+          last_name?,
+          phone?,
+          phone_ext?,
+          email?)>
+
+
+<!-- === Locations ========================================================= -->
+
+<!ELEMENT location (
+          facility?,
+          status?,
+          contact?,
+          contact_backup?,
+          investigator*)>
+
+<!ELEMENT facility (
+          name?,
+          address?)>
+
+<!ELEMENT name (#PCDATA)>
+
+<!ELEMENT address (
+          city,
+          state?,
+          zip?,
+          country)>
+
+<!ELEMENT city (#PCDATA)>
+<!ELEMENT state (#PCDATA)>
+<!ELEMENT zip (#PCDATA)>
+<!ELEMENT country (#PCDATA)>
+
+<!ELEMENT status (#PCDATA)> <!-- Possible values:
+          Not yet recruiting | Recruiting | Enrolling by invitation |
+          Active, not recruiting | Completed | Suspended | Terminated -->
+
+<!ELEMENT contact (
+          last_name?,
+          phone?,
+          phone_ext?,
+          email?)>
+
+<!ELEMENT contact_backup (
+          last_name?,
+          phone?,
+          phone_ext?,
+          email?)>
+
+<!ELEMENT investigator (
+          last_name,
+          role?)>
+
+<!ELEMENT location_countries (
+          country*)>
+
+<!ELEMENT removed_countries (
+          country*)>
+
+
+<!-- === Links ============================================================= -->
+
+<!ELEMENT link (
+          url,
+          description?)>
+
+
+<!-- === References ======================================================== -->
+
+<!ELEMENT reference (
+          citation?,
+          PMID?)>
+
+<!ELEMENT citation (#PCDATA)>    <!-- full bibliographic citation -->
+<!ELEMENT PMID (#PCDATA)>        <!-- pubmed identifier -->
+
+<!ELEMENT results_reference (
+          citation?,
+          PMID?)>
+
+
+<!-- === Dates ============================================================= -->
+
+<!ELEMENT start_date (#PCDATA)>                  <!-- Month Year (e.g. January 2008) -->
+
+<!ELEMENT completion_date (#PCDATA)>             <!-- Month Year (e.g. January 2008) -->
+<!ATTLIST completion_date type CDATA #IMPLIED>   <!-- Can be missing.  Possible values: Actual | Anticipated -->
+
+<!ELEMENT primary_completion_date (#PCDATA)>            <!-- Month Year (e.g. January 2008) -->
+<!ATTLIST primary_completion_date type CDATA #IMPLIED>  <!-- Can be missing.  Possible values: Actual | Anticipated -->
+
+<!ELEMENT verification_date (#PCDATA)>           <!-- Month Year (e.g. January 2008) -->
+<!ELEMENT lastchanged_date (#PCDATA)>            <!-- Month Day, Year (e.g. April 1, 2008) -->
+<!ELEMENT firstreceived_date (#PCDATA)>          <!-- Month Day, Year (e.g. April 1, 2008) -->
+<!ELEMENT firstreceived_results_date (#PCDATA)>  <!-- Month Day, Year (e.g. April 1, 2008) -->
+
+
+<!-- === Responsible Party ================================================= -->
+
+<!ELEMENT responsible_party (
+          name_title?,
+          organization?,
+          responsible_party_type?,               
+          investigator_affiliation?,
+          investigator_full_name?,
+          investigator_title?)>
+
+<!-- Original approach had these 2 fields -->
+<!ELEMENT name_title (#PCDATA)>                
+<!ELEMENT organization (#PCDATA)>
+
+<!-- Updated approach, as of 11/28/2011, has these 4 fields -->
+<!-- New records will use this new approach, but responsible party is still optional. -->
+<!-- Old records may be converted to new approach when updated (possibly never). -->
+<!ELEMENT responsible_party_type (#PCDATA)>    
+<!ELEMENT investigator_affiliation (#PCDATA)>
+<!ELEMENT investigator_full_name (#PCDATA)>
+<!ELEMENT investigator_title (#PCDATA)>
+<!-- responsible_party_type has values: -->
+<!--   Sponsor, Principal Investigator, or Sponsor Investigator -->
+<!-- If type is Sponsor, there is usually no investigator data -->
+
+
+<!-- === Keywords ========================================================== -->
+
+<!ELEMENT keyword (#PCDATA)>
+
+
+<!-- === Flags ============================================================= -->
+
+<!ELEMENT is_fda_regulated (#PCDATA)>
+<!ELEMENT is_section_801 (#PCDATA)>
+<!ELEMENT has_expanded_access (#PCDATA)>
+
+
+<!-- === Browse ============================================================ -->
+
+<!ELEMENT condition_browse (
+          mesh_term*)>
+
+<!ELEMENT intervention_browse (
+          mesh_term*)>
+
+<!ELEMENT mesh_term (#PCDATA)>
+
+<!-- === Clinical Results ================================================== -->
+
+<!ELEMENT clinical_results ANY>
+
+
+
+
