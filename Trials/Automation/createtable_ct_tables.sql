@@ -30,6 +30,7 @@ Tables involved:
 19. ct_publications
 20. ct_keywords
 21. ct_clinical_studies
+22. update_log_ct
 */
 
 

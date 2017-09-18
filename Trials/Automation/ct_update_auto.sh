@@ -19,6 +19,7 @@
 c_dir=$1
 cd $c_dir
 
+
 # Stamp new time.
 date
 
@@ -44,7 +45,7 @@ unzip ./nct_files/CT_all.zip -d ./nct_files
 
 echo ***Processing loading files...
 # Write a load file.
-ls nct_files/ |grep NCT | grep xml | awk -v store_dir=$c_dir '{split($1,filename,".");print "/anaconda2/bin/python ct_xml_update_parser.py -filename " $1 " -csv_dir " store_dir "nct_files/\n" "psql ernie < " store_dir "nct_files/" filename[1] "/" filename[1] "_load.pg" }' > load_nct_all.sh
+ls nct_files/ |grep NCT | grep xml | awk -v store_dir=$c_dir '{split($1,filename,".");print "python ct_xml_update_parser.py -filename " $1 " -csv_dir " store_dir "nct_files/\n" "psql ernie < " store_dir "nct_files/" filename[1] "/" filename[1] "_load.pg" }' > load_nct_all.sh
 chmod 755 load_nct_all.sh
 
 echo ***Splitting to small loading files...
@@ -63,14 +64,9 @@ wait
 echo ***Uploading database tables...
 psql -d ernie -f ct_update_tables.sql
 
-# Export table to csv file to import in IRDB database
-psql -d ernie -c "\copy ct_clinical_studies to '/pardidata1/NCTupdate/ct_clinical_studies.csv' delimiter ',' header csv;"
-
-# Import to IRDB database
-python -u load_ct_to_irdb.py -password $pswd
 
 # Send log to emails.
-psql -d ernie -c 'select * from update_log_ct;' | mail -s "Clinical Trial  Weekly Update Log" samet@nete.com george@nete.com avon@nete.com
+psql -d ernie -c 'select * from update_log_ct;' | mail -s "ERNIE NOTICE :: Clinical Trial  Weekly Update Log" samet@nete.com george@nete.com avon@nete.com
 
 # Stamp end time.
 date

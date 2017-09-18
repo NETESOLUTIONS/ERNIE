@@ -24,7 +24,7 @@
 
 
 set log_temp_files = 0;
-set temp_tablespaces = 'temp_tbs';
+set temp_tablespaces = 'temp';
 set search_path to public;
 
 
