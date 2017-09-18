@@ -1,6 +1,8 @@
 # smokeload_wrapper.py
 # This program is a wrapper for the yearly smokeload process.
 #
+#
+# Author: VJ Davey
 # Usage
 #       python smokeload_wrapper.py [directory of WOS .zip files] [desired output directory for CSV files]
 # Example

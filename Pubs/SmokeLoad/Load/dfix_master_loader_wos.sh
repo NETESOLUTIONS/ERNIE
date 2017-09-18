@@ -3,7 +3,7 @@
 # Program Name: dfix_master_loader_wos.sh
 # Usage:	sh dfix_master_loader_wos.sh source_xml_dir target_csv_dir wos_script_dir
 #    ex: nohup sh dfix_master_loader_wos.sh [source xml] [target csv] [script dir] > log_dfix.out &
-# Author:	VJ Davey, Samet Keserci, Shixin Jiang
+# Author:	VJ Davey, Samet Keserci  -- inspired by prior work of Shixin Jiang
 # Date:		08/07/2017
 #########################################################################################################
 
@@ -57,7 +57,7 @@ echo -e "\n\n wait \n" >> parse_"$FILES_YEAR"_all.sh
 sh parse_"$FILES_YEAR"_all.sh
 wait
 
-# 5. Load csv data to PostgreSQL 
+# 5. Load csv data to PostgreSQL
 echo "LOADING operation is started UTC"
 date
 load_start=`date +%s`

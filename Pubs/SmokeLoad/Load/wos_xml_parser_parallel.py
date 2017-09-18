@@ -15,7 +15,7 @@ Script Name
 
 Usage: python wos_xml_parser_parallel.py -filename file_name -csv_dir csv_file_directory
 
-Author    : Shixin Jiang, Lingtian "Lindsay" Wan
+Author: VJ Davey - inspired by previous work of Shixin Jiang and Lingtian "Lindsay" Wan
 Create Date: 05/11/2016
 Modified: 05/23/2016, Lindsay Wan, added documentation
 Modified: 07/26/2017, Samet Keserci, revised for parallelized batch loading.

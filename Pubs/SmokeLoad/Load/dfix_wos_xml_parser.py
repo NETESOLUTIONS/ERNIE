@@ -13,8 +13,8 @@ This is a parser to extract the WOS XML publications data and generate 7 CSV fil
 
 Usage: python wos_xml_parser.py -filename file_name -csv_dir csv_file_directory
 
-Author: VJ Davey, Shixin Jiang, Lingtian "Lindsay" Wan
-Create Date: 05/11/2016
+Author: VJ Davey -- inspired by previous work of Shixin Jiang and Lingtian "Lindsay" Wan
+Create Date: 08/07/2017
 Modified: 08/07/2017, VJ Davey, repurposed for duplicate fix
 '''
 

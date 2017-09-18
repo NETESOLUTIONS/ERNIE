@@ -3,7 +3,7 @@
 # Script Name  : master_loader_wos.sh (parallel process upto 5x faster)
 # Old versions : process_wos_year_data.sh (serial process)
 # Usage        : sh master_loader_wos.sh zipped_year_file source_xml_dir target_csv_dir wos_script_dir
-# Author       : Samet Keserci, Shixin Jiang
+# Author       : Samet Keserci - inspired by previous work of Shixin Jiang
 # Date         : 07/25/2017
 # Aim          : This script is the master script to parse and load annual Web of Science (WOS) data into postgres DB.
 #########################################################################################################
