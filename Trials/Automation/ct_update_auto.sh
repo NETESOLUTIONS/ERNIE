@@ -12,7 +12,7 @@
 #
 # Author: Samet Keserci, part of this code is developed by (Lingtian "Lindsay" Wan, Shixin Jiang)
 # Create Date: 09/18/2017
-# Usage: sh /erniedev_data1/ERNIE_temp/Trials/ct_update_auto.sh /erniedev_data1/CTupdate
+# Usage: sh /erniedev_data1/ERNIE/Trials/Automation/ct_update_auto.sh /erniedev_data1/CTupdate/ >> /erniedev_data1/CTupdate/log_ct_update_auto.out &
 
 
 # Change to working directory.
@@ -22,6 +22,7 @@ cd $c_dir
 
 # Stamp new time.
 date
+process_start=`date +%s`
 
 # Remove previous NCT xml files, directories, and other related files.
 echo ***Removing previous NCT files...
@@ -45,7 +46,7 @@ unzip ./nct_files/CT_all.zip -d ./nct_files
 
 echo ***Processing loading files...
 # Write a load file.
-ls nct_files/ |grep NCT | grep xml | awk -v store_dir=$c_dir '{split($1,filename,".");print "python ct_xml_update_parser.py -filename " $1 " -csv_dir " store_dir "nct_files/\n" "psql ernie < " store_dir "nct_files/" filename[1] "/" filename[1] "_load.pg" }' > load_nct_all.sh
+ls nct_files/ |grep NCT | grep xml | awk -v store_dir=$c_dir '{split($1,filename,".");print "python /erniedev_data1/ERNIE/Trials/Automation/ct_xml_update_parser.py -filename " $1 " -csv_dir " store_dir "nct_files/\n" "psql ernie < " store_dir "nct_files/" filename[1] "/" filename[1] "_load.pg" }' > load_nct_all.sh
 chmod 755 load_nct_all.sh
 
 echo ***Splitting to small loading files...
@@ -70,3 +71,7 @@ psql -d ernie -c 'select * from update_log_ct;' | mail -s "ERNIE NOTICE :: Clini
 
 # Stamp end time.
 date
+
+process_end=`date +%s`
+echo $((process_end-process_start)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec :: UPDATE PROCESS END-to-END  DURATION UTC"}'
+echo -e "\n\n"
