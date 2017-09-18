@@ -3,7 +3,6 @@
 # Script Name  : master_loader_wos.sh (parallel process upto 5x faster)
 # Old versions : process_wos_year_data.sh (serial process)
 # Usage        : sh master_loader_wos.sh zipped_year_file source_xml_dir target_csv_dir wos_script_dir
-# ex           : sh master_loader_wos.sh 1945_CORE.zip /pardidata7/WOS/WOS_SOURCE_DATA/ /pardidata7/WOS/WOS_CSV_DATA/ /pardidata7/WOS_LOADER/
 # Author       : Samet Keserci, Shixin Jiang
 # Date         : 07/25/2017
 # Aim          : This script is the master script to parse and load annual Web of Science (WOS) data into postgres DB.
@@ -116,7 +115,7 @@ ls -ltr SPLIT*.xml|awk -v TARGET_DIR=$wos_csv_dir ' {split($9,filename,"."); pri
 
 chmod 755 load_"$FILES_YEAR"_all.sh
 
-# run the load script to load csv data to PostgreSQL PARDI
+# run the load script to load csv data to PostgreSQL
 echo ***Starting parsing and loading...
 sh load_"$FILES_YEAR"_all.sh
 

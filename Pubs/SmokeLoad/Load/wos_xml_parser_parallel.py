@@ -1,4 +1,4 @@
-# coding=utf-8
+ernie# coding=utf-8
 '''
 This is a parser to extract the WOS XML publications data and generate 7 CSV files:
     1.	wos_xml_file_name_publication.csv
@@ -474,23 +474,23 @@ for REC in root:
 
 
 # Create a script to load CSV files to PostgreSQL database
-copy_command = "psql -d pardi -c \"copy temp_wos_publications from '"+xml_csv_dir+input_filename[:-4]+"_publication.csv'"+" delimiter ',' CSV;\" &\n"
+copy_command = "psql -d ernie -c \"copy wos_publications from '"+xml_csv_dir+input_filename[:-4]+"_publication.csv'"+" delimiter ',' CSV;\" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy temp_wos_references from '"+xml_csv_dir+input_filename[:-4]+"_reference.csv'"+" delimiter ',' CSV; \" &\n"
+copy_command = "psql -d ernie -c \"copy wos_references from '"+xml_csv_dir+input_filename[:-4]+"_reference.csv'"+" delimiter ',' CSV; \" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy temp_wos_grants from '"+xml_csv_dir+input_filename[:-4]+"_grant.csv'"+" delimiter ',' CSV;\" &\n"
+copy_command = "psql -d ernie -c \"copy wos_grants from '"+xml_csv_dir+input_filename[:-4]+"_grant.csv'"+" delimiter ',' CSV;\" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy temp_wos_addresses from '"+xml_csv_dir+input_filename[:-4]+"_address.csv'"+" delimiter ',' CSV;\" &\n"
+copy_command = "psql -d ernie -c \"copy wos_addresses from '"+xml_csv_dir+input_filename[:-4]+"_address.csv'"+" delimiter ',' CSV;\" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy temp_wos_authors from '"+xml_csv_dir+input_filename[:-4]+"_author.csv'"+" delimiter ',' CSV; \" &\n"
+copy_command = "psql -d ernie -c \"copy wos_authors from '"+xml_csv_dir+input_filename[:-4]+"_author.csv'"+" delimiter ',' CSV; \" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy temp_wos_document_identifiers from '"+xml_csv_dir+input_filename[:-4]+"_dois.csv'"+" delimiter ',' CSV; \" &\n"
+copy_command = "psql -d ernie -c \"copy wos_document_identifiers from '"+xml_csv_dir+input_filename[:-4]+"_dois.csv'"+" delimiter ',' CSV; \" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy temp_wos_abstracts from '"+xml_csv_dir+input_filename[:-4]+"_abstract.csv'"+" delimiter ',' CSV; \" &\n"
+copy_command = "psql -d ernie -c \"copy wos_abstracts from '"+xml_csv_dir+input_filename[:-4]+"_abstract.csv'"+" delimiter ',' CSV; \" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy temp_wos_keywords from '"+xml_csv_dir+input_filename[:-4]+"_keyword.csv'"+" delimiter ',' CSV; \" &\n"
+copy_command = "psql -d ernie -c \"copy wos_keywords from '"+xml_csv_dir+input_filename[:-4]+"_keyword.csv'"+" delimiter ',' CSV; \" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy temp_wos_titles from '"+xml_csv_dir+input_filename[:-4]+"_title.csv'"+" delimiter ',' CSV; \" &\n\n wait \n"
+copy_command = "psql -d ernie -c \"copy wos_titles from '"+xml_csv_dir+input_filename[:-4]+"_title.csv'"+" delimiter ',' CSV; \" &\n\n wait \n"
 csvfile_load.write((copy_command))
 
 

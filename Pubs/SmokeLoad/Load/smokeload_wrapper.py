@@ -4,7 +4,7 @@
 # Usage
 #       python smokeload_wrapper.py [directory of WOS .zip files] [desired output directory for CSV files]
 # Example
-#       nohup python smokeload_wrapper.py /pardidata5/WOS_SOURCE_DATA/ /pardidata1/WOS_Smokeload1/WOS_CSV_DATA/ & > wrapper_log.out
+#       nohup python smokeload_wrapper.py [source data location] [output directory for csv files] & > wrapper_log.out
 #
 ###############################################
 import subprocess
@@ -101,13 +101,6 @@ for zip_file in zip_files:
         # Notify completion of process
         print "*** Completed upload process for file: %s"%(zip_file)
 
-        # Merge the temp tables into the master table and delete duplicates
-        #print "*** Beginning postgres changes..."
-
-        # Call the sql script
-        #call(["psql", "-d", "pardi", "-f", "wos_merge_and_clean.sql"])
-
-        #print "*** Postgres changes complete.\n*** Moving onto the next file..."
 
 
 # Collect end time

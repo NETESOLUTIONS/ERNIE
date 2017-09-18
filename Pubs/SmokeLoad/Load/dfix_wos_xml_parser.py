@@ -100,8 +100,8 @@ for REC in root:
     r_publication['source_id'] = REC.find(url+'UID').text
     # For every source id in the split, append to the dup remove script a sql command to remove all traces of that source id across all 9 tables
     with open (input_csv_dir+"/dup_remove.sh", "a") as dup_remove_sql:
-	for table in ['temp_wos_abstracts', 'temp_wos_addresses', 'temp_wos_authors', 'temp_wos_document_identifiers', 'temp_wos_grants','temp_wos_keywords','temp_wos_publications','temp_wos_references','temp_wos_titles']:
-		copy_command = "psql -d pardi -c \"delete from "+ table +" where source_id = \'"+ r_publication['source_id'] +"\';\" &\n"
+	for table in ['wos_abstracts', 'wos_addresses', 'wos_authors', 'wos_document_identifiers', 'wos_grants','wos_keywords','wos_publications','wos_references','wos_titles']:
+		copy_command = "psql -d ernie -c \"delete from "+ table +" where source_id = \'"+ r_publication['source_id'] +"\';\" &\n"
 		dup_remove_sql.write((copy_command))
 	dup_remove_sql.write("\nwait\n")
 
@@ -478,23 +478,23 @@ for REC in root:
 
 
 # Create a script to load CSV files to PostgreSQL database
-copy_command = "psql -d pardi -c \"copy dfix_wos_publications from '"+xml_csv_dir+input_filename[:-4]+"_publication.csv'"+" delimiter ',' CSV;\" &\n"
+copy_command = "psql -d ernie -c \"copy dfix_wos_publications from '"+xml_csv_dir+input_filename[:-4]+"_publication.csv'"+" delimiter ',' CSV;\" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy dfix_wos_references from '"+xml_csv_dir+input_filename[:-4]+"_reference.csv'"+" delimiter ',' CSV; \" &\n"
+copy_command = "psql -d ernie -c \"copy dfix_wos_references from '"+xml_csv_dir+input_filename[:-4]+"_reference.csv'"+" delimiter ',' CSV; \" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy dfix_wos_grants from '"+xml_csv_dir+input_filename[:-4]+"_grant.csv'"+" delimiter ',' CSV;\" &\n"
+copy_command = "psql -d ernie -c \"copy dfix_wos_grants from '"+xml_csv_dir+input_filename[:-4]+"_grant.csv'"+" delimiter ',' CSV;\" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy dfix_wos_addresses from '"+xml_csv_dir+input_filename[:-4]+"_address.csv'"+" delimiter ',' CSV;\" &\n"
+copy_command = "psql -d ernie -c \"copy dfix_wos_addresses from '"+xml_csv_dir+input_filename[:-4]+"_address.csv'"+" delimiter ',' CSV;\" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy dfix_wos_authors from '"+xml_csv_dir+input_filename[:-4]+"_author.csv'"+" delimiter ',' CSV; \" &\n"
+copy_command = "psql -d ernie -c \"copy dfix_wos_authors from '"+xml_csv_dir+input_filename[:-4]+"_author.csv'"+" delimiter ',' CSV; \" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy dfix_wos_document_identifiers from '"+xml_csv_dir+input_filename[:-4]+"_dois.csv'"+" delimiter ',' CSV; \" &\n"
+copy_command = "psql -d ernie -c \"copy dfix_wos_document_identifiers from '"+xml_csv_dir+input_filename[:-4]+"_dois.csv'"+" delimiter ',' CSV; \" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy dfix_wos_abstracts from '"+xml_csv_dir+input_filename[:-4]+"_abstract.csv'"+" delimiter ',' CSV; \" &\n"
+copy_command = "psql -d ernie -c \"copy dfix_wos_abstracts from '"+xml_csv_dir+input_filename[:-4]+"_abstract.csv'"+" delimiter ',' CSV; \" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy dfix_wos_keywords from '"+xml_csv_dir+input_filename[:-4]+"_keyword.csv'"+" delimiter ',' CSV; \" &\n"
+copy_command = "psql -d ernie -c \"copy dfix_wos_keywords from '"+xml_csv_dir+input_filename[:-4]+"_keyword.csv'"+" delimiter ',' CSV; \" &\n"
 csvfile_load.write((copy_command))
-copy_command = "psql -d pardi -c \"copy dfix_wos_titles from '"+xml_csv_dir+input_filename[:-4]+"_title.csv'"+" delimiter ',' CSV; \" &\n\n wait \n"
+copy_command = "psql -d ernie -c \"copy dfix_wos_titles from '"+xml_csv_dir+input_filename[:-4]+"_title.csv'"+" delimiter ',' CSV; \" &\n\n wait \n"
 csvfile_load.write((copy_command))
 
 
