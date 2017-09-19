@@ -119,7 +119,7 @@ psql -d ernie -f cg_update_tables.sql \
 
 # Send log to emails.
 #psql -d ernie -c 'select * from update_log_cg; select * from cg_ref_counts;' | mail -s "Clinical Guidelines Weekly Update Log" george@nete.com samet@nete.com
-psql -d ernie -c 'select * from update_log_cg;' | mail -s "Clinical Guidelines Weekly Update Log" samet@nete.com
+psql -d ernie -c 'select * from update_log_cg;' | mail -s "Clinical Guidelines Weekly Update Log" samet@nete.com george@nete.com avon@nete.com
 
 
 process_end=`date +%s`
