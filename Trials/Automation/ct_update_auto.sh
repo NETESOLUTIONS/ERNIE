@@ -63,7 +63,7 @@ wait
 
 # Upload database.
 echo ***Uploading database tables...
-psql -d ernie -f ct_update_tables.sql
+psql -d ernie -f /erniedev_data1/ERNIE/Trials/Automation/ct_update_tables.sql
 
 
 # Send log to emails.
