@@ -1,0 +1,29 @@
+# Copy clinical guidelines inventory ngc_complete.xml file from AHRQ
+
+#! /bin/bash
+# edit path as appropriate
+cd /Users/George/PARDI_ClnGdlns/
+curl http://www.guideline.gov/rssFiles/ngc_complete.xml > ./ngc_complete.xml
+
+# make a working copy of this file
+cp ngc_complete.xml ngc1
+
+# us XMLlint to format it
+xmllint ngc_complete.xml --format > ngc2
+
+# grab those lines that have the string <\link>
+cat ngc2  | grep \<link\> > ngc3
+
+# use sed to replace the strings <\link> , <link> and f=rss&amp with nothing
+cat ngc3 | sed 's/\<link\>//' | sed 's/\<\/link\>//' | sed 's/f\=rss\&amp;//' > ngc4
+
+#sort and grab those lines with 'content' in them
+cat ngc4 | sort |grep content  > ngc5
+
+#sort and grab those lines *without* 'content' in them
+cat ngc4 | sort |grep -v content  > ngc6
+
+#strip all except the UID at the end of the URL
+cat ngc5 | sed -n -e 's/^.*=//p' > ngc5.1
+cat ngc6 | sed -n -e 's/^.*=//p' > ngc6.1
+

@@ -1,0 +1,10 @@
+*.gz
+*.zip
+*.doc
+*.docx
+*.dtd
+*~
+*.csv
+*.xml
+*.txt
+*.xlsx
