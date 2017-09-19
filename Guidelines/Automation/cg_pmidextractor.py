@@ -46,7 +46,7 @@ for urls in uid_link:
 
     info = resp.read()
     soup = bs(info, 'lxml')
-    uid = int(urls[40:])
+    uid = int(urls[44:])
     print ("Processing " + str(count) + "/" + str(ttnum) + ": UID: " + \
            str(uid))
 
