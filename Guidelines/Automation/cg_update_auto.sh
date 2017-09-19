@@ -88,7 +88,7 @@ paste ngc_uid.csv ngc_uid_title.txt > ngc_combined.txt
 
 # Use Python to grab PMID from UID.
 echo ***Grabbing PMIDs from uids...
-/anaconda2/bin/python -u cg_pmidextractor.py
+python -u cg_pmidextractor.py
 
 # Use SQL to update CG tables.
 echo ***Updating tables...
