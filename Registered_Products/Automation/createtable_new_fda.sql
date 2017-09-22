@@ -12,7 +12,7 @@
 
 set search_path to public;
 
-drop table if exists new_fda_patents;
+drop table if exists fda_patents;
 create table new_fda_patents (
   appl_type varchar(10),
   appl_no varchar(15),
@@ -26,7 +26,7 @@ create table new_fda_patents (
   )
   tablespace ernie_fda_tbs;
 
-drop table if exists new_fda_products;
+drop table if exists fda_products;
 create table new_fda_products (
   ingredient varchar(500),
   df_route varchar(500),
@@ -45,7 +45,7 @@ create table new_fda_products (
   )
   tablespace ernie_fda_tbs;
 
-drop table if exists new_fda_exclusivities;
+drop table if exists fda_exclusivities;
 create table new_fda_exclusivities (
   appl_type varchar(10),
   appl_no varchar(15),
