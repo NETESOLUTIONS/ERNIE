@@ -31,7 +31,7 @@ date
 # Remove previous files.
 echo ***Removing previous FDA files...
 rm fda_files.zip
-rm patent*
+rm *atent*
 rm products*
 rm exclusivity*
 
@@ -46,7 +46,8 @@ wget -r http://www.fda.gov/downloads/Drugs/InformationOnDrugs/UCM163762.zip \
 echo ***Unzipping and reformatting...
 unzip fda_files.zip
 cat exclusivity.txt > exclusivity.csv
-cat patent.txt > patent.csv
+cat Patent.txt > patent.csv
+cat patent.txt >> patent.csv
 cat products.txt > products.csv
 
 # Load data to database.
@@ -66,6 +67,6 @@ date > endtime.txt
 date
 
 # Send log file to emails.
-psql -d ernie -c 'select * from update_log_fda;' | mail -s "FDA Monthly Update Log" lingtian@nete.com george@nete.com shixin@nete.com samet@nete.com
+psql -d ernie -c 'select * from update_log_fda;' | mail -s "FDA Monthly Update Log" george@nete.com avon@nete.com samet@nete.com
 
 printf '\n\n'
