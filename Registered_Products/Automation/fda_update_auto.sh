@@ -13,8 +13,7 @@
 # Monitoring: Samet Keserci
 # Create Date: 03/07/2016
 # Modified: 05/19/2016, Lindsay Wan, added documentation
-#           11/21/2016, Lindsay Wan, download file from pardigw1
-#           03/16/2017, Samet Keserci, updates are set for pardi_admin
+#           03/16/2017, Samet Keserci, updates are set for ernie_admin
 
 # Change to working directory
 c_dir=$1
@@ -52,21 +51,21 @@ cat products.txt > products.csv
 
 # Load data to database.
 echo ***Loading data to database...
-psql -d pardi -f createtable_new_fda.sql
-psql -d pardi -f load_fda_data.sql \
+psql -d ernie -f createtable_new_fda.sql
+psql -d ernie -f load_fda_data.sql \
 -v exclusivity="'"$c_dir"/exclusivity.csv'" \
 -v patent="'"$c_dir"/patent.csv'" \
 -v products="'"$c_dir"/products.csv'"
 
 # Update data to database.
 echo ***Updating database...
-psql -d pardi -f fda_update_tables.sql
+psql -d ernie -f fda_update_tables.sql
 
 # Stamp end time.
 date > endtime.txt
 date
 
 # Send log file to emails.
-psql -d pardi -c 'select * from update_log_fda;' | mail -s "FDA Monthly Update Log" lingtian@nete.com george@nete.com shixin@nete.com samet@nete.com
+psql -d ernie -c 'select * from update_log_fda;' | mail -s "FDA Monthly Update Log" lingtian@nete.com george@nete.com shixin@nete.com samet@nete.com
 
 printf '\n\n'

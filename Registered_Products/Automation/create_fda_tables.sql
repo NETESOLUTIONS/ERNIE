@@ -8,7 +8,7 @@
 set search_path to public;
 
 create table new_fda_patents (
-  pardi_id sequence,
+  ernie_id serial,
   appl_type varchar(10),
   appl_no varchar(15),
   product_no varchar(15),
@@ -22,7 +22,7 @@ create table new_fda_patents (
   tablespace ernie_fda_tbs;
 
 create table new_fda_products (
-  pardi_id,
+  ernie_id serial,
   ingredient varchar(500),
   df_route varchar(500),
   trade_name varchar(500),
@@ -41,7 +41,7 @@ create table new_fda_products (
   tablespace ernie_fda_tbs;
 
 create table new_fda_exclusivities (
-  pardi_id,
+  ernie_id serial,
   appl_type varchar(10),
   appl_no varchar(15),
   product_no varchar(15),

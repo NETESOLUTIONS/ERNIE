@@ -1,6 +1,6 @@
 alter table fda_products add column rs varchar(10);
 select
-  pardi_id,
+  ernie_id,
   ingredient,
   df_route,
   trade_name,
@@ -18,7 +18,7 @@ select
   into fda_products_temp
   from fda_products;
 
-  alter table fda_products_temp set tablespace fdadata_tbs;
+  alter table fda_products_temp set tablespace ernie_fda_tbs;
 
   drop table fda_products;
 
