@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<style>
+p {
+  text-align: center;
+  font-size: 3vw;
+}
+</style>
+</head>
+<body>
+
+<p id="start"></p>
+<p id="end"></p>
+
+<script>
+// Set the date of start and date of end
+var start = new Date("09/15/2017").getTime();
+var end = new Date("03/14/2018").getTime();
+
+// Update the count down every 1 second
+var x = setInterval(function() {
+
+    // Get current date and time
+    var now = new Date().getTime();
+    
+    // Find the period between now and start
+    var fromPeriod = now - start;
+   
+    
+    // Time calculations for days, hours, minutes and seconds
+    var fromDays = Math.ceil(fromPeriod / (1000 * 60 * 60 * 24));
+    
+    var toPeriod = end - now;
+
+    var toDays = 200 - fromDays
+    var toHours = Math.floor((toPeriod % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var toMinutes = Math.floor((toPeriod % (1000 * 60 * 60)) / (1000 * 60));
+    var toSeconds = Math.floor((toPeriod % (1000 * 60)) / 1000);
+    
+    // Output the result in elements with id="start" and id="end"
+    document.getElementById("start").innerHTML = "Today is Day " + "<b>" + fromDays + "</b>" + " of the ERNIE project. We started on Sept 15, 2017";
+    document.getElementById("end").innerHTML = "<b>" + toDays + "d " + toHours + "h " + toMinutes + "m " + toSeconds + "s " + "</b>" + "to to close out Phase I of ERNIE";
+    
+    // If the count down is over, write some text 
+    if (fromPeriod < 0) {
+        clearInterval(x);
+        document.getElementById("start").innerHTML = "Phase I EXPIRED";
+        document.getElementById("end").innerHTML = "";
+    }
+}, 1000);
+</script>
+
+</body>
+</html>
