@@ -6,9 +6,13 @@
 -- https://www.fda.gov/drugs/developmentapprovalprocess/howdrugsaredevelopedandapproved/approvalapplications/therapeuticbiologicapplications/biosimilars/ucm411418.htm
 
 
+-- drop old table
+drop table old_fda_purple_book;
 
+-- rename current  to old
 alter table fda_purple_book rename to old_fda_purple_book;
 
+-- create new tables and load the data
 create table fda_cder(
   bla_stn varchar(20),
   product_name varchar(300),
@@ -37,6 +41,7 @@ create table fda_cber(
 
 copy fda_cber from '/erniedev_data1/FDAupdate/FDA_Purple/CBER_20170926_done.csv' with delimiter ',' csv header;
 
+-- create new table to load new data.
 create table fda_purple_book (
   bla_stn varchar(20),
   product_name varchar(300),
@@ -53,5 +58,6 @@ insert into fda_purple_book
   union
   select * from fda_cber;
 
+-- drop intermediate tables
 drop table fda_cder;
 drop table fda_cber;
