@@ -1,13 +1,13 @@
 -- This script loads FDA data csv files to new FDA tables (new_fda_*).
 
--- Usage: psql -d pardi -f load_fda_data.sql
+-- Usage: psql -d ernie -f load_fda_data.sql
 
 -- Author: Lingtian "Lindsay" Wan
 -- Create Date: 03/08/2016
 -- Modified: 05/19/2016, Lindsay Wan, added documentation
 --         : 11/21/2016, Samet Keserci, revised wrt new schema plan
 --           01/25/2017, Mike Toubasi, added sequence number
---           03/16/2017, Samet Keserci, updates are set for pardi_admin
+--           03/16/2017, Samet Keserci, updates are set for ernie_admin
 
 
 set search_path to public;
