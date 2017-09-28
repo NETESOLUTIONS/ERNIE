@@ -24,6 +24,10 @@ cd $c_dir
 date
 process_start=`date +%s`
 
+# copy all scripts to current directory
+cp /erniedev_data1/ERNIE/Trials/Automation/* $c_dir
+
+
 # Remove previous NCT xml files, directories, and other related files.
 echo ***Removing previous NCT files...
 rm -rf ./nct_files/
@@ -46,7 +50,7 @@ unzip ./nct_files/CT_all.zip -d ./nct_files
 
 echo ***Processing loading files...
 # Write a load file.
-ls nct_files/ |grep NCT | grep xml | awk -v store_dir=$c_dir '{split($1,filename,".");print "python /erniedev_data1/ERNIE/Trials/Automation/ct_xml_update_parser.py -filename " $1 " -csv_dir " store_dir "nct_files/\n" "psql ernie < " store_dir "nct_files/" filename[1] "/" filename[1] "_load.pg" }' > load_nct_all.sh
+ls nct_files/ |grep NCT | grep xml | awk -v store_dir=$c_dir '{split($1,filename,".");print "python ct_xml_update_parser.py -filename " $1 " -csv_dir " store_dir "nct_files/\n" "psql ernie < " store_dir "nct_files/" filename[1] "/" filename[1] "_load.pg" }' > load_nct_all.sh
 chmod 755 load_nct_all.sh
 
 echo ***Splitting to small loading files...
@@ -63,7 +67,7 @@ wait
 
 # Upload database.
 echo ***Uploading database tables...
-psql -d ernie -f /erniedev_data1/ERNIE/Trials/Automation/ct_update_tables.sql
+psql -d ernie -f ct_update_tables.sql
 
 
 # Send log to emails.
