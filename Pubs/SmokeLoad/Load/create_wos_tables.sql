@@ -115,3 +115,4 @@ CREATE TABLE wos_titles (
     type character varying(100),
     source_filename character varying(200)
 );
+

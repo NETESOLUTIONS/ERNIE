@@ -58,3 +58,4 @@ class XMLBreaker(XMLGenerator):
 
 filename, break_into, break_after = sys.argv[1:]
 parse(filename, XMLBreaker(break_into, int(break_after), out=CycleFile(filename)))
+

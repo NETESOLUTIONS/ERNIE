@@ -3,7 +3,7 @@
 # Script Name  : master_loader_wos.sh (parallel process upto 5x faster)
 # Old versions : process_wos_year_data.sh (serial process)
 # Usage        : sh master_loader_wos.sh zipped_year_file source_xml_dir target_csv_dir wos_script_dir
-# Author       : Samet Keserci - inspired by previous work of Shixin Jiang
+# Author       : Samet Keserci, Shixin Jiang
 # Date         : 07/25/2017
 # Aim          : This script is the master script to parse and load annual Web of Science (WOS) data into postgres DB.
 #########################################################################################################
@@ -92,7 +92,7 @@ if [ ! -d $wos_csv_dir ]; then
 fi
 
 # parsing script is being generated
-ls -ltr SPLIT*.xml|awk -v TARGET_DIR=$wos_csv_dir ' { if (NR%8!=0) print "echo Parsing " $9 "\n" "python wos_xml_parser_parallel.py -filename " $9 " -csv_dir " TARGET_DIR "/ & \n"; \
+ls -ltr *SPLIT*.xml|awk -v TARGET_DIR=$wos_csv_dir ' { if (NR%3!=0) print "echo Parsing " $9 "\n" "python wos_xml_parser_parallel.py -filename " $9 " -csv_dir " TARGET_DIR "/ & \n"; \
 else print "echo Parsing " $9 "\n" "python wos_xml_parser_parallel.py -filename " $9 " -csv_dir " TARGET_DIR "/ & \n\n wait \n"; }' > parse_"$FILES_YEAR"_all.sh
 
 echo -e "\n\n wait \n" >> parse_"$FILES_YEAR"_all.sh
@@ -110,7 +110,7 @@ load_start=`date +%s`
 
 
 # Load script is being generated
-ls -ltr SPLIT*.xml|awk -v TARGET_DIR=$wos_csv_dir ' {split($9,filename,"."); print "echo Loading " $9 "\n" "sh " TARGET_DIR "/" filename[1] "/" filename[1] "_load.sh \n\nwait\n " }' > load_"$FILES_YEAR"_all.sh
+ls -ltr *SPLIT*.xml|awk -v TARGET_DIR=$wos_csv_dir ' {split($9,filename,"."); print "echo Loading " $9 "\n" "sh " TARGET_DIR "/" filename[1] "/" filename[1] "_load.sh \n\nwait\n " }' > load_"$FILES_YEAR"_all.sh
 
 
 chmod 755 load_"$FILES_YEAR"_all.sh
@@ -131,3 +131,4 @@ echo $((parse_start-split_start)) | awk '{print  int($1/60)":"int($1%60) " : SPL
 echo $((load_start-parse_start)) | awk '{print  int($1/60)":"int($1%60) " : PARSING  DURATION UTC"}'
 echo $((process_finish-load_start)) | awk '{print  int($1/60)":"int($1%60) " : LOADING DURATION UTC"}'
 echo $((process_finish-process_start)) | awk '{print  int($1/60)":"int($1%60) " : TOTAL DURATION UTC"}'
+

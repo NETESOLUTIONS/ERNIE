@@ -1,8 +1,6 @@
 # smokeload_wrapper.py
 # This program is a wrapper for the yearly smokeload process.
 #
-#
-# Author: VJ Davey
 # Usage
 #       python smokeload_wrapper.py [directory of WOS .zip files] [desired output directory for CSV files]
 # Example
@@ -109,3 +107,4 @@ for zip_file in zip_files:
 end_time = datetime.now()
 print "Total time taken: "
 print (end_time-start_time)
+
