@@ -1,27 +1,29 @@
 #!/bin/sh
 #########################################################################################################
 # Program Name: dfix_master_loader_wos.sh
-# Usage:	sh dfix_master_loader_wos.sh source_xml_dir target_csv_dir wos_script_dir
-#    ex: nohup sh dfix_master_loader_wos.sh /pardidata7/WOS/DFIX_SOURCE_DATA/ /pardidata7/WOS/WOS_CSV_DATA/ /pardidata7/WOS_LOADER/ > log_dfix.out &
-# Author:	VJ Davey, Samet Keserci
-# Date:		08/07/2017
+# Usage:        sh dfix_master_loader_wos.sh source_xml_dir target_csv_dir wos_script_dir target_csv_sub_dir
+#    ex: nohup sh dfix_master_loader_wos.sh /erniedata/WOS/DFIX_SOURCE_DATA/ /erniedata/WOS/WOS_CSV_DATA/ /erniedata/WOS_LOADER/ dup_fix > log_dfix.out &
+# Author:       VJ Davey, Samet Keserci
+# Date:         08/07/2017
+# Modified:     10/04/2017, VJ Davey, Adjusted script to take a 4th parameter which allows us to specify desired name for the CSV ouptut subdirectory. This allows us to avoid naming conflicts should we find ourselves running more than one kind of duplicate corrections file from the vendor.
 #########################################################################################################
 
 source_xml_dir=$1
 target_csv_dir=$2
 wos_script_dir=$3
-
+FILES_YEAR=$4
 echo " Processing of the Dupfix is started UTC"
 date
 process_start=`date +%s`
 
-# 1. change the directory to the source_xml_dir holding the unzipped duplicate editions file
+# 1. change the directory to the source_xml_dir holding the zipped duplicate editions file and unzip it
 cd $source_xml_dir
+gunzip *
 
 # 2. copy the Python codes under WOS_LOADER directories where all scripts placed in.
 echo ***Copying python codes...
 cp $wos_script_dir/*.py .
-FILES_YEAR="dup_fix"
+#FILES_YEAR="dup_fix"
 
 # 3. build script to split the duplicate editions file to 20000 records each.
 echo "SPLIT operation is started UTC"
@@ -56,13 +58,13 @@ echo -e "\n\n wait \n" >> parse_"$FILES_YEAR"_all.sh
 # Parse
 sh parse_"$FILES_YEAR"_all.sh
 wait
-# Remove Duplicates 
+# Remove Duplicates
 echo 'Removing duplicates Started'
 date
 sh $wos_csv_dir/dup_remove.sh
 wait
 
-# 5. Load csv data to PostgreSQL PARDI
+# 5. Load csv data to PostgreSQL ERNIE
 echo "LOADING operation is started UTC"
 date
 load_start=`date +%s`
@@ -84,4 +86,3 @@ echo $((parse_start-split_start)) | awk '{print  int($1/60)":"int($1%60) " : SPL
 echo $((load_start-parse_start)) | awk '{print  int($1/60)":"int($1%60) " : PARSING  DURATION UTC"}'
 echo $((process_finish-load_start)) | awk '{print  int($1/60)":"int($1%60) " : LOADING DURATION UTC"}'
 echo $((process_finish-process_start)) | awk '{print  int($1/60)":"int($1%60) " : TOTAL DURATION UTC"}'
-
