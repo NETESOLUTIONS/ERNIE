@@ -16,9 +16,9 @@ set search_path = public;
 
 -- Update table: wos_addresses
 \echo ***UPDATING TABLE: wos_addresses
---insert into uhs_wos_addresses
---  select a.* from wos_addresses a inner join temp_update_wosid_addresses b
---  on a.source_id=b.source_id;
+insert into uhs_wos_addresses
+  select a.* from wos_addresses a inner join temp_update_wosid_addresses b
+  on a.source_id=b.source_id;
 
 delete from wos_addresses a where exists
   (select 1 from temp_update_wosid_2 b where a.source_id=b.source_id);

@@ -69,27 +69,27 @@ analyze temp_replace_ref_wosid;
 -- Update table: wos_references
 \echo ***UPDATING TABLE: wos_references
 -- Create a temp table to store ids that need to be dealt with.
---drop table if exists temp_wos_reference_1;
---create table temp_wos_reference_1 tablespace ernie_wos_tbs as
---  select a.source_id, a.cited_source_uid from wos_references a
---  where exists
---  (select 1 from temp_replace_ref_wosid b
---    where a.source_id=b.source_id);
---create index temp_wos_reference_1_idx on temp_wos_reference_1
---  using btree (source_id, cited_source_uid) tablespace ernie_index_tbs;
+drop table if exists temp_wos_reference_1;
+create table temp_wos_reference_1 tablespace ernie_wos_tbs as
+  select a.source_id, a.cited_source_uid from wos_references a
+  where exists
+  (select 1 from temp_replace_ref_wosid b
+    where a.source_id=b.source_id);
+create index temp_wos_reference_1_idx on temp_wos_reference_1
+  using btree (source_id, cited_source_uid) tablespace ernie_index_tbs;
 
---analyze temp_wos_reference_1;
+analyze temp_wos_reference_1;
 
 -- Copy records to be replaced or deleted to update history table.
---insert into uhs_wos_references
---  (select
---   id, source_id, cited_source_uid, cited_title, cited_work, cited_author,
---   cited_year, cited_page, created_date, last_modified_date, source_filename
---   from wos_references a
---   where exists
---   (select * from temp_wos_reference_1 b
---    where a.source_id=b.source_id
---    and a.cited_source_uid=b.cited_source_uid));
+insert into uhs_wos_references
+  (select
+   id, source_id, cited_source_uid, cited_title, cited_work, cited_author,
+   cited_year, cited_page, created_date, last_modified_date, source_filename
+   from wos_references a
+   where exists
+   (select * from temp_wos_reference_1 b
+    where a.source_id=b.source_id
+    and a.cited_source_uid=b.cited_source_uid));
 -- Delete records with source_id in new table, but cited_source_uid not in.
 delete from wos_references a
   using temp_replace_ref_wosid b

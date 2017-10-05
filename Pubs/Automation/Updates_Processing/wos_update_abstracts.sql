@@ -16,14 +16,14 @@ set search_path = public;
 
 -- Update table: wos_abstracts
 \echo ***UPDATING TABLE: wos_abstracts
---insert into uhs_wos_abstracts
---  select a.* from wos_abstracts a inner join temp_update_wosid_abstracts b
---  on a.source_id=b.source_id;
+insert into uhs_wos_abstracts
+  select a.* from wos_abstracts a inner join temp_update_wosid_abstracts b
+  on a.source_id=b.source_id;
 
 
 
 delete from wos_abstracts a where exists
   (select 1 from temp_update_wosid_1 b where a.source_id=b.source_id);
-  
+
 insert into wos_abstracts
   select * from new_wos_abstracts;

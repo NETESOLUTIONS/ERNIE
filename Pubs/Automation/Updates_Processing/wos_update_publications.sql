@@ -17,15 +17,15 @@ set search_path = public;
 
 -- Update table: wos_publications
 \echo ***UPDATING TABLE: wos_publications
---insert into uhs_wos_publications
---  select
---    id, source_id, source_type, source_title, language, document_title,
---    document_type, has_abstract, issue, volume, begin_page, end_page,
---    publisher_name, publisher_address, publication_year, publication_date,
---    created_date, last_modified_date, edition, source_filename
---  from wos_publications a
---  where exists
---  (select 1 from temp_replace_wosid b where a.source_id=b.source_id);
+insert into uhs_wos_publications
+  select
+    id, source_id, source_type, source_title, language, document_title,
+    document_type, has_abstract, issue, volume, begin_page, end_page,
+    publisher_name, publisher_address, publication_year, publication_date,
+    created_date, last_modified_date, edition, source_filename
+  from wos_publications a
+  where exists
+  (select 1 from temp_replace_wosid b where a.source_id=b.source_id);
 
 update wos_publications as a
   set (source_id, source_type, source_title, language, document_title,

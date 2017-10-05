@@ -18,12 +18,12 @@ set search_path = public;
 
 -- Update table: wos_authors
 \echo ***UPDATING TABLE: wos_authors
---insert into uhs_wos_authors
---  select a.* from wos_authors a inner join temp_update_wosid_3 b
---  on a.source_id=b.source_id;
+insert into uhs_wos_authors
+  select a.* from wos_authors a inner join temp_update_wosid_3 b
+  on a.source_id=b.source_id;
 
 delete from wos_authors a where exists
   (select 1 from temp_update_wosid_3 b where a.source_id=b.source_id);
-  
+
 insert into wos_authors
   select * from new_wos_authors;

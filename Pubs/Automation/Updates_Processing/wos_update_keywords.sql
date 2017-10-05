@@ -17,9 +17,9 @@ set search_path = public;
 
 -- Update table: wos_keywords
 \echo ***UPDATING TABLE: wos_keywords
---insert into uhs_wos_keywords
---  select a.* from wos_keywords a inner join temp_update_wosid_keywords b
---  on a.source_id=b.source_id;
+insert into uhs_wos_keywords
+  select a.* from wos_keywords a inner join temp_update_wosid_keywords b
+  on a.source_id=b.source_id;
 delete from wos_keywords a where exists
   (select 1 from temp_update_wosid_2 b where a.source_id=b.source_id);
 

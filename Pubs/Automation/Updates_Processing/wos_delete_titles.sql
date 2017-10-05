@@ -13,7 +13,9 @@ SET temp_tablespaces='temp'; -- temporaryly it is being set.
 set search_path = public;
 
 \echo ***DELETING FROM TABLE: wos_titles
-
+insert into del_wos_titles
+  select a.* from wos_titles a inner join temp_delete_wosid b
+  on a.source_id=b.source_id;
 delete from wos_titles a
   where exists
   (select 1 from temp_delete_wosid_8 b
