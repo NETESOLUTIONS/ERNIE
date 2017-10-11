@@ -3,7 +3,7 @@
 -- Author : Samet Keserci
 -- Date   : 10/10/1984
 -- Aim    : Annual Loading of WoS pmid mapping table.
--- Usage  : psql -d -pardi -f annual_wos_pmid_load.sql -v file_dir=write_file_diretory_to_here_as_csv_format  (NOT in qoute)
+-- Usage  : psql -d ernie -f annual_wos_pmid_load.sql -v file_dir=write_file_diretory_to_here_as_csv_format  (NOT in qoute)
 
 -- load incoming raw table
 drop table if exists pre_wos_pmid_mapping;
