@@ -50,6 +50,11 @@ else print "echo Parsing " $1 "\n" "python derwent_xml_update_parser_parallel.py
     sh $file
     wait
   done
+  # Update Derwent tables.
+  echo ***Update Derwent tables for files from: $file
+  psql -d pardi -f derwent_update_tables.sql
+  # Append finished filename to finished filelist.
+  printf $file'\n' >> finished_filelist.txt
 done
 # Close out the script and log the times
 date
