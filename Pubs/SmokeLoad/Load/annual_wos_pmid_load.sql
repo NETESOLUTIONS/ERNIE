@@ -1,7 +1,7 @@
 
 
 -- Author : Samet Keserci
--- Date   : 10/10/1984
+-- Date   : 10/10/2017
 -- Aim    : Annual Loading of WoS pmid mapping table.
 -- Usage  : psql -d ernie -f annual_wos_pmid_load.sql -v file_dir=write_file_diretory_to_here_as_csv_format  (NOT in qoute)
 
