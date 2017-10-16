@@ -10,6 +10,7 @@ date
 # Change to working directory.
 update_dir=$1 ; work_dir=$2 ;csv_dir=$3 ; cur_dir=$(pwd)
 process_start=`date +%s`
+cd $cur_dir
 # Determine files for the update, copy the good ones to the local directory for processing
 echo ***Getting update files...
 ls $update_dir | grep tar > complete_filelist_ug.txt
