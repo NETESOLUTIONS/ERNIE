@@ -26,11 +26,11 @@
 -- Modified: 05/19/2016, Lindsay Wan, added documentation
 --         : 11/21/2016, Samet Keserci, revised wrt new schema plan
 
-set search_path to public, samet;
+set search_path to public, ernie_admin;
 
 -- Set temporary tablespace for calculation.
 set log_temp_files = 0;
-set temp_tablespaces = 'temp_tbs';
+set temp_tablespaces = 'temp';
 
 -- Create a temp table to store patent numbers from the update file.
 drop table if exists temp_update_patnum;

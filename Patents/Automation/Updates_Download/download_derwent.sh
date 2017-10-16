@@ -20,7 +20,8 @@ ftp -in ftpserver.wila-derwent.com << SCRIPTEND
 user $username $pswd
 lcd $c_dir
 binary
-cd ug ; mls * $c_dir/full_ftp_filelist_ug.txt
+cd ug
+mls * $c_dir/full_ftp_filelist_ug.txt
 quit
 SCRIPTEND
 
@@ -83,16 +84,16 @@ cat downloaded_filelist_ug.txt | awk '{split($1,filename,"."); print "echo $(cat
 printf 'Checksum results:\n' >> log_derwent_download.txt ; sh derwent_checksum.sh >> log_derwent_download.txt
 
 # Remove UG and UGLSP files older than 5 weeks to save space.
-echo ***Removing old UG files...
-ls update_files/ | grep cxml_ug | sort -n > current_stored_ug_files.txt
-cnt=$(($(cat current_stored_ug_files.txt | wc -l) - 10))
-if [ $cnt -gt 0 ]
-  then
-    for file in $(cat current_stored_ug_files.txt | head -$cnt)
-    do
-      rm update_files/$file
-    done
-fi
+#echo ***Removing old UG files...
+#ls update_files/ | grep cxml_ug | sort -n > current_stored_ug_files.txt
+#cnt=$(($(cat current_stored_ug_files.txt | wc -l) - 10))
+#if [ $cnt -gt 0 ]
+#  then
+#    for file in $(cat current_stored_ug_files.txt | head -$cnt)
+#    do
+#      rm update_files/$file
+#    done
+#fi
 
 # Write ending time to log.
 date ; date >> log_derwent_download.txt ; printf '\n\n' >> log_derwent_download.txt

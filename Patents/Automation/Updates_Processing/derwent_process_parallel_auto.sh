@@ -8,8 +8,9 @@
 
 date
 # Change to working directory.
-update_dir=$1 ; work_dir=$2 ;csv_dir=$3 ; cur_dir=$(pwd)
+update_dir=$1 ; work_dir=$2 ;csv_dir=$3 ; cur_dir=$4
 process_start=`date +%s`
+cd $cur_dir
 # Determine files for the update, copy the good ones to the local directory for processing
 echo ***Getting update files...
 ls $update_dir | grep tar > complete_filelist_ug.txt
@@ -51,8 +52,8 @@ else print "echo Parsing " $1 "\n" "python derwent_xml_update_parser_parallel.py
     wait
   done
   # Update Derwent tables.
-  echo ***Update Derwent tables for files from: $file
-  psql -d pardi -f derwent_update_tables.sql
+  echo '***Update Derwent tables for files'
+  psql -d ernie -f derwent_update_tables.sql
   # Append finished filename to finished filelist.
   printf $file'\n' >> finished_filelist.txt
 done
