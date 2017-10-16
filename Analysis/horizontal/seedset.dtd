@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!--This is a draft spec for ERNIE seedsets with an internal DTD and  some sample data-->
+<!--This format is used for gen1 seedsets for network construction in ERNIE case studies-->
+<!--Author: George Chacko-->
+<!--Date: 10/16/2017-->
+
+
+<!DOCTYPE drug [
+  <!ELEMENT drug (fda,pubmed,ct,patent)>
+
+  <!ELEMENT fda (case,brand_name,bla,nda,approval_date,source,medical_review_pmid+)>
+  <!ELEMENT case (#PCDATA)> 
+  <!ELEMENT bla (#PCDATA)> 
+  <!ELEMENT nda (#PCDATA)> 
+  <!ELEMENT approval_date (#PCDATA)> 
+  <!ELEMENT source (#PCDATA)>
+  <!ELEMENT medical_review_pmid (#PCDATA)>
+
+  <!ELEMENT pubmed (pubmed_ct_pmid+,pubmed_preapp_pmid+,pubmed_postapp_pmid+,pubmed_review_pmid+)>
+  <!ELEMENT pubmed_ct_pmid (#PCDATA)>
+  <!ELEMENT pubmed_preapp_pmid (#PCDATA)>
+  <!ELEMENT pubmed_postapp_pmid (#PCDATA)>
+  <!ELEMENT pubmed_reviews_pmid (#PCDATA)>
+
+  <!ELEMENT ct (ct_references_pmid+,ct_publications_pmid+)>
+  <!ELEMENT ct_references_pmid (#PCDATA)>
+  <!ELEMENT ct_publications_pmid (#PCDATA)>
+
+  <!ELEMENT patent (npl_pmid*)>
+  <!ELEMENT npl_pmid (#PCDATA)>
+]>
+
+<drug>
+  <fda>
+    <case>ipilimumab</case>
+    <brand_name>Yervoy</brand_name>
+    <bla>125377</bla>
+    <nda></nda>
+    <approval_date>3/5/2011</approval_date>
+    <source>drugs@fda</source>
+    <medical_review_pmid>20086001</medical_review_pmid>
+  </fda>
+  <pubmed>
+    <pubmed_ct_pmid>22146893</pubmed_ct_pmid>		
+    <pubmed_preapp_pmid>22459268</pubmed_preapp_pmid>
+    <pubmed_postapp_pmid>29026313</pubmed_postapp_pmid>
+    <pubmed_postapp_pmid>21748753</pubmed_postapp_pmid>
+    <pubmed_reviews_pmid>27905739</pubmed_reviews_pmid>
+    <pubmed_reviews_pmid>25032021</pubmed_reviews_pmid>
+  </pubmed>
+  <ct>
+   <nct_id_references_pmid>16301685</nct_id_references_pmid>        
+   <nct_id_references_pmid>16283570</nct_id_references_pmid>        
+   <nct_id_publications_pmid>16087944</nct_id_publications_pmid>
+   <nct_id_publications_pmid>12826605</nct_id_publications_pmid>
+   <nct_id_publications_pmid>16283570</nct_id_publications_pmid>
+   <nct_id_publications_pmid>20842054</nct_id_publications_pmid>
+ </ct>
+</drug>
