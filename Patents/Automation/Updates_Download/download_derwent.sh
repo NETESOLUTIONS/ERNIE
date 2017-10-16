@@ -20,7 +20,8 @@ ftp -in ftpserver.wila-derwent.com << SCRIPTEND
 user $username $pswd
 lcd $c_dir
 binary
-cd ug ; mls * $c_dir/full_ftp_filelist_ug.txt
+cd ug
+mls * $c_dir/full_ftp_filelist_ug.txt
 quit
 SCRIPTEND
 
