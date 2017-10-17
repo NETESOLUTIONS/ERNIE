@@ -5,18 +5,21 @@
 <!--Date: 10/16/2017-->
 
 
-<!DOCTYPE drug [
-  <!ELEMENT drug (fda,pubmed,ct,patent)>
+<!DOCTYPE pinnacle_event [
+  <!ELEMENT pinnacle_event (therapeutic|diagnostic|intervention)>
 
-  <!ELEMENT fda (case,brand_name,bla,nda,approval_date,source,medical_review_pmid+)>
-  <!ELEMENT case (#PCDATA)> 
-  <!ELEMENT bla (#PCDATA)> 
+  <!ELEMENT therapeutic (fda,pubmed,ct,patent)>
+
+  <!ELEMENT fda (active_ingredient,brand_name,(nda|bla),approval_date,source,medical_review_pmid*,fda_other_pmid*)>
+  <!ELEMENT active_ingredient (#PCDATA)> 
   <!ELEMENT nda (#PCDATA)> 
+  <!ELEMENT bla (#PCDATA)> 
   <!ELEMENT approval_date (#PCDATA)> 
   <!ELEMENT source (#PCDATA)>
   <!ELEMENT medical_review_pmid (#PCDATA)>
+  <!ELEMENT fda_other_pmid (#PCDATA)>
 
-  <!ELEMENT pubmed (pubmed_ct_pmid+,pubmed_preapp_pmid+,pubmed_postapp_pmid+,pubmed_review_pmid+)>
+  <!ELEMENT pubmed (pubmed_ct_pmid*,pubmed_preapp_pmid+,pubmed_postapp_pmid+,pubmed_review_pmid+)>
   <!ELEMENT pubmed_ct_pmid (#PCDATA)>
   <!ELEMENT pubmed_preapp_pmid (#PCDATA)>
   <!ELEMENT pubmed_postapp_pmid (#PCDATA)>
@@ -25,9 +28,12 @@
   <!ELEMENT ct (ct_references_pmid+,ct_publications_pmid+)>
   <!ELEMENT ct_references_pmid (#PCDATA)>
   <!ELEMENT ct_publications_pmid (#PCDATA)>
+  <!ELEMENT ct_preapp_nct (#PCDATA)>
+  <!ELEMENT ct_postapp_nct (#PCDATA)>
 
-  <!ELEMENT patent (npl_pmid*)>
+  <!ELEMENT patent (npl_pmid*,pl_USpatentno*)>
   <!ELEMENT npl_pmid (#PCDATA)>
+  <!ELEMENT pl_USpatentno (#PCDATA)>
 ]>
 
 <drug>
