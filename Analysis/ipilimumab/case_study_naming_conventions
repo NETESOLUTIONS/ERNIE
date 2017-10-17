@@ -1,0 +1,27 @@
+Date: 10/17/2017
+Author: George Chacko
+
+Naming convention for pmid containing files that can then be converted into tagged sequences for incorporation into an xml file
+specified by seedset.dtd. Each of these files should contain one pmid on each line without leading whitespace and should not 
+have a header.
+
+a) case_study_npl_pmid (substitute with case_study_name)
+
+b) case_study_pubmed_preapp_pmid
+c) case_study_pubmed_postapp_pmid
+d) case_study_pubmed_reviews_pmid
+e) case_study_pubmed_ct_preapp_pmid
+f) case_study_pubmed_ct_postapp_pmid
+
+g) case_study_fda_medical_review_pmid
+h) case_study_fda_other_pmid
+
+i) case_study_ct_preapp_reference_pmid
+j) case_study_ct_preapp_publication_pmid
+k) case_study_ct_postapp_reference_pmid
+l) case_study_ct_postapp_publication_pmid
+
+
+
+
+
