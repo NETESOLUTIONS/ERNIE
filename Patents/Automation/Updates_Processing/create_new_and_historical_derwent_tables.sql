@@ -224,3 +224,5 @@ CREATE SEQUENCE update_log_derwent_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
+ALTER SEQUENCE update_log_derwent_id_seq OWNED BY update_log_derwent.id;
+ALTER TABLE ONLY update_log_derwent ALTER COLUMN id SET DEFAULT nextval('update_log_derwent_id_seq'::regclass);
