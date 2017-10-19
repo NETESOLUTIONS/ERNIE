@@ -27,7 +27,7 @@
   <!ELEMENT pubmed_postapp_pmid (#PCDATA)>
   <!ELEMENT pubmed_reviews_pmid (#PCDATA)>
 
-  <!ELEMENT ct (ct_preapp_reference_pmid*,ct_postapp_reference_pmid*,ct_preapp_publication_pmid*,ct_postapp_publication_pmid*)>
+  <!ELEMENT ct (ct_preapp_reference_pmid*,ct_postapp_reference_pmid*,ct_preapp_publication_pmid*,ct_postapp_publication_pmid*,ct_preapp_nct*,ct_postapp_nct*)>
   <!ELEMENT ct_preapp_reference_pmid (#PCDATA)>
   <!ELEMENT ct_postapp_reference_pmid (#PCDATA)>
   <!ELEMENT ct_preapp_publication_pmid (#PCDATA)>
@@ -39,3 +39,5 @@
   <!ELEMENT npl_pmid (#PCDATA)>
   <!ELEMENT pl_USpatentno (#PCDATA)>
 ]>
+
+
