@@ -3,5 +3,6 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/../PARDI_IRDB/PIE/DDL/Subroutines/finalize_pie.sql" dialect="Oracle" />
     <file url="file://$PROJECT_DIR$/../PARDI_IRDB/PIE/create_pie_data_internal_debug.sql" dialect="Oracle" />
+    <file url="PROJECT" dialect="PostgreSQL" />
   </component>
 </project>

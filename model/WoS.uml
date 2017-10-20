@@ -12,15 +12,13 @@
     <node x="0.0" y="340.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_keywords</node>
     <node x="237.0" y="192.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_patent_mapping</node>
     <node x="0.0" y="414.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_authors</node>
-    <node x="304.0" y="414.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_titles</node>
     <node x="0.0" y="266.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_references</node>
+    <node x="304.0" y="414.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_titles</node>
   </nodes>
   <notes />
   <edges />
-  <settings layout="Hierarchic Group" zoom="0.542747358309318" x="556.5" y="510.5" />
-  <SelectedNodes>
-    <node>c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_pmid_mapping</node>
-  </SelectedNodes>
+  <settings layout="Hierarchic Group" zoom="1.0" x="199.5" y="221.5" />
+  <SelectedNodes />
   <Categories>
     <Category>Key columns</Category>
   </Categories>

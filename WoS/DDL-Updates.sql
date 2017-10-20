@@ -60,7 +60,7 @@ WHERE
 
 -- ### wos_references ###
 
--- 6h+
+-- 10h+
 -- PARDI: 14h-17h
 DELETE
 FROM wos_references wr1
