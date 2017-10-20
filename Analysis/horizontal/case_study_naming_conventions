@@ -1,0 +1,41 @@
+Date: 10/17/2017
+Author: George Chacko
+
+Naming convention for source files that can then be converted into tagged sequences for incorporation into an xml file
+specified by seedset.dtd. Each of these files should contain one string on each line without leading whitespace and should not 
+have a header.
+
+a) case_study_fda_identifyinginfo (substitute with case_study_name, e.g. ipilimumab)
+should contain the following elements correctly tagged
+
+  <!ELEMENT fda (active_ingredient,brand_name,(nda|bla),approval_date,source,medical_review_pmid*,fda_other_pmid*)>
+  <!ELEMENT active_ingredient (#PCDATA)> 
+  <!ELEMENT nda (#PCDATA)> 
+  <!ELEMENT bla (#PCDATA)> 
+  <!ELEMENT approval_date (#PCDATA)> 
+  <!ELEMENT source (#PCDATA)>
+
+b) case_study_patent should contain the following single element correctly tagged
+
+  <!ELEMENT pl_USpatentno (#PCDATA)>
+
+c) case_study_pubmed_preapp_pmid should contain pmids
+d) case_study_pubmed_postapp_pmid should contain pmids
+e) case_study_pubmed_review_pmid should contain pmids
+f) case_study_pubmed_ct_preapp_pmid should contain pmids
+g) case_study_pubmed_ct_postapp_pmid should contain pmids
+
+h) case_study_fda_medical_review_pmid should contain pmids
+i) case_study_fda_other_pmid should contain pmids
+
+j) case_study_ct_preapp_reference_pmid should contain pmids
+k) case_study_ct_preapp_publication_pmid should contain pmids
+l) case_study_ct_postapp_reference_pmid should contain pmids
+m) case_study_ct_postapp_publication_pmid 
+
+n) case_study_npl_pmid should contain pmids
+
+o) case_study_preapp_nct should contain NCT ids
+p) case_study_postapp_nct should contain NCT ids
+
+
