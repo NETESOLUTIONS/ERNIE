@@ -60,15 +60,14 @@ WHERE
 
 -- ### wos_references ###
 
--- 10h+
--- PARDI: 14h-17h
+-- 10h-18h
 DELETE
 FROM wos_references wr1
 WHERE EXISTS (SELECT 1
               FROM wos_references wr2
               WHERE wr2.source_id = wr1.source_id
               AND   wr2.cited_source_uid = wr1.cited_source_uid
-              AND   wr2.id > wr1.id);
+              AND   wr2.ctid > wr1.ctid);
 
 /*
 -- 13m:58s
