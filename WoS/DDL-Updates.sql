@@ -86,10 +86,7 @@ FETCH FIRST 2 ROWS ONLY;
 SELECT *
 FROM wos_references wr1
 WHERE 
-  --(source_id, cited_source_uid) = ('WOS:000178789100019', 'WOS:000078974400030');
--- to delete id > 22958
-  (source_id, cited_source_uid) = ('WOS:000178789100019', 'WOS:000080394100027');
--- to delete id > 22965	
+  (source_id, cited_source_uid) = ('WOS:A1995TG76500013', '000212855000004.38');
 */
 
 -- ## DDL updates ##
