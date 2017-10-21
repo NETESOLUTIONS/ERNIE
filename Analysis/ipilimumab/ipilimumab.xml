@@ -1,84 +1,385 @@
 <?xml version="1.0"?>
-<!--This is a draft spec for ERNIE seedsets with an internal DTD and  some sample data-->
+<!--This is a draft spec for ERNIE seedsets in xml format with an internal DTD -->
 <!--This format is used for gen1 seedsets for network construction in ERNIE case studies-->
 <!--Author: George Chacko-->
-<!--Date: 10/16/2017-->
-
-<!DOCTYPE pinnacle_event [
-  <!ELEMENT pinnacle_event (therapeutic|diagnostic|intervention)>
-
-  <!ELEMENT therapeutic (fda,pubmed,ct,patent)>
-
-  <!ELEMENT fda (active_ingredient,brand_name,(nda|bla),approval_date,source,medical_review_pmid*,fda_other_pmid*)>
-  <!ELEMENT active_ingredient (#PCDATA)>
-  <!ELEMENT nda (#PCDATA)>
-  <!ELEMENT bla (#PCDATA)>
-  <!ELEMENT approval_date (#PCDATA)>
-  <!ELEMENT source (#PCDATA)>
-  <!ELEMENT medical_review_pmid (#PCDATA)>
-  <!ELEMENT fda_other_pmid (#PCDATA)>
-
-  <!ELEMENT pubmed (pubmed_ct_pmid*,pubmed_preapp_pmid+,pubmed_postapp_pmid+,pubmed_review_pmid+)>
-  <!ELEMENT pubmed_ct_pmid (#PCDATA)>
-  <!ELEMENT pubmed_preapp_pmid (#PCDATA)>
-  <!ELEMENT pubmed_postapp_pmid (#PCDATA)>
-  <!ELEMENT pubmed_reviews_pmid (#PCDATA)>
-
-  <!ELEMENT ct (ct_references_pmid+,ct_publications_pmid+)>
-  <!ELEMENT ct_references_pmid (#PCDATA)>
-  <!ELEMENT ct_publications_pmid (#PCDATA)>
-  <!ELEMENT ct_preapp_nct (#PCDATA)>
-  <!ELEMENT ct_postapp_nct (#PCDATA)>
-
-  <!ELEMENT patent (npl_pmid*,pl_USpatentno*)>
-  <!ELEMENT npl_pmid (#PCDATA)>
-  <!ELEMENT pl_USpatentno (#PCDATA)>
+<!--Date: 10/19/2017-->
+<!DOCTYPE case_study [
+<!ELEMENT case_study (therapeutic | diagnostic | intervention)>
+<!ELEMENT therapeutic (fda , pubmed , ct , patent)>
+<!ELEMENT fda (active_ingredient , brand_name , (nda | bla) , approval_date , source , medical_review_pmid* , fda_other_pmid*)>
+<!ELEMENT active_ingredient (#PCDATA)>
+<!ELEMENT brand_name (#PCDATA)>
+<!ELEMENT nda (#PCDATA)>
+<!ELEMENT bla (#PCDATA)>
+<!ELEMENT approval_date (#PCDATA)>
+<!ELEMENT source (#PCDATA)>
+<!ELEMENT medical_review_pmid (#PCDATA)>
+<!ELEMENT fda_other_pmid (#PCDATA)>
+<!ELEMENT pubmed (pubmed_ct_preapp_pmid* , pubmed_ct_postapp_pmid* , pubmed_preapp_pmid+ , pubmed_postapp_pmid+ , pubmed_review_pmid+)>
+<!ELEMENT pubmed_ct_preapp_pmid (#PCDATA)>
+<!ELEMENT pubmed_ct_postapp_pmid (#PCDATA)>
+<!ELEMENT pubmed_preapp_pmid (#PCDATA)>
+<!ELEMENT pubmed_postapp_pmid (#PCDATA)>
+<!ELEMENT pubmed_reviews_pmid (#PCDATA)>
+<!ELEMENT ct (ct_preapp_reference_pmid* , ct_postapp_reference_pmid* , ct_preapp_publication_pmid* , ct_postapp_publication_pmid* , ct_preapp_nct* , ct_postapp_nct*)>
+<!ELEMENT ct_preapp_reference_pmid (#PCDATA)>
+<!ELEMENT ct_postapp_reference_pmid (#PCDATA)>
+<!ELEMENT ct_preapp_publication_pmid (#PCDATA)>
+<!ELEMENT ct_postapp_publication_pmid (#PCDATA)>
+<!ELEMENT ct_preapp_nct (#PCDATA)>
+<!ELEMENT ct_postapp_nct (#PCDATA)>
+<!ELEMENT patent (npl_pmid* , pl_USpatentno*)>
+<!ELEMENT npl_pmid (#PCDATA)>
+<!ELEMENT pl_USpatentno (#PCDATA)>
 ]>
-
 <drug>
   <fda>
-    <case>ipilimumab</case>
-    <brand_name>Yervoy</brand_name>
-    <bla>125377</bla>
-    <nda></nda>
-    <approval_date>3/5/2011</approval_date>
-    <source>drugs@fda</source>
-    <medical_review_pmid>20086001</medical_review_pmid>
+    <ipilimumab_fda_medical_review_pmid>20086001</ipilimumab_fda_medical_review_pmid>
+    <ipilimumab_fda_other_pmid>
+      <fda_other_pmid>12087419</fda_other_pmid>
+    </ipilimumab_fda_other_pmid>
   </fda>
+  <patent>
+    <ipilimumab_npl_pmid>10096554</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>10201965</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>10430624</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>10811122</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>1334116</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>1475190</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>1714933</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>1847722</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>2156778</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>2164219</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>2171783</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>2465550</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>2540528</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>2794510</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>2940206</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>3021470</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>3134293</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>3220103</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>3496540</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>3500211</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>6274961</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>6458039</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>7494109</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>7543139</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>7543510</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>7759881</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>7846057</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>7882171</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>8018598</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>8075633</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>8159246</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>8347558</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>8348148</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>8475122</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>8596936</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>8671638</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>8676074</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>8676075</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>9020839</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>9036940</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>9104819</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>9203422</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>9221747</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>9223321</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>9354465</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>9430233</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>9449722</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>9551948</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>9631000</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>9631008</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>9687526</ipilimumab_npl_pmid>
+    <ipilimumab_npl_pmid>9707601</ipilimumab_npl_pmid>
+  </patent>
+  <ct>
+    <ct_preapp_references_pmid>16283570</ct_preapp_references_pmid>
+    <ct_preapp_references_pmid>16301685</ct_preapp_references_pmid>
+    <ct_preapp_publication_pmid>12826605</ct_preapp_publication_pmid>
+    <ct_preapp_publication_pmid>16087944</ct_preapp_publication_pmid>
+    <ct_preapp_publication_pmid>16283570</ct_preapp_publication_pmid>
+    <ct_preapp_publication_pmid>20842054</ct_preapp_publication_pmid>
+    <ct_postapp_reference_pmid>    74375</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  1335362</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  1335364</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  2405271</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  3493433</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  4172540</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  6171553</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  6174490</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  6311878</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  6821816</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  7477169</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  7543139</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  7670677</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  7681997</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  8160096</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  8469286</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  8569196</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  8596936</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  8608507</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  8608507</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  8717514</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  8845294</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  9336134</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  9420067</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  9809728</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid>  9817276</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 10379968</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 10430624</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 10485649</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 10485649</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 10485649</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 10561185</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 10561349</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 10735499</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 10764421</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 10802351</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 10899916</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 11015443</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 11133760</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 11157024</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 11209085</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 11224527</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 11323285</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 11323675</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 11481353</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 11552950</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 11773176</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 11857337</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 11970966</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 12091876</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 12171950</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 12218188</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 12218188</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 12218188</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 12407406</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 12593621</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 12680791</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 12682289</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 12721664</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 12847138</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 12855568</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 12874215</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 13693470</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 14519751</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 14555498</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 14559843</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 14576661</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 14595408</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 14736927</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 14871849</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15020614</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15020614</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15030777</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15030777</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15032581</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15090449</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15122199</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15150081</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15158627</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15200998</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15240681</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15297412</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15325032</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15358536</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15534492</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15569934</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15611321</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15611998</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15705911</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15776005</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 15837746</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16087865</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16111570</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16177953</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16194701</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16205727</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16208700</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16271509</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16314647</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16370382</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16464564</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16490844</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16525185</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16530813</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16585157</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16597592</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16757720</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16809739</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16945766</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16966688</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 16977338</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 17133440</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 17409927</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 17544497</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 17693134</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 17700621</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 17898045</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 17982122</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 17982122</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18000991</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18000991</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18173375</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18173375</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18223165</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18235113</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18287062</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18287062</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18396195</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18504926</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18506026</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18523152</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18555546</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18665147</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18698040</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18809614</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18818309</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18838703</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18838703</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18974373</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 18974373</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 19018089</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 19097774</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 19123898</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 19139439</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 19147765</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 19202079</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 19648604</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 19652578</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 19808874</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 19808874</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 19857783</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 19933915</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 19934295</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20216240</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20234320</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20338627</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20425606</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20460488</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20514052</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20516446</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20516446</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20525992</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20525992</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20525992</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20525992</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20525992</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20541055</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20616954</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20636812</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20636812</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20660832</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20814764</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20818862</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20826737</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20924130</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20924130</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 20977700</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 21074057</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 21074057</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 21074064</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 21159637</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 21173711</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 21258248</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 21639810</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 21708958</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 21799510</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22124104</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22130161</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22186141</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22437870</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22456429</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22456429</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22456429</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22461641</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22461641</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22547592</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22547592</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22646630</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22658127</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22658128</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22858559</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 22894884</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 23299197</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 23724867</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 23724867</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 23724867</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 23788581</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 23945592</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 23965900</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 24127452</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 24127452</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 24264989</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 24264989</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 24264990</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 24264990</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 24590637</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 24657498</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 24792872</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 24804867</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 24882670</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 25083336</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 25358689</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 25452452</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 25482239</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 25482239</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 25538176</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 25754329</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 25840693</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 25840693</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 25891173</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 25891304</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 25891304</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 25891304</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 25965370</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26027431</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26027431</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26028255</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26028255</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26028407</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26028407</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26037795</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26037795</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26095785</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26146806</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26162965</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26162965</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26260659</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26270858</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26371143</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26398076</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26406148</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26412456</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26412456</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26412456</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26541606</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26541606</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26541610</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26541610</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26578451</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26578451</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26590773</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26590773</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26628942</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26628942</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26699946</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26699946</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26794930</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 26801886</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 27001570</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 27157491</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 27234989</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 27298410</ct_postapp_reference_pmid>
+    <ct_postapp_reference_pmid> 27354485</ct_postapp_reference_pmid>
+    <ct_postapp_publication_pmid> 16882708</ct_postapp_publication_pmid>
+    <ct_postapp_publication_pmid> 27000274</ct_postapp_publication_pmid>
+    <ct_postapp_publication_pmid> 27681753</ct_postapp_publication_pmid>
+    <ct_postapp_publication_pmid> 27745820</ct_postapp_publication_pmid>
+    <ct_postapp_publication_pmid> 28729151</ct_postapp_publication_pmid>
+  </ct>
   <pubmed>
-    <pubmed_ct_pmid>22146893</pubmed_ct_pmid>		
-    <pubmed_ct_pmid>21833591</pubmed_ct_pmid>
-    <pubmed_ct_pmid>22051508</pubmed_ct_pmid>
-    <pubmed_ct_pmid>22123319</pubmed_ct_pmid>
-    <pubmed_ct_pmid>21465316</pubmed_ct_pmid>
-    <pubmed_ct_pmid>21639810</pubmed_ct_pmid>	
-    <pubmed_ct_pmid>20082117</pubmed_ct_pmid>
-    <pubmed_ct_pmid>20713164</pubmed_ct_pmid>
-    <pubmed_ct_pmid>21170646</pubmed_ct_pmid>
-    <pubmed_ct_pmid>21106722</pubmed_ct_pmid>
-    <pubmed_ct_pmid>21090563</pubmed_ct_pmid>
-    <pubmed_ct_pmid>20957980</pubmed_ct_pmid>
-    <pubmed_ct_pmid>20842054</pubmed_ct_pmid>
-    <pubmed_ct_pmid>20525992</pubmed_ct_pmid>
-    <pubmed_ct_pmid>20147741</pubmed_ct_pmid>
-    <pubmed_ct_pmid>20460488</pubmed_ct_pmid>
-    <pubmed_ct_pmid>20004617</pubmed_ct_pmid>
-    <pubmed_ct_pmid>19934295</pubmed_ct_pmid>
-    <pubmed_ct_pmid>19104936</pubmed_ct_pmid>
-    <pubmed_ct_pmid>19808874</pubmed_ct_pmid>
-    <pubmed_ct_pmid>19671877</pubmed_ct_pmid>
-    <pubmed_ct_pmid>19318477</pubmed_ct_pmid>
-    <pubmed_ct_pmid>18974373</pubmed_ct_pmid>
-    <pubmed_ct_pmid>19147575</pubmed_ct_pmid>
-    <pubmed_ct_pmid>19074257</pubmed_ct_pmid>
-    <pubmed_ct_pmid>19018089</pubmed_ct_pmid>
-    <pubmed_ct_pmid>18818309</pubmed_ct_pmid>
-    <pubmed_ct_pmid>18545145</pubmed_ct_pmid>
-    <pubmed_ct_pmid>18287062</pubmed_ct_pmid>
-    <pubmed_ct_pmid>17982122</pubmed_ct_pmid>
-    <pubmed_ct_pmid>18049334</pubmed_ct_pmid>
-    <pubmed_ct_pmid>17363537</pubmed_ct_pmid>
-    <pubmed_ct_pmid>16283570</pubmed_ct_pmid>
     <pubmed_preapp_pmid>22459268</pubmed_preapp_pmid>
     <pubmed_preapp_pmid>22385525</pubmed_preapp_pmid>
     <pubmed_preapp_pmid>22267918</pubmed_preapp_pmid>
@@ -307,6 +608,9 @@
     <pubmed_preapp_pmid>16710025</pubmed_preapp_pmid>
     <pubmed_preapp_pmid>16370382</pubmed_preapp_pmid>
     <pubmed_preapp_pmid>16283570</pubmed_preapp_pmid>
+    <pubmed_postapp_pmid>29036015</pubmed_postapp_pmid>
+    <pubmed_postapp_pmid>29033130</pubmed_postapp_pmid>
+    <pubmed_postapp_pmid>29029399</pubmed_postapp_pmid>
     <pubmed_postapp_pmid>29028788</pubmed_postapp_pmid>
     <pubmed_postapp_pmid>29026313</pubmed_postapp_pmid>
     <pubmed_postapp_pmid>29024038</pubmed_postapp_pmid>
@@ -2147,222 +2451,203 @@
     <pubmed_postapp_pmid>21748753</pubmed_postapp_pmid>
     <pubmed_postapp_pmid>21336089</pubmed_postapp_pmid>
     <pubmed_postapp_pmid>21264545</pubmed_postapp_pmid>
-    <pubmed_reviews_pmid>27905739</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>25032021</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24777500</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24657536</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24498550</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24455677</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24403233</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24379698</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24373918</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24285017</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24278787</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24267193</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24210882</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24204168</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24188664</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24161671</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24143916</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24113540</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24089443</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24089441</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24077405</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24077404</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24074802</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24054424</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24021899</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24001893</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23982524</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23981682</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23954143</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23934510</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23933888</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23930800</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23870385</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23862981</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23847215</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23845462</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23820456</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23806499</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23774827</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23772560</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23763243</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23736878</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23704234</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23725878</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23714558</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23714523</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23714490</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23711792</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23709751</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23677693</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23667165</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>25184258</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23650874</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23634292</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23625198</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23617347</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23608447</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23608443</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23590367</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23551370</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23548648</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23546044</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23516145</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23471977</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23438382</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23435643</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23413908</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23408545</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23401435</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23393121</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23390376</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23380546</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23369684</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23357570</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23330781</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23302904</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23299197</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>27471683</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23265575</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23249108</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23215674</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>24432031</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23116250</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23108247</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23094782</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23082737</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23040162</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23047236</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23043326</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>23024154</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22918925</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22918924</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22918923</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22878966</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22864561</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22820413</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22800555</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22778766</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22778760</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22753717</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22753700</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22743761</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22734880</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22703856</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22672122</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22677983</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22621691</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22614989</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22586796</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22576456</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22573536</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22563166</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22559147</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22551537</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22530681</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22524673</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22506716</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22500861</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22500535</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22495490</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22477725</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22459539</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22454154</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22453019</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22453017</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22443134</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22432863</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22432839</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22410456</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22409862</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22406592</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22395415</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22393198</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22385436</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22370387</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22350184</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22339359</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22333219</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22329580</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22328018</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22468871</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22270215</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22270078</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22209376</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22196270</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22168282</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22036643</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22030452</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>22006439</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>21930211</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>21821307</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>21748753</pubmed_reviews_pmid>
-    <pubmed_reviews_pmid>21336089</pubmed_reviews_pmid>
+    <pubmed_ct_postapp_pmid>28816150</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28729151</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28651159</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28423487</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28360208</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28359784</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28324889</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28214657</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28162999</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28034081</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28008452</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27932067</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27604993</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27717298</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27681753</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27622997</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27596353</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27410923</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27378345</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27298410</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27294163</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27269741</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27269740</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27092830</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26926680</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26873574</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26700304</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26627641</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26541511</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26534966</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26512791</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26410424</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26407818</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26394083</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26350358</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26343230</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26115796</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26062775</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26027431</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25968455</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25924991</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25891304</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25891173</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25840693</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25795410</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25761109</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25713437</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25649350</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25538176</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25416723</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25399552</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25369488</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25214238</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25210016</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25034862</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24844912</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24838938</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24831977</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24778280</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24778276</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24777678</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24721645</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24708900</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24700302</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24695685</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24619072</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24609989</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24514956</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24445759</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24433434</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24145345</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23942774</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23924790</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23833564</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23787916</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23724867</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23724846</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23690483</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23666915</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23550685</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23535954</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23521917</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23444228</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23400564</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23295794</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23171508</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22956585</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22894884</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22878899</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22858559</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22694829</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22547592</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22456429</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22382362</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22326924</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22146893</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22130166</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22130164</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>21833591</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28816150</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28729151</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28651159</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28423487</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28360208</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28359784</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28324889</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28214657</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28162999</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28034081</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>28008452</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27932067</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27604993</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27717298</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27681753</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27622997</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27596353</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27410923</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27378345</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27298410</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27294163</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27269741</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27269740</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>27092830</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26926680</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26873574</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26700304</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26627641</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26541511</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26534966</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26512791</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26410424</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26407818</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26394083</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26350358</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26343230</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26115796</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26062775</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>26027431</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25968455</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25924991</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25891304</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25891173</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25840693</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25795410</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25761109</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25713437</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25649350</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25538176</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25416723</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25399552</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25369488</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25214238</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25210016</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>25034862</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24844912</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24838938</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24831977</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24778280</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24778276</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24777678</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24721645</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24708900</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24700302</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24695685</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24619072</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24609989</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24514956</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24445759</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24433434</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>24145345</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23942774</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23924790</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23833564</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23787916</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23724867</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23724846</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23690483</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23666915</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23550685</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23535954</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23521917</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23444228</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23400564</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23295794</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>23171508</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22956585</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22894884</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22878899</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22858559</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22694829</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22547592</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22456429</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22382362</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22326924</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22146893</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22130166</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>22130164</pubmed_ct_postapp_pmid>
+    <pubmed_ct_postapp_pmid>21833591</pubmed_ct_postapp_pmid>
   </pubmed>
-  <ct>
-   <nct_id_references_pmid>16301685</nct_id_references_pmid>        
-   <nct_id_references_pmid>16283570</nct_id_references_pmid>        
-   <nct_id_publications_pmid>16087944</nct_id_publications_pmid>
-   <nct_id_publications_pmid>12826605</nct_id_publications_pmid>
-   <nct_id_publications_pmid>16283570</nct_id_publications_pmid>
-   <nct_id_publications_pmid>20842054</nct_id_publications_pmid>
- </ct>
- <patent>
-   <npl_pmid>9551948</npl_pmid>
-   <npl_pmid>9036940</npl_pmid>
-   <npl_pmid>3134293</npl_pmid>
-   <npl_pmid>3496540</npl_pmid>
-   <npl_pmid>9203422</npl_pmid>
-   <npl_pmid>9430233</npl_pmid>
-   <npl_pmid>2940206</npl_pmid>
-   <npl_pmid>6458039</npl_pmid>
-   <npl_pmid>3220103</npl_pmid>
-   <npl_pmid>10430624</npl_pmid>
-   <npl_pmid>9631008</npl_pmid>
-   <npl_pmid>3500211</npl_pmid>
-   <npl_pmid>2794510</npl_pmid>
-   <npl_pmid>7846057</npl_pmid>
-   <npl_pmid>9707601</npl_pmid>
-   <npl_pmid>10811122</npl_pmid>
-   <npl_pmid>8347558</npl_pmid>
-   <npl_pmid>7543510</npl_pmid>
-   <npl_pmid>2171783</npl_pmid>
-   <npl_pmid>7543139</npl_pmid>
-   <npl_pmid>8671638</npl_pmid>
-   <npl_pmid>8676074</npl_pmid>
-   <npl_pmid>9223321</npl_pmid>
-   <npl_pmid>9687526</npl_pmid>
-   <npl_pmid>8075633</npl_pmid>
-   <npl_pmid>1475190</npl_pmid>
-   <npl_pmid>8018598</npl_pmid>
-   <npl_pmid>2156778</npl_pmid>
-   <npl_pmid>8596936</npl_pmid>
-   <npl_pmid>3021470</npl_pmid>
-   <npl_pmid>2540528</npl_pmid>
-   <npl_pmid>1334116</npl_pmid>
-   <npl_pmid>1714933</npl_pmid>
-   <npl_pmid>1847722</npl_pmid>
-   <npl_pmid>2164219</npl_pmid>
-   <npl_pmid>7494109</npl_pmid>
-   <npl_pmid>9449722</npl_pmid>
-   <npl_pmid>9020839</npl_pmid>
-   <npl_pmid>10201965</npl_pmid>
-   <npl_pmid>9221747</npl_pmid>
-   <npl_pmid>8159246</npl_pmid>
-   <npl_pmid>7759881</npl_pmid>
-   <npl_pmid>8475122</npl_pmid>
-   <npl_pmid>9631000</npl_pmid>
-   <npl_pmid>8348148</npl_pmid>
-   <npl_pmid>9354465</npl_pmid>
-   <npl_pmid>2465550</npl_pmid>
-   <npl_pmid>8676075</npl_pmid>
-   <npl_pmid>7882171</npl_pmid>
-   <npl_pmid>9104819</npl_pmid>
-   <npl_pmid>10096554</npl_pmid>
-   <npl_pmid>6274961</npl_pmid>
-   <pl_USpatentno>US6984720B1</pl_USpatentno>
- </patent>
 </drug>
-
