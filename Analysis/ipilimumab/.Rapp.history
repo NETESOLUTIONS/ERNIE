@@ -1,0 +1,252 @@
+r
+r5
+r5 <- c(388,361,376,380,364)
+cbind(r1,r2,r3,r4,r5)
+data.frame(cbind(r1,r2,r3,r4,r5))
+str(data.frame(cbind(r1,r2,r3,r4,r5)))
+Run1 <- data.frame(cbind(r1,r2,r3,r4,r5))
+Run <- data.frame(cbind(r1,r2,r3,r4,r5))
+Run
+c("r1","r2","r3","r4","r5")
+R <- c("R1","R2","R3","R4","R5")
+R
+cbind(R,Run)
+melt(cbind(R,Run),id=R)
+library(reshape2)
+melt(cbind(R,Run),id=R)
+melt(cbind(R,Run),id="R")
+R <- melt(cbind(R,Run),id="R")
+R
+library(qplot2)
+library(ggplot2)
+R
+R[R$variable="r1"]
+R[R$variable=="r1"]
+R[R$variable=="r1",]
+R[R$variable=="r1",] <- 0
+R[R$variable=="r1",] <- "0"
+R[R$variable=="r1"] <- "0"
+R[R$variable=="r1",2] <- "0"
+R[R$variable=="r1",2]
+R[R$variable=="r1",3]
+R[R$variable=="r1",2]
+str(R)
+melt(cbind(R,Run),id="R")
+rm(R)
+ls()
+Run
+Run1
+rm(Run1)
+ls()
+Run
+str(Run)
+ls
+ls()
+melt(Run,id=R)
+melt(Run,id="R")
+str(Run)
+Run
+colnames(Run)
+rm(list=ls())
+r1
+run1
+ls()
+r1 <- c(0,9458,86,31,22,15,388)
+r1
+r2 <- c(0,9463,102,31,26,17,361)
+r3 <- c(0,9471,84,29,18,22,376)
+r4 <- c(0,9463,85,32,21,19,380)
+r5 <- c(0,9494,76,34,17,15,364)
+R < - rbind(r1,r2,r3,r4,r5)
+Run <- rbind(r1,r2,r3,r4,r5)
+Run
+str(Run)
+Run <- data.frame(rbind(r1,r2,r3,r4,r5))
+str(Run)
+colnames(R)
+colnames(Run)
+colnames(Run) <- ("rank0","rank1","rank2","rank3","rank4","rank5","rank6+")
+colnames(Run) <- c("rank0","rank1","rank2","rank3","rank4","rank5","rank6+")
+Run
+str(Run)
+runs <- c("R1","R2","R3","R4","R5")
+cbind(runs,Run
+)
+cbind(runs,Run)
+str(cbind(runs,Run))
+cbind(runs,Run)
+Run1 <- cbind(runs,Run)
+Run1
+str(Run1)
+library(reshap2)
+library(reshape2)
+melt(Run1,id="runs")
+str(melt(Run1,id="runs"))
+Run2 <- str(melt(Run1,id="runs"))
+library(ggplot2)
+qplot(variable,value,data=Run2)
+Run2
+Run2 <- melt(Run1,id="runs")
+qplot(variable,value,data=Run2)
+qplot(runs,value,data=Run2)
+qplot(runs,value,data=Run2,colour=Rank)
+qplot(runs,value,data=Run2,colour=variable)
+qplot(variable,value,data=Run2)
+qplot(variable,value,data=Run2,geom=c("point","jitter"))
+qplot(variable,value,data=Run2,geom=point")
+)
+;
+""
+qplot(variable,value,data=Run2,geom="point")
+p1 <- qplot(variable,value,data=Run2,geom="point")
+p1 <- qplot(variable,100*(value/10000),data=Run2,geom="point")
+p1 <- qplot(variable,value,data=Run2,geom="point")
+qplot(variable,100*(value/10000),data=Run2,geom="point")
+qplot(variable,100*(value/10000),data=Run2,geom="point") + scale_y_continuous(breaks = seq(-10,100,by = 1))
+qplot(variable,100*(value/10000),data=Run2,geom="point") + scale_y_continuous(breaks = seq(-10,100,by = 5))
+qplot(variable,100*(value/10000),data=Run2,geom="point") + scale_y_continuous(breaks = seq(-10,110,by = 5))
+qplot(variable,100*(value/10000),data=Run2,geom="point") + scale_y_continuous(breaks = seq(-10,120,by = 5))
+qplot(variable,100*(value/10000),data=Run2,geom="point") + scale_y_continuous(breaks = seq(-10,100,by = 5))
+qplot(variable,100*(value/10000),data=Run2,geom="point",ylab="Percent of Search Sample \n (10,000 records)") + scale_y_continuous(breaks = seq(-10,100,by = 5))
+qplot(variable,100*(value/10000),data=Run2,geom="point",ylab="Percent of Search Sample \n (10,000 records)",xlab="Rank of Search Record") + scale_y_continuous(breaks = seq(-10,100,by = 5))
+qplot(variable,100*(value/10000),data=Run2,geom="point",ylab="Percent of Search Sample \n (10,000 records)",xlab="Rank of Search Record",main="Citation Match Testing \n Retrieving 10,000 out of 5 million records (0.2%)") + scale_y_continuous(breaks = seq(-10,100,by = 5))
+qplot(variable,100*(value/10000),data=Run2,geom="point",ylab="Percent of Search Sample \n (10,000 records)",xlab="Rank of Search Record",main="Citation Match Testing \n Retrieving 10,000 out of 5 million records (0.2%)") + scale_y_continuous(breaks = seq(-10,100,by = 5)) + theme_bw()
+pdf("Solr_Exp2.pdf")
+qplot(variable,100*(value/10000),data=Run2,geom="point",ylab="Percent of Search Sample \n (10,000 records)",xlab="Rank of Search Record",main="Citation Match Testing \n Retrieving 10,000 out of 5 million records (0.2%)") + scale_y_continuous(breaks = seq(-10,100,by = 5)) + theme_bw()
+dev.off()
+Run1
+apply(Run1,2,mean)
+apply(Run1,2,FUNmean)
+apply(Run1[,3],2,FUNmean)
+apply(Run1[,3],2,FUN=mean)
+apply(Run1[,3],2,mean)
+mean(Run1$rank1)
+9469/4999981
+9469/4999981*100
+10000/4999981*100
+q()
+ls(0)
+ls()
+Run1
+Run2
+ls()
+Run
+apply(Run,2,sum)
+apply(Run,2,mean)
+apply(Run,2,round(mean))
+apply(Run,2,floor(mean))
+apply(Run,2,mean)
+10000-9470
+tp <- 10000
+tn <- 4999981-10000
+tn
+pp <- 9470
+pn <- 4999981-9470
+total <- 4999981
+tp+tn
+tp+tn/total
+(tp+tn)/total
+pn
+rm(tp)
+rm(tn)
+rm(pp)
+rm(pn)
+rm(total)
+ls()
+Run
+apply(Run,2,mean)
+total
+total <- 4999981
+total
+tp <- 10000
+rm(list=ls())
+read.csv("~/Desktop/rank_stat.csv",stringsAsFactors=FALSE)
+onek_data <- read.csv("~/Desktop/rank_stat.csv",stringsAsFactors=FALSE)
+str(onek_data)
+head(onek_data)
+library(dplyr)
+onek_data %>% group_by(deleteCount)
+onek_data %>% group_by(deleteCount) %>% summarize(avg=mean())
+onek_data %>% group_by(deleteCount) %>% summarize(avg=mean(rank1))
+onek_data %>% group_by(deleteCount) %>% summarize(avg=mean(value))
+onek_data %>% group_by(deleteCount) %>% summarize(avg=mean(rank1))
+onek_data %>% group_by(deleteCount,rank1) %>% summarize(avg=mean(rank1))
+onek_data %>% group_by(deleteCount,rank1) %>% summarize(avg=mean(rank_1))
+onek_data %>% group_by(deleteCount,rank_1) %>% summarize(avg=mean(rank_1))
+onek_data %>% group_by(deleteCount) %>% summarize(avg=mean(rank_1))
+onek_data %>% group_by(deleteCount) %>% summarize(avg=mean(rank_1), q1=quantile(rank_1,probs=0.25)
+)
+onek_data %>% group_by(deleteCount) %>% summarize(avg=mean(rank_1), q1=quantile(rank_1,probs=0.25,q3=quantile(rank_1,probs=0.75))
+)
+onek_data %>% group_by(deleteCount) %>% summarize(avg=mean(rank_1), q1=quantile(rank_1,probs=0.25),q3=quantile(rank_1,probs=0.75))
+onek_data %>% group_by(deleteCount) %>% summarize(avg=mean(rank_1), q1=quantile(rank_1,probs=0.25),q3=quantile(rank_1,probs=0.75)) %>% mutate(iqr=q3-q1)
+ls()
+onek_data
+onek_data %>% group_by(deleteCount) %>% summarize(avg=mean(rank_1), q1=quantile(rank_1,probs=0.25),q3=quantile(rank_1,probs=0.75)) %>% mutate(iqr=q3-q1)
+onek_data_summ <- onek_data %>% group_by(deleteCount) %>% summarize(avg=mean(rank_1), q1=quantile(rank_1,probs=0.25),q3=quantile(rank_1,probs=0.75)) %>% mutate(iqr=q3-q1)
+library(ggplo2)
+library(ggplot2)
+qplot(deleteCount,avg,data=nek_data_summ)
+qplot(deleteCount,avg,data=onek_data_summ)a
+qplot(deleteCount,avg,data=onek_data_summ)
+qplot(deleteCount,avg,data=onek_data_summ,geom=c("point","smooth"))
+qplot(deleteCount,avg,data=onek_data_summ,geom=c("point","smooth")) + theme_bw()
+qplot(deleteCount,avg,data=onek_data_summ,geom=c("point","smooth"),xlab="No of Random Deletions from Search String") + theme_bw()
+qplot(deleteCount,avg,data=onek_data_summ,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)") + theme_bw()
+qplot(deleteCount,avg,data=onek_data_summ,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)",xlim=(0,15)) + theme_bw()
+qplot(deleteCount,avg,data=onek_data_summ,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)",xlim=(0,15,by=1)) + theme_bw()
+qplot(deleteCount,avg,data=onek_data_summ,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)",xlim=c(0,15,by=1)) + theme_bw()
+qplot(deleteCount,avg,data=onek_data_summ,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)",xlim=c(0,15) + theme_bw()
+)
+qplot(deleteCount,avg,data=onek_data_summ,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)",xlim=c(0,15)) + theme_bw()
+qplot(deleteCount,avg,data=onek_data_summ,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)",xlim=c(0,15,by=1)) + theme_bw()
+qplot(deleteCount,avg,data=onek_data_summ,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)") +scale_x_continuous(breaks = seq(0, 10000, 500))+ theme_bw()
+qplot(deleteCount,avg,data=onek_data_summ,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)") +scale_x_continuous(breaks = seq(0, 15, 1))+ theme_bw()
+qplot(deleteCount,avg,data=onek_data_summ,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)") + scale_x_continuous(breaks = seq(0, 15, 1))+ theme_bw()
+pdf("Solr_ExpIII.pdf")
+qplot(deleteCount,avg,data=onek_data_summ,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)") + scale_x_continuous(breaks = seq(0, 15, 1))+ theme_bw()
+dev.off()
+q()
+qplot(deleteCount,avg,data=onek_data,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)") + scale_x_continuous(breaks = seq(0, 15, 1))+ theme_bw()
+library(ggplot2)
+qplot(deleteCount,avg,data=onek_data,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)") + scale_x_continuous(breaks = seq(0, 15, 1))+ theme_bw()
+str(onek_data)
+qplot(deleteCount,rank_1,data=onek_data,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)") + scale_x_continuous(breaks = seq(0, 15, 1))+ theme_bw()
+qplot(deleteCount,avg,data=onek_data,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)") + scale_x_continuous(breaks = seq(0, 15, 1))+ theme_bw()
+qplot(deleteCount,rank_1,data=onek_data,geom=c("point","smooth"),xlab="No of Random Deletions from Search String",ylab="Avg No of True Positives (5 Runs)") + scale_x_continuous(breaks = seq(0, 15, 1))+ theme_bw()
+q()
+ls()
+onek_data
+q()
+192/2
+library(ggplot2)
+embedFonts
+embedFonts()
+??embedFonts
+q()
+library(xml)
+library("xml")
+library(XML)
+getwd()
+setwd()"~/ERNIE/Analysis/ipilimumab/"
+setwd("~/ERNIE/Analysis/ipilimumab/")
+xmlTreeParse("ipilimumab.xml")
+ipi_xml <_ xmlTreeParse("ipilimumab.xml")
+ipi_xml < xmlTreeParse("ipilimumab.xml")
+ipi_xml <- xmlTreeParse("ipilimumab.xml")
+class(ipi_xml)
+xmlRoot(ipi_xml)
+topxml <_ xmlRoot(ipi_xml)
+topxml <- xmlRoot(ipi_xml)
+xmlSApply(topxml,#
+                    function(x) xmlSApply(x, xmlValue))
+topxml <- xmlSApply(topxml,#
+                    function(x) xmlSApply(x, xmlValue))
+data.frame(t(topxml),row.names=NULL)
+head(data.frame(t(topxml),row.names=NULL))
+xml_df <- data.frame(t(topxml),row.names=NULL)
+str(xml_df)
+ls()
+rm(list=ls())
+q9)
+q()
