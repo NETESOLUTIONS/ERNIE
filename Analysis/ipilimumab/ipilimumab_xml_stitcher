@@ -124,18 +124,32 @@ cat ipilimumab.xml | egrep _pmid\>[0-9]{3} > temp1
 cat temp1 | egrep fda > temp2
 cat temp1 | egrep npl_pmid > temp3
 cat temp1 | egrep preapp > temp4
-cat temp2 temp3 temp4 | cut -d '<' -f2 | cut -d '>' -f2 | sort | uniq > ipilimumab_seedset_pmid
-cat ipilimumab_seedset_pmid | wc -l  > line_count
+cat temp2 temp3 temp4 | cut -d '<' -f2 | cut -d '>' -f2 | sort | uniq > ipilimumab_seedset_pmid_presql
+cat ipilimumab_seedset_pmid_presql | wc -l  > line_count1
 echo "***"
-echo "$(cat line_count) seedset pmids for ipilimumab"
+echo "$(cat line_count1) seedset pmids for ipilimumab"
 echo "***"
+rm temp1 temp2 temp3 temp4 line_count1
 
 # Create postapp_pmid files
-#ipilimumab_ct_postapp_publication_pmid
-#ipilimumab_ct_postapp_reference_pmid
-#nipilimumab_pubmed_ct_postapp_pmid
-#ipilimumab_pubmed_postapp_pmid
+cp ipilimumab_ct_postapp_publication_pmid temp1
+cp ipilimumab_ct_postapp_reference_pmid temp2
+cp ipilimumab_pubmed_ct_postapp_pmid temp3
+cp ipilimumab_pubmed_postapp_pmid temp4 
+cat temp1 temp3 temp4 | sort | uniq > ipilimumab_postapp_pmid_presql
+cat ipilimumab_postapp_pmid_presql | wc -l > line_count2
+echo "***"
+echo "$(cat line_count2) postapp pmids for ipilimumab"
+echo "***"
+rm temp1 temp2 temp3 temp4 line_count2
 
 # Create ipilimumab_pubmed review file
-#ipilimumab_pubmed_review_pmid
+cp ipilimumab_pubmed_review_pmid temp1
+cat temp1 | sort | uniq > ipilimumab_review_pmid_presql
+cat ipilimumab_review_pmid_presql | wc -l > line_count3
+echo "***"
+echo "$(cat line_count3) review pmids for ipilimumab"
+echo "***"
+rm temp1 line_count3
+
 
