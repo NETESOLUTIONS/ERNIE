@@ -106,10 +106,15 @@ rm file6
 rm file7
 rm file8
 rm file9
-rm file11
+rm file10
 rm file11
 rm file12
 rm ipilimumab2.xml
+
+cat ipilimumab.xml | egrep _pmid\>[0-9]{3} | cut -d '<' -f2 | cut -d '>' -f2 > temp1
+cat temp1 | sort | uniq > ipilimumab_seedset_pmid
+rm temp1
+
 
 
 
