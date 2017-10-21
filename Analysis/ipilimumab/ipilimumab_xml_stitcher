@@ -1,20 +1,45 @@
 #!/bin/bash
+# George Chacko 10/21/2017
+
 echo "This script takes a set of source files and modifies them to incorporate xml tags then
 it assembles a complete xml file that is compliant with seedset.dtd"
-:'
-ipilimumab_fda_medical_review_pmid
-ipilimumab_fda_other_review_pmid
-ipilimumab_npl_pmid
-ipilimumab_ct_postapp_publication_pmid
-ipilimumab_ct_postapp_reference_pmid
-ipilimumab_ct_preapp_publication_pmid
-ipilimumab_ct_preapp_reference_pmid
-ipilimumab_pubmed_ct_postapp_pmid
-ipilimumab_pubmed_ct_preapp_pmid
-ipilimumab_pubmed_postapp_pmid
-ipilimumab_pubmed_preapp_pmid
-ipilimumab_pubmed_review_pmid
-'
+
+wc -l ipilimumab_fda_medical_review_pmid > t1 
+echo "ipilimumab_fda_medical_review_pmid has $(cat t1 | awk '{print $1}') pmids"
+
+wc -l ipilimumab_fda_other_review_pmid > t2
+echo "ipilimumab_fda_medical_review_pmid has $(cat t2 | awk '{print $1}') pmids"
+
+wc -l ipilimumab_npl_pmid > t3
+echo "ipilimumab_fda_medical_review_pmid has $(cat t3 | awk '{print $1}') pmids"
+
+wc -l ipilimumab_ct_postapp_publication_pmid > t4
+echo "ipilimumab_fda_medical_review_pmid has $(cat t4 | awk '{print $1}') pmids"
+
+wc -l ipilimumab_ct_postapp_reference_pmid > t5
+echo "ipilimumab_fda_medical_review_pmid has $(cat t5 | awk '{print $1}') pmids"
+
+wc -l ipilimumab_ct_preapp_publication_pmid > t6
+echo "ipilimumab_fda_medical_review_pmid has $(cat t6 | awk '{print $1}') pmids"
+
+wc -l ipilimumab_ct_preapp_reference_pmid > t7
+echo "ipilimumab_fda_medical_review_pmid has $(cat t7 | awk '{print $1}') pmids"
+
+wc -l ipilimumab_pubmed_ct_postapp_pmid > t8
+echo "ipilimumab_fda_medical_review_pmid has $(cat t8 | awk '{print $1}') pmids"
+
+wc -l ipilimumab_pubmed_ct_preapp_pmid > t9
+echo "ipilimumab_fda_medical_review_pmid has $(cat t9 | awk '{print $1}') pmids"
+
+wc -l ipilimumab_pubmed_postapp_pmid > t10
+echo "ipilimumab_fda_medical_review_pmid has $(cat t10 | awk '{print $1}') pmids"
+
+wc -l ipilimumab_pubmed_preapp_pmid > t11
+echo "ipilimumab_fda_medical_review_pmid has $(cat t11 | awk '{print $1}') pmids"
+
+sleep 2
+
+
 echo "processing ipilimumab_fda_medical_review_pmid"
 # <!ELEMENT medical_review_pmid (#PCDATA)>
 sed 's/^/\<ipilimumab_fda_medical_review_pmid\>/g'  ipilimumab_fda_medical_review_pmid |
