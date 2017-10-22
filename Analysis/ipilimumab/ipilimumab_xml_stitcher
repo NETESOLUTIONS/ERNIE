@@ -176,7 +176,8 @@ echo "***"
 echo "$(cat line_count3) review pmids for ipilimumab"
 echo "***"
 rm temp1 line_count3
-#rm t[0-9]*
+rm t[0-9]*
+
 
 
 
