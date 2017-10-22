@@ -35,9 +35,7 @@
 <drug>
   <fda>
     <ipilimumab_fda_medical_review_pmid>20086001</ipilimumab_fda_medical_review_pmid>
-    <ipilimumab_fda_other_pmid>
-      <fda_other_pmid>12087419</fda_other_pmid>
-    </ipilimumab_fda_other_pmid>
+    <ipilimumab_fda_other_pmid>12087419</ipilimumab_fda_other_pmid>
   </fda>
   <patent>
     <ipilimumab_npl_pmid>10096554</ipilimumab_npl_pmid>
