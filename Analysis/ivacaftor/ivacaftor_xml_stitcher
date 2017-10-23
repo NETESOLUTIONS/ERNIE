@@ -164,21 +164,21 @@ echo "</pubmed>" >> ivacaftor2.xml
 echo "</drug>" >> ivacaftor2.xml
 
 xmllint --format ivacaftor2.xml > ivacaftor.xml
-#rm file1
-#rm file2
-#rm file3
-#rm file4
-#rm file5
-#rm file6
-#rm file7
-#rm file8
-#rm file9
-#rm file10
-#rm file11
-#rm file12
-#rm ivacaftor2.xml
+rm file1
+rm file2
+rm file3
+rm file4
+rm file5
+rm file6
+rm file7
+rm file8
+rm file9
+rm file10
+rm file11
+rm file12
+rm ivacaftor2.xml
 
-# Create seedset_pmid  file
+# Create seedset_pmid  file using
 #ivacaftor_fda_medical_review_pmid
 #ivacaftor_fda_other_review_pmid
 #ivacaftor_patent_npl_pmid
