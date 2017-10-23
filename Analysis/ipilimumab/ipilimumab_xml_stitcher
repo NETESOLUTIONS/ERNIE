@@ -145,6 +145,7 @@ echo "<fda>" >> ipilimumab2.xml
 cat ipilimumab_fda_active_ingredient >> ipilimumab2.xml
 cat ipilimumab_fda_brand_name >> ipilimumab2.xml
 cat ipilimumab_fda_bla >> ipilimumab2.xml
+cat ipilimumab_fda_source >> ipilimumab2.xml
 cat file1 file2  >> ipilimumab2.xml
 echo "</fda>" >> ipilimumab2.xml
 
