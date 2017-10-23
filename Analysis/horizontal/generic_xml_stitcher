@@ -1,0 +1,227 @@
+#!/bin/bash
+# George Chacko 10/21/2017
+
+echo "This script takes a set of source files and modifies them to incorporate xml tags then
+it assembles a complete xml file that is compliant with seedset.dtd
+
+Input filenames with pmids in them should terminate in '_pmid' and should include
+
+2 fda_*_pmid    files
+1 npl_pmid      file
+4 ct_*_pmid     files
+5 pubmed_*_pmid files
+
+Other input files relate to fda data and patent no
+
+"
+# sleep 1
+
+ls generic_fda_*_pmid > generic_stitcher_input
+ls generic_patent_npl_pmid >> generic_stitcher_input
+ls generic_ct_*_pmid >> generic_stitcher_input
+ls generic_pubmed_*_pmid >> generic_stitcher_input
+
+while read p; do
+  if [[ -e $p ]]; 
+  then echo  "\n$p exists "
+  fi
+  if [[ $(egrep ^[0-9]\{5,\}$ $p)  ]]; 
+  then echo "AND $p content seems pmid-like"
+  else echo "PROBLEM with $p"
+  fi
+done < generic_stitcher_input
+
+wc -l generic_fda_medical_review_pmid > t1 
+echo "generic_fda_medical_review_pmid has $(cat t1 | awk '{print $1}') pmids"
+
+wc -l generic_fda_other_review_pmid > t2
+echo "generic_fda_medical_review_pmid has $(cat t2 | awk '{print $1}') pmids"
+
+wc -l generic_patent_npl_pmid > t3
+echo "generic_fda_medical_review_pmid has $(cat t3 | awk '{print $1}') pmids"
+
+wc -l generic_ct_postapp_publication_pmid > t4
+echo "generic_fda_medical_review_pmid has $(cat t4 | awk '{print $1}') pmids"
+
+wc -l generic_ct_postapp_reference_pmid > t5
+echo "generic_fda_medical_review_pmid has $(cat t5 | awk '{print $1}') pmids"
+
+wc -l generic_ct_preapp_publication_pmid > t6
+echo "generic_fda_medical_review_pmid has $(cat t6 | awk '{print $1}') pmids"
+
+wc -l generic_ct_preapp_reference_pmid > t7
+echo "generic_fda_medical_review_pmid has $(cat t7 | awk '{print $1}') pmids"
+
+wc -l generic_pubmed_ct_postapp_pmid > t8
+echo "generic_fda_medical_review_pmid has $(cat t8 | awk '{print $1}') pmids"
+
+wc -l generic_pubmed_ct_preapp_pmid > t9
+echo "generic_fda_medical_review_pmid has $(cat t9 | awk '{print $1}') pmids"
+
+wc -l generic_pubmed_postapp_pmid > t10
+echo "generic_fda_medical_review_pmid has $(cat t10 | awk '{print $1}') pmids"
+
+wc -l generic_pubmed_preapp_pmid > t11
+echo "generic_fda_medical_review_pmid has $(cat t11 | awk '{print $1}') pmids"
+
+sleep 2
+
+
+echo "processing generic_fda_medical_review_pmid"
+# <!ELEMENT medical_review_pmid (#PCDATA)>
+sed 's/^/\<generic_fda_medical_review_pmid\>/g'  generic_fda_medical_review_pmid |
+ sed 's/$/\<\/generic_fda_medical_review_pmid\>/g' > file1
+
+echo "processing generic_fda_other_review_pmid"
+# <!ELEMENT fda_other_pmid (#PCDATA)>
+sed 's/^/\<generic_fda_other_pmid\>/g'  generic_fda_other_review_pmid |
+ sed 's/$/\<\/generic_fda_other_pmid\>/g' > file2
+
+echo "processing generic_npl_pmid"
+# <!ELEMENT npl_pmid (#PCDATA)>
+sed 's/^/\<generic_npl_pmid\>/g'  generic_patent_npl_pmid |
+ sed 's/$/\<\/generic_npl_pmid\>/g' > file3
+
+echo "processing generic_ct_preapp_reference_pmid"
+# <!ELEMENT ct_preapp_references_pmid (#PCDATA)>
+sed 's/^/\<ct_preapp_references_pmid\>/g'  generic_ct_preapp_reference_pmid |
+ sed 's/$/\<\/ct_preapp_references_pmid\>/g' > file4
+
+echo "processing generic_ct_preapp_publication_pmid"
+#  <!ELEMENT ct_preapp_publication_pmid (#PCDATA)>
+sed 's/^/\<ct_preapp_publication_pmid\>/g'  generic_ct_preapp_publication_pmid |
+ sed 's/$/\<\/ct_preapp_publication_pmid\>/g' > file5
+
+echo "processing generic_ct_postapp_reference_pmid"
+#  <!ELEMENT ct_postapp_references_pmid (#PCDATA)>
+sed 's/^/\<ct_postapp_reference_pmid\>/g'  generic_ct_postapp_reference_pmid |
+ sed 's/$/\<\/ct_postapp_reference_pmid\>/g' > file6
+
+echo "processing generic_ct_postapp_publication_pmid"
+#   <!ELEMENT ct_postapp_publication_pmid (#PCDATA)>
+sed 's/^/\<ct_postapp_publication_pmid\>/g'  generic_ct_postapp_publication_pmid |
+ sed 's/$/\<\/ct_postapp_publication_pmid\>/g' > file7
+
+echo "processing generic_pubmed_preapp_pmid"
+#   <!ELEMENT pubmed_preapp_pmid (#PCDATA)>
+sed 's/^/\<pubmed_preapp_pmid\>/g'  generic_pubmed_preapp_pmid |
+ sed 's/$/\<\/pubmed_preapp_pmid\>/g' > file8
+
+echo "processing generic_pubmed_postapp_pmid"
+#   <!ELEMENT pubmed_postapp_pmid (#PCDATA)>
+sed 's/^/\<pubmed_postapp_pmid\>/g'  generic_pubmed_postapp_pmid |
+ sed 's/$/\<\/pubmed_postapp_pmid\>/g' > file9
+
+echo "processing generic_pubmed_review_pmid"
+#   <!ELEMENT pubmed_review_pmid (#PCDATA)>
+sed 's/^/\<pubmed_review_pmid\>/g'  generic_pubmed_review_pmid |
+ sed 's/$/\<\/pubmed_review_pmid\>/g' > file10
+
+echo "processing generic_pubmed_ct_preapp_pmid"
+#   <!ELEMENT pubmed_ct_preapp_pmid (#PCDATA)>
+sed 's/^/\<generic_pubmed_ct_preapp_pmid\>/g'  generic_pubmed_ct_preapp_pmid |
+ sed 's/$/\<\/generic_pubmed_ct_preapp_pmid\>/g' > file11
+
+echo "processing generic_pubmed_ct_postapp_pmid"
+#   <!ELEMENT pubmed_ct_postapp_pmid (#PCDATA)>
+sed 's/^/\<pubmed_ct_postapp_pmid\>/g'  generic_pubmed_ct_postapp_pmid |
+ sed 's/$/\<\/pubmed_ct_postapp_pmid\>/g' > file12
+
+
+
+for f in file*
+do
+    if [$(cat $f | wc -l) = 0 ]
+	then
+	    echo "*** $f is problematic"
+	    else echo "$f has at least 1 line"
+    fi
+done
+
+head -41 ~/ERNIE/Analysis/horizontal/seedset.dtd > generic2.xml
+
+echo "<drug>" >> generic2.xml
+echo "<fda>" >> generic2.xml
+cat generic_fda_active_ingredient >> generic2.xml
+cat generic_fda_brand_name >> generic2.xml
+cat generic_fda_bla >> generic2.xml
+cat generic_fda_source >> generic2.xml
+cat file1 file2  >> generic2.xml
+echo "</fda>" >> generic2.xml
+
+echo "<patent>" >> generic2.xml
+cat generic_patent_pl_USpatentno >> generic2.xml
+cat file3  >> generic2.xml
+echo "</patent>" >> generic2.xml
+
+echo "<ct>" >> generic2.xml
+cat file4 file5 file6 file7  >> generic2.xml
+echo "</ct>" >> generic2.xml
+
+echo "<pubmed>" >> generic2.xml
+cat file8 file9 file10 file12 file12  >> generic2.xml
+echo "</pubmed>" >> generic2.xml
+
+echo "</drug>" >> generic2.xml
+
+xmllint --format generic2.xml > generic.xml
+rm file1
+rm file2
+rm file3
+rm file4
+rm file5
+rm file6
+rm file7
+rm file8
+rm file9
+rm file10
+rm file11
+rm file12
+rm generic2.xml
+
+# Create seedset_pmid  file
+#generic_fda_medical_review_pmid
+#generic_fda_other_review_pmid
+#generic_patent_npl_pmid
+#generic_ct_preapp_publication_pmid
+#generic_ct_preapp_reference_pmid
+#generic_pubmed_ct_preapp_pmid
+#generic_pubmed_preapp_pmid
+
+cat generic.xml | egrep _pmid\>[0-9]{3} > temp1
+cat temp1 | egrep fda > temp2
+cat temp1 | egrep npl_pmid > temp3
+cat temp1 | egrep preapp > temp4
+cat temp2 temp3 temp4 | cut -d '<' -f2 | cut -d '>' -f2 | sort | uniq > generic_seedset_pmid_presql
+cat generic_seedset_pmid_presql | wc -l  > line_count1
+echo "***"
+echo "$(cat line_count1) seedset pmids for generic"
+echo "***"
+rm temp1 temp2 temp3 temp4 line_count1
+
+# Create postapp_pmid files
+cp generic_ct_postapp_publication_pmid temp1
+cp generic_ct_postapp_reference_pmid temp2
+cp generic_pubmed_ct_postapp_pmid temp3
+cp generic_pubmed_postapp_pmid temp4 
+cat temp1 temp3 temp4 | sort | uniq > generic_postapp_pmid_presql
+cat generic_postapp_pmid_presql | wc -l > line_count2
+echo "***"
+echo "$(cat line_count2) postapp pmids for generic"
+echo "***"
+rm temp1 temp2 temp3 temp4 line_count2
+
+# Create generic_pubmed review file
+cp generic_pubmed_review_pmid temp1
+cat temp1 | sort | uniq > generic_review_pmid_presql
+cat generic_review_pmid_presql | wc -l > line_count3
+echo "***"
+echo "$(cat line_count3) review pmids for generic"
+echo "***"
+rm temp1 line_count3
+rm t[0-9]*
+
+
+
+
+
