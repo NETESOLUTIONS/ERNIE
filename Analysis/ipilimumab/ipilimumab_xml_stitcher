@@ -4,17 +4,20 @@
 echo "This script takes a set of source files and modifies them to incorporate xml tags then
 it assembles a complete xml file that is compliant with seedset.dtd
 
-Input filenames should terminate in '_pmid' and should include
+Input filenames with pmids in them should terminate in '_pmid' and should include
 
 2 fda_*_pmid    files
 1 npl_pmid      file
 4 ct_*_pmid     files
 5 pubmed_*_pmid files
+
+Other input files relate to fda data and patent no
+
 "
 # sleep 1
 
-ls ipilimumab_fda_* > ipilimumab_stitcher_input
-ls ipilimumab_npl_pmid >> ipilimumab_stitcher_input
+ls ipilimumab_fda_*_pmid > ipilimumab_stitcher_input
+ls ipilimumab_patent_npl_pmid >> ipilimumab_stitcher_input
 ls ipilimumab_ct_*_pmid >> ipilimumab_stitcher_input
 ls ipilimumab_pubmed_*_pmid >> ipilimumab_stitcher_input
 
@@ -34,7 +37,7 @@ echo "ipilimumab_fda_medical_review_pmid has $(cat t1 | awk '{print $1}') pmids"
 wc -l ipilimumab_fda_other_review_pmid > t2
 echo "ipilimumab_fda_medical_review_pmid has $(cat t2 | awk '{print $1}') pmids"
 
-wc -l ipilimumab_npl_pmid > t3
+wc -l ipilimumab_patent_npl_pmid > t3
 echo "ipilimumab_fda_medical_review_pmid has $(cat t3 | awk '{print $1}') pmids"
 
 wc -l ipilimumab_ct_postapp_publication_pmid > t4
@@ -76,7 +79,7 @@ sed 's/^/\<ipilimumab_fda_other_pmid\>/g'  ipilimumab_fda_other_review_pmid |
 
 echo "processing ipilimumab_npl_pmid"
 # <!ELEMENT npl_pmid (#PCDATA)>
-sed 's/^/\<ipilimumab_npl_pmid\>/g'  ipilimumab_npl_pmid |
+sed 's/^/\<ipilimumab_npl_pmid\>/g'  ipilimumab_patent_npl_pmid |
  sed 's/$/\<\/ipilimumab_npl_pmid\>/g' > file3
 
 echo "processing ipilimumab_ct_preapp_reference_pmid"
@@ -124,6 +127,8 @@ echo "processing ipilimumab_pubmed_ct_postapp_pmid"
 sed 's/^/\<pubmed_ct_postapp_pmid\>/g'  ipilimumab_pubmed_ct_postapp_pmid |
  sed 's/$/\<\/pubmed_ct_postapp_pmid\>/g' > file12
 
+
+
 for f in file*
 do
     if [$(cat $f | wc -l) = 0 ]
@@ -137,10 +142,14 @@ head -41 ~/ERNIE/Analysis/horizontal/seedset.dtd > ipilimumab2.xml
 
 echo "<drug>" >> ipilimumab2.xml
 echo "<fda>" >> ipilimumab2.xml
+cat ipilimumab_fda_active_ingredient >> ipilimumab2.xml
+cat ipilimumab_fda_brand_name >> ipilimumab2.xml
+cat ipilimumab_fda_bla >> ipilimumab2.xml
 cat file1 file2  >> ipilimumab2.xml
 echo "</fda>" >> ipilimumab2.xml
 
 echo "<patent>" >> ipilimumab2.xml
+cat ipilimumab_patent_pl_USpatentno >> ipilimumab2.xml
 cat file3  >> ipilimumab2.xml
 echo "</patent>" >> ipilimumab2.xml
 
@@ -172,7 +181,7 @@ rm ipilimumab2.xml
 # Create seedset_pmid  file
 #ipilimumab_fda_medical_review_pmid
 #ipilimumab_fda_other_review_pmid
-#ipilimumab_npl_pmid
+#ipilimumab_patent_npl_pmid
 #ipilimumab_ct_preapp_publication_pmid
 #ipilimumab_ct_preapp_reference_pmid
 #ipilimumab_pubmed_ct_preapp_pmid
