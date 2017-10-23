@@ -10,7 +10,7 @@
 
   <!ELEMENT therapeutic (fda,pubmed,ct,patent)>
 
-  <!ELEMENT fda (active_ingredient,brand_name,(nda|bla),approval_date,source,medical_review_pmid*,fda_other_pmid*)>
+  <!ELEMENT fda (active_ingredient,brand_name,(nda|bla)*,approval_date,source,medical_review_pmid*,fda_other_pmid*)>
   <!ELEMENT active_ingredient (#PCDATA)> 
   <!ELEMENT brand_name (#PCDATA)> 
   <!ELEMENT nda (#PCDATA)> 
