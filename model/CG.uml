@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.cg_uid_pmid_mapping</OriginalElement>
+  <nodes>
+    <node x="0.0" y="0.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.cg_uid_pmid_mapping</node>
+    <node x="0.0" y="96.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.cg_uids</node>
+  </nodes>
+  <notes />
+  <edges />
+  <settings layout="Hierarchic Group" zoom="1.0" x="84.0" y="129.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Key columns</Category>
+  </Categories>
+</Diagram>
+
