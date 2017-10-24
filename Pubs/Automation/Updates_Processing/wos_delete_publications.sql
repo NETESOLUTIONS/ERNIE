@@ -19,7 +19,7 @@ insert into del_wos_publications
   a.begin_page, a.end_page, a.publisher_name, a.publisher_address,
   a.publication_year, a.publication_date, a.created_date, a.last_modified_date,
   a.edition, a.source_filename
-  from wos_publications a inner join temp_delete_wosid b
+  from wos_publications a inner join temp_delete_wosid_6 b
   on a.source_id=b.source_id;
 delete from wos_publications a
   where exists

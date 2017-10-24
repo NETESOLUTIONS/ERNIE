@@ -6,6 +6,27 @@
 --set tablespace
 SET default_tablespace = ernie_wos_tbs;
 
+--DROP THE SPECIFIC TABLES IF THEY EXIST
+DROP TABLE IF EXISTS uhs_wos_abstracts;
+DROP TABLE IF EXISTS uhs_wos_addresses;
+DROP TABLE IF EXISTS uhs_wos_authors;
+DROP TABLE IF EXISTS uhs_wos_document_identifiers;
+DROP TABLE IF EXISTS uhs_wos_grants;
+DROP TABLE IF EXISTS uhs_wos_keywords;
+DROP TABLE IF EXISTS uhs_wos_publications;
+DROP TABLE IF EXISTS uhs_wos_references;
+DROP TABLE IF EXISTS uhs_wos_titles;
+DROP TABLE IF EXISTS del_wos_abstracts;
+DROP TABLE IF EXISTS del_wos_addresses;
+DROP TABLE IF EXISTS del_wos_authors;
+DROP TABLE IF EXISTS del_wos_document_identifiers;
+DROP TABLE IF EXISTS del_wos_grants;
+DROP TABLE IF EXISTS del_wos_keywords;
+DROP TABLE IF EXISTS del_wos_publications;
+DROP TABLE IF EXISTS del_wos_references;
+DROP TABLE IF EXISTS del_wos_titles;
+
+
 -- Build update tables
 CREATE TABLE uhs_wos_abstracts (
     id integer,
@@ -75,7 +96,7 @@ CREATE TABLE uhs_wos_publications (
     end_page character varying(30),
     publisher_name character varying(200),
     publisher_address character varying(300),
-    publication_year character varying(4),
+    publication_year integer,
     publication_date date,
     created_date date,
     last_modified_date date,
@@ -172,7 +193,7 @@ CREATE TABLE del_wos_publications (
     end_page character varying(30),
     publisher_name character varying(200),
     publisher_address character varying(300),
-    publication_year character varying(4),
+    publication_year integer,
     publication_date date,
     created_date date,
     last_modified_date date,

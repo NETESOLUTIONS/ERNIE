@@ -14,7 +14,7 @@ set search_path = public;
 
 \echo ***DELETING FROM TABLE: wos_keywords
 insert into del_wos_keywords
-  select a.* from wos_keywords a inner join temp_delete_wosid b
+  select a.* from wos_keywords a inner join temp_delete_wosid_5 b
   on a.source_id=b.source_id;
 delete from wos_keywords a
   where exists

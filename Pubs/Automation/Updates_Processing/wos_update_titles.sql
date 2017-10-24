@@ -6,7 +6,7 @@
 
 -- Set temporary tablespace for calculation.
 set log_temp_files = 0;
-set enable_seqscan='off';
+--set enable_seqscan='off';
 --set temp_tablespaces = 'temp_tbs';
 SET temp_tablespaces='temp'; -- temporaryly it is being set.
 --set enable_hashjoin = 'off';
@@ -17,7 +17,7 @@ set search_path = public;
 -- Update table: wos_titles
 \echo ***UPDATING TABLE: wos_titles
 insert into uhs_wos_titles
-  select a.* from wos_titles a inner join temp_update_wosid_titles b
+  select a.* from wos_titles a inner join temp_update_wosid_4 b
   on a.source_id=b.source_id;
 delete from wos_titles a where exists
   (select 1 from temp_update_wosid_4 b where a.source_id=b.source_id);

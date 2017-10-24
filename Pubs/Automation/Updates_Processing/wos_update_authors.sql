@@ -7,7 +7,7 @@
 
 -- Set temporary tablespace for calculation.
 set log_temp_files = 0;
-set enable_seqscan='off';
+--set enable_seqscan='off';
 --set temp_tablespaces = 'temp_tbs';
 SET temp_tablespaces='temp'; -- temporaryly it is being set.
 --set enable_hashjoin = 'off';
