@@ -7,10 +7,11 @@
 #########################################################################################################
 
 date
-# Change to working directory.
+# Change to working directory and clear the appropriate files
 update_dir=$1 ; work_dir=$2 ;csv_dir=$3 ; cur_dir=$4
 process_start=`date +%s`
 cd $cur_dir
+rm *.tar
 # Determine files for the update, copy the good ones to the local directory for processing
 echo ***Getting update files...
 ls $update_dir | grep tar > complete_filelist_ug.txt
@@ -24,8 +25,9 @@ do
   # Clear the work dir
   cd $work_dir
   rm -rf $work_dir/*
-  # Copy in the python codes
+  # Copy in the python codes and update sql file
   cp $cur_dir/*.py $work_dir
+  cp $cur_dir/*.sql $work_dir
   # For each file in update source dir, copy that file to the work dir
   cp $cur_dir/$file $work_dir
   cd $work_dir
