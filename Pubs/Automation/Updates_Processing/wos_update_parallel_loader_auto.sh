@@ -137,7 +137,7 @@ do
 
 
   python wos_update_split_db_table.py -tablename new_wos_references -rowcount 10000 -csv_dir $c_dir/table_split/
-
+  chmod 777 ./table_split/*
   psql -d ernie -f ./table_split/load_csv_table.sql
 
 
