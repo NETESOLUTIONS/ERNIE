@@ -3,7 +3,7 @@
 # the baseline reference generation sql script, the drug name, and two files holding review and seedset PMIDs
 
 # Collect input
-baseline_sql=$1; drug_name=$2; seedset_pmids=$3; review_pmids=$4;
+baseline_sql=$1; drug_name=$2; seedset_pmids=$3; review_pmids=$4; 
 # populate seedset and review pmid tables
 psql ernie -c "DROP TABLE IF EXISTS case_"$drug_name"_review_set;"
 psql ernie -c "CREATE TABLE case_"$drug_name"_review_set(pmid integer);"

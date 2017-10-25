@@ -37,7 +37,6 @@ create table case_DRUG_NAME_HERE_gen1_review_ref_pmid as
   from case_DRUG_NAME_HERE_gen1_review_ref a
   left join wos_pmid_mapping b
   on a.gen1_cited_wos_id=b.wos_id;
-drop table if exists case_DRUG_NAME_HERE_gen1_review_ref;
 update case_DRUG_NAME_HERE_gen1_review_ref_pmid
 set gen1_pmid =
 (    case
@@ -53,7 +52,7 @@ create table case_DRUG_NAME_HERE_adjusted_seed_set as
   from (
   select pmid from case_DRUG_NAME_HERE_seed_set
   union
-  select gen1_pmid from case_DRUG_NAME_HERE_gen1_review_ref
+  select gen1_pmid from case_DRUG_NAME_HERE_gen1_review_ref_pmid
 ) a;
 
 -------------------------------------------
