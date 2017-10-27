@@ -96,10 +96,10 @@ BEGIN
             on a.wos_id=b.source_id;');
         EXECUTE('update case_DRUG_NAME_HERE_gen'||X||'_ref
           set gen'||X||'_cited_wos_id =
-            (    case when gen'||X||'_cited_wos_id like \'MED%\' or gen'||X||'_cited_wos_id like \'NON%\' or gen'||X||'_cited_wos_id like \'WOS%\' or
-                     gen'||X||'_cited_wos_id like \'CSC%\' or gen'||X||'_cited_wos_id like \'INS%\' or
-                     gen'||X||'_cited_wos_id like \'BCI%\' or gen'||X||'_cited_wos_id like \'CCC%\' or
-                     gen'||X||'_cited_wos_id like \'SCI%\' or gen'||X||'_cited_wos_id=\'\'
+            (    case when gen'||X||'_cited_wos_id like \'MED\%\' or gen'||X||'_cited_wos_id like \'NON\%\' or gen'||X||'_cited_wos_id like \'WOS\%\' or
+                     gen'||X||'_cited_wos_id like \'CSC\%\' or gen'||X||'_cited_wos_id like \'INS\%\' or
+                     gen'||X||'_cited_wos_id like \'BCI\%\' or gen'||X||'_cited_wos_id like \'CCC\%\' or
+                     gen'||X||'_cited_wos_id like \'SCI\%\' or gen'||X||'_cited_wos_id=\'\'
                        then gen'||X||'_cited_wos_id
                      else substring(\'WOS:\'||gen'||X||'_cited_wos_id, 1)
                    end);');
@@ -112,7 +112,7 @@ BEGIN
         update case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
         set gen'||X||'_pmid =
         (    case
-                when gen'||X||'_cited_wos_id like \'MEDLINE:%\'
+                when gen'||X||'_cited_wos_id like \'MEDLINE:\%\'
                   then CAST(substring(gen'||X||'_cited_wos_id,9) as int)
                 else
                   gen'||X||'_pmid
@@ -129,10 +129,10 @@ BEGIN
           left join wos_references b
             on a.gen'||X-1||'_cited_wos_id=b.source_id;');
         EXECUTE('set gen'||X||'_cited_wos_id =
-            (    case when gen'||X||'_cited_wos_id like \'MED%\' or gen'||X||'_cited_wos_id like \'NON%\' or gen'||X||'_cited_wos_id like \'WOS%\' or
-                     gen'||X||'_cited_wos_id like \'CSC%\' or gen'||X||'_cited_wos_id like \'INS%\' or
-                     gen'||X||'_cited_wos_id like \'BCI%\' or gen'||X||'_cited_wos_id like \'CCC%\' or
-                     gen'||X||'_cited_wos_id like \'SCI%\' or gen'||X||'_cited_wos_id=\'\'
+            (    case when gen'||X||'_cited_wos_id like \'MED\\%\' or gen'||X||'_cited_wos_id like \'NON\%\' or gen'||X||'_cited_wos_id like \'WOS\%\' or
+                     gen'||X||'_cited_wos_id like \'CSC\%\' or gen'||X||'_cited_wos_id like \'INS\%\' or
+                     gen'||X||'_cited_wos_id like \'BCI\%\' or gen'||X||'_cited_wos_id like \'CCC\%\' or
+                     gen'||X||'_cited_wos_id like \'SCI\%\' or gen'||X||'_cited_wos_id=\'\'
                        then gen'||X||'_cited_wos_id
                      else substring(\'WOS:\'||gen'||X||'_cited_wos_id, 1)
                    end);');
@@ -145,7 +145,7 @@ BEGIN
         update case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
         set gen'||X||'_pmid =
         (    case
-                when gen'||X||'_cited_wos_id like \'MEDLINE:%\'
+                when gen'||X||'_cited_wos_id like \'MEDLINE:\%\'
                   then CAST(substring(gen'||X||'_cited_wos_id,9) as int)
                 else
                   gen'||X||'_pmid
