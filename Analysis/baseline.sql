@@ -80,7 +80,7 @@ select (1-CAST(count(distinct wos_id) as decimal)/count(distinct pmid)) as perce
 --Continued generational mapping added to the base table based on the number of iterations the user wants to cover
 DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
 create table case_DRUG_NAME_HERE_generational_references as
-select * from case_DRUG_NAME_HERE_pmid_wos_projects limit 1;
+select * from case_DRUG_NAME_HERE_pmid_wos_projects;
 
 DO $$
 BEGIN
@@ -159,4 +159,11 @@ BEGIN
       END IF;
       RAISE NOTICE 'Completed Iteration: %', X;
    END LOOP;
+   create index case_DRUG_NAME_HERE_generational_references_index on case_DRUG_NAME_HERE_generational_references
+     using btree (wos_id) tablespace ernie_index_tbs;
 END; $$
+
+--clean up review intermediate tables
+drop table if exists case_DRUG_NAME_HERE_gen1_review_ref;
+drop table if exists case_DRUG_NAME_HERE_gen1_review_ref_pmid;
+drop table if exists case_DRUG_NAME_HERE_gen1_review_ref;
