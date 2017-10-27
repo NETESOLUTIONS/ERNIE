@@ -58,7 +58,7 @@ create table case_DRUG_NAME_HERE_adjusted_seed_set as
 -------------------------------------------
 ---- Now we move on to actual analysis ----
 -------------------------------------------
---Show how many PMIDs we are starting with
+--Show the user how many PMIDs we are starting with
 \! echo 'Distinct PMID count in adjusted seed set:'
 select count(distinct pmid) as distinct_pmids_in_seed_set from case_DRUG_NAME_HERE_adjusted_seed_set;
 
@@ -71,66 +71,43 @@ select a.pmid, b.wos_id, c.project_number from
     on CAST(a.pmid as int)=b.pmid_int
   left join exporter_publink c
     on b.pmid_int=CAST(c.pmid as int);
+-- Show the user loss statistics via mapping
 \! echo 'Distinct WoS IDs in seed set:'
  select count(distinct wos_id) as distinct_wos_ids_for_seed_set from case_DRUG_NAME_HERE_pmid_wos_projects;
 \! echo 'Percent of seed PMIDs with WoS ID in database:'
 select CAST(count(distinct wos_id) as decimal)/count(distinct pmid) as percent_PMIDS_with_matching_WoS from case_DRUG_NAME_HERE_pmid_wos_projects;
---Get Gen1 Cited WoS IDs for all the given PMID/WoS IDs
-drop table if exists case_DRUG_NAME_HERE_gen1_ref;
-create table case_DRUG_NAME_HERE_gen1_ref as
-select a.*, b.cited_source_uid as gen1_cited_wos_id from
-  (select aa.* from
-    (select distinct wos_id, pmid
-      from case_DRUG_NAME_HERE_pmid_wos_projects) aa
-    where aa.wos_id is not null) a
-  left join wos_references b
-    on a.wos_id=b.source_id;
-update case_DRUG_NAME_HERE_gen1_ref
-set gen1_cited_wos_id =
-(    case when gen1_cited_wos_id like 'WOS%'
-           then gen1_cited_wos_id
-         when gen1_cited_wos_id like 'MED%' or gen1_cited_wos_id like 'NON%' or
-         gen1_cited_wos_id like 'CSC%' or gen1_cited_wos_id like 'INS%' or
-         gen1_cited_wos_id like 'BCI%' or gen1_cited_wos_id like 'CCC%' or
-         gen1_cited_wos_id like 'SCI%' or gen1_cited_wos_id=''
-           then gen1_cited_wos_id
-         else substring('WOS:'||gen1_cited_wos_id, 1)
-       end
-);
-create index case_DRUG_NAME_HERE_gen1_ref_idx on case_DRUG_NAME_HERE_gen1_ref
-  using btree (gen1_cited_wos_id) tablespace ernie_index_tbs;
 
---Get Gen1 PMIDs for all the Cited WoS documents
-drop table if exists case_DRUG_NAME_HERE_gen1_ref_pmid;
-create table case_DRUG_NAME_HERE_gen1_ref_pmid as
-  select a.*, b.pmid_int as gen1_pmid
-  from case_DRUG_NAME_HERE_gen1_ref a
-  left join wos_pmid_mapping b
-  on a.gen1_cited_wos_id=b.wos_id;
-create index case_DRUG_NAME_HERE_gen1_ref_pmid_idx on case_DRUG_NAME_HERE_gen1_ref_pmid
-  using btree (gen1_pmid) tablespace ernie_index_tbs;
-update case_DRUG_NAME_HERE_gen1_ref_pmid
-set gen1_pmid =
-(    case
-        when gen1_cited_wos_id like 'MEDLINE:%'
-          then CAST(substring(gen1_cited_wos_id,9) as int)
-        else
-          gen1_pmid
-     end
-);
+--Continued generational mapping added to the base table based on the number of iterations the user wants to cover
+create table case_DRUG_NAME_HERE_generational_references as
+select * from case_DRUG_NAME_HERE_pmid_wos_projects;
 
---Get Gen 1 Grants
-drop table if exists case_DRUG_NAME_HERE_gen1_ref_grant;
-create table case_DRUG_NAME_HERE_gen1_ref_grant as
-  select a.*, b.project_number as gen1_project_num
-  from case_DRUG_NAME_HERE_gen1_ref_pmid a
-  left join exporter_publink b
-  on a.gen1_pmid=CAST(b.pmid as int);
-create index case_DRUG_NAME_HERE_gen1_ref_grant_idx on case_DRUG_NAME_HERE_gen1_ref_grant
-  using btree (gen1_project_num) tablespace ernie_index_tbs;
+DO $$
+BEGIN
+   FOR X IN 1..INSERT_DESIRED_NUMBER_OF_ITERATIONS_HERE LOOP
+      IF X=1 THEN
+        EXECUTE('create table case_DRUG_NAME_HERE_gen'||X||'_ref as
+        select a.*, b.cited_source_uid as gen'||X||'_cited_wos_id from
+          (select aa.* from
+            (select distinct wos_id, pmid
+              from case_DRUG_NAME_HERE_generational_references) aa
+            where aa.wos_id is not null) a
+          left join wos_references b
+            on a.wos_id=b.source_id;');
+        DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
+        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref
+          RENAME TO case_DRUG_NAME_HERE_generational_references;');
 
---clean up intermediate tables
-drop table if exists case_DRUG_NAME_HERE_gen1_ref;
-drop table if exists case_DRUG_NAME_HERE_gen1_review_ref;
-drop table if exists case_DRUG_NAME_HERE_gen1_review_ref_pmid;
-drop table if exists case_DRUG_NAME_HERE_gen1_review_ref;
+      ELSE
+        EXECUTE('create table case_DRUG_NAME_HERE_gen'||X||'_ref as
+        select a.*, b.cited_source_uid as gen'||X||'_cited_wos_id from
+          case_DRUG_NAME_HERE_generational_references a
+          left join wos_references b
+            on a.gen'||X-1||'_cited_wos_id=b.source_id;');
+        DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
+        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref
+          RENAME TO case_DRUG_NAME_HERE_generational_references;');
+
+      END IF;
+      RAISE NOTICE 'Completed Iteration: %', counter;
+   END LOOP;
+END; $$
