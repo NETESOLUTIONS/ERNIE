@@ -80,7 +80,7 @@ select CAST(count(distinct wos_id) as decimal)/count(distinct pmid) as percent_P
 --Continued generational mapping added to the base table based on the number of iterations the user wants to cover
 DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
 create table case_DRUG_NAME_HERE_generational_references as
-select * from case_DRUG_NAME_HERE_pmid_wos_projects;
+select * from case_DRUG_NAME_HERE_pmid_wos_projects limit 10;
 
 DO $$
 BEGIN
