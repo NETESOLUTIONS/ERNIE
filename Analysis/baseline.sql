@@ -112,7 +112,7 @@ BEGIN
         update case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
         set gen'||X||'_pmid =
         (    case
-                when gen'||X||'_cited_wos_id like \'MEDLINE:\%\'
+                when gen'||X||'_cited_wos_id like ''MEDLINE:%''
                   then CAST(substring(gen'||X||'_cited_wos_id,9) as int)
                 else
                   gen'||X||'_pmid
