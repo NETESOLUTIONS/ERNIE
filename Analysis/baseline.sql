@@ -116,9 +116,9 @@ BEGIN
                   then CAST(substring(gen'||X||'_cited_wos_id,9) as int)
                 else
                   gen'||X||'_pmid
-             end );')
+             end );');
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
-        EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref;')
+        EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref;');
         EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
           RENAME TO case_DRUG_NAME_HERE_generational_references;');
 
@@ -130,12 +130,12 @@ BEGIN
             on a.gen'||X-1||'_cited_wos_id=b.source_id;');
         EXECUTE('update case_DRUG_NAME_HERE_gen'||X||'_ref
           set gen'||X||'_cited_wos_id =
-            (    case when gen'||X||'_cited_wos_id like \'MED\%\' or gen'||X||'_cited_wos_id like \'NON\%\' or gen'||X||'_cited_wos_id like \'WOS\%\' or
-                     gen'||X||'_cited_wos_id like \'CSC\%\' or gen'||X||'_cited_wos_id like \'INS\%\' or
-                     gen'||X||'_cited_wos_id like \'BCI\%\' or gen'||X||'_cited_wos_id like \'CCC\%\' or
-                     gen'||X||'_cited_wos_id like \'SCI\%\' or gen'||X||'_cited_wos_id=\'\'
+            (    case when gen'||X||'_cited_wos_id like ''MED%'' or gen'||X||'_cited_wos_id like ''NON%'' or gen'||X||'_cited_wos_id like ''WOS%'' or
+                     gen'||X||'_cited_wos_id like ''CSC%'' or gen'||X||'_cited_wos_id like ''INS%'' or
+                     gen'||X||'_cited_wos_id like ''BCI%'' or gen'||X||'_cited_wos_id like ''CCC%'' or
+                     gen'||X||'_cited_wos_id like ''SCI%'' or gen'||X||'_cited_wos_id=''''
                        then gen'||X||'_cited_wos_id
-                     else substring(\'WOS:\'||gen'||X||'_cited_wos_id, 1)
+                     else substring(''WOS:''||gen'||X||'_cited_wos_id, 1)
                    end);');
         EXECUTE('drop table if exists case_DRUG_NAME_HERE_gen'||X||'_ref_pmid;
         create table case_DRUG_NAME_HERE_gen'||X||'_ref_pmid as
@@ -146,13 +146,13 @@ BEGIN
         update case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
         set gen'||X||'_pmid =
         (    case
-                when gen'||X||'_cited_wos_id like \'MEDLINE:\%\'
+                when gen'||X||'_cited_wos_id like ''MEDLINE:%''
                   then CAST(substring(gen'||X||'_cited_wos_id,9) as int)
                 else
                   gen'||X||'_pmid
-             end );')
+             end );');
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
-        EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref;')
+        EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref;');
         EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
           RENAME TO case_DRUG_NAME_HERE_generational_references;');
 
