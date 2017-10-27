@@ -108,6 +108,6 @@ BEGIN
           RENAME TO case_DRUG_NAME_HERE_generational_references;');
 
       END IF;
-      RAISE NOTICE 'Completed Iteration: %', counter;
+      RAISE NOTICE 'Completed Iteration: %', X;
    END LOOP;
 END; $$
