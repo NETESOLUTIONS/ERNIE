@@ -135,9 +135,9 @@ do
   date >> log_wos_nonref.out
   nohup sh  wos_update_nonref_parallel.sh  >> log_wos_nonref.out &
 
-
+  chmod 777 -R $c_dir/table_split/
   python wos_update_split_db_table.py -tablename new_wos_references -rowcount 10000 -csv_dir $c_dir/table_split/
-  chmod 777 ./table_split/*
+  chmod 777 -R $c_dir/table_split/
   psql -d ernie -f ./table_split/load_csv_table.sql
 
 
