@@ -78,6 +78,7 @@ select a.pmid, b.wos_id, c.project_number from
 select CAST(count(distinct wos_id) as decimal)/count(distinct pmid) as percent_PMIDS_with_matching_WoS from case_DRUG_NAME_HERE_pmid_wos_projects;
 
 --Continued generational mapping added to the base table based on the number of iterations the user wants to cover
+DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
 create table case_DRUG_NAME_HERE_generational_references as
 select * from case_DRUG_NAME_HERE_pmid_wos_projects;
 
