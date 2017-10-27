@@ -54,7 +54,9 @@ create table case_DRUG_NAME_HERE_adjusted_seed_set as
   union
   select gen1_pmid from case_DRUG_NAME_HERE_gen1_review_ref_pmid
 ) a;
-
+--clean up review intermediate tables
+drop table if exists case_DRUG_NAME_HERE_gen1_review_ref_pmid;
+drop table if exists case_DRUG_NAME_HERE_gen1_review_ref;
 -------------------------------------------
 ---- Now we move on to actual analysis ----
 -------------------------------------------
@@ -161,9 +163,4 @@ BEGIN
    END LOOP;
    create index case_DRUG_NAME_HERE_generational_references_index on case_DRUG_NAME_HERE_generational_references
      using btree (wos_id) tablespace ernie_index_tbs;
-END; $$
-
---clean up review intermediate tables
-drop table if exists case_DRUG_NAME_HERE_gen1_review_ref;
-drop table if exists case_DRUG_NAME_HERE_gen1_review_ref_pmid;
-drop table if exists case_DRUG_NAME_HERE_gen1_review_ref;
+END; $$;
