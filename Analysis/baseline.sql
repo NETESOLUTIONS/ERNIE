@@ -72,15 +72,15 @@ select a.pmid, b.wos_id, c.project_number from
   left join exporter_publink c
     on b.pmid_int=CAST(c.pmid as int);
 -- Show the user loss statistics via mapping
-\! echo 'Distinct WoS IDs in seed set:'
+\! echo 'Total Distinct WoS IDs in seed set:'
  select count(distinct wos_id) as distinct_wos_ids_for_seed_set from case_DRUG_NAME_HERE_pmid_wos_projects;
-\! echo 'Percent of seed PMIDs with WoS ID in database:'
-select CAST(count(distinct wos_id) as decimal)/count(distinct pmid) as percent_PMIDS_with_matching_WoS from case_DRUG_NAME_HERE_pmid_wos_projects;
+\! echo 'Percent loss when mapping PMID to WoS for seed set:'
+select (1-CAST(count(distinct wos_id) as decimal)/count(distinct pmid)) as percent_PMIDS_with_matching_WoS from case_DRUG_NAME_HERE_pmid_wos_projects;
 
 --Continued generational mapping added to the base table based on the number of iterations the user wants to cover
 DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
 create table case_DRUG_NAME_HERE_generational_references as
-select * from case_DRUG_NAME_HERE_pmid_wos_projects limit 10;
+select * from case_DRUG_NAME_HERE_pmid_wos_projects limit 1;
 
 DO $$
 BEGIN
@@ -94,8 +94,32 @@ BEGIN
             where aa.wos_id is not null) a
           left join wos_references b
             on a.wos_id=b.source_id;');
+        EXECUTE('update case_DRUG_NAME_HERE_gen'||X||'_ref
+          set gen'||X||'_cited_wos_id =
+            (    case when gen'||X||'_cited_wos_id like \'MED%\' or gen'||X||'_cited_wos_id like \'NON%\' or gen'||X||'_cited_wos_id like \'WOS%\' or
+                     gen'||X||'_cited_wos_id like \'CSC%\' or gen'||X||'_cited_wos_id like \'INS%\' or
+                     gen'||X||'_cited_wos_id like \'BCI%\' or gen'||X||'_cited_wos_id like \'CCC%\' or
+                     gen'||X||'_cited_wos_id like \'SCI%\' or gen'||X||'_cited_wos_id=\'\'
+                       then gen'||X||'_cited_wos_id
+                     else substring(\'WOS:\'||gen'||X||'_cited_wos_id, 1)
+                   end);');
+        EXECUTE('drop table if exists case_DRUG_NAME_HERE_gen'||X||'_ref_pmid;
+        create table case_DRUG_NAME_HERE_gen'||X||'_ref_pmid as
+          select a.*, b.pmid_int as gen'||X||'_pmid
+          from case_DRUG_NAME_HERE_gen'||X||'_ref a
+          left join wos_pmid_mapping b
+          on a.gen'||X||'_cited_wos_id=b.wos_id;
+        update case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
+        set gen'||X||'_pmid =
+        (    case
+                when gen'||X||'_cited_wos_id like \'MEDLINE:%\'
+                  then CAST(substring(gen'||X||'_cited_wos_id,9) as int)
+                else
+                  gen'||X||'_pmid
+             end );')
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
-        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref
+        EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref;')
+        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
           RENAME TO case_DRUG_NAME_HERE_generational_references;');
 
       ELSE
@@ -104,8 +128,31 @@ BEGIN
           case_DRUG_NAME_HERE_generational_references a
           left join wos_references b
             on a.gen'||X-1||'_cited_wos_id=b.source_id;');
+        EXECUTE('set gen'||X||'_cited_wos_id =
+            (    case when gen'||X||'_cited_wos_id like \'MED%\' or gen'||X||'_cited_wos_id like \'NON%\' or gen'||X||'_cited_wos_id like \'WOS%\' or
+                     gen'||X||'_cited_wos_id like \'CSC%\' or gen'||X||'_cited_wos_id like \'INS%\' or
+                     gen'||X||'_cited_wos_id like \'BCI%\' or gen'||X||'_cited_wos_id like \'CCC%\' or
+                     gen'||X||'_cited_wos_id like \'SCI%\' or gen'||X||'_cited_wos_id=\'\'
+                       then gen'||X||'_cited_wos_id
+                     else substring(\'WOS:\'||gen'||X||'_cited_wos_id, 1)
+                   end);');
+        EXECUTE('drop table if exists case_DRUG_NAME_HERE_gen'||X||'_ref_pmid;
+        create table case_DRUG_NAME_HERE_gen'||X||'_ref_pmid as
+          select a.*, b.pmid_int as gen'||X||'_pmid
+          from case_DRUG_NAME_HERE_gen'||X||'_ref a
+          left join wos_pmid_mapping b
+          on a.gen'||X||'_cited_wos_id=b.wos_id;
+        update case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
+        set gen'||X||'_pmid =
+        (    case
+                when gen'||X||'_cited_wos_id like \'MEDLINE:%\'
+                  then CAST(substring(gen'||X||'_cited_wos_id,9) as int)
+                else
+                  gen'||X||'_pmid
+             end );')
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
-        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref
+        EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref;')
+        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
           RENAME TO case_DRUG_NAME_HERE_generational_references;');
 
       END IF;
