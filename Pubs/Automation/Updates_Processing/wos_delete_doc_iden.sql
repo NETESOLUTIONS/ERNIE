@@ -14,7 +14,7 @@ set search_path = public;
 
 \echo ***DELETING FROM TABLE: wos_document_identifiers
 insert into del_wos_document_identifiers
-  select a.* from wos_document_identifiers a inner join temp_delete_wosid b
+  select a.* from wos_document_identifiers a inner join temp_delete_wosid_3 b
   on a.source_id=b.source_id;
 delete from wos_document_identifiers a
   where exists

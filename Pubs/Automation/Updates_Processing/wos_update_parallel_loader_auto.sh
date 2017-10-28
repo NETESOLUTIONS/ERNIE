@@ -135,9 +135,9 @@ do
   date >> log_wos_nonref.out
   nohup sh  wos_update_nonref_parallel.sh  >> log_wos_nonref.out &
 
-
+  chmod 777 -R $c_dir/table_split/
   python wos_update_split_db_table.py -tablename new_wos_references -rowcount 10000 -csv_dir $c_dir/table_split/
-
+  chmod 777 -R $c_dir/table_split/
   psql -d ernie -f ./table_split/load_csv_table.sql
 
 
@@ -239,7 +239,7 @@ date >> time_keeper.txt
 date
 
 # Send log via email.
-psql -d ernie -c 'select * from update_log_wos order by id;' | mail -s "WOS annual load test Log" avon@nete.com
+psql -d ernie -c 'select * from update_log_wos order by id;' | mail -s "WOS Weekly Update Log" avon@nete.com
 
 process_end=`date +%s`
 echo $((process_end-process_start)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec :: UPDATE PROCESS END-to-END  DURATION UTC"}' >> time_keeper.txt

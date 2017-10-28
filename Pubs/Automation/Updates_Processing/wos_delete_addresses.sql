@@ -14,7 +14,7 @@ set search_path = public;
 
 \echo ***DELETING FROM TABLE: wos_addresses
 insert into del_wos_addresses
-  select a.* from wos_addresses a inner join temp_delete_wosid b
+  select a.* from wos_addresses a inner join temp_delete_wosid_1 b
   on a.source_id=b.source_id;
 delete from wos_addresses a
   where exists
