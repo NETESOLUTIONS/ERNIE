@@ -118,10 +118,16 @@ BEGIN
                   then CAST(substring(gen'||X||'_cited_wos_id,9) as int)
                 else
                   gen'||X||'_pmid
-             end );');
+             end );
+        create table case_DRUG_NAME_HERE_gen'||X||'_ref_pmid_grant as
+          select a.*, b.project_number as gen'||X||'_project_number
+          from case_DRUG_NAME_HERE_gen'||X||'_ref_pmid a
+          left join exporter_publink b
+          on a.gen'||X||'_pmid=CAST(b.pmid as int);');
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
         EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref;');
-        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
+        EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref_pmid;');
+        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid_grant
           RENAME TO case_DRUG_NAME_HERE_generational_references;');
 
       ELSE
@@ -152,10 +158,16 @@ BEGIN
                   then CAST(substring(gen'||X||'_cited_wos_id,9) as int)
                 else
                   gen'||X||'_pmid
-             end );');
+             end );
+        create table case_DRUG_NAME_HERE_gen'||X||'_ref_pmid_grant as
+          select a.*, b.project_number as gen'||X||'_project_number
+          from case_DRUG_NAME_HERE_gen'||X||'_ref_pmid a
+          left join exporter_publink b
+          on a.gen'||X||'_pmid=CAST(b.pmid as int);');
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
         EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref;');
-        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
+        EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref_pmid;');
+        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid_grant
           RENAME TO case_DRUG_NAME_HERE_generational_references;');
 
       END IF;
