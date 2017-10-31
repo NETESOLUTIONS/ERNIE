@@ -66,14 +66,14 @@ drop table if exists case_DRUG_NAME_HERE_gen1_review_ref;
 -------------------------------------------
 --Show the user how many PMIDs we are starting with
 \! echo 'Distinct PMID count in adjusted seed set:'
-select count(distinct pmid) as distinct_pmids_in_seed_set from case_DRUG_NAME_HERE_adjusted_seed_set;
+select count(distinct pmid) as distinct_pmids_in_seed_set from case_DRUG_NAME_HERE;
 
 --Map PMID to WoS IDs and Exporter Projects
 \! echo 'Mapping PMIDs to WoS IDs'
 drop table if exists case_DRUG_NAME_HERE_pmid_wos_projects;
 create table case_DRUG_NAME_HERE_pmid_wos_projects as
 select a.pmid, b.wos_id, c.project_number from
-  (select distinct pmid from case_DRUG_NAME_HERE_adjusted_seed_set) a left join wos_pmid_mapping b
+  (select distinct pmid from case_DRUG_NAME_HERE) a left join wos_pmid_mapping b
     on CAST(a.pmid as int)=b.pmid_int
   left join exporter_publink c
     on b.pmid_int=CAST(c.pmid as int);
