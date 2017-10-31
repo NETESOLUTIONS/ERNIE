@@ -140,9 +140,9 @@ BEGIN
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network_pmid as
         select distinct b.pmid_int as citing_pmid, a.citing_wos, a.cited_wos, c.pmid_int as cited_pmid
         from
-          case_DRUG_NAME_HERE_citation_network a inner join wos_pmid_mapping b
+          case_DRUG_NAME_HERE_citation_network a left join wos_pmid_mapping b
             on a.citing_wos=b.wos_id
-          inner join wos_pmid_mapping c
+          left join wos_pmid_mapping c
             on a.cited_wos=c.wos_id;
         update case_DRUG_NAME_HERE_citation_network_pmid
           set citing_pmid =
