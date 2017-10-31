@@ -129,23 +129,19 @@ BEGIN
         EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref_pmid;');
         EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid_grant
           RENAME TO case_DRUG_NAME_HERE_generational_references;');
-        create index case_DRUG_NAME_HERE_generational_references_index on case_DRUG_NAME_HERE_generational_references
+        create index case_DRUG_NAME_HERE_generational_references_wos_index on case_DRUG_NAME_HERE_generational_references
           using btree (wos_id) tablespace ernie_index_tbs;
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network as
-        select distinct aa.citing, aa.cited from (
-        select distinct wos_id as citing, gen'||X||'_cited_wos_id as cited
-          from case_DRUG_NAME_HERE_generational_references
-          where wos_id is not null and gen'||X||'_cited_wos_id is not null
-        union all
-        select distinct a.gen'||X||'_cited_wos_id as citing, b.cited_source_uid as cited
-          from case_DRUG_NAME_HERE_generational_references a
-          left join wos_references b
-            on a.gen'||X||'_cited_wos_id=b.source_id
-          where b.cited_source_uid in
-            (select wos_id from case_DRUG_NAME_HERE_generational_references where wos_id is not null)
-          and a.gen'||X||'_cited_wos_id is not null
-          ) aa;');
+        select distinct a.citing, b.source_id as cited from
+          ( select distinct wos_id as citing from case_DRUG_NAME_HERE_generational_references
+            union all
+            select distinct gen'||X||'_cited_wos_id as citing from case_DRUG_NAME_HERE_generational_references
+          ) a
+          inner join wos_references b
+            on a.citing=b.source_id
+          where b.source_id in (select wos_id as citing from case_DRUG_NAME_HERE_generational_references)
+            or b.source_id in (select gen'||X||'_cited_wos_id as citing from case_DRUG_NAME_HERE_generational_references) ;');
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_authors;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network_authors as
         select distinct a.wos_id, b.pmid, c.full_name from
