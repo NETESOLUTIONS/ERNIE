@@ -140,7 +140,7 @@ BEGIN
         select a.gen'||X||'_cited_wos_id as citing, b.cited_source_uid as cited
           from case_DRUG_NAME_HERE_generational_references a
           left join wos_references b
-            on a.gen'||X||'_cited_wos_id=b.source_id;
+            on a.gen'||X||'_cited_wos_id=b.source_id
           where b.cited_source_uid in
             (select wos_id from case_DRUG_NAME_HERE_generational_references)
           );');
