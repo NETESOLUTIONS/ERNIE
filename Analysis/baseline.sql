@@ -149,11 +149,12 @@ BEGIN
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_authors;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network_authors as
         select distinct a.wos_id, b.pmid, c.full_name from
-        (select distinct wos_id
+        (select distinct aa.wos_id
           from (
               select distinct citing as wos_id from case_DRUG_NAME_HERE_citation_network
               union all
               select distinct cited as wos_id from case_DRUG_NAME_HERE_citation_network
+            ) aa
         ) a
         left join wos_pmid_mapping b
           on a.wos_id=b.wos_id
