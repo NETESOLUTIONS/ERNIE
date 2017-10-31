@@ -161,7 +161,8 @@ BEGIN
                   then ''NA''
                 else
                   pmid
-             end )
+             end );
+        update case_DRUG_NAME_HERE_citation_network_authors     
         set full_name=
             (case
                 when full_name is null
