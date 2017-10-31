@@ -20,23 +20,23 @@ b) Assemble lists of pmids from each data source.
    For buprenorphine, the original patent appears to be US3433791, granted in 1969, no NPL were found. http://www.naabt.org/documents/buprenorphine_patent.pdf
 
    ii. Clinical Trials. Search for buprenorphine  in the interventions field of ct_clinical_studies in ERNIE. Tag each clinical trial with completion
-   date (year). 
+   date (year). For buprenorphine the cutoff year would be > 1982
 
    create table case_buprenorphine_ct as select nct_id, start_date, completion_date, SUBSTRING(completion_date FROM '.{4}$') as
    year_of_completion from ct_clinical_studies where nct_id in (select distinct nct_id from ct_interventions where lower(intervention_name) like '%buprenorphine%'
-   or lower(intervention_name) like '%kalydeco%') order by year_of_completion;
+   or lower(intervention_name) like '%buprenex%') order by year_of_completion;
 
 
-    By convention in this study, for buprenorphine, which was approved on 12/29/1981, Dec 31, 1981 is the cut-off date for pre-approval to post-approval. 
+    By revised convention in this study, for buprenorphine, which was approved on 12/29/1981, 1982 is the cut-off date for pre-approval to post-approval. 
     This comes with its own set of issues but it is what it is. Thus, tag the retrieved  NCTs as <ct_preapp_nct></ct_preapp_nct> and 
-    <ct_postapp_nct></ct_postapp_nct> acoording to year of completion.
+    <ct_postapp_nct></ct_postapp_nct> according to year of completion.
     
     For each NCT join with the ct_publications and ct_references tables to identify pmids for references and publications respectively. Thus. 
     
-    (i) ct_preapp_reference_pmid: select pmid from ct_references where nct_id in (select nct_id from case_buprenorphine_ct where year_of_completion::int <= 1981);
-    (ii) ct_preapp_publication_pmid: select pmid from ct_publications where nct_id in (select nct_id from case_buprenorphine_ct where year_of_completion::int <= 1981);  
-    (iii) ct_postapp_reference_pmid: select pmid from ct_references where nct_id in (select nct_id from case_buprenorphine_ct where year_of_completion::int > 1981);
-    (iv) ct_postapp_publication_pmid: select pmid from ct_publications where nct_id in (select nct_id from case_buprenorphine_ct where year_of_completion::int > 1981);
+    (i) ct_preapp_reference_pmid: select pmid from ct_references where nct_id in (select nct_id from case_buprenorphine_ct where year_of_completion::int <= 1982);
+    (ii) ct_preapp_publication_pmid: select pmid from ct_publications where nct_id in (select nct_id from case_buprenorphine_ct where year_of_completion::int <= 1982);  
+    (iii) ct_postapp_reference_pmid: select pmid from ct_references where nct_id in (select nct_id from case_buprenorphine_ct where year_of_completion::int > 1982);
+    (iv) ct_postapp_publication_pmid: select pmid from ct_publications where nct_id in (select nct_id from case_buprenorphine_ct where year_of_completion::int > 1982);
  
     <ct_preapp_reference_pmid></ct_preapp_reference_pmid> and <ct_preapp_publication_pmid></ct_preapp_publication_pmid>
     <ct_postapp_reference_pmid></ct_postapp_reference_pmid> and <ct_postapp_publication_pmid></ct_postapp_publication_pmid>
@@ -49,24 +49,23 @@ b) Assemble lists of pmids from each data source.
 
     Again using the preapp and postapp convention conduct PubMed searches.
 
-    Preapp: (("buprenorphine"[MeSH Terms] OR "buprenorphine"[All Fields]) OR "buprenorphine"[MeSH Terms]) 
-    AND ("1900/01/01"[PDAT] : "1981/12/31"[PDAT])
+    Preapp: (("buprenorphine"[MeSH Terms] OR "buprenorphine"[All Fields]) AND ("1900/01/01"[PDAT] : "1982/12/29"[PDAT])) AND "english"[Language]
 
-    Postapp: (("buprenorphine"[MeSH Terms] OR "buprenorphine"[All Fields]) OR "buprenorphine"[MeSH Terms]) 
-    AND ("1981/12/31"[PDAT] : "3000"[PDAT])
+    Postapp: (("buprenorphine"[MeSH Terms] OR "buprenorphine"[All Fields]) AND ("1982/12/29"[PDAT] : "3000"[PDAT])) AND "english"[Language]
 
-    Reviews: To capture reviews published a year post-approval (((buprenorphine) AND "review"[Publication Type]) 
-    AND ("1900/01/01"[Date - Publication] : "1982/12/31"[Date - Publication]))
+    Reviews: To capture reviews published a year post-approval: ((("buprenorphine"[MeSH Terms] OR "buprenorphine"[All Fields]) AND ("1982/12/29"[PDAT] : "1983/12/29"[PDAT])) 
+    AND "review"[Publication Type]) AND "english"[Language]
+
     tag as <pubmed_review_pmid> </pubmed_review_pmid> 
 
     PubMed Clinical Trials: To capture clinical trial publications that are not in the National Clinical Trials database 
     
-	Preapp: ((("buprenorphine"[MeSH Terms] OR "buprenorphine"[All Fields]) OR "buprenorphine"[MeSH Terms]) 
-	AND "clinical trial"[Publication Type]) AND ("1900/01/01"[PDAT] : "1981/12/31"[PDAT])
+	Preapp: ((("buprenorphine"[MeSH Terms] OR "buprenorphine"[All Fields]) AND ("1900/01/01"[PDAT] : "1982/12/29"[PDAT])) AND "english"[Language]) 
+	AND "clinical trial"[Publication Type]
  	tag as <pubmed_ct_preapp_pmid> </<pubmed_ct_preapp_pmid>
 
-    	Postapp: ((("buprenorphine"[MeSH Terms] OR "buprenorphine"[All Fields]) OR "buprenorphine"[MeSH Terms]) 
-	AND "clinical trial"[Publication Type]) AND ("1981/12/31"[PDAT] : "3000"[PDAT])
+    	Postapp: ((((buprenorphine) AND ("1982/12/29"[Date - Publication] : "3000"[Date - Publication])) AND "english"[Language])) 
+	AND "clinical trial"[Publication Type]
 
 A buprenorphine.xml file is constructed using these tags, that is compliant with a DTD (seedset.dtd) which can be found on the Github repo.
 
