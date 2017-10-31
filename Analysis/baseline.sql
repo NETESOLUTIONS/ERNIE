@@ -146,6 +146,19 @@ BEGIN
             (select wos_id from case_DRUG_NAME_HERE_generational_references where wos_id is not null)
           and a.gen'||X||'_cited_wos_id is not null
           ) aa;');
+        DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_authors;
+        EXECUTE('create table case_DRUG_NAME_HERE_citation_network_authors as
+        select distinct a.wos_id, b.pmid, c.full_name from
+        (select distinct wos_id
+          from (
+              select distinct citing as wos_id from case_DRUG_NAME_HERE_citation_network
+              union all
+              select distinct cited as wos_id from case_DRUG_NAME_HERE_citation_network
+        ) a
+        left join wos_pmid_mapping b
+          on a.wos_id=b.wos_id
+        left join wos_authors c
+          on a.wos_id=c.source_id;');
 
       ELSE
         EXECUTE('create table case_DRUG_NAME_HERE_gen'||X||'_ref as
