@@ -4,8 +4,8 @@
 set default_tablespace=ernie_default_tbs;
 
 -- Delete any '00000' entries in our base sql tables
-DELETE FROM case_DRUG_NAME_HERE_review_set WHERE pmid like'00000';
-DELETE FROM case_DRUG_NAME_HERE_seed_set WHERE pmid like '00000';
+DELETE FROM case_DRUG_NAME_HERE_review_set WHERE pmid='00000';
+DELETE FROM case_DRUG_NAME_HERE_seed_set WHERE pmid='00000';
 
 -- List how many review pmids and seed pmids we are starting with
 \! echo '***Count of pmids in review set:'
