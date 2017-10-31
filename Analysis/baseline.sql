@@ -46,8 +46,8 @@ set gen1_pmid =
           gen1_pmid
      end
 );
-drop table if exists case_DRUG_NAME_HERE_adjusted_seed_set;
-create table case_DRUG_NAME_HERE_adjusted_seed_set as
+drop table if exists case_DRUG_NAME_HERE;
+create table case_DRUG_NAME_HERE as
   select distinct pmid
   from (
   select pmid from case_DRUG_NAME_HERE_seed_set
