@@ -3,6 +3,10 @@
 
 set default_tablespace=ernie_default_tbs;
 
+-- Delete any '00000' entries in our base sql tables
+DELETE FROM case_DRUG_NAME_HERE_review_set WHERE pmid='00000';
+DELETE FROM case_DRUG_NAME_HERE_seed_set WHERE pmid='00000';
+
 -- List how many review pmids and seed pmids we are starting with
 \! echo '***Count of pmids in review set:'
 select count(*) as review_set_pmid_count from case_DRUG_NAME_HERE_review_set;
@@ -46,8 +50,8 @@ set gen1_pmid =
           gen1_pmid
      end
 );
-drop table if exists case_DRUG_NAME_HERE_adjusted_seed_set;
-create table case_DRUG_NAME_HERE_adjusted_seed_set as
+drop table if exists case_DRUG_NAME_HERE;
+create table case_DRUG_NAME_HERE as
   select distinct pmid
   from (
   select pmid from case_DRUG_NAME_HERE_seed_set
@@ -62,14 +66,14 @@ drop table if exists case_DRUG_NAME_HERE_gen1_review_ref;
 -------------------------------------------
 --Show the user how many PMIDs we are starting with
 \! echo 'Distinct PMID count in adjusted seed set:'
-select count(distinct pmid) as distinct_pmids_in_seed_set from case_DRUG_NAME_HERE_adjusted_seed_set;
+select count(distinct pmid) as distinct_pmids_in_seed_set from case_DRUG_NAME_HERE;
 
 --Map PMID to WoS IDs and Exporter Projects
 \! echo 'Mapping PMIDs to WoS IDs'
 drop table if exists case_DRUG_NAME_HERE_pmid_wos_projects;
 create table case_DRUG_NAME_HERE_pmid_wos_projects as
 select a.pmid, b.wos_id, c.project_number from
-  (select distinct pmid from case_DRUG_NAME_HERE_adjusted_seed_set) a left join wos_pmid_mapping b
+  (select distinct pmid from case_DRUG_NAME_HERE) a left join wos_pmid_mapping b
     on CAST(a.pmid as int)=b.pmid_int
   left join exporter_publink c
     on b.pmid_int=CAST(c.pmid as int);
@@ -140,9 +144,9 @@ BEGIN
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network_pmid as
         select distinct b.pmid_int as citing_pmid, a.citing_wos, a.cited_wos, c.pmid_int as cited_pmid
         from
-          case_DRUG_NAME_HERE_citation_network a inner join wos_pmid_mapping b
+          case_DRUG_NAME_HERE_citation_network a left join wos_pmid_mapping b
             on a.citing_wos=b.wos_id
-          inner join wos_pmid_mapping c
+          left join wos_pmid_mapping c
             on a.cited_wos=c.wos_id;
         update case_DRUG_NAME_HERE_citation_network_pmid
           set citing_pmid =
@@ -171,6 +175,16 @@ BEGIN
         ) a
         left join wos_authors b
           on a.wos_id=b.source_id
+        where a.wos_id is not null;');
+        DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_grants;
+        EXECUTE('create table case_DRUG_NAME_HERE_citation_network_grants as
+        select distinct a.pmid, a.wos_id, b.project_number from
+        ( select distinct citing_wos as wos_id, citing_pmid as pmid from case_DRUG_NAME_HERE_citation_network
+          union all
+          select distinct cited_wos as wos_id, cited_pmid as pmid from case_DRUG_NAME_HERE_citation_network
+        ) a
+        left join exporter_publink b
+          on a.pmid=CAST(b.pmid as int)
         where a.wos_id is not null;');
 
       ELSE
