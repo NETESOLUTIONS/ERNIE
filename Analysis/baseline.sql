@@ -118,11 +118,32 @@ BEGIN
                   then CAST(substring(gen'||X||'_cited_wos_id,9) as int)
                 else
                   gen'||X||'_pmid
-             end );');
+             end );
+        create table case_DRUG_NAME_HERE_gen'||X||'_ref_pmid_grant as
+          select a.*, b.project_number as gen'||X||'_project_number
+          from case_DRUG_NAME_HERE_gen'||X||'_ref_pmid a
+          left join exporter_publink b
+          on a.gen'||X||'_pmid=CAST(b.pmid as int);');
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
         EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref;');
-        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
+        EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref_pmid;');
+        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid_grant
           RENAME TO case_DRUG_NAME_HERE_generational_references;');
+        create index case_DRUG_NAME_HERE_generational_references_index on case_DRUG_NAME_HERE_generational_references
+          using btree (wos_id) tablespace ernie_index_tbs;
+        DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network;
+        EXECUTE('create table case_DRUG_NAME_HERE_citation_network as
+        select distinct(aa.citing, aa.cited) from (
+        select wos_id as citing, gen'||X||'_cited_wos_id as cited
+          from case_DRUG_NAME_HERE_generational_references
+        union all
+        select a.gen'||X||'_cited_wos_id as citing, b.cited_source_uid as cited
+          from case_DRUG_NAME_HERE_generational_references a
+          left join wos_references b
+            on a.gen'||X||'_cited_wos_id=b.source_id
+          where b.cited_source_uid in
+            (select wos_id from case_DRUG_NAME_HERE_generational_references)
+          ) aa;');
 
       ELSE
         EXECUTE('create table case_DRUG_NAME_HERE_gen'||X||'_ref as
@@ -152,15 +173,19 @@ BEGIN
                   then CAST(substring(gen'||X||'_cited_wos_id,9) as int)
                 else
                   gen'||X||'_pmid
-             end );');
+             end );
+        create table case_DRUG_NAME_HERE_gen'||X||'_ref_pmid_grant as
+          select a.*, b.project_number as gen'||X||'_project_number
+          from case_DRUG_NAME_HERE_gen'||X||'_ref_pmid a
+          left join exporter_publink b
+          on a.gen'||X||'_pmid=CAST(b.pmid as int);');
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
         EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref;');
-        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
+        EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref_pmid;');
+        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid_grant
           RENAME TO case_DRUG_NAME_HERE_generational_references;');
 
       END IF;
       RAISE NOTICE 'Completed Iteration: %', X;
    END LOOP;
-   create index case_DRUG_NAME_HERE_generational_references_index on case_DRUG_NAME_HERE_generational_references
-     using btree (wos_id) tablespace ernie_index_tbs;
 END; $$;
