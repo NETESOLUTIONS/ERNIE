@@ -137,43 +137,41 @@ BEGIN
           where b.cited_source_uid in (select wos_id as citing from case_DRUG_NAME_HERE_generational_references)
             or b.cited_source_uid in (select gen'||X||'_cited_wos_id as citing from case_DRUG_NAME_HERE_generational_references) ;');
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_pmid;
-        EXECUTE('create table case_DRUG_NAME_HERE_citation_network as
-        select distinct b.citing as citing_pmid, a.citing_wos, a.cited_wos c.cited_source_uid as cited_pmid
+        EXECUTE('create table case_DRUG_NAME_HERE_citation_network_pmid as
+        select distinct b.pmid_int as citing_pmid, a.citing_wos, a.cited_wos, c.pmid_int as cited_pmid
         from
           case_DRUG_NAME_HERE_citation_network_wos a inner join wos_pmid_mapping b
             on a.citing_wos=b.wos_id
           inner join wos_pmid_mapping c
-            on a.cited_wos=c.wos_id
-          ;');
-        DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network;  
+            on a.cited_wos=c.wos_id;
+        update case_DRUG_NAME_HERE_citation_network_pmid
+          set citing_pmid =
+          (    case
+                  when citing_wos like ''MEDLINE:%''
+                    then CAST(substring(citing_wos,9) as int)
+                  else
+                    citing_pmid
+               end );
+        update case_DRUG_NAME_HERE_citation_network_pmid
+          set cited_pmid =
+          (    case
+                  when cited_wos like ''MEDLINE:%''
+                    then CAST(substring(cited_wos,9) as int)
+                  else
+                    cited_pmid
+               end )');
+        DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network;
+        ALTER TABLE case_DRUG_NAME_HERE_citation_network_pmid RENAME TO case_DRUG_NAME_HERE_citation_network;
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_authors;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network_authors as
-        select distinct a.wos_id, b.pmid, c.full_name from
-        ( select distinct citing as wos_id from case_DRUG_NAME_HERE_citation_network
+        select distinct a.pmid, a.wos_id, b.full_name from
+        ( select distinct citing_wos as wos_id, citing_pmid as pmid from case_DRUG_NAME_HERE_citation_network
           union all
-          select distinct cited as wos_id from case_DRUG_NAME_HERE_citation_network
+          select distinct cited_wos as wos_id, cited_pmid as pmid from case_DRUG_NAME_HERE_citation_network
         ) a
-        left join wos_pmid_mapping b
-          on a.wos_id=b.wos_id
-        left join wos_authors c
-          on a.wos_id=c.source_id
-        where a.wos_id is not null;
-        update case_DRUG_NAME_HERE_citation_network_authors
-        set pmid  =
-            (case
-                when pmid is null
-                  then ''NA''
-                else
-                  pmid
-             end );
-        update case_DRUG_NAME_HERE_citation_network_authors
-        set full_name=
-            (case
-                when full_name is null
-                  then ''NA''
-                else
-                  full_name
-             end ); ');
+        left join wos_authors b
+          on a.wos_id=b.source_id
+        where a.wos_id is not null;');
 
       ELSE
         EXECUTE('create table case_DRUG_NAME_HERE_gen'||X||'_ref as
