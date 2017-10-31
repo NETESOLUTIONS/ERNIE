@@ -133,7 +133,7 @@ BEGIN
           using btree (wos_id) tablespace ernie_index_tbs;
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network as
-        select distinct(citing, cited) from (
+        select distinct(aa.citing, aa.cited) from (
         select wos_id as citing, gen'||X||'_cited_wos_id as cited
           from case_DRUG_NAME_HERE_generational_references
         union all
@@ -143,7 +143,7 @@ BEGIN
             on a.gen'||X||'_cited_wos_id=b.source_id
           where b.cited_source_uid in
             (select wos_id from case_DRUG_NAME_HERE_generational_references)
-          );');
+          ) aa;');
 
       ELSE
         EXECUTE('create table case_DRUG_NAME_HERE_gen'||X||'_ref as
