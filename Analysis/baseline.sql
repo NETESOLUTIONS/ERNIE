@@ -153,7 +153,22 @@ BEGIN
           on a.wos_id=b.wos_id
         left join wos_authors c
           on a.wos_id=c.source_id
-        where a.wos_id is not null;');
+        where a.wos_id is not null;
+        update case_DRUG_NAME_HERE_citation_network_authors
+        set pmid  =
+            (case
+                when pmid is null
+                  then ''NA''
+                else
+                  pmid
+             end )
+        set full_name=
+            (case
+                when full_name is null
+                  then ''NA''
+                else
+                  full_name
+             end ); ');
 
       ELSE
         EXECUTE('create table case_DRUG_NAME_HERE_gen'||X||'_ref as
