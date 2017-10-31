@@ -13,5 +13,5 @@ psql ernie -c "DROP TABLE IF EXISTS case_"$drug_name"_seed_set;"
 psql ernie -c "CREATE TABLE case_"$drug_name"_seed_set(pmid integer);"
 psql ernie -c "COPY case_"$drug_name"_seed_set FROM '"$seedset_pmids"';"
 # Run baseline through sed, then execute
-cat $baseline_sql | sed 's/DRUG_NAME_HERE/'$drug_name'/g'| sed 's/INSERT_DESIRED_NUMBER_OF_ITERATIONS_HERE/'$iters'/g'  > $drug_name'_reference_generation.sql'
+cat $baseline_sql | sed '/^\s*$/d' | sed 's/DRUG_NAME_HERE/'$drug_name'/g'| sed 's/INSERT_DESIRED_NUMBER_OF_ITERATIONS_HERE/'$iters'/g'  > $drug_name'_reference_generation.sql'
 psql ernie -f  $drug_name'_reference_generation.sql'
