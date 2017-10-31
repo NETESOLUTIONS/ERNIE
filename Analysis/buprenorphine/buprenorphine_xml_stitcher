@@ -1,5 +1,6 @@
 #!/bin/bash
-# George Chacko 10/21/2017
+# George Chacko 10/30/2017
+# Revision Notes: Found errors. Revised cutoff dates to +12 months post-approval.
 
 echo "This script takes a set of source files and modifies them to incorporate xml tags then
 it assembles a complete xml file that is compliant with seedset.dtd
@@ -11,9 +12,8 @@ Input filenames with pmids in them should terminate in '_pmid' and should includ
 4 *ct_*_pmid     files
 5 *pubmed_*_pmid files
 
-Other input files relate to fda data and patent no
+Other input files relate to fda data and patents"
 
-"
 # sleep 1
 
 ls buprenorphine_fda_*_pmid > buprenorphine_stitcher_input
@@ -63,6 +63,9 @@ echo "buprenorphine_pubmed_postapp_pmid has $(cat t10 | awk '{print $1}') pmids"
 
 wc -l buprenorphine_pubmed_preapp_pmid > t11
 echo "buprenorphine_pubmed_preapp_pmid has $(cat t11 | awk '{print $1}') pmids"
+
+wc -l buprenorphine_pubmed_review_pmid > t12
+echo "buprenorphine_pubmed_review_pmid has $(cat t12 |  awk '{print $1}') pmids"
 
 sleep 2
 
@@ -126,8 +129,6 @@ echo "processing buprenorphine_pubmed_ct_postapp_pmid"
 sed 's/^/\<pubmed_ct_postapp_pmid\>/g'  buprenorphine_pubmed_ct_postapp_pmid |
  sed 's/$/\<\/pubmed_ct_postapp_pmid\>/g' > file12
 
-
-
 for f in file*
 do
     if [$(cat $f | wc -l) = 0 ]
@@ -137,13 +138,14 @@ do
     fi
 done
 
-head -41 ~/ERNIE/Analysis/horizontal/seedset.dtd > buprenorphine2.xml
+head -42 ~/ERNIE/Analysis/horizontal/seedset.dtd > buprenorphine2.xml
 
 echo "<drug>" >> buprenorphine2.xml
 echo "<fda>" >> buprenorphine2.xml
 cat buprenorphine_fda_active_ingredient >> buprenorphine2.xml
 cat buprenorphine_fda_brand_name >> buprenorphine2.xml
 cat buprenorphine_fda_nda >> buprenorphine2.xml
+cat buprenorphine_fda_approval_date >> buprenorphine2.xml
 cat buprenorphine_fda_source >> buprenorphine2.xml
 cat file1 file2  >> buprenorphine2.xml
 echo "</fda>" >> buprenorphine2.xml
@@ -151,6 +153,7 @@ echo "</fda>" >> buprenorphine2.xml
 echo "<patent>" >> buprenorphine2.xml
 cat buprenorphine_patent_pl_USpatentno >> buprenorphine2.xml
 cat file3  >> buprenorphine2.xml
+
 echo "</patent>" >> buprenorphine2.xml
 
 echo "<ct>" >> buprenorphine2.xml
