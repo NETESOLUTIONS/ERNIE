@@ -151,7 +151,7 @@ BEGIN
         update case_DRUG_NAME_HERE_citation_network_pmid
           set citing_pmid =
           (    case
-                  when citing_wos like ''MEDLINE:%''
+                  when citing_wos like ''MEDLINE:%'' and citing_pmid is null
                     then CAST(substring(citing_wos,9) as int)
                   else
                     citing_pmid
@@ -175,7 +175,19 @@ BEGIN
         ) a
         left join wos_authors b
           on a.wos_id=b.source_id
-        where a.wos_id is not null;');
+        where a.wos_id is not null;
+        update case_DRUG_NAME_HERE_citation_network_authors
+        set pmid  =
+            (case when pmid is null
+                  then ''NA''
+                  else pmid
+             end );
+        update case_DRUG_NAME_HERE_citation_network_authors
+        set full_name=
+            (case when full_name is null
+                  then ''NA''
+                  else full_name
+             end );');
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_grants;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network_grants as
         select distinct a.pmid, a.wos_id, b.project_number from
@@ -185,7 +197,19 @@ BEGIN
         ) a
         left join exporter_publink b
           on a.pmid=CAST(b.pmid as int)
-        where a.wos_id is not null;');
+        where a.wos_id is not null;
+        update case_DRUG_NAME_HERE_citation_network_grants
+        set pmid  =
+            (case when pmid is null
+                  then ''NA''
+                  else pmid
+             end );
+        update case_DRUG_NAME_HERE_citation_network_grants
+        set full_name=
+            (case when project_number is null
+                  then ''NA''
+                  else project_number
+             end );');
 
       ELSE
         EXECUTE('create table case_DRUG_NAME_HERE_gen'||X||'_ref as
