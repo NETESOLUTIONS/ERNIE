@@ -3,6 +3,10 @@
 
 set default_tablespace=ernie_default_tbs;
 
+-- Delete any '00000' entries in our base sql tables
+DELETE FROM case_DRUG_NAME_HERE_review_set WHERE pmid='00000';
+DELETE FROM case_DRUG_NAME_HERE_seed_set WHERE pmid='00000';
+
 -- List how many review pmids and seed pmids we are starting with
 \! echo '***Count of pmids in review set:'
 select count(*) as review_set_pmid_count from case_DRUG_NAME_HERE_review_set;
@@ -171,6 +175,16 @@ BEGIN
         ) a
         left join wos_authors b
           on a.wos_id=b.source_id
+        where a.wos_id is not null;');
+        DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_grants;
+        EXECUTE('create table case_DRUG_NAME_HERE_citation_network_grants as
+        select distinct a.pmid, a.wos_id, b.project_number from
+        ( select distinct citing_wos as wos_id, citing_pmid as pmid from case_DRUG_NAME_HERE_citation_network
+          union all
+          select distinct cited_wos as wos_id, cited_pmid as pmid from case_DRUG_NAME_HERE_citation_network
+        ) a
+        left join exporter_publink b
+          on a.pmid=CAST(b.pmid as int)
         where a.wos_id is not null;');
 
       ELSE
