@@ -129,6 +129,18 @@ BEGIN
         EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref_pmid;');
         EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid_grant
           RENAME TO case_DRUG_NAME_HERE_generational_references;');
+        create index case_DRUG_NAME_HERE_generational_references_index on case_DRUG_NAME_HERE_generational_references
+          using btree (wos_id) tablespace ernie_index_tbs;
+        DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network;
+        EXECUTE('create table case_DRUG_NAME_HERE_citation_network as
+        select distinct(*) from (
+        select wos_id as citing, gen'||X||'_cited_wos_id as cited
+          from case_DRUG_NAME_HERE_generational_references
+        union all
+        select a.gen'||X||'_cited_wos_id as citing, b.cited_source_uid as cited
+          from case_DRUG_NAME_HERE_generational_references
+            where cited_source_uid in
+            (select wos_id from case_DRUG_NAME_HERE_generational_references);');
 
       ELSE
         EXECUTE('create table case_DRUG_NAME_HERE_gen'||X||'_ref as
@@ -173,6 +185,4 @@ BEGIN
       END IF;
       RAISE NOTICE 'Completed Iteration: %', X;
    END LOOP;
-   create index case_DRUG_NAME_HERE_generational_references_index on case_DRUG_NAME_HERE_generational_references
-     using btree (wos_id) tablespace ernie_index_tbs;
 END; $$;
