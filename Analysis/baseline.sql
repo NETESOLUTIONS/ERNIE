@@ -57,7 +57,7 @@ create table case_DRUG_NAME_HERE as
   select pmid from case_DRUG_NAME_HERE_seed_set
   union
   select gen1_pmid from case_DRUG_NAME_HERE_gen1_review_ref_pmid
-) a;
+) a where pmid is not null;
 --clean up review intermediate tables
 drop table if exists case_DRUG_NAME_HERE_gen1_review_ref_pmid;
 drop table if exists case_DRUG_NAME_HERE_gen1_review_ref;
