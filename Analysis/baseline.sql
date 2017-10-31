@@ -91,7 +91,7 @@ BEGIN
         EXECUTE('create table case_DRUG_NAME_HERE_gen'||X||'_ref as
         select a.*, b.cited_source_uid as gen'||X||'_cited_wos_id from
           (select aa.* from
-            (select distinct wos_id, pmid
+            (select distinct pmid, wos_id
               from case_DRUG_NAME_HERE_generational_references) aa
             where aa.wos_id is not null) a
           left join wos_references b
@@ -118,22 +118,16 @@ BEGIN
                   then CAST(substring(gen'||X||'_cited_wos_id,9) as int)
                 else
                   gen'||X||'_pmid
-             end );
-        create table case_DRUG_NAME_HERE_gen'||X||'_ref_pmid_grant as
-          select a.*, b.project_number as gen'||X||'_project_number
-          from case_DRUG_NAME_HERE_gen'||X||'_ref_pmid a
-          left join exporter_publink b
-          on a.gen'||X||'_pmid=CAST(b.pmid as int);');
+             end );');
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
         EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref;');
-        EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref_pmid;');
-        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid_grant
+        EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
           RENAME TO case_DRUG_NAME_HERE_generational_references;');
         create index case_DRUG_NAME_HERE_generational_references_wos_index on case_DRUG_NAME_HERE_generational_references
           using btree (wos_id) tablespace ernie_index_tbs;
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network as
-        select distinct a.citing, b.cited_source_uid as cited from
+        select distinct a.citing as citing_wos, b.cited_source_uid as cited_wos from
           ( select distinct wos_id as citing from case_DRUG_NAME_HERE_generational_references
             union all
             select distinct gen'||X||'_cited_wos_id as citing from case_DRUG_NAME_HERE_generational_references
@@ -142,6 +136,16 @@ BEGIN
             on a.citing=b.source_id
           where b.cited_source_uid in (select wos_id as citing from case_DRUG_NAME_HERE_generational_references)
             or b.cited_source_uid in (select gen'||X||'_cited_wos_id as citing from case_DRUG_NAME_HERE_generational_references) ;');
+        DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_pmid;
+        EXECUTE('create table case_DRUG_NAME_HERE_citation_network as
+        select distinct b.citing as citing_pmid, a.citing_wos, a.cited_wos c.cited_source_uid as cited_pmid
+        from
+          case_DRUG_NAME_HERE_citation_network_wos a inner join wos_pmid_mapping b
+            on a.citing_wos=b.wos_id
+          inner join wos_pmid_mapping c
+            on a.cited_wos=c.wos_id
+          ;');
+        DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network;  
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_authors;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network_authors as
         select distinct a.wos_id, b.pmid, c.full_name from
@@ -162,7 +166,7 @@ BEGIN
                 else
                   pmid
              end );
-        update case_DRUG_NAME_HERE_citation_network_authors     
+        update case_DRUG_NAME_HERE_citation_network_authors
         set full_name=
             (case
                 when full_name is null
