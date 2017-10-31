@@ -142,7 +142,8 @@ BEGIN
           left join wos_references b
             on a.gen'||X||'_cited_wos_id=b.source_id;
           where b.cited_source_uid in
-            (select wos_id from case_DRUG_NAME_HERE_generational_references);');
+            (select wos_id from case_DRUG_NAME_HERE_generational_references)
+          );');
 
       ELSE
         EXECUTE('create table case_DRUG_NAME_HERE_gen'||X||'_ref as
