@@ -159,7 +159,8 @@ BEGIN
         left join wos_pmid_mapping b
           on a.wos_id=b.wos_id
         left join wos_authors c
-          on a.wos_id=c.source_id;');
+          on a.wos_id=c.source_id
+        where a.wos_id is not null;');
 
       ELSE
         EXECUTE('create table case_DRUG_NAME_HERE_gen'||X||'_ref as
