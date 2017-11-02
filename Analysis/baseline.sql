@@ -259,7 +259,9 @@ BEGIN
                     cited_pmid
                end )');
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_dummy;
-        CREATE TABLE newtable AS SELECT * FROM (case_DRUG_NAME_HERE_citation_network UNION case_DRUG_NAME_HERE_citation_network_pmid_dummy);
+        CREATE TABLE newtable AS SELECT * FROM (SELECT * FROM case_DRUG_NAME_HERE_citation_network
+                                                UNION
+                                                SELECT * FROM case_DRUG_NAME_HERE_citation_network_pmid_dummy) a;
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network;
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_pmid_dummy;
         ALTER TABLE newtable RENAME TO case_DRUG_NAME_HERE_citation_network;
