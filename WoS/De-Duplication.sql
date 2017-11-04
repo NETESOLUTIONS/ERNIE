@@ -15,7 +15,22 @@ ALTER TABLE wos_publications
 -- 29m:45s
 
 ALTER TABLE wos_publications
-  ALTER COLUMN source_id SET NOT NULL;
+  ALTER COLUMN source_id SET NOT NULL,
+  -- Nullable: begin_page
+  ALTER COLUMN created_date SET NOT NULL,
+  ALTER COLUMN document_type SET NOT NULL,
+  -- Nullable: document_title
+  ALTER COLUMN edition SET NOT NULL,
+  -- Nullable: end_page
+  ALTER COLUMN has_abstract SET NOT NULL,
+  ALTER COLUMN "language" SET NOT NULL,
+  ALTER COLUMN last_modified_date SET NOT NULL,
+  -- Nullable: publisher_address
+  ALTER COLUMN publication_date SET NOT NULL,
+  -- Nullable: publisher_name
+  ALTER COLUMN publication_year SET NOT NULL,
+  -- Nullable: source_title
+  ALTER COLUMN source_type SET NOT NULL;
 -- 5m:07s
 
 ALTER TABLE wos_publications
