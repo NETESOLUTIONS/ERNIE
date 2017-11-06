@@ -21,10 +21,11 @@ order by year_of_completion;
 \copy (select pmid from ct_publications where nct_id in (select nct_id from ipilimumab_ct where year_of_completion::int <= 2012)  order by pmid) TO '~/ERNIE/Analysis/ipilimumab/ipilimumab_ct_preapp_publication_pmid';
 
 -- generate ipilimumab_ct_postapp_nct file
-\copy (select nct_id from ipilimumab_ct where year_of_completion::int > 2012 or year_of_completion is null) TO '~/ERNIE/Analysis/ipilimumab/ipilimumab_post_app_nct';
+\copy (select nct_id from ipilimumab_ct where year_of_completion::int > 2012 or year_of_completion is null) TO '~/ERNIE/Analysis/ipilimumab/ipilimumab_postapp_nct';
 
 -- generate ipilimumab_ct_preapp_nct file
-\copy (select nct_id from ipilimumab_ct where year_of_completion::int <= 2012) TO '~/ERNIE/Analysis/ipilimumab/ipilimumab_post_app_nct';
+\copy (select nct_id from ipilimumab_ct where year_of_completion::int <= 2012) TO '~/ERNIE/Analysis/ipilimumab/ipilimumab_preapp_nct';
+
 
 
 
