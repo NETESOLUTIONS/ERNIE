@@ -1,0 +1,11 @@
+pubmed_preapp_pmmid: (("naltrexone"[MeSH Terms] OR "naltrexone"[All Fields]) AND "english"[Language]) AND ("1900/01/01"[PDAT] : "1985/11/20"[PDAT])
+
+pubmed_postapp_pmid: (("naltrexone"[MeSH Terms] OR "naltrexone"[All Fields]) AND "english"[Language]) AND ("1985/11/20"[PDAT] : "3000"[PDAT])
+
+pubmed_review_pmid: ((("naltrexone"[MeSH Terms] OR "naltrexone"[All Fields]) AND "english"[Language]) AND ("1985/11/20"[PDAT] : "1986/11/20"[PDAT])) AND "review"[Publication Type]
+
+pubmed_ct_preapp_pmid: ((("naltrexone"[MeSH Terms] OR "naltrexone"[All Fields]) AND "english"[Language]) AND ("1900/01/01"[PDAT] : "1985/11/20"[PDAT])) AND "clinical trial"[Publication Type]
+
+
+pubmed_ct_postapp_pmid: ((("naltrexone"[MeSH Terms] OR "naltrexone"[All Fields]) AND "english"[Language]) AND ("1985/11/20"[PDAT] : "3000"[PDAT])) AND "clinical trial"[Publication Type]
+
