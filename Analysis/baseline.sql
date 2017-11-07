@@ -65,11 +65,11 @@ drop table if exists case_DRUG_NAME_HERE_gen1_review_ref;
 ---- Now we move on to actual analysis ----
 -------------------------------------------
 --Show the user how many PMIDs we are starting with
-\! echo 'Distinct PMID count in adjusted seed set:'
+\! echo 'Distinct PMID count in adjusted seed set (review first gen + base seed set):'
 select count(distinct pmid) as distinct_pmids_in_seed_set from case_DRUG_NAME_HERE;
 
 --Map PMID to WoS IDs and Exporter Projects
-\! echo 'Mapping PMIDs to WoS IDs'
+\! echo '***Mapping PMIDs to WoS IDs'
 drop table if exists case_DRUG_NAME_HERE_pmid_wos_projects;
 create table case_DRUG_NAME_HERE_pmid_wos_projects as
 select a.pmid, b.wos_id, c.project_number from
@@ -80,8 +80,10 @@ select a.pmid, b.wos_id, c.project_number from
 -- Show the user loss statistics via mapping
 \! echo 'Total Distinct WoS IDs in seed set:'
  select count(distinct wos_id) as distinct_wos_ids_for_seed_set from case_DRUG_NAME_HERE_pmid_wos_projects;
-\! echo 'Percent loss when mapping PMID to WoS for seed set:'
-select (1-CAST(count(distinct wos_id) as decimal)/count(distinct pmid)) as percent_PMIDS_with_matching_WoS from case_DRUG_NAME_HERE_pmid_wos_projects;
+\! echo 'Percent loss when mapping Seed PMIDs to WoS IDs for seed set:'
+select (1-(CAST(count(distinct wos_id) as decimal)/count(distinct pmid))) as percent_PMIDS_with_matching_WoS from case_DRUG_NAME_HERE_pmid_wos_projects;
+\! echo 'Percent loss when mapping Seed PMIDs to Exporter Project Numberss:'
+select (1-(CAST(count(distinct project_number) as decimal)/count(distinct pmid))) as percent_PMIDS_with_matching_ProjectNum from case_DRUG_NAME_HERE_pmid_wos_projects;
 
 --Continued generational mapping added to the base table based on the number of iterations the user wants to cover
 DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
@@ -266,6 +268,9 @@ BEGIN
       left join exporter_publink b
         on a.pmid=CAST(b.pmid as int)
       where a.wos_id is not null;');
+      RAISE NOTICE 'Percent loss when mapping cited WoS IDs to PMIDs for Generation %:', X;
+      EXECUTE('select (1-(CAST(count(gen'||X||'_cited_wos_id) as decimal)/count(gen'||X||'_pmid))) as
+        percent_gen'||X||'_wos_id_with_matching_PMID from case_DRUG_NAME_HERE_generational_references;')
       RAISE NOTICE 'Completed Iteration: %', X;
    END LOOP;
 END; $$;
