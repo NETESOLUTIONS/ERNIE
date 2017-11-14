@@ -1,0 +1,74 @@
+\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+%\geometry{landscape}                		% Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{amssymb}
+
+%SetFonts
+%SetFonts
+
+
+\title{N43DA-17-1216; HHSN271201700053C \\
+Enhanced Research Network Information Environment (ERNIE)\\
+Monthly Progress Reports}
+\author{George Chacko, NETE}
+\date{}							% Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+%\section{Monthly Reports}
+\subsection*{Oct 15-Nov 15, 2017}
+
+This second report covers accomplishments in the second month of the ERNIE project. The focus of our efforts was to develop working protocols, extend the infrastructure and begin work on the first four of seven case studies to be completed.
+
+\begin{itemize}
+\item Update processes were added to the Jenkins automation server to monitor refreshes
+\item Backups, anti-virus, and OS snapshots have been setup for ERNIE data
+\item De-duplication, primary keys, and other curation workflows have been set up.
+\item A Solr server was created to index the contents for ERNIE for fast searching and is being tested to find citations for poorly defined references typically found in patent citations, e.g. "Johnson et al, 1989".
+\item An XML specification (DTD) was designed to collect case study data for the two validation (ipilimumab and ivacaftor) and the two other drug case studies (buprenorphine and naltrexone). A script was generated to assemble a complete XML file in compliance with the DTD.
+\item A SQL script was developed to be able to take either a list of pmids as input or a list of Web of Science ids (UT) and extract one or more generation of cited references and then map all publications to NIH awards.
+\item Basic case study data was assembled for ipilimumab, ivacaftor, buprenorphine, and naltrexone. These data are expected to be enriched in November and December as we revise our collection scripts and add new data sources. These data are on our Github server.
+\item Network analysis code is being developed to generate in network article scores and the PIR metric (Williams et al., 2015) for all case studies using ERNIE generated data.
+\item Work has commenced on the Affymetrix Amplichip CYP450 kit and we have identified a number of potential data sources for the Life Skills Training case study. The DiscoverX case study will begin in December 2017.
+\end{itemize}
+
+\subsection*{Challenges} Whereas developing the infrastructure has been relatively routine, the case studies identified by NIDA, particularly the non-drug case studies have required extended discussion and experimentation within the group to be able to generate useful results. The Affymetrix Genechip is an example since it is really a composite of a hardware platform, advances in photolithography and synthetic chemistry that enable arrays to be developed on solid supports, software to analyze results, and expression profiling in various systems. In addition the kit from Roche, Amplichip represents a second manufacturer. Focusing on cytochromes in the area of NIDA's interests has also required different strategies from the `pinnacle event' approach of FDA approved therapeutics. In addition, Affymetrix has been recently acquired by Thermo-Fisher and information is distributed over a legacy website as well as an incompletely populated new website. These challenges were largely anticipated and are being negotiated systematically. We believe that many of these will be resolved in late November and December 2017. To manage these challenges we have switched to a parallelized approach to the case studies rather than process them serially. This enables refinement of the data in each case study even as we make advances.
+
+\subsection*{Questions and Comments for Dr. Sazonova}
+
+\begin{itemize}
+ \item You had mentioned consulting with the Office of Science Policy as an option. Would it be possible to get any recommendations for policy sites we should consider, particularly for the Life Skills Training case study but also for others? We have a list that we would be happy to share that includes the recent recommendations to President Trump.
+ \item You commented that NIDA had invested in developing the Affymetrix Genechip technology for cytochrome P450 profiling. Searches of NIH RePORTER does not have much information in this regard. Would it be possible to get a list of NIDA grants and contracts that you believe represent these investments in CYP450 expression profiling. We'd like to make sure that they are included in the case study.
+ \item We received an invitation to apply for the I-Corps program.``Review FOA PA-18-314 and apply for the I-Corps at NIH April 2018 session'' This is of interest to us, the application is due in December. Are you able to offer any advice?
+ \item We were contacted by Foresight Science \& Technology Inc., an OER contractor and they are conducting a niche assessment for our project at no charge
+ \end {itemize}
+
+
+\pagebreak
+\subsection*{Oct 13, 2017}
+
+This first monthly report covers accomplishments in the first month of the ERNIE project. Setting up infrastructure was the overarching goal for the first month.
+
+\begin {itemize}
+\item A development server, ernie1.eastus2.cloudapp.azure.com, was created as a virtual machine in the Microsoft Azure cloud. The server is set up with 8 Tb of storage and runs Linux Centos 7.3. Secure access is maintained through two factor authentication (2FA) to protect data and from unauthorized access.
+\item PostgreSQL 9.6 was installed on the development server and configured to accommodate the ERNIE data model. The following data were loaded into the PostgreSQL database. Excluding staging data, and temporary tables the database presently contains over 3.09 billion records to date.
+
+\begin {itemize}
+\item The Web of Science Core Collection (updated weekly)
+\item The Derwent Patent Citation Index  (updated weekly)
+\item The National Clinical Trials Database  (updated weekly)
+\item The FDA Orange and Purple Books  (updated monthly)
+\item Clinical guidelines from the AHRQ National Clinical Guideline Clearinghouse (updated weekly)
+\item NIH grants data from NIH ExPORTER (updated monthly)
+\end {itemize}
+
+\item A number of automation processes relying on Jenkins Continuous Integration technology have been put in place to handle updates to these data.
+\item A JIRA site has been established for Agile project management. Dr. Sazonova has access to this site along with our two collaborators, Drs. Onken and Pico.
+\item A Github site has been established for code management, archival, and dissemination.https://netesolutions.github.io/ERNIE/
+\end {itemize}
+
+\end{document}  
