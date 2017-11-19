@@ -1,0 +1,12 @@
+<component name="ProjectCodeStyleConfiguration">
+  <code_scheme name="Project" version="173">
+    <SqlCodeStyleSettings>
+      <option name="NEW_LINE_BEFORE_THEN" value="false" />
+      <option name="NEW_LINE_BEFORE_ELSE" value="false" />
+      <option name="NEW_LINE_BEFORE_QUERY_INSIDE_PARENTHESIS" value="true" />
+      <option name="NEW_LINE_BEFORE_QUERY_INSIDE_DML" value="true" />
+      <option name="QUOTE_IDENTIFIER" value="1" />
+      <option name="IDENTIFIER_CASE" value="1" />
+    </SqlCodeStyleSettings>
+  </code_scheme>
+</component>
