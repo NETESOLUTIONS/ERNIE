@@ -176,6 +176,10 @@ ALTER TABLE wos_document_identifiers
 CREATE UNIQUE INDEX wos_document_identifiers_uk
   ON wos_document_identifiers (source_id, document_id_type, document_id)
 TABLESPACE ernie_index_tbs;
+-- ?
+
+DROP INDEX IF EXISTS wos_dois_sourceid_index;
+-- 0.6s
 -- endregion
 
 -- region wos_keywords
