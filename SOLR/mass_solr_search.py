@@ -1,4 +1,14 @@
 # This is a generalized script to search a SOLR server for matches based on a list of search criteria
+# Usage:
+#        python mass_solr_search.py -c 'core_name' -qf 'query_field' -q|-f 'query or file' -ip 'solr ip address and port' -n 'number of solr results' -o 'output file name'
+# Example 1:
+#        python mass_solr_search.py -c wos_pub_core -qf citation -q "DNA microarray" -ip 10.0.0.5:8983 -n 10 -o dna_microarray.csv
+# Example 2:
+#        python mass_solr_search.py -c wos_pub_core -qf citation -f pirrung.txt -ip 10.0.0.5:8983 -n 5 -o pirrung.csv
+
+
+
+
 # Author: VJ Davey
 import sys; import string; import re ; import subprocess
 # search the SOLR database # pmid_file=sys.argv[6]
