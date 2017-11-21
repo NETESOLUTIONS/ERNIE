@@ -1,23 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Diagram>
   <ID>DATABASE</ID>
-  <OriginalElement>c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_abstracts</OriginalElement>
-  <nodes>
-    <node x="230.0" y="123.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_document_identifiers</node>
-    <node x="577.0" y="115.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_addresses</node>
-    <node x="832.0" y="116.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_grants</node>
-    <node x="108.0" y="25.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_publications</node>
-    <node x="967.0" y="116.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_abstracts</node>
-    <node x="12.0" y="226.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_pmid_mapping</node>
-    <node x="207.0" y="216.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_patent_mapping</node>
-    <node x="-240.0" y="113.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_keywords</node>
-    <node x="449.0" y="121.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_authors</node>
-    <node x="-4.0" y="117.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_titles</node>
-    <node x="-503.0" y="112.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.wos_references</node>
-  </nodes>
+  <OriginalElement />
+  <nodes />
   <notes />
   <edges />
-  <settings layout="Hierarchic Group" zoom="1.0" x="285.0" y="157.0" />
+  <settings layout="Hierarchic Group" zoom="1.0" x="1013.5" y="682.5" />
   <SelectedNodes />
   <Categories>
     <Category>Key columns</Category>

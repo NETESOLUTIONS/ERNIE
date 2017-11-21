@@ -57,6 +57,10 @@ ALTER TABLE wos_references
 DROP INDEX IF EXISTS ssd_ref_sourceid_index;
 -- endregion
 
+-- region wos_abstracts
+-- Needs to be fixed. See http://jira.nete.com/browse/ER-50.
+-- endregion
+
 -- region wos_authors
 DELETE
 FROM wos_authors wa1
@@ -153,9 +157,6 @@ DROP INDEX IF EXISTS wos_titles_sourceid_index;
 --
 -- endregion
 
--- region wos_abstracts
--- endregion
-
 -- region wos_document_identifiers
 DELETE
 FROM wos_document_identifiers wdi1
@@ -175,6 +176,10 @@ ALTER TABLE wos_document_identifiers
 CREATE UNIQUE INDEX wos_document_identifiers_uk
   ON wos_document_identifiers (source_id, document_id_type, document_id)
 TABLESPACE ernie_index_tbs;
+-- ?
+
+DROP INDEX IF EXISTS wos_dois_sourceid_index;
+-- 0.6s
 -- endregion
 
 -- region wos_keywords
