@@ -57,7 +57,7 @@ with open(output_file, 'wb') as csv_file:
     csv_file.write('query, wos_id, wos_title, PMID, search_result_rank, solr_score\n')
     for line in queries:
         print i; i+=1; line=(line.decode('utf-8')).encode('ascii','ignore')
-        input_string=re.sub('|'.join(stem_words),'',line); input_string=re.sub(r'[,.{}<>\"\'\n\r]','',input_string) ; input_string=re.sub(r'[:() -]','\\+',input_string) ; input_string=re.sub(r'\u+2260','',input_string)
+        input_string=re.sub('|'.join(stem_words),'',line); input_string=re.sub(r'[,.{}<>\"\'\n\r]','',input_string) ; input_string=re.sub(r'[:@*#() -]','\\+',input_string) ; input_string=re.sub(r'\u+2260','',input_string)
         query_string=curl_search_string+input_string+curl_search_string_ending
         s = subprocess.check_output(query_string, shell=True).split("\n")
         print line ; print query_string
