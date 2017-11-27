@@ -15,3 +15,23 @@ WOS2017275.del.gz
 WOS_RAW_201738_CORE.tar.gz
 WOS_RAW_201739_CORE.tar.gz
 WOS_RAW_201740_CORE.tar.gz
+Downloaded files:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Files not downloaded:
+Tue Oct  3 14:19:41 EDT 2017
+
+
