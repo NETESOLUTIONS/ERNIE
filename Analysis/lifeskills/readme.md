@@ -15,4 +15,3 @@
   d. If duplicate items were in WOS dbs, DOIs were noted alongside PMIDs and WOS - otherwise DOI was not extracted, even if available
   e. DOIs were available in some records in the original bibliographic reference
 4. A total of 176 unique UTs - 13 additional with ONLY PMIDs, 2 additional with ONLY DOI (no PMID, no WoS ID)
-5. 
