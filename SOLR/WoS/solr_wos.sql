@@ -1,39 +1,94 @@
-drop table if exists solr_5k_out_temp;
-create table solr_5k_out_temp as
-select a.source_id, concat(a.publication_year,' ', a.document_title,' ', a.source_title) as pub_data
-from wos_publications a
-where random() < 0.3 limit 5000;
+-- region wos_pub_core
+DROP TABLE IF EXISTS solr_5k_out_temp;
+CREATE TABLE solr_5k_out_temp AS
+  SELECT
+    a.source_id, concat(a.publication_year, ' ', a.document_title, ' ', a.source_title) AS pub_data
+  FROM wos_publications a
+  WHERE random() < 0.3
+  LIMIT 5000;
 
+DROP TABLE IF EXISTS solr_5k_out;
+CREATE TABLE solr_5k_out AS
+  SELECT
+    a.source_id, 0 AS label, concat(string_agg(a.full_name, ' '), ' ', b.pub_data) AS citation
+  FROM wos_authors a
+    INNER JOIN solr_5k_out_temp b ON a.source_id = b.source_id
+  GROUP BY a.source_id, b.pub_data;
 
-drop table if exists solr_5k_out;
-create table solr_5k_out as
-  select a.source_id, 0 as label,  concat(string_agg(a.full_name,' '), ' ', b.pub_data) as citation
-  from wos_authors a
-  inner join solr_5k_out_temp b
-  on a.source_id = b.source_id group by a.source_id, b.pub_data;
+DROP TABLE IF EXISTS solr_65m_temp;
+CREATE TABLE solr_65m_temp TABLESPACE ernie_wos_tbs AS
+  SELECT
+    source_id, concat(publication_year, ' ', document_title, ' ', source_title) AS pub_data
+  FROM wos_publications
+  WHERE source_id NOT IN (
+    SELECT source_id
+    FROM solr_5k_out);
 
+CREATE INDEX solr_test_wos_ind
+  ON solr_65m_temp USING HASH (source_id) TABLESPACE ernie_index_tbs;
 
-drop table if exists solr_65m_temp;
-create table solr_65m_temp   tablespace ernie_wos_tbs as
-  select source_id, concat(publication_year,' ', document_title,' ', source_title) as pub_data
-  from wos_publications
-  where source_id not in (select source_id from solr_5k_out);
+DROP TABLE IF EXISTS solr_65m_with_vol;
+CREATE TABLE solr_65m_with_vol TABLESPACE ernie_wos_tbs AS
+  SELECT
+    a.source_id, concat(string_agg(a.full_name, ' '), ' ', b.pub_data) AS citation
+  FROM wos_authors a
+    INNER JOIN solr_65m_temp b ON a.source_id = b.source_id
+  GROUP BY a.source_id, b.pub_data;
 
-create index solr_test_wos_ind on solr_65m_temp using hash(source_id) tablespace ernie_index_tbs;
+DROP TABLE IF EXISTS solr_5k_in;
+CREATE TABLE solr_5k_in AS
+  SELECT
+    source_id, 1 AS label, citation
+  FROM solr_65m_with_vol
+  WHERE random() < 0.01
+  LIMIT 5000;
 
-drop table if exists solr_65m;
-create table solr_65m  tablespace ernie_wos_tbs as
-  select a.source_id, concat(string_agg(a.full_name,' '), ' ', b.pub_data) as citation
-  from wos_authors a
-  inner join solr_65m_temp b
-  on a.source_id = b.source_id group by a.source_id, b.pub_data;
+DROP TABLE IF EXISTS solr_10k_inout;
+CREATE TABLE solr_10k_inout AS SELECT *
+                               FROM solr_5k_in
+                               UNION
+                               SELECT *
+                               FROM solr_5k_out;
+-- endregion
 
-drop table if exists solr_5k_in;
-create table solr_5k_in as
-  select source_id, 1 as label, citation
-  from solr_65m where random() < 0.01 limit 5000;
+-- region wos_pub_with_vol_core
+DROP TABLE IF EXISTS solr_5k_out_with_vol;
+CREATE TABLE solr_5k_out_with_vol AS --
+  WITH cte AS
+  (
+    SELECT
+      source_id, concat(publication_year, ' ', document_title, ' ', source_title, ' ', volume) AS pub_details
+    FROM wos_publications
+    WHERE random() < 0.3
+    LIMIT 5000
+  )
+  SELECT
+    source_id, 0 AS label, concat(string_agg(wa.full_name, ' '
+                                  ORDER BY wa.seq_no), ' ', cte.pub_details) AS citation
+  FROM cte
+    JOIN wos_authors wa USING (source_id)
+  GROUP BY source_id, cte.pub_details;
+-- 10m:21s
+-- Version with HAVING/LIMIT took 49m:07s
 
-drop table if exists solr_10k_inout;
-create table solr_10k_inout as
-  Select * from solr_5k_in union
-  Select * from solr_5k_out;
+ALTER TABLE solr_5k_out_with_vol
+  ADD CONSTRAINT solr_5k_out_with_vol_pk PRIMARY KEY (source_id) USING INDEX TABLESPACE ernie_index_tbs;
+
+DROP TABLE IF EXISTS solr_65m_with_vol;
+CREATE TABLE solr_65m_with_vol TABLESPACE ernie_wos_tbs AS --
+  WITH cte AS
+  (
+    SELECT
+      source_id, concat(publication_year, ' ', document_title, ' ', source_title, ' ', volume) AS pub_details
+    FROM wos_publications
+    WHERE source_id NOT IN (
+      SELECT source_id
+      FROM solr_5k_out_with_vol)
+  )
+  SELECT
+    source_id, 0 AS label, concat(string_agg(wa.full_name, ' ' ORDER BY wa.seq_no), ' ', cte.pub_details) AS citation
+  FROM cte
+    JOIN wos_authors wa USING (source_id)
+  GROUP BY source_id, cte.pub_details;
+-- 1h:50m+
+-- endregion
