@@ -22,15 +22,15 @@ for i in range(0,len(sys.argv)):
 # create injection code for db-data-config
 db_config_xml_front_end='''
 <dataConfig>
-  <dataSource type="JdbcDataSource" 
+  <dataSource type="JdbcDataSource"
               driver="org.postgresql.Driver"
-              url="jdbc:postgresql://localhost:%s/%s" 
+              url="jdbc:postgresql://localhost:%s/%s"
               user="%s" />
   <document>\n
 '''%(port,database,user)
 db_config_xml_fields='''
-    <entity name="id" 
-            query="select %s '''%(id_tag)+', '.join(f for f in fields)+''' from %s">\n'''%(table)
+    <entity name="id"
+            query="select %s, '''%(id_tag)+', '.join(f for f in fields)+''' from %s">\n'''%(table)
 db_config_xml_fields+='''    <field column="%s" name="id"/>\n'''%(id_tag)
 db_config_xml_fields+='\n'.join(['''    <field column="%s" name="%s"/>'''%(f,f) for f in fields])
 db_config_xml_backend='''
@@ -45,7 +45,7 @@ with open('db-data-config.xml','wb') as db_file:
 
 # create injection code for managed-schema
 managed_schema_xml='''   <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />\n'''
-managed_schema_xml+='\n'.join(['''   <field name="%s" type="text_general" indexed="true" stored="true" />'''%(f) for f in fields]) 
+managed_schema_xml+='\n'.join(['''   <field name="%s" type="text_general" indexed="true" stored="true" />'''%(f) for f in fields])
 #print managed_schema_xml
 managed_xml=open('managed-schema-temp').read()
 managed_xml=re.sub(r'#INSERT_FIELDS#',managed_schema_xml,managed_xml)
