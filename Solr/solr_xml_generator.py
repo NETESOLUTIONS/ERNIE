@@ -10,7 +10,7 @@ for i in range(0,len(sys.argv)):
             fields+=[sys.argv[i+1]]
         elif option[1:] in ['id','i']:
             id_tag=sys.argv[i+1]
-	    elif option[1:] in ['table','t']:
+        elif option[1:] in ['table','t']:
             table=sys.argv[i+1]
         elif option[1:] in ['database','d']:
             database=sys.argv[i+1]
