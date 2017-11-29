@@ -2,7 +2,7 @@
 
 import sys; import re; import subprocess
 
-table='';database='';port='';user='';id_tag='';fields=[]
+table='';database='';port='';user='';id_tag='';fields=[]; sql_override=None;
 for i in range(0,len(sys.argv)):
     if sys.argv[i][0]=='-':
         option=sys.argv[i]
@@ -10,7 +10,7 @@ for i in range(0,len(sys.argv)):
             fields+=[sys.argv[i+1]]
         elif option[1:] in ['id','i']:
             id_tag=sys.argv[i+1]
-	elif option[1:] in ['table','t']:
+	    elif option[1:] in ['table','t']:
             table=sys.argv[i+1]
         elif option[1:] in ['database','d']:
             database=sys.argv[i+1]
@@ -18,6 +18,8 @@ for i in range(0,len(sys.argv)):
             port=sys.argv[i+1]
         elif option[1:] in ['user','U']:
             user=sys.argv[i+1]
+        elif option[1:] in ['sql_override','sql']:
+            sql_override=sys.argv[i+1]
 
 # create injection code for db-data-config
 db_config_xml_front_end='''
@@ -28,9 +30,10 @@ db_config_xml_front_end='''
               user="%s" />
   <document>\n
 '''%(port,database,user)
+sql="select %s, "%(id_tag)+', '.join(f for f in fields)+" from %s"%(table) if sql_override==None else sql_override
 db_config_xml_fields='''
     <entity name="id"
-            query="select %s, '''%(id_tag)+', '.join(f for f in fields)+''' from %s">\n'''%(table)
+            query="'''+sql+'''">\n'''
 db_config_xml_fields+='''    <field column="%s" name="id"/>\n'''%(id_tag)
 db_config_xml_fields+='\n'.join(['''    <field column="%s" name="%s"/>'''%(f,f) for f in fields])
 db_config_xml_backend='''
