@@ -1,0 +1,12 @@
+Variable Name    Description
+ID    Unique identifier for reference-citing source items pair
+Citing Source Item    Citing source item - original source publication
+Cited Source Item Number    Location in which the cited source item appears in the citing source item
+DocumentID    Disambiguated ID for cited source item
+Type    Type of document (roughly - does not distinguish between document types in WoS)
+ID    Any ID number which is not a PMID, WoS ID, DOI
+DOI    DOI
+WOS    WOS identifier, also called a UT or unique tag
+PMID    PubMed ID
+Note    Additional notes on matching process, etc.
+Reference    Original bibliographic reference (in all its glory)
