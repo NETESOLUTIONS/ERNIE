@@ -92,7 +92,7 @@ DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
 create table case_DRUG_NAME_HERE_generational_references as
 select * from case_DRUG_NAME_HERE_pmid_wos_projects;
 INSERT INTO case_DRUG_NAME_HERE_generational_references(pmid, wos_id, project_number)
-select null, source_id, null from case_DRUG_NAME_HERE_wos_supplement_set;
+select distinct null, source_id, null from case_DRUG_NAME_HERE_wos_supplement_set where source_id not in (select wos_id from case_DRUG_NAME_HERE_generational_references);
 
 
 DO $$
