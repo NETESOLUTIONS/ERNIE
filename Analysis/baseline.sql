@@ -283,9 +283,9 @@ BEGIN
       left join exporter_publink b
         on a.pmid=CAST(b.pmid as int)
       where a.wos_id is not null;');
-      RAISE NOTICE 'Percent loss when mapping cited WoS IDs to PMIDs for Generation %:', X;
+      --RAISE NOTICE 'Percent loss when mapping cited WoS IDs to PMIDs for Generation %:', X;
       EXECUTE('select (1-(CAST(count(gen'||X||'_cited_wos_id) as decimal)/count(gen'||X||'_pmid))) as
         percent_gen'||X||'_wos_id_with_matching_PMID from case_DRUG_NAME_HERE_generational_references;')
-      RAISE NOTICE 'Completed Iteration: %', X;
+      --RAISE NOTICE 'Completed Iteration: %', X;
    END LOOP;
 END; $$;
