@@ -14,6 +14,7 @@ was used to search for relevant WoSIDs. The results were manually curated again 
 c) Pubs:
    i) PubMed and WoS searches using keywords and using Jan 2005 as a reference date (Jan 2006 for publication lag).
    ii) Fodor's papers, Pirrung's review, Lenoir's history, and Garfield's Microarray historiography could form a root cluster for papers.
+   iii) Search for Amplichip CYP450 in PubMed and WoS, e.g. " python mass_solr_search.py -c wos_pub_core -qf citation -q "Amplichip CYP450"  -ip 10.0.0.5:8983 -n 100"
 d) Clinical Trials: Not clear that any are relevant
 h) Cited references 
 i) Citing references: to be discussed later
