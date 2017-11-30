@@ -45,10 +45,10 @@ wget -r http://www.fda.gov/downloads/Drugs/InformationOnDrugs/UCM163762.zip \
 # Unzip and reformat data files.
 echo ***Unzipping and reformatting...
 unzip fda_files.zip
-cat exclusivity.txt > exclusivity.csv
-cat Patent.txt > patent.csv
-cat patent.txt >> patent.csv
-cat products.txt > products.csv
+cat exclusivity*.txt > exclusivity.csv
+cat Patent*.txt > patent.csv
+cat patent*.txt >> patent.csv
+cat products*.txt > products.csv
 
 # Load data to database.
 echo ***Loading data to database...
