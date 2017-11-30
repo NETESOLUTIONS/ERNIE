@@ -22,7 +22,8 @@ create table new_fda_patents (
   drug_substance_flag varchar(10),
   drug_product_flag varchar(10),
   patent_use_code varchar(20),
-  delist_flag varchar(10)
+  delist_flag varchar(10),
+  submission_date varchar(50)
   )
   tablespace ernie_fda_tbs;
 
