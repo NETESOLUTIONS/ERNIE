@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!--This is a draft spec for ERNIE seedsets in xml format with an internal DTD -->
+<!--This format is used for gen1 seedsets for network construction in ERNIE case studies-->
+<!--This instance is for data related to the Affymetrix case study-->
+<!--Author: George Chacko-->
+<!--Date: 10/30/2017-->
+
+
+<!DOCTYPE case_study [
+  <!ELEMENT case_study (therapeutic|diagnostic|intervention)>
+
+  <!ELEMENT diagnostic (fda,pubmed,wos,patent)>
+
+  <!ELEMENT fda (reagent,brand_name,sequiv*,approval_date,source*)>
+  <!ELEMENT reagent (#PCDATA)> 
+  <!ELEMENT brand_name (#PCDATA)> 
+  <!ELEMENT sequiv (#PCDATA)> 
+  <!ELEMENT approval_date (#PCDATA)> 
+  <!ELEMENT source (#PCDATA)>
+
+  <!ELEMENT pubmed (all_pmid*)>
+  <!ELEMENT all_pmid (#PCDATA)>
+
+  <!ELEMENT wos (all_wos*)>
+  <!ELEMENT all_wos (#PCDATA)>
+
+  <!ELEMENT patent (npl_wosid*,pl_USpatentno*)>
+  <!ELEMENT npl_wosid (#PCDATA)>
+  <!ELEMENT pl_USpatentno (#PCDATA)>
+]>
+
+<reagent>CytochromeP450 Expression Profiling Kit</reagent>
+<brand_name>Amplichip CYP450 </brand_name>
+
