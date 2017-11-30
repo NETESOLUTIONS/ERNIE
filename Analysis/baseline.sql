@@ -253,16 +253,7 @@ BEGIN
         ALTER TABLE newtable RENAME TO case_DRUG_NAME_HERE_citation_network;
 
       END IF;
-      DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_years;
-      EXECUTE('create table case_DRUG_NAME_HERE_citation_network_years as
-      select distinct a.pmid, a.wos_id, b.publication_year from
-      ( select distinct citing_wos as wos_id, citing_pmid as pmid from case_DRUG_NAME_HERE_citation_network
-        union all
-        select distinct cited_wos as wos_id, cited_pmid as pmid from case_DRUG_NAME_HERE_citation_network
-      ) a
-      left join wos_publications b
-        on a.wos_id=b.source_id
-      where a.wos_id is not null;');
+
       DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_authors;
       EXECUTE('create table case_DRUG_NAME_HERE_citation_network_authors as
       select distinct a.pmid, a.wos_id, b.full_name from
