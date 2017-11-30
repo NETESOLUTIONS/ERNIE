@@ -96,7 +96,7 @@ create table case_DRUG_NAME_HERE_wos_supplement_set_dedupe as
 DROP TABLE IF EXISTS case_DRUG_NAME_HERE_wos_supplement_set;
 ALTER TABLE case_DRUG_NAME_HERE_wos_supplement_set_dedupe RENAME TO case_DRUG_NAME_HERE_wos_supplement_set;
 INSERT INTO case_DRUG_NAME_HERE_generational_references(pmid, wos_id, project_number)
-select null, source_id, null from case_DRUG_NAME_HERE_wos_supplement_set where source_id not in (select wos_id from case_DRUG_NAME_HERE_generational_references);
+select null, source_id, null from case_DRUG_NAME_HERE_wos_supplement_set where source_id not in (select wos_id from case_DRUG_NAME_HERE_generational_references where wos_id is not null);
 
 
 DO $$
