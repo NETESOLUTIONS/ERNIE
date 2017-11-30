@@ -85,10 +85,15 @@ select (1-(CAST(count(distinct wos_id) as decimal)/count(distinct pmid))) as per
 \! echo 'Percent loss when mapping Seed PMIDs to Exporter Project Numberss:'
 select (1-(CAST(count(distinct project_number) as decimal)/count(distinct pmid))) as percent_PMIDS_with_matching_ProjectNum from case_DRUG_NAME_HERE_pmid_wos_projects;
 
+-- Throw in any supplementing WoS IDs from the supplementary table and create the baseline generational references table
+\! echo '***Appending supplementary WoS IDs...'
 --Continued generational mapping added to the base table based on the number of iterations the user wants to cover
 DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references;
 create table case_DRUG_NAME_HERE_generational_references as
 select * from case_DRUG_NAME_HERE_pmid_wos_projects;
+INSERT INTO case_DRUG_NAME_HERE_generational_references(pmid, wos_id, project_number)
+select null, source_id, null from case_DRUG_NAME_HERE_wos_supplement_set;
+
 
 DO $$
 BEGIN
@@ -248,6 +253,16 @@ BEGIN
         ALTER TABLE newtable RENAME TO case_DRUG_NAME_HERE_citation_network;
 
       END IF;
+      DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_years;
+      EXECUTE('create table case_DRUG_NAME_HERE_citation_network_years as
+      select distinct a.pmid, a.wos_id, b.publication_year from
+      ( select distinct citing_wos as wos_id, citing_pmid as pmid from case_DRUG_NAME_HERE_citation_network
+        union all
+        select distinct cited_wos as wos_id, cited_pmid as pmid from case_DRUG_NAME_HERE_citation_network
+      ) a
+      left join wos_publications b
+        on a.wos_id=b.source_id
+      where a.wos_id is not null;');
       DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_authors;
       EXECUTE('create table case_DRUG_NAME_HERE_citation_network_authors as
       select distinct a.pmid, a.wos_id, b.full_name from
