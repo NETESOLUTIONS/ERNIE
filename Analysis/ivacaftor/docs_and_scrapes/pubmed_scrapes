@@ -1,12 +1,3 @@
 pubmed_preapp_scrape: ((("ivacaftor"[Supplementary Concept] OR "ivacaftor"[All Fields]) OR ("ivacaftor"[Supplementary Concept] OR "ivacaftor"[All Fields] OR "kalydeco"[All Fields])) AND "english"[Language]) AND ("1900/01/01"[PDAT] : "2013/01/31"[PDAT])
 
-pubmed_postapp_scrape: ((("ivacaftor"[Supplementary Concept] OR "ivacaftor"[All Fields]) OR ("ivacaftor"[Supplementary Concept] OR "ivacaftor"[All Fields] OR "kalydeco"[All Fields])) AND "english"[Language]) AND ("2013/01/31"[PDAT] : "3000"[PDAT])
-
-pubmed_review_scrape: (((("ivacaftor"[Supplementary Concept] OR "ivacaftor"[All Fields]) OR ("ivacaftor"[Supplementary Concept] OR "ivacaftor"[All Fields] OR "kalydeco"[All Fields])) AND "english"[Language]) AND "review"[Publication Type]) AND ("2013/01/31"[PDAT] : "2014/01/31"[PDAT])
-
-pubmed_ct_preapp_scrape: (((("ivacaftor"[Supplementary Concept] OR "ivacaftor"[All Fields]) OR ("ivacaftor"[Supplementary Concept] OR "ivacaftor"[All Fields] OR "kalydeco"[All Fields])) AND "english"[Language]) AND ("1900/01/01"[PDAT] : "2013/01/31"[PDAT])) AND "clinical trial"[Publication Type]
-
-pubmed_ct_postapp_scrape: (((("ivacaftor"[Supplementary Concept] OR "ivacaftor"[All Fields]) OR ("ivacaftor"[Supplementary Concept] OR "ivacaftor"[All Fields] OR "kalydeco"[All Fields])) AND "english"[Language]) AND ("2013/01/31"[PDAT] : "3000"[PDAT])) AND "clinical trial"[Publication Type]
-
-
 
