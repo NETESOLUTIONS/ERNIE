@@ -1,5 +1,5 @@
 #!/bin/bash
-# George Chacko 10/21/2017
+# George Chacko 12/01/2017
 
 echo "This script takes a set of source files and modifies them to incorporate xml tags then
 it assembles a complete xml file that is compliant with seedset.dtd
@@ -35,34 +35,19 @@ wc -l ipilimumab_fda_medical_review_pmid > t1
 echo "ipilimumab_fda_medical_review_pmid has $(cat t1 | awk '{print $1}') pmids"
 
 wc -l ipilimumab_fda_other_review_pmid > t2
-echo "ipilimumab_fda_medical_review_pmid has $(cat t2 | awk '{print $1}') pmids"
+echo "ipilimumab_fda_other_review_pmid has $(cat t2 | awk '{print $1}') pmids"
 
 wc -l ipilimumab_patent_npl_pmid > t3
-echo "ipilimumab_fda_medical_review_pmid has $(cat t3 | awk '{print $1}') pmids"
+echo "ipilimumab_patent_npl_pmid has $(cat t3 | awk '{print $1}') pmids"
 
-wc -l ipilimumab_ct_postapp_publication_pmid > t4
-echo "ipilimumab_fda_medical_review_pmid has $(cat t4 | awk '{print $1}') pmids"
+wc -l ipilimumab_ct_preapp_publication_pmid > t4
+echo "ipilimumab_ct_preapp_publication_pmid has $(cat t4 | awk '{print $1}') pmids"
 
-wc -l ipilimumab_ct_postapp_reference_pmid > t5
-echo "ipilimumab_fda_medical_review_pmid has $(cat t5 | awk '{print $1}') pmids"
+wc -l ipilimumab_ct_preapp_reference_pmid > t5
+echo "ipilimumab_ct_preapp_reference_pmid has $(cat t5 | awk '{print $1}') pmids"
 
-wc -l ipilimumab_ct_preapp_publication_pmid > t6
-echo "ipilimumab_fda_medical_review_pmid has $(cat t6 | awk '{print $1}') pmids"
-
-wc -l ipilimumab_ct_preapp_reference_pmid > t7
-echo "ipilimumab_fda_medical_review_pmid has $(cat t7 | awk '{print $1}') pmids"
-
-wc -l ipilimumab_pubmed_ct_postapp_pmid > t8
-echo "ipilimumab_fda_medical_review_pmid has $(cat t8 | awk '{print $1}') pmids"
-
-wc -l ipilimumab_pubmed_ct_preapp_pmid > t9
-echo "ipilimumab_fda_medical_review_pmid has $(cat t9 | awk '{print $1}') pmids"
-
-wc -l ipilimumab_pubmed_postapp_pmid > t10
-echo "ipilimumab_fda_medical_review_pmid has $(cat t10 | awk '{print $1}') pmids"
-
-wc -l ipilimumab_pubmed_preapp_pmid > t11
-echo "ipilimumab_fda_medical_review_pmid has $(cat t11 | awk '{print $1}') pmids"
+wc -l ipilimumab_pubmed_preapp_pmid > t6
+echo "ipilimumab_pubmed_preapp_pmid has $(cat t6 | awk '{print $1}') pmids"
 
 sleep 2
 
@@ -92,42 +77,10 @@ echo "processing ipilimumab_ct_preapp_publication_pmid"
 sed 's/^/\<ct_preapp_publication_pmid\>/g'  ipilimumab_ct_preapp_publication_pmid |
  sed 's/$/\<\/ct_preapp_publication_pmid\>/g' > file5
 
-echo "processing ipilimumab_ct_postapp_reference_pmid"
-#  <!ELEMENT ct_postapp_references_pmid (#PCDATA)>
-sed 's/^/\<ct_postapp_reference_pmid\>/g'  ipilimumab_ct_postapp_reference_pmid |
- sed 's/$/\<\/ct_postapp_reference_pmid\>/g' > file6
-
-echo "processing ipilimumab_ct_postapp_publication_pmid"
-#   <!ELEMENT ct_postapp_publication_pmid (#PCDATA)>
-sed 's/^/\<ct_postapp_publication_pmid\>/g'  ipilimumab_ct_postapp_publication_pmid |
- sed 's/$/\<\/ct_postapp_publication_pmid\>/g' > file7
-
 echo "processing ipilimumab_pubmed_preapp_pmid"
 #   <!ELEMENT pubmed_preapp_pmid (#PCDATA)>
 sed 's/^/\<pubmed_preapp_pmid\>/g'  ipilimumab_pubmed_preapp_pmid |
- sed 's/$/\<\/pubmed_preapp_pmid\>/g' > file8
-
-echo "processing ipilimumab_pubmed_postapp_pmid"
-#   <!ELEMENT pubmed_postapp_pmid (#PCDATA)>
-sed 's/^/\<pubmed_postapp_pmid\>/g'  ipilimumab_pubmed_postapp_pmid |
- sed 's/$/\<\/pubmed_postapp_pmid\>/g' > file9
-
-echo "processing ipilimumab_pubmed_review_pmid"
-#   <!ELEMENT pubmed_review_pmid (#PCDATA)>
-sed 's/^/\<pubmed_review_pmid\>/g'  ipilimumab_pubmed_review_pmid |
- sed 's/$/\<\/pubmed_review_pmid\>/g' > file10
-
-echo "processing ipilimumab_pubmed_ct_preapp_pmid"
-#   <!ELEMENT pubmed_ct_preapp_pmid (#PCDATA)>
-sed 's/^/\<ipilimumab_pubmed_ct_preapp_pmid\>/g'  ipilimumab_pubmed_ct_preapp_pmid |
- sed 's/$/\<\/ipilimumab_pubmed_ct_preapp_pmid\>/g' > file11
-
-echo "processing ipilimumab_pubmed_ct_postapp_pmid"
-#   <!ELEMENT pubmed_ct_postapp_pmid (#PCDATA)>
-sed 's/^/\<pubmed_ct_postapp_pmid\>/g'  ipilimumab_pubmed_ct_postapp_pmid |
- sed 's/$/\<\/pubmed_ct_postapp_pmid\>/g' > file12
-
-
+ sed 's/$/\<\/pubmed_preapp_pmid\>/g' > file6
 
 for f in file*
 do
@@ -138,15 +91,15 @@ do
     fi
 done
 
-head -41 ~/ERNIE/Analysis/horizontal/seedset.dtd > ipilimumab2.xml
+head -37 ~/ERNIE/Analysis/horizontal/seedset.dtd > ipilimumab2.xml
 
 echo "<drug>" >> ipilimumab2.xml
 echo "<fda>" >> ipilimumab2.xml
-cat ipilimumab_fda_active_ingredient >> ipilimumab2.xml
-cat ipilimumab_fda_brand_name >> ipilimumab2.xml
-cat ipilimumab_fda_bla >> ipilimumab2.xml
-cat ipilimumab_fda_source >> ipilimumab2.xml
-cat file1 file2  >> ipilimumab2.xml
+ cat ipilimumab_fda_brand_name >> ipilimumab2.xml
+ cat ipilimumab_fda_active_ingredient >> ipilimumab2.xml
+ cat ipilimumab_fda_bla >> ipilimumab2.xml
+ cat ipilimumab_fda_source >> ipilimumab2.xml
+ cat file1 file2  >> ipilimumab2.xml
 echo "</fda>" >> ipilimumab2.xml
 
 echo "<patent>" >> ipilimumab2.xml
@@ -155,11 +108,11 @@ cat file3  >> ipilimumab2.xml
 echo "</patent>" >> ipilimumab2.xml
 
 echo "<ct>" >> ipilimumab2.xml
-cat file4 file5 file6 file7  >> ipilimumab2.xml
+cat file4 file5  >> ipilimumab2.xml
 echo "</ct>" >> ipilimumab2.xml
 
 echo "<pubmed>" >> ipilimumab2.xml
-cat file8 file9 file10 file12 file12  >> ipilimumab2.xml
+cat file6  >> ipilimumab2.xml
 echo "</pubmed>" >> ipilimumab2.xml
 
 echo "</drug>" >> ipilimumab2.xml
@@ -171,13 +124,6 @@ rm file3
 rm file4
 rm file5
 rm file6
-rm file7
-rm file8
-rm file9
-rm file10
-rm file11
-rm file12
-rm ipilimumab2.xml
 
 # Create seedset_pmid  file
 #ipilimumab_fda_medical_review_pmid
@@ -199,26 +145,6 @@ echo "$(cat line_count1) seedset pmids for ipilimumab"
 echo "***"
 rm temp1 temp2 temp3 temp4 line_count1
 
-# Create postapp_pmid files
-cp ipilimumab_ct_postapp_publication_pmid temp1
-cp ipilimumab_ct_postapp_reference_pmid temp2
-cp ipilimumab_pubmed_ct_postapp_pmid temp3
-cp ipilimumab_pubmed_postapp_pmid temp4 
-cat temp1 temp3 temp4 | sort | uniq > ipilimumab_postapp_pmid_presql
-cat ipilimumab_postapp_pmid_presql | wc -l > line_count2
-echo "***"
-echo "$(cat line_count2) postapp pmids for ipilimumab"
-echo "***"
-rm temp1 temp2 temp3 temp4 line_count2
-
-# Create ipilimumab_pubmed review file
-cp ipilimumab_pubmed_review_pmid temp1
-cat temp1 | sort | uniq > ipilimumab_review_pmid_presql
-cat ipilimumab_review_pmid_presql | wc -l > line_count3
-echo "***"
-echo "$(cat line_count3) review pmids for ipilimumab"
-echo "***"
-rm temp1 line_count3
 rm t[0-9]*
 
 
