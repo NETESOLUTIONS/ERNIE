@@ -1,8 +1,2 @@
-ipilimumab_pubmed_preapp_pmid: ((("ipilimumab"[Supplementary Concept] OR "ipilimumab"[All Fields]) OR ("ipilimumab"[Supplementary Concept] OR "ipilimumab"[All Fields] OR "yervoy"[All Fields])) AND "english"[Language]) AND ("1900/01/01"[PDAT] : "2012/03/25"[PDAT])
-
-ipilimumab_pubmed_postapp_pmid: ((("ipilimumab"[Supplementary Concept] OR "ipilimumab"[All Fields]) OR ("ipilimumab"[Supplementary Concept] OR "ipilimumab"[All Fields] OR "yervoy"[All Fields])) AND english[Language]) AND ("2012/03/25"[PDAT] : "3000"[PDAT])
-
-ipillimumab_pubmed_review: (((("ipilimumab"[Supplementary Concept] OR "ipilimumab"[All Fields]) OR ("ipilimumab"[Supplementary Concept] OR "ipilimumab"[All Fields] OR "yervoy"[All Fields])) AND "english"[Language]) AND "review"[Publication Type]) AND ("2012/03/25"[PDAT] : "2013/03/25"[PDAT])
-
-ipilimumab_pubmed_ct_postapp: (((("ipilimumab"[Supplementary Concept] OR "ipilimumab"[All Fields]) OR ("ipilimumab"[Supplementary Concept] OR "ipilimumab"[All Fields] OR "yervoy"[All Fields])) AND english[Language]) AND ("2012/03/25"[PDAT] : "3000"[PDAT])) AND "clinical trial"[Publication Type]
-
+ipilimumab_pubmed_preapp_pmid: ((("ipilimumab"[Supplementary Concept] OR "ipilimumab"[All Fields]) OR ("ipilimumab"[Supplementary Concept] 
+OR "ipilimumab"[All Fields] OR "yervoy"[All Fields])) AND "english"[Language]) AND ("1900/01/01"[PDAT] : "2012/03/25"[PDAT])
