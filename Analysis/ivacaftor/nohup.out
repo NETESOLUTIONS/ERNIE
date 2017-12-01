@@ -1,9 +1,0 @@
-psql:ivacaftor_ct_table.sql:4: NOTICE:  table "ivacaftor_ct" does not exist, skipping
-DROP TABLE
-SELECT 62
-COPY 8
-COPY 0
-COPY 1
-COPY 1
-COPY 53
-COPY 9
