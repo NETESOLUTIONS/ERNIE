@@ -2,7 +2,7 @@
 <!--This is a draft spec for ERNIE seedsets in xml format with an internal DTD -->
 <!--This format is used for gen1 seedsets for network construction in ERNIE case studies-->
 <!--Author: George Chacko-->
-<!--Date: 10/19/2017-->
+<!--Date: 12/01/2017-->
 
 
 <!DOCTYPE case_study [
@@ -20,18 +20,12 @@
   <!ELEMENT medical_review_pmid (#PCDATA)>
   <!ELEMENT fda_other_pmid (#PCDATA)>
 
-  <!ELEMENT pubmed (pubmed_ct_preapp_pmid*,pubmed_ct_postapp_pmid*,pubmed_preapp_pmid+,pubmed_postapp_pmid+,pubmed_review_pmid+)>
-  <!ELEMENT pubmed_ct_preapp_pmid (#PCDATA)>
-  <!ELEMENT pubmed_ct_postapp_pmid (#PCDATA)>
+  <!ELEMENT pubmed (pubmed_preapp_pmid+)>
   <!ELEMENT pubmed_preapp_pmid (#PCDATA)>
-  <!ELEMENT pubmed_postapp_pmid (#PCDATA)>
-  <!ELEMENT pubmed_reviews_pmid (#PCDATA)>
 
-  <!ELEMENT ct (ct_preapp_reference_pmid*,ct_postapp_reference_pmid*,ct_preapp_publication_pmid*,ct_postapp_publication_pmid*,ct_preapp_nct*,ct_postapp_nct*)>
+  <!ELEMENT ct (ct_preapp_reference_pmid*,ct_preapp_publication_pmid*)>
   <!ELEMENT ct_preapp_reference_pmid (#PCDATA)>
-  <!ELEMENT ct_postapp_reference_pmid (#PCDATA)>
   <!ELEMENT ct_preapp_publication_pmid (#PCDATA)>
-  <!ELEMENT ct_postapp_publication_pmid (#PCDATA)>
   <!ELEMENT ct_preapp_nct (#PCDATA)>
   <!ELEMENT ct_postapp_nct (#PCDATA)>
 
@@ -39,5 +33,4 @@
   <!ELEMENT npl_pmid (#PCDATA)>
   <!ELEMENT pl_USpatentno (#PCDATA)>
 ]>
-
 
