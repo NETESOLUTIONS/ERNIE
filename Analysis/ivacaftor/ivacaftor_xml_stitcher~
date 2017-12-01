@@ -109,11 +109,11 @@ cat file3  >> ivacaftor2.xml
 echo "</patent>" >> ivacaftor2.xml
 
 echo "<ct>" >> ivacaftor2.xml
-cat file4 file5  >> ivacaftor2.xml
+cat file4 file5 file6 file7  >> ivacaftor2.xml
 echo "</ct>" >> ivacaftor2.xml
 
 echo "<pubmed>" >> ivacaftor2.xml
-cat file6  >> ivacaftor2.xml
+cat file8 file9 file10 file12 file12  >> ivacaftor2.xml
 echo "</pubmed>" >> ivacaftor2.xml
 
 echo "</drug>" >> ivacaftor2.xml
@@ -125,7 +125,12 @@ rm file3
 rm file4
 rm file5
 rm file6
-
+rm file7
+rm file8
+rm file9
+rm file10
+rm file11
+rm file12
 rm ivacaftor2.xml
 
 # Create seedset_pmid  file using
@@ -147,7 +152,27 @@ echo "***"
 echo "$(cat line_count1) seedset pmids for ivacaftor"
 echo "***"
 rm temp1 temp2 temp3 temp4 line_count1
-rm t[0-9]*
 
+# Create postapp_pmid files
+cp ivacaftor_ct_postapp_publication_pmid temp1
+cp ivacaftor_ct_postapp_reference_pmid temp2
+cp ivacaftor_pubmed_ct_postapp_pmid temp3
+cp ivacaftor_pubmed_postapp_pmid temp4 
+cat temp1 temp3 temp4 | sort | uniq > ivacaftor_postapp_pmid_presql
+cat ivacaftor_postapp_pmid_presql | wc -l > line_count2
+echo "***"
+echo "$(cat line_count2) postapp pmids for ivacaftor"
+echo "***"
+rm temp1 temp2 temp3 temp4 line_count2
+
+# Create ivacaftor_pubmed review file
+cp ivacaftor_pubmed_review_pmid temp1
+cat temp1 | sort | uniq > ivacaftor_review_pmid_presql
+cat ivacaftor_review_pmid_presql | wc -l > line_count3
+echo "***"
+echo "$(cat line_count3) review pmids for ivacaftor"
+echo "***"
+rm temp1 line_count3
+rm t[0-9]*
 
 
