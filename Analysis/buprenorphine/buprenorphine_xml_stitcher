@@ -1,5 +1,5 @@
 #!/bin/bash
-# George Chacko 10/30/2017
+# George Chacko 12/02/2017
 # Revision Notes: Found errors. Revised cutoff dates to +12 months post-approval.
 
 echo "This script takes a set of source files and modifies them to incorporate xml tags then
@@ -40,32 +40,14 @@ echo "buprenorphine_fda_other_review_pmid has $(cat t2 | awk '{print $1}') pmids
 wc -l buprenorphine_patent_npl_pmid > t3
 echo "buprenorphine_patent_npl_pmid has $(cat t3 | awk '{print $1}') pmids"
 
-wc -l buprenorphine_ct_postapp_publication_pmid > t4
-echo "buprenorphine_ct_postapp_publication_pmid has $(cat t4 | awk '{print $1}') pmids"
+wc -l buprenorphine_ct_preapp_publication_pmid > t4
+echo "buprenorphine_ct_preapp_publication_pmid has $(cat t4 | awk '{print $1}') pmids"
 
-wc -l buprenorphine_ct_postapp_reference_pmid > t5
-echo "buprenorphine_ct_postapp_reference_pmid has $(cat t5 | awk '{print $1}') pmids"
+wc -l buprenorphine_ct_preapp_reference_pmid > t5
+echo "buprenorphine_ct_preapp_reference_pmid has $(cat t5 | awk '{print $1}') pmids"
 
-wc -l buprenorphine_ct_preapp_publication_pmid > t6
-echo "buprenorphine_ct_preapp_publication_pmid has $(cat t6 | awk '{print $1}') pmids"
-
-wc -l buprenorphine_ct_preapp_reference_pmid > t7
-echo "buprenorphine_ct_preapp_reference_pmid has $(cat t7 | awk '{print $1}') pmids"
-
-wc -l buprenorphine_pubmed_ct_postapp_pmid > t8
-echo "buprenorphine_pubmed_ct_postapp_pmid has $(cat t8 | awk '{print $1}') pmids"
-
-wc -l buprenorphine_pubmed_ct_preapp_pmid > t9
-echo "buprenorphine_pubmed_ct_preapp_pmid has $(cat t9 | awk '{print $1}') pmids"
-
-wc -l buprenorphine_pubmed_postapp_pmid > t10
-echo "buprenorphine_pubmed_postapp_pmid has $(cat t10 | awk '{print $1}') pmids"
-
-wc -l buprenorphine_pubmed_preapp_pmid > t11
-echo "buprenorphine_pubmed_preapp_pmid has $(cat t11 | awk '{print $1}') pmids"
-
-wc -l buprenorphine_pubmed_review_pmid > t12
-echo "buprenorphine_pubmed_review_pmid has $(cat t12 |  awk '{print $1}') pmids"
+wc -l buprenorphine_pubmed_preapp_pmid > t6
+echo "buprenorphine_pubmed_preapp_pmid has $(cat 6 | awk '{print $1}') pmids"
 
 sleep 2
 
@@ -85,49 +67,20 @@ sed 's/^/\<buprenorphine_npl_pmid\>/g'  buprenorphine_patent_npl_pmid |
  sed 's/$/\<\/buprenorphine_npl_pmid\>/g' > file3
 
 echo "processing buprenorphine_ct_preapp_reference_pmid"
-# <!ELEMENT ct_preapp_references_pmid (#PCDATA)>
-sed 's/^/\<ct_preapp_references_pmid\>/g'  buprenorphine_ct_preapp_reference_pmid |
- sed 's/$/\<\/ct_preapp_references_pmid\>/g' > file4
+# <!ELEMENT ct_preapp_reference_pmid (#PCDATA)>
+sed 's/^/\<ct_preapp_reference_pmid\>/g'  buprenorphine_ct_preapp_reference_pmid |
+ sed 's/$/\<\/ct_preapp_reference_pmid\>/g' > file4
 
 echo "processing buprenorphine_ct_preapp_publication_pmid"
 #  <!ELEMENT ct_preapp_publication_pmid (#PCDATA)>
 sed 's/^/\<ct_preapp_publication_pmid\>/g'  buprenorphine_ct_preapp_publication_pmid |
  sed 's/$/\<\/ct_preapp_publication_pmid\>/g' > file5
 
-echo "processing buprenorphine_ct_postapp_reference_pmid"
-#  <!ELEMENT ct_postapp_references_pmid (#PCDATA)>
-sed 's/^/\<ct_postapp_reference_pmid\>/g'  buprenorphine_ct_postapp_reference_pmid |
- sed 's/$/\<\/ct_postapp_reference_pmid\>/g' > file6
-
-echo "processing buprenorphine_ct_postapp_publication_pmid"
-#   <!ELEMENT ct_postapp_publication_pmid (#PCDATA)>
-sed 's/^/\<ct_postapp_publication_pmid\>/g'  buprenorphine_ct_postapp_publication_pmid |
- sed 's/$/\<\/ct_postapp_publication_pmid\>/g' > file7
-
 echo "processing buprenorphine_pubmed_preapp_pmid"
 #   <!ELEMENT pubmed_preapp_pmid (#PCDATA)>
 sed 's/^/\<pubmed_preapp_pmid\>/g'  buprenorphine_pubmed_preapp_pmid |
- sed 's/$/\<\/pubmed_preapp_pmid\>/g' > file8
+ sed 's/$/\<\/pubmed_preapp_pmid\>/g' > file6
 
-echo "processing buprenorphine_pubmed_postapp_pmid"
-#   <!ELEMENT pubmed_postapp_pmid (#PCDATA)>
-sed 's/^/\<pubmed_postapp_pmid\>/g'  buprenorphine_pubmed_postapp_pmid |
- sed 's/$/\<\/pubmed_postapp_pmid\>/g' > file9
-
-echo "processing buprenorphine_pubmed_review_pmid"
-#   <!ELEMENT pubmed_review_pmid (#PCDATA)>
-sed 's/^/\<pubmed_review_pmid\>/g'  buprenorphine_pubmed_review_pmid |
- sed 's/$/\<\/pubmed_review_pmid\>/g' > file10
-
-echo "processing buprenorphine_pubmed_ct_preapp_pmid"
-#   <!ELEMENT pubmed_ct_preapp_pmid (#PCDATA)>
-sed 's/^/\<buprenorphine_pubmed_ct_preapp_pmid\>/g'  buprenorphine_pubmed_ct_preapp_pmid |
- sed 's/$/\<\/buprenorphine_pubmed_ct_preapp_pmid\>/g' > file11
-
-echo "processing buprenorphine_pubmed_ct_postapp_pmid"
-#   <!ELEMENT pubmed_ct_postapp_pmid (#PCDATA)>
-sed 's/^/\<pubmed_ct_postapp_pmid\>/g'  buprenorphine_pubmed_ct_postapp_pmid |
- sed 's/$/\<\/pubmed_ct_postapp_pmid\>/g' > file12
 
 for f in file*
 do
@@ -157,11 +110,11 @@ cat file3  >> buprenorphine2.xml
 echo "</patent>" >> buprenorphine2.xml
 
 echo "<ct>" >> buprenorphine2.xml
-cat file4 file5 file6 file7  >> buprenorphine2.xml
+cat file4 file5   >> buprenorphine2.xml
 echo "</ct>" >> buprenorphine2.xml
 
 echo "<pubmed>" >> buprenorphine2.xml
-cat file8 file9 file10 file12 file12  >> buprenorphine2.xml
+cat file6  >> buprenorphine2.xml
 echo "</pubmed>" >> buprenorphine2.xml
 
 echo "</drug>" >> buprenorphine2.xml
@@ -173,12 +126,6 @@ rm file3
 rm file4
 rm file5
 rm file6
-rm file7
-rm file8
-rm file9
-rm file10
-rm file11
-rm file12
 rm buprenorphine2.xml
 
 # Create seedset_pmid  file using
@@ -187,7 +134,6 @@ rm buprenorphine2.xml
 #buprenorphine_patent_npl_pmid
 #buprenorphine_ct_preapp_publication_pmid
 #buprenorphine_ct_preapp_reference_pmid
-#buprenorphine_pubmed_ct_preapp_pmid
 #buprenorphine_pubmed_preapp_pmid
 
 cat buprenorphine.xml | egrep _pmid\>[0-9]{3} > temp1
@@ -201,26 +147,6 @@ echo "$(cat line_count1) seedset pmids for buprenorphine"
 echo "***"
 rm temp1 temp2 temp3 temp4 line_count1
 
-# Create postapp_pmid files
-cp buprenorphine_ct_postapp_publication_pmid temp1
-cp buprenorphine_ct_postapp_reference_pmid temp2
-cp buprenorphine_pubmed_ct_postapp_pmid temp3
-cp buprenorphine_pubmed_postapp_pmid temp4 
-cat temp1 temp3 temp4 | sort | uniq > buprenorphine_postapp_pmid_presql
-cat buprenorphine_postapp_pmid_presql | wc -l > line_count2
-echo "***"
-echo "$(cat line_count2) postapp pmids for buprenorphine"
-echo "***"
-rm temp1 temp2 temp3 temp4 line_count2
-
-# Create buprenorphine_pubmed review file
-cp buprenorphine_pubmed_review_pmid temp1
-cat temp1 | sort | uniq > buprenorphine_review_pmid_presql
-cat buprenorphine_review_pmid_presql | wc -l > line_count3
-echo "***"
-echo "$(cat line_count3) review pmids for buprenorphine"
-echo "***"
-rm temp1 line_count3
 rm t[0-9]*
 
 
