@@ -1,0 +1,155 @@
+#!/bin/bash
+# George Chacko 12/02/2017
+# Revision Notes: Found errors. Revised cutoff dates to +12 months post-approval.
+
+echo "This script takes a set of source files and modifies them to incorporate xml tags then
+it assembles a complete xml file that is compliant with seedset.dtd
+
+Input filenames with pmids in them should terminate in '_pmid' and should include
+
+2 *fda_*_pmid    files
+1 *npl_pmid      file
+4 *ct_*_pmid     files
+5 *pubmed_*_pmid files
+
+Other input files relate to fda data and patents"
+
+# sleep 1
+
+ls naltrexone_fda_*_pmid > naltrexone_stitcher_input
+ls naltrexone_patent_npl_pmid >> naltrexone_stitcher_input
+ls naltrexone_ct_*_pmid >> naltrexone_stitcher_input
+ls naltrexone_pubmed_*_pmid >> naltrexone_stitcher_input
+
+while read p; do
+  if [[ -e $p ]]; 
+  then echo  "\n$p exists "
+  fi
+  if [[ $(egrep ^[0-9]\{5,\}$ $p)  ]]; 
+  then echo "AND $p content seems pmid-like"
+  else echo "PROBLEM with $p"
+  fi
+done < naltrexone_stitcher_input
+
+wc -l naltrexone_fda_medical_review_pmid > t1 
+echo "naltrexone_fda_medical_review_pmid has $(cat t1 | awk '{print $1}') pmids"
+
+wc -l naltrexone_fda_other_review_pmid > t2
+echo "naltrexone_fda_other_review_pmid has $(cat t2 | awk '{print $1}') pmids"
+
+wc -l naltrexone_patent_npl_pmid > t3
+echo "naltrexone_patent_npl_pmid has $(cat t3 | awk '{print $1}') pmids"
+
+wc -l naltrexone_ct_preapp_publication_pmid > t4
+echo "naltrexone_ct_preapp_publication_pmid has $(cat t4 | awk '{print $1}') pmids"
+
+wc -l naltrexone_ct_preapp_reference_pmid > t5
+echo "naltrexone_ct_preapp_reference_pmid has $(cat t5 | awk '{print $1}') pmids"
+
+wc -l naltrexone_pubmed_preapp_pmid > t6
+echo "naltrexone_pubmed_preapp_pmid has $(cat t6 | awk '{print $1}') pmids"
+
+sleep 2
+
+echo "processing naltrexone_fda_medical_review_pmid"
+# <!ELEMENT medical_review_pmid (#PCDATA)>
+sed 's/^/\<naltrexone_fda_medical_review_pmid\>/g'  naltrexone_fda_medical_review_pmid |
+ sed 's/$/\<\/naltrexone_fda_medical_review_pmid\>/g' > file1
+
+echo "processing naltrexone_fda_other_review_pmid"
+# <!ELEMENT fda_other_pmid (#PCDATA)>
+sed 's/^/\<naltrexone_fda_other_pmid\>/g'  naltrexone_fda_other_review_pmid |
+ sed 's/$/\<\/naltrexone_fda_other_pmid\>/g' > file2
+
+echo "processing naltrexone_npl_pmid"
+# <!ELEMENT npl_pmid (#PCDATA)>
+sed 's/^/\<naltrexone_npl_pmid\>/g'  naltrexone_patent_npl_pmid |
+ sed 's/$/\<\/naltrexone_npl_pmid\>/g' > file3
+
+echo "processing naltrexone_ct_preapp_reference_pmid"
+# <!ELEMENT ct_preapp_reference_pmid (#PCDATA)>
+sed 's/^/\<ct_preapp_reference_pmid\>/g'  naltrexone_ct_preapp_reference_pmid |
+ sed 's/$/\<\/ct_preapp_reference_pmid\>/g' > file4
+
+echo "processing naltrexone_ct_preapp_publication_pmid"
+#  <!ELEMENT ct_preapp_publication_pmid (#PCDATA)>
+sed 's/^/\<ct_preapp_publication_pmid\>/g'  naltrexone_ct_preapp_publication_pmid |
+ sed 's/$/\<\/ct_preapp_publication_pmid\>/g' > file5
+
+echo "processing naltrexone_pubmed_preapp_pmid"
+#   <!ELEMENT pubmed_preapp_pmid (#PCDATA)>
+sed 's/^/\<pubmed_preapp_pmid\>/g'  naltrexone_pubmed_preapp_pmid |
+ sed 's/$/\<\/pubmed_preapp_pmid\>/g' > file6
+
+
+for f in file*
+do
+    if [$(cat $f | wc -l) = 0 ]
+	then
+	    echo "*** $f is problematic"
+	    else echo "$f has at least 1 line"
+    fi
+done
+
+head -42 ~/ERNIE/Analysis/horizontal/seedset.dtd > naltrexone2.xml
+
+echo "<drug>" >> naltrexone2.xml
+echo "<fda>" >> naltrexone2.xml
+cat naltrexone_fda_active_ingredient >> naltrexone2.xml
+cat naltrexone_fda_brand_name >> naltrexone2.xml
+cat naltrexone_fda_nda >> naltrexone2.xml
+cat naltrexone_fda_approval_date >> naltrexone2.xml
+cat naltrexone_fda_source >> naltrexone2.xml
+cat file1 file2  >> naltrexone2.xml
+echo "</fda>" >> naltrexone2.xml
+
+echo "<patent>" >> naltrexone2.xml
+cat naltrexone_patent_pl_USpatentno >> naltrexone2.xml
+cat file3  >> naltrexone2.xml
+echo "</patent>" >> naltrexone2.xml
+
+echo "<ct>" >> naltrexone2.xml
+cat file4 file5 >> naltrexone2.xml
+echo "</ct>" >> naltrexone2.xml
+
+echo "<pubmed>" >> naltrexone2.xml
+cat file6  >> naltrexone2.xml
+echo "</pubmed>" >> naltrexone2.xml
+
+echo "</drug>" >> naltrexone2.xml
+
+xmllint --format naltrexone2.xml > naltrexone.xml
+rm file1
+rm file2
+rm file3
+rm file4
+rm file5
+rm file6
+rm naltrexone2.xml
+
+# Create seedset_pmid  file using
+#naltrexone_fda_medical_review_pmid
+#naltrexone_fda_other_review_pmid
+#naltrexone_patent_npl_pmid
+#naltrexone_ct_preapp_publication_pmid
+#naltrexone_ct_preapp_reference_pmid
+#naltrexone_pubmed_ct_preapp_pmid
+#naltrexone_pubmed_preapp_pmid
+
+cat naltrexone.xml | egrep _pmid\>[0-9]{3} > temp1
+cat temp1 | egrep fda > temp2
+cat temp1 | egrep npl_pmid > temp3
+cat temp1 | egrep preapp > temp4
+cat temp2 temp3 temp4 | cut -d '<' -f2 | cut -d '>' -f2 | sort | uniq > naltrexone_seedset_pmid_presql
+cat naltrexone_seedset_pmid_presql | wc -l  > line_count1
+echo "***"
+echo "$(cat line_count1) seedset pmids for naltrexone"
+echo "***"
+rm temp1 temp2 temp3 temp4 line_count1
+rm t[0-9]*
+
+
+
+
+
+
