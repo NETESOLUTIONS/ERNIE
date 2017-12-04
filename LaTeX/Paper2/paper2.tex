@@ -1,0 +1,149 @@
+\documentclass[review]{elsarticle}
+
+\usepackage{lineno,hyperref}
+\modulolinenumbers[5]
+
+\journal{Heliyon}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Elsevier bibliography styles
+%%%%%%%%%%%%%%%%%%%%%%%
+%% To change the style, put a % in front of the second line of the current style and
+%% remove the % from the second line of the style you would like to use.
+%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Numbered
+%\bibliographystyle{model1-num-names}
+
+%% Numbered without titles
+%\bibliographystyle{model1a-num-names}
+
+%% Harvard
+%\bibliographystyle{model2-names.bst}\biboptions{authoryear}
+
+%% Vancouver numbered
+%\usepackage{numcompress}\bibliographystyle{model3-num-names}
+
+%% Vancouver name/year
+%\usepackage{numcompress}\bibliographystyle{model4-names}\biboptions{authoryear}
+
+%% APA style
+%\bibliographystyle{model5-names}\biboptions{authoryear}
+
+%% AMA style
+%\usepackage{numcompress}\bibliographystyle{model6-num-names}
+
+%% `Elsevier LaTeX' style
+\bibliographystyle{elsarticle-num}
+%%%%%%%%%%%%%%%%%%%%%%%
+%George's Additions
+%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{subcaption}
+\usepackage{changepage}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amsmath,amssymb}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+
+%% Misc. Packages
+\usepackage[final]{changes}
+\definechangesauthor[name={George Chacko}, color=orange]{gc}
+\setremarkmarkup{(#2)}
+\usepackage{listings}
+
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{XX}
+%\tnotetext[mytitlenote]{This document is a collaborative effort}
+
+%% Group authors per affiliation:
+%% or include affiliations in footnotes:
+\author[nl]{Samet Keserci}
+
+\author[nl]{Avon Davey}
+
+\author[ca]{Di Cross}
+
+\author[gi]{Alexander R. Pico}
+
+\author[nl]{George Chacko \corref{cor1}}
+\ead{netelabs@nete.com}
+
+
+\cortext[cor1]{Corresponding author}
+%\fntext[fn1]{Current address: Facebook Inc., Menlo Park, CA, USA}
+
+
+\address[nl]{NETE Labs, NET ESolutions Corporation, McLean, VA, USA}
+\address[cal]{XX, USA}
+\address[gi]{Gladstone Institutes, San Francisco, CA, USA}
+
+\raggedright
+\begin{abstract}
+\end{abstract}
+
+%\begin{keyword}
+%\end{keyword}
+
+\end{frontmatter}
+
+\linenumbers
+\raggedright
+\section{Introduction}
+
+\section{Materials and Methods}
+
+\section*{Results and Discussion} 
+\section*{Acknowledgments} This study would not have been possible without data that is made publicly available by NIH and the FDA. We thank Tandy Warnow from the University of Illinois Urbana-Champaign for critical comments and advice on formalizing definitions. We also thank Sandeep Somaiya and Syd Gomes from NETE as well as Holly J. Falk-Krzesinski, Daniel Calto, M'hamed Aisati, and Sherif El Shamy from Elsevier for their support of this collaboration.
+
+\section{References}
+ 
+\begin{thebibliography}{10}
+\raggedright
+
+\bibitem{bibWilliams}
+Williams RS, Lotia S, Holloway AK, Pico AR.
+\newblock {{F}rom Scientific Discovery to Cures: Bright Stars within a Galaxy.}
+\newblock Cell. 2015 163:21-23. doi: 10.1016/j.cell.2015.09.007
+
+\end{thebibliography}
+
+\begin{figure}[!h]
+%\begin{adjustwidth}{-0.5in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
+\centering
+\scalebox{0.99}
+{
+\begin{subfigure}{.5\textwidth}
+  \centering
+%  \includegraphics[width=.95\linewidth]{}
+  \label{fig:sub1}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+  \centering
+ % \includegraphics[width=.95\linewidth]{}
+  \label{fig:sub2}
+\end{subfigure}
+}
+\caption{{\bf Intersecting Publications in Five Networks} Intersections were calculated across all five networks for the first generation of references (citing\_pmids) and 
+as well as for the second generation of references (cited\_sids) and displayed as Venn diagrams. \emph{Left Panel.} No first generation publications are observed common to all five networks. A single publication is cited in four of five networks. \emph{Right Panel.} 14  publications are common to all five networks. Abbreviations: alem (Alemtuzumab), imat (Imatinib), nela (Nelarabine), ramu (Ramucirumab), suni(Sunitinib)}
+\label{fig: test}
+%\end{adjustwidth}
+\end{figure}
+
+\begin{figure}[!h]
+%\begin{adjustwidth}{-0.5in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
+\centering
+%\scalebox{1.3}{
+%\includegraphics[scale=0.1]{cy_core14_v2csv_5b.png}}
+\caption{{\bf Core Publications in Networks}  The outer arcs of blue nodes identifies first generation publications (citing\_sid) for each therapeutic. Nodes in the inner ring are sized by a gradient proportion to total degree count with an upper limit of 30 and are colored by a gradient proportional to the number of drug connections (2 to 5). 14  publications are common to all five networks (Table 3) and are colored red. The remaining nodes in the inner ring connect to between 2 and 4 drugs each and are labeled accordingly. Abbreviations: alem (Alemtuzumab), imat (Imatinib), nela (Nelarabine), ramu (Ramucirumab), suni(Sunitinib).}
+\label{fig2}
+%\end{adjustwidth}
+\end{figure}
+
+\end{document}
