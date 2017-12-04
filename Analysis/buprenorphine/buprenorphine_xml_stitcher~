@@ -47,7 +47,7 @@ wc -l buprenorphine_ct_preapp_reference_pmid > t5
 echo "buprenorphine_ct_preapp_reference_pmid has $(cat t5 | awk '{print $1}') pmids"
 
 wc -l buprenorphine_pubmed_preapp_pmid > t6
-echo "buprenorphine_pubmed_preapp_pmid has $(cat t6 | awk '{print $1}') pmids"
+echo "buprenorphine_pubmed_preapp_pmid has $(cat 6 | awk '{print $1}') pmids"
 
 sleep 2
 
