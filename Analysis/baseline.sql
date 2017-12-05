@@ -299,6 +299,11 @@ BEGIN
    END LOOP;
 END; $$;
 
+--Alter citation network table, include a column for a flag which indicates if the cited WOS ID is in wos publications
+ALTER TABLE case_DRUG_NAME_HERE_citation_network
+  ADD COLUMN cited_wos_flag INT DEFAULT (
+                            CASE WHEN a.cited_wos in (select a.cited_wos from wos_publications) THEN 1
+                            ELSE 0);
 --output tables to CSV format under disk space
 COPY case_DRUG_NAME_HERE_citation_network TO '/erniedev_data2/DRUG_NAME_HERE_citation_network.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
 COPY case_DRUG_NAME_HERE_citation_network_years TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_years.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
