@@ -1,0 +1,150 @@
+---
+elements:
+  -
+    type: 'Software System'
+    name: 'Clinical Guidelines (CG)'
+    description: 'AHRQ''s National Guideline Clearinghouse data mapped to PubMed, WoS and NIH projects'
+    tags: ""
+    position: '15,20'
+    containers: []
+  -
+    type: 'Software System'
+    name: 'Clinical Trials (CT)'
+    description: 'clinicaltrials.gov data'
+    tags: ""
+    position: '10,350'
+    containers: []
+  -
+    type: 'Software System'
+    name: ERNIE
+    description: 'Enhanced Research Network Informatics Environment'
+    tags: Internal
+    position: '1015,664'
+    containers: []
+  -
+    type: Person
+    name: 'ERNIE staff'
+    description: ""
+    tags: Internal
+    position: '535,1185'
+  -
+    type: Person
+    name: 'External Collaborator'
+    description: ""
+    tags: Internal
+    position: '1395,1185'
+  -
+    type: 'Software System'
+    name: 'NIH Projects'
+    description: 'Data on funded NIH grants and other projects from NIH ExPORTER'
+    tags: ""
+    position: '1985,1055'
+    containers: []
+  -
+    type: 'Software System'
+    name: 'Publications (WoS)'
+    description: 'Publications and citations from Thomson Reuters Web of Science Core Collection'
+    tags: ""
+    position: '1985,35'
+    containers: []
+  -
+    type: 'Software System'
+    name: 'US Drugs and Biological Products (FDA)'
+    description: 'FDA Orange and Purple Books'
+    tags: ""
+    position: '15,1030'
+    containers: []
+  -
+    type: 'Software System'
+    name: 'US Patents (Derwent)'
+    description: 'Thomson Reuters Derwent data'
+    tags: ""
+    position: '10,685'
+    containers: []
+relationships:
+  -
+    source: ERNIE
+    description: ETL
+    technology: 'Jenkins, Bash, HTTP, XML, SQL, Postgres, Python'
+    destination: 'Clinical Trials (CT)'
+    tags: ""
+  -
+    source: ERNIE
+    description: ETL
+    technology: 'Jenkins, Bash, HTTP, CSV, SQL, Postgres'
+    destination: 'US Drugs and Biological Products (FDA)'
+    tags: ""
+  -
+    source: ERNIE
+    description: ETL
+    technology: 'Jenkins, Bash, HTTP, CSV, SQL, Postgres, Python'
+    destination: 'NIH Projects'
+    tags: ""
+  -
+    source: ERNIE
+    description: ETL
+    technology: 'Jenkins, Bash, FTP, XML, SQL, Postgres, Python, Java'
+    destination: 'US Patents (Derwent)'
+    tags: ""
+  -
+    source: ERNIE
+    description: ETL
+    technology: 'Jenkins, Bash, FTP, XML, SOAP Web Services, SQL, Postgres, Python, Java'
+    destination: 'Publications (WoS)'
+    tags: ""
+  -
+    source: ERNIE
+    description: ETL
+    technology: 'Jenkins, Bash, HTTP, XML, SQL, Postgres, Python, Java'
+    destination: 'Clinical Guidelines (CG)'
+    tags: ""
+  -
+    source: 'ERNIE staff'
+    description: 'Conducts case studies'
+    technology: 'SQL, Postgres'
+    destination: ERNIE
+    tags: ""
+  -
+    source: 'External Collaborator'
+    description: 'Uses ERNIE for case studies'
+    technology: 'Web Application'
+    destination: ERNIE
+    tags: ""
+styles:
+  -
+    type: element
+    tag: future-or-ad-hoc
+    width: ""
+    height: ""
+    background: '#d89333'
+    color: '#ffffff'
+    border: ""
+    opacity: ""
+    fontSize: ""
+    shape: ""
+  -
+    type: element
+    tag: Person
+    width: ""
+    height: ""
+    background: '#08427b'
+    color: '#ffffff'
+    border: ""
+    opacity: ""
+    fontSize: ""
+    shape: Person
+  -
+    type: element
+    tag: 'Software System'
+    width: ""
+    height: ""
+    background: '#1168bd'
+    color: '#ffffff'
+    border: ""
+    opacity: ""
+    fontSize: ""
+    shape: ""
+type: 'System Context'
+scope: ERNIE
+description: 'Dashed boundary = ERNIE project.'
+size: A5_Landscape
