@@ -42,8 +42,8 @@ elements:
     containers: []
   -
     type: 'Software System'
-    name: 'Publications (WoS)'
-    description: 'Publications and citations from Thomson Reuters Web of Science Core Collection'
+    name: 'Publications and Citations (WoS)'
+    description: 'Web of Science Core Collection data leased from Clarivate Analytics'
     tags: ""
     position: '1985,35'
     containers: []
@@ -57,7 +57,7 @@ elements:
   -
     type: 'Software System'
     name: 'US Patents (Derwent)'
-    description: 'Thomson Reuters Derwent data'
+    description: 'Derwent data leased from Clarivate Analytics'
     tags: ""
     position: '10,685'
     containers: []
@@ -90,7 +90,7 @@ relationships:
     source: ERNIE
     description: ETL
     technology: 'Jenkins, Bash, FTP, XML, SOAP Web Services, SQL, Postgres, Python, Java'
-    destination: 'Publications (WoS)'
+    destination: 'Publications and Citations (WoS)'
     tags: ""
   -
     source: ERNIE
