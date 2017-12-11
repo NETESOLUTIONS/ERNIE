@@ -1,6 +1,6 @@
 # Architectural Model #
 
-The ERNIE architecture is modeled using [C4 modeling approach and notation](https://c4model.com) and a free 
+The ERNIE architecture is modeled using [C4 modeling approach and notation](https://c4model.com) and the free 
 [Structurizr Express](https://structurizr.com/express?type=LocalStorage) tool.
 
 To update a diagram (one at a time):
@@ -27,5 +27,8 @@ in draw.io Desktop.
 1. (one-time setup) Install 
 [C4 Modelling plugin for draw.io](https://github.com/tobiashochguertel/c4-draw.io).
 1. Open ERNIE C4 Deployment Diagram.xml
-1. Edit and save. The diagram will be committed.
+1. Edit. Be aware that default draw.io C4 plug-in styling 
+[doesn't match](https://github.com/tobiashochguertel/c4-draw.io/issues/3) the default C4 styling. It's recommended to 
+duplicate shapes or copy existing diagram styles, which were matched to the default C4 styling as close as possible.
+1. Save. The diagram will be committed directly to GitHub.    
 1. After you're done with editing, export a diagram as PNG.
