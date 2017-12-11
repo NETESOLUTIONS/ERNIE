@@ -8,6 +8,7 @@ c_dir=$1
 cd $c_dir
 
 last_week=$(cat $c_dir/counter)
+last_week=$( echo $last_week | sed 's/_/_10#/g') #added a prepending on the week to get past octal errors
 declare -i year=${last_week%_*}
 declare -i week=${last_week#*_}
 wget -q "https://exporter.nih.gov/CSVs/final/RePORTER_PRJ_C_FY${year}_$(printf "%03d" $week).zip" --no-check-certificate
