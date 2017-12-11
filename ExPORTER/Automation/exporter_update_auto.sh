@@ -20,7 +20,7 @@ unzip $c_dir/*.zip; rm $c_dir/*.zip
 
 # pass the download to the python script to extract the proper columns, then copy the data into the temp table
 file=$(ls *.csv)
-python $c_dir/column_extractor.py $file; file_extract=$(echo $file | sed s/.csv/_EXTRACTED.csv/g); file_extract=${c_dir}${file_extract}
+python $c_dir/column_extractor.py $file; file_extract=$(echo $file | sed s/.csv/_EXTRACTED.csv/g); file_extract=${c_dir}"/"${file_extract}
 # truncate the temp project table: temp_exporter_projects. Then update the table with data from the extract
 psql ernie -c "TRUNCATE TABLE temp_exporter_projects;"
 psql ernie -c "COPY temp_exporter_projects from '${file_extract}' delimiter ',' CSV HEADER;"
