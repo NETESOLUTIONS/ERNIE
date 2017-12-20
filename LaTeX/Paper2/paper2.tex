@@ -59,7 +59,7 @@
 
 \begin{frontmatter}
 
-\title{ERNIE: Supporting Collaboration Studies in Multiple Domains} 
+\title{ERNIE: Supporting Evaluation Studies in Multiple Domains} 
 %\tnotetext[mytitlenote]{This document is a collaborative effort}
 
 %% Group authors per affiliation:
@@ -77,42 +77,52 @@
 
 
 \address[nl]{NETE Labs, NET ESolutions Corporation, McLean, VA, USA}
-\address[ca]{XX, USA}
+\address[ca]{Research Data Science \& Evaluation, Clarivate Analytics, USA}
 \address[gi]{Gladstone Institutes, San Francisco, CA, USA}
 
 \raggedright
 
 \begin{abstract}
 
-Data mining of public and commercially available data sources coupled with network analysis has been used as a digital methodology to document and analyze collaboration and knowledge flow in the development of a drug. This approach is extensible to research evaluation problems in any scientific area that can be defined by a nucleus of publications with accessible citation records. However, a tradeoff exists between exhaustive manual curation by experts and automated `big-data' methods. The former is less scalable, the latter can be less accurate. We have developed Enhanced Research Network Information Environment (ERNIE), a cloud-based knowledge platform that integrates free data drawn from public sources as well as licensed data from commercially available ones. ERNIE is built using Open Source tools, is easily replicated and modified, and its modular design enables the facile addition of new data sources and deletion or substitution of existing ones. Data in ERNIE can be accessed using search technologies or Structured Query Language (SQL). To demonstrate the capabilities of ERNIE we present the results of seven case studies that span drug development, pharmacogenomics, behavioral interventions, and opioid addiction. In these studies, we mine and analyze data from policy documents, regulatory approvals, research grants, bibliographic and patent databases as well as  clinical trials to document collaborations and identify influential research accomplishments. 
+Data mining of public and commercially available data sources coupled with network analysis has been successfully used as a digital methodology to document and evaluate research collaborations and knowledge flow associated with drug development. To support quantitative studies based on this approach, we have developed Enhanced Research Network Information Environment (ERNIE), a scalable cloud-based knowledge platform that integrates free data drawn from public sources as well as licensed data from commercially available ones. To facilitate adoption, reuse and extensibility, ERNIE was built using open source tools. A modular design enables the facile addition, deletion, or substitution of data sources and analytical workflows in ERNIE are partially automated to enable expert input at critical stages. To demonstrate the capabilities of ERNIE, we report the results of seven case studies that span drug development, pharmacogenomics, target discovery, behavioral interventions, and opioid addiction. In these studies, we mine and analyze data from policy documents, regulatory approvals, research grants, bibliographic and patent databases, and clinical trials, to document collaborations and identify influential research accomplishments. ERNIE is a template for repositories that can be used to support expert qualitative assessments, while offering burden reduction through automation and access to integrated data.
 
 \end{abstract}
 
 %\begin{keyword}
 %\end{keyword}
 
-\end{frontmatter}
+\end{frontmatter}       
 
 \linenumbers
 \raggedright
-\section{Introduction}
 
-\section{Materials and Methods}
+\section*{Introduction} 
+
+Research assessment is assisted by improved methods for data capture, new databases, and new scientific methods that offer burden reduction and enable the use of big-data and analysis at scale. Using data mining of administrative, regulatory, and scientific records coupled to network analysis, we have previously documented the scientific collaborations underlying the development of five FDA-approved therapeutics for cancer~\cite{Keserci2017}. Building upon prior work on single networks~\cite{Williams2015}, we have documented collaborations that extend across networks as well as records of the funding and peer review that sustain the system of scientific discovery.  Analysis of such networks supports new insights into collaboration, knowledge diffusion, and recursive learning \textit{(supra vide)}. The framework used to mine data and integrate it into networks is flexible, can be automated, and adapted to a range of subjects  beyond drug development and can be used to support individual researchers, groups, and research organizations engaged in portfolio analysis and performance measurement. 
+
+To further support such studies, we have developed Enhanced Research Network Informatics Environment (ERNIE), a cloud-based repository that integrates publicly available data as well as data from commercial sources. With continued reliance on a simple theme of data mining and network analysis, we have used the data within ERNIE to conduct seven case studies. The first two serve to validate ERNIE through reproducing the results of prior studies on ivacaftor and ipilimumab, breakthrough drugs used to treat cystic fibrosis and melanoma. The remaining case studies concern drugs used to treat opioid addiction, a microarray system for pharmacogenomic profiling, a target discovery system based on enzyme fragment complementation assays, and a behavioral intervention for substance abuse. The datasets that result from these studies are made available for use by other researchers and the workflows used to generate them are also archived to permit reproduction of our results, as well as review and modification of the methods used to generate them.
+
+\section*{Materials and Methods}
+
+\emph{Infrastructure} Cloud computing has evolved to the point where computing services and storage are widely available at affordable prices. We prototyped ERNIE as a PostgreSQL 9.6 database in a CentOS 7.4 virtual machine hosted in the Microsoft Azure cloud. A second virtual machine has Apache Solr x.y installed and is used to enable fast text based searches of the data in ERNIE. Both these virtual machines are located in a secure address space that is accessible only to authorized users. Automated processes managed through the Jenkins Continuous Integration server use custom ETL processes wto load these data into the ERNIE schema and refresh them periodically. The scripts that are written for these ETL processes are available on a Github site. \emph{[Need some text from DK and Avon!]}
+
+\emph{Data Sources} Data in ERNIE are derived from publicly available and commercial sources. Publicly available data are copied from the National Clinical Trials Database, the FDA Orange and Purple Books,  the United States Patent Office, and NIH ExPORTER. Leased data are acquired from Clarivate Analytics In and consist of the Web of Science Core Collection and the Derwent Patent Citation Index. Custom ETL processes were developed to load these data into the ERNIE schema and refresh them periodically. The scripts that are written for these ETL processes are available on a Github site. 
+
+\emph{Data Mining and Digitization}
+
+\emph{Amplification}
+
+\emph{Network Calculations}
+
+\emph{Visualizations}
 
 \section*{Results and Discussion} 
-\section*{Acknowledgments} XX
+\section*{Acknowledgments} Research and development reported in this publication was supported by Federal funds from the National Institute on Drug Abuse, National Institutes of Health, US Department of Health and Human Services, under Contract No. HHSN271201700053C. The content of this publication is solely the responsibility of the authors and does not necessarily represent the official views of the National Institutes of Health.
+\cite{LeidenManifesto2015}
 
-\section{References}
- 
-\begin{thebibliography}{10}
-\raggedright
+\section*{References}
 
-\bibitem{bibWilliams}
-Williams RS, Lotia S, Holloway AK, Pico AR.
-\newblock {{F}rom Scientific Discovery to Cures: Bright Stars within a Galaxy.}
-\newblock Cell. 2015 163:21-23. doi: 10.1016/j.cell.2015.09.007
-
-\end{thebibliography}
+\bibliography{chacko} 
 
 \begin{figure}[!h]
 %\begin{adjustwidth}{-0.5in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
