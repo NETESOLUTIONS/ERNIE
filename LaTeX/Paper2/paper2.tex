@@ -59,7 +59,7 @@
 
 \begin{frontmatter}
 
-\title{ERNIE: A Knowledge Platform to Support Research Assessment} 
+\title{ERNIE: A Knowledge Platform to Support Research Assessment}
 %\tnotetext[mytitlenote]{This document is a collaborative effort}
 
 %% Group authors per affiliation:
@@ -91,28 +91,81 @@ Data mining of public and commercially available data sources coupled with netwo
 %\begin{keyword}
 %\end{keyword}
 
-\end{frontmatter}       
+\end{frontmatter}
 
 \linenumbers
 \raggedright
 
-\section*{Introduction} 
+\section*{Introduction}
 
-The risk of research evaluation being driven by data and metrics with insufficient consideration of balanced judgment has driven the formulation of  sound principles to advise practice~\cite{LeidenManifesto2015}. However, data are still critical for evaluation, and utilitarian approaches for capture, integration, and archival that offer coverage and burden reduction assist the practice of research evaluation. While bibliographic data is usually central to research evaluation, the use of administrative records such as government statistics and research funding offers complementary value~\cite{FedStat2017}. 
+The risk of research evaluation being driven by data and metrics with insufficient consideration of balanced judgment has driven the formulation of  sound principles to advise practice~\cite{LeidenManifesto2015}. However, data are still critical for evaluation, and utilitarian approaches for capture, integration, and archival that offer coverage and burden reduction assist the practice of research evaluation. While bibliographic data is usually central to research evaluation, the use of administrative records such as government statistics and research funding offers complementary value~\cite{FedStat2017}.
 
-Using data mining of publicly available administrative, regulatory, and scientific records and network analysis, Williams and colleagues defined relationships between scientific discoveries and major advances in medicine such as new drugs~\cite{Williams2015}. Extending this work, we have previously documented the scientific collaborations that extend across networks underlying the development of five independently developed therapeutics for cancer~\cite{Keserci2017}. Analysis of such networks supports new insights into collaboration, knowledge diffusion, and recursive learning \textit{(vide supra)}. The framework we developed to mine data and integrate it into networks for analysis incorporates expert input, is flexible, can be further automated, adapted to a range of subjects beyond drug development, and used to support individual researchers, groups, and research organizations engaged in research assessment. In addition, cloud computing and data science have evolved to the point where scalable computing services and analytical methods are accessible to a broad user population. Thus, we have developed Enhanced Research Network Informatics Environment (ERNIE), a knowledge platform that integrates publicly available data as well as data from commercial sources.  
+Using data mining of publicly available administrative, regulatory, and scientific records and network analysis, Williams and colleagues defined relationships between scientific discoveries and major advances in medicine such as new drugs~\cite{Williams2015}. Extending this work, we have previously documented the scientific collaborations that extend across networks underlying the development of five independently developed therapeutics for cancer~\cite{Keserci2017}. Analysis of such networks supports new insights into collaboration, knowledge diffusion, and recursive learning \textit{( videsupra)}. The framework we developed to mine data and integrate it into networks for analysis incorporates expert input, is flexible , can be further automated, adapted to a range of subjects beyond drug development, and used to support individual researchers, groups, and research organizations engaged in research assessment. In addition, cloud computing and data science have evolved to the point where scalable computing services and analytical methods are accessible to a broad user population. Thus, we have developed Enhanced Research Network Informatics Environment (ERNIE), a knowledge platform that integrates publicly available data as well as data from commercial sources.
 
-In demonstration that is focused on the theme of data mining and network analysis, we have used the data within ERNIE to conduct seven case studies. In these studies, we mine and analyze data from policy documents, regulatory approvals, research grants, bibliographic and patent databases, and clinical trials, to document collaborations and identify influential research accomplishments. The workflows used incorporate expert knowledge into defining a set of core documents from which citations can be extracted, linked to other records in ERNIE, and analyzed. The first two case studies serve to validate ERNIE through reproducing the results of prior studies~\cite{Williams2015} on ivacaftor and ipilimumab, breakthrough drugs used to treat cystic fibrosis and melanoma. The remaining case studies concern drugs used to treat opioid addiction~\cite{Blumberg1973,Cowan1977} , a microarray system for pharmacogenomic profiling~\cite{deLeon2006}, a target discovery system originating from enzyme fragment complementation assays~\cite{Khanna1989}, and a behavioral intervention for substance abuse~\cite{Botvin1980}. The datasets that result from these studies are made available for use by other researchers and the workflows used to generate them are also archived to permit reproduction of our results, as well as review and modification of the methods used to generate them. 
+In demonstration that is focused on the theme of data mining and network analysis, we have used the data within ERNIE to conduct seven case studies. In these studies, we mine and analyze data from policy documents, regulatory approvals, research grants, bibliographic and patent databases, and clinical trials, to document collaborations and identify influential research accomplishments. The workflows used incorporate expert knowledge into defining a set of core documents from which citations can be extracted, linked to other records in ERNIE, and analyzed. The first two case studies serve to validate ERNIE through reproducing the results of prior studies~\cite{Williams2015} on ivacaftor and ipilimumab, breakthrough drugs used to treat cystic fibrosis and melanoma. The remaining case studies concern drugs used to treat opioid addiction~\cite{Blumberg1973,Cowan1977} , a microarray system for pharmacogenomic profiling~\cite{deLeon2006}, a target discovery system originating from enzyme fragment complementation assays~\cite{Khanna1989}, and a behavioral intervention for substance abuse~\cite{Botvin1980}. The datasets that result from these studies are made available for use by other researchers and the workflows used to generate them are also archived to permit reproduction of our results, as well as review and modification of the methods used to generate them.
 
 \section*{Materials and Methods}
 
-\emph{Infrastructure} ERNIE exists as two CentOS 7.4 virtual machines in the Microsoft Azure cloud with 10 terabytes of attached storage. One virtual machine, standard D8s v3 (8 vcpu, 32 Gb), houses the main database within a PostgreSQL 9.6 server, and additionally acts as a central hub for data related processes. A second virtual machine, standard DS4 (8 vcpu, 28 Gb), houses an installation of Apache Solr 7.1 that is used to create and store indexes of data relevant to ERNIE. Access to both virtual machines is made secure through use of multiple-factor authentication, with a unique time-based code verification acting as one of the key factors. SSH tunnels are used for communication between virtual machines and automated processes for ERNIE are managed through a Jenkins Continuous Integration server. Custom ETL processes mostly consisting of Bash, Python, and SQL scripts are pulled from the project Github repository~\cite{GithubERNIE2017} and deployed via Jenkins in order to load and refresh data from several sources.  
+\emph{Open Source} All ERNIE code is open-source under the MIT license and available on GitHub ~\cite{GithubERNIE2017}.
 
-\emph{Data sources} Data in ERNIE are derived from both publicly available and commercial sources. Publicly available data are copied from the National Clinical Trials Database \cite,  the FDA Orange and Purple Books \cite,  the United States Patent Office \cite, and NIH ExPORTER \cite. Leased data are acquired from Clarivate Analytics and consist of the Web of Science Core Collection and the Derwent World Patent Index~\cite{DWPI2017}. The data in ERNIE are stored in a relational schema that is also documented in Github. \emph{[Need some text from DK and Avon!]}
+\emph{Infrastructure} ERNIE runs on two CentOS 7.4 Linux servers in the Microsoft Azure cloud with 10 terabytes of
+attached storage.
+One server, Azure standard D8s v3 (8 VCPUs, 32 Gb RAM), hosts data in a PostgreSQL 9.6 relational database, and
+additionally acts as a central hub for data related processes.
+A second server, an Azure standard DS4 (8 VCPUs, 28 Gb), runs Apache Solr 7.x search server, which is used to to create
+and store indexes of ERNIE data to facilitate fast free-text user searches.
+Access to ERNIE servers is secured through SSH tunneling and two-factor authentication, with a unique time-based code
+acting as one of the factors.
+
+Automated ERNIE processes are managed by the Jenkins Continuous Integration server.
+Custom Extract-Transform-Load (ETL) scripts are developed in Bash, Python, Java and SQL.
+Jenkins is additionally used to deploy scripts dedicated to data transformation and perform other
+calculations.
+In that regard, Jenkins is used to direct construction of Solr indexes as new data is introduced into
+ERNIE, as well as the construction of citation networks for specified topics.
+The Solr indexes can handle varying forms of Lucene-based search and full-text search, and may quickly return
+informative, ranked, and scored query results so that a user may be able to map data across sources.
+The citation networks are sub-networks (based largely in the Web of Science) that are generated based upon user input
+and subsequently analyzed.
+
+\emph{Data sources} Data in ERNIE are extracted from both publicly available and commercial sources. Publicly available data are copied from the National Clinical Trials Database \cite,  the FDA Orange and Purple Books \cite,  the United States Patent Office \cite, and NIH ExPORTER \cite. Leased data are acquired from Clarivate Analytics and consist of the Web of Science Core Collection and the Derwent World Patent Index~\cite{DWPI2017}. The data in ERNIE are stored in a relational schema that is documented. Documentation is available on GitHub.
+
+\emph{Data architecture and governance} ERNIE is aiming to provide data of best possible quality to
+its analysts and users.
+ERNIE data is extracted from several upstream sources of varying quality hence the need to cleanse
+data.
+ERNIE's approach to cleansing is to prefer data quality and normalized data over data completeness.
+The following are key aspects of ERNIE's data architecture and governance:
+\begin{itemize}
+  \item De-duplication.
+De-duplication is a process of eliminating logically duplicate records, that is records with
+identical primary or unique keys.
+In ERNIE duplicate records from such a group are deleted while leaving in place a single
+representative record (preferring a record which is updated last).
+An alternative de-duplication strategy could be to aggregate differing non-key fields from logical
+duplicates into lists.
+  \item Normalization.
+After data is de-duplicated, the next step in data normalization is to establish foreign key
+relationships between children and parent entities and eliminate orphans: child records with
+non-existing parents.
+In ERNIE orphan records are deleted.
+An alternative normalization strategy could be to segregate orphans logically or physically while
+creating parent stub records.
+  \item Schema Permanence.
+In order to improve availability of data and simplify data schema management, ERNIE ETL scripts are
+designed to avoid recreating of main entities, for example, by using TRUNCATE TABLE instead of table re-creation.
+  \item Data Stewardship.
+ERNIE data stewards are people responsible for quality of a particular data subject area.
+Data stewards get notified when a data issue is detected and drive the workflows necessary for data
+issue remediation.
+They are also typically responsible for communicating changes in data structures.
+\end{itemize}
+
+\emph{Data mining and digitization} A set of source documents relevant to the question being asked is assembled and mined for citations to scientific literature using manual or semi-automated methods. Manual extraction involved searching for text strings that represent references of interest and matching those to unique identifiers in PubMed and/or Web of Science. As an example, the medical review document relevant to approval of ipilimumab contained X references. Y of them were matched to PubMed identifiers using the PubMed either through its web interface or the E-utils API. ERNIE is designed to support semi-automated case studies.
 
 \emph{Workflows} The core workflow in ERNIE consists of (i) Source document identification, in which a set of source documents relevant to the question being asked is assembled  (ii) Citation extraction, in which text references to scientific publications and patents are matched to unique identifiers such as PubMed ID, UT (Web of Science Accession Number), or US patent number.  (iii) Amplification, in which publications and patents linked by citation to extracted references are identified through citation records in the Web of Science (iv) Network analysis, in which the data assembled through the preceding stages are represented as a network and influential nodes are identified (v) Visualization of the network data to provide insight and stimulate further investigation.
 
-\emph {Source document identification} 
+\emph {Source document identification}
 
 \emph {Citation extraction} Input and end product
 
@@ -122,16 +175,13 @@ In demonstration that is focused on the theme of data mining and network analysi
 
 \emph{Visualizations} Input and end product
 
-\section*{Results and Discussion} 
-
-
-
+\section*{Results and Discussion}
 \section*{Acknowledgments} Research and development reported in this publication was supported by Federal funds from the National Institute on Drug Abuse, National Institutes of Health, US Department of Health and Human Services, under Contract No. HHSN271201700053C. The content of this publication is solely the responsibility of the authors and does not necessarily represent the official views of the National Institutes of Health.
 
 
 \section*{References}
 
-\bibliography{chacko} 
+\bibliography{chacko}
 
 \begin{figure}[!h]
 %\begin{adjustwidth}{-0.5in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
@@ -149,7 +199,7 @@ In demonstration that is focused on the theme of data mining and network analysi
   \label{fig:sub2}
 \end{subfigure}
 }
-\caption{{\bf Intersecting Publications in Five Networks} Intersections were calculated across all five networks for the first generation of references (citing\_pmids) and 
+\caption{{\bf Intersecting Publications in Five Networks} Intersections were calculated across all five networks for the first generation of references (citing\_pmids) and
 as well as for the second generation of references (cited\_sids) and displayed as Venn diagrams. \emph{Left Panel.} No first generation publications are observed common to all five networks. A single publication is cited in four of five networks. \emph{Right Panel.} 14  publications are common to all five networks. Abbreviations: alem (Alemtuzumab), imat (Imatinib), nela (Nelarabine), ramu (Ramucirumab), suni(Sunitinib)}
 \label{fig: test}
 %\end{adjustwidth}
