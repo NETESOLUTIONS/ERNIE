@@ -14,7 +14,9 @@ replace in diagram's YAML to rename or remove elements.
 1. Styles: use the Styles tab to add, remove or update styles. Styles are applied cumulatively based on elements or 
 relationships tags. This allows, for example, to color elements tagged with a styled tag while keeping their shapes.  
 1. Diagram: use the Diagram tab to update Diagrams's description.
-1. After you're done with editing, export a diagram as PNG and commit updated YAML.
+1. After you're done with editing, export a diagram as PNG.
+1. Save updated YAML (via copy-and-paste). 
+1. Commit updated files.
 
 C4 Deployment Diagrams are not currently supported by Structurizr Express. The Deployment Diagram is modeled in
 a free [draw.io](http://draw.io) online tool with 
@@ -31,4 +33,5 @@ in draw.io Desktop.
 [doesn't match](https://github.com/tobiashochguertel/c4-draw.io/issues/3) the default C4 styling. It's recommended to 
 duplicate shapes or copy existing diagram styles, which were matched to the default C4 styling as close as possible.
 1. Save. The diagram will be committed directly to GitHub.    
-1. After you're done with editing, export a diagram as PNG.
+1. After you're done with editing, export a diagram as PNG and SVG.
+1. Commit updated files.
