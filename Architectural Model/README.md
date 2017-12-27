@@ -14,7 +14,11 @@ replace in diagram's YAML to rename or remove elements.
 1. Styles: use the Styles tab to add, remove or update styles. Styles are applied cumulatively based on elements or 
 relationships tags. This allows, for example, to color elements tagged with a styled tag while keeping their shapes.  
 1. Diagram: use the Diagram tab to update Diagrams's description.
-1. After you're done with editing, export a diagram as PNG.
+1. After you're done with editing, export a diagram as PNG. To export as an SVG:
+    * Open browser Developer Tools and copy HTML of an SVG element. Paste it into an SVG file.
+    * Replace `&nbsp;` with `&#160;` 
+    * Optionally, add DTD:
+        * `<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">`
 1. Save updated YAML (via copy-and-paste). 
 1. Commit updated files.
 
