@@ -95,6 +95,10 @@ INNER JOIN wos_authors b on a.all_wosids=b.source_id;
 
 -- switching to Samet's floating point world....
 
+-- note preservation of source and target this is important
+-- when dealing with citing vs cited networks
+-- in this case the source_id cites all_wos_ids
+
 DROP TABLE IF EXISTS generic91;
 CREATE TABLE  generic91 AS SELECT source_id AS SOURCE,
 'wosid1'::varchar(10) AS stype, all_wosids AS target, 
