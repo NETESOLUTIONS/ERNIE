@@ -10,8 +10,8 @@ public class AuthorScores {
 
 	MainDriver dirs = new MainDriver();
 
-	
-	
+
+
 	public static void test(){
 		System.out.println("TESET");
 	}
@@ -35,7 +35,7 @@ public class AuthorScores {
 			out.put(auth, sum);
 
 		}
-		
+
 		return out;
 	}
 
@@ -143,38 +143,38 @@ public class AuthorScores {
 			System.out.println(auth + "," + indeg + "," + indeg_scaled + "," + totCit + "," + totCit_scaled);
 
 		}
-		
-		
-		
-		
+
+
+
+
 
 		writer.close();
-		
+
 		//  call stat collector
 
 		System.out.println("stat collector is called: ");
 		mappers.wos_pmid_mapping_stat();
 
 	}
-	
-	// Make this tree set and run it from there. 
+
+	// Make this tree set and run it from there.
 	public  void final_stat_collector() throws IOException{
-		
+
 		TreeSet<String> dupChecker = new TreeSet<String>();
 		FileReader readstat = new FileReader(dirs.getFinalDir() + "stat_collector.txt");
-		BufferedReader statReader = new BufferedReader(readstat); 
-		
+		BufferedReader statReader = new BufferedReader(readstat);
+
 		FileWriter final_stat_collector = new FileWriter(dirs.getFinalDir() + "/final_stat_collector.txt");
-		
+
 		String stats = statReader.readLine();
 		while(stats !=null ){
-		
-			
+
+
 				dupChecker.add(stats);
-			
+
 				stats = statReader.readLine();
 		}
-		
+
 		int formatter = 0;
 		for (String s: dupChecker){
 			    if (++formatter%2 ==0) final_stat_collector.write("\n");
@@ -183,24 +183,24 @@ public class AuthorScores {
 		final_stat_collector.close();
 		statReader.close();
 		readstat.close();
-		
-		
+
+
 	}
 
 	public static void main(String[] args) throws IOException {
 
-		
+
 
 		AuthorScores authorscores = new AuthorScores();
 		 authorscores.auth_Scores("wos");
-		 
+
 
 		//System.out.println(authorscores.author_totalCitation("wos"));
-        
+
 		//test();
-		
-		
-		
+
+
+
 		// Mappers mappers = new Mappers();
 		// mappers.auth_pubSet_MAP("wos");
 
