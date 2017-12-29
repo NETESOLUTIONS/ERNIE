@@ -3,7 +3,7 @@
 
 	Author: Samet Keserci
 	Date: November 2017
-	Usage: sh run_network_analysis.sh <drug_name> [input_directory] [output_directory]
+	Usage: sh MASTER_DRIVER.sh <drug_name> [input_directory] [output_directory]
 		   Parameters:
 		   drug_name= mandatory parameters. It should be given as it appears in file name
 		   default input_directory="~/ERNIE/Analysis/" + drug_name + "/input/"

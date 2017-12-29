@@ -1,6 +1,24 @@
 
 
 
+#  Author: Samet Keserci
+#  Date: November 2017
+#  Usage: sh MASTER_DRIVER.sh <drug_name> <input_directory> <output_directory>
+#       Parameters:
+#       drug_name= mandatory parameters. It should be given as it appears in file name
+#       input_directory= The directory where the input files exist
+#       output_directory= The directory that output files will be located.
+
+#       For Example
+#       Input_directory  must contains following files  and formats for a given  drug_name="ivacaftor";
+#       ivacaftor_citation_network.txt
+#       ivacaftor_citation_network_authors.txt
+#       ivacaftor_citation_network_grants.txt
+#       ivacaftor_generational_references.txt
+
+
+
+
 
 if [ $# != 3 ]
 then
