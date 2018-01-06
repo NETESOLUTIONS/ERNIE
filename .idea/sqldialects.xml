@@ -2,8 +2,8 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/../PARDI_IRDB/PIE/DDL/Subroutines/finalize_pie.sql" dialect="Oracle" />
-    <file url="file://$PROJECT_DIR$/../PARDI_IRDB/PIE/create_pie.sql" dialect="OracleSqlPlus" />
-    <file url="file://$PROJECT_DIR$/../PARDI_IRDB/PIE/create_pie_data_internal_debug.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/../PARDI_IRDB/PIE/finalize_pie.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/../PARDI_IRDB/PIE/refresh_pie.sql" dialect="OracleSqlPlus" />
     <file url="PROJECT" dialect="PostgreSQL" />
   </component>
   <component name="SqlResolveMappings">
