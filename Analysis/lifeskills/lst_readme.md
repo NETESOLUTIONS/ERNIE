@@ -5,7 +5,8 @@
   a. Including identity of citing document (by GAO number, or PresComReport for WH report
   b. Commentaries were kept and numbered to note location
   c. Approximate type of referenced item assessed and noted
-    i. Type assessed: Article, Book, Conference Proceedings, Data, Journal Issue, Legislation, Litigation, Monograph, Personal communication, Press report (popular press), Report, Website, Unknown/Unpublished document
+    i. Type assessed: Article, Book, Conference Proceedings, Data, Journal Issue, Legislation, Litigation, Monograph, Personal communication, Press report (popular press), 
+    Report, Website, Unknown/Unpublished document
     ii. Articles (all items likely to be indexed in WoS, PubMed, etc.) were identified roughly by presence of journal name, volume, issue, page number.
     iii. Type further assessed during matching (to WoS) process
 3. All those appearing to be Articles, Books, conference proceedings, data, journal issues and monographs were searched in WoS
@@ -15,3 +16,5 @@
   d. If duplicate items were in WOS dbs, DOIs were noted alongside PMIDs and WOS - otherwise DOI was not extracted, even if available
   e. DOIs were available in some records in the original bibliographic reference
 4. A total of 176 unique UTs - 13 additional with ONLY PMIDs, 2 additional with ONLY DOI (no PMID, no WoS ID)
+5. Additional reference document: National Health Promotion Associates: R44DA040358-02 (Life Skills Training)
+6. Search of all NIH ExPORTER fields for "Botvin" or "Life Skills"
