@@ -4,14 +4,19 @@
 -- Created: 08/22/2017
 SET default_tablespace = ernie_exporter_tbs;
 
-DROP TABLE IF EXISTS reporter_publink;
-DROP TABLE IF EXISTS reporter_projects;
+DROP TABLE IF EXISTS exporter_publink;
+DROP TABLE IF EXISTS exporter_project_abstracts;
+DROP TABLE IF EXISTS exporter_projects;
 
-CREATE TABLE reporter_publink (
+CREATE TABLE exporter_publink (
     pmid character varying(10),
     project_number character varying(15)
 );
-CREATE TABLE reporter_projects (
+CREATE TABLE exporter_project_abstracts (
+    APPLICATION_ID character varying(8),
+    ABSTRACT_TEXT text
+);
+CREATE TABLE exporter_projects (
   APPLICATION_ID character varying(8),
   ACTIVITY character varying(3),
   ADMINISTERING_IC character varying(2),
@@ -39,7 +44,7 @@ CREATE TABLE reporter_projects (
   ORG_NAME character varying(100),
   ORG_STATE character varying(3),
   ORG_ZIPCODE character varying(12),
-  PHR character varying(40000),
+  PHR text,
   PI_IDS character varying(300),
   PI_NAMEs character varying(1000),
   PROGRAM_OFFICER_NAME character varying(40),
@@ -55,4 +60,3 @@ CREATE TABLE reporter_projects (
   TOTAL_COST character varying(20),
   TOTAL_COST_SUB_PROJECT character varying(12)
 );
-

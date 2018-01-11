@@ -49,7 +49,6 @@ queries=[]
 if search_file!=None:
     with open(search_file) as f:
         queries = f.read().splitlines()
-        print queries
 else:
     queries.append(query)
 
