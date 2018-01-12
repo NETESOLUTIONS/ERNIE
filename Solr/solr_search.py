@@ -13,7 +13,7 @@
 import sys; import string; import re ; import subprocess
 
 # Collect user input
-query=None; core=None; query_fields=[]; search_file=None; num_results=10; ip_and_port='localhost:8983' ; psql_ip='localhost' ; psql_port='5432'; output_file='temp.csv'
+query=None; core=None; query_fields=[]; target_fields=[]; search_file=None; num_results=10; ip_and_port='localhost:8983' ; psql_ip='localhost' ; psql_port='5432'; output_file='temp.csv'
 for i in range(0,len(sys.argv)):
     if sys.argv[i][0] == '-':
         option = sys.argv[i]
@@ -23,6 +23,8 @@ for i in range(0,len(sys.argv)):
             core = sys.argv[i+1]
         elif option[1:] in ['query_field', 'qf']:
             query_fields.append(sys.argv[i+1])
+        elif option[1:] in ['target_field', 'tf']:
+            target_fields.append(sys.argv[i+1])
         elif option[1:] in ['query', 'q']:
             query = sys.argv[i+1] ;
             if search_file!=None:
@@ -47,9 +49,10 @@ if (core==None): raise NameError('Missing critical information - core')
 # Set up for the queries. If the user has not specified any fields for the query, check the core for all fields, return a comma seperated list, and use those returned fields for the dismax query
 field_collector_string="curl \'http://%s/solr/%s/select?&q=\"*:*\"&wt=csv&rows=0\'"%(ip_and_port, core)
 fields=subprocess.check_output(field_collector_string, shell=True).rstrip().split(","); fields.remove('id') ; fields=fields if len(query_fields) < 1 else query_fields
+fields=[i for i in fields if i not in target_fields]
 #TODO: In future, make sure this is adjustable for weight
 field_list_string1='%20'.join(fields)
-field_list_string2=','.join(['id','score']+fields)
+field_list_string2=','.join(['id','score']+target_fields+fields)
 curl_search_string="curl \'http://%s/solr/%s/select?defType=dismax&qf=%s&fl=%s&q=:"%(ip_and_port, core, field_list_string1,field_list_string2)
 curl_search_string_ending='&rows=%s&wt=csv&csv.separator=~\''%(num_results)
 
@@ -66,7 +69,7 @@ else:
 
 # The actual run. Return results on the query. Hardcode any mapping to other DB information as needed if dealing with something like a WOS to PMID mapping
 with open(output_file, 'wb') as csv_file:
-    csv_file.write(','.join(['query','id','solr_score','rank']+fields)+'\n')
+    csv_file.write(','.join(['query','id','solr_score','rank']+target_fields+fields)+'\n')
     for line in queries:
         print '### Query No. %d ###'%(query_no); query_no+=1; line=(line.decode('utf-8')).encode('ascii','ignore')
         input_string=re.sub('|'.join(stem_words),'',line); input_string=re.sub(r'[,.{}<>\"\'\n\r]','',input_string) ; input_string=re.sub(r'[:@*#() -]','\\+',input_string) ; input_string=re.sub(r'\u+2260','',input_string)
