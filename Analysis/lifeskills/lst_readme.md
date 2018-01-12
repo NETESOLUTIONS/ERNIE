@@ -1,3 +1,18 @@
+Life Skill Training is a training program that reduces health-risk behaviors of individuals. To estimate the scientific and policy
+footprint of Life Skills, we assembled a seed set of publications by searching
+
+a) The report of the 2018 President's Commission on Combating Drug Addiction And The Opioid Crisis
+b) Facing Addiction In America. The 2016 Surgeon Generals Report on Alcohol, Drugs, and Health
+c) All NIH ExPORTER files
+d) PubMed
+e) Web of Science and associated databases including CABI, CSCD, and Inspec)
+f) Office of National Drug Control Policy website
+g) CDC https://www.cdc.gov/nchs/data/databriefs/db190.htm
+h) lifeskillstraining.com
+
+
+Search terms used were 'Life Skills' and 'Botvin G.'. 
+
 1. Identification of seed publications
   a. Searched for GAO reports containing string 'Botvin' identifying GAO/GGD/HEHS-98-140 and GAO/GGD-97-42
   b. Also included https://www.whitehouse.gov/sites/whitehouse.gov/files/images/Meeting%20Draft%20of%20Final%20Report%20-%20November%201%2C%202017.pdf
