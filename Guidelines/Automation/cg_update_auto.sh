@@ -1,50 +1,60 @@
-#!/bin/sh
-
-# This script updates Clinical Guidelines (CG) tables cg_*.
-# Specifically:
-# 1. Download a complete list of CG from website;
-# 2. Get the links with CG uids.
-# 3. Use Python to scrape the links to get PMIDs if there's any.
-# 4. Update uids and PMIDs to cg tables cg_*.
-
-# Tables updated: cg_uids, cg_uid_pmid_mapping, update_log_cg.
-
-# Usage: sh cg_update_auto.sh work_dir/
-# where work_dir specifies working directory.
-
+#!/usr/bin/env bash
 # Author: Lingtian "Lindsay" Wan
 # Monitoring : Samet Keserci
-# Date: 03/23/2016
-# Modified: 05/20/2016, Lindsay Wan, added documentation
-#           June/2016, Samet Keserci, added try/except to web request
-#           07/11/2016, Lindsay Wan, added generating check file at the end for CG generation flow.
-#           8/1/2016. Samet Keserci, revised the code for AHRQ's new website.
-#           12/09/2016, Lindsay Wan, download CG data from gateway server.
-#           12/13/2016, Lindsay Wan, move abstract extraction to front.
-#           01/09/2017, Lindsay Wan, convert html characters like &#8211 to text
-#           01/10/2017, Lindsay Wan, fixed bugs in conversion
-#           03/20/2017, Samet Keserci, revised according to migration from dev2 to dev3
+# Created: 03/23/2016
+# Modified:
+# * 05/20/2016, Lindsay Wan, added documentation
+# * June 2016, Samet Keserci, added try/except to web request
+# * 07/11/2016, Lindsay Wan, added generating check file at the end for CG generation flow.
+# * 08/01/2016. Samet Keserci, revised the code for AHRQ's new website.
+# * 12/09/2016, Lindsay Wan, download CG data from gateway server.
+# * 12/13/2016, Lindsay Wan, move abstract extraction to front.
+# * 01/09/2017, Lindsay Wan, convert html characters like &#8211 to text
+# * 01/10/2017, Lindsay Wan, fixed bugs in conversion
+# * 03/20/2017, Samet Keserci, revised according to migration from dev2 to dev3
+# * 01/08/2018, Dmitriy "DK" Korobskiy
+# ** enhanced to enable running from any directory
+# ** refactored cg_get_abstract_auto.sh to cg_get_abstract_auto.sql
 
+if [[ $1 == "-h" ]]; then
+  cat << END
+SYNOPSIS
+  $0 main_working_directory abstract_
+  $0 -h: display this help
 
-process_start=`date +%s`
+DESCRIPTION
+  This script updates Clinical Guidelines (CG) tables cg_*.
 
-# Edit path as appropriate.
-c_dir=$1
-cd $c_dir
+  Specifically:
+  1. Downloads a complete list of CGs
+  2. Gets the links with CG uids
+  3. Scrapes the links to get PMIDs if any
+  4. Updates uids and PMIDs in cg_uids, cg_uid_pmid_mapping, update_log_cg.
 
+  Uses the specified working_directory ({script_dir}/build/ by default).
+END
+  exit 1
+fi
 
-# Copy all codes from repo to working directory
-cp /erniedev_data1/ERNIE/Guidelines/Automation/* $c_dir
+set -xe
+
+# Get a script directory, same as by $(dirname $0)
+script_dir=${0%/*}
+absolute_script_dir=$(cd "${script_dir}" && pwd)
+work_dir=${1:-${absolute_script_dir}/build} # $1 with the default
+[[ ! -d "$work_dir" ]] && mkdir "$work_dir"
+cd "$work_dir"
+echo -e "\n## Running under ${USER}@${HOSTNAME} at ${PWD} ##\n"
 
 # Remove stamped times, and stamp new time.
-rm starttime.txt
-rm endtime.txt
-date
-date > starttime.txt
+#rm starttime.txt
+#rm endtime.txt
+#date
+#date > starttime.txt
 
 # Remove previous files.
-rm *.csv
-rm ngc_complete.xml*
+rm -f ngc_complete.xml
+rm -f *.csv
 
 # Download new CG data files.
 echo ***Downloading CG data files...
