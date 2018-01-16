@@ -18,7 +18,7 @@ if [ $? -ne 0 ]; then
   exit 1;
 fi
 wget -q "https://exporter.nih.gov/CSVs/final/RePORTER_PRJABS_C_FY${year}_$(printf "%03d" $week).zip" --no-check-certificate
-unzip $c_dir/*.zip; rm $c_dir/*.zip
+for file in $(ls $c_dir/*.zip); do unzip $file ; done
 
 # pass the download to the python script to extract the proper columns, then copy the data into the temp table
 file=$(ls RePORTER_PRJ_C*.csv)
@@ -46,6 +46,6 @@ if (( week == 53 )); then
 fi
 echo "${year}_$(printf "%03d" $week)" > $c_dir/counter
 
-#move the CSV files into storage
+#move the CSV files into storage and clean zip files out
 [ -d $c_dir/csv_files ] || mkdir -p $c_dir/csv_files
-mv $file_extract $c_dir/csv_files; mv $file $c_dir/csv_files; rm $c_dir/*.csv
+mv $file_extract $c_dir/csv_files; mv $file $c_dir/csv_files; rm $c_dir/*.csv ; rm $c_dir/*.zip

@@ -19,7 +19,7 @@
 if [[ $1 == "-h" ]]; then
   cat << END
 SYNOPSIS
-  $0 main_working_directory abstract_
+  $0 [working_directory]
   $0 -h: display this help
 
 DESCRIPTION
@@ -56,14 +56,12 @@ echo -e "\n## Running under ${USER}@${HOSTNAME} at ${PWD} ##\n"
 rm -f ngc_complete.xml
 rm -f *.csv
 
-# Download new CG data files.
-echo ***Downloading CG data files...
-wget http://www.guideline.gov/rssFiles/ngc_complete.xml
+${absolute_script_dir}/download.sh
 
 # Convert html characters like &#8211 to text.
 mv ngc_complete.xml old_ngc_complete.xml
 xmllint old_ngc_complete.xml --format | recode html > ngc_complete.xml
-rm old_ngc_complete.xml
+rm -f old_ngc_complete.xml
 
 # Use xmllint to format XMl file;
 # use grep to grab lines with string <link>;
@@ -72,8 +70,7 @@ rm old_ngc_complete.xml
 # put results in a new file.
 echo ***Preparing links and uids...
 cat ngc_complete.xml | grep \<link\> > ngc_with_link.csv
-cat ngc_with_link.csv | sed 's/<link>//' | sed 's/<\/link>//' | \
-sed 's/f\=rss\&amp;//' | tr -d ' ' > ngc_all_link.csv
+cat ngc_with_link.csv | sed 's/<link>//' | sed 's/<\/link>//' | sed 's/f\=rss\&amp;//' | tr -d ' ' > ngc_all_link.csv
 
 # Sort and grab those lines with 'content' in them.
 cat ngc_all_link.csv | grep summaries  > ngc_uid_link.csv
@@ -87,8 +84,7 @@ grep -o '[[:digit:]]\+' ngc_other_link.csv > ngc_other.csv
 
 # Do the same thing for titles.
 cat ngc_complete.xml | grep \<title\> > ngc_with_title.txt
-cat ngc_with_title.txt | sed 's/<title>//' | sed 's/<\/title>//' | \
-sed 's/^[ \t]*//' > ngc_all_title.txt
+cat ngc_with_title.txt | sed 's/<title>//' | sed 's/<\/title>//' | sed 's/^[ \t]*//' > ngc_all_title.txt
 
 # Sort and grab those lines with 'Guideline Summary' in them.
 cat ngc_all_title.txt |grep 'Guideline Summary'  > ngc_uid_title.txt
@@ -98,20 +94,18 @@ paste ngc_uid.csv ngc_uid_title.txt > ngc_combined.txt
 
 # Use Python to grab PMID from UID.
 echo ***Grabbing PMIDs from uids...
-python -u cg_pmidextractor.py
+/anaconda2/bin/python -u ${absolute_script_dir}/cg_pmidextractor.py
 
 # Use SQL to update CG tables.
 echo ***Updating tables...
-psql -d ernie -f cg_update_tables.sql \
--v mapping="'"$c_dir"/uid_to_pmid.csv'" \
--v combined="'"$c_dir"/ngc_combined.txt'"
+psql -f ${absolute_script_dir}/cg_update_tables.sql -v mapping="${work_dir}/uid_to_pmid.csv" \
+     -v combined="${work_dir}/ngc_combined.txt"
 
-
-# ************** CG FLOW PART *****************************
+#region ERNIE-specific
 
 # Calculate the reference countings.
 #echo ***calculating references countings...
-#psql -d ernie -f cg_flow_ref_count.sql
+#psql -f cg_flow_ref_count.sql
 
 # update cg_ernie_uid_pmid_abstract table
 #echo ***Get Abstracts
@@ -125,13 +119,8 @@ psql -d ernie -f cg_update_tables.sql \
 #echo CG update finished > cg_gen_check_1.txt
 #chmod 664 cg_gen_check_1.txt
 
-#**************************************************************
-
 # Send log to emails.
-#psql -d ernie -c 'select * from update_log_cg; select * from cg_ref_counts;' | mail -s "Clinical Guidelines Weekly Update Log" george@nete.com samet@nete.com
-psql -d ernie -c 'select * from update_log_cg;' | mail -s "Clinical Guidelines Weekly Update Log" samet@nete.com george@nete.com avon@nete.com
+#psql -c 'select * from update_log_cg;' | mail -s "Clinical Guidelines Weekly Update Log" samet@nete.com george@nete.com avon@nete.com
 
-
-process_end=`date +%s`
-echo $((process_end-process_start)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec :: UPDATE PROCESS END-to-END  DURATION UTC"}'
-echo -e "\n\n"
+psql -c 'SELECT * FROM update_log_cg ORDER BY id'
+#endregion

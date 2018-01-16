@@ -1,81 +1,92 @@
- ernie #!/bin/sh
-# This script downloads Clinical Trial data from its website and processes
-# them to the ernie database. Specifically:
-# 1. Create a set of new tables: new_ct_*.
-# 2. Download data source from website.
-# 3. Unzip to get XML files.
-# 4. Run in parallel with 4 jobs: parse each XML to csv and load to tables:
-#    new_ct_*.
-# 5. Update tables.
-# 6. Write to log.
+#!/usr/bin/env bash
+# Author: Lingtian "Lindsay" Wan, George Chacko, Shixin Jiang
+# Created: 05/01/2016
+# Modified:
+# * 05/19/2016, Lindsay Wan, added documentation
+# * 11/04/2016, Lindsay Wan, added import ct_clinical_studies to IRDB database
+# * 12/09/2016, Lindsay Wan, download CT file from gateway server
+# * 03/29/2017, Samet Keserci, revision wrt dev2 to dev3 migration
+# * 01/05/2018, Dmitriy "DK" Korobskiy, enabled running from any directory
+# * 01/10/2018, Dmitriy "DK" Korobskiy, refactored parallel loop to use GNU Parallels
 
-#
-# Author: Samet Keserci, part of this code is developed by (Lingtian "Lindsay" Wan, Shixin Jiang)
-# Create Date: 09/18/2017
-# Usage: sh /erniedev_data1/ERNIE/Trials/Automation/ct_update_auto.sh /erniedev_data1/CTupdate/ >> /erniedev_data1/CTupdate/log_ct_update_auto.out &
+if [[ $1 == "-h" ]]; then
+  cat << END
+SYNOPSIS
+  $0 [working_directory]
+  $0 -h: display this help
 
+DESCRIPTION
+  This script downloads Clinical Trial data from its website and processes them to the pardi database. Specifically:
+  1. Create a set of new tables: new_ct_*.
+  2. Download data source from website.
+  3. Unzip to get XML files.
+  4. Run in parallel with 4 jobs: parse each XML to csv and load to tables: new_ct_*.
+  5. Update tables.
+  6. Write to log.
 
-# Change to working directory.
-c_dir=$1
-cd $c_dir
+  Uses the specified working_directory ({script_dir}/build/ by default).
 
+ENVIRONMENT
+  Required environment variable:
+  * IRDBPRD_PASSWORD          a LINK_OD_PARDI password
+END
+  exit 1
+fi
 
-# Stamp new time.
-date
-process_start=`date +%s`
+set -xe
 
-# copy all scripts to current directory
-cp /erniedev_data1/ERNIE/Trials/Automation/* $c_dir
+# Get a script directory, same as by $(dirname $0)
+script_dir=${0%/*}
+absolute_script_dir=$(cd "${script_dir}" && pwd)
+work_dir=${1:-${absolute_script_dir}/build} # $1 with the default
+if [[ ! -d "${work_dir}" ]]; then
+  mkdir "${work_dir}"
+  chmod g+w "${work_dir}"
+fi
+cd "${work_dir}"
+echo -e "\n## Running under ${USER}@${HOSTNAME} at ${PWD} ##\n"
 
+if ! which parallel >/dev/null; then
+  echo "Please install GNU Parallel"
+  exit 1
+fi
 
-# Remove previous NCT xml files, directories, and other related files.
-echo ***Removing previous NCT files...
+echo ***Removing previous NCT files, directories, and other related files...
 rm -rf ./nct_files/
-rm nctload*
-# Create brand new nct_files directory
+rm -rf nctload*
 mkdir nct_files
+chmod g+w nct_files
 
-# Create new CT tables.
-date
+# TODO Refactor to use upsert_file() function
+
 echo ***Creating CT tables...
-psql -d ernie -f createtable_new_ct_tables.sql
+psql -f "${absolute_script_dir}/createtable_new_ct_clinical_studies.sql"
+psql -f "${absolute_script_dir}/createtable_new_ct_subs.sql"
 
-# download: directly from website
-wget -r 'https://clinicaltrials.gov/ct2/results/download?term=&down_fmt=xml&down_typ=results&down_stds=all' -O CT_all.zip
-mv CT_all.zip ./nct_files
+${absolute_script_dir}/download.sh
 
-# Unzip the XML files.
 echo ***Unzipping CT data...
-unzip ./nct_files/CT_all.zip -d ./nct_files
+unzip -q ./nct_files/CT_all.zip -d ./nct_files
 
-echo ***Processing loading files...
-# Write a load file.
-ls nct_files/ |grep NCT | grep xml | awk -v store_dir=$c_dir '{split($1,filename,".");print "python ct_xml_update_parser.py -filename " $1 " -csv_dir " store_dir "nct_files/\n" "psql ernie < " store_dir "nct_files/" filename[1] "/" filename[1] "_load.pg" }' > load_nct_all.sh
-chmod 755 load_nct_all.sh
+echo ***Loading files in parallel...
+# Quiet down output to reduce the large log size (up to 140 M)
+# psql -q specifies that psql should do its work quietly
+ls nct_files/ | grep NCT | grep xml | parallel --halt soon,fail=1 "echo 'Job [s {%}]: {}'
+  /anaconda2/bin/python ${absolute_script_dir}/ct_xml_update_parser.py -filename {} -csv_dir ${work_dir}/nct_files/
+  psql -f ${work_dir}/nct_files/{.}/{.}_load.pg -v ON_ERROR_STOP=on -q"
 
-echo ***Splitting to small loading files...
-# Split load file to seperate files for parallel running.
-split -l $(($(wc -l < load_nct_all.sh)/2/4*2)) load_nct_all.sh nctload
-chmod 775 nctload*
-
-# Run load files in parallel.
-echo ***Loading files...
-for i in $(ls ./nctload*); do
-  sh $i &
-done
-wait
+# De-duplication an PK ing process for new_ct_* tables.
+echo ***De-duplication of new_ct_* database tables...
+psql -f "${absolute_script_dir}/new_ct_De-Duplication.sql"
 
 # Upload database.
 echo ***Uploading database tables...
-psql -d ernie -f ct_update_tables.sql
+psql -f "${absolute_script_dir}/ct_update_tables.sql"
 
+rm -rf ct_clinical_studies.csv
+
+psql -c 'select * from update_log_ct;'
 
 # Send log to emails.
-psql -d ernie -c 'select * from update_log_ct;' | mail -s "ERNIE NOTICE :: Clinical Trial  Weekly Update Log" samet@nete.com george@nete.com avon@nete.com
-
-# Stamp end time.
-date
-
-process_end=`date +%s`
-echo $((process_end-process_start)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec :: UPDATE PROCESS END-to-END  DURATION UTC"}'
-echo -e "\n\n"
+#psql -c 'select * from update_log_ct;' | mail -s "Clinical Trial  Weekly Update Log" samet@nete.com
+# george@nete.com avon@nete.com
