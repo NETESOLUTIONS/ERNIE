@@ -7,6 +7,6 @@ for arg in sys.argv[0:]:
     i += 1
 
 # Open connection with the default Postgres parameters
-conn = psycopg2.connect()
+conn = psycopg2.connect("")
 print "Connected to Postgres successfully"
 conn.close()
