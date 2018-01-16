@@ -6,7 +6,7 @@ for arg in sys.argv[0:]:
     print "Argument #%d = %s" % (i, arg)
     i += 1
 
-# Open connection to PARDI database
-conn = psycopg2.connect(host="localhost", dbname="pardi", user="pardi_admin")
-print "Connected to the PARDI DB successfully"
+# Open connection with the default Postgres parameters
+conn = psycopg2.connect()
+print "Connected to Postgres successfully"
 conn.close()

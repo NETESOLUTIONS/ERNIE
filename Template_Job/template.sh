@@ -9,7 +9,7 @@ SYNOPSIS
 
 DESCRIPTION
   * Changes working directory to a specified or {script_dir}/build/ by default.
-  This directory will be created if needed otherwise it must be writeable for the pardicore group.
+  This directory will be created if needed otherwise it must be writeable for this system group.
   * Executes sample Postgres and Python scripts
   ** template_job_lf.csv is expected in the working directory
 
