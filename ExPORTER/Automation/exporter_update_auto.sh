@@ -46,6 +46,6 @@ if (( week == 53 )); then
 fi
 echo "${year}_$(printf "%03d" $week)" > $c_dir/counter
 
-#move the CSV files into storage
+#move the CSV files into storage and clean zip files out
 [ -d $c_dir/csv_files ] || mkdir -p $c_dir/csv_files
-mv $file_extract $c_dir/csv_files; mv $file $c_dir/csv_files; rm $c_dir/*.csv
+mv $file_extract $c_dir/csv_files; mv $file $c_dir/csv_files; rm $c_dir/*.csv ; rm $c_dir/*.zip
