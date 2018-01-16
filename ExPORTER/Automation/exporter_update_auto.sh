@@ -18,7 +18,7 @@ if [ $? -ne 0 ]; then
   exit 1;
 fi
 wget -q "https://exporter.nih.gov/CSVs/final/RePORTER_PRJABS_C_FY${year}_$(printf "%03d" $week).zip" --no-check-certificate
-unzip $c_dir/*.zip; rm $c_dir/*.zip
+unzip $c_dir/*.zip
 
 # pass the download to the python script to extract the proper columns, then copy the data into the temp table
 file=$(ls RePORTER_PRJ_C*.csv)
@@ -34,7 +34,7 @@ psql ernie -c "INSERT INTO exporter_projects SELECT * from temp_exporter_project
 file=$(ls RePORTER_PRJABS_C*.csv); file=${c_dir}"/"${file}
 psql ernie -c "TRUNCATE TABLE temp_exporter_project_abstracts;"
 psql ernie -c "COPY temp_exporter_project_abstracts from '${file}' delimiter ',' CSV HEADER encoding 'latin1';"
-psql ernie -c "INSERT INTO exporter_project_abstracts SELECT * from temp_exporter_project_abstracts ON CONFLICT ON CONSTRAINT exporter_project_abstracts_pkey DO UPDATE SET APPLICATION_ID=excluded.APPLICATION_ID, ABSTRACT_TEXT=excluded.ABSTRACT_TEXT;"
+psql ernie -c "INSERT INTO exporter_project_abstracts SELECT * from temp_exporter_project_abstracts ON CONFLICT ON CONSTRAINT exporter_project_abstracts_pkey DO UPDATE SET APPLICATION_ID::int=excluded.APPLICATION_ID::int, ABSTRACT_TEXT=excluded.ABSTRACT_TEXT;"
 
 
 
