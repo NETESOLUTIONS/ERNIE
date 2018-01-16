@@ -30,7 +30,6 @@ set search_path to public, ernie_admin;
 
 -- Set temporary tablespace for calculation.
 set log_temp_files = 0;
-set temp_tablespaces = 'temp';
 
 -- Create a temp table to store patent numbers from the update file.
 drop table if exists temp_update_patnum;
