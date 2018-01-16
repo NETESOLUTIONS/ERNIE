@@ -1,72 +1,69 @@
-#!/bin/sh
-# This script updates the FDA Orange Book data files in three tables:
-# fda_patents, fda_products, fda_exclusivities.
-# Specifically, it does the following:
-# 1. Download data files to local directory;
-# 2. Unzip and reformat files to .csv files.
-# 3. Update data in database.
-
-# Usage: sh fda_update_auto.sh work_dir/
-#        where work_dir specifies working directory.
-
+#!/usr/bin/env bash
 # Author: Lingtian "Lindsay" Wan
-# Monitoring: Samet Keserci
-# Create Date: 03/07/2016
-# Modified: 05/19/2016, Lindsay Wan, added documentation
-#           03/16/2017, Samet Keserci, updates are set for ernie_admin
+# Created: 12/13/2016
+# Modified:
+#   01/17/2017, Lindsay Wan, delete "-d" in pg_dump to comply with pg_dump 9.2 version
+#   01/25/2017, Lindsay Wan, change truncate to drop tables to ensure sequence number consistency
+#   02/17/2017, Lindsay Wan, change username from lindsay to samet
+#   03/16/2017, Samet Keserci, updates are set for pardi_admin
+#   11/30/2017, Samet Keserci, revised according to server process switchovers.
+#   12/22/2017, Dmitriy "DK" Korobskiy
+#     * Made working directory optional
 
-# Change to working directory
-c_dir=$1
-cd $c_dir
+if [[ $1 == "-h" ]]; then
+  cat <<END
+SYNOPSIS
+  $0 [working_directory]
+  $0 -h: display this help
 
-# copy all the updated codes into working directory
-cp /erniedev_data1/ERNIE/Registered_Products/Automation/*  ./
+DESCRIPTION
+  Updates FDA data.
+  Uses the specified working_directory ({script_dir}/build/ by default).
+END
+  exit 1
+fi
+
+set -xe
+
+# Get a script directory, same as by $(dirname $0)
+script_dir=${0%/*}
+absolute_script_dir=$(cd "${script_dir}" && pwd)
+work_dir=${1:-${absolute_script_dir}/build} # $1 with the default
+[[ ! -d "$work_dir" ]] && mkdir "$work_dir"
+cd "$work_dir"
+echo -e "\n## Running under ${USER}@${HOSTNAME} at ${PWD} ##\n"
 
 # Remove stamped times and stamp new time.
-rm starttime.txt
-rm endtime.txt
-date > starttime.txt
-date
+#rm starttime.txt
+#rm endtime.txt
+#date > starttime.txt
+#date
 
 # Remove previous files.
 echo ***Removing previous FDA files...
-rm fda_files.zip
-rm *atent*
-rm products*
-rm exclusivity*
+# -f, --force ignore nonexistent files and arguments
+rm -f fda_files.zip
+rm -f *atent*
+rm -f products*
+rm -f exclusivity*
 
-
-# Download new FDA data files. Orange Book.
-echo ***Downloading FDA data files...
-wget -r http://www.fda.gov/downloads/Drugs/InformationOnDrugs/UCM163762.zip \
--O fda_files.zip
-
+${absolute_script_dir}/download.sh
 
 # Unzip and reformat data files.
 echo ***Unzipping and reformatting...
 unzip fda_files.zip
 cat exclusivity*.txt > exclusivity.csv
-cat Patent*.txt > patent.csv
+compgen -G "Patent*.txt" >/dev/null && cat Patent*.txt > patent.csv
 cat patent*.txt >> patent.csv
 cat products*.txt > products.csv
 
 # Load data to database.
 echo ***Loading data to database...
-psql -d ernie -f createtable_new_fda.sql
-psql -d ernie -f load_fda_data.sql \
--v exclusivity="'"$c_dir"/exclusivity.csv'" \
--v patent="'"$c_dir"/patent.csv'" \
--v products="'"$c_dir"/products.csv'"
-
-# Update data to database.
-echo ***Updating database...
-psql -d ernie -f fda_update_tables.sql
+psql -f "${absolute_script_dir}/load_fda_data.sql" -v "work_dir=${work_dir}"
 
 # Stamp end time.
-date > endtime.txt
-date
+#date > endtime.txt
+#date
 
-# Send log file to emails.
-psql -d ernie -c 'select * from update_log_fda;' | mail -s "FDA Monthly Update Log" george@nete.com avon@nete.com samet@nete.com
-
-printf '\n\n'
+# Query log
+psql -c 'SELECT * FROM update_log_fda ORDER BY id;'
