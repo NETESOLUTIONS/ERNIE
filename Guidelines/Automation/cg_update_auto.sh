@@ -101,9 +101,11 @@ echo ***Updating tables...
 psql -f ${absolute_script_dir}/cg_update_tables.sql -v mapping="${work_dir}/uid_to_pmid.csv" \
      -v combined="${work_dir}/ngc_combined.txt"
 
+#region ERNIE-specific
+
 # Calculate the reference countings.
 #echo ***calculating references countings...
-#psql -d ernie -f cg_flow_ref_count.sql
+#psql -f cg_flow_ref_count.sql
 
 # update cg_ernie_uid_pmid_abstract table
 #echo ***Get Abstracts
@@ -117,9 +119,8 @@ psql -f ${absolute_script_dir}/cg_update_tables.sql -v mapping="${work_dir}/uid_
 #echo CG update finished > cg_gen_check_1.txt
 #chmod 664 cg_gen_check_1.txt
 
-#**************************************************************
-
 # Send log to emails.
 #psql -c 'select * from update_log_cg;' | mail -s "Clinical Guidelines Weekly Update Log" samet@nete.com george@nete.com avon@nete.com
 
 psql -c 'SELECT * FROM update_log_cg ORDER BY id'
+#endregion
