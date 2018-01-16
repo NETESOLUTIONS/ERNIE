@@ -17,8 +17,7 @@ WHERE EXISTS(SELECT 1
 --
 
 ALTER TABLE fda_exclusivities
-  ADD CONSTRAINT fda_exclusivities_pk PRIMARY KEY (appl_no, product_no, exclusivity_code)
-USING INDEX TABLESPACE ernie_index_tbs;
+  ADD CONSTRAINT fda_exclusivities_pk PRIMARY KEY (appl_no, product_no, exclusivity_code);
 -- endregion
 
 -- region fda_patents
@@ -40,8 +39,7 @@ WHERE EXISTS(SELECT 1
 --
 
 CREATE UNIQUE INDEX fda_patents_uk
-  ON fda_patents (appl_no, product_no, patent_no, patent_use_code)
-TABLESPACE ernie_index_tbs;
+  ON fda_patents (appl_no, product_no, patent_no, patent_use_code);
 -- 0.1s
 -- endregion
 
@@ -53,17 +51,23 @@ ALTER TABLE fda_products
 -- 0.4s
 
 ALTER TABLE fda_products
-  ADD CONSTRAINT fda_products_pk PRIMARY KEY (appl_no, product_no, "type")
-USING INDEX TABLESPACE ernie_index_tbs;
+  ADD CONSTRAINT fda_products_pk PRIMARY KEY (appl_no, product_no, "type");
 -- endregion
 
--- region fda_products
+-- region fda_purple_book
 ALTER TABLE fda_purple_book
   ALTER COLUMN bla_stn SET NOT NULL;
 --
 
-ALTER TABLE fda_purple_book
-  ADD CONSTRAINT fda_purple_book_pk PRIMARY KEY (bla_stn)
-USING INDEX TABLESPACE ernie_index_tbs;
+DO $$ BEGIN
+  IF NOT EXISTS(SELECT 1
+                FROM information_schema.constraint_column_usage
+                WHERE constraint_schema = 'public'
+                  AND constraint_name = 'fda_purple_book_pk')
+  THEN
+    ALTER TABLE fda_purple_book
+      ADD CONSTRAINT fda_purple_book_pk PRIMARY KEY (bla_stn);
+  END IF;
+END $$;
 -- 0.3s
 -- endregion

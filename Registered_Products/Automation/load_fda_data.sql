@@ -1,61 +1,38 @@
--- This script loads FDA data csv files to new FDA tables (new_fda_*).
+/*
+This script loads FDA CSV data files
 
--- Usage: psql -d ernie -f load_fda_data.sql
+1. Keep the newest version.
+2. Insert rows from the previous version (fda_*) that have appl_no and
+   patent_no not in the newest version.
+3. Drop the oldest backup version tables: old_fda_*.
+4. Rename tables: fda_* to old_fda_*; new_fda_* to fda_*.
+5. Update the log table.
 
--- Author: Lingtian "Lindsay" Wan
--- Create Date: 03/08/2016
--- Modified: 05/19/2016, Lindsay Wan, added documentation
---         : 11/21/2016, Samet Keserci, revised wrt new schema plan
---           01/25/2017, Mike Toubasi, added sequence number
---           03/16/2017, Samet Keserci, updates are set for ernie_admin
+Author: Lingtian "Lindsay" Wan
+Created: 03/08/2016
 
+Modified:
+  05/19/2016, Lindsay Wan, added documentation
+  11/21/2016, Samet Keserci, revised wrt new schema plan
+  01/25/2017, Mike Toubasi, added sequence number
+  03/16/2017, Samet Keserci, updates are set for pardi_admin
+  12/22/2017, Dmitriy "DK" Korobskiy, merged three SQL scripts into one
+  01/01/2018, Dmitriy "DK" Korobskiy, migrated to Upserts and permanent schema
+*/
 
-set search_path to public;
+\set ON_ERROR_STOP on
+\set ECHO all
 
--- copy new_fda_exclusivities from :exclusivity delimiter '~' header CSV;
+SELECT upsert_file('fda_exclusivities', :'work_dir' || '/exclusivity.csv', TRUE, '~');
+SELECT upsert_file('fda_patents', :'work_dir' || '/patent.csv', TRUE, '~');
+SELECT upsert_file('fda_products', :'work_dir' || '/products.csv', TRUE, '~');
 
-copy new_fda_exclusivities
-(
-	 appl_type,
-    appl_no,
-    product_no,
-    exclusivity_code,
-    exclusivity_date
-)
-from :exclusivity delimiter '~' header CSV;
-
--- copy new_fda_patents from :patent delimiter '~' header CSV;
-copy new_fda_patents
-(
-    appl_type,
-    appl_no,
-    product_no,
-    patent_no,
-    patent_expire_date_text,
-    drug_substance_flag,
-    drug_product_flag,
-    patent_use_code,
-    delist_flag
-  )
-from :patent delimiter '~' header CSV;
-
-
--- copy new_fda_products from :products delimiter '~' header CSV;
-copy new_fda_products
-(
-	ingredient,
-    df_route,
-    trade_name,
-    applicant,
-    strength,
-    appl_type,
-    appl_no,
-    product_no,
-    te_code,
-    approval_date,
-    rld,
-		rs,
-    type,
-    applicant_full_name
-)
-from :products delimiter '~' header CSV;
+-- Update log file.
+INSERT INTO update_log_fda (last_updated, num_exclusivity, num_patent, num_products) --
+VALUES (current_timestamp, --
+        (SELECT count(1)
+        FROM fda_exclusivities), --
+        (SELECT count(1)
+        FROM fda_patents), --
+        (SELECT count(1)
+        FROM fda_products));
