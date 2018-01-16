@@ -34,7 +34,7 @@ psql ernie -c "INSERT INTO exporter_projects SELECT * from temp_exporter_project
 file=$(ls RePORTER_PRJABS_C*.csv); file=${c_dir}"/"${file}
 psql ernie -c "TRUNCATE TABLE temp_exporter_project_abstracts;"
 psql ernie -c "COPY temp_exporter_project_abstracts from '${file}' delimiter ',' CSV HEADER encoding 'latin1';"
-psql ernie -c "INSERT INTO exporter_project_abstracts SELECT * from temp_exporter_project_abstracts ON CONFLICT ON CONSTRAINT exporter_project_abstracts_pkey DO UPDATE SET APPLICATION_ID=excluded.APPLICATION_ID::int, ABSTRACT_TEXT=excluded.ABSTRACT_TEXT;"
+psql ernie -c "INSERT INTO exporter_project_abstracts SELECT * from temp_exporter_project_abstracts ON CONFLICT ON CONSTRAINT exporter_project_abstracts_pkey DO UPDATE SET APPLICATION_ID=excluded.APPLICATION_ID, ABSTRACT_TEXT=excluded.ABSTRACT_TEXT;"
 
 
 
