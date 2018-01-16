@@ -18,8 +18,7 @@ if [ $? -ne 0 ]; then
   exit 1;
 fi
 wget -q "https://exporter.nih.gov/CSVs/final/RePORTER_PRJABS_C_FY${year}_$(printf "%03d" $week).zip" --no-check-certificate
-wait
-unzip $c_dir/*.zip
+for file in $(ls $c_dir/*.zip); do unzip $file ; done
 
 # pass the download to the python script to extract the proper columns, then copy the data into the temp table
 file=$(ls RePORTER_PRJ_C*.csv)
