@@ -1,15 +1,37 @@
-#!/bin/sh
-# This script downloads Derwent update files from FTP site, under ug directory and places those files locally into the update_files directory
-
-# Usage: sh gw_download_derwent.sh work_dir/ username pswd
-#        where work_dir specifies working directory, username specifies FTP username, and pswd specifies password to connect to data FTP site.
-
+#!/usr/bin/env bash
 # Author: VJ Davey, based on work by Lingtian "Lindsay" Wan
-# Create Date: 10/11/2017
+# Creates: 10/11/2017
+# Modified:
+# 01/15/2018, Dmitriy "DK" Korobskiy, moved to set -xe
 
-# Change to working directory.
-c_dir=$1; username=$2; pswd=$3
-cd $c_dir
+if [[ $1 == "-h" ]]; then
+  cat <<END
+SYNOPSIS
+  $0 working_directory Derwent_user Derwent_password
+  $0 -h: display this help
+
+DESCRIPTION
+  This script downloads Derwent update files from FTP site, under ug directory and places those files locally into the
+  update_files directory.
+  Uses the specified working_directory ({script_dir}/build/ by default).
+END
+  exit 1
+fi
+
+set -xe
+
+# Get a script directory, same as by $(dirname $0)
+script_dir=${0%/*}
+absolute_script_dir=$(cd "${script_dir}" && pwd)
+work_dir=${1:-${absolute_script_dir}/build} # $1 with the default
+if [[ ! -d "${work_dir}" ]]; then
+  mkdir "${work_dir}"
+  chmod g+w "${work_dir}"
+fi
+cd "${work_dir}"
+echo -e "\n## Running under ${USER}@${HOSTNAME} at ${PWD} ##\n"
+
+username=$2; pswd=$3
 
 # Stamp current time.
 date ; date >> log_derwent_download.txt
@@ -28,14 +50,13 @@ SCRIPTEND
 # List all the tar and meta files
 cat full_ftp_filelist_ug.txt | grep tar > tar_ftp_filelist_ug.txt ; cat full_ftp_filelist_ug.txt | grep meta > meta_ftp_filelist_ug.txt
 # Compare current files with file list to determine which files should be downloaded
-grep -Fxvf begin_filelist_ug.txt tar_ftp_filelist_ug.txt > derwent_download_list_ug.txt
+grep -Fxvf begin_filelist_ug.txt tar_ftp_filelist_ug.txt > derwent_download_list_ug.txt || :
 # Compare current meta files with filelist and determine files to be downloaded.
-grep -Fxvf begin_filelist_ug_meta.txt meta_ftp_filelist_ug.txt > derwent_download_list_ug_meta.txt
+grep -Fxvf begin_filelist_ug_meta.txt meta_ftp_filelist_ug.txt > derwent_download_list_ug_meta.txt || :
 
 # Write new file names to log.
 printf 'New update/delete files:\n' >> log_derwent_download.txt ; cat derwent_download_list_ug.txt >> log_derwent_download.txt
 printf 'New update/delete meta files:\n' >> log_derwent_download.txt ; cat derwent_download_list_ug_meta.txt >> log_derwent_download.txt
-
 
 # Write command to a download batch script for downloading ug files.
 echo ***Preparing to download newly-added files...
