@@ -2,7 +2,9 @@
 
 The ERNIE architecture is modeled using [C4 modeling approach and notation](https://c4model.com) and the free 
 [Structurizr Express](https://structurizr.com/express?type=LocalStorage) tool.
-
+* Known issues: 
+  1. [It might not render UI controls in Chrome on Mac](https://groups.google.com/d/msg/structurizr/5FtRLM_aNko/cMbriKIoAgAJ). Use Safari.
+  
 To update a diagram (one at a time):
 1. Open [Structurizr Express](https://structurizr.com/express?type=LocalStorage)
 1. Copy and paste a corresponding diagram in YAML into the YAML tab.
