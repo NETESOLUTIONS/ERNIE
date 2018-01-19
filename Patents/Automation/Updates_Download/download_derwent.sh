@@ -66,7 +66,7 @@ printf 'New update/delete meta files:\n' ; cat derwent_download_list_ug_meta.txt
 
 # Write command to a download batch script for downloading ug files.
 echo ***Preparing to download newly-added files...
-printf 'ftp -in ftpserver.wila-derwent.com <<SCRIPTEND\n' > group_download_ug.sh
+printf 'ftp -inv ftpserver.wila-derwent.com <<SCRIPTEND\n' > group_download_ug.sh
 printf 'user '$username' '$pswd'\n' >> group_download_ug.sh
 printf 'lcd update_files/\n' >> group_download_ug.sh
 printf 'cd ug\n' >> group_download_ug.sh
@@ -76,7 +76,7 @@ printf 'quit\nSCRIPTEND\n\n' >> group_download_ug.sh
 
 # Write command to a download batch script for downloading ug meta files.
 echo ***Preparing to download newly-added files...
-printf 'ftp -in ftpserver.wila-derwent.com <<SCRIPTEND\n' > group_download_ug_meta.sh
+printf 'ftp -inv ftpserver.wila-derwent.com <<SCRIPTEND\n' > group_download_ug_meta.sh
 printf 'user '$username' '$pswd'\n' >> group_download_ug_meta.sh
 printf 'lcd update_files/\n' >> group_download_ug_meta.sh
 printf 'cd ug\n' >> group_download_ug_meta.sh

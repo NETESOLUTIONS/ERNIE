@@ -19,12 +19,15 @@
 --     7. derwent_pat_citations
 --     8. derwent_patents
 
--- Usage: psql -d pardi -f derwent_update_tables.sql
+-- Usage: psql -f derwent_update_tables.sql
 
 -- Author: Lingtian "Lindsay" Wan
 -- Create Date: 04/21/2016
 -- Modified: 05/19/2016, Lindsay Wan, added documentation
 --         : 11/21/2016, Samet Keserci, revised wrt new schema plan
+
+\set ON_ERROR_STOP on
+\set ECHO all
 
 set search_path to public, ernie_admin;
 

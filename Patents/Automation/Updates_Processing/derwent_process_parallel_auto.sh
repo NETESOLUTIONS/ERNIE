@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 ########################################################################################################
 # Program Name: derwent_process_parallel_auto.sh
 # Usage:        derwent_process_parallel_auto.sh update_dir work_dir csv_dir
@@ -6,12 +7,14 @@
 # Date:         10/11/2017, VJ Davey, created script as an offshoot of derwent update auto
 #########################################################################################################
 
+set -xe
+
 #date
 # Change to working directory and clear the appropriate files
 update_dir=$1 ; work_dir=$2 ;csv_dir=$3 ; cur_dir=$4
 #process_start=`date +%s`
 cd $cur_dir
-rm *.tar
+rm -f *.tar
 # Determine files for the update, copy the good ones to the local directory for processing
 echo ***Getting update files...
 ls $update_dir | grep tar > complete_filelist_ug.txt
@@ -55,7 +58,7 @@ else print "echo Parsing " $1 "\n" "python derwent_xml_update_parser_parallel.py
   done
   # Update Derwent tables.
   echo '***Update Derwent tables for files'
-  psql -d ernie -f derwent_update_tables.sql
+  psql -f derwent_update_tables.sql
   # Append finished filename to finished filelist.
   printf $file'\n' >> finished_filelist.txt
 done
@@ -65,4 +68,4 @@ done
 #echo "TOTAL UPDATE DURATION:"
 #echo $((process_finish-process_start)) | awk '{print  int($1/60)":"int($1%60) " : TOTAL PROCESS DURATION"}'
 # Print the log table to the screen
-psql -d ernie -c 'select * from update_log_derwent;'
+psql -c 'select * from update_log_derwent;'
