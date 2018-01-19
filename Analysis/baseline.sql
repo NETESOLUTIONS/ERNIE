@@ -83,7 +83,7 @@ select a.pmid, b.wos_id, c.project_number, d.publication_year from
 -- Show the user loss statistics via mapping
 \! echo 'Total Distinct WoS IDs in seed set:'
  select count(distinct wos_id) as distinct_wos_ids_for_seed_set from case_DRUG_NAME_HERE_pmid_wos_projects;
-\! echo 'Percent loss when mapping Seed PMIDs to WoS IDs for seed set:'
+\! echo 'Percent loss when mapping Seed PMIDs (with year cutoff) to WoS IDs (with year cutoff) for seed set:'
 select (1-(CAST(count(distinct wos_id) as decimal)/count(distinct pmid))) as percent_PMIDS_without_matching_WoS from case_DRUG_NAME_HERE_pmid_wos_projects;
 
 -- Throw in any supplementing WoS IDs from the supplementary table and create the baseline generational references table
