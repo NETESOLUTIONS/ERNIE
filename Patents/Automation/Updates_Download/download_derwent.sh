@@ -38,7 +38,7 @@ date ; date >> log_derwent_download.txt
 
 # Download a complete filelist from FTP site.
 echo ***Getting a list of files from the FTP server...
-ftp -in ftpserver.wila-derwent.com << SCRIPTEND
+ftp -inv ftpserver.wila-derwent.com << SCRIPTEND | fgrep -q '226 Directory send OK'
 user $username $pswd
 lcd $c_dir
 binary
