@@ -30,6 +30,6 @@ psql ernie -c "DROP TABLE IF EXISTS case_"$drug_name"_wos_supplement_set;"
 psql ernie -c "CREATE TABLE case_"$drug_name"_wos_supplement_set(source_id character varying(30));"
 [[ ! $seedset_wos_ids ]] && echo 'supplementary wos ids not given' || psql ernie -c "COPY case_"$drug_name"_wos_supplement_set FROM '"$seedset_wos_ids"';"
 # Run baseline through sed, then execute
-echo "year cutoff is ${year_cutoff}"
+echo "year cutoff is ${year_cutoff}" ; echo "num iters is ${iters}"
 cat $baseline_sql | sed 's/DRUG_NAME_HERE/'$drug_name'/g'| sed 's/INSERT_DESIRED_NUMBER_OF_ITERATIONS_HERE/'$iters'/g' | sed 's/YEAR_CUTOFF_HERE/'$year_cutoff'/g'  > $drug_name'_reference_generation.sql'
 psql ernie -f  $drug_name'_reference_generation.sql'
