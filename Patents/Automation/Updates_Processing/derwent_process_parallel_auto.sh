@@ -37,7 +37,7 @@ fi
 
 #date
 # Change to working directory and clear the appropriate files
-update_dir="${work_dir}/update_files/"; w_dir="${work_dir}/work/"; csv_dir="${work_dir}/xml_files/";
+update_dir="${work_dir}/update_files"; w_dir="${work_dir}/work"; csv_dir="${work_dir}/xml_files";
 
 #process_start=`date +%s`
 rm -f *.tar
@@ -51,13 +51,13 @@ done
 # For each update file, parse, load, and update.
 for file in $(ls *.tar | sort -n); do
   # Clear the work dir
-  rm -rf $w_dir/*
+  rm -rf ${w_dir}/*
   # Copy in the python codes and update sql file
   #cp $cur_dir/*.py $work_dir
   #cp $cur_dir/*.sql $work_dir
   # For each file in update source dir, copy that file to the work dir
-  cp $file $w_dir/
-  cd $w_dir
+  cp $file ${w_dir}/
+  cd ${w_dir}
   # Unzip and prepare files for parsing.
   echo ***Unzipping and renaming file: $file
   tar -xvf $file *.xml* # extract *.xml.gz files
