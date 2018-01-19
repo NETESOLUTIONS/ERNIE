@@ -113,12 +113,12 @@ ALTER TABLE derwent_inventors
 -- 1.4s
 
 DELETE
-FROM derwent_inventors di1
+FROM derwent_inventors t1
 WHERE EXISTS(SELECT 1
-             FROM derwent_inventors di2
-             WHERE di2.patent_num = di1.patent_num
-               AND di2.inventors = di1.inventors
-               AND di2.ctid > di1.ctid);
+             FROM derwent_inventors t2
+             WHERE t2.patent_num = t1.patent_num
+               AND t2.inventors = t1.inventors
+               AND t2.ctid > t1.ctid);
 -- 4m:12s
 
 ALTER TABLE derwent_inventors

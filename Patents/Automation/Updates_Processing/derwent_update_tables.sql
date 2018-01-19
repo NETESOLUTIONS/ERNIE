@@ -142,17 +142,31 @@ INSERT INTO derwent_examiners
   FROM new_derwent_examiners;
 -- endregion
 
--- Update table: derwent_inventors
+-- region derwent_inventors
 \echo ***UPDATING TABLE: derwent_inventors
 INSERT INTO uhs_derwent_inventors
   SELECT a.*
   FROM derwent_inventors a INNER JOIN temp_update_patnum b ON a.patent_num = b.patent_num_orig;
+
 DELETE FROM derwent_inventors
 WHERE patent_num IN (SELECT *
 FROM temp_replace_patnum);
+
+--@formatter:off
+-- De-duplicate new_derwent_inventors
+DELETE
+FROM new_derwent_inventors t1
+WHERE EXISTS(SELECT 1
+             FROM new_derwent_inventors t2
+             WHERE t2.patent_num = t1.patent_num
+               AND t2.inventors = t1.inventors
+               AND t2.ctid > t1.ctid);
+--@formatter:on
+
 INSERT INTO derwent_inventors
   SELECT *
   FROM new_derwent_inventors;
+-- endregion
 
 -- Update table: derwent_lit_citations
 \echo ***UPDATING TABLE: derwent_lit_citations
