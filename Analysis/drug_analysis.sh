@@ -4,7 +4,7 @@
 
 # Collect input w/ getopts
 #baseline_sql=$1; drug_name=$2; seedset_pmids=$3; review_pmids=$4; seedset_wos_ids=$5; iters=$6
-while getopts "b:d:s:r:w:i:y" opt; do
+while getopts "b:d:s:r:w:i:y:" opt; do
   case $opt in
     b) baseline_sql=$OPTARG ;;
     d) drug_name=$OPTARG ;;
