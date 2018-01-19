@@ -4,7 +4,7 @@
 
 # Collect input w/ getopts
 #baseline_sql=$1; drug_name=$2; seedset_pmids=$3; review_pmids=$4; seedset_wos_ids=$5; iters=$6
-while getopts "b:d:s:r:w:i:y" opt; do
+while getopts "b:d:s:r:w:i:y:" opt; do
   case $opt in
     b) baseline_sql=$OPTARG ;;
     d) drug_name=$OPTARG ;;
@@ -31,5 +31,5 @@ psql ernie -c "CREATE TABLE case_"$drug_name"_wos_supplement_set(source_id chara
 [[ ! $seedset_wos_ids ]] && echo 'supplementary wos ids not given' || psql ernie -c "COPY case_"$drug_name"_wos_supplement_set FROM '"$seedset_wos_ids"';"
 # Run baseline through sed, then execute
 echo "year cutoff is ${year_cutoff}" ; echo "num iters is ${iters}"
-cat $baseline_sql | sed 's/DRUG_NAME_HERE/'$drug_name'/g'| sed 's/INSERT_DESIRED_NUMBER_OF_ITERATIONS_HERE/'$iters'/g' | sed 's/YEAR_CUTOFF_HERE/'$year_cutoff'/g'  > $drug_name'_reference_generation.sql'
+cat $baseline_sql | sed 's/DRUG_NAME_HERE/'$drug_name'/g'| sed "s/INSERT_DESIRED_NUMBER_OF_ITERATIONS_HERE/'$iters'/g' | sed 's/YEAR_CUTOFF_HERE/'$year_cutoff'/g'  > $drug_name'_reference_generation.sql'
 psql ernie -f  $drug_name'_reference_generation.sql'
