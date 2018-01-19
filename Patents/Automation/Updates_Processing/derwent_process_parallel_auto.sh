@@ -43,7 +43,7 @@ update_dir="${work_dir}/update_files"; w_dir="${work_dir}/work"; csv_dir="${work
 rm -f *.tar
 # Determine files for the update, copy the good ones to the local directory for processing
 echo ***Getting update files...
-ls $update_dir | grep tar > complete_filelist_ug.txt
+ls ${update_dir} | grep tar > complete_filelist_ug.txt
 for file in $(grep -Fxvf finished_filelist.txt complete_filelist_ug.txt); do
  cp -v "${update_dir}/${file}" .
 done
@@ -56,31 +56,34 @@ for file in $(ls *.tar | sort -n); do
   #cp $cur_dir/*.py $work_dir
   #cp $cur_dir/*.sql $work_dir
   # For each file in update source dir, copy that file to the work dir
-  cp $file ${w_dir}/
+  cp ${file} ${w_dir}/
   cd ${w_dir}
   # Unzip and prepare files for parsing.
-  echo ***Unzipping and renaming file: $file
+  echo ***Unzipping and renaming file: ${file}
   tar -xvf $file *.xml* # extract *.xml.gz files
   find . -name '*.xml.gz' -print0 | xargs -0 mv -t . # move them to current directory
   subdir=$(echo "$file" | sed 's/.tar//g')
   subdir=$(echo "$subdir" | sed 's/.*cxml/cxml/g')
-  echo 'substring for tar file is '$subdir
+  #echo 'substring for tar file is '${subdir}
   for f in *.xml.gz; do
-    mv $f $subdir$f;
+    mv ${f} ${subdir}${f};
   done # rename *.xml.gz according to source .tar file
   gunzip *.xml.gz # gunzip
 
   echo ***Preparing parsing and loading script for files from: $file
-  ls *.xml | grep -w xml | parallel --halt soon,fail=1 "echo 'Job [s {%}]: {}'
+  # Reduce amount of logging
+  set +x
+  ls *.xml | grep -w xml | parallel --halt soon,fail=1 "echo 'Job @ slot {%} for {}'
     /anaconda2/bin/python ${absolute_script_dir}/derwent_xml_update_parser_parallel.py -filename {} -csv_dir "${csv_dir}/${subdir}"
-    bash -e ${csv_dir}/${subdir}/{.}_load.sh"
+    bash -e ${csv_dir}/${subdir}/{.}/{.}_load.sh"
+  set -x
   cd ..
 
   # Update Derwent tables.
   echo '***Update Derwent tables for files'
   psql -f "${absolute_script_dir}/derwent_update_tables.sql"
   # Append finished filename to finished filelist.
-  printf $file'\n' >> finished_filelist.txt
+  printf ${file}'\n' >> finished_filelist.txt
 done
 
 # Close out the script and log the times
