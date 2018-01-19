@@ -40,10 +40,10 @@ date ; date >> log_derwent_download.txt
 echo ***Getting a list of files from the FTP server...
 ftp -inv ftpserver.wila-derwent.com << SCRIPTEND | fgrep -q '226 Directory send OK'
 user $username $pswd
-lcd $c_dir
+lcd $work_dir
 binary
 cd ug
-mls * $c_dir/full_ftp_filelist_ug.txt
+mls * $work_dir/full_ftp_filelist_ug.txt
 quit
 SCRIPTEND
 
@@ -65,7 +65,7 @@ printf 'New update/delete meta files:\n' >> log_derwent_download.txt ; cat derwe
 echo ***Preparing to download newly-added files...
 printf 'ftp -in ftpserver.wila-derwent.com <<SCRIPTEND\n' > group_download_ug.sh
 printf 'user '$username' '$pswd'\n' >> group_download_ug.sh
-printf 'lcd '$c_dir'update_files/\n' >> group_download_ug.sh
+printf 'lcd '$work_dir'update_files/\n' >> group_download_ug.sh
 printf 'cd ug\n' >> group_download_ug.sh
 printf 'binary\n' >> group_download_ug.sh
 cat derwent_download_list_ug.txt | awk '{print "get " $1}' >> group_download_ug.sh
@@ -75,7 +75,7 @@ printf 'quit\nSCRIPTEND\n\n' >> group_download_ug.sh
 echo ***Preparing to download newly-added files...
 printf 'ftp -in ftpserver.wila-derwent.com <<SCRIPTEND\n' > group_download_ug_meta.sh
 printf 'user '$username' '$pswd'\n' >> group_download_ug_meta.sh
-printf 'lcd '$c_dir'update_files/\n' >> group_download_ug_meta.sh
+printf 'lcd '$work_dir'update_files/\n' >> group_download_ug_meta.sh
 printf 'cd ug\n' >> group_download_ug_meta.sh
 printf 'binary\n' >> group_download_ug_meta.sh
 cat derwent_download_list_ug_meta.txt | awk '{print "get " $1}' >> group_download_ug_meta.sh
