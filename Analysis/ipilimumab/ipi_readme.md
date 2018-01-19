@@ -23,7 +23,8 @@ b) Assemble lists of pmids from each data source.
    like '%ipilimumab%' or lower(intervention_name) like '%yervoy%') order by year_of_completion);
 
     By convention (revised in Jan 2018),  Dec 31, 2011 is the cut-off date for pre-approval to post-approval. This comes with its own set of issues 
-    but it is what it is. Thus, get all pubs and references and filter them by <= 2011 before including them in the seedset.
+    because of the difference between approval in Jan 2011 and Dec 2011 for example but it is what it is. Thus, get all pubs and references and filter 
+    them by <= 2011 before including them in the seedset.
 
     iii. FDA. From the medical review document, scrape any cited references and find pmids for them in PubMed (manually till we have a better way). Use
     <fda_medical_review_pmid> </fda_medical_review_pmid>. For ipilimumab there was only one reference. If you find any other useful references such as 
@@ -41,6 +42,11 @@ b) Assemble lists of pmids from each data source.
     AND ("2011/12/31"[PDAT] : "2012/12/31"[PDAT])) AND "review"[Publication Type]) AND "english"[Language]
     tag as <pubmed_reviews_pmid> </pubmed_reviews_pmid> 
 
-An ipilimumab.xml file is constructed using these tags, that is compliant with a DTD (seedset.dtd) which can be found on the Github repo.
+    A workflow is then generated using Jenkins that applies a publication year cutoff to the seedset (union of ct, pubmed, patents, cited references from 
+    reviews, fda) using data from Web of Science. Cited references are then extracted and four files are pased to the Java network analyzer that generates
+    five output files.
+
+    An ipilimumab.xml file is also constructed using descriptive tags, that is compliant with a DTD (seedset.dtd) which can be found on the Github repo.
+
 
 
