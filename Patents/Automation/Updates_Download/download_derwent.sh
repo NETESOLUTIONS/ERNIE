@@ -47,13 +47,16 @@ SCRIPTEND
 
 # List all the tar and meta files
 cat full_ftp_filelist_ug.txt | grep tar > tar_ftp_filelist_ug.txt ; cat full_ftp_filelist_ug.txt | grep meta > meta_ftp_filelist_ug.txt
+
 # Compare current files with file list to determine which files should be downloaded
-if ! grep -Fxvf begin_filelist_ug.txt tar_ftp_filelist_ug.txt > derwent_download_list_ug.txt; then
+grep -Fxvf begin_filelist_ug.txt tar_ftp_filelist_ug.txt > derwent_download_list_ug.txt || :
+# Compare current meta files with filelist and determine files to be downloaded.
+grep -Fxvf begin_filelist_ug_meta.txt meta_ftp_filelist_ug.txt > derwent_download_list_ug_meta.txt || :
+
+if [[ ! -s derwent_download_list_ug.txt && ! -s derwent_download_list_ug_meta.txt ]]; then
   echo "Nothing to download"
   exit 1
 fi
-# Compare current meta files with filelist and determine files to be downloaded.
-grep -Fxvf begin_filelist_ug_meta.txt meta_ftp_filelist_ug.txt > derwent_download_list_ug_meta.txt
 
 # Write new file names to log.
 printf 'New update/delete files:\n' ; cat derwent_download_list_ug.txt
