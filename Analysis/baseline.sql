@@ -259,6 +259,18 @@ BEGIN
 
       END IF;
 
+      --Alter citation network table, include a column for a flag which indicates if the cited WOS ID is in wos publications.
+      ALTER TABLE case_DRUG_NAME_HERE_citation_network
+        ADD COLUMN cited_verification_flag INT;
+      UPDATE case_DRUG_NAME_HERE_citation_network a
+        SET cited_verification_flag = (CASE WHEN a.cited_wos in (select source_id from wos_publications where source_id=a.cited_wos) THEN 1
+                                            WHEN a.cited_wos='MEDLINE%' THEN 2
+                                           ELSE 0
+                                           END);
+      --TEMP -- subset the citation network to only retain rows where the cited_verification_flag is 1
+      DELETE FROM case_DRUG_NAME_HERE_citation_network
+        WHERE cited_verification_flag!=1;
+
       DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_years;
       EXECUTE('create table case_DRUG_NAME_HERE_citation_network_years as
       select distinct c.pmid_int, a.wos_id, b.publication_year from
@@ -300,16 +312,29 @@ BEGIN
    END LOOP;
 END; $$;
 
---Alter citation network table, include a column for a flag which indicates if the cited WOS ID is in wos publications
-ALTER TABLE case_DRUG_NAME_HERE_citation_network
-  ADD COLUMN cited_wos_flag INT;
-UPDATE case_DRUG_NAME_HERE_citation_network a
-  SET cited_wos_flag = (CASE WHEN a.cited_wos in (select source_id from wos_publications where source_id=a.cited_wos) THEN 1
-                                     ELSE 0
-                                     END);
 --output tables to CSV format under disk space
 COPY case_DRUG_NAME_HERE_citation_network TO '/erniedev_data2/DRUG_NAME_HERE_citation_network.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
 COPY case_DRUG_NAME_HERE_citation_network_years TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_years.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
 COPY case_DRUG_NAME_HERE_citation_network_grants TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_grants.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
 COPY case_DRUG_NAME_HERE_citation_network_authors TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_authors.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
 COPY case_DRUG_NAME_HERE_generational_references TO '/erniedev_data2/DRUG_NAME_HERE_generational_references.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
+
+--collect some statistics and output to screen
+\! echo '***Total distinct PMIDs in seed set:'
+select count(distinct pmid) from case_DRUG_NAME_HERE_pmid_wos_projects;
+\! echo '***Total distinct WoS IDs in seed set:'
+select count(distinct wos_id) from case_DRUG_NAME_HERE_pmid_wos_projects;
+
+\! printf '\n\n\n*** IMPORTANT ***\n\n The following counts are taken from the citation network table.\nSeedset PMIDs without a corresponding WoS ID are not counted in the network as they have droppped out of the network\n\n\n'
+\! echo '***Total distinct cited documents:'
+select count(distinct cited_wos) from case_DRUG_NAME_HERE_citation_network;
+\! echo '***Total distinct cited WoS IDs (cited documents which map back into WoS Publications):'
+select count(distinct a.cited_wos) from case_DRUG_NAME_HERE_citation_network a inner join wos_publications b on a.cited_wos=b.source_id;
+\! echo '***Total distinct cited PMIDs:'
+select count(distinct cited_pmid) from case_ipilimumab_citation_network  where cited_pmid is not null;
+\! echo '***Total distinct documents in network (Remember - WoS backbone)' -- can use the years table here as it is a union into what is basically a node list table, left joined on years. As a result, the node listing is preserved even for those entries without years.
+select count(distinct wos_id) from case_DRUG_NAME_HERE_citation_network_years;
+\! echo '***Total distinct WoS IDs in network (Remember - WoS backbone -seedset pmids with no match are dropped out)'
+select count(distinct a.wos_id) from case_DRUG_NAME_HERE_citation_network_years a inner join wos_publications b on a.wos_id=b.source_id;
+--TODO\! echo '***Total distinct PMIDs in Network'
+--TODO add calculation
