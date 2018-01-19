@@ -79,7 +79,7 @@ select a.pmid, b.wos_id, c.project_number, d.publication_year from
     on b.wos_id = d.source_id
   left join exporter_publink c
     on b.pmid_int=CAST(c.pmid as int)
-  where d.publication_year <= YEAR_CUTOFF;
+  where d.publication_year <= YEAR_CUTOFF_HERE;
 -- Show the user loss statistics via mapping
 \! echo 'Total Distinct WoS IDs in seed set:'
  select count(distinct wos_id) as distinct_wos_ids_for_seed_set from case_DRUG_NAME_HERE_pmid_wos_projects;
