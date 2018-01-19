@@ -19,12 +19,12 @@ ALTER TABLE derwent_agents
 -- 9.3s
 
 DELETE
-FROM derwent_agents da1
+FROM derwent_agents t1
 WHERE EXISTS(SELECT 1
-             FROM derwent_agents da2
-             WHERE da2.patent_num = da1.patent_num
-               AND da2.organization_name = da1.organization_name
-               AND da2.ctid > da1.ctid);
+             FROM derwent_agents t2
+             WHERE t2.patent_num = t1.patent_num
+               AND t2.organization_name = t1.organization_name
+               AND t2.ctid > t1.ctid);
 -- 1m:54s
 
 ALTER TABLE derwent_agents
@@ -44,16 +44,16 @@ ALTER TABLE derwent_assignees
 -- 0.9s
 
 DELETE
-FROM derwent_assignees da1
+FROM derwent_assignees t1
 WHERE EXISTS(SELECT 1
-             FROM derwent_assignees da2
-             WHERE da2.patent_num = da1.patent_num
-               AND da2.assignee_name = da1.assignee_name
-               AND coalesce(da2.role, '') = coalesce(da1.role, '')
-               AND coalesce(da2.city, '') = coalesce(da1.city, '')
-               AND coalesce(da2.state, '') = coalesce(da1.state, '')
-               AND coalesce(da2.country, '') = coalesce(da1.country, '')
-               AND da2.ctid > da1.ctid);
+             FROM derwent_assignees t2
+             WHERE t2.patent_num = t1.patent_num
+               AND t2.assignee_name = t1.assignee_name
+               AND coalesce(t2.role, '') = coalesce(t1.role, '')
+               AND coalesce(t2.city, '') = coalesce(t1.city, '')
+               AND coalesce(t2.state, '') = coalesce(t1.state, '')
+               AND coalesce(t2.country, '') = coalesce(t1.country, '')
+               AND t2.ctid > t1.ctid);
 -- 3m:07s
 
 CREATE UNIQUE INDEX derwent_assignees_uk

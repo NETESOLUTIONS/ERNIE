@@ -49,17 +49,29 @@ CREATE TABLE temp_replace_patnum AS
   SELECT a.patent_num_orig
   FROM temp_update_patnum a INNER JOIN derwent_patents b ON a.patent_num_orig = b.patent_num_orig;
 
--- Update table: derwent_agents
+-- region derwent_agents
 \echo ***UPDATING TABLE: derwent_agents
 INSERT INTO uhs_derwent_agents
   SELECT a.*
   FROM derwent_agents a INNER JOIN temp_update_patnum b ON a.patent_num = b.patent_num_orig;
+
 DELETE FROM derwent_agents
 WHERE patent_num IN (SELECT *
 FROM temp_replace_patnum);
+
+-- De-duplicate new_derwent_agents
+DELETE
+FROM new_derwent_agents t1
+WHERE EXISTS(SELECT 1
+             FROM new_derwent_agents t2
+             WHERE t2.patent_num = t1.patent_num
+               AND t2.organization_name = t1.organization_name
+               AND t2.ctid > t1.ctid);
+
 INSERT INTO derwent_agents
   SELECT *
   FROM new_derwent_agents;
+-- endregion
 
 -- region derwent_assignees
 \echo ***UPDATING TABLE: derwent_assignees
