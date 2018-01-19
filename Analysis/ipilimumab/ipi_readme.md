@@ -49,7 +49,7 @@ b) Assemble lists of pmids from each data source.
 
     An ipilimumab.xml file is also constructed using descriptive tags, that is compliant with a DTD (seedset.dtd) which can be found on the Github repo.
 
-Latest Run: Build 126. 1/19/2018 using ipilimumab_seedset_pmid_presql and ipilimumab_reviews_pmid_presql and cutoff parameter of 2011.
+Latest Run: Build 127. 1/19/2018 using ipilimumab_seedset_pmid_presql and ipilimumab_reviews_pmid_presql and cutoff parameter of 2011.
 
 
 
