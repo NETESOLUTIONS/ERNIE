@@ -91,12 +91,12 @@ ALTER TABLE derwent_examiners
 -- 0.7s
 
 DELETE
-FROM derwent_examiners de1
+FROM derwent_examiners t1
 WHERE EXISTS(SELECT 1
-             FROM derwent_examiners de2
-             WHERE de2.patent_num = de1.patent_num
-               AND de2.examiner_type = de1.examiner_type
-               AND de2.ctid > de1.ctid);
+             FROM derwent_examiners t2
+             WHERE t2.patent_num = t1.patent_num
+               AND t2.examiner_type = t1.examiner_type
+               AND t2.ctid > t1.ctid);
 -- 10.9s
 
 ALTER TABLE derwent_examiners

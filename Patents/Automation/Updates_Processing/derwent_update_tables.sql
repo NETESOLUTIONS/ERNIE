@@ -59,6 +59,7 @@ DELETE FROM derwent_agents
 WHERE patent_num IN (SELECT *
 FROM temp_replace_patnum);
 
+--@formatter:off
 -- De-duplicate new_derwent_agents
 DELETE
 FROM new_derwent_agents t1
@@ -67,6 +68,7 @@ WHERE EXISTS(SELECT 1
              WHERE t2.patent_num = t1.patent_num
                AND t2.organization_name = t1.organization_name
                AND t2.ctid > t1.ctid);
+--@formatter:on
 
 INSERT INTO derwent_agents
   SELECT *
@@ -114,17 +116,31 @@ INSERT INTO derwent_assignors
   SELECT *
   FROM new_derwent_assignors;
 
--- Update table: derwent_examiners
+-- region derwent_examiners
 \echo ***UPDATING TABLE: derwent_examiners
 INSERT INTO uhs_derwent_examiners
   SELECT a.*
   FROM derwent_examiners a INNER JOIN temp_update_patnum b ON a.patent_num = b.patent_num_orig;
+
 DELETE FROM derwent_examiners
 WHERE patent_num IN (SELECT *
 FROM temp_replace_patnum);
+
+--@formatter:off
+-- De-duplicate new_derwent_examiners
+DELETE
+FROM new_derwent_examiners t1
+WHERE EXISTS(SELECT 1
+             FROM new_derwent_examiners t2
+             WHERE t2.patent_num = t1.patent_num
+               AND t2.examiner_type = t1.examiner_type
+               AND t2.ctid > t1.ctid);
+--@formatter:on
+
 INSERT INTO derwent_examiners
   SELECT *
   FROM new_derwent_examiners;
+-- endregion
 
 -- Update table: derwent_inventors
 \echo ***UPDATING TABLE: derwent_inventors
