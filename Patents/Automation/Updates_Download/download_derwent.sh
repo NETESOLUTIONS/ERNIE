@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Author: VJ Davey, based on work by Lingtian "Lindsay" Wan
-# Creates: 10/11/2017
+# Created: 10/11/2017
 # Modified:
-# 01/15/2018, Dmitriy "DK" Korobskiy, moved to set -xe
+# * 01/15/2018, Dmitriy "DK" Korobskiy, moved to set -xe
+# * 01/19/2018, Dmitriy "DK" Korobskiy, did some simplification refactorings and added error checks
 
 if [[ $1 == "-h" ]]; then
   cat <<END
@@ -46,7 +47,8 @@ quit
 SCRIPTEND
 
 # List all the tar and meta files
-cat full_ftp_filelist_ug.txt | grep tar > tar_ftp_filelist_ug.txt ; cat full_ftp_filelist_ug.txt | grep meta > meta_ftp_filelist_ug.txt
+cat full_ftp_filelist_ug.txt | grep tar > tar_ftp_filelist_ug.txt
+cat full_ftp_filelist_ug.txt | grep meta > meta_ftp_filelist_ug.txt
 
 # Compare current files with file list to determine which files should be downloaded
 grep -Fxvf begin_filelist_ug.txt tar_ftp_filelist_ug.txt > derwent_download_list_ug.txt || :
@@ -66,7 +68,7 @@ printf 'New update/delete meta files:\n' ; cat derwent_download_list_ug_meta.txt
 echo ***Preparing to download newly-added files...
 printf 'ftp -in ftpserver.wila-derwent.com <<SCRIPTEND\n' > group_download_ug.sh
 printf 'user '$username' '$pswd'\n' >> group_download_ug.sh
-printf 'lcd '$work_dir'update_files/\n' >> group_download_ug.sh
+printf 'lcd update_files/\n' >> group_download_ug.sh
 printf 'cd ug\n' >> group_download_ug.sh
 printf 'binary\n' >> group_download_ug.sh
 cat derwent_download_list_ug.txt | awk '{print "get " $1}' >> group_download_ug.sh
@@ -76,7 +78,7 @@ printf 'quit\nSCRIPTEND\n\n' >> group_download_ug.sh
 echo ***Preparing to download newly-added files...
 printf 'ftp -in ftpserver.wila-derwent.com <<SCRIPTEND\n' > group_download_ug_meta.sh
 printf 'user '$username' '$pswd'\n' >> group_download_ug_meta.sh
-printf 'lcd '$work_dir'update_files/\n' >> group_download_ug_meta.sh
+printf 'lcd update_files/\n' >> group_download_ug_meta.sh
 printf 'cd ug\n' >> group_download_ug_meta.sh
 printf 'binary\n' >> group_download_ug_meta.sh
 cat derwent_download_list_ug_meta.txt | awk '{print "get " $1}' >> group_download_ug_meta.sh
