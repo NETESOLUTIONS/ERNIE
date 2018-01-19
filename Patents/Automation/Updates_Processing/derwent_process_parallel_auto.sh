@@ -65,20 +65,15 @@ for file in $(ls *.tar | sort -n); do
   subdir=$(echo "$file" | sed 's/.tar//g')
   subdir=$(echo "$subdir" | sed 's/.*cxml/cxml/g')
   echo 'substring for tar file is '$subdir
-  for f in *.xml.gz; do mv $f $subdir$f; done # rename *.xml.gz according to source .tar file
+  for f in *.xml.gz; do
+    mv $f $subdir$f;
+  done # rename *.xml.gz according to source .tar file
   gunzip *.xml.gz # gunzip
-  # Prepare codes for parsing and loading xml files.
+
   echo ***Preparing parsing and loading script for files from: $file
   ls *.xml | grep -w xml | parallel --halt soon,fail=1 "echo 'Job [s {%}]: {}'
     /anaconda2/bin/python ${absolute_script_dir}/derwent_xml_update_parser_parallel.py -filename {} -csv_dir "$csv_dir/$subdir""
 
-#  ls *.xml | grep -w xml | awk -v store_dir=$csv_dir/$subdir ' {split($1,filename,"."); if(NR%3!=0) print "echo Parsing " $1 "\n" "python derwent_xml_update_parser_parallel.py -filename " $1 " -csv_dir " store_dir "/ & \n";\
-#else print "echo Parsing " $1 "\n" "python derwent_xml_update_parser_parallel.py -filename " $1 " -csv_dir " store_dir "/ & \n\nwait"; }' > parse_derwent_update.sh
-#  # Parse xml files.
-#  echo ***Parsing files from: $file
-#  sh parse_derwent_update.sh
-
-  # Load xml files.
   echo ***Parsing files from: $file
   for file in $(find $csv_dir/$subdir -name *_load.sh); do
     sh $file

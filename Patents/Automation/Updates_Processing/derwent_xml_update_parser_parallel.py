@@ -539,7 +539,7 @@ shell_load = open(xml_csv_dir+input_filename[:-4]+'_load.sh', 'w') ; cpu_count =
 tasks = ['patents','inventors','examiners', 'assignees','pat_citations','agents','assignors','lit_citations']
 for i in range(0, len(tasks)):
     csv_file_name = input_filename[:-4]+"_"+tasks[i]+".csv"
-    copy_command = "psql -d ernie -c \"copy new_derwent_"+tasks[i]+" from \'"+xml_csv_dir+csv_file_name+"\' delimiter \',\' CSV;\" &\n"
+    copy_command = "psql -c \"copy new_derwent_"+tasks[i]+" from \'"+xml_csv_dir+csv_file_name+"\' delimiter \',\' CSV;\" &\n"
     y=i+1; copy_command = copy_command+"wait\n" if (y%cpu_count==0)  else copy_command+"wait\n" if (y==len(tasks)) else copy_command
     shell_load.write((copy_command))
 shell_load.close()
