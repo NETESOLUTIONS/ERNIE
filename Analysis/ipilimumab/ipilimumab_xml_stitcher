@@ -112,12 +112,6 @@ echo "</pubmed>" >> ipilimumab2.xml
 echo "</drug>" >> ipilimumab2.xml
 
 xmllint --format ipilimumab2.xml > ipilimumab.xml
-rm file1
-rm file2
-rm file3
-rm file4
-rm file5
-rm file6
 
 # Create seedset_pmid  file
 #ipilimumab_fda_medical_review_pmid
