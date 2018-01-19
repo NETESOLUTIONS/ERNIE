@@ -72,13 +72,10 @@ for file in $(ls *.tar | sort -n); do
 
   echo ***Preparing parsing and loading script for files from: $file
   ls *.xml | grep -w xml | parallel --halt soon,fail=1 "echo 'Job [s {%}]: {}'
-    /anaconda2/bin/python ${absolute_script_dir}/derwent_xml_update_parser_parallel.py -filename {} -csv_dir "$csv_dir/$subdir""
+    /anaconda2/bin/python ${absolute_script_dir}/derwent_xml_update_parser_parallel.py -filename {} -csv_dir "${csv_dir}/${subdir}"
+    bash -e ${csv_dir}/${subdir}/{.}_load.sh"
+  cd ..
 
-  echo ***Parsing files from: $file
-  for file in $(find $csv_dir/$subdir -name *_load.sh); do
-    sh $file
-    wait
-  done
   # Update Derwent tables.
   echo '***Update Derwent tables for files'
   psql -f "${absolute_script_dir}/derwent_update_tables.sql"
