@@ -34,16 +34,14 @@ echo -e "\n## Running under ${USER}@${HOSTNAME} at ${PWD} ##\n"
 username=$2; pswd=$3
 
 # Stamp current time.
-date ; date >> log_derwent_download.txt
+#date ; date
 
-# Download a complete filelist from FTP site.
-echo ***Getting a list of files from the FTP server...
+echo ***Getting a list of files from the FTP server into the current directory ...
 ftp -inv ftpserver.wila-derwent.com << SCRIPTEND | fgrep -q '226 Directory send OK'
 user $username $pswd
-lcd $work_dir
 binary
 cd ug
-mls * $work_dir/full_ftp_filelist_ug.txt
+mls * full_ftp_filelist_ug.txt
 quit
 SCRIPTEND
 
@@ -58,8 +56,8 @@ fi
 grep -Fxvf begin_filelist_ug_meta.txt meta_ftp_filelist_ug.txt > derwent_download_list_ug_meta.txt
 
 # Write new file names to log.
-printf 'New update/delete files:\n' >> log_derwent_download.txt ; cat derwent_download_list_ug.txt >> log_derwent_download.txt
-printf 'New update/delete meta files:\n' >> log_derwent_download.txt ; cat derwent_download_list_ug_meta.txt >> log_derwent_download.txt
+printf 'New update/delete files:\n' ; cat derwent_download_list_ug.txt
+printf 'New update/delete meta files:\n' ; cat derwent_download_list_ug_meta.txt
 
 # Write command to a download batch script for downloading ug files.
 echo ***Preparing to download newly-added files...
@@ -95,17 +93,22 @@ ls update_files/ -ltr | grep cxml_ug2 | grep meta | awk '{print $9}' > updated_f
 grep -Fxvf begin_filelist_ug_meta.txt updated_filelist_ug_meta.txt > downloaded_filelist_ug_meta.txt
 cat downloaded_filelist_ug.txt >> begin_filelist_ug.txt
 cat downloaded_filelist_ug_meta.txt >> begin_filelist_ug_meta.txt
-printf 'Downloaded files:\n' >> log_derwent_download.txt
-cat downloaded_filelist_ug.txt >> log_derwent_download.txt
-cat downloaded_filelist_ug_meta.txt >> log_derwent_download.txt
-printf 'Files not downloaded:\n' >> log_derwent_download.txt
-grep -Fxvf downloaded_filelist_ug.txt derwent_download_list_ug.txt >> log_derwent_download.txt
-grep -Fxvf downloaded_filelist_ug_meta.txt derwent_download_list_ug_meta.txt >> log_derwent_download.txt
+printf 'Downloaded files:\n'
+cat downloaded_filelist_ug.txt
+cat downloaded_filelist_ug_meta.txt
+
+grep -Fxvf downloaded_filelist_ug.txt derwent_download_list_ug.txt > not_downloaded.txt || :
+grep -Fxvf downloaded_filelist_ug_meta.txt derwent_download_list_ug_meta.txt >> not_downloaded.txt || :
+if [[ -s not_downloaded.txt ]]; then
+ printf 'Files not downloaded:\n'
+ cat not_downloaded.txt
+ exit 2
+fi
 
 # Compare checksum
 echo ***Comparing Checksum...
 cat downloaded_filelist_ug.txt | awk '{split($1,filename,"."); print "echo $(cat ./update_files/" filename[1] "_meta.xml | grep checksum | sed '\''s/\\(checksum=\\|\"\\|\\t\\| \\)//g'\'') ./update_files/" $1 " | md5sum -c -"}' > derwent_checksum.sh
-printf 'Checksum results:\n' >> log_derwent_download.txt ; sh derwent_checksum.sh >> log_derwent_download.txt
+printf 'Checksum results:\n' ; sh derwent_checksum.sh
 
 # Remove UG and UGLSP files older than 5 weeks to save space.
 #echo ***Removing old UG files...
@@ -120,4 +123,4 @@ printf 'Checksum results:\n' >> log_derwent_download.txt ; sh derwent_checksum.s
 #fi
 
 # Write ending time to log.
-date ; date >> log_derwent_download.txt ; printf '\n\n' >> log_derwent_download.txt
+#date ; date ; printf '\n\n'

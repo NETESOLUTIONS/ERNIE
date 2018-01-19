@@ -6,10 +6,10 @@
 # Date:         10/11/2017, VJ Davey, created script as an offshoot of derwent update auto
 #########################################################################################################
 
-date
+#date
 # Change to working directory and clear the appropriate files
 update_dir=$1 ; work_dir=$2 ;csv_dir=$3 ; cur_dir=$4
-process_start=`date +%s`
+#process_start=`date +%s`
 cd $cur_dir
 rm *.tar
 # Determine files for the update, copy the good ones to the local directory for processing
@@ -60,9 +60,9 @@ else print "echo Parsing " $1 "\n" "python derwent_xml_update_parser_parallel.py
   printf $file'\n' >> finished_filelist.txt
 done
 # Close out the script and log the times
-date
-process_finish=`date +%s`
-echo "TOTAL UPDATE DURATION:"
-echo $((process_finish-process_start)) | awk '{print  int($1/60)":"int($1%60) " : TOTAL PROCESS DURATION"}'
+#date
+#process_finish=`date +%s`
+#echo "TOTAL UPDATE DURATION:"
+#echo $((process_finish-process_start)) | awk '{print  int($1/60)":"int($1%60) " : TOTAL PROCESS DURATION"}'
 # Print the log table to the screen
 psql -d ernie -c 'select * from update_log_derwent;'
