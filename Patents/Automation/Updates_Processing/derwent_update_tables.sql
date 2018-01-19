@@ -168,41 +168,84 @@ INSERT INTO derwent_inventors
   FROM new_derwent_inventors;
 -- endregion
 
--- Update table: derwent_lit_citations
+-- region derwent_lit_citations
 \echo ***UPDATING TABLE: derwent_lit_citations
 INSERT INTO uhs_derwent_lit_citations
   SELECT a.*
   FROM derwent_lit_citations a INNER JOIN temp_update_patnum b ON a.patent_num_orig = b.patent_num_orig;
+
 DELETE FROM derwent_lit_citations
 WHERE patent_num_orig IN (SELECT *
 FROM temp_replace_patnum);
+
+--@formatter:off
+-- De-duplicate new_derwent_lit_citations
+DELETE
+FROM new_derwent_lit_citations t1
+WHERE EXISTS(SELECT 1
+             FROM new_derwent_lit_citations t2
+             WHERE t2.patent_num_orig = t1.patent_num_orig
+               AND t2.cited_literature = t1.cited_literature
+               AND t2.ctid > t1.ctid);
+--@formatter:on
+
 INSERT INTO derwent_lit_citations
   SELECT *
   FROM new_derwent_lit_citations;
+-- endregion
 
--- Update table: derwent_pat_citations
+-- region derwent_pat_citations
 \echo ***UPDATING TABLE: derwent_pat_citations
 INSERT INTO uhs_derwent_pat_citations
   SELECT a.*
   FROM derwent_pat_citations a INNER JOIN temp_update_patnum b ON a.patent_num_orig = b.patent_num_orig;
+
 DELETE FROM derwent_pat_citations
 WHERE patent_num_orig IN (SELECT *
 FROM temp_replace_patnum);
+
+--@formatter:off
+-- De-duplicate new_derwent_pat_citations
+DELETE
+FROM new_derwent_pat_citations t1
+WHERE EXISTS(SELECT 1
+             FROM new_derwent_pat_citations t2
+             WHERE t2.patent_num_orig = t1.patent_num_orig
+               AND t2.country = t1.country
+               AND t2.cited_patent_orig = t1.cited_patent_orig
+               AND t2.ctid > t1.ctid);
+--@formatter:on
+
 INSERT INTO derwent_pat_citations
   SELECT *
   FROM new_derwent_pat_citations;
+-- endregion
 
--- Update table: derwent_patents
-\echo ***UPDATING TABLE: derwent_patents
+-- region derwent_patents
+\echo ***UPDATING TABLE:
 INSERT INTO uhs_derwent_patents
   SELECT a.*
   FROM derwent_patents a INNER JOIN temp_update_patnum b ON a.patent_num_orig = b.patent_num_orig;
+
 DELETE FROM derwent_patents
 WHERE patent_num_orig IN (SELECT *
 FROM temp_replace_patnum);
+
+--@formatter:off
+-- De-duplicate new_derwent_patents
+DELETE
+FROM new_derwent_patents t1
+WHERE EXISTS(SELECT 1
+             FROM new_derwent_patents t2
+             WHERE t2.patent_num_orig = t1.patent_num_orig
+               AND t2.patent_type = t1.patent_type
+               AND t2.ctid > t1.ctid);
+--@formatter:on
+
 INSERT INTO derwent_patents
   SELECT *
   FROM new_derwent_patents;
+-- endregion
 
 -- Truncate new_derwent_tables.
 \echo ***TRUNCATING TABLES: new_derwent_*

@@ -139,12 +139,12 @@ WHERE trim(both ' ' || chr(10) from cited_literature) = '';
 -- 23.2s
 
 DELETE
-FROM derwent_lit_citations dlc1
+FROM derwent_lit_citations t1
 WHERE EXISTS(SELECT 1
-             FROM derwent_lit_citations dlc2
-             WHERE dlc2.patent_num_orig = dlc1.patent_num_orig
-               AND dlc2.cited_literature = dlc1.cited_literature
-               AND dlc2.ctid > dlc1.ctid);
+             FROM derwent_lit_citations t2
+             WHERE t2.patent_num_orig = t1.patent_num_orig
+               AND t2.cited_literature = t1.cited_literature
+               AND t2.ctid > t1.ctid);
 -- 16m:09s
 
 CREATE UNIQUE INDEX derwent_lit_citations_uk
@@ -161,13 +161,13 @@ ALTER TABLE derwent_pat_citations
 -- 3m:12s
 
 DELETE
-FROM derwent_pat_citations dpc1
+FROM derwent_pat_citations t1
 WHERE EXISTS(SELECT 1
-             FROM derwent_pat_citations dpc2
-             WHERE dpc2.patent_num_orig = dpc1.patent_num_orig
-               AND dpc2.country = dpc1.country
-               AND dpc2.cited_patent_orig = dpc1.cited_patent_orig
-               AND dpc2.ctid > dpc1.ctid);
+             FROM derwent_pat_citations t2
+             WHERE t2.patent_num_orig = t1.patent_num_orig
+               AND t2.country = t1.country
+               AND t2.cited_patent_orig = t1.cited_patent_orig
+               AND t2.ctid > t1.ctid);
 -- 1h:12m
 
 ALTER TABLE derwent_pat_citations
