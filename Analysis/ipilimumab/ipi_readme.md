@@ -16,7 +16,8 @@ b) Assemble lists of pmids from each data source.
    For ipilimumab, pmids were found for all 52 citations as in <npl_pmid></npl_pmid>> For patent number use <pl_USPatentno> </pl_USPatentno>
 
    ii. Clinical Trials. Search for ipilimumab or Yervoy in the interventions field of ct_clinical_studies in ERNIE. Tag each clinical trial with completion
-   date (year). 
+   date (year). 381 distinct nct_ids were found along with 278 and 10 pmids from ct_references and ct_publications respectively. These pmids are filtered
+   by cut-off date (below), which is 2011 in this case.
 
    select nct_id,pmid  from ct_references and ct_publications where nct_id in (select nct_id, start_date, completion_date, SUBSTRING(completion_date 
    FROM '.{4}$') as year_of_completion from ct_clinical_studies where nct_id in (select distinct nct_id from ct_interventions where lower(intervention_name) 
@@ -47,6 +48,5 @@ b) Assemble lists of pmids from each data source.
     five output files.
 
     An ipilimumab.xml file is also constructed using descriptive tags, that is compliant with a DTD (seedset.dtd) which can be found on the Github repo.
-
 
 
