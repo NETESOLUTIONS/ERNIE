@@ -47,3 +47,5 @@ CREATE TABLESPACE data5 LOCATION '/erniedev_data5/data';
 CREATE TABLESPACE data6 LOCATION '/erniedev_data6/data';
 CREATE TABLESPACE data7 LOCATION '/erniedev_data7/data';
 CREATE TABLESPACE temp LOCATION '/erniedev_data8/data';
+
+ALTER TABLESPACE temp_tbs RENAME TO temp;
