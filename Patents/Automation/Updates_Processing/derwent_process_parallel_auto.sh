@@ -73,7 +73,7 @@ for file in $(ls *.tar | sort -n); do
   echo "***Preparing parsing and loading script for files from: ${file}"
   # Reduce amount of logging
   set +x
-  ls *.xml | grep -w xml | parallel --halt soon,fail=1 "echo 'Job @ slot {%} for {}'
+  ls ${xml_dir}/*.xml | grep -w xml | parallel --halt soon,fail=1 "echo 'Job @ slot {%} for {}'
     /anaconda2/bin/python ${absolute_script_dir}/derwent_xml_update_parser_parallel.py -filename {} -csv_dir ${xml_dir}/
     bash -e ${xml_dir}/${base_name}/{.}/{.}_load.sh"
   set -x
