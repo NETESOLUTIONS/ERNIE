@@ -45,7 +45,7 @@ ls ${update_dir} | grep tar > complete_filelist_ug.txt
 
 cd ${xml_dir}
 # For each update file, parse, load, and update.
-for file in $(grep -Fxvf finished_filelist.txt complete_filelist_ug.txt | sort -n); do
+for file in $(grep -Fxvf "${work_dir}/finished_filelist.txt" "${work_dir}/complete_filelist_ug.txt" | sort -n); do
   # Clear the xml_dir
   rm -rf *
 
@@ -84,4 +84,4 @@ done
 #echo $((process_finish-process_start)) | awk '{print  int($1/60)":"int($1%60) " : TOTAL PROCESS DURATION"}'
 
 # Print the log table to the screen
-psql -c 'SELECT * FROM update_log_derwent;'
+psql -c 'SELECT * FROM update_log_derwent ORDER BY id DESC FETCH FIRST 10 ROWS ONLY;'
