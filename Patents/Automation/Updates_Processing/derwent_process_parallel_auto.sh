@@ -66,7 +66,7 @@ for file in $(grep -Fxvf "${work_dir}/finished_filelist.txt" "${work_dir}/comple
   set +x
   ls *.xml | grep -w xml | parallel --halt soon,fail=1 "echo 'Job @ slot {%} for {}'
     /anaconda2/bin/python ${absolute_script_dir}/derwent_xml_update_parser_parallel.py -filename {} -csv_dir ${xml_dir}/
-    bash -e ${base_name}/{.}/{.}_load.sh"
+    bash -e {.}/{.}_load.sh"
   set -x
 
   # Update Derwent tables.
