@@ -2,7 +2,7 @@
 # Author:       VJ Davey,  Lingtian "Lindsay" Wan
 # Date:         10/11/2017, VJ Davey, created script as an offshoot of derwent update auto
 # Modified:
-# * 01/19/2018, Dmitriy "DK" Korobskiy, simplified
+# * 01/20/2018, Dmitriy "DK" Korobskiy, miscellaneous refactorings and simplifications, moving to use GNU Parallel
 
 if [[ $1 == "-h" ]]; then
   cat <<END
@@ -35,55 +35,46 @@ if ! which parallel >/dev/null; then
   exit 1
 fi
 
-#date
-# Change to working directory and clear the appropriate files
-update_dir="${work_dir}/update_files"; w_dir="${work_dir}/work"; xml_dir="${work_dir}/xml_files";
+update_dir="${work_dir}/update_files"
+xml_dir="${work_dir}/xml_files"
 
 #process_start=`date +%s`
-rm -f *.tar
 # Determine files for the update, copy the good ones to the local directory for processing
 echo ***Getting update files...
 ls ${update_dir} | grep tar > complete_filelist_ug.txt
-for file in $(grep -Fxvf finished_filelist.txt complete_filelist_ug.txt); do
- cp -v "${update_dir}/${file}" .
-done
 
+cd ${xml_dir}
 # For each update file, parse, load, and update.
-for file in $(ls *.tar | sort -n); do
-  # Clear the work dir
-  rm -rf ${w_dir}/*
-  # Copy in the python codes and update sql file
-  #cp $cur_dir/*.py $work_dir
-  #cp $cur_dir/*.sql $work_dir
-  # For each file in update source dir, copy that file to the work dir
-  cp ${file} ${w_dir}/
-  cd ${w_dir}
-  # Unzip and prepare files for parsing.
+for file in $(grep -Fxvf finished_filelist.txt complete_filelist_ug.txt | sort -n); do
+  # Clear the xml_dir
+  rm -rf *
+
   echo ***Unzipping and renaming file: ${file}
-  tar -xvf $file *.xml* # extract *.xml.gz files
-  find . -name '*.xml.gz' -print0 | xargs -0 mv -t . # move them to current directory
+  # extract *.xml.gz files
+  # --strip-components=NUMBER strip NUMBER leading components from file names on extraction
+  tar --strip=3 -xvf "${update_dir}/${file}" *.xml*
   # Extract base name of this .tar
   base_name=$(echo "${file%.*}" | sed 's/.*cxml/cxml/g')
   # Prefix *.xml.gz with the base name
   for f in *.xml.gz; do
-    mv ${f} ${xml_dir}/${base_name}${f};
+    mv ${f} ${base_name}${f};
   done
-  gunzip ${xml_dir}/*.xml.gz
+  gunzip *.xml.gz
 
   echo "***Preparing parsing and loading script for files from: ${file}"
   # Reduce amount of logging
   set +x
-  ls ${xml_dir}/*.xml | grep -w xml | parallel --halt soon,fail=1 "echo 'Job @ slot {%} for {}'
+  ls *.xml | grep -w xml | parallel --halt soon,fail=1 "echo 'Job @ slot {%} for {}'
     /anaconda2/bin/python ${absolute_script_dir}/derwent_xml_update_parser_parallel.py -filename {} -csv_dir ${xml_dir}/
-    bash -e ${xml_dir}/${base_name}/{.}/{.}_load.sh"
+    bash -e ${base_name}/{.}/{.}_load.sh"
   set -x
-  cd ..
 
   # Update Derwent tables.
   echo '***Update Derwent tables for files'
   psql -f "${absolute_script_dir}/derwent_update_tables.sql"
+
   # Append finished filename to finished filelist.
-  printf ${file}'\n' >> finished_filelist.txt
+  printf ${file}'\n' >> "${work_dir}/finished_filelist.txt"
 done
 
 # Close out the script and log the times
