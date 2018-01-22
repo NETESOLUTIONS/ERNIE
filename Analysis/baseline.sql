@@ -290,7 +290,7 @@ BEGIN
       on a.wos_id=b.source_id;');
       DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_grants;
       EXECUTE('create table case_DRUG_NAME_HERE_citation_network_grants as
-      select distinct a.pmid_int, a.wos_id, b.grant_number, b.organization from
+      select distinct a.pmid_int, a.wos_id, b.grant_number, b.grant_organization from
       case_DRUG_NAME_HERE_citation_network_years a INNER JOIN wos_grants b
       on a.wos_id=b.source_id;');
       DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_locations;
