@@ -285,26 +285,29 @@ BEGIN
       where a.wos_id is not null;');
       DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_authors;
       EXECUTE('create table case_DRUG_NAME_HERE_citation_network_authors as
-      select distinct c.pmid_int, a.wos_id, b.full_name from
-      ( select distinct citing_wos as wos_id from case_DRUG_NAME_HERE_citation_network
-        union all
-        select distinct cited_wos as wos_id from case_DRUG_NAME_HERE_citation_network
-      ) a
-      left join wos_authors b
-        on a.wos_id=b.source_id
-      left join wos_pmid_mapping c
-        on a.wos_id=c.wos_id
-      where a.wos_id is not null;');
+      select distinct a.pmid_int, a.wos_id, b.full_name from
+      case_DRUG_NAME_HERE_citation_network_years a INNER JOIN wos_authors b
+      on a.wos_id=b.source_id;');
       DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_grants;
       EXECUTE('create table case_DRUG_NAME_HERE_citation_network_grants as
-      select distinct a.pmid, a.wos_id, b.project_number from
-      ( select distinct citing_wos as wos_id, citing_pmid as pmid from case_DRUG_NAME_HERE_citation_network
-        union all
-        select distinct cited_wos as wos_id, cited_pmid as pmid from case_DRUG_NAME_HERE_citation_network
-      ) a
-      left join exporter_publink b
-        on a.pmid=CAST(b.pmid as int)
-      where a.wos_id is not null;');
+      select distinct a.pmid_int, a.wos_id, b.grant_number, b.organization from
+      case_DRUG_NAME_HERE_citation_network_years a INNER JOIN wos_grants b
+      on a.wos_id=b.source_id;');
+      DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_locations;
+      EXECUTE('create table case_DRUG_NAME_HERE_citation_network_locations as
+      select distinct a.pmid_int, a.wos_id, b.organization, b.city, b.country from
+      case_DRUG_NAME_HERE_citation_network_years a INNER JOIN wos_addresses b
+      on a.wos_id=b.source_id;');
+      --DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_grants;
+      --EXECUTE('create table case_DRUG_NAME_HERE_citation_network_grants as
+      --select distinct a.pmid, a.wos_id, b.project_number from
+      --( select distinct citing_wos as wos_id, citing_pmid as pmid from case_DRUG_NAME_HERE_citation_network
+      --  union all
+      --  select distinct cited_wos as wos_id, cited_pmid as pmid from case_DRUG_NAME_HERE_citation_network
+      --) a
+      --left join exporter_publink b
+      --  on a.pmid=CAST(b.pmid as int)
+      --where a.wos_id is not null;');
       RAISE NOTICE 'Percent loss when mapping cited WoS IDs to PMIDs for Generation %:', X;
       EXECUTE('select (1-(CAST(count(gen'||X||'_cited_wos_id) as decimal)/count(gen'||X||'_pmid))) as
         percent_gen'||X||'_wos_id_with_matching_PMID from case_DRUG_NAME_HERE_generational_references;');
@@ -316,6 +319,7 @@ END; $$;
 COPY case_DRUG_NAME_HERE_citation_network TO '/erniedev_data2/DRUG_NAME_HERE_citation_network.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
 COPY case_DRUG_NAME_HERE_citation_network_years TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_years.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
 COPY case_DRUG_NAME_HERE_citation_network_grants TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_grants.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
+COPY case_DRUG_NAME_HERE_citation_network_locations TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_locations.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
 COPY case_DRUG_NAME_HERE_citation_network_authors TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_authors.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
 COPY case_DRUG_NAME_HERE_generational_references TO '/erniedev_data2/DRUG_NAME_HERE_generational_references.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
 
