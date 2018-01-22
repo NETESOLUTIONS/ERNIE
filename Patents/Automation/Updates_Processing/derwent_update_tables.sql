@@ -35,6 +35,7 @@ Modified: 05/19/2016, Lindsay Wan, added documentation
 
 -- Set temporary tablespace for calculation.
 SET log_temp_files = 0;
+SET default_tablespace = derwent;
 
 -- Create a temp table to store patent numbers from the update file.
 DROP TABLE IF EXISTS temp_update_patnum;

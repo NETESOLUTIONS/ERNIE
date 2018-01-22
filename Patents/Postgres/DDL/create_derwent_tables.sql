@@ -2,7 +2,7 @@
 
 -- Author: VJ Davey
 -- Created: 08/22/2017
-SET default_tablespace = ernie_derwent_tbs;
+SET default_tablespace = derwent;
 
 DROP TABLE IF EXISTS derwent_patents;
 DROP TABLE IF EXISTS derwent_inventors;
