@@ -74,11 +74,12 @@ with open(output_file, 'wb') as csv_file:
         print '### Query No. %d ###'%(query_no); query_no+=1; line=(line.decode('utf-8')).encode('ascii','ignore')
         input_string=re.sub('|'.join(stem_words),'',line); input_string=re.sub(r'[,.{}<>\"\'\n\r]','',input_string) ; input_string=re.sub(r'[:@*#() -]','\\+',input_string) ; input_string=re.sub(r'\u+2260','',input_string)
         query_string=curl_search_string+input_string+curl_search_string_ending
-        s = subprocess.check_output(query_string, shell=True).split("\n")
+        s = subprocess.check_output(query_string, shell=True) ; s=s.replace('\\n','') ;s=s.split("\n")
+        #s = subprocess.check_output(query_string, shell=True).split("\n")
         print 'Search : '+line ; print 'Generated Query : '+query_string
 
         for result in s[1:-1]:
-            result_list=result.split('~'); doc_id=result_list[0]; score=result_list[1]; others=['\"'+re.sub(r'[\"]','',i)+'\"' for i in result_list[2:]]
+            result_list=result.split('~'); doc_id=result_list[0]; score=result_list[1]; others=['\"'+re.sub(r'[\"]','',i[:32700])+'\"' for i in result_list[2:]]
             #psql_query= incorporate any extra mapping psql queries here depending on the topic
             #psql_result=subprocess.check_output("psql -h "+psql_ip+" -p "+psql_port+" -U ernie_admin -d ernie -c " + psql_query, shell=True).split("\n")
             csv_file.write('\"'+re.sub(r'[,\n\r]','',line)+'\",'+doc_id+','+score+','+str(s.index(result))+','+','.join(others)+"\n")
