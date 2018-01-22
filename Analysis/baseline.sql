@@ -300,14 +300,9 @@ BEGIN
       on a.wos_id=b.source_id;');
       DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_grants_SPIRES;
       EXECUTE('create table case_DRUG_NAME_HERE_citation_network_grants_SPIRES as
-      select distinct a.pmid, a.wos_id, b.project_number from
-      ( select distinct citing_wos as wos_id, citing_pmid as pmid from case_DRUG_NAME_HERE_citation_network
-        union all
-        select distinct cited_wos as wos_id, cited_pmid as pmid from case_DRUG_NAME_HERE_citation_network
-      ) a
-      left join exporter_publink b
-        on a.pmid=CAST(b.pmid as int)
-      where a.wos_id is not null;');
+      select distinct a.pmid_int, a.wos_id, b.project_number from
+      case_DRUG_NAME_HERE_citation_network_years a INNER JOIN exporter_publink b
+      on a.pmid_int=CAST(b.pmid as int);');
       RAISE NOTICE 'Percent loss when mapping cited WoS IDs to PMIDs for Generation %:', X;
       EXECUTE('select (1-(CAST(count(gen'||X||'_cited_wos_id) as decimal)/count(gen'||X||'_pmid))) as
         percent_gen'||X||'_wos_id_with_matching_PMID from case_DRUG_NAME_HERE_generational_references;');
