@@ -50,6 +50,16 @@ b) Assemble lists of pmids from each data source.
     An ipilimumab.xml file is also constructed using descriptive tags, that is compliant with a DTD (seedset.dtd) which can be found on the Github repo.
 
 Latest Run: Build 127. 1/19/2018 using ipilimumab_seedset_pmid_presql and ipilimumab_reviews_pmid_presql and cutoff parameter of 2011.
+ipilimumab_fda_medical_review_pmid 1
+ipilimumab_fda_other_review_pmid   1
+ipilimumab_ct_reference_pmid	   278
+ipilimumab_ct_publication_pmid	   11
+ipilimumab_pubmed_preapp_pmid	   276
+ipilimumab_patent_npl_pmid	   52
+ipilimumab_ipilimumab_reviews_pmid_presql 76
+
+The ipilimumab_xml_stitcher takes 619 pmids from the list above (excluding 76 review articles) and combines them to form a deduplicated list of 534 seedset pmids. The cited references from the review articles are then combined into this list and deduplicated again before
+the another generation of citations is extracted.
 
 
 
