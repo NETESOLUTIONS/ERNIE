@@ -15,8 +15,7 @@ Modified: 05/19/2016, Lindsay Wan, added documentation
 \set ON_ERROR_STOP on
 \set ECHO all
 
-
-SET search_path TO public;
+SET default_tablespace TO ct;
 
 DROP TABLE IF EXISTS new_ct_clinical_studies;
 
@@ -74,5 +73,4 @@ CREATE TABLE new_ct_clinical_studies
   is_fda_regulated                     VARCHAR(50),
   is_section_801                       VARCHAR(50),
   has_expanded_access                  VARCHAR(50)
-)
-TABLESPACE ct_data_tbs;
+);

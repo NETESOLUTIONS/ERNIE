@@ -49,7 +49,7 @@ CREATE TABLESPACE data7 LOCATION '/erniedev_data7/data';
 CREATE TABLESPACE temp LOCATION '/erniedev_data8/data';
 
 -- Rename tablespaces
-ALTER TABLESPACE temp_tbs RENAME TO temp;
+-- ALTER TABLESPACE temp_tbs RENAME TO temp;
 
-ALTER TABLESPACE ernie_derwent_tbs RENAME TO derwent;
-
+-- ALTER TABLESPACE ernie_derwent_tbs RENAME TO derwent;
+ALTER TABLESPACE ernie_ct_tbs RENAME TO ct;

@@ -36,243 +36,197 @@ Modified: 05/19/2016, Lindsay Wan, added documentation
 \set ON_ERROR_STOP on
 \set ECHO all
 
+SET default_tablespace TO ct;
 
-set search_path to public;
+DROP TABLE IF EXISTS new_ct_secondary_ids;
+CREATE TABLE new_ct_secondary_ids (
+  id           INT,
+  nct_id       VARCHAR(30) NOT NULL,
+  secondary_id VARCHAR(30)
+);
 
-drop table if exists new_ct_secondary_ids;
-create table new_ct_secondary_ids
-(
-id int,
-nct_id varchar(30) not null,
-secondary_id varchar(30)
-)
-tablespace ct_data_tbs
-;
+DROP TABLE IF EXISTS new_ct_collaborators;
+CREATE TABLE new_ct_collaborators (
+  id           INT,
+  nct_id       VARCHAR(30) NOT NULL,
+  agency       VARCHAR(500),
+  agency_class VARCHAR(50)
+);
 
-drop table if exists new_ct_collaborators;
-create table new_ct_collaborators
-(
-id int,
-nct_id varchar(30) not null,
-agency varchar(500),
-agency_class varchar(50)
-)
-tablespace ct_data_tbs
-;
+DROP TABLE IF EXISTS new_ct_authorities;
+CREATE TABLE new_ct_authorities (
+  id        INT,
+  nct_id    VARCHAR(30) NOT NULL,
+  authority VARCHAR(5000)
+);
 
-drop table if exists new_ct_authorities;
-create table new_ct_authorities
-  (
-    id int,
-    nct_id varchar(30) not null,
-    authority varchar(5000)
-  )
-  tablespace ct_data_tbs
-  ;
+DROP TABLE IF EXISTS new_ct_outcomes;
+CREATE TABLE new_ct_outcomes (
+  id           INT,
+  nct_id       VARCHAR(30) NOT NULL,
+  outcome_type VARCHAR(50),
+  measure      VARCHAR(500),
+  time_frame   VARCHAR(1000),
+  safety_issue VARCHAR(1000),
+  description  VARCHAR(2000)
+);
 
-drop table if exists new_ct_outcomes;
-create table new_ct_outcomes
-(
-id int,
-nct_id varchar(30) not null,
-outcome_type varchar(50),
-measure varchar(500),
-time_frame varchar(1000),
-safety_issue varchar(1000),
-description varchar(2000)
-)
-tablespace ct_data_tbs
-;
+DROP TABLE IF EXISTS new_ct_conditions;
+CREATE TABLE new_ct_conditions (
+  id        INT,
+  nct_id    VARCHAR(30) NOT NULL,
+  condition VARCHAR(500)
+);
 
-drop table if exists new_ct_conditions;
-create table new_ct_conditions
-(
-id int,
-nct_id varchar(30) not null,
-condition varchar(500)
-)
-tablespace ct_data_tbs
-;
+DROP TABLE IF EXISTS new_ct_arm_groups;
+CREATE TABLE new_ct_arm_groups (
+  id              INT,
+  nct_id          VARCHAR(30) NOT NULL,
+  arm_group_label VARCHAR(200),
+  arm_group_type  VARCHAR(50),
+  description     VARCHAR(5000)
+);
 
-drop table if exists new_ct_arm_groups;
-create table new_ct_arm_groups
-(
-id int,
-nct_id varchar(30) not null,
-arm_group_label varchar(200),
-arm_group_type varchar(50),
-description varchar(5000)
-)
-tablespace ct_data_tbs
-;
-
-drop table if exists new_ct_interventions;
-create table new_ct_interventions
-  (
-    id int,
-    nct_id varchar(30) not null,
-    intervention_type varchar(50),
-    intervention_name varchar(200),
-    description varchar(5000)
-  )
-  tablespace ct_data_tbs;
+DROP TABLE IF EXISTS new_ct_interventions;
+CREATE TABLE new_ct_interventions (
+  id                INT,
+  nct_id            VARCHAR(30) NOT NULL,
+  intervention_type VARCHAR(50),
+  intervention_name VARCHAR(200),
+  description       VARCHAR(5000)
+);
 
 -- create table for multiple arm_group_label under ct_intervention.
-drop table if exists new_ct_intervention_arm_group_labels;
-create table new_ct_intervention_arm_group_labels
-  (
-    id int,
-    nct_id varchar(30) not null,
-    intervention_name varchar(500),
-    arm_group_label varchar(500)
-  )
-  tablespace ct_data_tbs;
+DROP TABLE IF EXISTS new_ct_intervention_arm_group_labels;
+CREATE TABLE new_ct_intervention_arm_group_labels (
+  id                INT,
+  nct_id            VARCHAR(30) NOT NULL,
+  intervention_name VARCHAR(500),
+  arm_group_label   VARCHAR(500)
+);
 
-drop table if exists new_ct_intervention_other_names;
-create table new_ct_intervention_other_names
-  (
-    id int,
-    nct_id varchar(30) not null,
-    intervention_name varchar(500),
-    other_name varchar(500)
-  )
-  tablespace ct_data_tbs;
+DROP TABLE IF EXISTS new_ct_intervention_other_names;
+CREATE TABLE new_ct_intervention_other_names (
+  id                INT,
+  nct_id            VARCHAR(30) NOT NULL,
+  intervention_name VARCHAR(500),
+  other_name        VARCHAR(500)
+);
 
-drop table if exists new_ct_overall_officials;
-create table new_ct_overall_officials
+DROP TABLE IF EXISTS new_ct_overall_officials;
+CREATE TABLE new_ct_overall_officials
 
-  (
-    id int,
-    nct_id varchar(30) not null,
-    first_name varchar(300),
-    middle_name varchar(300),
-    last_name varchar(300),
-    degrees varchar(300),
-    role varchar(1000),
-    affiliation varchar(5000)
-  )
-  tablespace ct_data_tbs;
+(
+  id          INT,
+  nct_id      VARCHAR(30) NOT NULL,
+  first_name  VARCHAR(300),
+  middle_name VARCHAR(300),
+  last_name   VARCHAR(300),
+  degrees     VARCHAR(300),
+  role        VARCHAR(1000),
+  affiliation VARCHAR(5000)
+);
 
-drop table if exists new_ct_overall_contacts;
-create table new_ct_overall_contacts
-  (
-    id int,
-    nct_id varchar(30) not null,
-    contact_type varchar(100),
-    first_name varchar(300),
-    middle_name varchar(300),
-    last_name varchar(300),
-    degrees varchar(300),
-    phone varchar(200),
-    phone_ext varchar(100),
-    email varchar(500)
-  )
-  tablespace ct_data_tbs;
+DROP TABLE IF EXISTS new_ct_overall_contacts;
+CREATE TABLE new_ct_overall_contacts (
+  id           INT,
+  nct_id       VARCHAR(30) NOT NULL,
+  contact_type VARCHAR(100),
+  first_name   VARCHAR(300),
+  middle_name  VARCHAR(300),
+  last_name    VARCHAR(300),
+  degrees      VARCHAR(300),
+  phone        VARCHAR(200),
+  phone_ext    VARCHAR(100),
+  email        VARCHAR(500)
+);
 
-drop table if exists new_ct_locations;
-create table new_ct_locations
-  (
-    id int,
-    nct_id varchar(30) not null,
-    facility_name varchar(500),
-    facility_city varchar(200),
-    facility_state varchar(200),
-    facility_zip varchar(100),
-    facility_country varchar(500),
-    status varchar(200),
-    contact_first_name varchar(300),
-    contact_middle_name varchar(300),
-    contact_last_name varchar(300),
-    contact_degrees varchar(300),
-    contact_phone varchar(200),
-    contact_phone_ext varchar(100),
-    contact_email varchar(500),
-    contact_backup_first_name varchar(300),
-    contact_backup_middle_name varchar(300),
-    contact_backup_last_name varchar(300),
-    contact_backup_degrees varchar(300),
-    contact_backup_phone varchar(200),
-    contact_backup_phone_ext varchar(100),
-    contact_backup_email varchar(500)
-  )
-  tablespace ct_data_tbs;
+DROP TABLE IF EXISTS new_ct_locations;
+CREATE TABLE new_ct_locations (
+  id                         INT,
+  nct_id                     VARCHAR(30) NOT NULL,
+  facility_name              VARCHAR(500),
+  facility_city              VARCHAR(200),
+  facility_state             VARCHAR(200),
+  facility_zip               VARCHAR(100),
+  facility_country           VARCHAR(500),
+  status                     VARCHAR(200),
+  contact_first_name         VARCHAR(300),
+  contact_middle_name        VARCHAR(300),
+  contact_last_name          VARCHAR(300),
+  contact_degrees            VARCHAR(300),
+  contact_phone              VARCHAR(200),
+  contact_phone_ext          VARCHAR(100),
+  contact_email              VARCHAR(500),
+  contact_backup_first_name  VARCHAR(300),
+  contact_backup_middle_name VARCHAR(300),
+  contact_backup_last_name   VARCHAR(300),
+  contact_backup_degrees     VARCHAR(300),
+  contact_backup_phone       VARCHAR(200),
+  contact_backup_phone_ext   VARCHAR(100),
+  contact_backup_email       VARCHAR(500)
+);
 
-drop table if exists new_ct_location_investigators;
-create table new_ct_location_investigators
-  (
-    id int,
-    nct_id varchar(30) not null,
-    investigator_first_name varchar(300),
-    investigator_middle_name varchar(300),
-    investigator_last_name varchar(300),
-    investigator_degrees varchar(300),
-    investigator_role varchar(500),
-    investigator_affiliation varchar(5000)
-  )
-  tablespace ct_data_tbs;
+DROP TABLE IF EXISTS new_ct_location_investigators;
+CREATE TABLE new_ct_location_investigators (
+  id                       INT,
+  nct_id                   VARCHAR(30) NOT NULL,
+  investigator_first_name  VARCHAR(300),
+  investigator_middle_name VARCHAR(300),
+  investigator_last_name   VARCHAR(300),
+  investigator_degrees     VARCHAR(300),
+  investigator_role        VARCHAR(500),
+  investigator_affiliation VARCHAR(5000)
+);
 
-drop table if exists new_ct_location_countries;
-create table new_ct_location_countries
-  (
-    id int,
-    nct_id varchar(30) not null,
-    country varchar(500)
-  )
-  tablespace ct_data_tbs;
+DROP TABLE IF EXISTS new_ct_location_countries;
+CREATE TABLE new_ct_location_countries (
+  id      INT,
+  nct_id  VARCHAR(30) NOT NULL,
+  country VARCHAR(500)
+);
 
-drop table if exists new_ct_links;
-create table new_ct_links
-  (
-    id int,
-    nct_id varchar(30) not null,
-    url varchar(2000),
-    description varchar(5000)
-  )
-  tablespace ct_data_tbs;
+DROP TABLE IF EXISTS new_ct_links;
+CREATE TABLE new_ct_links (
+  id          INT,
+  nct_id      VARCHAR(30) NOT NULL,
+  url         VARCHAR(2000),
+  description VARCHAR(5000)
+);
 
-drop table if exists new_ct_condition_browses;
-create table new_ct_condition_browses
-  (
-    id int,
-    nct_id varchar(30) not null,
-    mesh_term varchar(300)
-  )
-  tablespace ct_data_tbs;
+DROP TABLE IF EXISTS new_ct_condition_browses;
+CREATE TABLE new_ct_condition_browses (
+  id        INT,
+  nct_id    VARCHAR(30) NOT NULL,
+  mesh_term VARCHAR(300)
+);
 
-drop table if exists new_ct_intervention_browses;
-create table new_ct_intervention_browses
-  (
-    id int,
-    nct_id varchar(30) not null,
-    mesh_term varchar(300)
-  )
-  tablespace ct_data_tbs;
+DROP TABLE IF EXISTS new_ct_intervention_browses;
+CREATE TABLE new_ct_intervention_browses (
+  id        INT,
+  nct_id    VARCHAR(30) NOT NULL,
+  mesh_term VARCHAR(300)
+);
 
-drop table if exists new_ct_references;
-create table new_ct_references
-  (
-    id int,
-    nct_id varchar(30) not null,
-    citation varchar(8000),
-    pmid int
-  )
-  tablespace ct_data_tbs;
+DROP TABLE IF EXISTS new_ct_references;
+CREATE TABLE new_ct_references (
+  id       INT,
+  nct_id   VARCHAR(30) NOT NULL,
+  citation VARCHAR(8000),
+  pmid     INT
+);
 
-  drop table if exists new_ct_publications;
-  create table new_ct_publications
-    (
-      id int,
-      nct_id varchar(30) not null,
-      citation varchar(8000),
-      pmid int
-    )
-    tablespace ct_data_tbs;
+DROP TABLE IF EXISTS new_ct_publications;
+CREATE TABLE new_ct_publications (
+  id       INT,
+  nct_id   VARCHAR(30) NOT NULL,
+  citation VARCHAR(8000),
+  pmid     INT
+);
 
-drop table if exists new_ct_keywords;
-  create table new_ct_keywords
-    (
-      id int,
-      nct_id varchar(30) not null,
-      keyword varchar(1000)
-    )
-    tablespace ct_data_tbs;
+DROP TABLE IF EXISTS new_ct_keywords;
+CREATE TABLE new_ct_keywords (
+  id      INT,
+  nct_id  VARCHAR(30) NOT NULL,
+  keyword VARCHAR(1000)
+);
