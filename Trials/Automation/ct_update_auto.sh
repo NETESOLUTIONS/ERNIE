@@ -63,7 +63,7 @@ echo ***Creating CT tables...
 psql -f "${absolute_script_dir}/createtable_new_ct_clinical_studies.sql"
 psql -f "${absolute_script_dir}/createtable_new_ct_subs.sql"
 
-${absolute_script_dir}/download.sh
+${absolute_script_dir}/download_updates.sh
 
 echo ***Unzipping CT data...
 unzip -q ./nct_files/CT_all.zip -d ./nct_files
