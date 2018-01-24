@@ -8,6 +8,7 @@
 # * 03/29/2017, Samet Keserci, revision wrt dev2 to dev3 migration
 # * 01/05/2018, Dmitriy "DK" Korobskiy, enabled running from any directory
 # * 01/10/2018, Dmitriy "DK" Korobskiy, refactored parallel loop to use GNU Parallels
+# * 01/23/2018, Dmitriy "DK" Korobskiy, minor refactorings
 
 if [[ $1 == "-h" ]]; then
   cat << END
@@ -34,6 +35,7 @@ END
 fi
 
 set -xe
+set -o pipefail
 
 # Get a script directory, same as by $(dirname $0)
 script_dir=${0%/*}
@@ -63,17 +65,19 @@ echo ***Creating CT tables...
 psql -f "${absolute_script_dir}/createtable_new_ct_clinical_studies.sql"
 psql -f "${absolute_script_dir}/createtable_new_ct_subs.sql"
 
+cd nct_files
 ${absolute_script_dir}/download_updates.sh
 
 echo ***Unzipping CT data...
-unzip -q ./nct_files/CT_all.zip -d ./nct_files
+unzip -q CT_all.zip
 
 echo ***Loading files in parallel...
+# >ls NCT*.xml causes "Argument list too long" error
 # Quiet down output to reduce the large log size (up to 140 M)
 # psql -q specifies that psql should do its work quietly
-ls nct_files/ | grep NCT | grep xml | parallel --halt soon,fail=1 "echo 'Job [s {%}]: {}'
+ls | fgrep 'NCT' | fgrep 'xml' | parallel --halt soon,fail=1 "echo 'Job [s {%}]: {}'
   /anaconda2/bin/python ${absolute_script_dir}/ct_xml_update_parser.py -filename {} -csv_dir ${work_dir}/nct_files/
-  psql -f ${work_dir}/nct_files/{.}/{.}_load.pg -v ON_ERROR_STOP=on -q"
+  psql -f {.}/{.}_load.pg -v ON_ERROR_STOP=on -q"
 
 # De-duplication an PK ing process for new_ct_* tables.
 echo ***De-duplication of new_ct_* database tables...
@@ -82,6 +86,7 @@ psql -f "${absolute_script_dir}/new_ct_De-Duplication.sql"
 # Upload database.
 echo ***Uploading database tables...
 psql -f "${absolute_script_dir}/ct_update_tables.sql"
+cd ..
 
 rm -rf ct_clinical_studies.csv
 
