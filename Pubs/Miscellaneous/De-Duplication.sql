@@ -51,7 +51,7 @@ WHERE EXISTS(SELECT 1
 -- 17h:15m
 
 ALTER TABLE wos_references
-  ADD CONSTRAINT wos_references_pk PRIMARY KEY (source_id, cited_source_uid) USING INDEX TABLESPACE ernie_index_tbs;
+  ADD CONSTRAINT wos_references_pk PRIMARY KEY (source_id, cited_source_uid) USING INDEX TABLESPACE indexes;
 -- 11h:49m
 
 DROP INDEX IF EXISTS ssd_ref_sourceid_index;
@@ -78,7 +78,7 @@ ALTER TABLE wos_authors
 -- 14m:12s
 
 CREATE UNIQUE INDEX wos_authors_uk
-  ON wos_authors (source_id, seq_no, address_id) TABLESPACE ernie_index_tbs;
+  ON wos_authors (source_id, seq_no, address_id) TABLESPACE indexes;
 -- 1h:45m
 
 DROP INDEX IF EXISTS ssd_wos_auth_source_id_index;
@@ -101,7 +101,7 @@ ALTER TABLE wos_addresses
 -- 0.1s
 
 ALTER TABLE wos_addresses
-  ADD CONSTRAINT wos_addresses_pk PRIMARY KEY (source_id, address_name) USING INDEX TABLESPACE ernie_index_tbs;
+  ADD CONSTRAINT wos_addresses_pk PRIMARY KEY (source_id, address_name) USING INDEX TABLESPACE indexes;
 --
 
 DROP INDEX IF EXISTS wos_addresses_sourceid_index CASCADE;
@@ -126,7 +126,7 @@ ALTER TABLE wos_grants
 
 CREATE UNIQUE INDEX wos_grants_uk
   ON wos_grants (source_id, grant_number, grant_organization)
-TABLESPACE ernie_index_tbs;
+TABLESPACE indexes;
 -- 7m:54s
 
 DROP INDEX IF EXISTS wos_grants_sourceid_index;
@@ -150,7 +150,7 @@ ALTER TABLE wos_titles
 -- 33m:09s
 
 ALTER TABLE wos_titles
-  ADD CONSTRAINT wos_titles_pk PRIMARY KEY (source_id, type) USING INDEX TABLESPACE ernie_index_tbs;
+  ADD CONSTRAINT wos_titles_pk PRIMARY KEY (source_id, type) USING INDEX TABLESPACE indexes;
 -- 2h:58m
 
 DROP INDEX IF EXISTS wos_titles_sourceid_index;
@@ -175,7 +175,7 @@ ALTER TABLE wos_document_identifiers
 
 CREATE UNIQUE INDEX wos_document_identifiers_uk
   ON wos_document_identifiers (source_id, document_id_type, document_id)
-TABLESPACE ernie_index_tbs;
+TABLESPACE indexes;
 -- ?
 
 DROP INDEX IF EXISTS wos_dois_sourceid_index;
@@ -198,7 +198,7 @@ ALTER TABLE wos_keywords
 -- 5m:25s
 
 ALTER TABLE wos_keywords
-  ADD CONSTRAINT wos_keywords_pk PRIMARY KEY (source_id, keyword) USING INDEX TABLESPACE ernie_index_tbs;
+  ADD CONSTRAINT wos_keywords_pk PRIMARY KEY (source_id, keyword) USING INDEX TABLESPACE indexes;
 -- 1h:03m
 
 DROP INDEX IF EXISTS wos_keywords_sourceid_index;
@@ -232,7 +232,7 @@ ALTER TABLE wos_patent_mapping
 -- 14.7s
 
 ALTER TABLE wos_patent_mapping
-  ADD CONSTRAINT wos_patent_mapping_pk PRIMARY KEY (patent_no, wos_id) USING INDEX TABLESPACE ernie_index_tbs;
+  ADD CONSTRAINT wos_patent_mapping_pk PRIMARY KEY (patent_no, wos_id) USING INDEX TABLESPACE indexes;
 -- 2m:27s
 
 DROP INDEX IF EXISTS wos_patent_mapping_patent_no_idx;

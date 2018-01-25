@@ -15,7 +15,7 @@ UPDATE wos_patent_mapping_t1 SET wos_id='WOS:'||temp;
 UPDATE wos_patent_mapping_t1 SET country=substring(patent_no,1,2);
 ALTER TABLE  wos_patent_mapping_t1 DROP COLUMN temp ;
 CREATE INDEX wos_patent_mapping_idx 
-ON wos_patent_mapping_t1(wos_id) tablespace ernie_index_tbs ;
+ON wos_patent_mapping_t1(wos_id) tablespace indexes ;
 
 -- JOIN WITH DERWENT PATENTS 
 CREATE TABLE wos_patent_mapping AS
@@ -24,8 +24,8 @@ b.patent_num_wila,b.patent_num_tsip,a.country
 FROM wos_patent_mapping_t1 a LEFT JOIN derwent_patents b 
 ON substring(a.patent_no,3)=b.patent_num_wila;
 
-CREATE INDEX wos_patent_mapping_wos_id_idx ON wos_patent_mapping (patent_no) tablespace ernie_index_tbs;
-CREATE INDEX wos_patent_mapping_patent_no_idx ON wos_patent_mapping (patent_no) tablespace ernie_index_tbs;
+CREATE INDEX wos_patent_mapping_wos_id_idx ON wos_patent_mapping (patent_no) tablespace indexes;
+CREATE INDEX wos_patent_mapping_patent_no_idx ON wos_patent_mapping (patent_no) tablespace indexes;
 -- ELiminate matches with non-US patents
 UPDATE wos_patent_mapping set patent_num_orig=null,,patent_num_wila = null,
 patent_num_tsip=null where country!='US';

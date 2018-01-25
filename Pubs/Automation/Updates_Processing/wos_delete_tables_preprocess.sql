@@ -54,15 +54,15 @@ create table temp_delete_wosid_8 tablespace ernie_wos_tbs as
 select source_id from temp_delete_wosid;
 
 
-create index temp_delete_wosid_idx0 on temp_delete_wosid using hash (source_id) tablespace ernie_index_tbs;
-create index temp_delete_wosid_idx1 on temp_delete_wosid_1 using hash (source_id) tablespace ernie_index_tbs;
-create index temp_delete_wosid_idx2 on temp_delete_wosid_2 using hash (source_id) tablespace ernie_index_tbs;
-create index temp_delete_wosid_idx3 on temp_delete_wosid_3 using hash (source_id) tablespace ernie_index_tbs;
-create index temp_delete_wosid_idx4 on temp_delete_wosid_4 using hash (source_id) tablespace ernie_index_tbs;
-create index temp_delete_wosid_idx5 on temp_delete_wosid_5 using hash (source_id) tablespace ernie_index_tbs;
-create index temp_delete_wosid_idx6 on temp_delete_wosid_6 using hash (source_id) tablespace ernie_index_tbs;
-create index temp_delete_wosid_idx7 on temp_delete_wosid_7 using hash (source_id) tablespace ernie_index_tbs;
-create index temp_delete_wosid_idx8 on temp_delete_wosid_8 using hash (source_id) tablespace ernie_index_tbs;
+create index temp_delete_wosid_idx0 on temp_delete_wosid using hash (source_id) tablespace indexes;
+create index temp_delete_wosid_idx1 on temp_delete_wosid_1 using hash (source_id) tablespace indexes;
+create index temp_delete_wosid_idx2 on temp_delete_wosid_2 using hash (source_id) tablespace indexes;
+create index temp_delete_wosid_idx3 on temp_delete_wosid_3 using hash (source_id) tablespace indexes;
+create index temp_delete_wosid_idx4 on temp_delete_wosid_4 using hash (source_id) tablespace indexes;
+create index temp_delete_wosid_idx5 on temp_delete_wosid_5 using hash (source_id) tablespace indexes;
+create index temp_delete_wosid_idx6 on temp_delete_wosid_6 using hash (source_id) tablespace indexes;
+create index temp_delete_wosid_idx7 on temp_delete_wosid_7 using hash (source_id) tablespace indexes;
+create index temp_delete_wosid_idx8 on temp_delete_wosid_8 using hash (source_id) tablespace indexes;
 
 
 -- Update log table.

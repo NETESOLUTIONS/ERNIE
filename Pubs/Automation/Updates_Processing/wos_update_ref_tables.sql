@@ -39,14 +39,14 @@ set search_path = public;
 
 -- Create index on the chunk of new table.
 create index new_ref_chunk_idx on :new_ref_chunk
-  using btree (source_id, cited_source_uid) tablespace ernie_index_tbs;
+  using btree (source_id, cited_source_uid) tablespace indexes;
 
 -- Create a temp table to store WOS IDs from the update file.
 drop table if exists temp_update_ref_wosid;
 create table temp_update_ref_wosid tablespace ernie_wos_tbs as
   select distinct source_id from :new_ref_chunk;
 create index temp_update_ref_wosid_idx on temp_update_ref_wosid
-  using hash (source_id) tablespace ernie_index_tbs;
+  using hash (source_id) tablespace indexes;
 
 analyze temp_update_ref_wosid;
 
@@ -59,7 +59,7 @@ create table temp_replace_ref_wosid tablespace ernie_wos_tbs as
   inner join wos_references b
   on a.source_id=b.source_id;
 create index temp_replace_ref_wosid_idx on temp_replace_ref_wosid
-  using hash (source_id) tablespace ernie_index_tbs;
+  using hash (source_id) tablespace indexes;
 
 analyze temp_replace_ref_wosid;
 
@@ -76,7 +76,7 @@ create table temp_wos_reference_1 tablespace ernie_wos_tbs as
   (select 1 from temp_replace_ref_wosid b
     where a.source_id=b.source_id);
 create index temp_wos_reference_1_idx on temp_wos_reference_1
-  using btree (source_id, cited_source_uid) tablespace ernie_index_tbs;
+  using btree (source_id, cited_source_uid) tablespace indexes;
 
 analyze temp_wos_reference_1;
 

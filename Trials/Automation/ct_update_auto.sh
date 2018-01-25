@@ -81,7 +81,7 @@ ls | fgrep 'NCT' | fgrep 'xml' | parallel --halt soon,fail=1 "echo 'Job [s {%}]:
 
 # De-duplication an PK ing process for new_ct_* tables.
 echo ***De-duplication of new_ct_* database tables...
-psql -f "${absolute_script_dir}/new_ct_De-Duplication.sql"
+psql -f "${absolute_script_dir}/new_ct_de_duplication.sql"
 
 # Upload database.
 echo ***Uploading database tables...

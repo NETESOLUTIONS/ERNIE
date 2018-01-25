@@ -57,7 +57,7 @@ drop table if exists temp_update_wosid;
 create table temp_update_wosid tablespace ernie_wos_tbs as
   select source_id from new_wos_publications;
 create index temp_update_wosid_idx on temp_update_wosid
-  using hash (source_id) tablespace ernie_index_tbs;
+  using hash (source_id) tablespace indexes;
 
 -- Create a temporary table to store update WOS IDs that already exist in WOS
 -- tables.
@@ -67,7 +67,7 @@ create table temp_replace_wosid tablespace ernie_wos_tbs as
   inner join wos_publications b
   on a.source_id=b.source_id;
 create index temp_replace_wosid_idx on temp_replace_wosid
-  using hash (source_id) tablespace ernie_index_tbs;
+  using hash (source_id) tablespace indexes;
 
 -- Update log file.
 \echo ***UPDATING LOG TABLE
