@@ -43,7 +43,7 @@ create index new_ref_chunk_idx on :new_ref_chunk
 
 -- Create a temp table to store WOS IDs from the update file.
 drop table if exists temp_update_ref_wosid;
-create table temp_update_ref_wosid tablespace ernie_wos_tbs as
+create table temp_update_ref_wosid tablespace wos as
   select distinct source_id from :new_ref_chunk;
 create index temp_update_ref_wosid_idx on temp_update_ref_wosid
   using hash (source_id) tablespace indexes;
@@ -54,7 +54,7 @@ analyze temp_update_ref_wosid;
 -- Create a temporary table to store update WOS IDs that already exist in WOS
 -- tables.
 drop table if exists temp_replace_ref_wosid;
-create table temp_replace_ref_wosid tablespace ernie_wos_tbs as
+create table temp_replace_ref_wosid tablespace wos as
   select distinct a.source_id from temp_update_ref_wosid a
   inner join wos_references b
   on a.source_id=b.source_id;
@@ -70,7 +70,7 @@ analyze temp_replace_ref_wosid;
 \echo ***UPDATING TABLE: wos_references
 -- Create a temp table to store ids that need to be dealt with.
 drop table if exists temp_wos_reference_1;
-create table temp_wos_reference_1 tablespace ernie_wos_tbs as
+create table temp_wos_reference_1 tablespace wos as
   select a.source_id, a.cited_source_uid from wos_references a
   where exists
   (select 1 from temp_replace_ref_wosid b

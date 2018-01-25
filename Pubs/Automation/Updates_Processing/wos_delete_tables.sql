@@ -37,7 +37,7 @@ set search_path = public;
 drop table if exists temp_delete_wosid;
 create table temp_delete_wosid
   (source_id varchar(30))
-  tablespace ernie_wos_tbs;
+  tablespace wos;
 copy temp_delete_wosid from :delete_csv delimiter ',' CSV;
 
 -- Update log table.

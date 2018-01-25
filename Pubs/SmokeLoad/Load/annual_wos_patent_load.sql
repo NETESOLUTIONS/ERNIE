@@ -7,7 +7,7 @@ CREATE TABLE  wos_patent_mapping_t1 (
 temp varchar(19), 
 patent_no varchar(30),
 wos_id varchar(19),
-country varchar(2)) tablespace ernie_wos_tbs;
+country varchar(2)) tablespace wos;
 
 -- INSERT PATHED FILE REFERENCE FOR SOURCE FILE
 \COPY wos_patent_mapping_t1(temp,patent_no) FROM '/erniedev_data8/wos_pat_.csv' DELIMITER ',' CSV;

@@ -54,7 +54,7 @@ set search_path = public;
 
 -- Create a temp table to store WOS IDs from the update file.
 drop table if exists temp_update_wosid;
-create table temp_update_wosid tablespace ernie_wos_tbs as
+create table temp_update_wosid tablespace wos as
   select source_id from new_wos_publications;
 create index temp_update_wosid_idx on temp_update_wosid
   using hash (source_id) tablespace indexes;
@@ -62,7 +62,7 @@ create index temp_update_wosid_idx on temp_update_wosid
 -- Create a temporary table to store update WOS IDs that already exist in WOS
 -- tables.
 drop table if exists temp_replace_wosid;
-create table temp_replace_wosid tablespace ernie_wos_tbs as
+create table temp_replace_wosid tablespace wos as
   select a.source_id from temp_update_wosid a
   inner join wos_publications b
   on a.source_id=b.source_id;

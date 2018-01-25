@@ -17,40 +17,40 @@ set search_path = public;
 drop table if exists temp_delete_wosid;
 create table temp_delete_wosid
   (source_id varchar(30))
-  tablespace ernie_wos_tbs;
+  tablespace wos;
 copy temp_delete_wosid from :delete_csv delimiter ',' CSV;
 
 
 drop table if exists temp_delete_wosid_1;
-create table temp_delete_wosid_1 tablespace ernie_wos_tbs as
+create table temp_delete_wosid_1 tablespace wos as
 select source_id from temp_delete_wosid;
 
 drop table if exists temp_delete_wosid_2;
-create table temp_delete_wosid_2 tablespace ernie_wos_tbs as
+create table temp_delete_wosid_2 tablespace wos as
 select source_id from temp_delete_wosid;
 
 drop table if exists temp_delete_wosid_3;
-create table temp_delete_wosid_3 tablespace ernie_wos_tbs as
+create table temp_delete_wosid_3 tablespace wos as
 select source_id from temp_delete_wosid;
 
 drop table if exists temp_delete_wosid_4;
-create table temp_delete_wosid_4 tablespace ernie_wos_tbs as
+create table temp_delete_wosid_4 tablespace wos as
 select source_id from temp_delete_wosid;
 
 drop table if exists temp_delete_wosid_5;
-create table temp_delete_wosid_5 tablespace ernie_wos_tbs as
+create table temp_delete_wosid_5 tablespace wos as
 select source_id from temp_delete_wosid;
 
 drop table if exists temp_delete_wosid_6;
-create table temp_delete_wosid_6 tablespace ernie_wos_tbs as
+create table temp_delete_wosid_6 tablespace wos as
 select source_id from temp_delete_wosid;
 
 drop table if exists temp_delete_wosid_7;
-create table temp_delete_wosid_7 tablespace ernie_wos_tbs as
+create table temp_delete_wosid_7 tablespace wos as
 select source_id from temp_delete_wosid;
 
 drop table if exists temp_delete_wosid_8;
-create table temp_delete_wosid_8 tablespace ernie_wos_tbs as
+create table temp_delete_wosid_8 tablespace wos as
 select source_id from temp_delete_wosid;
 
 

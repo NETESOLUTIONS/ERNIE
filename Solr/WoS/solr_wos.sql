@@ -16,7 +16,7 @@ CREATE TABLE solr_5k_out AS
   GROUP BY a.source_id, b.pub_data;
 
 DROP TABLE IF EXISTS solr_65m_temp;
-CREATE TABLE solr_65m_temp TABLESPACE ernie_wos_tbs AS
+CREATE TABLE solr_65m_temp TABLESPACE wos AS
   SELECT
     source_id, concat(publication_year, ' ', document_title, ' ', source_title) AS pub_data
   FROM wos_publications
@@ -28,7 +28,7 @@ CREATE INDEX solr_test_wos_ind
   ON solr_65m_temp USING HASH (source_id) TABLESPACE indexes;
 
 DROP TABLE IF EXISTS solr_65m_with_vol;
-CREATE TABLE solr_65m_with_vol TABLESPACE ernie_wos_tbs AS
+CREATE TABLE solr_65m_with_vol TABLESPACE wos AS
   SELECT
     a.source_id, concat(string_agg(a.full_name, ' '), ' ', b.pub_data) AS citation
   FROM wos_authors a
@@ -75,7 +75,7 @@ ALTER TABLE solr_5k_out_with_vol
   ADD CONSTRAINT solr_5k_out_with_vol_pk PRIMARY KEY (source_id) USING INDEX TABLESPACE indexes;
 
 DROP TABLE IF EXISTS solr_65m_with_vol;
-CREATE TABLE solr_65m_with_vol TABLESPACE ernie_wos_tbs AS --
+CREATE TABLE solr_65m_with_vol TABLESPACE wos AS --
   WITH cte AS
   (
     SELECT

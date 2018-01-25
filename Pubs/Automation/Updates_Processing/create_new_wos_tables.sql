@@ -1,4 +1,4 @@
-SET default_tablespace = ernie_wos_tbs;
+SET default_tablespace = wos;
 
 DROP TABLE IF EXISTS new_wos_abstracts;
 DROP TABLE IF EXISTS new_wos_addresses;

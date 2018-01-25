@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS wos_pmid_mapping;
 
 CREATE TABLE  wos_pmid_mapping (
 wos_id varchar(19), pmid varchar, pmid_int int)
-tablespace ernie_wos_tbs;
+tablespace wos;
 
 -- INSERT PATHED FILE REFERENCE FOR SOURCE FILE
 \COPY wos_pmid_mapping (wos_id,pmid) 

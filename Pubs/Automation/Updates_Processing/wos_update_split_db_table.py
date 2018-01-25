@@ -46,7 +46,7 @@ def drop_old_tables(cur, input_tablename):
 def create_table(cur, input_tablename, current_tablename):
   # Create split table from master table
   try:
-    cur.execute("""CREATE TABLE public.%s TABLESPACE ernie_wos_tbs AS SELECT * FROM  %s  LIMIT 0;""",
+    cur.execute("""CREATE TABLE public.%s TABLESPACE wos AS SELECT * FROM  %s  LIMIT 0;""",
                 (AsIs(current_tablename),AsIs(input_tablename)))
     cur.execute("""commit;""")
   except:

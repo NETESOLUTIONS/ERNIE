@@ -4,7 +4,7 @@
 -- Date : 10/05/2017
 
 --set tablespace
-SET default_tablespace = ernie_wos_tbs;
+SET default_tablespace = wos;
 
 --DROP THE SPECIFIC TABLES IF THEY EXIST
 DROP TABLE IF EXISTS uhs_wos_abstracts;
