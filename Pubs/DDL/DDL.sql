@@ -386,6 +386,7 @@ CREATE TABLE wos_publications (
   volume             VARCHAR(20)
 );
 
+-- 5m:00s
 CREATE INDEX wos_publications_publication_year_i
   ON wos_publications(publication_year)
 TABLESPACE indexes;

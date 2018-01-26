@@ -12,7 +12,7 @@ SELECT pid, query, /*state,*/ wait_event_type || ': ' || wait_event AS "Waiting 
   --datname AS db,
   usename AS user, application_name AS "App",
   -- host(inet): extract IP address as text
-  coalesce(host(client_addr), 'server') AS "From"
+  coalesce(host(client_addr), 'server socket') AS "From"
   -- client_hostname
 FROM pg_stat_activity
 WHERE pid <> pg_backend_pid() -- not this query
