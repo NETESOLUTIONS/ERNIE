@@ -57,8 +57,9 @@ ALTER TABLE wos_references
 DROP INDEX IF EXISTS ssd_ref_sourceid_index;
 -- endregion
 
--- region wos_abstracts
--- Needs to be fixed. See http://jira.nete.com/browse/ER-50.
+--region wos_abstracts
+ALTER TABLE wos_abstracts
+  ALTER COLUMN abstract_text SET NOT NULL;
 -- endregion
 
 -- region wos_authors

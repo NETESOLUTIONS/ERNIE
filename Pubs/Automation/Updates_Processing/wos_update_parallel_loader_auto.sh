@@ -150,8 +150,6 @@ for file in $(ls *.tar.gz | sort -n); do
   echo "Indexation started (UTC)"
   "${absolute_script_dir}/wos_parallel_update_create_index.sh"
 
-  wait
-
   # Update wos_reference table.
   echo "wos_tables UPDATE is started"
   wos_ref_update_process_start=`date +%s`

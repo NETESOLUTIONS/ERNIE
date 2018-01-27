@@ -8,5 +8,5 @@ set -xe
 set -o pipefail
 
 parallel --halt soon,fail=1 "Job [s {%}]
-  psql -c "create index temp_update_wosid_idx{} on temp_update_wosid_{} using hash (source_id) tablespace indexes;"" \
+  psql -c 'CREATE INDEX temp_update_wosid_idx{} ON temp_update_wosid_{} USING HASH (source_id) TABLESPACE indexes;'" \
   ::: 1 2 3 4
