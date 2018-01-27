@@ -62,7 +62,7 @@ r_abstract_seq = 0
 r_keyword_seq = 0
 r_title_seq = 0
 
-root = etree.parse('./xml_files_splitted/'+input_filename).getroot()
+root = etree.parse(input_csv_dir+input_filename).getroot()
 url='{http://scientific.thomsonreuters.com/schema/wok5.4/public/FullRecord}'
 
 # Create CSV files
