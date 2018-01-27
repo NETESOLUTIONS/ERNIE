@@ -254,16 +254,19 @@ for REC in root:
         if abstracts is not None:
             r_abst = dict()
             r_abst['source_id'] = r_publication['source_id']
+            r_abst['abstract_text'] = ''
             for abstract_text in abstracts.findall('.//'+url+'p'):
                 if abstract_text is not None:
                     if abstract_text.text is not None:
-                        r_abst['abstract_text'] = abstract_text.text.\
-                                                  encode('utf-8')
-                        r_abstract_seq +=1
-                        r_abst['id'] = r_abstract_seq
-                        writer_abstract.writerow((r_abst['id'],\
-                            r_abst['source_id'],r_abst['abstract_text'],\
-                            r_publication['source_filename']))
+                        r_abst['abstract_text'] += abstract_text.text.encode('utf-8')
+                        # r_abst['abstract_text'] = abstract_text.text.\
+                        #                           encode('utf-8')
+                        # r_abstract_seq +=1
+                        # r_abst['id'] = r_abstract_seq
+                        # writer_abstract.writerow((r_abst['id'],\
+                        #     r_abst['source_id'],r_abst['abstract_text'],\
+                        #     r_publication['source_filename']))
+            writer_abstract.writerow(r_abst['source_id'],r_abst['abstract_text'])
 
     # parse addresses for each publication
 

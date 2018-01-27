@@ -84,7 +84,7 @@ sed -i '/ESCI/d' complete_filelist.txt # delete lines with ESCI files
 declare -i file_count=0
 for file in $(grep -Fxvf finished_filelist.txt complete_filelist.txt); do
   cp ${update_file_dir}${file} .
-  (( file_count++ ))
+  (( ++file_count ))
 done
 #grep -Fxvf finished_filelist.txt complete_filelist.txt > todo_filelist.txt
 #cat todo_filelist.txt | awk -v upd_file_dir=${update_file_dir} '{print "cp " upd_file_dir $1 " ."}' > cp_file.sh
