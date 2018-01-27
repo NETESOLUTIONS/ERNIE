@@ -233,17 +233,20 @@ wait
 echo "Delete operation finished"
 delete_process_end=`date +%s`
 
-psql -c "UPDATE update_log_wos
+# language=PostgresPLSQL
+psql -c "\
+UPDATE update_log_wos
 SET last_updated = current_timestamp, num_wos = (SELECT count(1)
 FROM wos_publications)
 WHERE id = (SELECT max(id)
 FROM update_log_wos);"
+
 echo $((delete_process_end-delete_process_start)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  All Delete File processing Duration UTC" }'
 
 ls WOS*.del | awk '{print $1 ".gz"}' >> finished_filelist.txt
 
 # Delete update and .del files.
-rm *.del
+rm -f *.del
 rm -rf WOS*CORE
 rm -rf WOS*ESCI
 rm WOS*tar.gz
@@ -265,8 +268,10 @@ echo "All cleanings are done"
 # sec :: UPDATE PROCESS END-to-END  DURATION UTC"}'
 
 #printf "\n\n"
-psql -c "
-  SELECT *
-  FROM update_log_wos
-  ORDER BY id DESC
-  FETCH FIRST 10 ROWS ONLY;"
+
+# language=PostgresPLSQL
+psql -c "\
+SELECT *
+FROM update_log_wos
+ORDER BY id DESC
+FETCH FIRST 10 ROWS ONLY;"
