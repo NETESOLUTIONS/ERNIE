@@ -93,7 +93,7 @@ done
 if (( file_count == 0 )); then
   echo "No new files to process"
   exit 1
-end
+fi
 
 # Get WOS IDs from .del files.
 echo ***Extracting WOS IDs from .del files...
