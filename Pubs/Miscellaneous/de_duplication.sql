@@ -58,8 +58,17 @@ DROP INDEX IF EXISTS ssd_ref_sourceid_index;
 -- endregion
 
 --region wos_abstracts
+-- 6m:18s
 ALTER TABLE wos_abstracts
   ALTER COLUMN abstract_text SET NOT NULL;
+
+DELETE
+FROM wos_abstracts t1
+WHERE EXISTS(SELECT 1
+             FROM wos_abstracts t2
+             WHERE t2.source_id = t1.source_id
+               AND t2.abstract_text = t1.abstract_text
+               AND t2.ctid > t1.ctid);
 -- endregion
 
 -- region wos_authors

@@ -81,12 +81,19 @@ echo ***Comparing file list...
 ls ${update_file_dir} > complete_filelist.txt
 sed -i '/ESCI/d' complete_filelist.txt # delete lines with ESCI files
 
+declare -i file_count=0
 for file in $(grep -Fxvf finished_filelist.txt complete_filelist.txt); do
   cp ${update_file_dir}${file} .
+  (( file_count++ ))
 done
 #grep -Fxvf finished_filelist.txt complete_filelist.txt > todo_filelist.txt
 #cat todo_filelist.txt | awk -v upd_file_dir=${update_file_dir} '{print "cp " upd_file_dir $1 " ."}' > cp_file.sh
 #sh cp_file.sh
+
+if (( file_count == 0 )); then
+  echo "No new files to process"
+  exit 1
+end
 
 # Get WOS IDs from .del files.
 echo ***Extracting WOS IDs from .del files...
