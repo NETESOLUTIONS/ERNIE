@@ -82,8 +82,8 @@ ls ${update_file_dir} > complete_filelist.txt
 sed -i '/ESCI/d' complete_filelist.txt # delete lines with ESCI files
 
 declare -i file_count=0
-for file in $(grep -Fxvf finished_filelist.txt complete_filelist.txt); do
-  cp ${update_file_dir}${file} .
+for core_file in $(grep -Fxvf finished_filelist.txt complete_filelist.txt); do
+  cp ${update_file_dir}${core_file} .
   (( ++file_count ))
 done
 #grep -Fxvf finished_filelist.txt complete_filelist.txt > todo_filelist.txt
@@ -106,31 +106,30 @@ cat WOS*.del | awk '{split($1,filename,",");print "WOS:" filename[2]}' > del_wos
 #psql -f analyze_wos_tables.sql
 
 # Update WOS_CORE files one by one, in time sequence.
-for file in $(ls *.tar.gz | sort -n); do
+for core_file in $(ls *.tar.gz | sort -n); do
   tar_gz_process_start=`date +%s`
 
-  echo "processing CORE file: "$file
+  echo "processing CORE file: "$core_file
   #date
   # Unzip update file to a sub-directory.
-  echo ***Unzipping update file: $file
+  echo ***Unzipping update file: $core_file
   # if the format is tar.gz
-  tar -zxvf $file *.xml*
-  # if the format is tar only
-  # tar -xvf $file *.xml*
-
-  gunzip ${file%%.*}/*
+  tar -zxvf $core_file *.xml*
+  # Exatract file name without extension
+  xml_update_dir=${core_file%%.*}
+  gunzip ${xml_update_dir}/*
   # Split update xml file to small pieces and move to ./xml_files_splitted/.
-  echo ***Splitting update file: $file
-  for file in $(find ./${file%%.*} -name '*.xml' | sort); do
-    echo "Splitting ${file}"
-    python "${absolute_script_dir}/new_xml_split.py" "${file}" REC 20000
+  echo ***Splitting update file: $core_file
+  for xml_update_file in $(find ${xml_update_dir}/ -name '*.xml' | sort); do
+    echo "Splitting ${xml_update_file}"
+    python "${absolute_script_dir}/new_xml_split.py" "${xml_update_file}" REC 20000
   done
 #  find ./${file%%.*} -name '*.xml' | sort | awk '{print "echo Splitting " $1 "\n" "python new_xml_split.py " $1 " REC 20000"}' > split_all_xml_files.sh
 #  sh split_all_xml_files.sh
 
-  find ./${file%%.*} -name '*SPLIT*' -print0 | xargs -0 mv --target-directory=xml_files_splitted
-  # Write update file loading commands to a script.
-  echo ***Parsing and loading update file to database: $file
+  find ${xml_update_dir}/ -name '*SPLIT*' -print0 | xargs -0 mv --target-directory=xml_files_splitted
+
+  echo ***Parsing and loading update file to database: $core_file
   ls xml_files_splitted | fgrep '.xml' | parallel --halt soon,fail=1 "echo "Job [s {%}]: Parsing {}"
     /anaconda2/bin/python "${absolute_script_dir}/wos_xml_update_parser.py" -filename {} -csv_dir xml_files_splitted/
     echo "Loading {}"
@@ -161,10 +160,10 @@ for file in $(ls *.tar.gz | sort -n); do
   echo "wos_tables UPDATE is started"
   wos_ref_update_process_start=`date +%s`
 
-  echo -e "\n\n" >> log_wos_nonref.out
-  echo "wos_update_nonref_parallel.sh script is started (UTC) for core file"$file >> log_wos_nonref.out
-  date >> log_wos_nonref.out
-  nohup sh  wos_update_nonref_parallel.sh  >> log_wos_nonref.out &
+  #echo -e "\n\n" >> log_wos_nonref.out
+  #echo "wos_update_nonref_parallel.sh script is started (UTC) for core file"$core_file >> log_wos_nonref.out
+  #date >> log_wos_nonref.out
+  nohup bash "${absolute_script_dir}/wos_update_nonref_parallel.sh  >> log_wos_nonref.out &
 
   chmod 777 -R $c_dir/table_split/
   python wos_update_split_db_table.py -tablename new_wos_references -rowcount 10000 -csv_dir $c_dir/table_split/
@@ -192,7 +191,7 @@ for file in $(ls *.tar.gz | sort -n); do
   rm xml_files_splitted/*.xml
   rm table_split/load_csv_table.sql
   rm table_split/split_tablename.txt
-  printf $file'\n' >> finished_filelist.txt
+  printf $core_file'\n' >> finished_filelist.txt
 
   tar_gz_process_end=`date +%s`
 
