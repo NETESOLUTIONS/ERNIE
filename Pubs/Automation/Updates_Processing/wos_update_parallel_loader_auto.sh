@@ -130,10 +130,13 @@ for core_file in $(ls *.tar.gz | sort -n); do
   find ${xml_update_dir}/ -name '*SPLIT*' -print0 | xargs -0 mv --target-directory=xml_files_splitted
 
   echo ***Parsing and loading update file to database: $core_file
-  ls xml_files_splitted | fgrep '.xml' | parallel --halt soon,fail=1 "echo "Job [s {%}]: Parsing {}"
-    /anaconda2/bin/python "${absolute_script_dir}/wos_xml_update_parser.py" -filename {} -csv_dir xml_files_splitted/
-    echo "Loading {}"
-    psql -f xml_files_splitted/{.}/{.}_load.pg -v ON_ERROR_STOP=on -q"
+  cd xml_files_splitted
+  # `ls *.xml` might cause an "Argument list too long" error
+  ls | fgrep '.xml' | parallel --halt soon,fail=1 "echo 'Job @ slot #{%}: {}'
+    /anaconda2/bin/python '${absolute_script_dir}/wos_xml_update_parser.py' -filename {} -csv_dir ./
+    echo 'Loading {}'
+    psql -f {.}/{.}_load.pg -v ON_ERROR_STOP=on -q"
+  cd ..
 
 #  ls xml_files_splitted | grep .xml | awk -v store_dir=$c_dir ' {split($1,filename,".");print "echo Parsing " $1 "\n" "python wos_xml_update_parser.py -filename " $1 " -csv_dir " store_dir "xml_files_splitted/\n" "echo Loading " $1 "\n" "psql ernie < " store_dir "xml_files_splitted/" filename[1] "/" filename[1] "_load.pg" }' > load_wos_update.sh
 #  # Parse and load update file to the database.
@@ -163,19 +166,21 @@ for core_file in $(ls *.tar.gz | sort -n); do
   #echo -e "\n\n" >> log_wos_nonref.out
   #echo "wos_update_nonref_parallel.sh script is started (UTC) for core file"$core_file >> log_wos_nonref.out
   #date >> log_wos_nonref.out
-  nohup bash "${absolute_script_dir}/wos_update_nonref_parallel.sh  >> log_wos_nonref.out &
+  "${absolute_script_dir}/wos_update_nonref_parallel.sh" &
 
-  chmod 777 -R $c_dir/table_split/
-  python wos_update_split_db_table.py -tablename new_wos_references -rowcount 10000 -csv_dir $c_dir/table_split/
-  chmod 777 -R $c_dir/table_split/
-  psql -f ./table_split/load_csv_table.sql
+  chmod +rwx -R table_split/
+  /anaconda2/bin/python "${absolute_script_dir}/wos_update_split_db_table.py" -tablename new_wos_references \
+                        -rowcount 10000 -csv_dir "${work_dir}/table_split/"
+  chmod +rwx -R table_split/
+  psql -f table_split/load_csv_table.sql
 
   for table_chunk in $(cat ./table_split/split_tablename.txt); do
-    echo $table_chunk
+    echo "${table_chunk}"
     chunk_start_date=`date +%s`
-    psql -f wos_update_ref_tables.sql -v new_ref_chunk=$table_chunk
+    psql -f "${absolute_script_dir}/wos_update_ref_tables.sql" -v "new_ref_chunk=${table_chunk}"
     chunk_end_date=`date +%s`
-    echo $((chunk_end_date-chunk_start_date)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  This Chunk Update Duration" }'
+    echo $((chunk_end_date-chunk_start_date)) | \
+      awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  This Chunk Update Duration" }'
   done
 
   wos_ref_update_process_end=`date +%s`
@@ -185,53 +190,54 @@ for core_file in $(ls *.tar.gz | sort -n); do
 
   echo "wos UPDATE is done, cleaning is started"
 
-  psql -c 'truncate table new_wos_references;'
-  psql -c 'update update_log_wos set last_updated = current_timestamp where id = (select max(id) from update_log_wos);'
+  psql -f "${absolute_script_dir}/wos_update_finish_core_file_process.sql"
+
   rm -f table_split/*.csv
   rm xml_files_splitted/*.xml
   rm table_split/load_csv_table.sql
   rm table_split/split_tablename.txt
-  printf $core_file'\n' >> finished_filelist.txt
+  printf ${core_file}'\n' >> finished_filelist.txt
 
   tar_gz_process_end=`date +%s`
 
   # keep elapsed time for each tar.gz. file
-  echo $((wos_update_process_in_db_started-tar_gz_process_start)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  Single CORE File Split-Parse-Load-Preparation Duration UTC" }'
-  echo $((wos_ref_update_process_end-wos_ref_update_process_start)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  Single CORE File wos_ref processing Duration UTC" }'
-  echo $((tar_gz_process_end-tar_gz_process_start)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  Single CORE File TOTAL processing Duration UTC" }'
+  echo $((wos_update_process_in_db_started-tar_gz_process_start)) | \
+    awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  Single CORE File Split-Parse-Load-Preparation Duration UTC" }'
+  echo $((wos_ref_update_process_end-wos_ref_update_process_start)) | \
+    awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  Single CORE File wos_ref processing Duration UTC" }'
+  echo $((tar_gz_process_end-tar_gz_process_start)) | \
+    awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  Single CORE File TOTAL processing Duration UTC" }'
 
   echo -e "\n\n"
 done
 
 # Delete table records with delete wos_ids.
-echo "Delete operation is started"
-date
-delete_process_start=`date +%s`
 echo "Delete operation started"
-date
+delete_process_start=`date +%s`
 
-psql -f wos_delete_tables_preprocess.sql -v delete_csv="'"$c_dir"del_wosid.csv'"
+psql -f "${absolute_script_dir}/wos_delete_tables_preprocess.sql" -v "delete_csv=${work_dir}/del_wosid.csv"
 wait
 
-psql -f wos_delete_abstracts.sql &
-psql -f wos_delete_addresses.sql &
-psql -f wos_delete_authors.sql &
-psql -f wos_delete_doc_iden.sql &
-psql -f wos_delete_grants.sql &
-psql -f wos_delete_keywords.sql &
-psql -f wos_delete_publications.sql &
-psql -f wos_delete_references.sql &
-psql -f wos_delete_titles.sql &
+psql -f "${absolute_script_dir}/wos_delete_abstracts.sql" &
+psql -f "${absolute_script_dir}/wos_delete_addresses.sql" &
+psql -f "${absolute_script_dir}/wos_delete_authors.sql" &
+psql -f "${absolute_script_dir}/wos_delete_doc_iden.sql" &
+psql -f "${absolute_script_dir}/wos_delete_grants.sql" &
+psql -f "${absolute_script_dir}/wos_delete_keywords.sql" &
+psql -f "${absolute_script_dir}/wos_delete_publications.sql" &
+psql -f "${absolute_script_dir}/wos_delete_references.sql" &
+psql -f "${absolute_script_dir}/wos_delete_titles.sql" &
 
 wait
 
-echo "Delete operation is finished"
-date
-echo "Delete operation is finished"
-date
+echo "Delete operation finished"
 delete_process_end=`date +%s`
 
-psql -c "update update_log_wos set last_updated = current_timestamp, num_wos = (select count(1) from wos_publications) where id = (select max(id) from update_log_wos);"
+psql -c "UPDATE update_log_wos
+SET last_updated = current_timestamp, num_wos = (SELECT count(1)
+FROM wos_publications)
+WHERE id = (SELECT max(id)
+FROM update_log_wos);"
 echo $((delete_process_end-delete_process_start)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  All Delete File processing Duration UTC" }'
 
 ls WOS*.del | awk '{print $1 ".gz"}' >> finished_filelist.txt
