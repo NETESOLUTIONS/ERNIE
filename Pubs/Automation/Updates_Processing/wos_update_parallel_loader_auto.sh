@@ -66,14 +66,18 @@ fi
 #date > starttime.txt
 
 # Remove previous files.
-rm -f complete_filelist.txt
+#rm -f complete_filelist.txt
 #rm -f todo_filelist.txt
 #rm -f split_all_xml_files.sh
-rm -f load_wos_update.sh
+#rm -f load_wos_update.sh
 #rm -f cp_file.sh
 rm -f del_wosid.csv
-rm -f unzip_all.sh
+#rm -f unzip_all.sh
 rm -f xml_files_splitted/*.xml
+rm -f *.del
+rm -rf WOS*CORE
+rm -rf WOS*ESCI
+rm -f WOS*tar.gz
 
 # Copy from update_file_dir to current directory the WOS_CORE and .del files
 # that have not been updated.
