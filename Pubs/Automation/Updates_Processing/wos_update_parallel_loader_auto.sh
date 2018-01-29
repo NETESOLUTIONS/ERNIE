@@ -37,8 +37,9 @@ END
   exit 1
 fi
 
-set -xe
-set -o pipefail
+set -x
+#set -xe
+#set -o pipefail
 
 # Get a script directory, same as by $(dirname $0)
 script_dir=${0%/*}
