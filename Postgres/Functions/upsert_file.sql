@@ -32,7 +32,7 @@ BEGIN --
     AS
     SELECT *
     FROM %s
-    WHERE FALSE$$, deltaTable, toTable);
+    WITH NO DATA$$, deltaTable, toTable);
   RAISE NOTICE 'Created %', deltaTable;
 
   --FIXME SQL injection is possible here
