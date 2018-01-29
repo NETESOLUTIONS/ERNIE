@@ -6,10 +6,10 @@
 SET log_temp_files = 0;
 SET enable_seqscan = 'off';
 --set temp_tablespaces = 'temp_tbs';
-SET temp_tablespaces = 'temp'; -- temporaryly it is being set.
+-- SET temp_tablespaces = 'temp'; -- temporaryly it is being set.
 --set enable_hashjoin = 'off';
 --set enable_mergejoin = 'off';
-SET search_path = public;
+-- SET search_path = public;
 
 -- Create a temporary table to store all delete WOSIDs.
 DROP TABLE IF EXISTS temp_delete_wosid;
