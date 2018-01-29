@@ -60,7 +60,8 @@ DROP INDEX IF EXISTS ssd_ref_sourceid_index;
 --region wos_abstracts
 -- 6m:18s
 ALTER TABLE wos_abstracts
-  ALTER COLUMN abstract_text SET NOT NULL;
+  ALTER COLUMN abstract_text SET NOT NULL,
+  ALTER COLUMN NOT NULL;
 
 DELETE
 FROM wos_abstracts t1
