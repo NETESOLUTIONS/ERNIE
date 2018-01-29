@@ -1,20 +1,16 @@
-
 -- Author: Samet Keserci, Lingtian "Lindsay" Wan
 -- Create Date: 08/11/2017
 -- Modified from serial loading process.
 
-
+\set ON_ERROR_STOP on
+\set ECHO all
 
 -- Set temporary tablespace for calculation.
 set log_temp_files = 0;
 --set enable_seqscan='off';
 --set temp_tablespaces = 'temp_tbs';
-SET temp_tablespaces='temp'; -- temporaryly it is being set.
 --set enable_hashjoin = 'off';
 --set enable_mergejoin = 'off';
-set search_path = public;
-
-
 
 -- Update table: wos_document_identifiers
 \echo ***UPDATING TABLE: wos_document_identifiers

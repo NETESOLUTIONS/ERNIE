@@ -1,26 +1,28 @@
-
 -- Author: Samet Keserci, Lingtian "Lindsay" Wan
 -- Create Date: 08/11/2017
 -- Modified from serial loading process.
 
+\set ON_ERROR_STOP on
+\set ECHO all
+
 
 -- Set temporary tablespace for calculation.
-set log_temp_files = 0;
+SET log_temp_files = 0;
 --set enable_seqscan='off';
 --set temp_tablespaces = 'temp_tbs';
-SET temp_tablespaces='temp'; -- temporaryly it is being set.
 --set enable_hashjoin = 'off';
 --set enable_mergejoin = 'off';
-set search_path = public;
-
 
 -- Update table: wos_titles
 \echo ***UPDATING TABLE: wos_titles
-insert into uhs_wos_titles
-  select a.* from wos_titles a inner join temp_update_wosid_4 b
-  on a.source_id=b.source_id;
-delete from wos_titles a where exists
-  (select 1 from temp_update_wosid_4 b where a.source_id=b.source_id);
+INSERT INTO uhs_wos_titles
+  SELECT a.*
+  FROM wos_titles a INNER JOIN temp_update_wosid_4 b ON a.source_id = b.source_id;
+DELETE FROM wos_titles a
+WHERE exists(SELECT 1
+             FROM temp_update_wosid_4 b
+             WHERE a.source_id = b.source_id);
 
-insert into wos_titles
-  select * from new_wos_titles;
+INSERT INTO wos_titles
+  SELECT *
+  FROM new_wos_titles;

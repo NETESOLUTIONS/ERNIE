@@ -2,6 +2,9 @@
 -- Aim        : Preparation for parallel DELETE operation.
 -- Create date: 08/28/2017
 
+\set ON_ERROR_STOP on
+\set ECHO all
+
 -- Set temporary tablespace for calculation.
 SET log_temp_files = 0;
 SET enable_seqscan = 'off';

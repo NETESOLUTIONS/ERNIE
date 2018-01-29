@@ -1,3 +1,6 @@
+\set ON_ERROR_STOP on
+\set ECHO all
+
 SET default_tablespace = wos;
 
 DROP TABLE IF EXISTS new_wos_abstracts;
