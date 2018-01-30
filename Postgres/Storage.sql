@@ -38,3 +38,8 @@ FROM pg_class pc_table
 WHERE pc_table.relname = 'temp_wos_reference'
 --'derwent_familyid'      
 ORDER BY pc_index.relname;
+
+-- Tablespace rename
+-- ALTER TABLESPACE pardiindex_tbs RENAME to indexes;
+
+CREATE TABLESPACE wos LOCATION '/pardidata8/pgsql/wos/data';
