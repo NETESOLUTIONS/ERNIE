@@ -61,8 +61,9 @@ DROP INDEX IF EXISTS ssd_ref_sourceid_index;
 -- 6m:18s
 ALTER TABLE wos_abstracts
   ALTER COLUMN abstract_text SET NOT NULL,
-  ALTER COLUMN NOT NULL;
+  ALTER COLUMN source_filename  SET NOT NULL;
 
+-- 56m:48s
 DELETE
 FROM wos_abstracts t1
 WHERE EXISTS(SELECT 1

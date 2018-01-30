@@ -1,10 +1,11 @@
--- All tablespaces
-SELECT spcname AS "tablespace", pg_size_pretty(COALESCE(pg_tablespace_size(spcname), 0)) AS used_space,
-       pg_tablespace_location(pt.oid), pt.oid AS tablespace_oid, pd.datname AS using_db, ptd.oid AS using_db_oid
+-- All server tablespaces
+SELECT pt.spcname AS "tablespace", pg_size_pretty(COALESCE(pg_tablespace_size(pt.spcname), 0)) AS used_space,
+       pg_tablespace_location(pt.oid), pt.oid AS tablespace_oid
+       --, pd.datname AS using_db, ptd.oid AS using_db_oid
 FROM pg_tablespace pt
-LEFT JOIN LATERAL pg_tablespace_databases(pt.oid) ptd ON TRUE -- table function (returns setof oid)
-LEFT JOIN pg_database pd ON ptd.oid = pd.oid
-ORDER BY pg_tablespace_size(spcname) DESC, pd.datname;
+-- LEFT JOIN LATERAL pg_tablespace_databases(pt.oid) ptd ON TRUE -- table function (returns setof oid)
+-- LEFT JOIN pg_database pd ON ptd.oid = pd.oid
+ORDER BY pg_tablespace_size(pt.spcname) DESC/*, pd.datname*/;
 
 -- Default tablespace parameter
 show default_tablespace;
