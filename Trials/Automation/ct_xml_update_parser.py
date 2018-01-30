@@ -76,7 +76,7 @@ except:
 
 # %% Parse the XML file root and check if the unique ID exists. If not,
 # do not load this file for now.
-root = etree.parse('./nct_files/'+input_filename).getroot()
+root = etree.parse(input_filename).getroot()
 id_info = root.find('id_info')
 nct_id = id_info.find('nct_id').text.encode('utf-8') if id_info is not None \
          else None

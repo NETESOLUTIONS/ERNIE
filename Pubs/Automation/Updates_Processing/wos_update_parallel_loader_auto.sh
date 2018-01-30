@@ -1,42 +1,68 @@
-#!/bin/sh
-# This script updates the Web of Science (WOS) tables on an ETL process.
-# Specifically:
-# 1. Get files (WOS_CORE and .del) downloaded but not updated yet;
-# 2. Unzip .del files and combine WOS ids in these files to a single file;
-# 3. Unzip WOS_CORE files to get XML files;
-# 4. Split XML files to smaller files, so that Python parser can handle;
-# 5. For each small file, parse to CSV and load CSV to database new tables:
-#    new_wos_*;
-# 6. Update the main WOS tables (wos_*) with records in new tables (new_wos_*);
-# 7. Delete records from the main WOS tables (wos_*) with WOS id in .del files;
-# 8. Update log file.
-
-# Usage: sh wos_update_auto.sh work_dir/
-#   where work_dir specifies working directory.
-
+#!/usr/bin/env bash
 # Author: Samet Keserci, Lingtian "Lindsay" Wan
 # Create Date: 02/24/2016
-# Modified: 05/17/2016
-#           06/07/2016, Lindsay Wan, divided wos_references update to loops of small chunks
-#           11/17/2016, Lindsay Wan, added command to prepare a file list of parsed csv directories for production server
-#           11/28/2016, Lindsay Wan, added list del wos files to a txt for prod server.
-#           08/07/2017, Samet Keserci, revised it for smokeload and added a parameter for update file dir
-#           08/07/2017, Samet Keserci, added timestamp log and debug points.
-#           08/07/2017, Samet Keserci, added more timestamp and log and debug points, revised to update in parallel.
-#           08/18/2017, Samet Keserci, added more timestamp and log and debug points, improved the parallel process.
+# Modified:
+# * 06/07/2016, Lindsay Wan, divided wos_references update to loops of small chunks
+# * 11/17/2016, Lindsay Wan, added command to prepare a file list of parsed csv directories for production server
+# * 11/28/2016, Lindsay Wan, added list del wos files to a txt for prod server.
+# * 08/07/2017, Samet Keserci, revised it for smokeload and added a parameter for update file dir
+# * 08/07/2017, Samet Keserci, added timestamp log and debug points.
+# * 08/07/2017, Samet Keserci, added more timestamp and log and debug points, revised to update in parallel.
+# * 08/18/2017, Samet Keserci, added more timestamp and log and debug points, improved the parallel process.
+# * 01/26/2018, Dmitriy "DK" Korobskiy
+# ** Enabled running from any directory
+# ** Simplified
 
+if [[ $1 == "-h" ]]; then
+  cat <<END
+SYNOPSIS
+  $0 [working_directory]
+  $0 -h: display this help
 
+DESCRIPTION
+  This script updates the Web of Science (WOS) tables on an ETL process.
+  Specifically:
+  1. Get files (WOS_CORE and .del) downloaded but not updated yet;
+  2. Unzip .del files and combine WOS ids in these files to a single file;
+  3. Unzip WOS_CORE files to get XML files;
+  4. Split XML files to smaller files, so that Python parser can handle;
+  5. For each small file, parse to CSV and load CSV to database new tables:
+    new_wos_*;
+  6. Update the main WOS tables (wos_*) with records in new tables (new_wos_*);
+  7. Delete records from the main WOS tables (wos_*) with WOS id in .del files;
+  8. Update log file.
 
+  Uses the specified working_directory ({script_dir}/build/ by default).
+END
+  exit 1
+fi
 
+set -x
+#set -xe
+#set -o pipefail
+
+# Get a script directory, same as by $(dirname $0)
+script_dir=${0%/*}
+absolute_script_dir=$(cd "${script_dir}" && pwd)
+work_dir=${1:-${absolute_script_dir}/build} # $1 with the default
+if [[ ! -d "${work_dir}" ]]; then
+  mkdir "${work_dir}"
+  chmod g+w "${work_dir}"
+fi
+cd "${work_dir}"
+echo -e "\n## Running under ${USER}@${HOSTNAME} at ${PWD} ##\n"
+
+#process_start=`date +%s`
+update_file_dir=update_files/
 
 process_start=`date +%s`
 
 
 # Change to working directory
-c_dir=$1
-cd $c_dir
+c_dir=$work_dir
+#cd $c_dir
 
-update_file_dir=$2
+#update_file_dir=$2
 
 # Remove previous timestamp and stamp the current time.
 rm starttime.txt

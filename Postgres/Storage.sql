@@ -37,19 +37,3 @@ FROM pg_class pc_table
 WHERE pc_table.relname = 'temp_wos_reference'
 --'derwent_familyid'      
 ORDER BY pc_index.relname;
-
--- Create tablespaces
-CREATE TABLESPACE data1 LOCATION '/erniedev_data1/data';
-CREATE TABLESPACE data2 LOCATION '/erniedev_data2/data';
-CREATE TABLESPACE data3 LOCATION '/erniedev_data3/data';
-CREATE TABLESPACE data4 LOCATION '/erniedev_data4/data';
-CREATE TABLESPACE data5 LOCATION '/erniedev_data5/data';
-CREATE TABLESPACE data6 LOCATION '/erniedev_data6/data';
-CREATE TABLESPACE data7 LOCATION '/erniedev_data7/data';
-CREATE TABLESPACE temp LOCATION '/erniedev_data8/data';
-
--- Rename tablespaces
--- ALTER TABLESPACE temp_tbs RENAME TO temp;
-
--- ALTER TABLESPACE ernie_derwent_tbs RENAME TO derwent;
-ALTER TABLESPACE ernie_ct_tbs RENAME TO ct;

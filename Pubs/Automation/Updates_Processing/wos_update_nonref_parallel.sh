@@ -1,40 +1,31 @@
-
-
+#!/usr/bin/env bash
 # Author: Samet Keserci,
-# Create Date: 08/18/2017
-# Updates all table except wos_references.
+# Updates all WoS tables except wos_references
+# Created: 08/18/2017
+# Modified:
+# * 01/27/2018, Dmitriy "DK" Korobskiy, minor
 
-  non_ref_1_update_start=`date +%s`
-  echo "abstracts,addresses,authors and document_identifiers PARALLEL UPDATE started (UTC): " >> time_keeper.txt
-  date >> time_keeper.txt
-  psql -d ernie -f wos_update_abstracts.sql &
-  psql -d ernie -f wos_update_addresses.sql &
-  psql -d ernie -f wos_update_authors.sql &
-  psql -d ernie -f wos_update_doc_iden.sql &
+set -xe
+set -o pipefail
 
-  wait
-  non_ref_2_update_start=`date +%s`
-  echo $((non_ref_2_update_start-non_ref_1_update_start)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  abstracts,addresses,authors,document_identifiers update duration UTC" }' >> time_keeper.txt
-  echo "grants, keyywords, publication and titles  PARALLEL UPDATE started (UTC): " >> time_keeper.txt
-  date >> time_keeper.txt
+# Get a script directory, same as by $(dirname $0)
+script_dir=${0%/*}
+absolute_script_dir=$(cd "${script_dir}" && pwd)
 
-  psql -d ernie -f wos_update_grants.sql &
-  psql -d ernie -f wos_update_keywords.sql &
-  psql -d ernie -f wos_update_publications.sql &
-  psql -d ernie -f wos_update_titles.sql &
+non_ref_1_update_start=`date +%s`
+echo "abstracts,addresses,authors and document_identifiers PARALLEL UPDATE started"
+parallel --halt soon,fail=1 "Job @ slot #{%}
+  psql -f '${absolute_script_dir}/wos_update_{}.sql'" ::: abstracts addresses authors doc_iden
+non_ref_2_update_start=`date +%s`
+echo $((non_ref_2_update_start-non_ref_1_update_start)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  abstracts,addresses,authors,document_identifiers update duration" }'
 
-  wait
-  non_ref_2_update_end=`date +%s`
-  echo $((non_ref_2_update_end-non_ref_2_update_start)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  grants, keyywords, publication, titles update duration UTC " }' >> time_keeper.txt
+echo "grants, keywords, publication and titles: PARALLEL UPDATE started"
+parallel --halt soon,fail=1 "Job @ slot #{%}
+  psql -f '${absolute_script_dir}/wos_update_{}.sql'" ::: grants keywords publications titles
+non_ref_2_update_end=`date +%s`
+echo $((non_ref_2_update_end-non_ref_2_update_start)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  grants, keyywords, publication, titles update duration" }'
 
-
-  echo "Post-Process - cleaning started (UTC): " >> time_keeper.txt
-  date >> time_keeper.txt
-
-  psql -d ernie -f wos_parallel_update_postprocess.sql
-
-  non_ref_update_end=`date +%s`
-
-  echo $((non_ref_update_end-non_ref_1_update_start)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  Single CORE File wos_except_ref update processing duration UTC " }' >> time_keeper.txt
-
-  wait
+echo "Post-Process - cleaning started"
+psql -f "${absolute_script_dir}/wos_parallel_update_postprocess.sql"
+non_ref_update_end=`date +%s`
+echo $((non_ref_update_end-non_ref_1_update_start)) |  awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  Single CORE File wos_except_ref update processing duration" }'

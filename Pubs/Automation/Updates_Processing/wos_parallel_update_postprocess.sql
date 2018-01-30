@@ -1,25 +1,27 @@
-
 -- Author: Samet Keserci, Lingtian "Lindsay" Wan
 -- Create Date: 08/11/2017
 -- Modified from serial loading process.
 
--- Set temporary tablespace for calculation.
-set log_temp_files = 0;
-SET temp_tablespaces='temp'; -- temporaryly it is being set.
+\set ON_ERROR_STOP on
+\set ECHO all
 
+-- Set temporary tablespace for calculation.
+SET log_temp_files = 0;
 
 -- Truncate new_wos_tables.
 \echo ***TRUNCATING TABLES: new_wos_* all but wos_references
-truncate table new_wos_abstracts;
-truncate table new_wos_addresses;
-truncate table new_wos_authors;
-truncate table new_wos_document_identifiers;
-truncate table new_wos_grants;
-truncate table new_wos_keywords;
-truncate table new_wos_publications;
-truncate table new_wos_titles;
+TRUNCATE TABLE new_wos_abstracts;
+TRUNCATE TABLE new_wos_addresses;
+TRUNCATE TABLE new_wos_authors;
+TRUNCATE TABLE new_wos_document_identifiers;
+TRUNCATE TABLE new_wos_grants;
+TRUNCATE TABLE new_wos_keywords;
+TRUNCATE TABLE new_wos_publications;
+TRUNCATE TABLE new_wos_titles;
 
 -- Write date to log.
-update update_log_wos
-  set num_wos = (select count(1) from wos_publications)
-  where id = (select max(id) from update_log_wos);
+UPDATE update_log_wos
+SET num_wos = (SELECT count(1)
+FROM wos_publications)
+WHERE id = (SELECT max(id)
+FROM update_log_wos);

@@ -24,128 +24,124 @@
 --           11/21/2016, Lindsay Wan, set search_path to public and lindsay
 --           02/22/2017, Lindsay Wan, set search_path to public and samet
 
+\set ON_ERROR_STOP on
+\set ECHO all
+
 -- Set temporary tablespace for calculation.
-set log_temp_files = 0;
-set enable_seqscan='off';
+SET log_temp_files = 0;
+SET enable_seqscan = 'off';
 --set temp_tablespaces = 'temp_tbs';
-SET temp_tablespaces='temp'; -- temporaryly it is being set.
-set enable_hashjoin = 'off';
-set enable_mergejoin = 'off';
-set search_path = public;
+SET enable_hashjoin = 'off';
+SET enable_mergejoin = 'off';
 
 -- Create a temporary table to store all delete WOSIDs.
-drop table if exists temp_delete_wosid;
-create table temp_delete_wosid
-  (source_id varchar(30))
-  tablespace ernie_wos_tbs;
-copy temp_delete_wosid from :delete_csv delimiter ',' CSV;
+DROP TABLE IF EXISTS temp_delete_wosid;
+CREATE TABLE temp_delete_wosid (
+  source_id VARCHAR(30)
+) TABLESPACE wos;
+COPY temp_delete_wosid FROM :delete_csv DELIMITER ',' CSV;
 
 -- Update log table.
-insert into update_log_wos (num_delete)
-  select count(1) from wos_publications a
-    inner join temp_delete_wosid b
-    on a.source_id=b.source_id;
+INSERT INTO update_log_wos (num_delete)
+  SELECT count(1)
+  FROM wos_publications a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
 
 -- Delete wos_abstracts to del_wos_abstracts.
 \echo ***DELETING FROM TABLE: wos_abstracts
-insert into del_wos_abstracts
-  select a.* from wos_abstracts a inner join temp_delete_wosid b
-  on a.source_id=b.source_id;
-delete from wos_abstracts a
-  where exists
-  (select 1 from temp_delete_wosid b
-    where a.source_id=b.source_id);
+INSERT INTO del_wos_abstracts
+  SELECT a.*
+  FROM wos_abstracts a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
+DELETE FROM wos_abstracts a
+WHERE exists(SELECT 1
+             FROM temp_delete_wosid b
+             WHERE a.source_id = b.source_id);
 
 -- Delete wos_addresses to del_wos_addresses.
 \echo ***DELETING FROM TABLE: wos_addresses
-insert into del_wos_addresses
-  select a.* from wos_addresses a inner join temp_delete_wosid b
-  on a.source_id=b.source_id;
-delete from wos_addresses a
-  where exists
-  (select 1 from temp_delete_wosid b
-    where a.source_id=b.source_id);
+INSERT INTO del_wos_addresses
+  SELECT a.*
+  FROM wos_addresses a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
+DELETE FROM wos_addresses a
+WHERE exists(SELECT 1
+             FROM temp_delete_wosid b
+             WHERE a.source_id = b.source_id);
 
 -- Delete wos_authors to del_wos_authors.
 \echo ***DELETING FROM TABLE: wos_authors
-insert into del_wos_authors
-  select a.* from wos_authors a inner join temp_delete_wosid b
-  on a.source_id=b.source_id;
-delete from wos_authors a
-  where exists
-  (select 1 from temp_delete_wosid b
-    where a.source_id=b.source_id);
+INSERT INTO del_wos_authors
+  SELECT a.*
+  FROM wos_authors a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
+DELETE FROM wos_authors a
+WHERE exists(SELECT 1
+             FROM temp_delete_wosid b
+             WHERE a.source_id = b.source_id);
 
 -- Delete wos_document_identifiers to del_wos_document_identifiers.
 \echo ***DELETING FROM TABLE: wos_document_identifiers
-insert into del_wos_document_identifiers
-  select a.* from wos_document_identifiers a inner join temp_delete_wosid b
-  on a.source_id=b.source_id;
-delete from wos_document_identifiers a
-  where exists
-  (select 1 from temp_delete_wosid b
-    where a.source_id=b.source_id);
+INSERT INTO del_wos_document_identifiers
+  SELECT a.*
+  FROM wos_document_identifiers a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
+DELETE FROM wos_document_identifiers a
+WHERE exists(SELECT 1
+             FROM temp_delete_wosid b
+             WHERE a.source_id = b.source_id);
 
 -- Delete wos_grants to del_wos_grants.
 \echo ***DELETING FROM TABLE: wos_grants
-insert into del_wos_grants
-  select a.* from wos_grants a inner join temp_delete_wosid b
-  on a.source_id=b.source_id;
-delete from wos_grants a
-  where exists
-  (select 1 from temp_delete_wosid b
-    where a.source_id=b.source_id);
+INSERT INTO del_wos_grants
+  SELECT a.*
+  FROM wos_grants a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
+DELETE FROM wos_grants a
+WHERE exists(SELECT 1
+             FROM temp_delete_wosid b
+             WHERE a.source_id = b.source_id);
 
 -- Delete wos_keywords to del_wos_keywords.
 \echo ***DELETING FROM TABLE: wos_keywords
-insert into del_wos_keywords
-  select a.* from wos_keywords a inner join temp_delete_wosid b
-  on a.source_id=b.source_id;
-delete from wos_keywords a
-  where exists
-  (select 1 from temp_delete_wosid b
-    where a.source_id=b.source_id);
+INSERT INTO del_wos_keywords
+  SELECT a.*
+  FROM wos_keywords a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
+DELETE FROM wos_keywords a
+WHERE exists(SELECT 1
+             FROM temp_delete_wosid b
+             WHERE a.source_id = b.source_id);
 
 -- Delete wos_publications to del_wos_publications.
 \echo ***DELETING FROM TABLE: wos_publications
-insert into del_wos_publications
-  select a.id, a.source_id, a.source_type, a.source_title, a.language,
-  a.document_title, a.document_type, a.has_abstract, a.issue, a.volume,
-  a.begin_page, a.end_page, a.publisher_name, a.publisher_address,
-  a.publication_year, a.publication_date, a.created_date, a.last_modified_date,
-  a.edition, a.source_filename
-  from wos_publications a inner join temp_delete_wosid b
-  on a.source_id=b.source_id;
-delete from wos_publications a
-  where exists
-  (select 1 from temp_delete_wosid b
-    where a.source_id=b.source_id);
+INSERT INTO del_wos_publications
+  SELECT a.id, a.source_id, a.source_type, a.source_title, a.language, a.document_title, a.document_type,
+    a.has_abstract, a.issue, a.volume, a.begin_page, a.end_page, a.publisher_name, a.publisher_address,
+    a.publication_year, a.publication_date, a.created_date, a.last_modified_date, a.edition, a.source_filename
+  FROM wos_publications a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
+DELETE FROM wos_publications a
+WHERE exists(SELECT 1
+             FROM temp_delete_wosid b
+             WHERE a.source_id = b.source_id);
 
 -- Delete wos_references to del_wos_references.
 \echo ***DELETING FROM TABLE: wos_references
-insert into del_wos_references
-  select a.id, a.source_id, a.cited_source_uid, a.cited_title, a.cited_work,
-  a.cited_author, a.cited_year, a.cited_page, a.created_date,
-  a.last_modified_date, a.source_filename
-  from wos_references a inner join temp_delete_wosid b
-  on a.source_id=b.source_id;
-delete from wos_references a
-  where exists
-  (select 1 from temp_delete_wosid b
-    where a.source_id=b.source_id);
+INSERT INTO del_wos_references
+  SELECT a.id, a.source_id, a.cited_source_uid, a.cited_title, a.cited_work, a.cited_author, a.cited_year, a.cited_page,
+    a.created_date, a.last_modified_date, a.source_filename
+  FROM wos_references a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
+DELETE FROM wos_references a
+WHERE exists(SELECT 1
+             FROM temp_delete_wosid b
+             WHERE a.source_id = b.source_id);
 
 -- Delete wos_titles to del_wos_titles.
 \echo ***DELETING FROM TABLE: wos_titles
-insert into del_wos_titles
-  select a.* from wos_titles a inner join temp_delete_wosid b
-  on a.source_id=b.source_id;
-delete from wos_titles a
-  where exists
-  (select 1 from temp_delete_wosid b
-    where a.source_id=b.source_id);
+INSERT INTO del_wos_titles
+  SELECT a.*
+  FROM wos_titles a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
+DELETE FROM wos_titles a
+WHERE exists(SELECT 1
+             FROM temp_delete_wosid b
+             WHERE a.source_id = b.source_id);
 
 -- Update log table.
-update update_log_wos
-  set last_updated = current_timestamp,
-  num_wos = (select count(1) from wos_publications)
-  where id = (select max(id) from update_log_wos);
+UPDATE update_log_wos
+SET last_updated = current_timestamp, num_wos = (SELECT count(1)
+FROM wos_publications)
+WHERE id = (SELECT max(id)
+FROM update_log_wos);

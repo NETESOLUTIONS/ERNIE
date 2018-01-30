@@ -14,7 +14,11 @@ FROM pg_available_extensions
 ORDER BY name;
 
 -- Install available extension
+
+-- region postgresql96-contrib
 CREATE EXTENSION postgres_fdw;
+CREATE EXTENSION fuzzystrmatch;
+-- endregion
 
 -- Foreign servers
 SELECT *
