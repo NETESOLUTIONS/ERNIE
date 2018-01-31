@@ -1,6 +1,6 @@
 # Ipilimumab Analysis
 # This script analyzes SQL and Network Analysis output files
-# Author George Chacko 1/27/2018
+# Author George Chacko 1/29/2018
 
 rm(list=ls())
 setwd("~/Desktop/ipilimumab/")
@@ -10,7 +10,7 @@ system("ls ~/Desktop/ipilimumab/")
 # Import data files
 # ipi_auth_pmid_scores <- read.csv("~/Desktop/ipilimumab/author_scores_pmid.csv",stringsAsFactors=FALSE)
 # ipi_pubs_pmid <- read.csv("~/Desktop/ipilimumab/publication_scores_pmid.csv",stringsAsFactors=FALSE)
-ipi_acuth_wos_scores <- read.csv("~/Desktop/ipilimumab/author_scores_wos.csv",stringsAsFactors=FALSE)
+ipi_auth_wos_scores <- read.csv("~/Desktop/ipilimumab/author_scores_wos.csv",stringsAsFactors=FALSE)
 ipi_pubs_wos <- read.csv("~/Desktop/ipilimumab/publication_scores_wos.csv",stringsAsFactors=FALSE)
 ipi_years <- read.delim("ipilimumab_citation_network_years.txt",stringsAsFactors=F,sep="\t")
 ipi_loc <-read.delim("ipilimumab_citation_network_locations.txt",stringsAsFactors=F,sep="\t")
@@ -67,7 +67,7 @@ corrections[corrections$V1=="YUGOSLAVIA",2] <- "SERBIA"
 # Add corrected country columns to ipi_loc
 ipi_loc <- ipi_loc %>% mutate(corrected=ifelse(country %in% corrections$V1,"",country))
 
-# Make specific corrections
+# Make specific corrections to country_names
 ipi_loc[ipi_loc$country=="AUSTL.",7] <- "AUSTRALIA"
 ipi_loc[ipi_loc$country=="Congo",7] <- "CONGO DEMOCRATIC REPUBLIC OF THE"
 ipi_loc[ipi_loc$country=="Czech Republic",7] <- "CZECHIA"
@@ -111,4 +111,42 @@ ipi_auth_wos <- ipi_auth_wos %>% mutate(clean_name=paste(l_n,f_i,sep=", "))
 ipi_auth_wos$clean_name <- toupper(ipi_auth_wos$clean_name)
 ipi_auth_wos_counts <- ipi_auth_wos %>% select(wos_id,clean_name) %>% 
 group_by(wos_id) %>% summarize(auth_counts=length(clean_name))
+# Estimate Missing Records
+temp1 <- merge(ipi_years,ipi_loc,all.x=T)
+total_counts <- temp1 %>% select(publication_year,wos_id) %>% unique() %>% group_by(publication_year) %>% summarize(total_pubs=length(wos_id))
+address_counts <- temp1 %>% filter(!is.na(country)) %>% select(publication_year,wos_id) %>% unique %>% group_by(publication_year) %>% summarize(address_pubs=length(wos_id))
+ipi_missing_data <- merge(total_counts,address_counts,all.x=T)
+ipi_missing_data[is.na(ipi_missing_data$address_pubs),3] <- 0
 
+ipi_year_pub <- ipi_years %>% select(publication_year,wos_id) %>% unique() %>% group_by(publication_year) %>% summarize(pub_count=length(wos_id))
+
+wos_missing_data <- read.csv("publication_addresses_stats.csv",stringsAsFactors=F)
+
+p1_ipi <- qplot(publication_year,100*(address_pubs/total_pubs),data=ipi_missing_data,geom=c("point","line"),ylab="percent publications with author addresses",main="Ipilimumab") + theme_bw()
+
+p2_ipi <- qplot(publication_year,pub_count,data=ipi_year_pub,geom=c("point","line")) + theme_bw()
+
+p3_allwos <- p3_allwos <- qplot(publication_year,100*(pub_with_an_address_count/pub_count),data=wos_missing_data,geom=c("point","line"),ylab="",xlab="",main="All WoS") + theme(axis.title.x=element_blank(),axis.text.x=element_blank(), axis.ticks.x=element_blank())
+pdf("p1_ipi.pdf")
+print(p1_ipi)
+dev.off()
+pdf("p2_ipi.pdf")
+print(p2_ipi)
+dev.off()
+
+library(grid)
+
+vp <- viewport(width = 0.3, height = 0.3, x = 0.96,
+     y = unit(4, "lines"), just = c("right",
+         "bottom"))
+         
+         full <- function() {
+     print(p1_ipi)
+     theme_set(theme_bw(base_size = 8))
+     theme_bw()
+     print(p3_allwos, vp = vp)
+     theme_set(theme_bw())}
+
+pdf("missing_addresses_ipi.pdf")
+full()
+dev.off()
