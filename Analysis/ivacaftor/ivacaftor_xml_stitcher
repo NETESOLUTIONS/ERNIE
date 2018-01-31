@@ -8,8 +8,8 @@ Input filenames with pmids in them should terminate in '_pmid' and should includ
 
 2 *fda_*_pmid    files
 1 *npl_pmid      file
-4 *ct_*_pmid     files
-5 *pubmed_*_pmid files
+2 *ct_*_pmid     files
+1 *pubmed__pmid  files
 
 Other input files relate to fda data and patent no
 
@@ -40,11 +40,11 @@ echo "ivacaftor_fda_other_review_pmid has $(cat t2 | awk '{print $1}') pmids"
 wc -l ivacaftor_patent_npl_pmid > t3
 echo "ivacaftor_patent_npl_pmid has $(cat t3 | awk '{print $1}') pmids"
 
-wc -l ivacaftor_ct_preapp_publication_pmid > t4
-echo "ivacaftor_ct_preapp_publication_pmid has $(cat t4 | awk '{print $1}') pmids"
+wc -l ivacaftor_ct_publication_pmid > t4
+echo "ivacaftor_ct_publication_pmid has $(cat t4 | awk '{print $1}') pmids"
 
-wc -l ivacaftor_ct_preapp_reference_pmid > t5
-echo "ivacaftor_ct_preapp_reference_pmid has $(cat t5 | awk '{print $1}') pmids"
+wc -l ivacaftor_ct_reference_pmid > t5
+echo "ivacaftor_ct_reference_pmid has $(cat t5 | awk '{print $1}') pmids"
 
 wc -l ivacaftor_pubmed_preapp_pmid > t6
 echo "ivacaftor_pubmed_preapp_pmid has $(cat t6 | awk '{print $1}') pmids"
@@ -68,13 +68,13 @@ sed 's/^/\<ivacaftor_npl_pmid\>/g'  ivacaftor_patent_npl_pmid |
 
 echo "processing ivacaftor_ct_preapp_reference_pmid"
 # <!ELEMENT ct_preapp_references_pmid (#PCDATA)>
-sed 's/^/\<ct_preapp_references_pmid\>/g'  ivacaftor_ct_preapp_reference_pmid |
- sed 's/$/\<\/ct_preapp_references_pmid\>/g' > file4
+sed 's/^/\<ct_reference_pmid\>/g'  ivacaftor_ct_reference_pmid |
+ sed 's/$/\<\/ct_reference_pmid\>/g' > file4
 
 echo "processing ivacaftor_ct_preapp_publication_pmid"
 #  <!ELEMENT ct_preapp_publication_pmid (#PCDATA)>
-sed 's/^/\<ct_preapp_publication_pmid\>/g'  ivacaftor_ct_preapp_publication_pmid |
- sed 's/$/\<\/ct_preapp_publication_pmid\>/g' > file5
+sed 's/^/\<ct_publication_pmid\>/g'  ivacaftor_ct_publication_pmid |
+ sed 's/$/\<\/ct_publication_pmid\>/g' > file5
 
 echo "processing ivacaftor_pubmed_preapp_pmid"
 #   <!ELEMENT pubmed_preapp_pmid (#PCDATA)>
@@ -119,12 +119,12 @@ echo "</pubmed>" >> ivacaftor2.xml
 echo "</drug>" >> ivacaftor2.xml
 
 xmllint --format ivacaftor2.xml > ivacaftor.xml
-rm file1
-rm file2
-rm file3
-rm file4
-rm file5
-rm file6
+#rm file1
+#rm file2
+#rm file3
+#rm file4
+#rm file5
+#rm file6
 
 rm ivacaftor2.xml
 
