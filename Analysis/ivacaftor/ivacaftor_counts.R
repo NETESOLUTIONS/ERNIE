@@ -118,3 +118,12 @@ iva_auth_wos$clean_name <- toupper(iva_auth_wos$clean_name)
 iva_auth_wos_counts <- iva_auth_wos %>% select(wos_id,clean_name) %>% 
 group_by(wos_id) %>% summarize(auth_counts=length(clean_name))
 
+print(paste("The earliest pub in this set is dated:",min(iva_years$publication_year),sep=" "))
+
+print(paste("The latest pub in this set is dated:",max(iva_years$publication_year),sep=" "))
+
+print(paste("The number of authors is estimated to be:", length(unique(iva_auth_wos$clean_name)),sep=""))
+
+print(paste("The authors published from:", length(unique(iva_loc$corrected)),"countries.",sep=" "))
+
+print(paste("The authors published:",  length(unique(iva_pubs_wos$publication)),"papers.",sep=" "))
