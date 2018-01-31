@@ -122,7 +122,7 @@ print(paste("The earliest pub in this set is dated:",min(iva_years$publication_y
 
 print(paste("The latest pub in this set is dated:",max(iva_years$publication_year),sep=" "))
 
-print(paste("The number of authors is estimated to be:", length(unique(iva_auth_wos$clean_name)),sep=""))
+print(paste("The number of authors is estimated to be:", length(unique(iva_auth_wos$clean_name)),sep=" "))
 
 print(paste("The authors published from:", length(unique(iva_loc$corrected)),"countries.",sep=" "))
 
