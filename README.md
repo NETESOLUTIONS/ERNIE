@@ -11,9 +11,8 @@ substance abuse and results will be posted at the earliest.
 Emphasis is placed on the use of Open Source technologies. At present, ERNIE resides in a PostgreSQL 9.6 database in a 
 Centos 7.3 VM in the Microsoft Azure cloud. The data in ERNIE are drawn through a variety of ETL processes from both 
 publicly available and commercial sources. ERNIE is being developed by NET ESolutions Corporation (NETE). As of 
-October 15, 2017 the project has been active for a month. Initial server infrastructure has been set up and core data 
-have been scraped, leased, parsed, loaded, and mostly curated. The project team will add additional data sources as and 
-when they become available. 
+Feb 1, 2018 the project has been active for 4.5 months. Initial server infrastructure has been set up, core data 
+have been scraped, leased, parsed, loaded, and partially curated and illustrative case studies are under way. The project team will add additional data sources as and when they become available. 
 
 This project has been funded in whole or part  with Federal funds from the National Institute on Drug Abuse, National 
 Institutes of Health, Department of Health and Human Services, under Contract No. HHSN271201700053C.
