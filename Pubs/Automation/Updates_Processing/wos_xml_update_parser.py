@@ -15,7 +15,9 @@ Function:   	This is a parser to extract the WOS XML publications data and gener
 USAGE:  	python wos_xml_parser.py -filename file_name -csv_dir csv_file_directory
 Author: 	Shixin Jiang
 Date:		11/24/2015
-Changes:	To load raw data in parallel, a constant sequence number is assigned to each table's seq. 3/9/2016, Shixin
+Changes:
+* 3/9/2016, Shixin, to load raw data in parallel, a constant sequence number is assigned to each table's seq.
+* 01/31/2018, Dmitriy "DK" Korobskiy, concatenating abstract paragraph
 '''
 
 
@@ -258,6 +260,8 @@ for REC in root:
             for abstract_text in abstracts.findall('.//'+url+'p'):
                 if abstract_text is not None:
                     if abstract_text.text is not None:
+                        if r_abst['abstract_text']:
+                            r_abst['abstract_text'] += '\n\n'
                         r_abst['abstract_text'] += abstract_text.text.encode('utf-8')
                         # r_abst['abstract_text'] = abstract_text.text.\
                         #                           encode('utf-8')
@@ -266,7 +270,7 @@ for REC in root:
                         # writer_abstract.writerow((r_abst['id'],\
                         #     r_abst['source_id'],r_abst['abstract_text'],\
                         #     r_publication['source_filename']))
-            writer_abstract.writerow(r_abst['source_id'], r_abst['abstract_text'])
+            writer_abstract.writerow((r_abst['source_id'], r_abst['abstract_text']))
 
     # parse addresses for each publication
 
