@@ -9,10 +9,10 @@ where lower(intervention_name) like '%naltrexone%' or lower(intervention_name) l
 like '%vivitrol%') order by year_of_completion;
 
 -- Get pmids for naltrexone_ct_reference_pmid file
-\copy (select pmid from ct_references where nct_id in (select nct_id from naltrexone_ct) order by pmid) TO '/home/chackoge/ERNIE/Analysis/ivacaftor/ivacaftor_ct_reference_pmid';
+\copy (select pmid from ct_references where nct_id in (select nct_id from naltrexone_ct) order by pmid) TO '/home/chackoge/ERNIE/Analysis/naltrexone/naltrexone_ct_reference_pmid';
 
 -- get pmids for naltrexone_ct_publication_pmid file
-\copy (select pmid from ct_publications where nct_id in (select nct_id from naltrexone_ct) order by pmid) TO '/home/chackoge/ERNIE/Analysis/ivacaftor/ivacaftor_ct_publication_pmid';
+\copy (select pmid from ct_publications where nct_id in (select nct_id from naltrexone_ct) order by pmid) TO '/home/chackoge/ERNIE/Analysis/naltrexone/naltrexone_ct_publication_pmid';
 
 
 
