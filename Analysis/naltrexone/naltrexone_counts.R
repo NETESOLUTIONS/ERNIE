@@ -76,57 +76,61 @@ corrections[corrections$V1=="UNITED ARAB REP",2] <- "UNITED ARAB EMIRATES"
 corrections[corrections$V1=="UPPER VOLTA",2] <- "RUSSIA"
 corrections[corrections$V1=="YORKSHIRE",2] <- "UNITED KINGDOM"
 corrections[corrections$V1=="W Ind Assoc St",2] <- "GRENADA"
-
-
+corrections[corrections$V1=="ESSSR",2] <- "ESTONIA"
+corrections[corrections$V1=="Manitoba",2] <- "CANADA"
+corrections[corrections$V1=="MANITOBA",2] <- "CANADA"
 # Add corrected country columns to nal_loc
 nal_loc <- nal_loc %>% mutate(corrected=ifelse(country %in% corrections$V1,"",country))
 
 # Make specific corrections to country_names
-nal_loc[nal_loc$country=="AUSTL.",2] <- "AUSTRALIA"
-nal_loc[nal_loc$country=="BAHAMAS",2] <- "BAHAMAS THE"
-nal_loc[nal_loc$country=="Congo",2] <- "CONGO DEMOCRATIC REPUBLIC OF THE"
-nal_loc[nal_loc$country=="Czech Republic",2] <- "CZECHIA"
-nal_loc[nal_loc$country=="CZECH REPUBLIC",2] <- "CZECHIA"
-nal_loc[nal_loc$country=="CZECHOSLOVAKIA",2] <- "CZECHIA"
-nal_loc[nal_loc$country=="Dominican Rep",2] <- "DOMINICAN REPUBLIC"
-nal_loc[nal_loc$country=="England",2] <- "UNITED KINGDOM"
-nal_loc[nal_loc$country=="ENGLAND",2] <- "UNITED KINGDOM"
-nal_loc[nal_loc$country=="FED REP GER",2] <- "GERMANY"
-nal_loc[nal_loc$country=="GER DEM REP",2] <- "GERMANY"
-nal_loc[nal_loc$country=="EAST GERMANY",2] <- "GERMANY"
-nal_loc[nal_loc$country=="BUNDES REPUBLIK",2] <- "GERMANY"
-nal_loc[nal_loc$country=="LONDON",2] <- "UNITED KINGDOM"
-nal_loc[nal_loc$country=="Neth Antilles",2] <- "NETHERLANDS"
-nal_loc[nal_loc$country=="North Ireland",2] <- "UNITED KINGDOM"
-nal_loc[nal_loc$country=="NORTH IRELAND",2] <- "UNITED KINGDOM"
-nal_loc[nal_loc$country=="Peoples R China",2] <- "CHINA"
-nal_loc[nal_loc$country=="PEOPLES R CHINA",2] <- "CHINA"
-nal_loc[nal_loc$country=="Rep of Georgia",2] <- "GEORGIA"
-nal_loc[nal_loc$country=="REUNION",2] <- "FRANCE"
-nal_loc[nal_loc$country=="Scotland",2] <- "UNITED KINGDOM"
-nal_loc[nal_loc$country=="SCOTLAND",2] <- "UNITED KINGDOM"
-nal_loc[nal_loc$country=="SENEGAMBIA",2] <- "SENEGAL"
-nal_loc[nal_loc$country=="Serbia Monteneg",2] <- "SERBIA"
-nal_loc[nal_loc$country=="Trinid & Tobago",2] <- "TRINIDAD & TOBAGO"
-nal_loc[nal_loc$country=="TX77025",2] <- "USA"
-nal_loc[nal_loc$country=="CA92037",2] <- "USA"
-nal_loc[nal_loc$country=="U Arab Emirates",2] <- "UNITED ARAB EMIRATES"
-nal_loc[nal_loc$country=="U ARAB EMIRATES",2] <- "UNITED ARAB EMIRATES"
-nal_loc[nal_loc$country=="UK",2] <- "UNITED KINGDOM"
-nal_loc[nal_loc$country=="USSR",2] <- "RUSSIA"
-nal_loc[nal_loc$country=="Wales",2] <- "UNITED KINGDOM"
-nal_loc[nal_loc$country=="WALES",2] <- "UNITED KINGDOM"
-nal_loc[nal_loc$country=="WEST GERMANY",2] <- "GERMANY"
-nal_loc[nal_loc$country=="Yugoslavia",2] <- "SERBIA"
-nal_loc[nal_loc$country=="YUGOSLAVIA",2] <- "SERBIA"
-nal_loc[nal_loc$country=="ITALIA",2] <- "ITALY"
-nal_loc[nal_loc$country=="MONGOL PEO REP",2] <- "MONGOLIA"
-nal_loc[nal_loc$country=="PAPUA N GUINEA",2] <- "PAPUA NEW GUINEA"
-nal_loc[nal_loc$country=="UKSSR",2] <- "RUSSIA"
-nal_loc[nal_loc$country=="UNITED ARAB REP",2] <- "UNITED ARAB EMIRATES"
-nal_loc[nal_loc$country=="UPPER VOLTA",2] <- "RUSSIA"
-nal_loc[nal_loc$country=="YORKSHIRE",2] <- "UNITED KINGDOM"
-nal_loc[nal_loc$country=="W Ind Assoc St",2] <- "GRENADA"
+nal_loc[nal_loc$country=="AUSTL.",7] <- "AUSTRALIA"
+nal_loc[nal_loc$country=="BAHAMAS",7] <- "BAHAMAS THE"
+nal_loc[nal_loc$country=="Congo",7] <- "CONGO DEMOCRATIC REPUBLIC OF THE"
+nal_loc[nal_loc$country=="Czech Republic",7] <- "CZECHIA"
+nal_loc[nal_loc$country=="CZECH REPUBLIC",7] <- "CZECHIA"
+nal_loc[nal_loc$country=="CZECHOSLOVAKIA",7] <- "CZECHIA"
+nal_loc[nal_loc$country=="Dominican Rep",7] <- "DOMINICAN REPUBLIC"
+nal_loc[nal_loc$country=="England",7] <- "UNITED KINGDOM"
+nal_loc[nal_loc$country=="ENGLAND",7] <- "UNITED KINGDOM"
+nal_loc[nal_loc$country=="FED REP GER",7] <- "GERMANY"
+nal_loc[nal_loc$country=="GER DEM REP",7] <- "GERMANY"
+nal_loc[nal_loc$country=="EAST GERMANY",7] <- "GERMANY"
+nal_loc[nal_loc$country=="BUNDES REPUBLIK",7] <- "GERMANY"
+nal_loc[nal_loc$country=="LONDON",7] <- "UNITED KINGDOM"
+nal_loc[nal_loc$country=="Neth Antilles",7] <- "NETHERLANDS"
+nal_loc[nal_loc$country=="North Ireland",7] <- "UNITED KINGDOM"
+nal_loc[nal_loc$country=="NORTH IRELAND",7] <- "UNITED KINGDOM"
+nal_loc[nal_loc$country=="Peoples R China",7] <- "CHINA"
+nal_loc[nal_loc$country=="PEOPLES R CHINA",7] <- "CHINA"
+nal_loc[nal_loc$country=="Rep of Georgia",7] <- "GEORGIA"
+nal_loc[nal_loc$country=="REUNION",7] <- "FRANCE"
+nal_loc[nal_loc$country=="Scotland",7] <- "UNITED KINGDOM"
+nal_loc[nal_loc$country=="SCOTLAND",7] <- "UNITED KINGDOM"
+nal_loc[nal_loc$country=="SENEGAMBIA",7] <- "SENEGAL"
+nal_loc[nal_loc$country=="Serbia Monteneg",7] <- "SERBIA"
+nal_loc[nal_loc$country=="Trinid & Tobago",7] <- "TRINIDAD & TOBAGO"
+nal_loc[nal_loc$country=="TX77025",7] <- "USA"
+nal_loc[nal_loc$country=="CA92037",7] <- "USA"
+nal_loc[nal_loc$country=="U Arab Emirates",7] <- "UNITED ARAB EMIRATES"
+nal_loc[nal_loc$country=="U ARAB EMIRATES",7] <- "UNITED ARAB EMIRATES"
+nal_loc[nal_loc$country=="UK",7] <- "UNITED KINGDOM"
+nal_loc[nal_loc$country=="USSR",7] <- "RUSSIA"
+nal_loc[nal_loc$country=="Wales",7] <- "UNITED KINGDOM"
+nal_loc[nal_loc$country=="WALES",7] <- "UNITED KINGDOM"
+nal_loc[nal_loc$country=="WEST GERMANY",7] <- "GERMANY"
+nal_loc[nal_loc$country=="Yugoslavia",7] <- "SERBIA"
+nal_loc[nal_loc$country=="YUGOSLAVIA",7] <- "SERBIA"
+nal_loc[nal_loc$country=="ITALIA",7] <- "ITALY"
+nal_loc[nal_loc$country=="MONGOL PEO REP",7] <- "MONGOLIA"
+nal_loc[nal_loc$country=="PAPUA N GUINEA",7] <- "PAPUA NEW GUINEA"
+nal_loc[nal_loc$country=="UKSSR",7] <- "RUSSIA"
+nal_loc[nal_loc$country=="UNITED ARAB REP",7] <- "UNITED ARAB EMIRATES"
+nal_loc[nal_loc$country=="UPPER VOLTA",7] <- "RUSSIA"
+nal_loc[nal_loc$country=="YORKSHIRE",7] <- "UNITED KINGDOM"
+nal_loc[nal_loc$country=="W Ind Assoc St",7] <- "GRENADA"
+nal_loc[nal_loc$country=="ESSSR",7] <- "ESTONIA"
+nal_loc[nal_loc$country=="Manitoba",7] <- "CANADA"
+nal_loc[nal_loc$country=="MANITOBA",7] <- "CANADA"
 nal_loc$corrected <- toupper(nal_loc$corrected)
 
 # clean up names and merge by LN, FI
@@ -164,7 +168,7 @@ dev.off()
 
 library(grid)
 
-vp <- viewport(width = 0.3, height = 0.3, x = 0.97,
+vp <- viewport(width = 0.28, height = 0.28, x = 0.98,
      y = unit(4, "lines"), just = c("right",
          "bottom"))
          
@@ -178,3 +182,13 @@ vp <- viewport(width = 0.3, height = 0.3, x = 0.97,
 pdf("missing_addresses_nal.pdf")
 full()
 dev.off()
+
+print(paste("The earliest pub in this set is dated:",min(nal_years$publication_year),sep=" "))
+
+print(paste("The latest pub in this set is dated:",max(nal_years$publication_year),sep=" "))
+
+print(paste("The number of authors is estimated to be:", length(unique(nal_auth_wos$clean_name)),sep=" "))
+
+print(paste("The authors published from:", length(unique(nal_loc$corrected)),"countries.",sep=" "))
+
+print(paste("The authors published:",  length(unique(nal_pubs_wos$publication)),"papers.",sep=" "))
