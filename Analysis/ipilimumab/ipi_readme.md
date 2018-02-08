@@ -1,6 +1,8 @@
 Date: 1/18/2017
 Author: George Chacko
 
+Latest build: 2/8/2018 2:00 pm Eastern
+
 Ipilimumab is the first case study in ERNIE. The FDA approved its use on 3/25/2011. The process involves
 
 a) Assemble initial documents: 
