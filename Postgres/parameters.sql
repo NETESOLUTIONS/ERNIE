@@ -1,5 +1,7 @@
 -- Reload server configuration
-SELECT CASE WHEN pg_reload_conf() THEN 'Reloaded.' ELSE 'Failed to reload!' END;
+SELECT CASE WHEN pg_reload_conf()
+  THEN 'Reloaded.'
+       ELSE 'Failed to reload!' END;
 
 -- ## Current configuration ##
 
@@ -12,7 +14,11 @@ SHOW search_path;
 
 -- Server configuration
 SELECT
-  seqno, name, setting, applied, error
+  seqno,
+  name,
+  setting,
+  applied,
+  error
 FROM pg_file_settings
 ORDER BY name;
 
