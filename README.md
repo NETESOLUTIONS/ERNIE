@@ -14,7 +14,7 @@ publicly available and commercial sources. ERNIE is being developed by NET ESolu
 Feb 1, 2018 the project has been active for 4.5 months. Initial server infrastructure has been set up, core data 
 have been scraped, leased, parsed, loaded, and partially curated and illustrative case studies are under way. The project team will add additional data sources as and when they become available. 
 
-This project has been funded in whole or part  with Federal funds from the National Institute on Drug Abuse, National 
+This project has been funded in part  with Federal funds from the National Institute on Drug Abuse, National 
 Institutes of Health, Department of Health and Human Services, under Contract No. HHSN271201700053C.
  
 
