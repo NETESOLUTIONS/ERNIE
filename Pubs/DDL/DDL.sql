@@ -222,6 +222,7 @@ CREATE TABLE wos_document_identifiers (
 CREATE UNIQUE INDEX wos_document_identifiers_uk
   ON wos_document_identifiers (source_id, document_id_type, document_id) TABLESPACE indexes;
 
+-- 30m:11s
 CREATE INDEX IF NOT EXISTS wdi_document_id_type_document_id_i
   ON wos_document_identifiers (document_id_type, document_id) TABLESPACE indexes;
 
