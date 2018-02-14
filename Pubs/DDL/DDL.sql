@@ -211,36 +211,6 @@ CREATE TABLE uhs_wos_titles (
   source_filename VARCHAR(200)
 );
 
-CREATE TABLE wos_patent_mapping (
-  wos_id         VARCHAR(30) NOT NULL,
-  patent_num     VARCHAR(30) NOT NULL,
-  patent_orig    VARCHAR(20),
-  patent_country VARCHAR(2),
-  CONSTRAINT wos_patent_mapping_pk PRIMARY KEY (patent_num, wos_id) USING INDEX TABLESPACE indexes
-);
-
-CREATE INDEX patent_orig_index
-  ON wos_patent_mapping (patent_orig);
-
-CREATE TABLE wos_pmid_manual_mapping (
-  wos_uid  VARCHAR(30),
-  pmid     VARCHAR(30),
-  pmid_int INTEGER,
-  details  TEXT
-);
-
-CREATE TABLE wos_pmid_mapping (
-  wos_uid      VARCHAR(30)                                              NOT NULL
-    CONSTRAINT wos_pmid_mapping_pk PRIMARY KEY
-  USING INDEX TABLESPACE INDEXES,
-  pmid         VARCHAR(30)                                              NOT NULL,
-  pmid_int     INTEGER                                                  NOT NULL,
-  wos_pmid_seq INTEGER DEFAULT nextval('wos_pmid_sequence' :: REGCLASS) NOT NULL
-);
-
-CREATE UNIQUE INDEX wpm_pmid_int_uk
-  ON wos_pmid_mapping (pmid_int);
-
 CREATE TABLE wos_document_identifiers (
   id               INTEGER,
   source_id        VARCHAR(30) NOT NULL,
@@ -251,6 +221,9 @@ CREATE TABLE wos_document_identifiers (
 
 CREATE UNIQUE INDEX wos_document_identifiers_uk
   ON wos_document_identifiers (source_id, document_id_type, document_id) TABLESPACE indexes;
+
+CREATE INDEX IF NOT EXISTS wdi_document_id_type_document_id_i
+  ON wos_document_identifiers (document_id_type, document_id) TABLESPACE indexes;
 
 CREATE TABLE wos_titles (
   id              INTEGER,
@@ -322,23 +295,35 @@ CREATE TABLE wos_addresses (
   CONSTRAINT wos_addresses_pk PRIMARY KEY (source_id, address_name) USING INDEX TABLESPACE indexes
 );
 
-CREATE TABLE wos_references (
-  wos_reference_id   INTEGER,
-  source_id          VARCHAR(30) NOT NULL,
-  cited_source_uid   VARCHAR(30) NOT NULL,
-  cited_title        VARCHAR(8000),
-  cited_work         VARCHAR(8000),
-  cited_author       VARCHAR(2000),
-  cited_year         VARCHAR(40),
-  cited_page         VARCHAR(200),
-  created_date       DATE,
-  last_modified_date DATE,
-  source_filename    VARCHAR(200),
-  CONSTRAINT wos_references_pk PRIMARY KEY (source_id, cited_source_uid) USING INDEX TABLESPACE indexes
+CREATE TABLE wos_patent_mapping (
+  wos_id         VARCHAR(30) NOT NULL,
+  patent_num     VARCHAR(30) NOT NULL,
+  patent_orig    VARCHAR(20),
+  patent_country VARCHAR(2),
+  CONSTRAINT wos_patent_mapping_pk PRIMARY KEY (patent_num, wos_id) USING INDEX TABLESPACE indexes
 );
 
-CREATE INDEX ssd_ref_source_id_index2
-  ON wos_references (cited_source_uid, source_id);
+CREATE INDEX patent_orig_index
+  ON wos_patent_mapping (patent_orig);
+
+CREATE TABLE wos_pmid_manual_mapping (
+  wos_uid  VARCHAR(30),
+  pmid     VARCHAR(30),
+  pmid_int INTEGER,
+  details  TEXT
+);
+
+CREATE TABLE wos_pmid_mapping (
+  wos_uid      VARCHAR(30)                                              NOT NULL
+    CONSTRAINT wos_pmid_mapping_pk PRIMARY KEY
+  USING INDEX TABLESPACE INDEXES,
+  pmid         VARCHAR(30)                                              NOT NULL,
+  pmid_int     INTEGER                                                  NOT NULL,
+  wos_pmid_seq INTEGER DEFAULT nextval('wos_pmid_sequence' :: REGCLASS) NOT NULL
+);
+
+CREATE UNIQUE INDEX wpm_pmid_int_uk
+  ON wos_pmid_mapping (pmid_int);
 
 CREATE TABLE wos_publications (
   begin_page         VARCHAR(30),
@@ -368,3 +353,21 @@ CREATE TABLE wos_publications (
 -- 5m:00s
 CREATE INDEX wos_publications_publication_year_i
   ON wos_publications (publication_year) TABLESPACE indexes;
+
+CREATE TABLE wos_references (
+  wos_reference_id   INTEGER,
+  source_id          VARCHAR(30) NOT NULL,
+  cited_source_uid   VARCHAR(30) NOT NULL,
+  cited_title        VARCHAR(8000),
+  cited_work         VARCHAR(8000),
+  cited_author       VARCHAR(2000),
+  cited_year         VARCHAR(40),
+  cited_page         VARCHAR(200),
+  created_date       DATE,
+  last_modified_date DATE,
+  source_filename    VARCHAR(200),
+  CONSTRAINT wos_references_pk PRIMARY KEY (source_id, cited_source_uid) USING INDEX TABLESPACE indexes
+);
+
+CREATE INDEX ssd_ref_source_id_index2
+  ON wos_references (cited_source_uid, source_id);
