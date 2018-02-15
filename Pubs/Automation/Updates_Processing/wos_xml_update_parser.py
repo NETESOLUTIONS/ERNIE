@@ -17,6 +17,7 @@ Author: 	Shixin Jiang
 Date:		11/24/2015
 Changes:
 * 3/9/2016, Shixin, to load raw data in parallel, a constant sequence number is assigned to each table's seq.
+* 01/31/2018, Dmitriy "DK" Korobskiy, concatenating abstract paragraph
 * 2/11/2018, Dmitriy "DK" Korobskiy, removed background load to refactor parallel processing to GNU Parallel
 '''
 
@@ -256,16 +257,21 @@ for REC in root:
         if abstracts is not None:
             r_abst = dict()
             r_abst['source_id'] = r_publication['source_id']
+            r_abst['abstract_text'] = ''
             for abstract_text in abstracts.findall('.//'+url+'p'):
                 if abstract_text is not None:
                     if abstract_text.text is not None:
-                        r_abst['abstract_text'] = abstract_text.text.\
-                                                  encode('utf-8')
-                        r_abstract_seq +=1
-                        r_abst['id'] = r_abstract_seq
-                        writer_abstract.writerow((r_abst['id'],\
-                            r_abst['source_id'],r_abst['abstract_text'],\
-                            r_publication['source_filename']))
+                        if r_abst['abstract_text']:
+                            r_abst['abstract_text'] += '\n\n'
+                        r_abst['abstract_text'] += abstract_text.text.encode('utf-8')
+                        # r_abst['abstract_text'] = abstract_text.text.\
+                        #                           encode('utf-8')
+                        # r_abstract_seq +=1
+                        # r_abst['id'] = r_abstract_seq
+                        # writer_abstract.writerow((r_abst['id'],\
+                        #     r_abst['source_id'],r_abst['abstract_text'],\
+                        #     r_publication['source_filename']))
+            writer_abstract.writerow((r_abst['source_id'], r_abst['abstract_text']))
 
     # parse addresses for each publication
 
