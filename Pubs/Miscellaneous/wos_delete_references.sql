@@ -13,7 +13,7 @@ SET enable_seqscan = 'off';
 
 \echo ***DELETING FROM TABLE: wos_references
 INSERT INTO del_wos_references
-  SELECT a.id, a.source_id, a.cited_source_uid, a.cited_title, a.cited_work, a.cited_author, a.cited_year, a.cited_page,
+  SELECT a.wos_reference_id, a.source_id, a.cited_source_uid, a.cited_title, a.cited_work, a.cited_author, a.cited_year, a.cited_page,
     a.created_date, a.last_modified_date, a.source_filename
   FROM wos_references a INNER JOIN temp_delete_wosid_7 b ON a.source_id = b.source_id;
 

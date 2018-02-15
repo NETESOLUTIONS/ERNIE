@@ -4,9 +4,8 @@
 SET default_tablespace = wos;
 
 CREATE TABLE del_wos_abstracts (
-  id              INTEGER,
   source_id       VARCHAR(30),
-  abstract_text   VARCHAR(4000),
+  abstract_text   TEXT,
   source_filename VARCHAR(200)
 );
 
@@ -108,9 +107,8 @@ CREATE TABLE del_wos_titles (
 );
 
 CREATE TABLE uhs_wos_abstracts (
-  id              INTEGER,
   source_id       VARCHAR(30),
-  abstract_text   VARCHAR(4000),
+  abstract_text   TEXT,
   source_filename VARCHAR(200)
 );
 
