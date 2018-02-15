@@ -71,7 +71,7 @@ grep -F --line-regexp --invert-match --file=begin_filelist.txt new_filelist_wos.
 # Write a script to get only newly-added filenames to download.
 echo ***Preparing to download newly-added files...
 printf 'ftp -in ftp.webofscience.com <<SCRIPTEND\n' > group_download.sh
-printf "user ${WOS_USER_NAME} ${WOS_PASSWORD}\n" >> group_download.sh
+echo "user ${WOS_USER_NAME} ${WOS_PASSWORD}" >> group_download.sh
 printf 'lcd update_files/\n' >> group_download.sh
 printf 'binary\n' >> group_download.sh
 cat wos_download_list.txt | awk '{print "get " $1}' >> group_download.sh
