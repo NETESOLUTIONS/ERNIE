@@ -65,7 +65,9 @@ r_abstract_seq = 0
 r_keyword_seq = 0
 r_title_seq = 0
 
+print "Parsing", input_csv_dir+input_filename, "..."
 root = etree.parse(input_csv_dir+input_filename).getroot()
+print "Parsed", input_csv_dir+input_filename
 url='{http://clarivate.com/schema/wok5.27/public/FullRecord}'
 
 # Create CSV files
@@ -476,6 +478,9 @@ for REC in root:
                 r_reference['cited_year'], r_reference['cited_page'],\
                 r_reference['created_date'],r_reference['last_modified_date'],\
                 r_publication['source_filename']))
+
+print "Processed", r_publication_seq, "records from", input_csv_dir+input_filename
+
 # Create a script to load CSV files to PostgreSQL database
 copy_command = "\\copy new_wos_publications from '"+xml_csv_dir+input_filename[:-4]+"_publication.csv'"+" delimiter ',' CSV;\n"
 csvfile_load.write((copy_command))

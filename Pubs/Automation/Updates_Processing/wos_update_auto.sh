@@ -98,17 +98,16 @@ for core_file in $(ls *.tar.gz | sort -n); do
   echo "***Splitting update file: ${core_file}"
   find ${xml_update_dir}/ -name '*.xml' | sort | parallel --halt soon,fail=1 --line-buffer \
  "echo 'Job @ slot #{%}: {}' &&
-    /anaconda2/bin/python '${absolute_script_dir}/new_xml_split.py' {} REC 20000"
+    /anaconda2/bin/python -u '${absolute_script_dir}/new_xml_split.py' {} REC 20000"
 
   find ${xml_update_dir}/ -name '*SPLIT*' -print0 | xargs -0 mv --target-directory=xml_files_splitted
 
-  # Write update file loading commands to a script -- capped at 3 to avoid memory issues from xml being opened + etree construction/exploration inside python script
   echo "***Parsing ${core_file} and loading data to staging tables"
   cd xml_files_splitted
   # `ls *.xml` might cause an "Argument list too long" error
   # psql --quiet reduces a very large log size
-  ls | fgrep '.xml' | parallel -j 3 --halt soon,fail=1 --line-buffer "echo 'Job @ slot #{%}: {}' &&
-    /anaconda2/bin/python '${absolute_script_dir}/wos_xml_update_parser.py' -filename {} -csv_dir ./ &&
+  ls | fgrep '.xml' | parallel --halt soon,fail=1 --line-buffer "echo 'Job @ slot #{%}: {}' &&
+    /anaconda2/bin/python -u '${absolute_script_dir}/wos_xml_update_parser.py' -filename {} -csv_dir ./ &&
     psql -f {.}/{.}_load.sql -v ON_ERROR_STOP=on --quiet"
 #  rm -rf *
   cd ..
@@ -118,7 +117,7 @@ for core_file in $(ls *.tar.gz | sort -n); do
 
   echo "***Updating WOS tables"
   # Start with splitting the New WOS references tables
-  /anaconda2/bin/python "${absolute_script_dir}/wos_update_split_db_table.py" -tablename new_wos_references \
+  /anaconda2/bin/python -u "${absolute_script_dir}/wos_update_split_db_table.py" -tablename new_wos_references \
                         -rowcount 10000 -csv_dir "${work_dir}/table_split/"
   psql -f table_split/load_csv_table.sql -v ON_ERROR_STOP=on
 
