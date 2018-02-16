@@ -271,7 +271,7 @@ for REC in root:
                         # writer_abstract.writerow((r_abst['id'],\
                         #     r_abst['source_id'],r_abst['abstract_text'],\
                         #     r_publication['source_filename']))
-            writer_abstract.writerow((r_abst['source_id'], r_abst['abstract_text']))
+            writer_abstract.writerow((r_abst['source_id'], r_abst['abstract_text'], r_publication['source_filename']))
 
     # parse addresses for each publication
 
