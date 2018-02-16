@@ -56,7 +56,9 @@ if ! which parallel > /dev/null; then
 fi
 
 # Remove leftover files if any
-rm -f xml_files_splitted/*.xml
+rm -f complete_filelist.txt
+rm -rf xml_files_splitted/*
+rm -f table_split/*
 rm -f del_wosid.csv
 rm -f *.del
 rm -rf WOS*CORE
@@ -73,7 +75,7 @@ for core_file in $(grep -F --line-regexp --invert-match --file=finished_filelist
   cp -rf ${update_file_dir}${core_file} .
   ((++ file_count))
 done
-rm -f complete_filelist.txt
+#rm -f complete_filelist.txt
 
 if ((file_count == 0)); then
   echo "No new files to process"
@@ -108,7 +110,7 @@ for core_file in $(ls *.tar.gz | sort -n); do
   ls | fgrep '.xml' | parallel -j 3 --halt soon,fail=1 --line-buffer "echo 'Job @ slot #{%}: {}' &&
     /anaconda2/bin/python '${absolute_script_dir}/wos_xml_update_parser.py' -filename {} -csv_dir ./ &&
     psql -f {.}/{.}_load.sql -v ON_ERROR_STOP=on --quiet"
-  rm -f *.xml
+#  rm -rf *
   cd ..
 
   # De-duplication of new_wos_* tables except wos_references
@@ -117,7 +119,7 @@ for core_file in $(ls *.tar.gz | sort -n); do
   echo "***Updating WOS tables"
   # Start with splitting the New WOS references tables
   /anaconda2/bin/python "${absolute_script_dir}/wos_update_split_db_table.py" -tablename new_wos_references \
- -rowcount 10000 -csv_dir "${work_dir}/table_split/"
+                        -rowcount 10000 -csv_dir "${work_dir}/table_split/"
   psql -f table_split/load_csv_table.sql -v ON_ERROR_STOP=on
 
   # Run the updates for the other 8 tables in parallel with references.
@@ -143,9 +145,9 @@ for core_file in $(ls *.tar.gz | sort -n); do
   psql -v ON_ERROR_STOP=on \
  -c 'UPDATE update_log_wos SET last_updated = current_timestamp WHERE id = (SELECT max(id) FROM update_log_wos);'
 
-  cd table_split
-  rm -f load_csv_table.sql split_tablename.txt *.csv
-  cd ..
+#  cd table_split
+#  rm -f load_csv_table.sql split_tablename.txt *.csv
+#  cd ..
 
   printf $core_file'\n' >> finished_filelist.txt
 done
@@ -161,15 +163,15 @@ if compgen -G "WOS*.del.gz" > /dev/null; then
 
   # Delete table records with delete wos_ids. Do this in parallel.
   psql -f "${absolute_script_dir}/wos_delete_tables.sql"
-  rm -f del_wosid.csv
+#  rm -f del_wosid.csv
   ls WOS*.del | awk '{print $1 ".gz"}' >> finished_filelist.txt
-  rm -f *.del
+#  rm -f *.del
 fi
 
 # Delete update files.
-rm -rf WOS*CORE
+#rm -rf WOS*CORE
 #rm -rf WOS*ESCI
-rm -f WOS*tar.gz
+#rm -f WOS*tar.gz
 
 # Print update log
 # language=PostgresPLSQL

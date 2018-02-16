@@ -106,6 +106,101 @@ CREATE TABLE del_wos_titles (
   source_filename VARCHAR(200)
 );
 
+CREATE TABLE IF NOT EXISTS new_wos_abstracts (
+  source_id       VARCHAR(30),
+  abstract_text   VARCHAR(4000),
+  source_filename VARCHAR(200)
+);
+
+CREATE TABLE IF NOT EXISTS new_wos_addresses (
+  id               INTEGER,
+  source_id        VARCHAR(30),
+  address_name     VARCHAR(300),
+  organization     VARCHAR(400),
+  sub_organization VARCHAR(400),
+  city             VARCHAR(100),
+  country          VARCHAR(100),
+  zip_code         VARCHAR(20),
+  source_filename  VARCHAR(200)
+);
+
+CREATE TABLE IF NOT EXISTS new_wos_authors (
+  id              INTEGER,
+  source_id       VARCHAR(30),
+  full_name       VARCHAR(200),
+  last_name       VARCHAR(200),
+  first_name      VARCHAR(200),
+  seq_no          INTEGER,
+  address_seq     INTEGER,
+  address         VARCHAR(500),
+  email_address   VARCHAR(300),
+  address_id      INTEGER,
+  dais_id         VARCHAR(30),
+  r_id            VARCHAR(30),
+  source_filename VARCHAR(200)
+);
+
+CREATE TABLE IF NOT EXISTS new_wos_document_identifiers (
+  id               INTEGER,
+  source_id        VARCHAR(30),
+  document_id      VARCHAR(100),
+  document_id_type VARCHAR(30),
+  source_filename  VARCHAR(200)
+);
+
+CREATE TABLE IF NOT EXISTS new_wos_grants (
+  id                 INTEGER,
+  source_id          VARCHAR(30),
+  grant_number       VARCHAR(500),
+  grant_organization VARCHAR(400),
+  funding_ack        VARCHAR(4000),
+  source_filename    VARCHAR(200)
+);
+
+CREATE TABLE IF NOT EXISTS new_wos_keywords (
+  id              INTEGER,
+  source_id       VARCHAR(30),
+  keyword         VARCHAR(200),
+  source_filename VARCHAR(200)
+);
+
+CREATE TABLE IF NOT EXISTS new_wos_publications (
+  id                 INTEGER,
+  source_id          VARCHAR(30),
+  source_type        VARCHAR(20),
+  source_title       VARCHAR(300),
+  language           VARCHAR(20),
+  document_title     VARCHAR(2000),
+  document_type      VARCHAR(50),
+  has_abstract       VARCHAR(5),
+  issue              VARCHAR(10),
+  volume             VARCHAR(20),
+  begin_page         VARCHAR(30),
+  end_page           VARCHAR(30),
+  publisher_name     VARCHAR(200),
+  publisher_address  VARCHAR(300),
+  publication_year   INTEGER,
+  publication_date   DATE,
+  created_date       DATE,
+  last_modified_date DATE,
+  edition            VARCHAR(40),
+  source_filename    VARCHAR(200)
+);
+
+CREATE TABLE IF NOT EXISTS new_wos_references (
+  id                 INTEGER,
+  source_id          VARCHAR(30),
+  cited_source_uid   VARCHAR(30),
+  cited_title        VARCHAR(8000),
+  cited_work         VARCHAR(6000),
+  cited_author       VARCHAR(3000),
+  cited_year         VARCHAR(40),
+  cited_page         VARCHAR(200),
+  created_date       DATE,
+  last_modified_date DATE,
+  source_filename    VARCHAR(200)
+);
+
 CREATE TABLE uhs_wos_abstracts (
   source_id       VARCHAR(30),
   abstract_text   TEXT,
