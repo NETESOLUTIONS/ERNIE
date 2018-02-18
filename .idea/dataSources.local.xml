@@ -7,7 +7,7 @@
       </database-info>
       <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
       <secret-storage>master_key</secret-storage>
-      <user-name>ernie_admin</user-name>
+      <user-name>dk</user-name>
       <introspection-schemas>ernie:information_schema,pg_catalog,public</introspection-schemas>
       <ssh-properties>
         <enabled>true</enabled>
