@@ -1,6 +1,6 @@
 -- script to load affymetrix data into neo4j
 -- Author: George Chacko 2/18/2018
--- see accompanying shell script that shuts neo4j down, loads data, and starts it up again
+-- see accompanying instruction file garfield_neo4j* that shuts neo4j down, loads data, and starts it up again
 
 drop table if exists garfield_beginning;
 create table garfield_beginning AS
