@@ -1,0 +1,5 @@
+# first run sudo service neo4j stop
+sudo rm -rf /erniedev_data4/neo4j/data/*
+sudo -u neo4j neo4j-admin import --nodes /tmp/garfield_nodes_ID.csv --relationships /tmp/garfield_all_ID.csv --delimiter "," --database=main.db
+#run sudo service ne04j start if the data loads properly
+
