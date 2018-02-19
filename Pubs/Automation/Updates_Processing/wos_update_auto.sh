@@ -106,8 +106,8 @@ for core_file in $(ls *.tar.gz | sort -n); do
   cd xml_files_splitted
   # `ls *.xml` might cause an "Argument list too long" error
   # psql --quiet reduces a very large log size
-  # Limit parallelism for now. A higher number of job slots might cause Postgres to crash.
-  MAX_JOB_SLOTS=2
+  # Limit parallelism for now. Job slots > 3 caused 1) wos_xml_update_parser.py or 2) Postgres tp crash.
+  MAX_JOB_SLOTS=3
   ls | fgrep '.xml' | parallel -j ${MAX_JOB_SLOTS} --halt soon,fail=1 --line-buffer "echo 'Job @ slot #{%}: {}' &&
     /anaconda2/bin/python -u '${absolute_script_dir}/wos_xml_update_parser.py' -filename {} -csv_dir ./ &&
     psql -f {.}/{.}_load.sql -v ON_ERROR_STOP=on --quiet"
@@ -144,7 +144,7 @@ for core_file in $(ls *.tar.gz | sort -n); do
   echo "WOS update process for ${core_file} completed"
   # language=PostgresPLSQL
   psql -v ON_ERROR_STOP=on \
- -c 'UPDATE update_log_wos SET last_updated = current_timestamp WHERE id = (SELECT max(id) FROM update_log_wos);'
+       -c 'UPDATE update_log_wos SET last_updated = current_timestamp WHERE id = (SELECT max(id) FROM update_log_wos);'
 
 #  cd table_split
 #  rm -f load_csv_table.sql split_tablename.txt *.csv
