@@ -82,21 +82,20 @@ SELECT DISTINCT * FROM garfield_node_assembly;
 
 --build edge_table
 DROP TABLE IF EXISTS garfield_edge_table;
-CREATE TABLE garfield_edge_table(start_id varchar(16), end_id varchar(17),
-source varchar(19),target varchar(19), type varchar(10));
+CREATE TABLE garfield_edge_table(snid varchar(19), tnid varchar(19), source varchar(19), target varchar(19),
+stype varchar(10),target varchar(10);
 
-INSERT INTO garfield_edge_table SELECT 'n'||substring(source,5) AS start_id,
-'n'||substring(target,5) as end_ID, source, target, 'cites' AS type 
+INSERT INTO garfield_edge_table SELECT 'n'||substring(source,5) AS snid,
+'n'||substring(target,5) as tnid, source, target, stype, ttype
 FROM garfield_gen1;
 
-INSERT INTO garfield_edge_table SELECT 'n'||substring(source,5) AS start_id,
-'n'||substring(target,5) as end_ID, source, target, 'cites' AS type 
+INSERT INTO garfield_edge_table SELECT 'n'||substring(source,5) AS snid,
+'n'||substring(target,5) as tnid, source, target, stype, ttype
 FROM garfield_gen2;
 
-INSERT INTO garfield_edge_table SELECT 'n'||substring(source,5) AS start_id,
-'n'||substring(target,5) as end_ID, source, target, 'cites' AS type 
+INSERT INTO garfield_edge_table SELECT 'n'||substring(source,5) AS snid,
+'n'||substring(target,5) as tnid, source, target, stype, ttype
 FROM garfield_dmet_begin;
-
 CREATE INDEX garfield_edge_table_idx ON garfield_edge_table(start_id,end_id);
 
 DROP TABLE IF EXISTS garfield_edgelist;
