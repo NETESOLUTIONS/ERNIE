@@ -160,7 +160,7 @@ FROM chackoge.garfield_nodelist_formatted_b_pmid a;
 
 DROP TABLE IF EXISTS garfield_nodelist_final;
 CREATE TABLE garfield_nodelist_final AS
-SELECT DISTINCT node_id, node_name, startref, endref, nida, other_nih 
+SELECT DISTINCT node_id, node_name, startref, endref, nida_support, other_hhs_support 
 FROM garfield_nodelist_formatted_b_pmid_grants;
 
 -- copy tables to /tmp for import
