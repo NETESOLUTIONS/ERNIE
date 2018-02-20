@@ -15,7 +15,10 @@ Function:   	This is a parser to extract the WOS XML publications data and gener
 USAGE:  	python wos_xml_parser.py -filename file_name -csv_dir csv_file_directory
 Author: 	Shixin Jiang
 Date:		11/24/2015
-Changes:	To load raw data in parallel, a constant sequence number is assigned to each table's seq. 3/9/2016, Shixin
+Changes:
+* 3/9/2016, Shixin, to load raw data in parallel, a constant sequence number is assigned to each table's seq.
+* 01/31/2018, Dmitriy "DK" Korobskiy, concatenating abstract paragraph
+* 2/11/2018, Dmitriy "DK" Korobskiy, removed background load to refactor parallel processing to GNU Parallel
 '''
 
 
@@ -62,8 +65,10 @@ r_abstract_seq = 0
 r_keyword_seq = 0
 r_title_seq = 0
 
-root = etree.parse('./xml_files_splitted/'+input_filename).getroot()
-url='{http://scientific.thomsonreuters.com/schema/wok5.4/public/FullRecord}'
+print "Parsing", input_csv_dir+input_filename, "..."
+root = etree.parse(input_csv_dir+input_filename).getroot()
+print "Parsed", input_csv_dir+input_filename
+url='{http://clarivate.com/schema/wok5.27/public/FullRecord}'
 
 # Create CSV files
 csvfile_publication = open(xml_csv_dir+input_filename[:-4]+'_publication.csv', 'w')
@@ -77,7 +82,7 @@ csvfile_keyword = open(xml_csv_dir+input_filename[:-4]+'_keyword.csv', 'w')
 csvfile_title = open(xml_csv_dir+input_filename[:-4]+'_title.csv', 'w')
 
 # Create a file to load CSV data to PostgreSQL
-csvfile_load = open(xml_csv_dir+input_filename[:-4]+'_load.pg', 'w')
+csvfile_load = open(xml_csv_dir+input_filename[:-4]+'_load.sql', 'w')
 
 writer_pub = csv.writer(csvfile_publication)
 writer_ref = csv.writer(csvfile_reference)
@@ -254,16 +259,21 @@ for REC in root:
         if abstracts is not None:
             r_abst = dict()
             r_abst['source_id'] = r_publication['source_id']
+            r_abst['abstract_text'] = ''
             for abstract_text in abstracts.findall('.//'+url+'p'):
                 if abstract_text is not None:
                     if abstract_text.text is not None:
-                        r_abst['abstract_text'] = abstract_text.text.\
-                                                  encode('utf-8')
-                        r_abstract_seq +=1
-                        r_abst['id'] = r_abstract_seq
-                        writer_abstract.writerow((r_abst['id'],\
-                            r_abst['source_id'],r_abst['abstract_text'],\
-                            r_publication['source_filename']))
+                        if r_abst['abstract_text']:
+                            r_abst['abstract_text'] += '\n\n'
+                        r_abst['abstract_text'] += abstract_text.text.encode('utf-8')
+                        # r_abst['abstract_text'] = abstract_text.text.\
+                        #                           encode('utf-8')
+                        # r_abstract_seq +=1
+                        # r_abst['id'] = r_abstract_seq
+                        # writer_abstract.writerow((r_abst['id'],\
+                        #     r_abst['source_id'],r_abst['abstract_text'],\
+                        #     r_publication['source_filename']))
+            writer_abstract.writerow((r_abst['source_id'], r_abst['abstract_text'], r_publication['source_filename']))
 
     # parse addresses for each publication
 
@@ -382,7 +392,7 @@ for REC in root:
         email_addr = name.find(url+'email_addr')
         if email_addr is not None:
             if email_addr.text is not None:
-                r_author['email_addr'] = email_addr.text
+                r_author['email_addr'] = email_addr.text.encode('utf-8')
 
         r_author['seq_no'] = name.get('seq_no')
         r_author['dais_id'] = name.get('dais_id')
@@ -445,7 +455,7 @@ for REC in root:
         cited_author = ref.find('.//'+url+'citedAuthor')
         if cited_author is not None:
             if cited_author.text is not None:
-                r_reference['cited_author'] = cited_author.text.encode('utf-8')
+                r_reference['cited_author'] = cited_author.text.encode('utf-8')[:299]
         r_reference['cited_year'] = ''
         cited_year = ref.find('.//'+url+'year')
         if cited_year is not None:
@@ -469,24 +479,26 @@ for REC in root:
                 r_reference['created_date'],r_reference['last_modified_date'],\
                 r_publication['source_filename']))
 
+print "Processed", r_publication_seq, "records from", input_csv_dir+input_filename
+
 # Create a script to load CSV files to PostgreSQL database
 copy_command = "\\copy new_wos_publications from '"+xml_csv_dir+input_filename[:-4]+"_publication.csv'"+" delimiter ',' CSV;\n"
 csvfile_load.write((copy_command))
-copy_command = "\\copy new_wos_references from '"+xml_csv_dir+input_filename[:-4]+"_reference.csv'"+" delimiter ',' CSV; \n"
+copy_command = "\\copy new_wos_references from '"+xml_csv_dir+input_filename[:-4]+"_reference.csv'"+" delimiter ',' CSV;\n"
 csvfile_load.write((copy_command))
 copy_command = "\\copy new_wos_grants from '"+xml_csv_dir+input_filename[:-4]+"_grant.csv'"+" delimiter ',' CSV;\n"
 csvfile_load.write((copy_command))
 copy_command = "\\copy new_wos_addresses from '"+xml_csv_dir+input_filename[:-4]+"_address.csv'"+" delimiter ',' CSV;\n"
 csvfile_load.write((copy_command))
-copy_command = "\\copy new_wos_authors from '"+xml_csv_dir+input_filename[:-4]+"_author.csv'"+" delimiter ',' CSV; \n"
+copy_command = "\\copy new_wos_authors from '"+xml_csv_dir+input_filename[:-4]+"_author.csv'"+" delimiter ',' CSV;\n"
 csvfile_load.write((copy_command))
-copy_command = "\\copy new_wos_document_identifiers from '"+xml_csv_dir+input_filename[:-4]+"_dois.csv'"+" delimiter ',' CSV; \n"
+copy_command = "\\copy new_wos_document_identifiers from '"+xml_csv_dir+input_filename[:-4]+"_dois.csv'"+" delimiter ',' CSV;\n"
 csvfile_load.write((copy_command))
-copy_command = "\\copy new_wos_abstracts from '"+xml_csv_dir+input_filename[:-4]+"_abstract.csv'"+" delimiter ',' CSV; \n"
+copy_command = "\\copy new_wos_abstracts from '"+xml_csv_dir+input_filename[:-4]+"_abstract.csv'"+" delimiter ',' CSV;\n"
 csvfile_load.write((copy_command))
-copy_command = "\\copy new_wos_keywords from '"+xml_csv_dir+input_filename[:-4]+"_keyword.csv'"+" delimiter ',' CSV; \n"
+copy_command = "\\copy new_wos_keywords from '"+xml_csv_dir+input_filename[:-4]+"_keyword.csv'"+" delimiter ',' CSV;\n"
 csvfile_load.write((copy_command))
-copy_command = "\\copy new_wos_titles from '"+xml_csv_dir+input_filename[:-4]+"_title.csv'"+" delimiter ',' CSV; \n"
+copy_command = "\\copy new_wos_titles from '"+xml_csv_dir+input_filename[:-4]+"_title.csv'"+" delimiter ',' CSV;\n"
 csvfile_load.write((copy_command))
 
 # Close all opened files

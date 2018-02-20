@@ -10,7 +10,7 @@
 
 
 
-SET default_tablespace = ernie_wos_tbs;
+SET default_tablespace = wos;
 
 CREATE TABLE wos_abstracts (
     id integer,

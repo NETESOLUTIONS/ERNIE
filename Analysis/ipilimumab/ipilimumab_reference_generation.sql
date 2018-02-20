@@ -48,7 +48,7 @@ set gen1_cited_wos_id =
        end
 );
 create index case_ipilimumab_gen1_ref_idx on case_ipilimumab_gen1_ref
-  using btree (gen1_cited_wos_id) tablespace ernie_index_tbs;
+  using btree (gen1_cited_wos_id) tablespace indexes;
 
 --Get Gen1 PMIDs for all the Cited WoS documents
 drop table if exists case_ipilimumab_gen1_ref_pmid;
@@ -58,7 +58,7 @@ create table case_ipilimumab_gen1_ref_pmid as
   left join wos_pmid_mapping b
   on a.gen1_cited_wos_id=b.wos_id;
 create index case_ipilimumab_gen1_ref_pmid_idx on case_ipilimumab_gen1_ref_pmid
-  using btree (gen1_pmid) tablespace ernie_index_tbs;
+  using btree (gen1_pmid) tablespace indexes;
 --TODO: add update here that rescues PMID by stripping MEDLINE document identifiers
 update case_ipilimumab_gen1_ref_pmid
 set gen1_pmid =
@@ -79,7 +79,7 @@ create table case_ipilimumab_gen1_ref_grant as
   left join exporter_publink b
   on a.gen1_pmid=CAST(b.pmid as int);
 create index case_ipilimumab_gen1_ref_grant_idx on case_ipilimumab_gen1_ref_grant
-  using btree (gen1_project_num) tablespace ernie_index_tbs;
+  using btree (gen1_project_num) tablespace indexes;
 
 \! echo 'Number of Unique Gen1 WoS IDs that dont appear in the seed set:'
 select count (distinct gen1_cited_wos_id) as num_g1_wos_in_seed_set from case_ipilimumab_gen1_ref_grant where gen1_cited_wos_id not in (select wos_id from case_ipilimumab_pmid_wos_projects where wos_id is not null);

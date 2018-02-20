@@ -15,8 +15,7 @@
 
 -- Relevant main tables:
 --     wos_references
--- Usage: psql -d ernie -f wos_update_ref_tables.sql
---        -v new_ref_chunk=$new_chunk
+-- Usage: psql -f wos_update_ref_tables.sql -v new_ref_chunk=$new_chunk
 --        where $new_chunk are variables tablename passed by a shell script.
 
 -- Author: Lingtian "Lindsay" Wan
@@ -26,93 +25,90 @@
 --           11/21/2016, Lindsay Wan, set search_path to public and lindsay
 --           02/22/2017, Lindsay Wan, set search_path to public and samet
 --           08/08/2017, Samet Keserci, index and tablespace are revised according to wos smokeload.
-
+--           12/26/2017, Samet Keserci, Deduplication and Upsert version added.
 
 -- Set temporary tablespace for calculation.
-set log_temp_files = 0;
---set enable_seqscan='off';
---set temp_tablespaces = 'temp_tbs';
-SET temp_tablespaces='temp'; -- temporaryly it is being set.
---set enable_hashjoin = 'off';
---set enable_mergejoin = 'off';
-set search_path = public;
+SET log_temp_files = 0;
+
+\set ECHO all
+\set ON_ERROR_STOP on
 
 -- Create index on the chunk of new table.
-create index new_ref_chunk_idx on :new_ref_chunk
-  using btree (source_id, cited_source_uid) tablespace ernie_index_tbs;
+CREATE INDEX new_ref_chunk_idx
+  ON :new_ref_chunk USING BTREE (source_id, cited_source_uid) TABLESPACE indexes;
 
 -- Create a temp table to store WOS IDs from the update file.
-drop table if exists temp_update_ref_wosid;
-create table temp_update_ref_wosid tablespace ernie_wos_tbs as
-  select distinct source_id from :new_ref_chunk;
-create index temp_update_ref_wosid_idx on temp_update_ref_wosid
-  using hash (source_id) tablespace ernie_index_tbs;
-
-analyze temp_update_ref_wosid;
-
+DROP TABLE IF EXISTS temp_update_ref_wosid;
+CREATE TABLE temp_update_ref_wosid AS
+  SELECT DISTINCT source_id
+  FROM :new_ref_chunk;
+CREATE INDEX temp_update_ref_wosid_idx
+  ON temp_update_ref_wosid USING HASH (source_id) TABLESPACE indexes;
+ANALYZE temp_update_ref_wosid;
 
 -- Create a temporary table to store update WOS IDs that already exist in WOS
 -- tables.
-drop table if exists temp_replace_ref_wosid;
-create table temp_replace_ref_wosid tablespace ernie_wos_tbs as
-  select distinct a.source_id from temp_update_ref_wosid a
-  inner join wos_references b
-  on a.source_id=b.source_id;
-create index temp_replace_ref_wosid_idx on temp_replace_ref_wosid
-  using hash (source_id) tablespace ernie_index_tbs;
-
-analyze temp_replace_ref_wosid;
-
-
-
+DROP TABLE IF EXISTS temp_replace_ref_wosid;
+CREATE TABLE temp_replace_ref_wosid AS
+  SELECT DISTINCT a.source_id
+  FROM temp_update_ref_wosid a INNER JOIN wos_references b ON a.source_id = b.source_id;
+CREATE INDEX temp_replace_ref_wosid_idx
+  ON temp_replace_ref_wosid USING HASH (source_id) TABLESPACE indexes;
+ANALYZE temp_replace_ref_wosid;
 
 -- Update table: wos_references
 \echo ***UPDATING TABLE: wos_references
 -- Create a temp table to store ids that need to be dealt with.
-drop table if exists temp_wos_reference_1;
-create table temp_wos_reference_1 tablespace ernie_wos_tbs as
-  select a.source_id, a.cited_source_uid from wos_references a
-  where exists
-  (select 1 from temp_replace_ref_wosid b
-    where a.source_id=b.source_id);
-create index temp_wos_reference_1_idx on temp_wos_reference_1
-  using btree (source_id, cited_source_uid) tablespace ernie_index_tbs;
+DROP TABLE IF EXISTS temp_wos_reference_1;
+CREATE TABLE temp_wos_reference_1 AS
+  SELECT
+    a.source_id,
+    a.cited_source_uid
+  FROM wos_references a
+  WHERE exists(SELECT 1
+               FROM temp_replace_ref_wosid b
+               WHERE a.source_id = b.source_id);
+CREATE INDEX temp_wos_reference_1_idx
+  ON temp_wos_reference_1 USING BTREE (source_id, cited_source_uid) TABLESPACE indexes;
+ANALYZE temp_wos_reference_1;
 
-analyze temp_wos_reference_1;
+-- Copy records to be replaced to update history table.
+INSERT INTO uhs_wos_references (
+  SELECT
+    wos_reference_id,
+    source_id,
+    cited_source_uid,
+    cited_title,
+    cited_work,
+    cited_author,
+    cited_year,
+    cited_page,
+    created_date,
+    last_modified_date,
+    source_filename
+  FROM wos_references a
+  WHERE exists(SELECT *
+               FROM temp_wos_reference_1 b
+               WHERE a.source_id = b.source_id AND a.cited_source_uid = b.cited_source_uid));
 
--- Copy records to be replaced or deleted to update history table.
-insert into uhs_wos_references
-  (select
-   id, source_id, cited_source_uid, cited_title, cited_work, cited_author,
-   cited_year, cited_page, created_date, last_modified_date, source_filename
-   from wos_references a
-   where exists
-   (select * from temp_wos_reference_1 b
-    where a.source_id=b.source_id
-    and a.cited_source_uid=b.cited_source_uid));
 -- Delete records with source_id in new table, but cited_source_uid not in.
-delete from wos_references a
-  using temp_replace_ref_wosid b
-  where a.source_id=b.source_id
-  and not exists
-  (select 1 from :new_ref_chunk c
-    where a.source_id=c.source_id
-    and a.cited_source_uid=c.cited_source_uid);
--- Replace records with new records that have same source_id & cited_source_uid.
-update wos_references as a
-  set (cited_title, cited_work, cited_author, cited_year, cited_page,
-    created_date, last_modified_date, source_filename) =
-    (b.cited_title, b.cited_work, b.cited_author, b.cited_year, b.cited_page,
-    b.created_date, b.last_modified_date, b.source_filename)
-  from :new_ref_chunk b
-  where a.source_id=b.source_id and a.cited_source_uid=b.cited_source_uid;
--- Delete records in new table that have already replaced main table records.
-delete from :new_ref_chunk a using wos_references b
-  where a.source_id=b.source_id and a.cited_source_uid=b.cited_source_uid;
--- Add remaining records (new) from new table to main table.
-insert into wos_references
-  (id, source_id, cited_source_uid, cited_title, cited_work, cited_author,
-   cited_year, cited_page, created_date, last_modified_date, source_filename)
-  select * from :new_ref_chunk;
+DELETE FROM wos_references a
+USING temp_replace_ref_wosid b
+WHERE a.source_id = b.source_id AND NOT exists(SELECT 1
+                                               FROM :new_ref_chunk c
+                                               WHERE
+                                                 a.source_id = c.source_id AND a.cited_source_uid = c.cited_source_uid);
+
+-- Add records from new table to main table via upserts
+INSERT INTO wos_references (wos_reference_id, source_id, cited_source_uid, cited_title, cited_work, cited_author, --
+                            cited_year, cited_page, created_date, last_modified_date, source_filename)
+  SELECT *
+  FROM :new_ref_chunk
+ON CONFLICT ON CONSTRAINT wos_references_pk
+  DO UPDATE SET source_id = excluded.source_id, cited_source_uid = excluded.cited_source_uid,
+    cited_title = excluded.cited_title, cited_work = excluded.cited_work, cited_author = excluded.cited_author,
+    cited_year = excluded.cited_year, cited_page = excluded.cited_page, created_date = excluded.created_date,
+    last_modified_date = excluded.last_modified_date, source_filename = excluded.source_filename;
+
 -- Drop the chunked new table.
-drop table :new_ref_chunk;
+DROP TABLE :new_ref_chunk;

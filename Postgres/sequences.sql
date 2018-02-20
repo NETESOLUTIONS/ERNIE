@@ -1,0 +1,1 @@
+SELECT pg_get_serial_sequence('v1' :: REGCLASS, TRUE);

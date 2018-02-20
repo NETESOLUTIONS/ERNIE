@@ -3,7 +3,7 @@
 -- Author: VJ Davey
 -- Created: 08/22/2017
 
-SET default_tablespace = ernie_index_tbs;
+SET default_tablespace = indexes;
 
 DROP INDEX IF EXISTS derwent_appl_idx;
 DROP INDEX IF EXISTS patent_num_orig_index;

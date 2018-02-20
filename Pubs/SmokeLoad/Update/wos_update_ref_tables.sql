@@ -111,7 +111,7 @@ delete from :new_ref_chunk a using wos_references b
   where a.source_id=b.source_id and a.cited_source_uid=b.cited_source_uid;
 -- Add remaining records (new) from new table to main table.
 insert into wos_references
-  (id, source_id, cited_source_uid, cited_title, cited_work, cited_author,
+  (wos_reference_id, source_id, cited_source_uid, cited_title, cited_work, cited_author,
    cited_year, cited_page, created_date, last_modified_date, source_filename)
   select * from :new_ref_chunk;
 -- Drop the chunked new table.

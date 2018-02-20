@@ -85,8 +85,8 @@ Temporary Items
 # Sensitive or high-churn files:
 .idea/**/dataSources/
 .idea/**/dataSources.ids
-.idea/**/dataSources.xml
-.idea/**/dataSources.local.xml
+# dataSources.local.xml does not store passwords, but it does store Known Schemas
+#.idea/**/dataSources.local.xml
 .idea/**/sqlDataSources.xml
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml

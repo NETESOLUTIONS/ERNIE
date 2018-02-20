@@ -4,7 +4,7 @@ and creates 1. csv files for these subtables; 2. a SQL file that can run to
 load csv files to these subtables.
 
 This version is customized for WOS update. For the general-purpose version
-please see split_db_table.py in main folder: PARDI_WoS.
+please see split_db_table.py.
 
 Usage: python split_db_table.py -tablename table_name -rowcount chunk_length -csv_dir work_dir
        where table_name = table to be splitted,
@@ -12,7 +12,7 @@ Usage: python split_db_table.py -tablename table_name -rowcount chunk_length -cs
        work_dir = working directory.
 
 Note: 1. To load csv data to each subtable, you need to run a seperate command in shell afterwards:
-         psql -d ernie -f load_csv_table.sql
+         psql -f load_csv_table.sql
       2. Change SQL username to your own name (here it is 'samet') before running.
 
 Author: Shixin Jiang, Lingtian "Lindsay" Wan
@@ -46,7 +46,7 @@ def drop_old_tables(cur, input_tablename):
 def create_table(cur, input_tablename, current_tablename):
   # Create split table from master table
   try:
-    cur.execute("""CREATE TABLE public.%s TABLESPACE ernie_wos_tbs AS SELECT * FROM  %s  LIMIT 0;""",
+    cur.execute("""CREATE TABLE public.%s TABLESPACE wos AS SELECT * FROM  %s  LIMIT 0;""",
                 (AsIs(current_tablename),AsIs(input_tablename)))
     cur.execute("""commit;""")
   except:
@@ -131,7 +131,6 @@ if __name__ == '__main__':
         print "Now directory provided"
         raise NameError('error: csv directory is not provided')
     else: csv_dir = in_arr[in_arr.index('-csv_dir') + 1]
-    #csv_dir = '/erniedata1/split_table_csv/'
 
     load_csv_filename = os.path.join(csv_dir, 'load_csv_table.sql')
     load_file_writer = open(load_csv_filename, 'w')
@@ -144,11 +143,9 @@ if __name__ == '__main__':
     except:
        os.mkdir(csv_dir)
 
-    # Open connection to PARDI database
-    try:
-       conn=psycopg2.connect("dbname='ernie' user='ernie_admin'")
-    except:
-       print "I am unable to connect to the database ernie."
+    # Open connection to the default database over sockets
+    conn = psycopg2.connect("")
+    print "Connected successfully"
 
     cur = conn.cursor()
 

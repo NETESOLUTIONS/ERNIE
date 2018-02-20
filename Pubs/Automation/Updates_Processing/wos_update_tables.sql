@@ -30,7 +30,7 @@
 --     7. wos_publications
 --     8. wos_references not included in this script
 --     9. wos_titles
--- Usage: psql -d ernie -f wos_update_tables.sql
+-- Usage: psql -f wos_update_tables.sql
 
 -- Author: Lingtian "Lindsay" Wan
 -- Create Date: 03/03/2016
@@ -42,154 +42,221 @@
 --           02/22/2017, Lindsay Wan, set search_path to public and samet
 --           08/08/2017, Samet Keserci, index and tablespace are revised according to wos smokeload.
 
-
 -- Set temporary tablespace for calculation.
-set log_temp_files = 0;
-set enable_seqscan='off';
---set temp_tablespaces = 'temp_tbs';
-SET temp_tablespaces='temp'; -- temporaryly it is being set.
-set enable_hashjoin = 'off';
-set enable_mergejoin = 'off';
-set search_path = public;
+SET log_temp_files = 0;
+
+\set ECHO all
+\set ON_ERROR_STOP on
 
 -- Create a temp table to store WOS IDs from the update file.
-drop table if exists temp_update_wosid;
-create table temp_update_wosid tablespace ernie_wos_tbs as
-  select source_id from new_wos_publications;
-create index temp_update_wosid_idx on temp_update_wosid
-  using hash (source_id) tablespace ernie_index_tbs;
+DROP TABLE IF EXISTS temp_update_wosid;
+CREATE TABLE temp_update_wosid AS
+  SELECT source_id
+  FROM new_wos_publications;
+CREATE INDEX temp_update_wosid_idx
+  ON temp_update_wosid USING HASH (source_id) TABLESPACE indexes;
 
 -- Create a temporary table to store update WOS IDs that already exist in WOS
 -- tables.
-drop table if exists temp_replace_wosid;
-create table temp_replace_wosid tablespace ernie_wos_tbs as
-  select a.source_id from temp_update_wosid a
-  inner join wos_publications b
-  on a.source_id=b.source_id;
-create index temp_replace_wosid_idx on temp_replace_wosid
-  using hash (source_id) tablespace ernie_index_tbs;
+DROP TABLE IF EXISTS temp_replace_wosid;
+CREATE TABLE temp_replace_wosid AS
+  SELECT a.source_id
+  FROM temp_update_wosid a INNER JOIN wos_publications b ON a.source_id = b.source_id;
+CREATE INDEX temp_replace_wosid_idx
+  ON temp_replace_wosid USING HASH (source_id) TABLESPACE indexes;
 
 -- Update log file.
+-------------------------------
 \echo ***UPDATING LOG TABLE
-insert into update_log_wos (num_update)
-  select count(*) from temp_replace_wosid;
-update update_log_wos set num_new =
-  (select count(*) from temp_update_wosid) - num_update
-  where id = (select max(id) from update_log_wos);
+-------------------------------
+INSERT INTO update_log_wos (num_update)
+  SELECT count(*)
+  FROM temp_replace_wosid;
+UPDATE update_log_wos
+SET num_new = (
+  SELECT count(*)
+  FROM temp_update_wosid) - num_update
+WHERE id = (
+  SELECT max(id)
+  FROM update_log_wos);
 
 -- Update table: wos_abstracts
+-------------------------------
 \echo ***UPDATING TABLE: wos_abstracts
-insert into uhs_wos_abstracts
-  select a.* from wos_abstracts a inner join temp_update_wosid b
-  on a.source_id=b.source_id;
-delete from wos_abstracts a where exists
-  (select 1 from temp_update_wosid b where a.source_id=b.source_id);
-insert into wos_abstracts
-  select * from new_wos_abstracts;
+-------------------------------
+INSERT INTO uhs_wos_abstracts
+  SELECT a.*
+  FROM wos_abstracts a INNER JOIN temp_update_wosid b ON a.source_id = b.source_id;
+
+INSERT INTO wos_abstracts
+  SELECT *
+  FROM new_wos_abstracts
+ON CONFLICT DO NOTHING;
+--TODO: set primary key on wos_abstracts
+--ON CONFLICT (source_id)
+--DO UPDATE
+--SET
+--id = EXCLUDED.id,
+--source_id = EXCLUDED.source_id,
+--abstract_text = EXCLUDED.abstract_text,
+--source_filename = EXCLUDED.source_filename;
 
 -- Update table: wos_addresses
+-------------------------------
 \echo ***UPDATING TABLE: wos_addresses
-insert into uhs_wos_addresses
-  select a.* from wos_addresses a inner join temp_update_wosid b
-  on a.source_id=b.source_id;
-delete from wos_addresses a where exists
-  (select 1 from temp_update_wosid b where a.source_id=b.source_id);
-insert into wos_addresses
-  select * from new_wos_addresses;
+-------------------------------
+INSERT INTO uhs_wos_addresses
+  SELECT a.*
+  FROM wos_addresses a INNER JOIN temp_update_wosid b ON a.source_id = b.source_id;
+
+INSERT INTO wos_addresses
+  SELECT *
+  FROM new_wos_addresses
+ON CONFLICT (source_id, address_name)
+  DO UPDATE SET id = excluded.id, source_id = excluded.source_id, address_name = excluded.address_name,
+    organization = excluded.organization, sub_organization = excluded.sub_organization, city = excluded.city,
+    country = excluded.country, zip_code = excluded.zip_code, source_filename = excluded.source_filename;
 
 -- Update table: wos_authors
+-------------------------------
 \echo ***UPDATING TABLE: wos_authors
-insert into uhs_wos_authors
-  select a.* from wos_authors a inner join temp_update_wosid b
-  on a.source_id=b.source_id;
-delete from wos_authors a where exists
-  (select 1 from temp_update_wosid b where a.source_id=b.source_id);
-insert into wos_authors
-  select * from new_wos_authors;
+-------------------------------
+INSERT INTO uhs_wos_authors
+  SELECT a.*
+  FROM wos_authors a INNER JOIN temp_update_wosid b ON a.source_id = b.source_id;
+
+INSERT INTO wos_authors
+  SELECT *
+  FROM new_wos_authors
+ON CONFLICT (source_id, seq_no, address_id)
+  DO UPDATE SET id = excluded.id, source_id = excluded.source_id, full_name = excluded.full_name,
+    last_name = excluded.last_name, first_name = excluded.first_name, seq_no = excluded.seq_no,
+    address_seq = excluded.address_seq, address = excluded.address, email_address = excluded.email_address,
+    address_id = excluded.address_id, dais_id = excluded.dais_id, r_id = excluded.r_id,
+    source_filename = excluded.source_filename;
 
 -- Update table: wos_document_identifiers
+-------------------------------
 \echo ***UPDATING TABLE: wos_document_identifiers
-insert into uhs_wos_document_identifiers
-  select a.* from wos_document_identifiers a inner join temp_update_wosid b
-  on a.source_id=b.source_id;
-delete from wos_document_identifiers a where exists
-  (select 1 from temp_update_wosid b where a.source_id=b.source_id);
-insert into wos_document_identifiers
-  select * from new_wos_document_identifiers;
+-------------------------------
+INSERT INTO uhs_wos_document_identifiers
+  SELECT a.*
+  FROM wos_document_identifiers a INNER JOIN temp_update_wosid b ON a.source_id = b.source_id;
+
+INSERT INTO wos_document_identifiers
+  SELECT *
+  FROM new_wos_document_identifiers
+ON CONFLICT (source_id, document_id_type, document_id)
+  DO UPDATE SET id = excluded.id, source_id = excluded.source_id, document_id = excluded.document_id,
+    document_id_type = excluded.document_id_type, source_filename = excluded.source_filename;
 
 -- Update table: wos_grants
+-------------------------------
 \echo ***UPDATING TABLE: wos_grants
-insert into uhs_wos_grants
-  select a.* from wos_grants a inner join temp_update_wosid b
-  on a.source_id=b.source_id;
-delete from wos_grants a where exists
-  (select 1 from temp_update_wosid b where a.source_id=b.source_id);
-insert into wos_grants
-  select * from new_wos_grants;
+-------------------------------
+INSERT INTO uhs_wos_grants
+  SELECT a.*
+  FROM wos_grants a INNER JOIN temp_update_wosid b ON a.source_id = b.source_id;
+
+INSERT INTO wos_grants
+  SELECT *
+  FROM new_wos_grants
+ON CONFLICT (source_id, grant_number, grant_organization)
+  DO UPDATE SET id = excluded.id, source_id = excluded.source_id, grant_number = excluded.grant_number,
+    grant_organization = excluded.grant_organization, funding_ack = excluded.funding_ack,
+    source_filename = excluded.source_filename;
 
 -- Update table: wos_keywords
+-------------------------------
 \echo ***UPDATING TABLE: wos_keywords
-insert into uhs_wos_keywords
-  select a.* from wos_keywords a inner join temp_update_wosid b
-  on a.source_id=b.source_id;
-delete from wos_keywords a where exists
-  (select 1 from temp_update_wosid b where a.source_id=b.source_id);
-insert into wos_keywords
-  select * from new_wos_keywords;
+-------------------------------
+INSERT INTO uhs_wos_keywords
+  SELECT a.*
+  FROM wos_keywords a INNER JOIN temp_update_wosid b ON a.source_id = b.source_id;
+
+INSERT INTO wos_keywords
+  SELECT *
+  FROM new_wos_keywords
+ON CONFLICT (source_id, keyword)
+  DO UPDATE SET id = excluded.id, source_id = excluded.source_id, keyword = excluded.keyword,
+    source_filename = excluded.source_filename;
 
 -- Update table: wos_publications
+-------------------------------
 \echo ***UPDATING TABLE: wos_publications
-insert into uhs_wos_publications
-  select
-    id, source_id, source_type, source_title, language, document_title,
-    document_type, has_abstract, issue, volume, begin_page, end_page,
-    publisher_name, publisher_address, publication_year, publication_date,
-    created_date, last_modified_date, edition, source_filename
-  from wos_publications a
-  where exists
-  (select 1 from temp_replace_wosid b where a.source_id=b.source_id);
-update wos_publications as a
-  set (source_id, source_type, source_title, language, document_title,
-    document_type, has_abstract, issue, volume, begin_page, end_page,
-    publisher_name, publisher_address, publication_year, publication_date,
-    created_date, last_modified_date, edition, source_filename) =
-    (b.source_id, b.source_type, b.source_title, b.language, b.document_title,
-    b.document_type, b.has_abstract, b.issue, b.volume, b.begin_page,
-    b.end_page, b.publisher_name, b.publisher_address, b.publication_year,
-    b.publication_date, b.created_date, b.last_modified_date, b.edition,
-    b.source_filename)
-  from new_wos_publications b where a.source_id=b.source_id;
-insert into wos_publications
-  (id, source_id, source_type, source_title, language, document_title,
-   document_type, has_abstract, issue, volume, begin_page, end_page,
-   publisher_name, publisher_address, publication_year, publication_date,
-   created_date, last_modified_date, edition, source_filename)
-  select * from new_wos_publications a
-  where not exists
-  (select * from temp_replace_wosid b where a.source_id=b.source_id);
+-------------------------------
+INSERT INTO uhs_wos_publications
+  SELECT
+    id,
+    source_id,
+    source_type,
+    source_title,
+    language,
+    document_title,
+    document_type,
+    has_abstract,
+    issue,
+    volume,
+    begin_page,
+    end_page,
+    publisher_name,
+    publisher_address,
+    publication_year,
+    publication_date,
+    created_date,
+    last_modified_date,
+    edition,
+    source_filename
+  FROM wos_publications a
+  WHERE exists(SELECT 1
+               FROM temp_replace_wosid b
+               WHERE a.source_id = b.source_id);
+
+-- Upsert VERSION
+INSERT INTO wos_publications (id, source_id, source_type, source_title, language, document_title, document_type, has_abstract, issue, volume, begin_page, end_page, publisher_name, publisher_address, publication_year, publication_date, created_date, last_modified_date, edition, source_filename)
+  SELECT *
+  FROM new_wos_publications a
+ON CONFLICT (source_id)
+  DO UPDATE SET begin_page = excluded.begin_page, created_date = excluded.created_date,
+    document_title = excluded.document_title, document_type = excluded.document_type, edition = excluded.edition,
+    end_page = excluded.end_page, has_abstract = excluded.has_abstract, id = excluded.id, issue = excluded.issue,
+    language = excluded.language, last_modified_date = excluded.last_modified_date,
+    publication_date = excluded.publication_date, publication_year = excluded.publication_year,
+    publisher_address = excluded.publisher_address, publisher_name = excluded.publisher_name,
+    source_filename = excluded.source_filename, source_id = excluded.source_id, source_title = excluded.source_title,
+    source_type = excluded.source_type, volume = excluded.volume;
 
 -- Update table: wos_titles
+-------------------------------
 \echo ***UPDATING TABLE: wos_titles
-insert into uhs_wos_titles
-  select a.* from wos_titles a inner join temp_update_wosid b
-  on a.source_id=b.source_id;
-delete from wos_titles a where exists
-  (select 1 from temp_update_wosid b where a.source_id=b.source_id);
-insert into wos_titles
-  select * from new_wos_titles;
+-------------------------------
+INSERT INTO uhs_wos_titles
+  SELECT a.*
+  FROM wos_titles a INNER JOIN temp_update_wosid b ON a.source_id = b.source_id;
+
+INSERT INTO wos_titles
+  SELECT *
+  FROM new_wos_titles
+ON CONFLICT (source_id, type)
+  DO UPDATE SET id = excluded.id, source_id = excluded.source_id, title = excluded.title, type = excluded.type,
+    source_filename = excluded.source_filename;
 
 -- Truncate new_wos_tables.
 \echo ***TRUNCATING TABLES: new_wos_*
-truncate table new_wos_abstracts;
-truncate table new_wos_addresses;
-truncate table new_wos_authors;
-truncate table new_wos_document_identifiers;
-truncate table new_wos_grants;
-truncate table new_wos_keywords;
-truncate table new_wos_publications;
-truncate table new_wos_titles;
+TRUNCATE TABLE new_wos_abstracts;
+TRUNCATE TABLE new_wos_addresses;
+TRUNCATE TABLE new_wos_authors;
+TRUNCATE TABLE new_wos_document_identifiers;
+TRUNCATE TABLE new_wos_grants;
+TRUNCATE TABLE new_wos_keywords;
+TRUNCATE TABLE new_wos_publications;
+TRUNCATE TABLE new_wos_titles;
 
 -- Write date to log.
-update update_log_wos
-  set num_wos = (select count(1) from wos_publications)
-  where id = (select max(id) from update_log_wos);
+UPDATE update_log_wos
+SET num_wos = (
+  SELECT count(1)
+  FROM wos_publications)
+WHERE id = (
+  SELECT max(id)
+  FROM update_log_wos);

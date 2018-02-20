@@ -1,6 +1,8 @@
 Date: 10/23/2017
 Author: George Chacko
 
+Latest build: 2/8/2018 2:25 pm Eastern
+
 Ivacaftor is the second case study in ERNIE. The process involves
 
 a) Assemble initial documents: 

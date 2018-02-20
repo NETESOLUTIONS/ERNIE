@@ -124,7 +124,7 @@ delete from wos_publications a
 -- Delete wos_references to del_wos_references.
 \echo ***DELETING FROM TABLE: wos_references
 insert into del_wos_references
-  select a.id, a.source_id, a.cited_source_uid, a.cited_title, a.cited_work,
+  select a.wos_reference_id, a.source_id, a.cited_source_uid, a.cited_title, a.cited_work,
   a.cited_author, a.cited_year, a.cited_page, a.created_date,
   a.last_modified_date, a.source_filename
   from wos_references a inner join temp_delete_wosid b
