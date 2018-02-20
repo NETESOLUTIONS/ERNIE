@@ -20,7 +20,7 @@ SELECT source_id AS source, cited_source_uid AS target,
 'source'::varchar(10) AS stype, 'endref'::varchar(10) AS ttype
 FROM wos_references WHERE cited_source_uid IN
 (select source_id from garfield_hgraph_end);
-CREATE INDEX garfield_gen1_idx ON garfield_gen1(pub);
+CREATE INDEX garfield_gen1_idx ON garfield_gen1(source);
 
 DROP TABLE IF EXISTS garfield_gen2;
 CREATE TABLE garfield_gen2 AS
@@ -28,7 +28,7 @@ SELECT source_id AS source, cited_source_uid AS target,
 'source'::varchar(10) AS stype, 'target'::varchar(10) AS ttype
 FROM wos_references WHERE cited_source_uid IN
 (select source from garfield_gen1);
-CREATE INDEX garfield_gen2_idx ON garfield_gen2(pub);
+CREATE INDEX garfield_gen2_idx ON garfield_gen2(source);
 
 DROP TABLE IF EXISTS garfield_dmet_begina;
 CREATE TABLE garfield_dmet_begina AS
