@@ -139,7 +139,7 @@ UPDATE garfield_nodelist_formatted_b_pmid_grants SET other_nih='0' WHERE other_n
 
 DROP TABLE IF EXISTS garfield_nodelist_final;
 CREATE TABLE garfield_nodelist_final AS
-SELECT DISTINCT, node_id, node_name, startref, endref, nida, other_nih 
+SELECT DISTINCT node_id, node_name, startref, endref, nida, other_nih 
 FROM garfield_nodelist_formatted_b_pmid_grants;
 
 -- copy tables to /tmp for import
