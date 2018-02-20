@@ -33,7 +33,7 @@ CREATE INDEX garfield_gen2_idx ON garfield_gen2(source);
 DROP TABLE IF EXISTS garfield_dmet_begina;
 CREATE TABLE garfield_dmet_begina AS
 SELECT source_id AS source, cited_source_uid AS target,
-'startref'::varchar(10) AS source, 'target'::varchar(10) AS ttype
+'startref'::varchar(10) AS stype, 'target'::varchar(10) AS ttype
 FROM wos_references WHERE source_id IN 
 (select wos_id from garfield_dmet3);
 CREATE INDEX garfield_dmet_begina_idx on garfield_dmet_begina(target);
