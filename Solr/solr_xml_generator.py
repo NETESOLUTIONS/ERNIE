@@ -2,7 +2,7 @@
 
 import sys; import re; import subprocess
 
-table='';database='';port='';user='';id_tag='';fields=[]; sql_override=None;
+table='';database='';port='';user='';id_tag='';password='';fields=[]; sql_override=None;
 for i in range(0,len(sys.argv)):
     if sys.argv[i][0]=='-':
         option=sys.argv[i]
@@ -18,6 +18,8 @@ for i in range(0,len(sys.argv)):
             port=sys.argv[i+1]
         elif option[1:] in ['user','U']:
             user=sys.argv[i+1]
+        elif option[1:] in ['password','P']:
+            password=sys.argv[i+1]
         elif option[1:] in ['sql_override','sql']:
             sql_override=sys.argv[i+1]
 
@@ -27,9 +29,10 @@ db_config_xml_front_end='''
   <dataSource type="JdbcDataSource"
               driver="org.postgresql.Driver"
               url="jdbc:postgresql://localhost:%s/%s"
-              user="%s" />
+              user="%s"
+              password="%s" />
   <document>\n
-'''%(port,database,user)
+'''%(port,database,user,password)
 sql="select %s, "%(id_tag)+', '.join(f for f in fields)+" from %s"%(table) if sql_override==None else sql_override
 db_config_xml_fields='''
     <entity name="id"
