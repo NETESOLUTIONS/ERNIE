@@ -146,6 +146,7 @@ UPDATE garfield_nodelist_formatted_b_pmid_grants SET other_nih='1' WHERE ic IS N
 UPDATE garfield_nodelist_formatted_b_pmid_grants SET other_nih='0' WHERE other_nih IS NULL;
 */
 
+DROP TABLE IF EXISTS garfield_nodelist_formatted_b_pmid_grants;
 CREATE TABLE garfield_nodelist_formatted_b_pmid_grants AS
 SELECT
   a.*,
