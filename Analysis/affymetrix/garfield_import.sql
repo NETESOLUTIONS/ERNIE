@@ -112,6 +112,10 @@ UPDATE garfield_nodelist_formatted_a SET startref=0 WHERE stype='source' OR styp
 UPDATE garfield_nodelist_formatted_a SET endref=1 WHERE ttype='endref';
 UPDATE garfield_nodelist_formatted_a SET endref=0 WHERE ttype='target' OR ttype IS NULL;;
 
+DROP TABLE IF EXISTS garfield_nodelist_formatted_b;
+CREATE TABLE garfield_nodelist_formatted_b AS
+SELECT DISTINCT node_id, node_name, startref, endref FROM garfield_nodelist_formatted_a;
+
 
 -- copy tables to /tmp for import
 \copy garfield_nodelist TO  '/tmp/garfield_nodelist.csv' WITH (FORMAT CSV, HEADER, FORCE_QUOTE (node_name));
