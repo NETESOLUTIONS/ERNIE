@@ -83,7 +83,7 @@ SELECT DISTINCT * FROM garfield_node_assembly;
 --build edge_table
 DROP TABLE IF EXISTS garfield_edge_table;
 CREATE TABLE garfield_edge_table(snid varchar(19), tnid varchar(19), source varchar(19), target varchar(19),
-stype varchar(10),ttype varchar(10);
+stype varchar(10),ttype varchar(10));
 
 INSERT INTO garfield_edge_table SELECT 'n'||substring(source,5) AS snid,
 'n'||substring(target,5) as tnid, source, target, stype, ttype
