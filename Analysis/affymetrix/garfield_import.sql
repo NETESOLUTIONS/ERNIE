@@ -96,7 +96,7 @@ FROM garfield_gen2;
 INSERT INTO garfield_edge_table SELECT 'n'||substring(source,5) AS snid,
 'n'||substring(target,5) as tnid, source, target, stype, ttype
 FROM garfield_dmet_begin;
-CREATE INDEX garfield_edge_table_idx ON garfield_edge_table(start_id,end_id);
+CREATE INDEX garfield_edge_table_idx ON garfield_edge_table(snid,tnid);
 
 DROP TABLE IF EXISTS garfield_edgelist;
 CREATE TABLE garfield_edgelist AS
