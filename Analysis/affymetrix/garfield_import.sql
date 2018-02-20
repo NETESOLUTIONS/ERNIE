@@ -176,7 +176,8 @@ where inr.node_name = ou.node_name) > 1 order by node_name) AND startref='0' AND
 
 -- copy tables to /tmp for import
 \copy garfield_nodelist_final TO  '/tmp/garfield_nodelist_final.csv' WITH (FORMAT CSV, HEADER, FORCE_QUOTE (node_name));
-\copy garfield_edgelist TO  '/tmp/garfield_edgelist_final.csv' WITH (FORMAT CSV, HEADER, FORCE_QUOTE (node_name));
+\copy garfield_edgelist TO  '/tmp/garfield_edgelist_final.csv' WITH (FORMAT CSV, HEADER, FORCE_QUOTE (source,target));
+
 
 
 
