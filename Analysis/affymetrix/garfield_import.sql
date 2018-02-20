@@ -110,11 +110,24 @@ INSERT INTO garfield_nodelist_formatted_a (node_id,node_name,stype,ttype) SELECT
 UPDATE garfield_nodelist_formatted_a SET startref=1 WHERE stype='startref';
 UPDATE garfield_nodelist_formatted_a SET startref=0 WHERE stype='source' OR stype IS NULL;
 UPDATE garfield_nodelist_formatted_a SET endref=1 WHERE ttype='endref';
-UPDATE garfield_nodelist_formatted_a SET endref=0 WHERE ttype='target' OR ttype IS NULL;;
+UPDATE garfield_nodelist_formatted_a SET endref=0 WHERE ttype='target' OR ttype IS NULL;
 
 DROP TABLE IF EXISTS garfield_nodelist_formatted_b;
 CREATE TABLE garfield_nodelist_formatted_b AS
 SELECT DISTINCT node_id, node_name, startref, endref FROM garfield_nodelist_formatted_a;
+CREATE INDEX garfield_nodelist_formatted_b_idx ON garfield_nodelist_formatted_b(node_name);
+
+DROP TABLE IF EXISTS garfield_nodelist_formatted_b_pmid;
+CREATE TABLE garfield_nodelist_formatted_b_pmid AS
+SELECT a.*,b.pmid_int FROM garfield_nodelist_formatted_b a 
+LEFT JOIN wos_pmid_mapping b ON a.node_name=b.wos_id;
+
+DROP TABLE IF EXISTS garfield_nodelist_formatted_b_pmid_grants;
+CREATE TABLE garfield_nodelist_formatted_b_pmid_grants AS
+SELECT a.*,b.project_number FROM garfield_nodelist_formatted_b_pmid a
+LEFT JOIN exporter_publink b ON a.pmid_int=b.pmid::int;
+
+
 
 
 -- copy tables to /tmp for import
