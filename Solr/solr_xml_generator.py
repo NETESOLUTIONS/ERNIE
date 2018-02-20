@@ -18,7 +18,7 @@ for i in range(0,len(sys.argv)):
             port=sys.argv[i+1]
         elif option[1:] in ['user','U']:
             user=sys.argv[i+1]
-        elif option[1:] in ['password','P']:
+        elif option[1:] in ['password','W']:
             password=sys.argv[i+1]
         elif option[1:] in ['sql_override','sql']:
             sql_override=sys.argv[i+1]
