@@ -73,7 +73,7 @@ FROM garfield_dmet_begin;
 
 INSERT INTO garfield_node_assembly(node_id,node_name,ttype) 
 SELECT 'n'||substring(target,5),target,ttype
-AS ref, ref FROM garfield_dmet_begin;
+FROM garfield_dmet_begin;
 CREATE INDEX garfield_node_assembly_idx ON garfield_node_assembly(node_id);
 
 DROP TABLE IF EXISTS garfield_nodelist;
