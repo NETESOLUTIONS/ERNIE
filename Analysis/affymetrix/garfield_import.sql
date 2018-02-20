@@ -129,6 +129,7 @@ CREATE TABLE garfield_nodelist_formatted_b_pmid AS
 SELECT a.*,b.pmid_int FROM garfield_nodelist_formatted_b a 
 LEFT JOIN wos_pmid_mapping b ON a.node_name=b.wos_id;
 
+/*
 DROP TABLE IF EXISTS garfield_nodelist_formatted_b_pmid_grants;
 CREATE TABLE garfield_nodelist_formatted_b_pmid_grants AS
 SELECT a.*,b.project_number FROM garfield_nodelist_formatted_b_pmid a
@@ -143,6 +144,18 @@ UPDATE garfield_nodelist_formatted_b_pmid_grants SET nida='1' WHERE ic='DA';
 UPDATE garfield_nodelist_formatted_b_pmid_grants SET nida='0' WHERE nida IS NULL;
 UPDATE garfield_nodelist_formatted_b_pmid_grants SET other_nih='1' WHERE ic IS NOT NULL AND nida='0';
 UPDATE garfield_nodelist_formatted_b_pmid_grants SET other_nih='0' WHERE other_nih IS NULL;
+*/
+
+CREATE TABLE garfield_nodelist_formatted_b_pmid_grants AS
+SELECT
+  a.*,
+  EXISTS(SELECT 1
+         FROM exporter_publink b
+         WHERE a.pmid_int = b.pmid :: INT AND substring(b.project_number, 4, 2) = 'DA') AS nida_support,
+  EXISTS(SELECT 1
+         FROM exporter_publink b
+         WHERE a.pmid_int = b.pmid :: INT AND substring(b.project_number, 4, 2) <> 'DA') AS other_hhs_support
+FROM chackoge.garfield_nodelist_formatted_b_pmid a;
 
 DROP TABLE IF EXISTS garfield_nodelist_final;
 CREATE TABLE garfield_nodelist_final AS
