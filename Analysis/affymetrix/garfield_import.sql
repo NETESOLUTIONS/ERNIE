@@ -163,7 +163,7 @@ CREATE TABLE garfield_nodelist_final AS
 SELECT DISTINCT node_id, node_name, startref, endref, nida_support, other_hhs_support 
 FROM garfield_nodelist_formatted_b_pmid_grants;
 
-DELET FROM garfield_nodelist_final WHERE node_id IN (select node_id from garfield_nodelist_final ou
+DELETE FROM garfield_nodelist_final WHERE node_id IN (select node_id from garfield_nodelist_final ou
 where (select count(*) from garfield_nodelist_final inr
 where inr.node_name = ou.node_name) > 1 order by node_name) AND startref='0' AND endref='0';
 
