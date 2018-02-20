@@ -158,9 +158,14 @@ SELECT
          WHERE a.pmid_int = b.pmid :: INT AND substring(b.project_number, 4, 2) <> 'DA') AS other_hhs_support
 FROM chackoge.garfield_nodelist_formatted_b_pmid a;
 
+DROP TABLE IF EXISTS garfield_nodelist_formatted_c_pmid_grants;
+CREATE TABLE garfield_nodelist_formatted_c_pmid_grants AS
+SELECT DISTINCT a.*,b.publication_year FROM garfield_nodelist_formatted_b_pmid_grants a
+LEFT JOIN wos_publications b ON a.node_name=b.source_id;
+
 DROP TABLE IF EXISTS garfield_nodelist_final;
 CREATE TABLE garfield_nodelist_final AS
-SELECT DISTINCT node_id, node_name, startref, endref, nida_support, other_hhs_support 
+SELECT DISTINCT node_id, node_name, startref, endref, nida_support, other_hhs_support, publication_year 
 FROM garfield_nodelist_formatted_b_pmid_grants;
 
 CREATE INDEX garfield_nodelist_final_idx ON garfield_nodelist_final(node_name);
