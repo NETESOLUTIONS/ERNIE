@@ -50,7 +50,7 @@ node_name varchar(19),stype varchar(10),ttype varchar(10));
 --build node_table
 --gen1
 INSERT INTO garfield_node_assembly(node_id,node_name,stype) 
-SELECT 'n'||substring(source,5),source,,stype
+SELECT 'n'||substring(source,5),source,stype
 FROM garfield_gen1;
 
 INSERT INTO garfield_node_assembly(node_id,node_name,ttype) 
