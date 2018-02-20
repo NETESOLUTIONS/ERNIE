@@ -101,7 +101,7 @@ CREATE INDEX garfield_edge_table_idx ON garfield_edge_table(start_id,end_id);
 DROP TABLE IF EXISTS garfield_edgelist;
 CREATE TABLE garfield_edgelist AS
 SELECT DISTINCT * FROM garfield_edge_table
-ORDER BY start_id, end_id;
+ORDER BY snid,tnid;
 
 -- copy tables to /tmp for import
 \copy garfield_nodelist TO  '/tmp/garfield_nodelist.csv' WITH (FORMAT CSV, HEADER, FORCE_QUOTE (node_name));
