@@ -106,11 +106,11 @@ ORDER BY snid,tnid;
 -- create formatted nodelist with unique node_ids
 DROP TABLE IF EXISTS garfield_nodelist_formatted_a;
 CREATE TABLE garfield_nodelist_formatted_a (node_id varchar(16), node_name varchar(19), stype varchar(10), ttype varchar(10), startref varchar(10), endref varchar(10));
-INSERT INTO garfield_nodelist_formatted_a (node_id,node_name,stype,ttype) SELECT DISTINCT* FROM garfield_nodelist;			   
+INSERT INTO garfield_nodelist_formatted_a (node_id,node_name,stype,ttype) SELECT DISTINCT * FROM garfield_nodelist;			   
 UPDATE garfield_nodelist_formatted_a SET startref=1 WHERE stype='startref';
-UPDATE garfield_nodelist_formatted_a SET startref=0 WHERE stype='source';
+UPDATE garfield_nodelist_formatted_a SET startref=0 WHERE stype='source' OR stype IS NULL;
 UPDATE garfield_nodelist_formatted_a SET endref=1 WHERE ttype='endref';
-UPDATE garfield_nodelist_formatted_a SET endref=0 WHERE ttype='target';
+UPDATE garfield_nodelist_formatted_a SET endref=0 WHERE ttype='target' OR ttype IS NULL;;
 
 
 -- copy tables to /tmp for import
