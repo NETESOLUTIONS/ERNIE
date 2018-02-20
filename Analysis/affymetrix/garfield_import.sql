@@ -62,7 +62,7 @@ INSERT INTO garfield_node_assembly(node_id,node_name,stype)
 SELECT 'n'||substring(source,5),source,stype
 FROM garfield_gen2;
 
-INSERT INTO garfield_node_assembly(node_id,node_name,pub,ttype) 
+INSERT INTO garfield_node_assembly(node_id,node_name,ttype) 
 SELECT 'n'||substring(target,5),target,ttype
 FROM garfield_gen2;
 
