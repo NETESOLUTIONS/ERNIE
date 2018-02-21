@@ -109,6 +109,7 @@ DROP TABLE IF EXISTS garfield_edgelist;
 CREATE TABLE garfield_edgelist AS
 SELECT DISTINCT * FROM garfield_edge_table
 ORDER BY snid,tnid;
+CREATE INDEX garfield_edgelist_idx ON garfield_edgelist(source,target);
 
 -- create formatted nodelist with unique node_ids
 DROP TABLE IF EXISTS garfield_nodelist_formatted_a;
@@ -170,9 +171,15 @@ FROM garfield_nodelist_formatted_c_pmid_grants;
 
 CREATE INDEX garfield_nodelist_final_idx ON garfield_nodelist_final(node_name);
 
+-- remove duplicate rows
 DELETE FROM garfield_nodelist_final WHERE node_id IN (select node_id from garfield_nodelist_final ou
 where (select count(*) from garfield_nodelist_final inr
 where inr.node_name = ou.node_name) > 1 order by node_name) AND startref='0' AND endref='0';
+
+DELETE FROM garfield_edgelist ou WHERE (select count(*) from garfield_edgelist inr
+where inr.source= ou.source and inr.target=ou.target) > 1 
+AND stype='source' AND ttype='target';
+
 
 -- copy tables to /tmp for import
 \copy garfield_nodelist_final TO  '/tmp/garfield_nodelist_final.csv' WITH (FORMAT CSV, HEADER, FORCE_QUOTE (node_name));
