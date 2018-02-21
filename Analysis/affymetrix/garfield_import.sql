@@ -182,9 +182,17 @@ AND stype='source' AND ttype='target';
 
 
 -- copy tables to /tmp for import
-\copy garfield_nodelist_final TO  '/tmp/garfield_nodelist_final.csv' WITH (FORMAT CSV, HEADER, FORCE_QUOTE (node_name));
-\copy garfield_edgelist TO  '/tmp/garfield_edgelist_final.csv' WITH (FORMAT CSV, HEADER, FORCE_QUOTE (source,target));
+COPY (
+  SELECT node_name AS "wos_id:ID",
+    CAST(startref = '1' AS text) AS "startref:boolean",
+    CAST(endref = '1' AS text) AS "endref:boolean",
+    CAST(nida_support AS text) AS "nida_support:boolean",
+    CAST(other_hhs_support AS text) AS "other_hhs_support:boolean"
+  FROM chackoge.garfield_nodelist_final
+) TO '/tmp/garfield_nodelist_final.csv' WITH (FORMAT CSV, HEADER);
 
-
-
-
+COPY (
+  SELECT source AS ":START_ID",
+    target AS ":END_ID"
+  FROM chackoge.garfield_edgelist
+) TO '/tmp/garfield_edgelist_final.csv' WITH (FORMAT CSV, HEADER);
