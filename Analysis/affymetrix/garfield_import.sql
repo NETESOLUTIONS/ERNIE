@@ -189,6 +189,3 @@ COPY (
     target AS ":END_ID"
   FROM chackoge.garfield_edgelist
 ) TO '/tmp/garfield_edgelist_final.csv' WITH (FORMAT CSV, HEADER);
-
-
-
