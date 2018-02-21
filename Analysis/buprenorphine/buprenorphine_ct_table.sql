@@ -9,10 +9,11 @@ where nct_id in (select distinct nct_id from ct_interventions
 where lower(intervention_name) like '%buprenorphine%') order by year_of_completion;
 
 -- get pmids for buprenorphine_ct_reference_pmid file
-\copy (select pmid from ct_references where nct_id in (select nct_id from ivacaftor_ct) order by pmid) TO '/home/chackoge/ERNIE/Analysis/buprenorphine/buprenorphine_ct_reference_pmid';
+\copy (select pmid from ct_references where nct_id in (select nct_id from buprenorphine_ct) order by pmid) TO '/home/chackoge/ERNIE/Analysis/buprenorphine/buprenorphine_ct_reference_pmid';
 
 -- get pmids for ivacaftor_ct_publication_pmid file
-\copy (select pmid from ct_publications where nct_id in (select nct_id from ivacaftor_ct) order by pmid) TO '/home/chackoge/ERNIE/Analysis/buprenorphine/buprenorphine_ct_publication_pmid';
+\copy (select pmid from ct_publications where nct_id in (select nct_id from buprenorphine_ct) order by pmid) TO '/home/chackoge/ERNIE/Analysis/buprenorphine/buprenorphine_ct_publication_pmid';
+
 
 
 
