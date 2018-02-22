@@ -187,7 +187,8 @@ COPY (
     CAST(startref = '1' AS text) AS "startref:boolean",
     CAST(endref = '1' AS text) AS "endref:boolean",
     CAST(nida_support AS text) AS "nida_support:boolean",
-    CAST(other_hhs_support AS text) AS "other_hhs_support:boolean"
+    CAST(other_hhs_support AS text) AS "other_hhs_support:boolean",
+    publication_year AS "publication_year:int"
   FROM chackoge.garfield_nodelist_final
 ) TO '/tmp/garfield_nodelist_final.csv' WITH (FORMAT CSV, HEADER);
 
