@@ -180,6 +180,20 @@ DELETE FROM garfield_edgelist ou WHERE (select count(*) from garfield_edgelist i
 where inr.source= ou.source and inr.target=ou.target) > 1 
 AND stype='source' AND ttype='target';
 
+-- adding a citation count column to nodelist
+
+DROP TABLE IF EXISTS garfield_node_citation_a;
+CREATE TABLE garfield_node_citation_a AS 
+SELECT a.node_name,count(b.source_id) AS total_citation_count 
+FROM garfield_nodelist_final a LEFT JOIN wos_references b 
+ON  a.node_name=b.cited_source_uid group by a.node_name;
+
+DROP TABLE IF EXISTS garfield_nodelist_final_citation;
+CREATE TABLE garfield_nodelist_final_citation AS
+SELECT DISTINCT a.*,b.total_citation_count 
+FROM garfield_nodelist_final a 
+LEFT JOIN garfield_node_citation_a b 
+ON a.node_name=b.node_name;
 
 -- copy tables to /tmp for import
 COPY (
@@ -188,8 +202,9 @@ COPY (
     CAST(endref = '1' AS text) AS "endref:boolean",
     CAST(nida_support AS text) AS "nida_support:boolean",
     CAST(other_hhs_support AS text) AS "other_hhs_support:boolean",
-    publication_year AS "publication_year:int"
-  FROM chackoge.garfield_nodelist_final
+    publication_year AS "publication_year:int",
+    total_citation_count AS "total_citations:int"
+  FROM chackoge.garfield_nodelist_final_citation
 ) TO '/tmp/garfield_nodelist_final.csv' WITH (FORMAT CSV, HEADER);
 
 COPY (
