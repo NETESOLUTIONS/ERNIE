@@ -1,13 +1,14 @@
 -- Script to generate csv files for import into neo4j
--- This is the affymetrix case study tracing the affy seedset of <= 1991 to the DMET Plus
--- Panel of 2017
--- Author: George Chacko 2/20/2018
+-- This is the affymetrix case study tracing the affy seedset of <= 1991 to the Amplichip CYP450
+-- Panel of 2005
+-- Author: George Chacko 2/22/2018
 
 -- End point is the garfield_hgraph series, which contains 23 wos_ids from Garfield's microarray historiograph
--- Starting point is all papers identified in a keyword search in PubMed for DMET PLus
+-- Starting point is all papers identified in a keyword search in PubMed for Amplichip
 -- Publications are connected/related by citation. The target is cited by the source.
 
 -- Citation endpoint is 23 pubs in the garfield_historiograph
+/*
 DROP TABLE IF EXISTS garfield_hgraph_end;
 CREATE TABLE garfield_hgraph_end AS
 SELECT source_id, publication_year 
@@ -33,54 +34,68 @@ FROM wos_references WHERE cited_source_uid IN
 (select source from garfield_gen1);
 CREATE INDEX garfield_gen2_idx ON garfield_gen2(source);
 
---Citation starting point is publications DMET Plus keyword search
+*/
+
+--Citation starting point is publications Amplichip CYP450 keyword search
 -- get one generation of cited references
-DROP TABLE IF EXISTS garfield_dmet_begina;
-CREATE TABLE garfield_dmet_begina AS
+DROP TABLE IF EXIST garfield_amplichip;
+CREATE TABLE garfield_amplichip (pmid int);
+\COPY garfield_amplichip FROM '~/ERNIE/Analysis/affymetrix/garfield_amplichip.csv' CSV DELIMITER ','; 
+
+DROP TABLE IF EXISTS garfield_amplichip3;
+CREATE TABLE garfield_amplichip3 (pmid int, wos_id varchar(19));
+INSERT INTO garfield_amplichip3 (pmid, wos_id)
+SELECT a.pmid,b.wos_id FROM garfield_amplichip a
+INNER JOIN wos_references b on a.pmid=b.pmid_int;
+
+
+DROP TABLE IF EXISTS garfield_amplichip_begina;
+CREATE TABLE garfield_amplichip_begina AS
 SELECT source_id AS source, cited_source_uid AS target,
 'startref'::varchar(10) AS stype, 'target'::varchar(10) AS ttype
 FROM wos_references WHERE source_id IN 
-(select wos_id from garfield_dmet3);
-CREATE INDEX garfield_dmet_begina_idx on garfield_dmet_begina(target);
+(select wos_id from garfield_amplichip3);
+CREATE INDEX garfield_amplichip_begina_idx on garfield_amplichip_begina(target);
 
++++
 -- Inner join on wos_pubs to get only viable references (complete WoS Ids)
-DROP TABLE IF EXISTS garfield_dmet_begin;
-CREATE TABLE garfield_dmet_begin AS
-SELECT a.* FROM garfield_dmet_begina a INNER JOIN
+DROP TABLE IF EXISTS garfield_amplichip_begin;
+CREATE TABLE garfield_amplichip_begin AS
+SELECT a.* FROM garfield_amplichip_begina a INNER JOIN
 wos_publications b ON a.target=b.source_id;
 
 -- begin node list assembly process.
-DROP TABLE IF EXISTS garfield_node_assembly;
+DROP TABLE IF EXISTS garfield_amplichip_node_assembly;
 CREATE TABLE  garfield_node_assembly(node_id varchar(16),
 node_name varchar(19),stype varchar(10),ttype varchar(10));
 
 --build node_table
 --gen1
-INSERT INTO garfield_node_assembly(node_id,node_name,stype) 
+INSERT INTO garfield_amplichip_node_assembly(node_id,node_name,stype) 
 SELECT DISTINCT 'n'||substring(source,5),source,stype
 FROM garfield_gen1;
 
-INSERT INTO garfield_node_assembly(node_id,node_name,ttype) 
+INSERT INTO garfield_amplichip_node_assembly(node_id,node_name,ttype) 
 SELECT DISTINCT 'n'||substring(target,5),target,ttype
 FROM garfield_gen1;
 
 --gen2
-INSERT INTO garfield_node_assembly(node_id,node_name,stype) 
+INSERT INTO garfield_amplichip_node_assembly(node_id,node_name,stype) 
 SELECT DISTINCT 'n'||substring(source,5),source,stype
 FROM garfield_gen2;
 
-INSERT INTO garfield_node_assembly(node_id,node_name,ttype) 
+INSERT INTO garfield_amplichip_node_assembly(node_id,node_name,ttype) 
 SELECT DISTINCT 'n'||substring(target,5),target,ttype
 FROM garfield_gen2;
 
 --garfield_dmet_begin
-INSERT INTO garfield_node_assembly(node_id,node_name,stype) 
+INSERT INTO garfield_amplichip_node_assembly(node_id,node_name,stype) 
 SELECT DISTINCT 'n'||substring(source,5),source,stype
-FROM garfield_dmet_begin;
+FROM garfield_amplichip_begin;
 
-INSERT INTO garfield_node_assembly(node_id,node_name,ttype) 
+INSERT INTO garfield_amplichip_node_assembly(node_id,node_name,ttype) 
 SELECT DISTINCT 'n'||substring(target,5),target,ttype
-FROM garfield_dmet_begin;
+FROM garfield_amplichip_begin;
 CREATE INDEX garfield_node_assembly_idx ON garfield_node_assembly(node_id);
 
 DROP TABLE IF EXISTS garfield_nodelist;
@@ -88,11 +103,11 @@ CREATE TABLE garfield_nodelist AS
 SELECT DISTINCT * FROM garfield_node_assembly;
 
 --build edge_table
-DROP TABLE IF EXISTS garfield_edge_table;
-CREATE TABLE garfield_edge_table(snid varchar(19), tnid varchar(19), source varchar(19), target varchar(19),
+DROP TABLE IF EXISTS garfield_amplichip_edge_table;
+CREATE TABLE garfield_amplichip_edge_table(snid varchar(19), tnid varchar(19), source varchar(19), target varchar(19),
 stype varchar(10),ttype varchar(10));
 
-INSERT INTO garfield_edge_table SELECT 'n'||substring(source,5) AS snid,
+INSERT INTO garfield_amplichip_edge_table SELECT 'n'||substring(source,5) AS snid,
 'n'||substring(target,5) as tnid, source, target, stype, ttype
 FROM garfield_gen1;
 
@@ -105,29 +120,29 @@ INSERT INTO garfield_edge_table SELECT 'n'||substring(source,5) AS snid,
 FROM garfield_dmet_begin;
 CREATE INDEX garfield_edge_table_idx ON garfield_edge_table(snid,tnid);
 
-DROP TABLE IF EXISTS garfield_edgelist;
-CREATE TABLE garfield_edgelist AS
+DROP TABLE IF EXISTS garfield_amplichip_edgelist;
+CREATE TABLE garfield_amplichip_edgelist AS
 SELECT DISTINCT * FROM garfield_edge_table
 ORDER BY snid,tnid;
 CREATE INDEX garfield_edgelist_idx ON garfield_edgelist(source,target);
 
 -- create formatted nodelist with unique node_ids
-DROP TABLE IF EXISTS garfield_nodelist_formatted_a;
-CREATE TABLE garfield_nodelist_formatted_a (node_id varchar(16), node_name varchar(19), stype varchar(10), ttype varchar(10), startref varchar(10), endref varchar(10));
-INSERT INTO garfield_nodelist_formatted_a (node_id,node_name,stype,ttype) SELECT DISTINCT * FROM garfield_nodelist;			   
-UPDATE garfield_nodelist_formatted_a SET startref=1 WHERE stype='startref';
-UPDATE garfield_nodelist_formatted_a SET startref=0 WHERE stype='source' OR stype IS NULL;
+DROP TABLE IF EXISTS garfield_amplichip_nodelist_formatted_a;
+CREATE TABLE garfield_amplichip_nodelist_formatted_a (node_id varchar(16), node_name varchar(19), stype varchar(10), ttype varchar(10), startref varchar(10), endref varchar(10));
+INSERT INTO garfield_amplichip_nodelist_formatted_a (node_id,node_name,stype,ttype) SELECT DISTINCT * FROM garfield_nodelist;			   
+UPDATE garfield_amplichip_nodelist_formatted_a SET startref=1 WHERE stype='startref';
+UPDATE garfield_amplichip_nodelist_formatted_a SET startref=0 WHERE stype='source' OR stype IS NULL;
 UPDATE garfield_nodelist_formatted_a SET endref=1 WHERE ttype='endref';
-UPDATE garfield_nodelist_formatted_a SET endref=0 WHERE ttype='target' OR ttype IS NULL;
+UPDATE garfield_amplichip_nodelist_formatted_a SET endref=0 WHERE ttype='target' OR ttype IS NULL;
 
-DROP TABLE IF EXISTS garfield_nodelist_formatted_b;
-CREATE TABLE garfield_nodelist_formatted_b AS
+DROP TABLE IF EXISTS garfield_amplichip_nodelist_formatted_b;
+CREATE TABLE garfield_amplichip_nodelist_formatted_b AS
 SELECT DISTINCT node_id, node_name, startref, endref FROM garfield_nodelist_formatted_a;
-CREATE INDEX garfield_nodelist_formatted_b_idx ON garfield_nodelist_formatted_b(node_name);
+CREATE INDEX garfield_amplichip_nodelist_formatted_b_idx ON garfield_nodelist_formatted_b(node_name);
 
-DROP TABLE IF EXISTS garfield_nodelist_formatted_b_pmid;
-CREATE TABLE garfield_nodelist_formatted_b_pmid AS
-SELECT a.*,b.pmid_int FROM garfield_nodelist_formatted_b a 
+DROP TABLE IF EXISTS garfield_amplichip_nodelist_formatted_b_pmid;
+CREATE TABLE garfield_amplichip_nodelist_formatted_b_pmid AS
+SELECT a.*,b.pmid_int FROM garfield_amplichip_nodelist_formatted_b a 
 LEFT JOIN wos_pmid_mapping b ON a.node_name=b.wos_id;
 
 /*
@@ -147,8 +162,8 @@ UPDATE garfield_nodelist_formatted_b_pmid_grants SET other_nih='1' WHERE ic IS N
 UPDATE garfield_nodelist_formatted_b_pmid_grants SET other_nih='0' WHERE other_nih IS NULL;
 */
 
-DROP TABLE IF EXISTS garfield_nodelist_formatted_b_pmid_grants;
-CREATE TABLE garfield_nodelist_formatted_b_pmid_grants AS
+DROP TABLE IF EXISTS garfield_amplichip_nodelist_formatted_b_pmid_grants;
+CREATE TABLE garfield_amplichip_nodelist_formatted_b_pmid_grants AS
 SELECT
   a.*,
   EXISTS(SELECT 1
@@ -157,42 +172,42 @@ SELECT
   EXISTS(SELECT 1
          FROM exporter_publink b
          WHERE a.pmid_int = b.pmid :: INT AND substring(b.project_number, 4, 2) <> 'DA') AS other_hhs_support
-FROM chackoge.garfield_nodelist_formatted_b_pmid a;
+FROM chackoge.garfield_amplichip_nodelist_formatted_b_pmid a;
 
-DROP TABLE IF EXISTS garfield_nodelist_formatted_c_pmid_grants;
-CREATE TABLE garfield_nodelist_formatted_c_pmid_grants AS
-SELECT DISTINCT a.*,b.publication_year FROM garfield_nodelist_formatted_b_pmid_grants a
+DROP TABLE IF EXISTS garfield_amplichip_nodelist_formatted_c_pmid_grants;
+CREATE TABLE garfield_amplichip_nodelist_formatted_c_pmid_grants AS
+SELECT DISTINCT a.*,b.publication_year FROM garfield_amplichip_nodelist_formatted_b_pmid_grants a
 LEFT JOIN wos_publications b ON a.node_name=b.source_id;
 
-DROP TABLE IF EXISTS garfield_nodelist_final;
-CREATE TABLE garfield_nodelist_final AS
+DROP TABLE IF EXISTS garfield_amplichip_nodelist_final;
+CREATE TABLE garfield_amplichip_nodelist_final AS
 SELECT DISTINCT node_id, node_name, startref, endref, nida_support, other_hhs_support, publication_year 
-FROM garfield_nodelist_formatted_c_pmid_grants;
+FROM garfield_amplichip_nodelist_formatted_c_pmid_grants;
 
-CREATE INDEX garfield_nodelist_final_idx ON garfield_nodelist_final(node_name);
+CREATE INDEX garfield_amplichip_nodelist_final_idx ON garfield_amplichip_nodelist_final(node_name);
 
 -- remove duplicate rows
-DELETE FROM garfield_nodelist_final WHERE node_id IN (select node_id from garfield_nodelist_final ou
-where (select count(*) from garfield_nodelist_final inr
+DELETE FROM garfield_amplichip_nodelist_final WHERE node_id IN (select node_id from garfield_amplichip_nodelist_final ou
+where (select count(*) from garfield_amplichip_nodelist_final inr
 where inr.node_name = ou.node_name) > 1 order by node_name) AND startref='0' AND endref='0';
 
-DELETE FROM garfield_edgelist ou WHERE (select count(*) from garfield_edgelist inr
+DELETE FROM garfield_amplichip_edgelist ou WHERE (select count(*) from garfield_amplichip_edgelist inr
 where inr.source= ou.source and inr.target=ou.target) > 1 
 AND stype='source' AND ttype='target';
 
 -- adding a citation count column to nodelist
 
-DROP TABLE IF EXISTS garfield_node_citation_a;
-CREATE TABLE garfield_node_citation_a AS 
+DROP TABLE IF EXISTS garfield_amplichip_node_citation_a;
+CREATE TABLE garfield_amplichip_node_citation_a AS 
 SELECT a.node_name,count(b.source_id) AS total_citation_count 
-FROM garfield_nodelist_final a LEFT JOIN wos_references b 
+FROM garfield_amplichip_nodelist_final a LEFT JOIN wos_references b 
 ON  a.node_name=b.cited_source_uid group by a.node_name;
 
-DROP TABLE IF EXISTS garfield_nodelist_final_citation;
-CREATE TABLE garfield_nodelist_final_citation AS
+DROP TABLE IF EXISTS garfield_amplichip_nodelist_final_citation;
+CREATE TABLE garfield_amplichip_nodelist_final_citation AS
 SELECT DISTINCT a.*,b.total_citation_count 
-FROM garfield_nodelist_final a 
-LEFT JOIN garfield_node_citation_a b 
+FROM garfield_amplichip_nodelist_final a 
+LEFT JOIN garfield_amplichip_node_citation_a b 
 ON a.node_name=b.node_name;
 
 -- copy tables to /tmp for import
@@ -205,10 +220,11 @@ COPY (
     publication_year AS "publication_year:int",
     total_citation_count AS "total_citations:int"
   FROM chackoge.garfield_nodelist_final_citation
-) TO '/tmp/garfield_nodelist_final.csv' WITH (FORMAT CSV, HEADER);
+) TO '/tmp/garfield_amplichip_nodelist_final.csv' WITH (FORMAT CSV, HEADER);
 
 COPY (
   SELECT source AS ":START_ID",
     target AS ":END_ID"
   FROM chackoge.garfield_edgelist
-) TO '/tmp/garfield_edgelist_final.csv' WITH (FORMAT CSV, HEADER);
+) TO '/tmp/garfield_amplichip_edgelist_final.csv' WITH (FORMAT CSV, HEADER);
+
