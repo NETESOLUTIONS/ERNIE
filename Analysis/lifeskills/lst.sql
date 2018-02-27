@@ -63,7 +63,7 @@ DROP TABLE IF EXISTS lst_edgelist;
 CREATE TABLE lst_edgelist (source varchar(19),stype varchar(10),target varchar(19),ttype varchar(10));
 -- note source target assignments since citing is source
 INSERT INTO lst_edgelist
-SELECT citing_gen1 AS source, 'wos_id',wos_id AS target, 'wos_id' as ttype FROM lst_citing;
+SELECT citing_gen1 AS source, 'wos_id', wosid AS target, 'wos_id' as ttype FROM lst_citing;
 INSERT INTO lst_edgelist
 SELECT 'wsipp' AS source,'policy' AS stype, wos_id AS target,'wos_id' AS ttype 
 FROM wos_pmid_mapping WHERE pmid_int IN (select  pmid from wsipp_start);
