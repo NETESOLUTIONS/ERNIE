@@ -5,7 +5,7 @@
 -- Assemble Trump report citations, WSIPP, and Surgeon General data  (Didi Cross and George Chacko)
 -- Load all_wosids and all_pmids
 
--- data from Trumpo Report
+-- data from Trump Commission Report
 DROP TABLE IF EXISTS pcreport_start;
 CREATE TABLE pcreport_start (wos_id varchar(19));
 \COPY pcreport_start (wos_id) FROM '~/ERNIE/Analysis/lifeskills/trump_wosids.csv' CSV HEADER DELIMITER ',';
@@ -61,8 +61,9 @@ a.merged_wos_id=b.cited_source_uid;
 --create edgelist
 DROP TABLE IF EXISTS lst_edgelist;
 CREATE TABLE lst_edgelist (source varchar(19),stype varchar(10),target varchar(19),ttype varchar(10));
+-- note source target assignments since citing is source
 INSERT INTO lst_edgelist
-SELECT wosid AS source, 'wos_id',citing_gen1 AS target, 'wos_id' FROM lst_citing;
+SELECT citing_gen1 AS source, 'wos_id',wos_id AS target, 'wos_id' as ttype FROM lst_citing;
 INSERT INTO lst_edgelist
 SELECT 'wsipp' AS source,'policy' AS stype, wos_id AS target,'wos_id' AS ttype 
 FROM wos_pmid_mapping WHERE pmid_int IN (select  pmid from wsipp_start);
@@ -93,7 +94,7 @@ CREATE TABLE grant_tmp AS
 SELECT a.node,b.pmid_int FROM lst_nodelist_final a
 LEFT JOIN wos_pmid_mapping b ON
 a.node=b.wos_id;
-CREATE INDEX grant_tmp_idx ON grant_tmp(node);
+CREATE INDEX grant_tmp_idx ON grant_tmp(pmid_int);
 
 DROP TABLE IF EXISTS lst_nodelist_final_grants;
 CREATE TABLE lst_nodelist_final_grants AS
@@ -106,3 +107,21 @@ SELECT
          FROM exporter_publink b
          WHERE a.pmid_int = b.pmid :: INT AND substring(b.project_number, 4, 2) <> 'DA') AS other_hhs_support
 FROM grant_tmp a;
+CREATE INDEX lst_nodelist_final_grants_idx On lst_nodelist_final_grants(node);
+-- add citations as an atttribute
+
+DROP TABLE IF EXISTS lst_final_nodelist_grants_citations_a;
+CREATE TABLE lst_final_nodelist_grants_citations_a AS
+SELECT a.node,count(b.source_id) as total_citations 
+FROM lst_nodelist_final_grants a
+LEFT JOIN wos_references b ON a.node=b.cited_source_uid
+GROUP BY a.node;
+
+DROP TABLE IF EXISTS lst_final_nodelist_grants_citations;
+CREATE TABLE lst_final_nodelist_grants_citations AS
+SELECT DISTINCT a.*,b.total_citations FROM lst_nodelist_final_grants a
+LEFT JOIN lst_final_nodelist_grants_citations_a b ON a.node=b.node;
+
+
+
+
