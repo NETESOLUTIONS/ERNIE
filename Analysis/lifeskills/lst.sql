@@ -129,7 +129,7 @@ LEFT JOIN wos_publications b on a.node=b.source_id;
 
 COPY (
   SELECT node AS "node:ID",
-    ntype AS "ntype:varchar",	 
+    ntype AS "ntype:string",	 
     CAST(nida_support AS text) AS "nida_support:boolean",
     CAST(other_hhs_support AS text) AS "other_hhs_support:boolean",
     publication_year AS "publication_year:int",
