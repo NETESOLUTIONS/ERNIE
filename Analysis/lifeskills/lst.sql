@@ -122,6 +122,12 @@ CREATE TABLE lst_final_nodelist_grants_citations AS
 SELECT DISTINCT a.*,b.total_citations FROM lst_nodelist_final_grants a
 LEFT JOIN lst_final_nodelist_grants_citations_a b ON a.node=b.node;
 
+DROP TABLE IF EXISTS lst_final_nodelist_grants_citations_years;
+CREATE TABLE lst_final_nodelist_grants_citations_years AS
+SELECT a.*,b.publication_year FROM lst_final_nodelist_grants_citations a
+LEFT JOIN wos_publications b on a.node=b.source_id;
 
+\copy lst_final_nodelist_grants_citations_years TO '/tmp/lst_nodelist.csv' WITH (FORMAT CSV, HEADER);
+\copy lst_edgelist_final TO '/tmp/lst_edgdelist.csv' WITH (FORMAT CSV, HEADER);
 
 
