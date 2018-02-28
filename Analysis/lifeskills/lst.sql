@@ -127,7 +127,20 @@ CREATE TABLE lst_final_nodelist_grants_citations_years AS
 SELECT a.*,b.publication_year FROM lst_final_nodelist_grants_citations a
 LEFT JOIN wos_publications b on a.node=b.source_id;
 
-\copy lst_final_nodelist_grants_citations_years TO '/tmp/lst_nodelist.csv' WITH (FORMAT CSV, HEADER);
-\copy lst_edgelist_final TO '/tmp/lst_edgdelist.csv' WITH (FORMAT CSV, HEADER);
+COPY (
+  SELECT node AS "node:ID",
+    ntype AS "ntype:varchar",	 
+    CAST(nida_support AS text) AS "nida_support:boolean",
+    CAST(other_hhs_support AS text) AS "other_hhs_support:boolean",
+    publication_year AS "publication_year:int",
+    total_citations AS "total_citations:int"
+  FROM lst_final_nodelist_grants_citations_years
+) TO '/tmp/lst_nodelist_final.csv' WITH (FORMAT CSV, HEADER);
+
+COPY (
+  SELECT source AS ":START_ID",
+    target AS ":END_ID"
+  FROM lst_edgelist_final
+) TO '/tmp/lst_edgelist_final.csv' WITH (FORMAT CSV, HEADER);
 
 
