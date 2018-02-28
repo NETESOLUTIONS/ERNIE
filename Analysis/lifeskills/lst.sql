@@ -91,7 +91,7 @@ SELECT DISTINCT * FROM lst_nodelist;
 -- CONNECT TO NIH GRANTS
 DROP TABLE IF EXISTS grant_tmp;
 CREATE TABLE grant_tmp AS
-SELECT a.node,b.pmid_int FROM lst_nodelist_final a
+SELECT a.node,a.ntype,b.pmid_int FROM lst_nodelist_final a
 LEFT JOIN wos_pmid_mapping b ON
 a.node=b.wos_id;
 CREATE INDEX grant_tmp_idx ON grant_tmp(pmid_int);
