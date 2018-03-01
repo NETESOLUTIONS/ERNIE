@@ -91,7 +91,7 @@ SELECT DISTINCT * FROM lst_nodelist;
 -- CONNECT TO NIH GRANTS
 DROP TABLE IF EXISTS grant_tmp;
 CREATE TABLE grant_tmp AS
-SELECT a.node,b.pmid_int FROM lst_nodelist_final a
+SELECT a.node,a.ntype,b.pmid_int FROM lst_nodelist_final a
 LEFT JOIN wos_pmid_mapping b ON
 a.node=b.wos_id;
 CREATE INDEX grant_tmp_idx ON grant_tmp(pmid_int);
@@ -122,6 +122,25 @@ CREATE TABLE lst_final_nodelist_grants_citations AS
 SELECT DISTINCT a.*,b.total_citations FROM lst_nodelist_final_grants a
 LEFT JOIN lst_final_nodelist_grants_citations_a b ON a.node=b.node;
 
+DROP TABLE IF EXISTS lst_final_nodelist_grants_citations_years;
+CREATE TABLE lst_final_nodelist_grants_citations_years AS
+SELECT a.*,b.publication_year FROM lst_final_nodelist_grants_citations a
+LEFT JOIN wos_publications b on a.node=b.source_id;
 
+COPY (
+  SELECT node AS "node:ID",
+    ntype AS "ntype:string",	 
+    CAST(nida_support AS text) AS "nida_support:boolean",
+    CAST(other_hhs_support AS text) AS "other_hhs_support:boolean",
+    publication_year AS "publication_year:int",
+    total_citations AS "total_citations:int"
+  FROM lst_final_nodelist_grants_citations_years
+) TO '/tmp/lst_nodelist_final.csv' WITH (FORMAT CSV, HEADER);
+
+COPY (
+  SELECT source AS ":START_ID",
+    target AS ":END_ID"
+  FROM lst_edgelist_final
+) TO '/tmp/lst_edgelist_final.csv' WITH (FORMAT CSV, HEADER);
 
 
