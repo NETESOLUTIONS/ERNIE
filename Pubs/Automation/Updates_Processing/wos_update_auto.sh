@@ -61,9 +61,9 @@ rm -rf xml_files_splitted/*
 rm -f table_split/*
 rm -f del_wosid.csv
 rm -f *.del
-rm -rf WOS*CORE
+#rm -rf WOS*CORE
 #rm -rf WOS*ESCI
-rm -f WOS*tar.gz
+rm -f *.tar.gz
 
 echo ***Comparing file list...
 # delete lines with ESCI files
@@ -73,7 +73,7 @@ ls ${update_file_dir} | sed '/ESCI/d' > complete_filelist.txt
 declare -i file_count=0
 for core_file in $(grep -F --line-regexp --invert-match --file=finished_filelist.txt complete_filelist.txt); do
   cp -rf ${update_file_dir}${core_file} .
-  ((++ file_count))
+  ((++file_count))
 done
 #rm -f complete_filelist.txt
 
@@ -88,7 +88,7 @@ for core_file in $(ls *.tar.gz | sort -n); do
 
   # Unzip update file to a sub-directory.
   echo "***Unzipping update file: ${core_file}"
-  tar -zxvf ${core_file} *.xml*
+  tar --extract --file=${core_file} --gzip --verbose *.xml*
 
   # Extract file name without extension
   xml_update_dir=${core_file%%.*}
