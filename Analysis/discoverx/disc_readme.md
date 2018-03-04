@@ -5,7 +5,19 @@ DiscoverX and Bioseek and associated literature derived from the Web of Sciencel
 with NIH awards from seven different institutes at NIH.  A single generation of citing references is also incorporated into the network and 
 recursively linked to NIH awards. 
 
-DiscoverX
+Data sources used: 
+NIH RePORTER/ExPORTER
+PubMed Keyword and Person Searches
+Derwent Patent Citation Index
+Web of Science Core Collection
+
+No of nodes in network: ~1500
+No of edges in network: ~1763
+No of nida_supported nodes: 37
+No of other_hhs_supported nodes: 232
+No of nida_supported nodes & other_hhs_supported nodes: 14
+
+DiscoverX Awards from NIH (using NIH RePORTER/ExPORTER)
 2R44CA094488
 1R43CA094488
 2R44CA103295
