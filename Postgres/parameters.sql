@@ -29,7 +29,7 @@ ALTER SYSTEM SET listen_addresses = '*';
 
 ALTER SYSTEM SET log_statement = 'none';
 
-ALTER SYSTEM SET max_locks_per_transaction = 128;
+ALTER SYSTEM SET max_locks_per_transaction = 256;
 
 ALTER SYSTEM SET shared_buffers = '10GB';
 
