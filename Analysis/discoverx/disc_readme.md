@@ -3,7 +3,7 @@ by NIH funding to Olson KR, Khanna PL, Eglen RM, of DiscoverX and Berg EL of Bio
 was acquired by DiscoverX. DiscoverX has been acquired by Eurofins and has a range of products. For this study, all patents awarded to  
 DiscoverX and Bioseek and associated literature derived from the Web of Sciencelookup table as well publications from NIH ExPORTER associated 
 with NIH awards from seven different institutes at NIH.  A single generation of citing references is also incorporated into the network and 
-recursively linked to NIH awards.
+recursively linked to NIH awards. 
 
 DiscoverX
 2R44CA094488
