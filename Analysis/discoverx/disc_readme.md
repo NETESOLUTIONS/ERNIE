@@ -1,6 +1,6 @@
-DiscoverX is the last of the case studies. This study originates in the development of enzyme fragment complementation assays restricted
-by NIH funding to Olson KR, Khanna PL, Eglen RM, of DiscoverX and Berg EL of Bioseek, which is considered a part of the study since it 
-was acquired by DiscoverX. DiscoverX has been acquired by Eurofins and has a range of products. For this study, all patents awarded to  
+DiscoverX is the last of the seven case studies. This study originates in the development of enzyme fragment complementation assays restricted,
+in this study, by NIH funding to Olson KR, Khanna PL, Eglen RM, of DiscoverX and Berg EL of Bioseek, which is considered a part of the study 
+since it was acquired by DiscoverX. DiscoverX has been acquired by Eurofins and has a range of products. For this study, all patents awarded to  
 DiscoverX and Bioseek and associated literature derived from the Web of Sciencelookup table as well publications from NIH ExPORTER associated 
 with NIH awards from seven different institutes at NIH.  A single generation of citing references is also incorporated into the network and 
 recursively linked to NIH awards.
