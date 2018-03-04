@@ -5,11 +5,15 @@
 -- Pubmed Search for "DiscoverX"
 DROP TABLE IF EXISTS disc_pubmed_search;
 CREATE TABLE disc_pubmed_search(pmid int);
-\COPY disc_pubmed_search FROM '~/ERNIE/Analysis/discoverx/discoverx' CSV DELIMITER ',';
+\COPY disc_pubmed_search FROM '~/ERNIE/Analysis/discoverx/discoverx.csv' CSV DELIMITER ',';
 
 DROP TABLE IF EXISTS  disc_pi_search;
 CREATE TABLE disc_pi_search (pmid int);
-\COPY disc_pi_search FROM '~/ERNIE/Analysis/discoverx/discoverx_eglen_olson_khanna_berg' CSV DELIMITER ',';
+\COPY disc_pi_search FROM '~/ERNIE/Analysis/discoverx/discoverx_eglen_olson_khanna_berg.csv' CSV DELIMITER ',';
+
+DROP TABLE IF EXISTS disc_exporter_search;
+CREATE TABLE disc_exporter_search (project_num varchar(15));
+\COPY disc_exporter_search FROM '~/ERNIE/Analysis/discoverx/disc_exporter_search.csv' CSV DELIMITER ',';
 
 -- combine into a seedset
 DROP TABLE IF EXISTS disc_seedset_pmid;
