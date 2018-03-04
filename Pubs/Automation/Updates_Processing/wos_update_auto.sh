@@ -82,6 +82,21 @@ if ((file_count == 0)); then
   exit 1
 fi
 
+process_ref_chunks() {
+  set -e
+  for table_chunk in $(cat ./table_split/split_tablename.txt); do
+    echo "${table_chunk}"
+    chunk_start_date=`date +%s`
+    psql -f "${absolute_script_dir}/wos_update_ref_tables.sql" -v new_ref_chunk=${table_chunk}
+    chunk_end_date=`date +%s`
+    echo $((chunk_end_date - chunk_start_date)) | awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  This Chunk Update Duration" }'
+  done
+  psql -v ON_ERROR_STOP=on -c 'TRUNCATE TABLE new_wos_references;'
+  # Auto-vacuum takes care of table analyses
+  #psql -c 'VACUUM ANALYZE wos_references;' -v ON_ERROR_STOP=on
+}
+export -f process_ref_chunks
+
 # Update WOS_CORE files one by one, in time sequence.
 for core_file in $(ls *.tar.gz | sort -n); do
   echo "Processing CORE file: ${core_file}"
@@ -124,24 +139,10 @@ for core_file in $(ls *.tar.gz | sort -n); do
   psql -f table_split/load_csv_table.sql -v ON_ERROR_STOP=on
 
   # Run the updates for the other 8 tables in parallel with references.
-  {
-    psql -f "${absolute_script_dir}/wos_update_tables.sql" &
-  } &
-  {
-    for table_chunk in $(cat ./table_split/split_tablename.txt); do
-      echo "${table_chunk}"
-      chunk_start_date=`date +%s`
-      psql -f "${absolute_script_dir}/wos_update_ref_tables.sql" -v new_ref_chunk=$table_chunk
-      chunk_end_date=`date +%s`
-      echo $((chunk_end_date - chunk_start_date)) | awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  This Chunk Update Duration" }'
-    done
-    psql -v ON_ERROR_STOP=on -c 'TRUNCATE TABLE new_wos_references;'
-    # Auto-vacuum takes care of table analyses
-    #psql -c 'VACUUM ANALYZE wos_references;' -v ON_ERROR_STOP=on
-  } &
-  wait
-
+  parallel --halt soon,fail=1 --line-buffer ::: "psql -f ${absolute_script_dir}/wos_update_tables.sql" \
+           process_ref_chunks
   echo "WOS update process for ${core_file} completed"
+
   # language=PostgresPLSQL
   psql -v ON_ERROR_STOP=on \
        -c 'UPDATE update_log_wos SET last_updated = current_timestamp WHERE id = (SELECT max(id) FROM update_log_wos);'
