@@ -108,7 +108,7 @@ for core_file in $(ls *.tar.gz | sort -n); do
 
   # Extract file name without extension
   xml_update_dir=${core_file%%.*}
-  gunzip ${xml_update_dir}/*.gz
+  gunzip --force ${xml_update_dir}/*.gz
 
   # Split update xml file to small pieces and move to ./xml_files_splitted/.
   echo "***Splitting update file: ${core_file}"
