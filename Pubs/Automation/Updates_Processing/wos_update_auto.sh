@@ -39,7 +39,8 @@ set -o pipefail
 
 # Get a script directory, same as by $(dirname $0)
 script_dir=${0%/*}
-absolute_script_dir=$(cd "${script_dir}" && pwd)
+# Exporting variable for use in the parallel function
+export absolute_script_dir=$(cd "${script_dir}" && pwd)
 work_dir=${1:-${absolute_script_dir}/build} # $1 with the default
 if [[ ! -d "${work_dir}" ]]; then
   mkdir "${work_dir}"
@@ -107,7 +108,7 @@ for core_file in $(ls *.tar.gz | sort -n); do
 
   # Extract file name without extension
   xml_update_dir=${core_file%%.*}
-  gunzip ${xml_update_dir}/*
+  gunzip ${xml_update_dir}/*.gz
 
   # Split update xml file to small pieces and move to ./xml_files_splitted/.
   echo "***Splitting update file: ${core_file}"
@@ -139,6 +140,7 @@ for core_file in $(ls *.tar.gz | sort -n); do
   psql -f table_split/load_csv_table.sql -v ON_ERROR_STOP=on
 
   # Run the updates for the other 8 tables in parallel with references.
+  # Using GNU parallel rather than background jobs for correct error processing
   parallel --halt soon,fail=1 --line-buffer ::: "psql -f ${absolute_script_dir}/wos_update_tables.sql" \
            process_ref_chunks
   echo "WOS update process for ${core_file} completed"
