@@ -1,5 +1,5 @@
 #!/bin/bash
-# George Chacko 12/02/2017
+# George Chacko 2/22/2018
 # Revision Notes: Found errors. Revised cutoff dates to +12 months post-approval.
 
 echo "This script takes a set of source files and modifies them to incorporate xml tags then
@@ -40,14 +40,14 @@ echo "naltrexone_fda_other_review_pmid has $(cat t2 | awk '{print $1}') pmids"
 wc -l naltrexone_patent_npl_pmid > t3
 echo "naltrexone_patent_npl_pmid has $(cat t3 | awk '{print $1}') pmids"
 
-wc -l naltrexone_ct_preapp_publication_pmid > t4
-echo "naltrexone_ct_preapp_publication_pmid has $(cat t4 | awk '{print $1}') pmids"
+wc -l naltrexone_ct_publication_pmid > t4
+echo "naltrexone_ct_publication_pmid has $(cat t4 | awk '{print $1}') pmids"
 
-wc -l naltrexone_ct_preapp_reference_pmid > t5
-echo "naltrexone_ct_preapp_reference_pmid has $(cat t5 | awk '{print $1}') pmids"
+wc -l naltrexone_ct_reference_pmid > t5
+echo "naltrexone_ct_reference_pmid has $(cat t5 | awk '{print $1}') pmids"
 
-wc -l naltrexone_pubmed_preapp_pmid > t6
-echo "naltrexone_pubmed_preapp_pmid has $(cat t6 | awk '{print $1}') pmids"
+wc -l naltrexone_pubmed_all_pmid > t6
+echo "naltrexone_pubmed_all_pmid has $(cat t6 | awk '{print $1}') pmids"
 
 sleep 2
 
@@ -66,20 +66,20 @@ echo "processing naltrexone_npl_pmid"
 sed 's/^/\<naltrexone_npl_pmid\>/g'  naltrexone_patent_npl_pmid |
  sed 's/$/\<\/naltrexone_npl_pmid\>/g' > file3
 
-echo "processing naltrexone_ct_preapp_reference_pmid"
-# <!ELEMENT ct_preapp_reference_pmid (#PCDATA)>
-sed 's/^/\<ct_preapp_reference_pmid\>/g'  naltrexone_ct_preapp_reference_pmid |
- sed 's/$/\<\/ct_preapp_reference_pmid\>/g' > file4
+echo "processing naltrexone_ct_reference_pmid"
+# <!ELEMENT ct_reference_pmid (#PCDATA)>
+sed 's/^/\<ct_reference_pmid\>/g'  naltrexone_ct_reference_pmid |
+ sed 's/$/\<\/ct_reference_pmid\>/g' > file4
 
-echo "processing naltrexone_ct_preapp_publication_pmid"
-#  <!ELEMENT ct_preapp_publication_pmid (#PCDATA)>
-sed 's/^/\<ct_preapp_publication_pmid\>/g'  naltrexone_ct_preapp_publication_pmid |
- sed 's/$/\<\/ct_preapp_publication_pmid\>/g' > file5
+echo "processing naltrexone_ct_publication_pmid"
+#  <!ELEMENT ct_publication_pmid (#PCDATA)>
+sed 's/^/\<ct_publication_pmid\>/g'  naltrexone_ct_publication_pmid |
+ sed 's/$/\<\/ct_publication_pmid\>/g' > file5
 
-echo "processing naltrexone_pubmed_preapp_pmid"
-#   <!ELEMENT pubmed_preapp_pmid (#PCDATA)>
-sed 's/^/\<pubmed_preapp_pmid\>/g'  naltrexone_pubmed_preapp_pmid |
- sed 's/$/\<\/pubmed_preapp_pmid\>/g' > file6
+echo "processing naltrexone_pubmed_all_pmid"
+#   <!ELEMENT pubmed_all_pmid (#PCDATA)>
+sed 's/^/\<pubmed_all_pmid\>/g'  naltrexone_pubmed_all_pmid |
+ sed 's/$/\<\/pubmed_all_pmid\>/g' > file6
 
 
 for f in file*
@@ -139,8 +139,9 @@ rm naltrexone2.xml
 cat naltrexone.xml | egrep _pmid\>[0-9]{3} > temp1
 cat temp1 | egrep fda > temp2
 cat temp1 | egrep npl_pmid > temp3
-cat temp1 | egrep preapp > temp4
-cat temp2 temp3 temp4 | cut -d '<' -f2 | cut -d '>' -f2 | sort | uniq > naltrexone_seedset_pmid_presql
+cat temp1 | egrep ct_ > temp4
+cat temp1 | egrep pubmed  > temp5
+cat temp2 temp3 temp4 temp5 | cut -d '<' -f2 | cut -d '>' -f2 | sort | uniq > naltrexone_seedset_pmid_presql
 cat naltrexone_seedset_pmid_presql | wc -l  > line_count1
 echo "***"
 echo "$(cat line_count1) seedset pmids for naltrexone"

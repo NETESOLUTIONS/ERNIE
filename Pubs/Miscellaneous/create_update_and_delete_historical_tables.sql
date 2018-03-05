@@ -39,6 +39,7 @@ CREATE TABLE uhs_wos_abstracts (
   abstract_text   CHARACTER VARYING(4000),
   source_filename CHARACTER VARYING(200)
 );
+
 CREATE TABLE uhs_wos_addresses (
   id               INTEGER,
   source_id        CHARACTER VARYING(30),
@@ -50,6 +51,7 @@ CREATE TABLE uhs_wos_addresses (
   zip_code         CHARACTER VARYING(20),
   source_filename  CHARACTER VARYING(200)
 );
+
 CREATE TABLE uhs_wos_authors (
   id              INTEGER,
   source_id       CHARACTER VARYING(30),
@@ -65,6 +67,7 @@ CREATE TABLE uhs_wos_authors (
   r_id            CHARACTER VARYING(30),
   source_filename CHARACTER VARYING(200)
 );
+
 CREATE TABLE uhs_wos_document_identifiers (
   id               INTEGER,
   source_id        CHARACTER VARYING(30),
@@ -72,6 +75,7 @@ CREATE TABLE uhs_wos_document_identifiers (
   document_id_type CHARACTER VARYING(30),
   source_filename  CHARACTER VARYING(200)
 );
+
 CREATE TABLE uhs_wos_grants (
   id                 INTEGER,
   source_id          CHARACTER VARYING(30),
@@ -80,12 +84,14 @@ CREATE TABLE uhs_wos_grants (
   funding_ack        CHARACTER VARYING(4000),
   source_filename    CHARACTER VARYING(200)
 );
+
 CREATE TABLE uhs_wos_keywords (
   id              INTEGER,
   source_id       CHARACTER VARYING(30),
   keyword         CHARACTER VARYING(200),
   source_filename CHARACTER VARYING(200)
 );
+
 CREATE TABLE uhs_wos_publications (
   id                 INTEGER,
   source_id          CHARACTER VARYING(30),
@@ -108,19 +114,21 @@ CREATE TABLE uhs_wos_publications (
   edition            CHARACTER VARYING(40),
   source_filename    CHARACTER VARYING(200)
 );
+
 CREATE TABLE uhs_wos_references (
   id                 INTEGER,
   source_id          CHARACTER VARYING(30),
   cited_source_uid   CHARACTER VARYING(30),
   cited_title        CHARACTER VARYING(8000),
-  cited_work         CHARACTER VARYING(4000),
-  cited_author       CHARACTER VARYING(1000),
+  cited_work         TEXT,
+  cited_author       CHARACTER VARYING(3000),
   cited_year         CHARACTER VARYING(40),
   cited_page         CHARACTER VARYING(200),
   created_date       DATE,
   last_modified_date DATE,
   source_filename    CHARACTER VARYING(200)
 );
+
 CREATE TABLE uhs_wos_titles (
   id              INTEGER,
   source_id       CHARACTER VARYING(30),
@@ -136,6 +144,7 @@ CREATE TABLE del_wos_abstracts (
   abstract_text   CHARACTER VARYING(4000),
   source_filename CHARACTER VARYING(200)
 );
+
 CREATE TABLE del_wos_addresses (
   id               INTEGER,
   source_id        CHARACTER VARYING(30),
@@ -147,6 +156,7 @@ CREATE TABLE del_wos_addresses (
   zip_code         CHARACTER VARYING(20),
   source_filename  CHARACTER VARYING(200)
 );
+
 CREATE TABLE del_wos_authors (
   id              INTEGER,
   source_id       CHARACTER VARYING(30),
@@ -162,6 +172,7 @@ CREATE TABLE del_wos_authors (
   r_id            CHARACTER VARYING(30),
   source_filename CHARACTER VARYING(200)
 );
+
 CREATE TABLE del_wos_document_identifiers (
   id               INTEGER,
   source_id        CHARACTER VARYING(30),
@@ -169,6 +180,7 @@ CREATE TABLE del_wos_document_identifiers (
   document_id_type CHARACTER VARYING(30),
   source_filename  CHARACTER VARYING(200)
 );
+
 CREATE TABLE del_wos_grants (
   id                 INTEGER,
   source_id          CHARACTER VARYING(30),
@@ -177,12 +189,14 @@ CREATE TABLE del_wos_grants (
   funding_ack        CHARACTER VARYING(4000),
   source_filename    CHARACTER VARYING(200)
 );
+
 CREATE TABLE del_wos_keywords (
   id              INTEGER,
   source_id       CHARACTER VARYING(30),
   keyword         CHARACTER VARYING(200),
   source_filename CHARACTER VARYING(200)
 );
+
 CREATE TABLE del_wos_publications (
   id                 INTEGER,
   source_id          CHARACTER VARYING(30),
@@ -205,19 +219,21 @@ CREATE TABLE del_wos_publications (
   edition            CHARACTER VARYING(40),
   source_filename    CHARACTER VARYING(200)
 );
+
 CREATE TABLE del_wos_references (
   id                 INTEGER,
   source_id          CHARACTER VARYING(30),
   cited_source_uid   CHARACTER VARYING(30),
   cited_title        CHARACTER VARYING(8000),
-  cited_work         CHARACTER VARYING(4000),
-  cited_author       CHARACTER VARYING(1000),
+  cited_work         TEXT,
+  cited_author       CHARACTER VARYING(3000),
   cited_year         CHARACTER VARYING(40),
   cited_page         CHARACTER VARYING(200),
   created_date       DATE,
   last_modified_date DATE,
   source_filename    CHARACTER VARYING(200)
 );
+
 CREATE TABLE del_wos_titles (
   id              INTEGER,
   source_id       CHARACTER VARYING(30),
