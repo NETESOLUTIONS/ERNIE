@@ -94,11 +94,9 @@ fi
 process_ref_chunks() {
   set -e
   for table_chunk in $(cat ./table_split/split_tablename.txt); do
-    echo "${table_chunk}"
-    chunk_start_date=`date +%s`
-    psql -f "${absolute_script_dir}/wos_process_new_ref_chunk.sql" -v new_ref_chunk=${table_chunk}
-    chunk_end_date=`date +%s`
-    echo $((chunk_end_date - chunk_start_date)) | awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  This Chunk Update Duration" }'
+    echo "***Processing ${table_chunk} chunk"
+    /usr/bin/time --format='\nThis chunk has been processed in %E\n' \
+      psql -f "${absolute_script_dir}/wos_process_new_ref_chunk.sql" -v new_ref_chunk=${table_chunk}
   done
   # Auto-vacuum takes care of table analyses
   #psql -c 'VACUUM ANALYZE wos_references;' -v ON_ERROR_STOP=on
