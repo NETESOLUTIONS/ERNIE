@@ -37,7 +37,7 @@ CREATE TABLE disc_seedset_pmid AS
 SELECT pmid FROM disc_pubmed_search UNION
 SELECT pmid FROM disc_pi_search UNION 
 SELECT pmid FROM disc_exporter_search_pmid;
-
+DELETE FROM disc_seedset_pmid WHERE pmid IS NULL;
 -- map to wos_ids
 DROP TABLE IF EXISTS disc_seedset_pmid_wosid;
 CREATE TABLE disc_seedset_pmid_wosid AS
@@ -60,7 +60,8 @@ wos_references b ON a.wos_id=b.cited_source_uid;
 DROP TABLE IF EXISTS disc_edgelist_final;
 CREATE TABLE disc_edgelist_final AS
 SELECT DISTINCT citing_gen1 as source, 'wos_id' as stype, wos_id as target, 'wos_id' as ttype
-FROM disc_seedset_pmid_wosid_citing_gen1;
+FROM disc_seedset_pmid_wosid_citing_gen1
+WHERE citing_gen1 IS NOT NULL;
 
 -- build nodelist
 DROP TABLE IF EXISTS disc_nodelist_temp1;
