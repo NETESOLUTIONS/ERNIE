@@ -124,8 +124,9 @@ for core_file in $(ls *.tar.gz | sort -n); do
   # psql --quiet reduces a very large log size
   # Limit parallelism for now. Job slots > 2 can cause 1) wos_xml_update_parser.py or 2) Postgres to crash.
   MAX_JOB_SLOTS=2
-  ls | fgrep '.xml' | parallel -j ${MAX_JOB_SLOTS} --halt soon,fail=1 --line-buffer "echo 'Job @ slot #{%}: {}' &&
-    /anaconda2/bin/python -u '${absolute_script_dir}/wos_xml_update_parser.py' -filename {} -csv_dir ./ &&
+  ls | fgrep '.xml' | parallel -j ${MAX_JOB_SLOTS} --halt soon,fail=1 --line-buffer "set -e
+    echo 'Job @ slot #{%}: {}'
+    /anaconda2/bin/python -u '${absolute_script_dir}/wos_xml_update_parser.py' -filename {} -csv_dir ./
     psql -f {.}/{.}_load.sql -v ON_ERROR_STOP=on --quiet"
 #  rm -rf *
   cd ..
