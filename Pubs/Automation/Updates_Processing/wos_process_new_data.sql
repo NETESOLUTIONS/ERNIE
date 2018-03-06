@@ -1,46 +1,49 @@
--- This script updates the main WOS table (wos_*) except wos_references with
--- data from newly-downloaded files. Specifically:
+/*
+This script updates the main WOS table (wos_*) except wos_references with
+data from newly-downloaded files. Specifically:
 
--- For all except wos_publications and wos_references:
---     1. Find update records: find WOS IDs that need to be updated, and move
---        current records with these WOS IDs to the update history tables:
---        uhs_wos_*.
---     2. Insert updated/new records: insert all the records from the new
---        tables (new_wos_*) into the main table: wos_*.
---     3. Delete records: move records with specified delete WOS IDs to the
---                        delete tables: del_wos_*.
---     4. Truncate the new tables: new_wos_*.
---     5. Record to log table: update_log_wos.
+For all except wos_publications and wos_references:
+    1. Find update records: find WOS IDs that need to be updated, and move
+       current records with these WOS IDs to the update history tables:
+       uhs_wos_*.
+    2. Insert updated/new records: insert all the records from the new
+       tables (new_wos_*) into the main table: wos_*.
+    3. Delete records: move records with specified delete WOS IDs to the
+                       delete tables: del_wos_*.
+    4. Truncate the new tables: new_wos_*.
+    5. Record to log table: update_log_wos.
 
--- For wos_publications:
---     1. Find update_records: copy current records with WOS IDs in new table
---        to update history table: uhs_wos_publications.
---     2a. Update records: replace records in main table with same WOS IDs in
---         new table.
---     2b. Insert records: insert records with new WOS IDs in new table to main.
---     3,4,5: Same as above.
+For wos_publications:
+    1. Find update_records: copy current records with WOS IDs in new table
+       to update history table: uhs_wos_publications.
+    2a. Update records: replace records in main table with same WOS IDs in
+        new table.
+    2b. Insert records: insert records with new WOS IDs in new table to main.
+    3,4,5: Same as above.
 
--- Relevant main tables:
---     1. wos_abstracts
---     2. wos_addresses
---     3. wos_authors
---     4. wos_document_identifiers
---     5. wos_grants
---     6. wos_keywords
---     7. wos_publications
---     8. wos_references not included in this script
---     9. wos_titles
--- Usage: psql -f wos_update_tables.sql
+Relevant main tables:
+    1. wos_abstracts
+    2. wos_addresses
+    3. wos_authors
+    4. wos_document_identifiers
+    5. wos_grants
+    6. wos_keywords
+    7. wos_publications
+    8. wos_references not included in this script
+    9. wos_titles
 
--- Author: Lingtian "Lindsay" Wan
--- Create Date: 03/03/2016
--- Modified: 05/17/2016
---           06/06/2016, Lindsay Wan, deleted wos_references to another script
---           06/07/2016, Lindsay Wan, added begin_page, end_page, has_abstract columns to wos_publications
---           08/05/2016, Lindsay Wan, disabled hashjoin & mergejoin, added indexes
---           11/21/2016, Lindsay Wan, set search_path to public and lindsay
---           02/22/2017, Lindsay Wan, set search_path to public and samet
---           08/08/2017, Samet Keserci, index and tablespace are revised according to wos smokeload.
+Author: Lingtian "Lindsay" Wan
+Created: 03/03/2016
+Modified:
+* 05/17/2016
+* 06/06/2016, Lindsay Wan, deleted wos_references to another script
+* 06/07/2016, Lindsay Wan, added begin_page, end_page, has_abstract columns to wos_publications
+* 08/05/2016, Lindsay Wan, disabled hashjoin & mergejoin, added indexes
+* 11/21/2016, Lindsay Wan, set search_path to public and lindsay
+* 02/22/2017, Lindsay Wan, set search_path to public and samet
+* 08/08/2017, Samet Keserci, index and tablespace are revised according to wos smokeload.
+* 03/05/2018, Dmitriy "DK" Korobskiy, moved out table truncation to do it before the script
+*/
 
 -- Set temporary tablespace for calculation.
 SET log_temp_files = 0;
@@ -242,15 +245,15 @@ ON CONFLICT (source_id, type)
     source_filename = excluded.source_filename;
 
 -- Truncate new_wos_tables.
-\echo ***TRUNCATING TABLES: new_wos_*
-TRUNCATE TABLE new_wos_abstracts;
-TRUNCATE TABLE new_wos_addresses;
-TRUNCATE TABLE new_wos_authors;
-TRUNCATE TABLE new_wos_document_identifiers;
-TRUNCATE TABLE new_wos_grants;
-TRUNCATE TABLE new_wos_keywords;
-TRUNCATE TABLE new_wos_publications;
-TRUNCATE TABLE new_wos_titles;
+-- \echo ***TRUNCATING TABLES: new_wos_*
+-- TRUNCATE TABLE new_wos_abstracts;
+-- TRUNCATE TABLE new_wos_addresses;
+-- TRUNCATE TABLE new_wos_authors;
+-- TRUNCATE TABLE new_wos_document_identifiers;
+-- TRUNCATE TABLE new_wos_grants;
+-- TRUNCATE TABLE new_wos_keywords;
+-- TRUNCATE TABLE new_wos_publications;
+-- TRUNCATE TABLE new_wos_titles;
 
 -- Write date to log.
 UPDATE update_log_wos
