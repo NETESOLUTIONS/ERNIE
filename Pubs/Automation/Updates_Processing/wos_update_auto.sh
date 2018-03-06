@@ -3,12 +3,15 @@
 # Author: Lingtian "Lindsay" Wan
 # Created: 02/24/2016
 # Modified:
-# 06/07/2016, Lindsay Wan, divided wos_references update to loops of small chunks
-# 11/17/2016, Lindsay Wan, added command to prepare a file list of parsed csv directories for production server
-# 11/28/2016, Lindsay Wan, added list del wos files to a txt for prod server.
-# 01/26/2018, Dmitriy "DK" Korobskiy
-# * Enabled running from any directory
-# * Simplified
+# * 06/07/2016, Lindsay Wan, divided wos_references update to loops of small chunks
+# * 11/17/2016, Lindsay Wan, added command to prepare a file list of parsed csv directories for production server
+# * 11/28/2016, Lindsay Wan, added list del wos files to a txt for prod server.
+# * 01/26/2018, Dmitriy "DK" Korobskiy
+# ** Enabled running from any directory
+# ** Simplified
+# * 03/05/2018, Dmitriy "DK" Korobskiy
+# ** Refactored background jobs with wait to GNU parallel to handle errors correctly
+# ** Truncating staging tables before loading of each core file
 
 if [[ $1 == "-h" ]]; then
   cat << END
@@ -30,6 +33,11 @@ DESCRIPTION
   8. Update log file.
 
   Uses the specified working_directory ({script_dir}/build/ by default).
+
+  Designed to:
+  * Fail early on the first error. Temporary files and data are left behind to examine.
+  * Use limited parallelism to the extent process can handle it.
+  * Clean temporary files and data *before* processing.
 END
   exit 1
 fi
@@ -86,13 +94,12 @@ fi
 process_ref_chunks() {
   set -e
   for table_chunk in $(cat ./table_split/split_tablename.txt); do
-    echo "${table_chunk}"
-    chunk_start_date=`date +%s`
-    psql -f "${absolute_script_dir}/wos_update_ref_tables.sql" -v new_ref_chunk=${table_chunk}
-    chunk_end_date=`date +%s`
-    echo $((chunk_end_date - chunk_start_date)) | awk '{print int($1/3600) " hour : " int(($1/60)%60) " min : " int($1%60) " sec ::  This Chunk Update Duration" }'
+    echo "***Processing ${table_chunk} chunk"
+    {
+    /usr/bin/time --format='\nThis chunk has been processed in %E\n' \
+      psql -f "${absolute_script_dir}/wos_process_new_ref_chunk.sql" -v new_ref_chunk=${table_chunk}
+    } 2>&1
   done
-  psql -v ON_ERROR_STOP=on -c 'TRUNCATE TABLE new_wos_references;'
   # Auto-vacuum takes care of table analyses
   #psql -c 'VACUUM ANALYZE wos_references;' -v ON_ERROR_STOP=on
 }
@@ -119,13 +126,25 @@ for core_file in $(ls *.tar.gz | sort -n); do
   find ${xml_update_dir}/ -name '*SPLIT*' -print0 | xargs -0 mv --target-directory=xml_files_splitted
 
   echo "***Parsing ${core_file} and loading data to staging tables"
+  parallel --halt soon,fail=1 --line-buffer ::: \
+    "psql -v ON_ERROR_STOP=on --echo-all -c 'TRUNCATE TABLE new_wos_abstracts;'" \
+    "psql -v ON_ERROR_STOP=on --echo-all -c 'TRUNCATE TABLE new_wos_addresses;'" \
+    "psql -v ON_ERROR_STOP=on --echo-all -c 'TRUNCATE TABLE new_wos_authors;'" \
+    "psql -v ON_ERROR_STOP=on --echo-all -c 'TRUNCATE TABLE new_wos_document_identifiers;'" \
+    "psql -v ON_ERROR_STOP=on --echo-all -c 'TRUNCATE TABLE new_wos_grants;'" \
+    "psql -v ON_ERROR_STOP=on --echo-all -c 'TRUNCATE TABLE new_wos_keywords;'" \
+    "psql -v ON_ERROR_STOP=on --echo-all -c 'TRUNCATE TABLE new_wos_publications;'" \
+    "psql -v ON_ERROR_STOP=on --echo-all -c 'TRUNCATE TABLE new_wos_titles;'" \
+    "psql -v ON_ERROR_STOP=on --echo-all -c 'TRUNCATE TABLE new_wos_references;'"
+
   cd xml_files_splitted
   # `ls *.xml` might cause an "Argument list too long" error
   # psql --quiet reduces a very large log size
   # Limit parallelism for now. Job slots > 2 can cause 1) wos_xml_update_parser.py or 2) Postgres to crash.
   MAX_JOB_SLOTS=2
-  ls | fgrep '.xml' | parallel -j ${MAX_JOB_SLOTS} --halt soon,fail=1 --line-buffer "echo 'Job @ slot #{%}: {}' &&
-    /anaconda2/bin/python -u '${absolute_script_dir}/wos_xml_update_parser.py' -filename {} -csv_dir ./ &&
+  ls | fgrep '.xml' | parallel -j ${MAX_JOB_SLOTS} --halt soon,fail=1 --line-buffer "set -e
+    echo 'Job @ slot #{%}: {}'
+    /anaconda2/bin/python -u '${absolute_script_dir}/wos_xml_parser.py' -filename {} -csv_dir ./
     psql -f {.}/{.}_load.sql -v ON_ERROR_STOP=on --quiet"
 #  rm -rf *
   cd ..
@@ -135,13 +154,14 @@ for core_file in $(ls *.tar.gz | sort -n); do
 
   echo "***Updating WOS tables"
   # Start with splitting the New WOS references tables
-  /anaconda2/bin/python -u "${absolute_script_dir}/wos_update_split_db_table.py" -tablename new_wos_references \
+  /anaconda2/bin/python -u "${absolute_script_dir}/wos_split_db_table.py" -tablename new_wos_references \
                         -rowcount 10000 -csv_dir "${work_dir}/table_split/"
   psql -f table_split/load_csv_table.sql -v ON_ERROR_STOP=on
 
   # Run the updates for the other 8 tables in parallel with references.
   # Using GNU parallel rather than background jobs for correct error processing
-  parallel --halt soon,fail=1 --line-buffer ::: "psql -f ${absolute_script_dir}/wos_update_tables.sql" \
+  # --halt now: since processing chunks can take much longer we need to kill job 2 on failure in job 1
+  parallel --halt now,fail=1 --line-buffer ::: "psql -f ${absolute_script_dir}/wos_process_new_data.sql" \
            process_ref_chunks
   echo "WOS update process for ${core_file} completed"
 
@@ -165,8 +185,8 @@ if compgen -G "WOS*.del.gz" > /dev/null; then
   # Save delete WOS IDs to a delete records file.
   cat WOS*.del | awk '{split($1,filename,",");print "WOS:" filename[2]}' > del_wosid.csv
 
-  # Delete table records with delete wos_ids. Do this in parallel.
-  psql -f "${absolute_script_dir}/wos_delete_tables.sql"
+  # Delete table records with delete wos_ids
+  psql -f "${absolute_script_dir}/wos_process_deletions.sql"
 #  rm -f del_wosid.csv
   ls WOS*.del | awk '{print $1 ".gz"}' >> finished_filelist.txt
 #  rm -f *.del

@@ -1,25 +1,24 @@
 """
-This script splits a table table_name in database to small chunks of subtables
-and creates 1. csv files for these subtables; 2. a SQL file that can run to
-load csv files to these subtables.
+This script splits a table table_name in database to small chunks of sub-tables
+and creates:
+* CSV files for these sub-tables
+* a SQL file that can run to load csv files to these sub-tables.
 
 This version is customized for WOS update. For the general-purpose version
 please see split_db_table.py.
 
-Usage: python split_db_table.py -tablename table_name -rowcount chunk_length -csv_dir work_dir
+Usage: python wos_split_db_table.py -tablename table_name -rowcount chunk_length -csv_dir work_dir
        where table_name = table to be splitted,
        chunk_length = a number specifying number of rows in each chunk (default=10000),
        work_dir = working directory.
 
-Note: 1. To load csv data to each subtable, you need to run a seperate command in shell afterwards:
+Note: 1. To load csv data to each sub-table, you need to run a separate command in shell afterwards:
          psql -f load_csv_table.sql
-      2. Change SQL username to your own name (here it is 'samet') before running.
 
 Author: Shixin Jiang, Lingtian "Lindsay" Wan
 Create Date: 06/06/2016
 Modified: 06/06/2016, Lindsay Wan, added customized path, dropped old tables before creating new ones
           02/22/2017, Lindsay Wan, change username from lindsay to samet
-
 """
 
 import csv
