@@ -181,7 +181,7 @@ BEGIN
       case_DRUG_NAME_HERE_citation_network_years_forward a INNER JOIN wos_grants b
       on a.wos_id=b.source_id;');
       DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_locations_forward;
-      EXECUTE('create table case_DRUG_NAME_HERE_citation_network_locations as
+      EXECUTE('create table case_DRUG_NAME_HERE_citation_network_locations_forward as
       select distinct a.pmid_int, a.wos_id, b.organization, b.city, b.country from
       case_DRUG_NAME_HERE_citation_network_years_forward a INNER JOIN wos_addresses b
       on a.wos_id=b.source_id;');
