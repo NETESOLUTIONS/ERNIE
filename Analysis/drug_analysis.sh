@@ -40,7 +40,7 @@ cat $baseline_sql_forward | sed 's/DRUG_NAME_HERE/'$drug_name'/g'| sed 's/INSERT
 if [ "${analysis}" == "backward" ]; then
   psql ernie -f  $drug_name'_reference_generation.sql'
 elif [ "${analysis}" == "forward" ]; then
-  psql ernie -f  $drug_name'_reference_generation.sql_forward'
+  psql ernie -f  $drug_name'_reference_generation_forward.sql'
 elif [ "${analysis}" == "both" ]; then
   psql ernie -f  $drug_name'_reference_generation_forward.sql'
   psql ernie -f  $drug_name'_reference_generation.sql'
