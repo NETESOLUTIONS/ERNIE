@@ -5,7 +5,7 @@ set default_tablespace=ernie_default_tbs;
 
 DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_fb_union;
 CREATE TABLE case_DRUG_NAME_HERE_citation_network_fb_union AS
-    SELECT distinct(*) FROM (SELECT citing_pmid,citing_wos,cited_wos,cited_pmid FROM case_DRUG_NAME_HERE_citation_network_forward
+    SELECT distinct * FROM (SELECT citing_pmid,citing_wos,cited_wos,cited_pmid FROM case_DRUG_NAME_HERE_citation_network_forward
                               UNION
                              SELECT citing_pmid,citing_wos,cited_wos,cited_pmid FROM case_DRUG_NAME_HERE_citation_network ) a;
 
