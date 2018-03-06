@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_fb_union;
 CREATE TABLE case_DRUG_NAME_HERE_citation_network_fb_union AS
     SELECT distinct * FROM (SELECT citing_pmid,citing_wos,cited_wos,cited_pmid FROM case_DRUG_NAME_HERE_citation_network_forward
                               UNION
-                             SELECT citing_pmid,citing_wos,cited_wos,cited_pmid FROM case_DRUG_NAME_HERE_citation_network ) a;
+                             SELECT citing_pmid,citing_wos,cited_wos,cited_pmid FROM case_DRUG_NAME_HERE_citation_network) a;
 
 DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_years_fb_union;
 CREATE TABLE case_DRUG_NAME_HERE_citation_network_years_fb_union AS
