@@ -95,8 +95,10 @@ process_ref_chunks() {
   set -e
   for table_chunk in $(cat ./table_split/split_tablename.txt); do
     echo "***Processing ${table_chunk} chunk"
+    {
     /usr/bin/time --format='\nThis chunk has been processed in %E\n' \
       psql -f "${absolute_script_dir}/wos_process_new_ref_chunk.sql" -v new_ref_chunk=${table_chunk}
+    } 2>&1
   done
   # Auto-vacuum takes care of table analyses
   #psql -c 'VACUUM ANALYZE wos_references;' -v ON_ERROR_STOP=on
@@ -158,7 +160,8 @@ for core_file in $(ls *.tar.gz | sort -n); do
 
   # Run the updates for the other 8 tables in parallel with references.
   # Using GNU parallel rather than background jobs for correct error processing
-  parallel --halt soon,fail=1 --line-buffer ::: "psql -f ${absolute_script_dir}/wos_process_new_data.sql" \
+  # --halt now: since processing chunks can take much longer we need to kill job 2 on failure in job 1
+  parallel --halt now,fail=1 --line-buffer ::: "psql -f ${absolute_script_dir}/wos_process_new_data.sql" \
            process_ref_chunks
   echo "WOS update process for ${core_file} completed"
 
