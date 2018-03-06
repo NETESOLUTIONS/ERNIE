@@ -47,12 +47,12 @@ case_DRUG_NAME_HERE_citation_network_years_fb_union a INNER JOIN exporter_publin
 ON a.pmid_int=CAST(b.pmid AS int);
 
 --output tables to CSV format under disk space
-COPY case_DRUG_NAME_HERE_citation_network_fb_union TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_forward.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
-COPY case_DRUG_NAME_HERE_citation_network_years_fb_union TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_years_forward.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
-COPY case_DRUG_NAME_HERE_citation_network_grants_SPIRES_fb_union TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_grants_SPIRES_forward.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
-COPY case_DRUG_NAME_HERE_citation_network_grants_WOS_fb_union TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_grants_WOS_forward.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
-COPY case_DRUG_NAME_HERE_citation_network_locations_fb_union TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_locations_forward.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
-COPY case_DRUG_NAME_HERE_citation_network_authors_fb_union TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_authors_forward.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
+COPY case_DRUG_NAME_HERE_citation_network_fb_union TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_fb_union.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
+COPY case_DRUG_NAME_HERE_citation_network_years_fb_union TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_years_fb_union.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
+COPY case_DRUG_NAME_HERE_citation_network_grants_SPIRES_fb_union TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_grants_SPIRES_fb_union.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
+COPY case_DRUG_NAME_HERE_citation_network_grants_WOS_fb_union TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_grants_WOS_fb_union.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
+COPY case_DRUG_NAME_HERE_citation_network_locations_fb_union TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_locations_fb_union.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
+COPY case_DRUG_NAME_HERE_citation_network_authors_fb_union TO '/erniedev_data2/DRUG_NAME_HERE_citation_network_authors_fb_union.txt' WITH NULL as 'NA' DELIMITER E'\t' CSV HEADER;
 
 --collect some statistics and output to screen
 \! printf '\n\n\n*** IMPORTANT ***\n\n The following counts are taken from the citation network table.\nSeedset PMIDs without a corresponding WoS ID are not counted in the network as they have droppped out of the network\n\n\n'
