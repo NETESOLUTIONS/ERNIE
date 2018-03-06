@@ -47,8 +47,8 @@ create table case_DRUG_NAME_HERE_wos_supplement_set_dedupe as
   select distinct * from case_DRUG_NAME_HERE_wos_supplement_set;
 DROP TABLE IF EXISTS case_DRUG_NAME_HERE_wos_supplement_set;
 ALTER TABLE case_DRUG_NAME_HERE_wos_supplement_set_dedupe RENAME TO case_DRUG_NAME_HERE_wos_supplement_set;
-INSERT INTO case_DRUG_NAME_HERE_generational_references(pmid, wos_id, project_number)
-select null, source_id, null from case_DRUG_NAME_HERE_wos_supplement_set where source_id not in (select wos_id from case_DRUG_NAME_HERE_generational_references where wos_id is not null);
+INSERT INTO case_DRUG_NAME_HERE_generational_references_forward(pmid, wos_id, project_number)
+select null, source_id, null from case_DRUG_NAME_HERE_wos_supplement_set where source_id not in (select wos_id from case_DRUG_NAME_HERE_generational_references_forward where wos_id is not null);
 
 
 DO $$
@@ -73,20 +73,20 @@ BEGIN
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_generational_references_forward;
         EXECUTE('DROP TABLE IF EXISTS case_DRUG_NAME_HERE_gen'||X||'_ref_forward;');
         EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid_forward
-          RENAME TO case_DRUG_NAME_HERE_generational_references;');
+          RENAME TO case_DRUG_NAME_HERE_generational_references_forward;');
         create index case_DRUG_NAME_HERE_generational_references_wos_index_forward on case_DRUG_NAME_HERE_generational_references_forward
           using btree (wos_id) tablespace indexes;
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_forward;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network_forward as
         select distinct b.source_id as citing_wos, a.cited as cited_wos from
-          ( select distinct wos_id as cited from case_DRUG_NAME_HERE_generational_references
+          ( select distinct wos_id as cited from case_DRUG_NAME_HERE_generational_references_forward
             union all
-            select distinct gen'||X||'_citing_wos_id as cited from case_DRUG_NAME_HERE_generational_references
+            select distinct gen'||X||'_citing_wos_id as cited from case_DRUG_NAME_HERE_generational_references_forward
           ) a
           inner join wos_references b
             on a.cited=b.cited_source_uid
-          where b.source_id in (select wos_id as cited from case_DRUG_NAME_HERE_generational_references)
-            or b.source_id in (select gen'||X||'_citing_wos_id as cited from case_DRUG_NAME_HERE_generational_references) ;');
+          where b.source_id in (select wos_id as cited from case_DRUG_NAME_HERE_generational_references_forward)
+            or b.source_id in (select gen'||X||'_citing_wos_id as cited from case_DRUG_NAME_HERE_generational_references_forward) ;');
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_pmid_forward;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network_pmid_forward as
         select distinct b.pmid_int as citing_pmid, a.citing_wos, a.cited_wos, c.pmid_int as cited_pmid
@@ -120,14 +120,14 @@ BEGIN
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_dummy_forward;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network_dummy_forward as
         select distinct b.source_id as citing_wos, a.cited as cited_wos from
-          ( select distinct gen'||X-1||'_citing_wos_id as cited from case_DRUG_NAME_HERE_generational_references
+          ( select distinct gen'||X-1||'_citing_wos_id as cited from case_DRUG_NAME_HERE_generational_references_forward
             union all
-            select distinct gen'||X||'_citing_wos_id as cited from case_DRUG_NAME_HERE_generational_references
+            select distinct gen'||X||'_citing_wos_id as cited from case_DRUG_NAME_HERE_generational_references_forward
           ) a
           inner join wos_references b
             on a.cited=b.cited_source_uid
-          where b.source_id in (select gen'||X-1||'_citing_wos_id as cited from case_DRUG_NAME_HERE_generational_references)
-            or b.source_id in (select gen'||X||'_citing_wos_id as cited from case_DRUG_NAME_HERE_generational_references) ;');
+          where b.source_id in (select gen'||X-1||'_citing_wos_id as cited from case_DRUG_NAME_HERE_generational_references_forward)
+            or b.source_id in (select gen'||X||'_citing_wos_id as cited from case_DRUG_NAME_HERE_generational_references_forward) ;');
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_pmid_dummy_forward;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network_pmid_dummy_forward as
         select distinct b.pmid_int as citing_pmid, a.citing_wos, a.cited_wos, c.pmid_int as cited_pmid
@@ -192,7 +192,7 @@ BEGIN
       on a.pmid_int=CAST(b.pmid as int);');
       RAISE NOTICE 'Percent loss when mapping citing WoS IDs to PMIDs for Generation %:', X;
       EXECUTE('select (1-(CAST(count(gen'||X||'_citing_wos_id) as decimal)/count(gen'||X||'_citing_pmid))) as
-        percent_gen'||X||'_citing_wos_id_with_matching_PMID from case_DRUG_NAME_HERE_generational_references;');
+        percent_gen'||X||'_citing_wos_id_with_matching_PMID from case_DRUG_NAME_HERE_generational_references_forward;');
       RAISE NOTICE 'Completed Iteration: %', X;
    END LOOP;
 END; $$;
@@ -216,6 +216,6 @@ select count(distinct wos_id) from case_DRUG_NAME_HERE_pmid_wos_projects;
 \! echo '***Total distinct citing documents:'
 select count(distinct citing_wos) from case_DRUG_NAME_HERE_citation_network_forward;
 \! echo '***Total distinct citing PMIDs:'
-select count(distinct citing_pmid) from case_DRUG_NAME_HERE_citation_network_forwar  where citing_pmid is not null;
+select count(distinct citing_pmid) from case_DRUG_NAME_HERE_citation_network_forward  where citing_pmid is not null;
 \! echo '***Total distinct documents in network (Remember - WoS backbone)' -- can use the years table here as it is a union into what is basically a node list table, left joined on years. As a result, the node listing is preserved even for those entries without years.
 select count(distinct wos_id) from case_DRUG_NAME_HERE_citation_network_years_forward;
