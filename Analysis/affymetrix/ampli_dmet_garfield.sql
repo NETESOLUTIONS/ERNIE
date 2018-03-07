@@ -215,6 +215,8 @@ SELECT DISTINCT a.*,b.total_citation_count
 FROM garfield_nodelist_final a 
 LEFT JOIN garfield_node_citation_a b 
 ON a.node=b.node;
+UPDATE garfield_nodelist_final_citation
+SET total_citation_count =3000 WHERE total_citation_count S NULL;
 
 -- copy tables to /tmp for import
 COPY (
