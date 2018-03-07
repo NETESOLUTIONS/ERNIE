@@ -154,7 +154,7 @@ UPDATE garfield_nodelist_formatted_a SET endpoint='startref1' WHERE ntype='start
 UPDATE garfield_nodelist_formatted_a SET endpoint='startref2' WHERE ntype='startref2';
 UPDATE garfield_nodelist_formatted_a SET endpoint='endref'    WHERE ntype='endref';
 UPDATE garfield_nodelist_formatted_a SET ntype='wos_id';
-UPDATE garfield_nodelist_formatted_a SET endpoint='sourget' WHERE endpoint IS NULL;
+
 
 DROP TABLE IF EXISTS garfield_nodelist_formatted_b;
 CREATE TABLE garfield_nodelist_formatted_b AS
@@ -193,6 +193,12 @@ FROM garfield_nodelist_formatted_c_pmid_grants;
 CREATE INDEX garfield_nodelist_final_idx ON garfield_nodelist_final(node);
 
 -- remove duplicate rows
+DROP TABLE IF EXISTS garfield_dupe_node_deletes;
+CREATE TABLE garfield-duple_node_deletes AS
+SELECT * from garfield_nodelist_final ou 
+WHERE (select count(*) from garfield_nodelist_final inr where inr.node = ou.node)  > 1  
+AND endpoint IS NULL order by node;
+
 DELETE FROM garfield_nodelist_final WHERE node IN (select node from garfield_nodelist_final ou
 where (select count(*) from garfield_nodelist_final inr
 where inr.node = ou.node) > 1 order by node) AND endpoint IS NULL;
