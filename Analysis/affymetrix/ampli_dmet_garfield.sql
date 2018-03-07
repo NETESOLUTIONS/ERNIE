@@ -194,7 +194,7 @@ CREATE INDEX garfield_nodelist_final_idx ON garfield_nodelist_final(node);
 
 -- remove duplicate rows
 DROP TABLE IF EXISTS garfield_dupe_node_deletes;
-CREATE TABLE garfield-duple_node_deletes AS
+CREATE TABLE garfield-dupe_node_deletes AS
 SELECT * from garfield_nodelist_final ou 
 WHERE (select count(*) from garfield_nodelist_final inr where inr.node = ou.node)  > 1  
 AND endpoint IS NULL order by node;
@@ -227,8 +227,6 @@ COPY (
   SELECT node AS "wos_id:ID",
          ntype AS "ntype:string",
 	 endpoint AS "endpoint:string",
---    CAST(startref = '1' AS text) AS "startref:boolean",
---    CAST(endref = '1' AS text) AS "endref:boolean",
     CAST(nida_support AS text) AS "nida_support:boolean",
     CAST(other_hhs_support AS text) AS "other_hhs_support:boolean",
     publication_year AS "publication_year:int",
