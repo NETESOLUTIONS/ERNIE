@@ -2,7 +2,7 @@
 
 DROP TABLE IF EXISTS garfield_dmet;
 CREATE TABLE garfield_dmet(pmid int, wos_id varchar(30));
-\COPY garfield_dmet FROM '~/garfield_dmet.csv' CSV HEADER DELIMITER ',';
+\COPY garfield_dmet FROM '~/ERNIE/Analysis/affymetrix/garfield_dmet.csv' CSV HEADER DELIMITER ',';
 
 DROP TABLE IF EXISTS garfield_dmet2;
 CREATE TABLE garfield_dmet2 AS
