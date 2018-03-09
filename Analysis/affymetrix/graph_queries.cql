@@ -34,6 +34,8 @@ RETURN count(p), avg(length(p));
 
 // 5) Overall PageRank stats for nodes in these paths: percentiles, min, max, mean, stdev
 // TODO
+MATCH p=allShortestPaths((a {endpoint: 'startref1'})-[*]->(b {endpoint: 'endref'}))
+RETURN apoc.agg.statistics([x IN nodes(p) | x.pagerank]);
 
 // Top 10 most frequently used nodes in *all* paths <= 10 segments
 MATCH path=((a {endpoint: 'startref1'})-[*..10]->(b {endpoint: 'endref'}))
