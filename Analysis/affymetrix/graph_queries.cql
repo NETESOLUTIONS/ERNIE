@@ -1,8 +1,21 @@
+// region Setup
 CREATE INDEX ON :Publication(endpoint);
 
 CREATE INDEX ON :Publication(nida_support);
 
 CREATE INDEX ON :Publication(other_hhs_support);
+
+// Calculate and store PageRank
+CALL algo.pageRank()
+YIELD nodes, iterations, loadMillis, computeMillis, writeMillis, dampingFactor, write, writeProperty
+
+// Calculate and store Betweenness Centrality
+CALL algo.betweenness(null, null, {writeProperty: 'betweenness'})
+YIELD nodes, minCentrality, maxCentrality, sumCentrality, loadMillis, computeMillis, writeMillis
+
+// Calculate and store Closeness Centrality
+CALL algo.closeness(null, null, {writeProperty: 'closeness'})
+YIELD nodes, loadMillis, computeMillis, writeMillis
 
 // PageRank statistics
 MATCH (n)
@@ -20,13 +33,16 @@ RETURN apoc.agg.statistics(n.pagerank);
 //  "0.95": 0.14999961853027344,
 //  "stdev": 41.08246365590009
 //}
+// endregion
 
-//region Starting from startref1 nodes
+// region Testing
 // Test sub-graph
 MATCH p = (a {endpoint: 'startref1'})-->(n {publication_year: 2002})
   WHERE a.pagerank >= 0.19
 RETURN p
+// endregion
 
+//region Starting from startref1 nodes
 // 1) Shortest paths from startref1 to endref (count, avg length)
 // 15.7s
 MATCH p = allShortestPaths((a {endpoint: 'startref1'})-[*]->(b {endpoint: 'endref'}))
@@ -80,8 +96,8 @@ RETURN apoc.agg.statistics(n.pagerank);
 // 6) Shortest paths passing through one or more high-value PageRank nodes (>= 99th percentile)
 // 10.4s
 MATCH p = allShortestPaths((a {endpoint: 'startref1'})-[*]->(b {endpoint: 'endref'}))
-// Without WITH predicates used in the WHERE clause that apply to the shortest path pattern are evaluated
-// before deciding what the shortest matching path is.
+// WITH is required here otherwise WHERE predicates that apply to the shortest path pattern would be
+// evaluated *before* deciding what the shortest matching path is.
 WITH p
   WHERE any(x IN nodes(p)
     WHERE x <> a AND x <> b AND x.pagerank > 4.725)
@@ -150,11 +166,11 @@ RETURN apoc.agg.statistics(n.pagerank)
 //  "stdev": 2041.2323204254258
 //}
 
-// 6) Shortest paths passing through one or more high-value PageRank nodes (>= 99th percentile)
+// 6) A sub-set of all shortest paths that pass through a high-value PageRank node (>= 99th percentile)
 // 15.0s
 MATCH p = allShortestPaths((a {endpoint: 'startref2'})-[*]->(b {endpoint: 'endref'}))
-// Without WITH predicates used in the WHERE clause that apply to the shortest path pattern are evaluated
-// before deciding what the shortest matching path is.
+// WITH is required here otherwise WHERE predicates that apply to the shortest path pattern would be
+// evaluated *before* deciding what the shortest matching path is.
 WITH p
   WHERE any(x IN nodes(p)
     WHERE x <> a AND x <> b AND x.pagerank > 4.725)
