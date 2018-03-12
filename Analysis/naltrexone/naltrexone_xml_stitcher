@@ -84,7 +84,7 @@ sed 's/^/\<pubmed_all_pmid\>/g'  naltrexone_pubmed_all_pmid |
 
 for f in file*
 do
-    if [$(cat $f | wc -l) = 0 ]
+    if [ $(cat $f | wc -l) = 0 ]
 	then
 	    echo "*** $f is problematic"
 	    else echo "$f has at least 1 line"
