@@ -101,8 +101,16 @@ MATCH p = allShortestPaths((a {endpoint: 'startref1'})-[*]->(b {endpoint: 'endre
 WITH p
   WHERE any(x IN nodes(p)
     WHERE x <> a AND x <> b AND x.pagerank > 4.725)
-RETURN count(p)
+RETURN count(p);
 // 645
+
+// 7) Shortest paths among those that pass through at least one nida_support node from startref1 to endref
+MATCH p = allShortestPaths((a {endpoint: 'startref1'})-[*]->(b {endpoint: 'endref'}))
+  WHERE any(x IN nodes(p)
+    WHERE x <> a AND x <> b AND x.nida_support)
+UNWIND nodes(p) AS path_node
+WITH DISTINCT path_node AS n
+RETURN apoc.agg.statistics(n.pagerank);
 
 // Top 10 most frequently used nodes in *all* paths <= 10 segments
 MATCH path = ((a {endpoint:'startref1'}) - [ *..10] - >(b {endpoint:'endref'}))
@@ -151,7 +159,7 @@ RETURN count(p), avg(length(p));
 MATCH p = allShortestPaths((a {endpoint: 'startref2'})-[*]->(b {endpoint: 'endref'}))
 UNWIND nodes(p) AS path_node
 WITH DISTINCT path_node AS n
-RETURN apoc.agg.statistics(n.pagerank)
+RETURN apoc.agg.statistics(n.pagerank);
 //{
 //  "total": 131,
 //  "min": 0.14999961853027344,
@@ -174,6 +182,6 @@ MATCH p = allShortestPaths((a {endpoint: 'startref2'})-[*]->(b {endpoint: 'endre
 WITH p
   WHERE any(x IN nodes(p)
     WHERE x <> a AND x <> b AND x.pagerank > 4.725)
-RETURN count(p)
+RETURN count(p);
 // 1699
 //endregion
