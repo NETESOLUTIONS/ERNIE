@@ -7,15 +7,15 @@ CREATE INDEX ON :Publication(other_hhs_support);
 
 // Calculate and store PageRank
 CALL algo.pageRank()
-YIELD nodes, iterations, loadMillis, computeMillis, writeMillis, dampingFactor, write, writeProperty
+YIELD nodes, iterations, loadMillis, computeMillis, writeMillis, dampingFactor, write, writeProperty;
 
 // Calculate and store Betweenness Centrality
 CALL algo.betweenness(null, null, {writeProperty: 'betweenness'})
-YIELD nodes, minCentrality, maxCentrality, sumCentrality, loadMillis, computeMillis, writeMillis
+YIELD nodes, minCentrality, maxCentrality, sumCentrality, loadMillis, computeMillis, writeMillis;
 
 // Calculate and store Closeness Centrality
 CALL algo.closeness(null, null, {writeProperty: 'closeness'})
-YIELD nodes, loadMillis, computeMillis, writeMillis
+YIELD nodes, loadMillis, computeMillis, writeMillis;
 
 // PageRank statistics
 MATCH (n)
@@ -39,7 +39,7 @@ RETURN apoc.agg.statistics(n.pagerank);
 // Test sub-graph
 MATCH p = (a {endpoint: 'startref1'})-->(n {publication_year: 2002})
   WHERE a.pagerank >= 0.19
-RETURN p
+RETURN p;
 // endregion
 
 //region Starting from startref1 nodes
