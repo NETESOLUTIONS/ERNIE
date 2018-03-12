@@ -12,8 +12,8 @@ SHOW ALL;
 SHOW temp_tablespaces;
 SHOW search_path;
 
--- Server configuration
 SELECT
+  -- Server configuration
   seqno,
   name,
   setting,
