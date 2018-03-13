@@ -184,4 +184,12 @@ WITH p
     WHERE x <> a AND x <> b AND x.pagerank > 4.725)
 RETURN count(p);
 // 1699
+
+// 7) Shortest paths among those that pass through at least one nida_support node from startref2 to endref
+MATCH p = allShortestPaths((a {endpoint: 'startref2'})-[*]->(b {endpoint: 'endref'}))
+  WHERE any(x IN nodes(p)
+    WHERE x <> a AND x <> b AND x.nida_support)
+UNWIND nodes(p) AS path_node
+WITH DISTINCT path_node AS n
+RETURN apoc.agg.statistics(n.pagerank);
 //endregion
