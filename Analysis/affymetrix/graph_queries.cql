@@ -114,7 +114,6 @@ RETURN apoc.agg.statistics(n.pagerank);
 
 // Top 10 most frequently used nodes in *all* paths <= 10 segments
 MATCH path = ((a {endpoint:'startref1'}) - [ *..10] - >(b {endpoint:'endref'}))
-
 WITH nodes(path) AS nodes, relationships(path) AS edges
 MATCH (n)-[r]-()
   WHERE n IN nodes AND r IN edges
@@ -186,6 +185,7 @@ RETURN count(p);
 // 1699
 
 // 7) Shortest paths among those that pass through at least one nida_support node from startref2 to endref
+// >17h
 MATCH p = allShortestPaths((a {endpoint: 'startref2'})-[*]->(b {endpoint: 'endref'}))
   WHERE any(x IN nodes(p)
     WHERE x <> a AND x <> b AND x.nida_support)
