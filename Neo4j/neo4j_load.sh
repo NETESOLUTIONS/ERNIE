@@ -60,8 +60,8 @@ db_name="${name%%_*}-v${db_ver}.db"
 # Hide password from the output
 set +x
 echo "Loading data into ${db_name} ..."
-echo "$3" | sudo --stdin -u neo4j neo4j-admin import --nodes:Publication "${nodes_file}" --relationships:CITES "${edges_file}"
---database="${db_name}"
+echo "$3" | sudo --stdin -u neo4j neo4j-admin import --nodes:Publication "${nodes_file}" \
+     --relationships:CITES "${edges_file}" --database="${db_name}"
 set -x
 
 sed --in-place --expression="s/dbms.active_database=.*/dbms.active_database=${db_name}/" /etc/neo4j/neo4j.conf
