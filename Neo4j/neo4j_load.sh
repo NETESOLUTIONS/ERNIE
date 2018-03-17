@@ -60,9 +60,13 @@ db_name="${name%%_*}-v${db_ver}.db"
 echo "Loading data into ${db_name} ..."
 neo4j-admin import --nodes:Publication "${nodes_file}" --relationships:CITES "${edges_file}" --database="${db_name}"
 
-echo "Restarting Neo4j with a new active database ..."
 sed --in-place --expression="s/dbms.active_database=.*/dbms.active_database=${db_name}/" /etc/neo4j/neo4j.conf
+
+# Hide password from the output
+set +x
+echo "Restarting Neo4j with a new active database ..."
 echo "$3" | sudo -u ernie_admin --stdin systemctl restart neo4j
+set -x
 
 echo "Calculating metrics and indexing ..."
 cypher-shell <<'HEREDOC
