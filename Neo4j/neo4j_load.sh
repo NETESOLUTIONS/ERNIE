@@ -65,7 +65,7 @@ sed --in-place --expression="s/dbms.active_database=.*/dbms.active_database=${db
 # Hide password from the output
 set +x
 echo "Restarting Neo4j with a new active database ..."
-echo "$3" | sudo -u ernie_admin --stdin systemctl restart neo4j
+echo "$3" | sudo --stdin systemctl restart neo4j
 set -x
 
 echo "Calculating metrics and indexing ..."
