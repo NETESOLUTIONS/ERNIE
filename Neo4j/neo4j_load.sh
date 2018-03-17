@@ -57,8 +57,12 @@ fi
 db_name="${name%%_*}-v${db_ver}.db"
 # endregion
 
+# Hide password from the output
+set +x
 echo "Loading data into ${db_name} ..."
-neo4j-admin import --nodes:Publication "${nodes_file}" --relationships:CITES "${edges_file}" --database="${db_name}"
+echo "$3" | sudo --stdin -u neo4j neo4j-admin import --nodes:Publication "${nodes_file}" --relationships:CITES "${edges_file}"
+--database="${db_name}"
+set -x
 
 sed --in-place --expression="s/dbms.active_database=.*/dbms.active_database=${db_name}/" /etc/neo4j/neo4j.conf
 
@@ -69,7 +73,7 @@ echo "$3" | sudo --stdin systemctl restart neo4j
 set -x
 
 echo "Calculating metrics and indexing ..."
-cypher-shell <<'HEREDOC
+cypher-shell <<'HEREDOC'
 CREATE INDEX ON :Publication(endpoint);
 CREATE INDEX ON :Publication(nida_support);
 CREATE INDEX ON :Publication(other_hhs_support);
