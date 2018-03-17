@@ -59,8 +59,8 @@ FROM garfield_dmet_begin a INNER JOIN wos_references b ON a.target=b.source_id;
 -- Inner join on wos_pubs to get only viable references (complete WoS Ids)
 DROP TABLE IF EXISTS garfield_dmet_twog;
 CREATE TABLE garfield_dmet_twog AS
-SELECT a.* FROM garfield_dmet_twog_a INNER JOIN
-wos_publications_b ON a.target=b.source_id;
+SELECT a.* FROM garfield_dmet_twog_a a INNER JOIN
+wos_publications b ON a.target=b.source_id;
 
 -- begin node list assembly process.
 DROP TABLE IF EXISTS garfield_node_assembly;
@@ -68,6 +68,7 @@ CREATE TABLE  garfield_node_assembly(node_id varchar(16),
 node_name varchar(19),stype varchar(10),ttype varchar(10));
 
 --build node_table
+-- insert from end point 
 --gen1
 INSERT INTO garfield_node_assembly(node_id,node_name,stype) 
 SELECT DISTINCT 'n'||substring(source,5),source,stype
@@ -86,10 +87,22 @@ INSERT INTO garfield_node_assembly(node_id,node_name,ttype)
 SELECT DISTINCT 'n'||substring(target,5),target,ttype
 FROM garfield_gen2;
 
---garfield_dmet_begin
+-- insert from start point (dmet plus)
+-- garfield_dmet_begin
 INSERT INTO garfield_node_assembly(node_id,node_name,stype) 
 SELECT DISTINCT 'n'||substring(source,5),source,stype
 FROM garfield_dmet_begin;
+
+INSERT INTO garfield_node_assembly(node_id,node_name,ttype) 
+SELECT DISTINCT 'n'||substring(target,5),target,ttype
+FROM garfield_dmet_begin;
+
+
+-- gen1_cited
+INSERT INTO garfield_node_assembly(node_id,node_name,ttype) 
+SELECT DISTINCT 'n'||substring(source,5),source,stype
+FROM garfield_dmet_twog;
+
 
 INSERT INTO garfield_node_assembly(node_id,node_name,ttype) 
 SELECT DISTINCT 'n'||substring(target,5),target,ttype
@@ -116,6 +129,10 @@ FROM garfield_gen2;
 INSERT INTO garfield_edge_table SELECT 'n'||substring(source,5) AS snid,
 'n'||substring(target,5) as tnid, source, target, stype, ttype
 FROM garfield_dmet_begin;
+
+INSERT INTO garfield_edge_table SELECT 'n'||substring(source,5) AS snid,
+'n'||substring(target,5) as tnid, source, target, stype, ttype
+FROM garfield_dmet_twog;
 CREATE INDEX garfield_edge_table_idx ON garfield_edge_table(snid,tnid);
 
 DROP TABLE IF EXISTS garfield_edgelist;
@@ -218,10 +235,11 @@ COPY (
     publication_year AS "publication_year:int",
     total_citation_count AS "total_citations:int"
   FROM chackoge.garfield_nodelist_final_citation
-) TO '/tmp/garfield_nodelist_final.csv' WITH (FORMAT CSV, HEADER);
+) TO '/tmp/garfield_nodelist_2g_final.csv' WITH (FORMAT CSV, HEADER);
 
 COPY (
   SELECT source AS ":START_ID",
     target AS ":END_ID"
   FROM chackoge.garfield_edgelist
-) TO '/tmp/garfield_edgelist_final.csv' WITH (FORMAT CSV, HEADER);
+) TO '/tmp/garfield_edgelist_2g_final.csv' WITH (FORMAT CSV, HEADER);
+
