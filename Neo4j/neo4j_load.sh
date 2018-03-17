@@ -37,9 +37,8 @@ echo -e "\n## Running under ${USER}@${HOSTNAME} at ${PWD} ##\n"
 #  exit 1
 #fi
 
-nodes_file=$1
-edges_file=$2
-ernie_admin_password=$3
+nodes_file="$1"
+edges_file="$2"
 
 # region Generate a unique db_name
 name_with_ext=${nodes_file##*/}
@@ -63,7 +62,7 @@ neo4j-admin import --nodes:Publication "${nodes_file}" --relationships:CITES "${
 
 echo "Restarting Neo4j with a new active database ..."
 sed --in-place --expression="s/dbms.active_database=.*/dbms.active_database=${db_name}/" /etc/neo4j/neo4j.conf
-echo "${ernie_admin_password}" | sudo -u ernie_admin --stdin systemctl restart neo4j
+echo "$3" | sudo -u ernie_admin --stdin systemctl restart neo4j
 
 echo "Calculating metrics and indexing ..."
 cypher-shell <<'HEREDOC
