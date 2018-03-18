@@ -1,11 +1,12 @@
 -- Script to generate csv files for import into neo4j
 -- This is the affymetrix case study tracing the affy seedset of <= 1991 to the DMET Plus
--- Panel of 2017
+-- Panel of <= 2017 based on keyword searches in PubMed
 -- Author: George Chacko 3/17/2018
 
 -- End point is the garfield_hgraph series, which contains 23 wos_ids from Garfield's microarray historiograph
 -- Starting point is all papers identified in a keyword search in PubMed for DMET PLus
--- Publications are connected/related by citation. The target is cited by the source.
+-- Publications are connected/related by citation. The target is cited by the source. Two generations each of cited and citing references from 
+-- start and endpoints respectively are included in this network
 
 -- Citation endpoint is 23 pubs in the garfield_historiograph
 DROP TABLE IF EXISTS garfield_hgraph_end;
@@ -15,7 +16,9 @@ FROM wos_publications WHERE source_id IN
 (select distinct wos_id from garfield_hgraph2) AND
 publication_year <= 1992;
 
--- get first gen of citing references
+-- get first gen of citing references (note target:cited_source_uid polarity to preserve a cites b)
+-- the 9 endrefs are cited by gen1 pubs
+
 DROP TABLE IF EXISTS garfield_gen1;
 CREATE TABLE garfield_gen1 AS
 SELECT source_id AS source, cited_source_uid AS target,
@@ -34,7 +37,7 @@ FROM wos_references WHERE cited_source_uid IN
 CREATE INDEX garfield_gen2_idx ON garfield_gen2(source);
 
 --Citation starting point is publications DMET Plus keyword search
--- get one generation of cited references
+-- get two generations of cited references not reversed polarity since this is cited reference not citing
 DROP TABLE IF EXISTS garfield_dmet_begina;
 CREATE TABLE garfield_dmet_begina AS
 SELECT source_id AS source, cited_source_uid AS target,
@@ -98,7 +101,7 @@ SELECT DISTINCT 'n'||substring(target,5),target,ttype
 FROM garfield_dmet_begin;
 
 -- gen1_cited
-INSERT INTO garfield_node_assembly(node_id,node_name,ttype) 
+INSERT INTO garfield_node_assembly(node_id,node_name,stype) 
 SELECT DISTINCT 'n'||substring(source,5),source,stype
 FROM garfield_dmet_twog;
 
@@ -141,8 +144,12 @@ CREATE INDEX garfield_edgelist_idx ON garfield_edgelist(source,target);
 
 -- create formatted nodelist with unique node_ids
 DROP TABLE IF EXISTS garfield_nodelist_formatted_a;
-CREATE TABLE garfield_nodelist_formatted_a (node_id varchar(16), node_name varchar(19), stype varchar(10), ttype varchar(10), startref varchar(10), endref varchar(10));
-INSERT INTO garfield_nodelist_formatted_a (node_id,node_name,stype,ttype) SELECT DISTINCT * FROM garfield_nodelist;			   
+CREATE TABLE garfield_nodelist_formatted_a (node_id varchar(16), node_name varchar(19), 
+stype varchar(10), ttype varchar(10), 
+startref varchar(10), endref varchar(10));
+INSERT INTO garfield_nodelist_formatted_a (node_id,node_name,stype,ttype) 
+SELECT DISTINCT * FROM garfield_nodelist;			   
+
 UPDATE garfield_nodelist_formatted_a SET startref=1 WHERE stype='startref';
 UPDATE garfield_nodelist_formatted_a SET startref=0 WHERE stype='source' OR stype IS NULL;
 UPDATE garfield_nodelist_formatted_a SET endref=1 WHERE ttype='endref';
