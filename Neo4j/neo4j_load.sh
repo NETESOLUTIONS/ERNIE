@@ -70,6 +70,15 @@ echo "Restarting Neo4j with a new active database ..."
 echo "$3" | sudo --stdin systemctl restart neo4j
 set -x
 
+echo "Waiting for the service to become active ..."
+declare time_limit_s = 30
+while ! systemctl is-active neo4j >/dev/null; do
+  if ((time_limit_s-- == 0)); then
+    break
+  fi
+  sleep 1
+done
+
 echo "Calculating metrics and indexing ..."
 cypher-shell <<'HEREDOC'
 CREATE INDEX ON :Publication(endpoint);
