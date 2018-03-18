@@ -59,17 +59,13 @@ db_name="${name%%_*}-v${db_ver}.db"
 
 # Hide password from the output
 set +x
-echo "Loading data into ${db_name} ..."
 # The current directory must be writeable for the neo4j user. Otherwise, it'd fail with the
 # `java.io.FileNotFoundException: import.report (Permission denied)` error
-echo "$3" | sudo --stdin -u neo4j neo4j-admin import --nodes:Publication "${nodes_file}" \
-     --relationships:CITES "${edges_file}" --database="${db_name}"
-set -x
+echo "$3" | sudo --stdin -u neo4j bash -c "set -xe
+  echo 'Loading data into ${db_name} ...'
+  neo4j-admin import --nodes:Publication '${nodes_file}' --relationships:CITES '${edges_file}' --database="${db_name}"
+  sed --in-place --expression='s/dbms.active_database=.*/dbms.active_database=${db_name}/' /etc/neo4j/neo4j.conf"
 
-sed --in-place --expression="s/dbms.active_database=.*/dbms.active_database=${db_name}/" /etc/neo4j/neo4j.conf
-
-# Hide password from the output
-set +x
 echo "Restarting Neo4j with a new active database ..."
 echo "$3" | sudo --stdin systemctl restart neo4j
 set -x
