@@ -71,10 +71,11 @@ echo "$3" | sudo --stdin systemctl restart neo4j
 set -x
 
 echo "Waiting for the service to become active ..."
-declare time_limit_s = 30
+declare -i time_limit_s=30
 while ! systemctl is-active neo4j >/dev/null; do
   if ((time_limit_s-- == 0)); then
-    break
+    echo "ERROR: Neo4j failed to start." >&2
+    exit 2
   fi
   sleep 1
 done
