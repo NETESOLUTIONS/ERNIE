@@ -1,11 +1,12 @@
 -- Script to generate csv files for import into neo4j
 -- This is the affymetrix case study tracing the affy seedset of <= 1991 to the DMET Plus
--- Panel of 2017
+-- Panel of <= 2017 based on keyword searches in PubMed
 -- Author: George Chacko 3/17/2018
 
 -- End point is the garfield_hgraph series, which contains 23 wos_ids from Garfield's microarray historiograph
 -- Starting point is all papers identified in a keyword search in PubMed for DMET PLus
--- Publications are connected/related by citation. The target is cited by the source.
+-- Publications are connected/related by citation. The target is cited by the source. Two generations each of cited and citing references from 
+-- start and endpoints respectively are included in this network
 
 -- Citation endpoint is 23 pubs in the garfield_historiograph
 DROP TABLE IF EXISTS garfield_hgraph_end;
