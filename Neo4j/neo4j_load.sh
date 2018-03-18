@@ -72,7 +72,8 @@ set -x
 
 echo "Waiting for the service to become active ..."
 declare -i time_limit_s=30
-while ! systemctl is-active neo4j >/dev/null; do
+# Ping Neo4j. Even if a service is active it might not be responding yet.
+while ! cypher-shell "CALL dbms.components()" 2>/dev/null; do
   if ((time_limit_s-- == 0)); then
     echo "ERROR: Neo4j failed to start." >&2
     exit 2
