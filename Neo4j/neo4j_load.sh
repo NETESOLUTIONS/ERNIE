@@ -57,7 +57,7 @@ fi
 db_name="${name%%_*}-v${db_ver}.db"
 # endregion
 
-# Hide password from the output
+# region Hide password from the output and decrease verbosity
 set +x
 # The current directory must be writeable for the neo4j user. Otherwise, it'd fail with the
 # `java.io.FileNotFoundException: import.report (Permission denied)` error
@@ -68,10 +68,9 @@ echo "$3" | sudo --stdin -u neo4j bash -c "set -xe
 
 echo "Restarting Neo4j with a new active database ..."
 echo "$3" | sudo --stdin systemctl restart neo4j
-set -x
 
-echo "Waiting for the service to become active ..."
 declare -i time_limit_s=30
+echo "Waiting for the service to become active up to ${time_limit_s} seconds ..."
 # Ping Neo4j. Even if a service is active it might not be responding yet.
 while ! cypher-shell "CALL dbms.components()" 2>/dev/null; do
   if ((time_limit_s-- == 0)); then
@@ -80,9 +79,12 @@ while ! cypher-shell "CALL dbms.components()" 2>/dev/null; do
   fi
   sleep 1
 done
+set -x
+# endregion
 
 echo "Calculating metrics and indexing ..."
 cypher-shell <<'HEREDOC'
+// Indexes will be created even if there are no nodes with indexed properties
 CREATE INDEX ON :Publication(endpoint);
 CREATE INDEX ON :Publication(nida_support);
 CREATE INDEX ON :Publication(other_hhs_support);
