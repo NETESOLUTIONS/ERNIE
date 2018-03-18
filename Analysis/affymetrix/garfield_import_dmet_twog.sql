@@ -97,16 +97,14 @@ INSERT INTO garfield_node_assembly(node_id,node_name,ttype)
 SELECT DISTINCT 'n'||substring(target,5),target,ttype
 FROM garfield_dmet_begin;
 
-
 -- gen1_cited
 INSERT INTO garfield_node_assembly(node_id,node_name,ttype) 
 SELECT DISTINCT 'n'||substring(source,5),source,stype
 FROM garfield_dmet_twog;
 
-
 INSERT INTO garfield_node_assembly(node_id,node_name,ttype) 
 SELECT DISTINCT 'n'||substring(target,5),target,ttype
-FROM garfield_dmet_begin;
+FROM garfield_dmet_twog;
 CREATE INDEX garfield_node_assembly_idx ON garfield_node_assembly(node_id);
 
 DROP TABLE IF EXISTS garfield_nodelist;
@@ -159,23 +157,6 @@ DROP TABLE IF EXISTS garfield_nodelist_formatted_b_pmid;
 CREATE TABLE garfield_nodelist_formatted_b_pmid AS
 SELECT a.*,b.pmid_int FROM garfield_nodelist_formatted_b a 
 LEFT JOIN wos_pmid_mapping b ON a.node_name=b.wos_id;
-
-/*
-DROP TABLE IF EXISTS garfield_nodelist_formatted_b_pmid_grants;
-CREATE TABLE garfield_nodelist_formatted_b_pmid_grants AS
-SELECT a.*,b.project_number FROM garfield_nodelist_formatted_b_pmid a
-LEFT JOIN exporter_publink b ON a.pmid_int=b.pmid::int;
-
-ALTER TABLE garfield_nodelist_formatted_b_pmid_grants ADD COLUMN ic varchar(2);
-ALTER TABLE garfield_nodelist_formatted_b_pmid_grants ADD COLUMN nida varchar(10);
-ALTER TABLE garfield_nodelist_formatted_b_pmid_grants ADD COLUMN other_nih varchar(10);
-
-UPDATE garfield_nodelist_formatted_b_pmid_grants SET ic=substring(project_number,4,2);
-UPDATE garfield_nodelist_formatted_b_pmid_grants SET nida='1' WHERE ic='DA';
-UPDATE garfield_nodelist_formatted_b_pmid_grants SET nida='0' WHERE nida IS NULL;
-UPDATE garfield_nodelist_formatted_b_pmid_grants SET other_nih='1' WHERE ic IS NOT NULL AND nida='0';
-UPDATE garfield_nodelist_formatted_b_pmid_grants SET other_nih='0' WHERE other_nih IS NULL;
-*/
 
 DROP TABLE IF EXISTS garfield_nodelist_formatted_b_pmid_grants;
 CREATE TABLE garfield_nodelist_formatted_b_pmid_grants AS
