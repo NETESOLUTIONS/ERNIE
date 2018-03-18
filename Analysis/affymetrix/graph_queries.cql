@@ -105,6 +105,7 @@ RETURN count(p);
 // 645
 
 // 7) Shortest paths among those that pass through at least one nida_support node from startref1 to endref
+// *runaway query (> 4 days)*
 MATCH p = allShortestPaths((a {endpoint: 'startref1'})-[*]->(b {endpoint: 'endref'}))
   WHERE any(x IN nodes(p)
     WHERE x <> a AND x <> b AND x.nida_support)
@@ -185,7 +186,7 @@ RETURN count(p);
 // 1699
 
 // 7) Shortest paths among those that pass through at least one nida_support node from startref2 to endref
-// >17h
+// *runaway query (> 4 days)*
 MATCH p = allShortestPaths((a {endpoint: 'startref2'})-[*]->(b {endpoint: 'endref'}))
   WHERE any(x IN nodes(p)
     WHERE x <> a AND x <> b AND x.nida_support)
