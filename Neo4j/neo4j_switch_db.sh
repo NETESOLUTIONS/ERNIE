@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-if [[ $1 == "-h" || $# -lt 1 ]]; then
+if [[ $1 == "-h" || $# -lt 2 ]]; then
   cat <<'HEREDOC'
 NAME
   neo4j_switch_db.sh -- switches Neo4j active DB and restarts Neo4j
@@ -38,11 +38,11 @@ db_name="$1"
 
 # region Hide password from the output
 set +x
-echo "$3" | sudo --stdin -u neo4j bash -c "set -xe
+echo "$2" | sudo --stdin -u neo4j bash -c "set -xe
   sed --in-place --expression='s/dbms.active_database=.*/dbms.active_database=${db_name}/' /etc/neo4j/neo4j.conf"
 
 echo "Restarting Neo4j with a new active database ..."
-echo "$3" | sudo --stdin systemctl restart neo4j
+echo "$2" | sudo --stdin systemctl restart neo4j
 
 declare -i time_limit_s=30
 echo "Waiting for the service to become active up to ${time_limit_s} seconds ..."
