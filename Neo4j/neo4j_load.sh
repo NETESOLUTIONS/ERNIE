@@ -5,7 +5,7 @@ NAME
   neo4j_load.sh -- loads CSV in bulk to Neo4j and calculate metrics
 
 SYNOPSIS
-  neo4j_load.sh nodes_file edges_file ernie_admin_password
+  neo4j_load.sh nodes_file edges_file current_user_password
   neo4j_load.sh -h: display this help
 
 DESCRIPTION
@@ -14,6 +14,7 @@ DESCRIPTION
   # Updates Neo4j config file
   # Restarts Neo4j
   # Calculates metrics via cypher-shell
+  # Current user must be a sudoer
 HEREDOC
   exit 1
 fi
