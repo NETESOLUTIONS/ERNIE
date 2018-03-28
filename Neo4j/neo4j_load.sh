@@ -5,11 +5,11 @@ NAME
   neo4j_load.sh -- loads CSV in bulk to Neo4j and calculate metrics
 
 SYNOPSIS
-  neo4j_load.sh nodes_file edges_file current_user_password
+  neo4j_load.sh nodes_file edges_file current_user_password [DB_comment]
   neo4j_load.sh -h: display this help
 
 DESCRIPTION
-  # Generates a new DB name
+  # Generates a new DB name. DB_comment is used as an optional `-suffix` (with spaces replaced by underscores)
   # Bulk imports to a new DB
   # Updates Neo4j config file
   # Restarts Neo4j
@@ -40,6 +40,9 @@ fi
 
 nodes_file="$1"
 edges_file="$2"
+if [[ $4 ]]; then
+  db_suffix="-${4// /_}"
+fi
 
 # region Generate a unique db_name
 name_with_ext=${nodes_file##*/}
@@ -55,7 +58,7 @@ if [[ ${file_date1} > ${file_date2} ]]; then
 else
   db_ver="${file_date2}"
 fi
-db_name="${name%%_*}-v${db_ver}.db"
+db_name="${name%%_*}${db_suffix}-v${db_ver}.db"
 # endregion
 
 # region Hide password from the output and decrease verbosity
