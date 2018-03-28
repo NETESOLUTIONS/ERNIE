@@ -91,7 +91,7 @@ SELECT DISTINCT 'n'||substring(target,5),target,ttype
 FROM garfield_gen2;
 
 -- insert from start point (dmet plus)
--- garfield_dmet_begin
+-- garfield_dmet_begin (source and gen1)
 INSERT INTO garfield_node_assembly(node_id,node_name,stype) 
 SELECT DISTINCT 'n'||substring(source,5),source,stype
 FROM garfield_dmet_begin;
@@ -100,7 +100,7 @@ INSERT INTO garfield_node_assembly(node_id,node_name,ttype)
 SELECT DISTINCT 'n'||substring(target,5),target,ttype
 FROM garfield_dmet_begin;
 
--- gen1_cited
+-- gen1 and gen2_cited
 INSERT INTO garfield_node_assembly(node_id,node_name,stype) 
 SELECT DISTINCT 'n'||substring(source,5),source,stype
 FROM garfield_dmet_twog;
