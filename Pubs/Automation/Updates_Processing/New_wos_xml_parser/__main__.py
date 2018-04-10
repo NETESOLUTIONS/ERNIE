@@ -27,6 +27,7 @@ database = 'pardi'
 
 
 def main():
+    #print 'inside main'
     start_time = datetime.datetime.now()
 
     myConnection = psycopg2.connect(host=hostname, user=username, password=password, dbname=database)
@@ -42,16 +43,19 @@ def main():
         raise NameError('error: file name is not provided')
     else:
         input_filename = in_arr[in_arr.index('-filename') + 1]
+        print input_filename
     if '-offset' not in in_arr:
         offset = 0
     else:
-        offset = in_arr[in_arr.index('-offset') + 1]
-
+        offset = int(in_arr[in_arr.index('-offset') + 1])
+        #print offset
     print "Parsing", input_filename, "..."
 
     # Reading XML file as a text file line by line
     try:
+        #print 'inside try'
         with open(input_filename) as f:
+            #print 'opened file'
             init_buffer_REC = '<?xml version="1.0" encoding="UTF-8"?>'
             init_buffer_REC = init_buffer_REC + '<records xmlns="http://clarivate.com/schema/wok5.27/public/FullRecord">'
             buffer_REC = ''
@@ -59,15 +63,19 @@ def main():
             count = 0
             offset_count=0
             for line in f:
-                offset_count=offset_count+1
+		#print 'inside for'
+                #offset_count=offset_count+1
+                #print offset,'....',offset_count
                 # adding all the lines that represent a REC into a buffer which is then sent to the parser for further processing
-                if(offset_count==offset or offset==0):
-                    if(offset!=0):
+                #if(offset_count==offset):
+                    #print 'if offset'
+                    #offset=offset+4
+                if '</REC' in line:
+                    count = count + 1
+                    offset_count=offset_count+1
+                    #print offset,'---',offset_count
+                    if(offset_count==offset):
                         offset=offset+4
-                    else:
-                        offset=offset+1
-                    if '</REC' in line:
-                        count = count + 1
                         buffer_REC = ''.join([buffer_REC, line])
                         # buffer_REC= buffer_REC + line
                         buffer_REC = buffer_REC + "</records>"
@@ -81,12 +89,12 @@ def main():
                         # myConnection.commit()
                         # break
 
-                    elif '<REC' in line:
-                        buffer_REC = init_buffer_REC
-                        # print buffer_REC
-                        is_rec = True
-                    if is_rec:
-                        buffer_REC = ''.join([buffer_REC, line])
+                elif '<REC' in line:
+                    buffer_REC = init_buffer_REC
+                    # print buffer_REC
+                    is_rec = True
+                if is_rec:
+                    buffer_REC = ''.join([buffer_REC, line])
     except IOError:
         print "Could not read file:", input_filename
 

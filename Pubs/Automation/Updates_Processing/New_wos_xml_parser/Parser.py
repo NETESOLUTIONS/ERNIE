@@ -140,14 +140,14 @@ class Parser:
                         if funding_ack_p.text is not None:
                             r_grant.funding_ack = funding_ack_p.text.encode('utf-8')
                 # looping through all the r_grant tags
-                for grant in REC.findall('.//' + url + 'grant'):
+                for l_grant in REC.findall('.//' + url + 'grant'):
                     # r_grant.grant_agency = ''
-                    grant_agency = grant.find('.//' + url + 'grant_agency')
+                    grant_agency = l_grant.find('.//' + url + 'grant_agency')
                     if grant_agency is not None:
                         if grant_agency.text is not None:
                             r_grant.grant_agency = grant_agency.text.encode('utf-8')
 
-                    grant_ids = grant.find('.//' + url + 'grant_ids')
+                    grant_ids = l_grant.find('.//' + url + 'grant_ids')
                     if grant_ids is not None:
                         for grant_id in grant_ids.findall('.//' + url + 'grant_id'):
                             counters.r_grant_seq = counters.r_grant_seq + 1
@@ -243,8 +243,7 @@ class Parser:
                         #     r_publication['source_filename']))
                         # writing the abstracts record into the data base
                         curs.execute(
-                            "INSERT INTO wos_abstracts(source_id,abstract_text,source_filename)VALUES(%s,%s,%s);",
-                            (str(r_abst.source_id), str(r_abst.abstract_text), str(new_pub.source_filename)))
+                            "INSERT INTO wos_abstracts(source_id,abstract_text,source_filename)VALUES(%s,%s,%s) ON CONFLICT (source_id) DO UPDATE SET source_id = excluded.source_id, abstract_text = excluded.abstract_text, source_filename = excluded.source_filename;;",(str(r_abst.source_id), str(r_abst.abstract_text), str(new_pub.source_filename)))
 
                         '''writer_abstract.writerow(
                             (r_abst['source_id'], r_abst['abstract_text'], r_publication['source_filename']))'''
