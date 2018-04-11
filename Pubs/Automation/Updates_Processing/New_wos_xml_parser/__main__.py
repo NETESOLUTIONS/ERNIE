@@ -50,7 +50,7 @@ def main():
         offset = int(in_arr[in_arr.index('-offset') + 1])
         #print offset
     print "Parsing", input_filename, "..."
-
+    count_thousand=offset+1000
     # Reading XML file as a text file line by line
     try:
         #print 'inside try'
@@ -83,7 +83,7 @@ def main():
                         r_parser = Parser.Parser()
                         counters = r_parser.parse(buffer_REC, counters, input_filename, curs)
                         is_rec = False
-                        if count % 1000 == 0:
+                        if count % count_thousand == 0:
                             myConnection.commit()
                             print str(count) + " number of records have been inserted into the database successfully"
                         # myConnection.commit()
@@ -104,6 +104,7 @@ def main():
 
     print "Parsed", input_filename
     if myConnection is not None:
+        myConnection.commit()
         myConnection.close()
         print "Connection to the database closed"
 
