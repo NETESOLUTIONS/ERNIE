@@ -2,7 +2,7 @@
 <module type="DBE_MODULE" version="4">
   <component name="FacetManager">
     <facet type="Python" name="Python facet">
-      <configuration sdkName="" />
+      <configuration sdkName="Anaconda2" />
     </facet>
   </component>
   <component name="NewModuleRootManager">
@@ -11,5 +11,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="R User Library" level="project" />
     <orderEntry type="library" name="R Skeletons" level="application" />
+    <orderEntry type="library" name="Anaconda2 interpreter library" level="application" />
   </component>
 </module>
