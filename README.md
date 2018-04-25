@@ -1,8 +1,6 @@
 # Welcome to ERNIE
 
-Enhanced Research Network Informatics Environment (ERNIE) originates from a thought experiment that has evolved into an accessible knowledge platform for research assessment. ERNIE enables the discovery of collaboration networks in scientific research and influential nodes within them. In this first phase of development, ERNIE is being tested with case studies spanning drug development, medical 
-devices/diagnostics, behavioral interventions, and solutions for drug discovery. The focus of these case studies is 
-substance abuse and results will be posted at the earliest. 
+Enhanced Research Network Informatics Environment (ERNIE) originates from a thought experiment that has evolved into an accessible knowledge platform for research assessment. ERNIE enables the discovery of collaboration networks in scientific research and influential nodes within them. In this first phase of development, ERNIE is being tested with case studies spanning drug development, medical devices/diagnostics, behavioral interventions, and solutions for drug discovery. The focus of these case studies is substance abuse and results will be posted at the earliest. 
 
 Emphasis is placed on the use of Open Source technologies. At present, ERNIE resides in a PostgreSQL 9.6 database in a 
 Centos 7.4 VM in the Microsoft Azure cloud. The data in ERNIE are drawn through a variety of custom ETL processes from both 
