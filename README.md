@@ -1,5 +1,5 @@
 # Welcome to ERNIE
-<img align="left" src="ERNIE.png" width="250" height="200" border="120">
+<img align="left" src="ernie2.png" width="250" height="200" border="120">
 
 
 
