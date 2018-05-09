@@ -1,7 +1,7 @@
 
 <html>
   <head>
-    <title>Bootstrap 3 Collapsible Sidebar</title>
+    <title>ERNIE CODE BASE</title>
     <!-- Bootstrap CSS CDN -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <!-- Our Custom CSS -->
@@ -17,14 +17,58 @@
   </script>
 </head>
 
-<body>
+<div>
   <script src="https://code.jquery.com/jquery-1.12.0.min.js">
  
   </script>
     <!-- Bootstrap Js CDN -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<div class="wrapper">
+
+    <nav id="sidebar">
+        <!-- Sidebar Header -->
+        <div class="sidebar-header">
+            <h3><a href="https://netesolutions.github.io/ERNIE/">ERNIE</a></div>
+
+        <!-- Sidebar Links -->
+        <ul class="list-unstyled components">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/Analysis">Analysis</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/Architectural%20Model">Architectural Model</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/Config">Config</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/Data%20Model">Data Model</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/Docs/Research">Research</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/ExPORTER">Exporter</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/Guidelines">Guidelines</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/NIH_Projects">NIH Projects</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/Neo4j">Neo4j</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/Patents">Patents</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/Postgres">Postgres</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/Pubs">Pubs</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/Registered_Products">Registered Products</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/Security">Security</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/Solr">Solr</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/Template_job">Template Job</a></li>
+            <li><a href="https://github.com/NETESOLUTIONS/ERNIE/tree/master/Trials">Trials</a></li>
 
 
+        </ul>
+    </nav>
+
+<div id="content">
+<script>
+    $(document).ready(function () {
+
+    $('#sidebarCollapse').on('click', function () {
+        $('#sidebar').toggleClass('active');
+    });
+
+});
+</script>
+ <button type="button" id="sidebarCollapse" class="btn btn-info navbar-btn">
+        <i class="glyphicon glyphicon-align-left"></i>
+        Code Base
+ </button>
 <h1>Welcome to ERNIE</h1>
 <img align="left" src="ERNIE.png" width="250" height="200" border="5" align="middle">
 <p>Enhanced Research Network Informatics Environment (ERNIE) originates from a thought experiment that has evolved into an accessible knowledge platform for research assessment. ERNIE enables the discovery of collaboration networks in scientific research and influential nodes within them. In this first phase of development, ERNIE is being tested with case studies spanning drug development, medical devices/diagnostics, behavioral interventions, and solutions for drug discovery. The focus of these case studies is substance abuse and results will be posted at the earliest.</p>
@@ -33,6 +77,7 @@ Centos 7.4 VM in the Microsoft Azure cloud. The data in ERNIE are drawn through 
 publicly available and commercial sources. Addiional servers provide Solr, Neo4J, and Spark support. ERNIE is being developed by NET ESolutions Corporation (NETE). As of March 7, 2018 the project has been active for just under six months. Initial server infrastructure has been set up, core data have been scraped, leased, parsed, loaded, and partially curated and illustrative case studies are under way. The project team will add additional data sources as and when they become available.</p>
 <p>This project has been funded in part  with Federal funds from the National Institute on Drug Abuse, National 
 Institutes of Health, Department of Health and Human Services, under Contract No. HHSN271201700053C.</p>
-
+</div>
+</div>
 </body>
 </html>
