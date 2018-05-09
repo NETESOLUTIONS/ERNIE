@@ -48,13 +48,21 @@ body {
     font-family: 'Poppins', sans-serif;
     background: #fafafa;
 }
+h1{
+color: #27637a;
+padding: 10px;
+}
+img{
+border: 5px solid #27637a;
 
+}
 p {
     font-family: 'Poppins', sans-serif;
     font-size: 1.1em;
     font-weight: 300;
     line-height: 1.7em;
-    color: #999;
+    color: #27637a;
+     padding: 10px;
 }
 
 a, a:hover, a:focus {
@@ -65,19 +73,19 @@ a, a:hover, a:focus {
 
 #sidebar {
     /* don't forget to add all the previously mentioned styles here too */
-    background: #7386D5;
+    background: #2d7d9b;
     color: #fff;
     transition: all 0.3s;
 }
 
 #sidebar .sidebar-header {
-    padding: 20px;
-    background: #6d7fcc;
+    padding: 10px;
+    background: #27637a;
 }
 
 #sidebar ul.components {
-    padding: 20px 0;
-    border-bottom: 1px solid #47748b;
+    padding: 5px 0;
+
 }
 
 #sidebar ul p {
@@ -89,6 +97,7 @@ a, a:hover, a:focus {
     padding: 10px;
     font-size: 1.1em;
     display: block;
+    border-bottom: 2px solid #27637a;
 }
 #sidebar ul li a:hover {
     color: #7386D5;
@@ -97,7 +106,7 @@ a, a:hover, a:focus {
 
 #sidebar ul li.active > a, a[aria-expanded="true"] {
     color: #fff;
-    background: #6d7fcc;
+    background: #6ac2e2;
 }
 ul ul a {
     font-size: 0.9em !important;
