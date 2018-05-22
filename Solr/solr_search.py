@@ -10,10 +10,10 @@
 
 
 
-import sys; import string; import re ; import subprocess
+import sys; import string; import re ; import subprocess; import pandas as pd
 
 # Collect user input
-query=None; core=None; query_fields=[]; target_fields=[]; search_file=None; num_results=10; ip_and_port='localhost:8983' ; psql_ip='localhost' ; psql_port='5432'; output_file='temp.csv'
+query=None; core=None; query_fields=[]; target_fields=[]; search_file=None; num_results=10; ip_and_port='localhost:8983' ; psql_ip='localhost' ; psql_port='5432'; output_file='temp.csv';
 for i in range(0,len(sys.argv)):
     if sys.argv[i][0] == '-':
         option = sys.argv[i]
@@ -60,26 +60,27 @@ curl_search_string_ending='&rows=%s&wt=csv&csv.separator=~\''%(num_results)
 # Some manual settings. Removal of useless stem words and such. Edit as needed
 stem_words=['et al']
 query_no=1; match=0; top_10_match=0
-queries=[]
+queries=[]; expected_ids=[]; true_status=[]
 if search_file!=None:
-    with open(search_file) as f:
-        queries = f.read().splitlines()
+    query_sheet=pd.read_csv(search_file)
+    for i in range(0,len(query_sheet)):
+        queries+=[query_sheet.citation[i]]
+        expected_ids+=[query_sheet.wos_id[i]]
+        true_status+=[query_sheet.status[i]]
+
 else:
     queries.append(query)
 
 # The actual run. Return results on the query. Hardcode any mapping to other DB information as needed if dealing with something like a WOS to PMID mapping
 with open(output_file, 'wb') as csv_file:
-    csv_file.write(','.join(['query','id','solr_score','rank']+target_fields+fields)+'\n')
-    for line in queries:
-        print '### Query No. %d ###'%(query_no); query_no+=1; line=(line.decode('utf-8')).encode('ascii','ignore')
-        input_string=re.sub('|'.join(stem_words),'',line); input_string=re.sub(r'[,.{}<>\"\'\n\r]','',input_string) ; input_string=re.sub(r'[:@*#() -]','\\+',input_string) ; input_string=re.sub(r'\u+2260','',input_string)
+    csv_file.write(','.join(['query','expected_id','result_id','status','solr_score','rank']+target_fields+fields)+'\n')
+    for index in range(0,len(queries)):
+        line=queries[index]; print '### Query No. %d ###'%(query_no); query_no+=1; line=(line.decode('utf-8','ignore')).encode('ascii','ignore')
+        input_string=re.sub('|'.join(stem_words),'',line); input_string=re.sub(r'[,.{}<>\"\'\n\r]','',input_string) ; input_string=re.sub(r'[^0-9a-zA-Z]+','\\+',input_string) ; input_string=re.sub(r'\u+2260','',input_string)
         query_string=curl_search_string+input_string+curl_search_string_ending
         s = subprocess.check_output(query_string, shell=True) ; s=s.replace('\\n','') ;s=s.split("\n")
-        #s = subprocess.check_output(query_string, shell=True).split("\n")
         print 'Search : '+line ; print 'Generated Query : '+query_string
 
         for result in s[1:-1]:
             result_list=result.split('~'); doc_id=result_list[0]; score=result_list[1]; others=['\"'+re.sub(r'[\"]','',i[:32700])+'\"' for i in result_list[2:]]
-            #psql_query= incorporate any extra mapping psql queries here depending on the topic
-            #psql_result=subprocess.check_output("psql -h "+psql_ip+" -p "+psql_port+" -U ernie_admin -d ernie -c " + psql_query, shell=True).split("\n")
-            csv_file.write('\"'+re.sub(r'[,\n\r]','',line)+'\",'+doc_id+','+score+','+str(s.index(result))+','+','.join(others)+"\n")
+            csv_file.write('\"'+re.sub(r'[,\n\r]','',line)+'\",\"'+expected_ids[index]+'\",\"'+doc_id+'\",\"'+true_status[index]+'\",'+score+','+str(s.index(result))+','+','.join(others)+"\n")
