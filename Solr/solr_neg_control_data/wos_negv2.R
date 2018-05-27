@@ -1,4 +1,4 @@
-# May 24, 2018
+# May 27, 2018
 # George Chacko
 # Prep csv file for Solr searching as TN population
 # Data provided by Avon Davey from wos:pmid pairs for which there is no wos_data in ERNIE
@@ -37,7 +37,7 @@ a <- 0
 names(my_chunks) <- paste("my_chunks", 1:no_of_chunks, sep = "")
 return(my_chunks)}
 
-# parameters for chunker for this case
+# parameters for chunker in this case
 x= wos_neg$pmid #input file
 y= 350 # chunk size
 
@@ -48,9 +48,9 @@ namevec <- names(pmid_chunks)
 
 # submit to NCBI - data is returned as a list of lists since we're doing batches
 esummary <- list()
-for (i in 1:length(e1) {
+for (i in 1:length(pmid_chunks)) {
 	esummary[[i]] <- entrez_summary(db = "pubmed", id = pmid_chunks[[i]])
-	Sys.sleep(60)
+	Sys.sleep(30)}
 
 rm(x); rm(y); rm(i); rm(chunker); rm(pmid_chunks); rm(namevec)
 
@@ -66,11 +66,11 @@ flat_es_clean <- flat_es[lengths(flat_es)== 43]
 
 # rechunk to be able to use previously written code
 es_clean_rechunked <- list()
-es_clean_rechunked[[1]] <- flat_es_clean[1:2200]
-es_clean_rechunked[[2]] <- flat_es_clean[2201:length(flat_es_clean)]
+es_clean_rechunked[[1]] <- flat_es_clean[1:floor(length(flat_es_clean)/2)]
+es_clean_rechunked[[2]] <- flat_es_clean[1+(floor(length(flat_es_clean))/2):length(flat_es_clean)]
 
-# Process authors since they're a data frame element within each chunk
-# Start extracting data from esummary
+# Process authors separately since they're a nested data frame element within 
+# each chunk. Start extracting data from esummary
 
 solr_neg_authors <- list()
 for (i in 1:length(es_clean_rechunked)) {
@@ -95,13 +95,13 @@ d <- d %>% group_by(a) %>% summarise(authors = paste(b,
 colnames(d) <- c("uid", "authors")
 
 # process other fields
-f1 <- list()
+f <- list()
 for (i in 1:length(es_clean_rechunked)) {
-	f1[[i]] <- map_df(es_clean_rechunked[[i]], `[`, 
+	f[[i]] <- map_df(es_clean_rechunked[[i]], `[`, 
 		c("uid", "title", "pubdate", 
 			"fulljournalname", "volume"))
 }
-g <- do.call(rbind, f1)
+g <- do.call(rbind, f)
 
 # merge authors with other fields
 
@@ -109,7 +109,7 @@ h <- merge(d, g)
 h$pubdate <- substr(h$pubdate, 1, 4)
 solr_neg <- h
 rm(a); rm(b);rm(c);rm(d);rm(es_clean_rechunked);rm(flat_es);rm(flat_es_clean)
-rm(g1);rm(h)
-
+rm(g);rm(h); rm(f);rm(i);rm(t1); rm(chunker); rm(namevec); rm(x); rm(y)
+rm(pmid_chunks);rm(solr_neg_authors);
 
  
