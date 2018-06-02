@@ -10,7 +10,7 @@
       <user-name>dk</user-name>
       <introspection-schemas>ernie:chackoge,information_schema,pg_catalog,public|orpheus_scratchpad:</introspection-schemas>
       <ssh-properties>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
         <proxy-host>ernie1.eastus2.cloudapp.azure.com</proxy-host>
         <proxy-port>22</proxy-port>
         <secret-storage>master_key</secret-storage>
