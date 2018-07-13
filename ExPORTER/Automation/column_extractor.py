@@ -1,12 +1,10 @@
 # column_extractor.py
 # this program is used to extract specific columns from the Reporter csv data
-# Date: 09/26/2017
+# Date: 12/08/2017
 # Author: VJ Davey
 
 import pandas as pd
 import sys
-#reload(sys)
-#sys.setdefaultencoding('utf8')
 
 csv_file_path=str(sys.argv[1]); print 'Working with CSV file located at %s' %(csv_file_path)
 keep_headers = ['APPLICATION_ID','ACTIVITY','ADMINISTERING_IC','APPLICATION_TYPE','ARRA_FUNDED','AWARD_NOTICE_DATE','BUDGET_START',
@@ -18,5 +16,4 @@ df = pd.read_csv(csv_file_path, dtype=object, encoding='latin-1'); df = df[keep_
 for header in keep_headers:
     df[header] = df[header].str.replace(',','')
     df[header] = df[header].str.encode('utf8')
-#df['PROJECT_TERMS'] = df['PROJECT_TERMS'].apply(lambda x: x.str[:18000])
 df.to_csv(csv_file_path[:-4]+'_EXTRACTED.csv', index=False)

@@ -58,7 +58,7 @@ curl_search_string_ending='&rows=%s&wt=csv&csv.separator=~\''%(num_results)
 
 
 # Some manual settings. Removal of useless stem words and such. Edit as needed
-stem_words=['et al']
+stem_words=['\' et al. \'', '\' the \'', '\' a \'']
 query_no=1; match=0; top_10_match=0
 queries=[]; expected_ids=[]; true_status=[]
 if search_file!=None:
