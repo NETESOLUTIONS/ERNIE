@@ -3,14 +3,13 @@
 # used to connect to various Scopus APIs as part of a collaborative effort with Abt Associates on a project 
 # for the US National Science Foundation. For these scripts to be useful, an API key is needed and the script
 # should be executed from a machine with a whitelisted IP address. The basic strategy is to 
-# search for AuthorIDs using "first_name last_name" queries and then using those AuthorIDs to 
-# retrieve Documents and Affiliation information. Reading the Elsevier documentation is highly recommended. 
-# https://dev.elsevier.com To prevent overwrites, we push the output from these scripts to a PostgreSQL database
-# as its generated and can share the details of that process if there's interest.
+# search for AuthorIDs using "first_name last_name" queries and then use retrieved AuthorIDs to 
+# retrieve Documents and Affiliations. To prevent overwrites, we push the output from these scripts to a 
+# PostgreSQL database as its generated and can share the details of that process if there's interest.
+# Reading Elsevier's documentation is very helpful and highly recommended. 
+# https://dev.elsevier.com 
 
-
-a) This script uses strings from stdin and queries SCOPUS author search for the top 10 author results. Input must come in the form 
-"name,award_number,first_year" where 'name' is in the form "first_name last_name"
+a) This script uses strings from stdin and queries SCOPUS author search for the top 10 author results. Input must come in the form "name,award_number,first_year" where 'name' is in the form "first_name last_name"
 
 b) ScopusInterface.py: This script interfaces with various Scopus APIs including the author, abstract, and affiliation retrieval APIs
 as well as the SCOPUS search API. A subset of the XML fields are returned in python dictionary format. Due to limited bandwidth at the
