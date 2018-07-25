@@ -1,4 +1,4 @@
-# July 25, 2018. NET ESolutions. email:netelabs@nete.com Author: Avon Davey avon@nete.com
+# July 25, 2018. NET ESolutions. Email:netelabs@nete.com Author: Avon Davey avon@nete.com
 # The five Python 2.x scripts in this folder are 
 # used to connect to various Scopus APIs as part of a collaborative effort with Abt Associates on a project 
 # for the US National Science Foundation. For these scripts to be useful, an API key is needed and the script
