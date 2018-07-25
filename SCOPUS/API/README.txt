@@ -5,7 +5,7 @@
 # should be executed from a machine with a whitelisted IP address. The basic strategy is to 
 # search for AuthorIDs using "first_name last_name" queries and then use retrieved AuthorIDs to 
 # retrieve Documents and Affiliations. To prevent overwrites, we push the output from these scripts to a 
-# PostgreSQL database as its generated and can share the details of that process if there's interest.
+# PostgreSQL database as it's generated and can share the details of that process if there's interest.
 # Reading Elsevier's documentation is very helpful and highly recommended. 
 # https://dev.elsevier.com 
 
