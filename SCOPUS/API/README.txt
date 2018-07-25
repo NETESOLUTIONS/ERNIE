@@ -1,12 +1,13 @@
-# July 25, 2018. NET ESolutions. email:netelabs@nete.com The five Python 2.x scripts in this folder were 
-# used to connect to various Scopus APIs as part of a collaboration with Abt Associates on an independent project 
+# July 25, 2018. NET ESolutions. email:netelabs@nete.com Author: Avon Davey avon@nete.com
+# The five Python 2.x scripts in this folder are 
+# used to connect to various Scopus APIs as part of a collaborative effort with Abt Associates on a project 
 # for the National Science Foundation. For these scripts to be useful, an API key is needed and the script
 # should be executed from a machine with a whitelisted IP address. The basic strategy is to 
 # search for AuthorIDs using "first_name last_name" queries and then using those AuthorIDs to 
 # retrieve Documents and Affiliation information. Reading the Elsevier documentation is highly recommended. 
 # https://dev.elsevier.com To prevent overwrites, we push the output from these scripts to a PostgreSQL database
 # as its generated and can share the details of that process if there's interest.
-# Author: Avon Davey avon@nete.com
+
 
 a) This script uses strings from stdin and queries SCOPUS author search for the top 10 author results. Input must come in the form 
 "name,award_number,first_year" where 'name' is in the form "first_name last_name"
