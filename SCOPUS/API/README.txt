@@ -5,7 +5,7 @@
 # search for AuthorIDs using "first_name last_name" queries and then using those AuthorIDs to 
 # retrieve Documents and Affiliation information. Reading the Elsevier documentation is highly recommended. 
 # https://dev.elsevier.com To prevent overwrites, we push the output from these scripts to a PostgreSQL database
-# as its generaeted and can share the details of that process if there's interest.
+# as its generated and can share the details of that process if there's interest.
 # Author: Avon Davey avon@nete.com
 
 a) This script uses strings from stdin and queries SCOPUS author search for the top 10 author results. Input must come in the form 
