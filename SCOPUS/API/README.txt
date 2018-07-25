@@ -15,12 +15,10 @@ b) ScopusInterface.py: This script interfaces with various Scopus APIs including
 as well as the SCOPUS search API. A subset of the XML fields are returned in python dictionary format. Due to limited bandwidth at the
 API end, it is important to ensure the sleep_time variable is set to a value which does not cause the API to choke on response.
 
-c) collect_affiliation_profiles.py: This script utilizes the ScopusInterface script, item a) above, to populate *affiliation* profile related 
-CSV files based on API HTML responses.
+c) collect_affiliation_profiles.py: This script utilizes the ScopusInterface script, item a) above, to populate 
+*affiliation* profile related CSV files based on API HTML responses.
 
-d) collect_author_profiles.py:  This script utilizes the ScopusInterface script, item a) above, to populate *author* profile related CSV files 
-based on API HTML responses.
+d) collect_author_profiles.py:  This script utilizes the ScopusInterface script, item a) above, to populate *author* profile related CSV files based on API HTML responses.
 
-e) collect_document_profiles.py: This script utilizes the ScopusInterface script, item a) above, to populate *document* profile related CSV files 
-based on API HTML responses.
+e) collect_document_profiles.py: This script utilizes the ScopusInterface script, item a) above, to populate *document* profile related CSV files based on API HTML responses.
 
