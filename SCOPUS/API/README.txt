@@ -3,7 +3,7 @@
 # the National Science Foundation. For these scripts to be useful, an API key is needed and the script
 # has to be executed from a machine with a whitelisted IP address. The process involves
 # searching for AuthorIDs using "first_name last_name" queries and then using those AuthorIDs to 
-# retrieve Documents and Affiliation information. reading the Elsevier documentation is highly recommended. 
+# retrieve Documents and Affiliation information. Reading the Elsevier documentation is highly recommended. 
 # https://dev.elsevier.com In addition, we push the csv output from these scripts to a PostgreSQL database
 # and can share the details of that process if there's interest.
 # Author: Avon Davey avon@nete.com
