@@ -9,7 +9,7 @@
 # Reading Elsevier's documentation is very helpful and highly recommended. 
 # https://dev.elsevier.com 
 
-a) This script uses strings from stdin and queries SCOPUS author search for the top 10 author results. Input must come in the form "name,award_number,first_year" where 'name' is in the form "first_name last_name"
+a) scopus_query.py: This script uses strings from stdin and queries SCOPUS author search for the top 10 author results. Input must come in the form "name,award_number,first_year" where 'name' is in the form "first_name last_name"
 
 b) ScopusInterface.py: This script interfaces with various Scopus APIs including the author, abstract, and affiliation retrieval APIs
 as well as the SCOPUS search API. A subset of the XML fields are returned in python dictionary format. Due to limited bandwidth at the
