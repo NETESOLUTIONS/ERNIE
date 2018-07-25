@@ -1,6 +1,6 @@
 # July 25, 2018. NET ESolutions. email:netelabs@nete.com The five Python 2.x scripts in this folder were 
-# used to connect to various Scopus APIs as part of a collaboration with Abt Associates on a project for 
-# the National Science Foundation. For these scripts to be useful, an API key is needed and the script
+# used to connect to various Scopus APIs as part of a collaboration with Abt Associates on an independent project 
+# for the National Science Foundation. For these scripts to be useful, an API key is needed and the script
 # should be executed from a machine with a whitelisted IP address. The process involves
 # searching for AuthorIDs using "first_name last_name" queries and then using those AuthorIDs to 
 # retrieve Documents and Affiliation information. Reading the Elsevier documentation is highly recommended. 
