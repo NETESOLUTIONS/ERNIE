@@ -1,5 +1,5 @@
 # Welcome to ERNIE
-<img align="left" src="ernie3.png" width="250" height="200" border="120">
+<img align="left" src="ERNIE.png" width="250" height="200" border="120">
 
 
 Enhanced Research Network Informatics Environment (ERNIE) originates from a thought experiment (inspired by Williams et al. Cell 163:21-23, 2015) intended to address the research assessment problem as well as prior experience in building a database of linked data for internal use by a federal agency. This eventually morphed into an effort to create an knowledge platform for research assessment that would be available to the broader community. ERNIE is being developed by NET ESolutions Corporation (NETE). 
