@@ -92,7 +92,14 @@ INSERT INTO cci_s_document_search_results
   SELECT DISTINCT a.submitted_title, a.submitted_doi, a.document_type,
     a.scopus_id, a.award_number, a.phase, a.first_year, a.manual_selection,
     a.query_string
-  FROM cci_s_document_search_results_staging a
+  FROM
+  (cci_s_document_search_results_stg a
+    INNER JOIN
+    (select scopus_id, award_number, submitted_title,max(table_id) as table_id
+              from cci_s_document_search_results_stg group by scopus_id, award_number, submitted_title) b
+    ON a.table_id=b.table_id
+)
+WJERE a.submitted_doi!=''
 ON CONFLICT (scopus_id, award_number, submitted_title)
   DO UPDATE SET  submitted_title = excluded.submitted_title, submitted_doi = excluded.submitted_doi,
   document_type = excluded.document_type, award_number = excluded.award_number,
