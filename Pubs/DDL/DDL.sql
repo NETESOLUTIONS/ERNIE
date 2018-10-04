@@ -1,467 +1,297 @@
-\set ON_ERROR_STOP on
-\set ECHO all
+/*
+	ERNIE WoS DDL.
 
+  Creates the following tables in the wos tablespace:
+    wos_abstracts
+    wos_addresses
+    wos_authors
+    wos_document_identifiers
+    wos_grants
+    wos_keywords
+    wos_publications
+    wos_publication_subjects
+    wos_titles
+  Creates the following table in the wos_references tablespace:
+    wos_references
+    
+*/
+
+set search_path TO public;
 SET default_tablespace = wos;
 
-CREATE TABLE del_wos_abstracts (
-  source_id       VARCHAR(30),
-  abstract_text   TEXT,
-  source_filename VARCHAR(200)
+------------------------------------------------------------------------------------------------------
+
+
+create table if not exists wos_abstracts
+(
+	id serial not null,
+	source_id varchar(30) not null
+		constraint wos_abstracts_pk
+			primary key,
+	abstract_text text not null,
+	source_filename varchar(200) not null,
+	last_updated_time timestamp default now()
 );
+comment on table wos_abstracts is 'Thomson Reuters: WoS - WoS abstract of publications';
+comment on column wos_abstracts.id is ' Example: 16753';
+comment on column wos_abstracts.source_id is 'UT. Example: WOS:000362820500006';
+comment on column wos_abstracts.abstract_text is 'Publication abstract. Multiple sections are separated by two line feeds (LF).';
+comment on column wos_abstracts.source_filename is 'source xml file. Example: WR_2015_20160212115351_CORE_00011.xml';
 
-CREATE TABLE del_wos_addresses (
-  id               INTEGER,
-  source_id        VARCHAR(30),
-  address_name     VARCHAR(300),
-  organization     VARCHAR(400),
-  sub_organization VARCHAR(400),
-  city             VARCHAR(100),
-  country          VARCHAR(100),
-  zip_code         VARCHAR(20),
-  source_filename  VARCHAR(200)
+------------------------------------------------------------------------------------------------------
+
+
+create table wos_addresses
+(
+	id serial not null,
+	source_id varchar(30) not null,
+	address_name varchar(300) not null,
+	organization varchar(400),
+	sub_organization varchar(400),
+	city varchar(100),
+	country varchar(100),
+	zip_code varchar(20),
+	source_filename varchar(200),
+	last_updated_time timestamp default now(),
+	constraint wos_addresses_pk
+		primary key (source_id, address_name)
 );
+comment on table wos_addresses is 'Thomson Reuters: WoS - WoS address where publications are written';
+comment on column wos_addresses.id is ' Example: 1';
+comment on column wos_addresses.source_id is 'UT. Example: WOS:000354914100020';
+comment on column wos_addresses.address_name is ' Example: Eastern Hlth Clin Sch, Melbourne, Vic, Australia';
+comment on column wos_addresses.organization is ' Example: Walter & Eliza Hall Institute';
+comment on column wos_addresses.sub_organization is ' Example: Dipartimento Fis';
+comment on column wos_addresses.city is ' Example: Cittadella Univ';
+comment on column wos_addresses.country is ' Example: Italy';
+comment on column wos_addresses.zip_code is ' Example: I-09042';
+comment on column wos_addresses.source_filename is 'source xml file. Example: WR_2015_20160212115351_CORE_00011.xml';
 
-CREATE TABLE del_wos_authors (
-  id              INTEGER,
-  source_id       VARCHAR(30),
-  full_name       VARCHAR(200),
-  last_name       VARCHAR(200),
-  first_name      VARCHAR(200),
-  seq_no          INTEGER,
-  address_seq     INTEGER,
-  address         VARCHAR(500),
-  email_address   VARCHAR(300),
-  address_id      INTEGER,
-  dais_id         VARCHAR(30),
-  r_id            VARCHAR(30),
-  source_filename VARCHAR(200)
+------------------------------------------------------------------------------------------------------
+
+
+create table if not exists wos_authors
+(
+	id serial not null,
+	source_id varchar(30) default ''::character varying not null,
+	full_name varchar(200),
+	last_name varchar(200),
+	first_name varchar(200),
+	seq_no integer default 0 not null,
+	address_seq integer,
+	address varchar(500),
+	email_address varchar(300),
+	address_id integer default 0 not null,
+	dais_id varchar(30),
+	r_id varchar(30),
+	source_filename varchar(200),
+	last_updated_time timestamp default now(),
+	constraint wos_authors_pk
+		primary key (source_id, seq_no, address_id)
 );
+comment on table wos_authors is 'Thomson Reuters: WoS - WoS authors of publications';
+comment on column wos_authors.id is ' Example: 15135';
+comment on column wos_authors.source_id is 'UT. Example: WOS:000078266100010';
+comment on column wos_authors.full_name is ' Example: Charmandaris, V';
+comment on column wos_authors.last_name is ' Example: Charmandaris';
+comment on column wos_authors.first_name is ' Example: V';
+comment on column wos_authors.seq_no is ' Example: 6';
+comment on column wos_authors.address_seq is ' Example: 1';
+comment on column wos_authors.address is ' Example: Univ Birmingham, Sch Psychol, Birmingham B15 2TT, W Midlands, England';
+comment on column wos_authors.email_address is ' Example: k.j.linnell@bham.ac.uk';
+comment on column wos_authors.address_id is ' Example: 7186';
+comment on column wos_authors.dais_id is ' Example: 16011591';
+comment on column wos_authors.r_id is ' Example: A-7196-2008';
+comment on column wos_authors.source_filename is 'source xml file. Example: WR_2015_20160212115351_CORE_00011.xml';
 
-CREATE TABLE del_wos_document_identifiers (
-  id               INTEGER,
-  source_id        VARCHAR(30),
-  document_id      VARCHAR(100),
-  document_id_type VARCHAR(30),
-  source_filename  VARCHAR(200)
+------------------------------------------------------------------------------------------------------
+
+
+create table wos_document_identifiers
+(
+	id serial not null,
+	source_id varchar(30) default ''::character varying not null,
+	document_id varchar(100) default ''::character varying not null,
+	document_id_type varchar(30) default ''::character varying not null,
+	source_filename varchar(200),
+	last_updated_time timestamp default now(),
+	constraint wos_document_identifiers_pk
+		primary key (source_id, document_id_type, document_id)
 );
+comment on table wos_document_identifiers is 'Thomson Reuters: WoS - WoS document identifiers of publications such as doi';
+comment on column wos_document_identifiers.id is ' Example: 1';
+comment on column wos_document_identifiers.source_id is 'UT. Example: WOS:000354914100020';
+comment on column wos_document_identifiers.document_id is ' Example: CI7AA';
+comment on column wos_document_identifiers.document_id_type is 'accession_no/issn/eissn/doi/eisbn/art_no etc.. Example: doi';
+comment on column wos_document_identifiers.source_filename is 'source xml file. Example: WR_2015_20160212115351_CORE_00011.xml';
 
-CREATE TABLE del_wos_grants (
-  id                 INTEGER,
-  source_id          VARCHAR(30),
-  grant_number       VARCHAR(500),
-  grant_organization VARCHAR(400),
-  funding_ack        VARCHAR(4000),
-  source_filename    VARCHAR(200)
+------------------------------------------------------------------------------------------------------
+
+
+create table wos_grants
+(
+	id serial not null,
+	source_id varchar(30) default ''::character varying not null,
+	grant_number varchar(500) default ''::character varying not null,
+	grant_organization varchar(400) default ''::character varying not null,
+	funding_ack varchar(4000),
+	source_filename varchar(200),
+	last_updated_time timestamp default now(),
+	constraint wos_grants_pk
+		primary key (source_id, grant_number, grant_organization)
 );
+comment on table wos_grants is 'Thomson Reuters: WoS - WoS grants that fund publications';
+comment on column wos_grants.id is ' Example: 14548';
+comment on column wos_grants.source_id is ' Example: WOS:000340028400057';
+comment on column wos_grants.grant_number is ' Example: NNG04GC89G';
+comment on column wos_grants.grant_organization is ' Example: NASA LTSA grant';
+comment on column wos_grants.funding_ack is ' Example: We thank Molly Peeples, Paul Torrey, Manolis Papastergis, and….';
+comment on column wos_grants.source_filename is 'source xml file. Example: WR_2015_20160212115351_CORE_00011.xml';
 
-CREATE TABLE del_wos_keywords (
-  id              INTEGER,
-  source_id       VARCHAR(30),
-  keyword         VARCHAR(200),
-  source_filename VARCHAR(200)
+------------------------------------------------------------------------------------------------------
+
+
+create table wos_keywords
+(
+	id serial not null,
+	source_id varchar(30) not null,
+	keyword varchar(200) not null,
+	source_filename varchar(200),
+	last_updated_time timestamp default now(),
+	constraint wos_keywords_pk
+		primary key (source_id, keyword)
 );
+comment on table wos_keywords is 'Thomson Reuters: WoS - WoS keyword of publications';
+comment on column wos_keywords.id is ' Example: 62849';
+comment on column wos_keywords.source_id is 'UT. Example: WOS:000353971800007';
+comment on column wos_keywords.keyword is ' Example: NEONATAL INTRACRANIAL INJURY';
+comment on column wos_keywords.source_filename is 'source xml file. Example: WR_2015_20160212115351_CORE_00011.xml';
 
-CREATE TABLE del_wos_publications (
-  id                 INTEGER,
-  source_id          VARCHAR(30),
-  source_type        VARCHAR(20),
-  source_title       VARCHAR(300),
-  language           VARCHAR(20),
-  document_title     VARCHAR(2000),
-  document_type      VARCHAR(50),
-  has_abstract       VARCHAR(5),
-  issue              VARCHAR(10),
-  volume             VARCHAR(20),
-  begin_page         VARCHAR(30),
-  end_page           VARCHAR(30),
-  publisher_name     VARCHAR(200),
-  publisher_address  VARCHAR(300),
-  publication_year   VARCHAR(4),
-  publication_date   DATE,
-  created_date       DATE,
-  last_modified_date DATE,
-  edition            VARCHAR(40),
-  source_filename    VARCHAR(200)
+------------------------------------------------------------------------------------------------------
+
+
+create table wos_publications
+(
+	begin_page varchar(30),
+	created_date date not null,
+	document_title varchar(2000),
+	document_type varchar(50) not null,
+	edition varchar(40) not null,
+	end_page varchar(30),
+	has_abstract varchar(5) not null,
+	id serial not null,
+	issue varchar(10),
+	language varchar(20) not null,
+	last_modified_date date not null,
+	publication_date date not null,
+	publication_year varchar(4) not null,
+	publisher_address varchar(300),
+	publisher_name varchar(200),
+	source_filename varchar(200),
+	source_id varchar(30) not null
+		constraint wos_publications_pk
+			primary key,
+	source_title varchar(300),
+	source_type varchar(20) not null,
+	volume varchar(20),
+	last_updated_time timestamp default now()
 );
+comment on table wos_publications is 'Main Web of Science publication table';
+comment on column wos_publications.begin_page is ' Example: 1421';
+comment on column wos_publications.created_date is ' Example: 2016-03-18';
+comment on column wos_publications.document_title is ' Example: Point-of-care testing for coeliac disease antibodies…';
+comment on column wos_publications.document_type is ' Example: Article';
+comment on column wos_publications.edition is ' Example: WOS.SCI';
+comment on column wos_publications.end_page is ' Example: 1432';
+comment on column wos_publications.has_abstract is 'Y or N. Example: Y';
+comment on column wos_publications.id is 'id is always an integer- is an internal (ERNIE) number. Example: 1';
+comment on column wos_publications.issue is ' Example: 8';
+comment on column wos_publications.language is ' Example: English';
+comment on column wos_publications.last_modified_date is ' Example: 2016-03-18';
+comment on column wos_publications.publication_date is ' Example: 2015-05-04';
+comment on column wos_publications.publication_year is ' Example: 2015';
+comment on column wos_publications.publisher_address is ' Example: LEVEL 2, 26-32 PYRMONT BRIDGE RD, PYRMONT, NSW 2009, AUSTRALIA';
+comment on column wos_publications.publisher_name is ' Example: AUSTRALASIAN MED PUBL CO LTD';
+comment on column wos_publications.source_filename is 'source xml file. Example: WR_2015_20160212115351_CORE_00011.xml';
+comment on column wos_publications.source_id is 'Paper Id (Web of Science UT). Example: WOS:000354914100020';
+comment on column wos_publications.source_title is 'Journal title. Example: MEDICAL JOURNAL OF AUSTRALIA';
+comment on column wos_publications.source_type is ' Example: Journal';
+comment on column wos_publications.volume is ' Example: 202';
 
-CREATE TABLE del_wos_references (
-  wos_reference_id   INTEGER,
-  source_id          VARCHAR(30),
-  cited_source_uid   VARCHAR(30),
-  cited_title        VARCHAR(8000),
-  cited_work         VARCHAR(4000),
-  cited_author       VARCHAR(1000),
-  cited_year         VARCHAR(40),
-  cited_page         VARCHAR(200),
-  created_date       DATE,
-  last_modified_date DATE,
-  source_filename    VARCHAR(200)
+------------------------------------------------------------------------------------------------------
+
+
+create table if not exists wos_publication_subjects
+(
+        wos_subject_id serial not null,
+        source_id varchar(30) not null,
+        subject_classification_type varchar(100) not null
+                check (subject_classification_type in ('traditional','extended')),
+        subject varchar(200) not null,
+        source_filename varchar(200),
+        last_updated_time timestamp default now(),
+        constraint wos_publication_subjects_pk
+                primary key (source_id,subject_classification_type,subject)
 );
+comment on table wos_publication_subjects is 'Thomson Reuters: WoS - WoS subjects of publications';
+comment on column wos_publication_subjects.wos_subject_id is ' Example: 1';
+comment on column wos_publication_subjects.source_id is ' Example: WOS:A1975AN26800010';
+comment on column wos_publication_subjects.subject_classification_type is ' Every record from journal in Web of Science Core
+Collection database will have this element. It will either be traditional or extended';
+comment on column wos_publication_subjects.subject is 'Represents the Subject area. Example: International Relations';
+comment on column wos_publication_subjects.source_filename is 'Source xml file. Example: WR_1975_20160727231652_CORE_0001.xml';
 
-CREATE TABLE del_wos_titles (
-  id              INTEGER,
-  source_id       VARCHAR(30),
-  title           VARCHAR(2000),
-  type            VARCHAR(100),
-  source_filename VARCHAR(200)
+------------------------------------------------------------------------------------------------------
+
+create table wos_references
+(
+	wos_reference_id serial not null,
+	source_id varchar(30) not null,
+	cited_source_uid varchar(30) not null,
+	cited_title varchar(80000),
+	cited_work text,
+	cited_author varchar(3000),
+	cited_year varchar(40),
+	cited_page varchar(200),
+	created_date date,
+	last_modified_date date,
+	source_filename varchar(200),
+	last_updated_time timestamp default now(),
+	constraint wos_references_pk
+		primary key (source_id, cited_source_uid)
+) TABLESPACE wos_references;
+comment on table wos_references is 'Thomson Reuters: WoS - WoS cited references';
+comment on column wos_references.wos_reference_id is 'auto-increment integer, serving as a row key in distributed systems. Example: 1';
+comment on column wos_references.source_id is 'UT. Example: WOS:000273726900017';
+comment on column wos_references.cited_source_uid is 'UT. Example: WOS:000226230700068';
+comment on column wos_references.cited_title is ' Example: Cytochrome P450 oxidoreductase gene mutations….';
+comment on column wos_references.cited_work is ' Example: JOURNAL OF CLINICAL ENDOCRINOLOGY & METABOLISM';
+comment on column wos_references.cited_author is ' Example: Fukami, M';
+comment on column wos_references.cited_year is ' Example: 2005';
+comment on column wos_references.cited_page is ' Example: 414';
+comment on column wos_references.created_date is ' Example: 2016-03-31';
+comment on column wos_references.last_modified_date is ' Example: 2016-03-31';
+comment on column wos_references.source_filename is 'source xml file. Example: WR_2015_20160212115351_CORE_00011.xml';
+
+------------------------------------------------------------------------------------------------------
+
+
+create table wos_titles
+(
+	id serial not null,
+	source_id varchar(30) not null,
+	title varchar(2000) not null,
+	type varchar(100) not null,
+	source_filename varchar(200),
+	last_updated_time timestamp default now(),
+	constraint wos_titles_pk
+		primary key (source_id, type)
 );
+comment on table wos_titles is 'Thomson Reuters: WoS - WoS title of publications';
+comment on column wos_titles.id is ' Example: 1';
+comment on column wos_titles.source_id is ' Example: WOS:000354914100020';
+comment on column wos_titles.title is ' Example: MEDICAL JOURNAL OF AUSTRALIA';
+comment on column wos_titles.type is 'source, item,source_abbrev,abbrev_iso,abbrev_11,abbrev_29, etc.. Example: source';
+comment on column wos_titles.source_filename is 'source xml file. Example: WR_2015_20160212115351_CORE_00011.xml';
 
-CREATE TABLE IF NOT EXISTS new_wos_abstracts (
-  source_id       VARCHAR(30),
-  abstract_text   VARCHAR(4000),
-  source_filename VARCHAR(200)
-);
-
-CREATE TABLE IF NOT EXISTS new_wos_addresses (
-  id               INTEGER,
-  source_id        VARCHAR(30),
-  address_name     VARCHAR(300),
-  organization     VARCHAR(400),
-  sub_organization VARCHAR(400),
-  city             VARCHAR(100),
-  country          VARCHAR(100),
-  zip_code         VARCHAR(20),
-  source_filename  VARCHAR(200)
-);
-
-CREATE TABLE IF NOT EXISTS new_wos_authors (
-  id              INTEGER,
-  source_id       VARCHAR(30),
-  full_name       VARCHAR(200),
-  last_name       VARCHAR(200),
-  first_name      VARCHAR(200),
-  seq_no          INTEGER,
-  address_seq     INTEGER,
-  address         VARCHAR(500),
-  email_address   VARCHAR(300),
-  address_id      INTEGER,
-  dais_id         VARCHAR(30),
-  r_id            VARCHAR(30),
-  source_filename VARCHAR(200)
-);
-
-CREATE TABLE IF NOT EXISTS new_wos_document_identifiers (
-  id               INTEGER,
-  source_id        VARCHAR(30),
-  document_id      VARCHAR(100),
-  document_id_type VARCHAR(30),
-  source_filename  VARCHAR(200)
-);
-
-CREATE TABLE IF NOT EXISTS new_wos_grants (
-  id                 INTEGER,
-  source_id          VARCHAR(30),
-  grant_number       VARCHAR(500),
-  grant_organization VARCHAR(400),
-  funding_ack        VARCHAR(4000),
-  source_filename    VARCHAR(200)
-);
-
-CREATE TABLE IF NOT EXISTS new_wos_keywords (
-  id              INTEGER,
-  source_id       VARCHAR(30),
-  keyword         VARCHAR(200),
-  source_filename VARCHAR(200)
-);
-
-CREATE TABLE IF NOT EXISTS new_wos_publications (
-  id                 INTEGER,
-  source_id          VARCHAR(30),
-  source_type        VARCHAR(20),
-  source_title       VARCHAR(300),
-  language           VARCHAR(20),
-  document_title     VARCHAR(2000),
-  document_type      VARCHAR(50),
-  has_abstract       VARCHAR(5),
-  issue              VARCHAR(10),
-  volume             VARCHAR(20),
-  begin_page         VARCHAR(30),
-  end_page           VARCHAR(30),
-  publisher_name     VARCHAR(200),
-  publisher_address  VARCHAR(300),
-  publication_year   INTEGER,
-  publication_date   DATE,
-  created_date       DATE,
-  last_modified_date DATE,
-  edition            VARCHAR(40),
-  source_filename    VARCHAR(200)
-);
-
-CREATE TABLE IF NOT EXISTS new_wos_references (
-  id                 INTEGER,
-  source_id          VARCHAR(30),
-  cited_source_uid   VARCHAR(30),
-  cited_title        VARCHAR(8000),
-  cited_work         VARCHAR(6000),
-  cited_author       VARCHAR(3000),
-  cited_year         VARCHAR(40),
-  cited_page         VARCHAR(200),
-  created_date       DATE,
-  last_modified_date DATE,
-  source_filename    VARCHAR(200)
-);
-
-CREATE TABLE uhs_wos_abstracts (
-  source_id       VARCHAR(30),
-  abstract_text   TEXT,
-  source_filename VARCHAR(200)
-);
-
-CREATE TABLE uhs_wos_addresses (
-  id               INTEGER,
-  source_id        VARCHAR(30),
-  address_name     VARCHAR(300),
-  organization     VARCHAR(400),
-  sub_organization VARCHAR(400),
-  city             VARCHAR(100),
-  country          VARCHAR(100),
-  zip_code         VARCHAR(20),
-  source_filename  VARCHAR(200)
-);
-
-CREATE TABLE uhs_wos_authors (
-  id              INTEGER,
-  source_id       VARCHAR(30),
-  full_name       VARCHAR(200),
-  last_name       VARCHAR(200),
-  first_name      VARCHAR(200),
-  seq_no          INTEGER,
-  address_seq     INTEGER,
-  address         VARCHAR(500),
-  email_address   VARCHAR(300),
-  address_id      INTEGER,
-  dais_id         VARCHAR(30),
-  r_id            VARCHAR(30),
-  source_filename VARCHAR(200)
-);
-
-CREATE TABLE uhs_wos_document_identifiers (
-  id               INTEGER,
-  source_id        VARCHAR(30),
-  document_id      VARCHAR(100),
-  document_id_type VARCHAR(30),
-  source_filename  VARCHAR(200)
-);
-
-CREATE TABLE uhs_wos_grants (
-  id                 INTEGER,
-  source_id          VARCHAR(30),
-  grant_number       VARCHAR(500),
-  grant_organization VARCHAR(400),
-  funding_ack        VARCHAR(4000),
-  source_filename    VARCHAR(200)
-);
-
-CREATE TABLE uhs_wos_keywords (
-  id              INTEGER,
-  source_id       VARCHAR(30),
-  keyword         VARCHAR(200),
-  source_filename VARCHAR(200)
-);
-
-CREATE TABLE uhs_wos_publications (
-  id                 INTEGER,
-  source_id          VARCHAR(30),
-  source_type        VARCHAR(20),
-  source_title       VARCHAR(300),
-  language           VARCHAR(20),
-  document_title     VARCHAR(2000),
-  document_type      VARCHAR(50),
-  has_abstract       VARCHAR(5),
-  issue              VARCHAR(10),
-  volume             VARCHAR(20),
-  begin_page         VARCHAR(30),
-  end_page           VARCHAR(30),
-  publisher_name     VARCHAR(200),
-  publisher_address  VARCHAR(300),
-  publication_year   VARCHAR(4),
-  publication_date   DATE,
-  created_date       DATE,
-  last_modified_date DATE,
-  edition            VARCHAR(40),
-  source_filename    VARCHAR(200)
-);
-
-CREATE TABLE uhs_wos_references (
-  wos_reference_id   INTEGER,
-  source_id          VARCHAR(30),
-  cited_source_uid   VARCHAR(30),
-  cited_title        VARCHAR(8000),
-  cited_work         VARCHAR(4000),
-  cited_author       VARCHAR(1000),
-  cited_year         VARCHAR(40),
-  cited_page         VARCHAR(200),
-  created_date       DATE,
-  last_modified_date DATE,
-  source_filename    VARCHAR(200)
-);
-
-CREATE TABLE uhs_wos_titles (
-  id              INTEGER,
-  source_id       VARCHAR(30),
-  title           VARCHAR(2000),
-  type            VARCHAR(100),
-  source_filename VARCHAR(200)
-);
-
-CREATE TABLE wos_document_identifiers (
-  id               INTEGER,
-  source_id        VARCHAR(30) NOT NULL,
-  document_id      VARCHAR(100),
-  document_id_type VARCHAR(30) NOT NULL,
-  source_filename  VARCHAR(200)
-);
-
-CREATE UNIQUE INDEX wos_document_identifiers_uk
-  ON wos_document_identifiers (source_id, document_id_type, document_id) TABLESPACE indexes;
-
--- 30m:11s
-CREATE INDEX IF NOT EXISTS wdi_document_id_type_document_id_i
-  ON wos_document_identifiers (document_id_type, document_id) TABLESPACE indexes;
-
-CREATE TABLE wos_titles (
-  id              INTEGER,
-  source_id       VARCHAR(30)   NOT NULL,
-  title           VARCHAR(2000) NOT NULL,
-  type            VARCHAR(100)  NOT NULL,
-  source_filename VARCHAR(200),
-  CONSTRAINT wos_titles_pk PRIMARY KEY (source_id, type) USING INDEX TABLESPACE indexes
-);
-
-CREATE TABLE wos_abstracts (
-  source_id       VARCHAR(30)  NOT NULL CONSTRAINT wos_abstracts_pk PRIMARY KEY USING INDEX TABLESPACE INDEXES,
-  abstract_text   TEXT         NOT NULL,
-  source_filename VARCHAR(200) NOT NULL
-);
-
-CREATE TABLE wos_authors (
-  id              INTEGER,
-  source_id       VARCHAR(30) NOT NULL,
-  full_name       VARCHAR(200),
-  last_name       VARCHAR(200),
-  first_name      VARCHAR(200),
-  seq_no          INTEGER     NOT NULL,
-  address_seq     INTEGER,
-  address         VARCHAR(500),
-  email_address   VARCHAR(300),
-  address_id      INTEGER,
-  dais_id         VARCHAR(30),
-  r_id            VARCHAR(30),
-  source_filename VARCHAR(200)
-);
-
-CREATE UNIQUE INDEX wos_authors_uk
-  ON wos_authors (source_id, seq_no, address_id) TABLESPACE indexes;
-
-CREATE TABLE wos_keywords (
-  id              INTEGER,
-  source_id       VARCHAR(30)  NOT NULL,
-  keyword         VARCHAR(200) NOT NULL,
-  source_filename VARCHAR(200),
-  CONSTRAINT wos_keywords_pk PRIMARY KEY (source_id, keyword) USING INDEX TABLESPACE indexes
-);
-
-CREATE TABLE wos_grants (
-  id                 INTEGER,
-  source_id          VARCHAR(30)  NOT NULL,
-  grant_number       VARCHAR(500) NOT NULL,
-  grant_organization VARCHAR(400),
-  funding_ack        VARCHAR(4000),
-  source_filename    VARCHAR(200)
-);
-
-CREATE UNIQUE INDEX wos_grants_uk
-  ON wos_grants (source_id, grant_number, grant_organization) TABLESPACE indexes;
-
-CREATE INDEX wos_grant_source_id_index
-  ON wos_grants (source_id) TABLESPACE indexes;
-
-CREATE TABLE wos_addresses (
-  id               INTEGER,
-  source_id        VARCHAR(30)  NOT NULL,
-  address_name     VARCHAR(300) NOT NULL,
-  organization     VARCHAR(400),
-  sub_organization VARCHAR(400),
-  city             VARCHAR(100),
-  country          VARCHAR(100),
-  zip_code         VARCHAR(20),
-  source_filename  VARCHAR(200),
-  CONSTRAINT wos_addresses_pk PRIMARY KEY (source_id, address_name) USING INDEX TABLESPACE indexes
-);
-
-CREATE TABLE wos_patent_mapping (
-  wos_id         VARCHAR(30) NOT NULL,
-  patent_num     VARCHAR(30) NOT NULL,
-  patent_orig    VARCHAR(20),
-  patent_country VARCHAR(2),
-  CONSTRAINT wos_patent_mapping_pk PRIMARY KEY (patent_num, wos_id) USING INDEX TABLESPACE indexes
-);
-
-CREATE INDEX patent_orig_index
-  ON wos_patent_mapping (patent_orig);
-
-CREATE TABLE wos_pmid_manual_mapping (
-  wos_uid  VARCHAR(30),
-  pmid     VARCHAR(30),
-  pmid_int INTEGER,
-  details  TEXT
-);
-
-CREATE TABLE wos_pmid_mapping (
-  wos_uid      VARCHAR(30)                                              NOT NULL
-    CONSTRAINT wos_pmid_mapping_pk PRIMARY KEY
-  USING INDEX TABLESPACE INDEXES,
-  pmid         VARCHAR(30)                                              NOT NULL,
-  pmid_int     INTEGER                                                  NOT NULL,
-  wos_pmid_seq INTEGER DEFAULT nextval('wos_pmid_sequence' :: REGCLASS) NOT NULL
-);
-
-CREATE UNIQUE INDEX wpm_pmid_int_uk
-  ON wos_pmid_mapping (pmid_int);
-
-CREATE TABLE wos_publications (
-  begin_page         VARCHAR(30),
-  created_date       DATE        NOT NULL,
-  document_title     VARCHAR(2000),
-  document_type      VARCHAR(50) NOT NULL,
-  edition            VARCHAR(40) NOT NULL,
-  end_page           VARCHAR(30),
-  has_abstract       VARCHAR(5)  NOT NULL,
-  id                 INTEGER,
-  issue              VARCHAR(10),
-  language           VARCHAR(20) NOT NULL,
-  last_modified_date DATE        NOT NULL,
-  publication_date   DATE        NOT NULL,
-  publication_year   INTEGER     NOT NULL,
-  publisher_address  VARCHAR(300),
-  publisher_name     VARCHAR(200),
-  source_filename    VARCHAR(200),
-  source_id          VARCHAR(30) NOT NULL
-    CONSTRAINT wos_publications_pk PRIMARY KEY
-  USING INDEX TABLESPACE INDEXES,
-  source_title       VARCHAR(300),
-  source_type        VARCHAR(20) NOT NULL,
-  volume             VARCHAR(20)
-);
-
--- 5m:00s
-CREATE INDEX wos_publications_publication_year_i
-  ON wos_publications (publication_year) TABLESPACE indexes;
-
-CREATE TABLE wos_references (
-  wos_reference_id   INTEGER,
-  source_id          VARCHAR(30) NOT NULL,
-  cited_source_uid   VARCHAR(30) NOT NULL,
-  cited_title        VARCHAR(8000),
-  cited_work         VARCHAR(8000),
-  cited_author       VARCHAR(2000),
-  cited_year         VARCHAR(40),
-  cited_page         VARCHAR(200),
-  created_date       DATE,
-  last_modified_date DATE,
-  source_filename    VARCHAR(200),
-  CONSTRAINT wos_references_pk PRIMARY KEY (source_id, cited_source_uid) USING INDEX TABLESPACE indexes
-);
-
-CREATE INDEX ssd_ref_source_id_index2
-  ON wos_references (cited_source_uid, source_id);
+------------------------------------------------------------------------------------------------------
