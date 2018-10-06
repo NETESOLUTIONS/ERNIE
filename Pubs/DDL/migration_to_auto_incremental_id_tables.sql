@@ -5,7 +5,7 @@ CREATE TABLE tmp_wos_keywords (
   source_id       VARCHAR(30)  NOT NULL,
   keyword         VARCHAR(200) NOT NULL,
   source_filename VARCHAR(200),
-  CONSTRAINT wos_keywords_pk PRIMARY KEY (source_id,keyword) USING INDEX TABLESPACE indexes
+  CONSTRAINT wos_keywords_pk PRIMARY KEY (source_id,keyword) USING INDEX TABLESPACE index_tbs
 );
 
 INSERT INTO tmp_wos_keywords (source_id, keyword, source_filename)
@@ -27,7 +27,7 @@ CREATE TABLE tmp_wos_keywords (
   source_id       VARCHAR(30)  NOT NULL,
   keyword         VARCHAR(200) NOT NULL,
   source_filename VARCHAR(200),
-  CONSTRAINT wos_keywords_pk PRIMARY KEY (source_id,keyword) USING INDEX TABLESPACE indexes
+  CONSTRAINT wos_keywords_pk PRIMARY KEY (source_id,keyword) USING INDEX TABLESPACE index_tbs
 );
 
 INSERT INTO tmp_wos_keywords (source_id, keyword, source_filename)

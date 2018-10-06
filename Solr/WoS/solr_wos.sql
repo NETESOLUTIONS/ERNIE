@@ -25,7 +25,7 @@ CREATE TABLE solr_65m_temp TABLESPACE wos AS
     FROM solr_5k_out);
 
 CREATE INDEX solr_test_wos_ind
-  ON solr_65m_temp USING HASH (source_id) TABLESPACE indexes;
+  ON solr_65m_temp USING HASH (source_id) TABLESPACE index_tbs;
 
 DROP TABLE IF EXISTS solr_65m_with_vol;
 CREATE TABLE solr_65m_with_vol TABLESPACE wos AS
@@ -72,7 +72,7 @@ CREATE TABLE solr_5k_out_with_vol AS --
 -- Version with HAVING/LIMIT took 49m:07s
 
 ALTER TABLE solr_5k_out_with_vol
-  ADD CONSTRAINT solr_5k_out_with_vol_pk PRIMARY KEY (source_id) USING INDEX TABLESPACE indexes;
+  ADD CONSTRAINT solr_5k_out_with_vol_pk PRIMARY KEY (source_id) USING INDEX TABLESPACE index_tbs;
 
 DROP TABLE IF EXISTS solr_65m_with_vol;
 CREATE TABLE solr_65m_with_vol TABLESPACE wos AS --
