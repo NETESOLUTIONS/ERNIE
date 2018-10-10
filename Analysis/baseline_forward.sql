@@ -75,7 +75,7 @@ BEGIN
         EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid_forward
           RENAME TO case_DRUG_NAME_HERE_generational_references_forward;');
         create index case_DRUG_NAME_HERE_generational_references_wos_index_forward on case_DRUG_NAME_HERE_generational_references_forward
-          using btree (wos_id) tablespace indexes;
+          using btree (wos_id) TABLESPACE index_tbs;
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_forward;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network_forward as
         select distinct b.source_id as citing_wos, a.cited as cited_wos from
@@ -115,7 +115,7 @@ BEGIN
         EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid_forward
           RENAME TO case_DRUG_NAME_HERE_generational_references_forward;');
         EXECUTE('create index case_DRUG_NAME_HERE_generational_references_wos_index_forward on case_DRUG_NAME_HERE_generational_references_forward
-          using btree (gen'||X||'_citing_wos_id) tablespace indexes;');
+          using btree (gen'||X||'_citing_wos_id) TABLESPACE index_tbs;');
         --create a dummy citation network table for genX references. Merge this into the main table and deduplicate
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_dummy_forward;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network_dummy_forward as

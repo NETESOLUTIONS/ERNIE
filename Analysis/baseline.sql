@@ -140,7 +140,7 @@ BEGIN
         EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
           RENAME TO case_DRUG_NAME_HERE_generational_references;');
         create index case_DRUG_NAME_HERE_generational_references_wos_index on case_DRUG_NAME_HERE_generational_references
-          using btree (wos_id) tablespace indexes;
+          using btree (wos_id) TABLESPACE index_tbs;
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network as
         select distinct a.citing as citing_wos, b.cited_source_uid as cited_wos from
@@ -212,7 +212,7 @@ BEGIN
         EXECUTE('ALTER TABLE case_DRUG_NAME_HERE_gen'||X||'_ref_pmid
           RENAME TO case_DRUG_NAME_HERE_generational_references;');
         EXECUTE('create index case_DRUG_NAME_HERE_generational_references_wos_index on case_DRUG_NAME_HERE_generational_references
-          using btree (gen'||X||'_cited_wos_id) tablespace indexes;');
+          using btree (gen'||X||'_cited_wos_id) TABLESPACE index_tbs;');
         --create a dummy citation network table for genX references. Merge this into the main table and deduplicate
         DROP TABLE IF EXISTS case_DRUG_NAME_HERE_citation_network_dummy;
         EXECUTE('create table case_DRUG_NAME_HERE_citation_network_dummy as
