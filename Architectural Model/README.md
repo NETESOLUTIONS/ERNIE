@@ -29,15 +29,14 @@ a free [draw.io](http://draw.io) online tool with
 the [C4 Modelling plugin for draw.io](https://github.com/tobiashochguertel/c4-draw.io).
 
 To update the diagram:
-1. Open [draw.io](http://draw.io) online. [Plugins are not supported](https://github.com/jgraph/drawio-desktop/issues/7) 
-in draw.io Desktop.
-1. (one-time setup) Select GitHub as a storage option.   
-1. (one-time setup) Install 
-[C4 Modelling plugin for draw.io](https://github.com/tobiashochguertel/c4-draw.io).
+1. Open [draw.io Desktop](http://draw.io) (recommended) or draw.io online.
+1. (online only) You can select GitHub as a storage option. You'd be prompted to commit changes on save.   
+1. (one-time setup) Install  
+[C4 Modelling plugin for draw.io](https://tobiashochguertel.github.io/c4-draw.io/c4.js). Restart or reload the page.
 1. Open ERNIE C4 Deployment Diagram.xml
 1. Edit. Be aware that default draw.io C4 plug-in styling 
 [doesn't match](https://github.com/tobiashochguertel/c4-draw.io/issues/3) the default C4 styling. It's recommended to 
 duplicate shapes or copy existing diagram styles, which were matched to the default C4 styling as close as possible.
-1. Save. The diagram will be committed directly to GitHub.    
-1. After you're done with editing, export a diagram as PNG and SVG.
+1. Save.    
+1. After you're done with editing, export a diagram as a PNG and an SVG.
 1. Commit updated files.

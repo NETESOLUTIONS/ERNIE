@@ -5,30 +5,30 @@ ALTER TABLE ct_arm_groups
 
 CREATE UNIQUE INDEX ct_arm_groups_uk
   ON ct_arm_groups (nct_id, arm_group_label, arm_group_type, description)
-TABLESPACE indexes;
+TABLESPACE index_tbs;
 -- 4.9s
 -- endregion
 
 -- region ct_authorities
 ALTER TABLE ct_authorities
-  ADD CONSTRAINT ct_authorities_pk PRIMARY KEY (nct_id) USING INDEX TABLESPACE indexes;
+  ADD CONSTRAINT ct_authorities_pk PRIMARY KEY (nct_id) USING INDEX TABLESPACE index_tbs;
 -- endregion
 
 -- region ct_collaborators
 ALTER TABLE ct_collaborators
-  ADD CONSTRAINT ct_collaborators_pk PRIMARY KEY (nct_id, agency) USING INDEX TABLESPACE indexes;
+  ADD CONSTRAINT ct_collaborators_pk PRIMARY KEY (nct_id, agency) USING INDEX TABLESPACE index_tbs;
 -- 1.3s
 -- endregion
 
 -- region ct_conditions
 ALTER TABLE ct_conditions
-  ADD CONSTRAINT ct_conditions_pk PRIMARY KEY (nct_id, condition) USING INDEX TABLESPACE indexes;
+  ADD CONSTRAINT ct_conditions_pk PRIMARY KEY (nct_id, condition) USING INDEX TABLESPACE index_tbs;
 -- 6.4s
 -- endregion
 
 -- region ct_condition_browses
 ALTER TABLE ct_condition_browses
-  ADD CONSTRAINT ct_condition_browses_pk PRIMARY KEY (nct_id, mesh_term) USING INDEX TABLESPACE indexes;
+  ADD CONSTRAINT ct_condition_browses_pk PRIMARY KEY (nct_id, mesh_term) USING INDEX TABLESPACE index_tbs;
 -- 7.6s
 -- endregion
 
@@ -52,7 +52,7 @@ ALTER TABLE ct_interventions
 
 CREATE UNIQUE INDEX ct_interventions_uk
   ON ct_interventions (nct_id, intervention_type, intervention_name, description)
-TABLESPACE indexes;
+TABLESPACE index_tbs;
 -- 4.9s
 -- endregion
 
@@ -75,7 +75,7 @@ WHERE EXISTS(SELECT 1
 
 ALTER TABLE ct_intervention_other_names
   ADD CONSTRAINT ct_intervention_other_names_pk PRIMARY KEY (nct_id, intervention_name, other_name)
-USING INDEX TABLESPACE indexes;
+USING INDEX TABLESPACE index_tbs;
 -- 1.8s
 -- endregion
 
@@ -86,7 +86,7 @@ ALTER TABLE ct_intervention_browses
 
 ALTER TABLE ct_intervention_browses
   ADD CONSTRAINT ct_intervention_browses_pk PRIMARY KEY (nct_id, mesh_term)
-USING INDEX TABLESPACE indexes;
+USING INDEX TABLESPACE index_tbs;
 -- 1.9s
 -- endregion
 
@@ -108,7 +108,7 @@ WHERE EXISTS(SELECT 1
 
 ALTER TABLE ct_intervention_arm_group_labels
   ADD CONSTRAINT ct_intervention_arm_group_labels_pk PRIMARY KEY (nct_id, intervention_name, arm_group_label)
-USING INDEX TABLESPACE indexes;
+USING INDEX TABLESPACE index_tbs;
 -- 4.3s
 -- endregion
 
@@ -119,7 +119,7 @@ ALTER TABLE ct_keywords
 
 ALTER TABLE ct_keywords
   ADD CONSTRAINT ct_keywords_pk PRIMARY KEY (nct_id, keyword)
-USING INDEX TABLESPACE indexes;
+USING INDEX TABLESPACE index_tbs;
 -- 5.2s
 -- endregion
 
@@ -130,7 +130,7 @@ ALTER TABLE ct_links
 
 CREATE UNIQUE INDEX ct_links_uk
   ON ct_links (nct_id, url, description)
-TABLESPACE indexes;
+TABLESPACE index_tbs;
 -- 0.4s
 -- endregion
 
@@ -150,7 +150,7 @@ WHERE EXISTS(SELECT 1
 
 CREATE UNIQUE INDEX ct_locations_uk
   ON ct_locations (nct_id, facility_country, facility_city, facility_zip, facility_name)
-TABLESPACE indexes;
+TABLESPACE index_tbs;
 -- 14.7s
 -- endregion
 
@@ -161,7 +161,7 @@ ALTER TABLE ct_location_countries
 
 ALTER TABLE ct_location_countries
   ADD CONSTRAINT ct_location_countries_pk PRIMARY KEY (nct_id, country)
-USING INDEX TABLESPACE indexes;
+USING INDEX TABLESPACE index_tbs;
 -- 2.7s
 -- endregion
 
@@ -183,7 +183,7 @@ WHERE EXISTS(SELECT 1
 
 ALTER TABLE ct_location_investigators
   ADD CONSTRAINT ct_location_investigators_pk PRIMARY KEY (nct_id, investigator_last_name)
-USING INDEX TABLESPACE indexes;
+USING INDEX TABLESPACE index_tbs;
 -- 0.9s
 -- endregion
 
@@ -207,7 +207,7 @@ WHERE EXISTS(SELECT 1
 
 CREATE UNIQUE INDEX ct_outcomes_uk
   ON ct_outcomes (nct_id, outcome_type, measure, time_frame)
-TABLESPACE indexes;
+TABLESPACE index_tbs;
 -- 12.4s
 -- endregion
 
@@ -220,7 +220,7 @@ ALTER TABLE ct_overall_contacts
 
 ALTER TABLE ct_overall_contacts
   ADD CONSTRAINT ct_overall_contacts_pk PRIMARY KEY (nct_id, contact_type)
-USING INDEX TABLESPACE indexes;
+USING INDEX TABLESPACE index_tbs;
 -- 0.8s
 -- endregion
 
@@ -242,7 +242,7 @@ WHERE EXISTS(SELECT 1
 
 CREATE UNIQUE INDEX ct_overall_officials_uk
   ON ct_overall_officials (nct_id, role, last_name)
-TABLESPACE indexes;
+TABLESPACE index_tbs;
 -- 2.4s
 -- endregion
 
@@ -253,7 +253,7 @@ ALTER TABLE ct_publications
 
 ALTER TABLE ct_publications
   ADD CONSTRAINT ct_publications_pk PRIMARY KEY (nct_id, citation)
-USING INDEX TABLESPACE indexes;
+USING INDEX TABLESPACE index_tbs;
 -- 0.8s
 -- endregion
 
@@ -265,7 +265,7 @@ ALTER TABLE ct_references
 -- Values larger than 1/3 of a buffer page cannot be indexed
 CREATE UNIQUE INDEX ct_references_uk
   ON ct_references (nct_id, md5(citation))
-TABLESPACE indexes;
+TABLESPACE index_tbs;
 -- 1.6s
 -- endregion
 
@@ -286,6 +286,6 @@ WHERE EXISTS(SELECT 1
 
 ALTER TABLE ct_secondary_ids
   ADD CONSTRAINT ct_secondary_ids_pk PRIMARY KEY (nct_id, secondary_id)
-USING INDEX TABLESPACE indexes;
+USING INDEX TABLESPACE index_tbs;
 -- 0.7s
 -- endregion

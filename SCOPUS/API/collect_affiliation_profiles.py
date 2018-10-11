@@ -7,9 +7,9 @@ collect_affiliation_profiles.py
 '''
 
 import ScopusInterface as si
-import sys
+import sys; import os
 from time import sleep
-api_key=# INSERT API KEY HERE
+api_key=os.environ['SCOPUS_API_KEY']
 
 # CSV file set up
 profiles=['affiliations']

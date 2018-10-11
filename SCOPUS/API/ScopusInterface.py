@@ -11,28 +11,33 @@ ScopusInterface.py
 
 from lxml import etree
 import sys
-import urllib2 as ul
-import urllib
 from time import sleep
 from copy import deepcopy
+try:
+    from urllib import urlencode
+    from urllib2 import urlopen
+except ImportError:
+    from urllib.parse import urlencode
+    from urllib.request import urlopen
 
 sleep_time=0.1; inc_step=20
 abstract_retrieval_header="https://api.elsevier.com/content/abstract/"
 scopus_search_header="https://api.elsevier.com/content/search/scopus"
+author_search_header="https://api.elsevier.com/content/search/author/"
 affiliation_retrieval_header="https://api.elsevier.com/content/affiliation/affiliation_id/"
 author_retrieval_header="https://api.elsevier.com/content/author/author_id/"
 query_params_base={'httpAccept':'application/xml', 'apiKey':''}
 
 # Collect document information given a SCOPUS ID
-def abstract_retrieval(document_id, api_key, id_type='scopus_id',view='FULL', query_params=deepcopy(query_params_base)):
+def abstract_retrieval(document_id, api_key, id_type='scopus_id',view='FULL', query_params=deepcopy(query_params_base),query_return=False):
     query_params.update({'apiKey':api_key, 'view':view})
-    document_html=abstract_retrieval_header+"{}/{}?".format(id_type,document_id)+urllib.urlencode(query_params)
-    print "Query string: \"{}\"".format(document_html)
+    document_html=abstract_retrieval_header+"{}/{}?".format(id_type,document_id)+urlencode(query_params)
+    print("Query string: \"{}\"".format(document_html))
     try:
-        xml_document=etree.fromstring(ul.urlopen(document_html).read())
+        xml_document=etree.fromstring(urlopen(document_html).read())
     except Exception as e:
-        print e
-        print "QUERY_ERROR: could not process query string: {}".format(document_html)
+        print(e)
+        print("QUERY_ERROR: could not process query string: {}".format(document_html))
         return None
     data_dict={}
     # Parse XML returned from Abstract Retrieval API's FULL view
@@ -60,49 +65,51 @@ def abstract_retrieval(document_id, api_key, id_type='scopus_id',view='FULL', qu
     data_dict['subject_areas']="\""+','.join(xml_document.xpath("//*[local-name()='subject-areas']/*[local-name()='subject-area']/text()")).strip().replace("\"","\'")+"\""
     data_dict['keywords']="\""+','.join(xml_document.xpath("//*[local-name()='idxterms']/*[local-name()='mainterm']/text()")).strip().replace("\"","\'")+"\""
     data_dict['cited_scopus_ids']=set(xml_document.xpath("//*[local-name()='bibliography']/reference/ref-info/refd-itemidlist/itemid[@idtype='SGR']/text()"))
+    if query_return==True:
+        return data_dict,document_html
     return data_dict
 
 # Collect citing documents given a SCOPUS ID
-def citing_scopus_id_search(scopus_id,api_key,low_bound=1990,high_bound=2019,query_params=deepcopy(query_params_base)):
+def citing_scopus_id_search(scopus_id,api_key,low_bound=1990,high_bound=2019,search_result_limit=4999,query_params=deepcopy(query_params_base)):
     data_dict={'citing_scopus_ids':[]}
     query_params.update({'apiKey':api_key, 'field':'identifier', 'query':'refscp({})'.format(scopus_id)})
     for period in ["{}-{}".format(i,i+1) for i in range (low_bound,high_bound)]:
         query_params.update({'date':period})
-        citing_documents_html=scopus_search_header+"?"+urllib.urlencode(query_params)
-        print "Submitting query string: \"{}\"".format(citing_documents_html)
+        citing_documents_html=scopus_search_header+"?"+urlencode(query_params)
+        print("Submitting query string: \"{}\"".format(citing_documents_html))
         try:
-            xml_citing_documents=etree.fromstring(ul.urlopen(citing_documents_html).read())
+            xml_citing_documents=etree.fromstring(urlopen(citing_documents_html).read())
             total_citing_documents=next(iter(xml_citing_documents.xpath("//*[local-name()='totalResults']/text()")),"")
             if total_citing_documents != "":
                 data_dict['citing_scopus_ids']+=xml_citing_documents.xpath("//*[local-name()='entry']/*[local-name()='identifier']/text()")
-                for i in range (0, int(total_citing_documents)+1, inc_step):
+                for i in range (0, min(int(total_citing_documents)+1,search_result_limit), inc_step):
                     sleep(sleep_time)
                     query_params.update({'start':i})
-                    citing_documents_chunk_html=scopus_search_header+"?"+urllib.urlencode(query_params)
-                    print "Submitting query string: \"{}\"".format(citing_documents_chunk_html)
+                    citing_documents_chunk_html=scopus_search_header+"?"+urlencode(query_params)
+                    print("Submitting query string: \"{}\"".format(citing_documents_chunk_html))
                     try:
-                        xml_citing_documents_chunk=etree.fromstring(ul.urlopen(citing_documents_chunk_html).read())
+                        xml_citing_documents_chunk=etree.fromstring(urlopen(citing_documents_chunk_html).read())
                         data_dict['citing_scopus_ids']+=xml_citing_documents_chunk.xpath("//*[local-name()='entry']/*[local-name()='identifier']/text()")
                     except Exception as e:
-                        print e
-                        print "QUERY_ERROR: could not process query string: \"%s\""%(citing_documents_chunk_html)
+                        print(e)
+                        print("QUERY_ERROR: could not process query string: \"%s\""%(citing_documents_chunk_html))
         except Exception as e:
-            print e
-            print "QUERY_ERROR: could not process query string: \"%s\""%(citing_documents_html)
+            print(e)
+            print("QUERY_ERROR: could not process query string: \"%s\""%(citing_documents_html))
     data_dict['citing_scopus_ids']=list(set(data_dict['citing_scopus_ids'])); data_dict['citing_scopus_ids']=[i.replace("SCOPUS_ID:","") for i in data_dict['citing_scopus_ids']]
     data_dict['process_cited_by_count']=len(data_dict['citing_scopus_ids'])
     return data_dict
 
 # Collect affiliation information given an affiliation ID
-def affiliation_retrieval(affiliation_id,api_key,view="STANDARD",query_params=deepcopy(query_params_base)):
+def affiliation_retrieval(affiliation_id,api_key,view="STANDARD",query_params=deepcopy(query_params_base),query_return=False):
     query_params.update({'apiKey':api_key, 'view':view})
-    affiliation_html=affiliation_retrieval_header+"{}?".format(affiliation_id)+urllib.urlencode(query_params)
-    print "Submitting query string: \"{}\"".format(affiliation_html)
+    affiliation_html=affiliation_retrieval_header+"{}?".format(affiliation_id)+urlencode(query_params)
+    print("Submitting query string: \"{}\"".format(affiliation_html))
     try:
-        xml_affiliations=etree.fromstring(ul.urlopen(affiliation_html).read())
+        xml_affiliations=etree.fromstring(urlopen(affiliation_html).read())
     except Exception as e:
-        print e
-        print "QUERY_ERROR: could not process query string: {}".format(affiliation_html)
+        print(e)
+        print("QUERY_ERROR: could not process query string: {}".format(affiliation_html))
         return None
     data_dict={}
     data_dict['affiliation_id']=affiliation_id
@@ -116,18 +123,20 @@ def affiliation_retrieval(affiliation_id,api_key,view="STANDARD",query_params=de
     data_dict['country']="\""+next(iter(xml_affiliations.xpath("//address/country/text()")),"").strip().replace("\"","\'")+"\""
     data_dict['postal_code']="\""+next(iter(xml_affiliations.xpath("//address/postal-code/text()")),"").strip().replace("\"","\'")+"\""
     data_dict['organization_type']="\""+next(iter(xml_affiliations.xpath("//org-type/text()")),"").strip().replace("\"","\'")+"\""
+    if query_return==True:
+        return data_dict,affiliation_html
     return data_dict
 
 # Collect author information given an author_id
-def author_retrieval(author_id, api_key, view="ENHANCED",query_params=deepcopy(query_params_base)):
+def author_retrieval(author_id, api_key, view="ENHANCED",query_params=deepcopy(query_params_base),query_return=False):
     query_params.update({'apiKey':api_key, 'view':view})
-    auth_html=author_retrieval_header+"{}?".format(author_id)+urllib.urlencode(query_params)
-    print "Submitting query string: \"{}\"".format(auth_html)
+    auth_html=author_retrieval_header+"{}?".format(author_id)+urlencode(query_params)
+    print("Submitting query string: \"{}\"".format(auth_html))
     try:
-        xml_auth=etree.fromstring(ul.urlopen(auth_html).read())
+        xml_auth=etree.fromstring(urlopen(auth_html).read())
     except Exception as e:
-        print e
-        print "QUERY_ERROR: could not process query string: {}".format(auth_html)
+        print(e)
+        print("QUERY_ERROR: could not process query string: {}".format(auth_html))
         return None
     data_dict={}
     data_dict['author_id']=author_id
@@ -142,33 +151,68 @@ def author_retrieval(author_id, api_key, view="ENHANCED",query_params=deepcopy(q
     data_dict['alias_author_id']=next(iter(xml_auth.xpath("//*[local-name()='alias']/*/text()")),"").strip()
     data_dict['affiliations']=set(xml_auth.xpath("//*[local-name()='affiliation-history']/*[local-name()='affiliation']/@affiliation-id")+xml_auth.xpath("//*[local-name()='affiliation-history']/*[local-name()='affiliation']/@parent"))
     data_dict['process_co_author_count']=''; data_dict['process_document_count']=''
+    if query_return==True:
+        return data_dict,auth_html
     return data_dict
 
 # Collect a list of documents by an author given search terms
-def document_search(query,api_key, field="title,identifier",query_params=deepcopy(query_params_base)):
+def document_search(query,api_key,search_result_limit=4999,field="title,identifier",query_params=deepcopy(query_params_base),query_return=False):
     query_params.update({'apiKey':api_key, 'field':field, 'query':query})
-    document_search_html=scopus_search_header+"?"+urllib.urlencode(query_params)
-    print "Submitting query string: \"{}\"".format(document_search_html)
+    document_search_html=scopus_search_header+"?"+urlencode(query_params)
+    print("Submitting query string: \"{}\"".format(document_search_html))
     try:
-        xml_auth_documents=etree.fromstring(ul.urlopen(document_search_html).read())
+        xml_auth_documents=etree.fromstring(urlopen(document_search_html).read())
     except Exception as e:
-        print e
-        print "QUERY_ERROR: could not process query string: {}".format(document_search_html)
+        print(e)
+        print("QUERY_ERROR: could not process query string: {}".format(document_search_html))
         return None
     data_dict={'documents':[]}
     total = next(iter(xml_auth_documents.xpath("//*[local-name()='totalResults']/text()")),"")
     data_dict['documents']+=xml_auth_documents.xpath("//*[local-name()='entry']/*[local-name()='identifier']/text()")
     if total != "":
-        for i in range (0, int(total)+1, inc_step):
+        for i in range (0, min(int(total)+1,search_result_limit), inc_step):
             sleep(sleep_time)
             query_params.update({'start':i})
-            documents_chunk_html=scopus_search_header+"?"+urllib.urlencode(query_params)
-            print 'Query string: \"%s\"'%(documents_chunk_html)
+            documents_chunk_html=scopus_search_header+"?"+urlencode(query_params)
+            print('Query string: \"%s\"'%(documents_chunk_html))
             try:
-                xml_documents_chunk=etree.fromstring(ul.urlopen(documents_chunk_html).read())
+                xml_documents_chunk=etree.fromstring(urlopen(documents_chunk_html).read())
                 data_dict['documents']+=xml_documents_chunk.xpath("//*[local-name()='entry']/*[local-name()='identifier']/text()")
             except Exception as e:
-                print e
-                print "QUERY_ERROR: could not process query string: \"%s\""%(documents_chunk_html)
+                print(e)
+                print("QUERY_ERROR: could not process query string: \"%s\""%(documents_chunk_html))
     data_dict['documents']=set(data_dict['documents']);data_dict['documents']=[i.replace("SCOPUS_ID:", "") for i in data_dict['documents']]; data_dict['process_document_count']=len(data_dict['documents'])
+    if query_return==True:
+        return data_dict,document_search_html
+    return data_dict
+
+# Collect a list of potential author IDs for an author given search terms
+def author_search(auth_first,auth_last,api_key,search_result_limit=10,query_params=deepcopy(query_params_base),query_return=False):
+    query_params.update({'apiKey':api_key,'query':'AUTHFIRST({})AUTHLASTNAME({})'.format(auth_first,auth_last)})
+    author_search_html=author_search_header+"?"+urlencode(query_params)
+    print("Submitting query string: \"{}\"".format(author_search_html))
+    try:
+        xml_author_search=etree.fromstring(urlopen(author_search_html).read())
+    except Exception as e:
+        print(e)
+        print("QUERY_ERROR: could not process query string: {}".format(author_search_html))
+        return None
+    data_dict={'authors':[]}
+    total = next(iter(xml_author_search.xpath("//*[local-name()='totalResults']/text()")),"")
+    data_dict['authors']+=xml_author_search.xpath("//*[local-name()='entry']/*[local-name()='identifier']/text()")
+    if total != "":
+        for i in range (0, min(int(total)+1,search_result_limit), inc_step):
+            sleep(sleep_time)
+            query_params.update({'start':i})
+            authors_chunk_html=author_search_header+"?"+urlencode(query_params)
+            print('Query string: \"%s\"'%(authors_chunk_html))
+            try:
+                xml_authors_chunk=etree.fromstring(urlopen(authors_chunk_html).read())
+                data_dict['authors']+=xml_authors_chunk.xpath("//*[local-name()='entry']/*[local-name()='identifier']/text()")
+            except Exception as e:
+                print(e)
+                print("QUERY_ERROR: could not process query string: \"%s\""%(authors_chunk_html))
+    data_dict['authors']=set(data_dict['authors']);data_dict['authors']=[i.replace("AUTHOR_ID:", "") for i in data_dict['authors']]; data_dict['process_auth_count']=len(data_dict['authors'])
+    if query_return==True:
+        return data_dict,author_search_html
     return data_dict

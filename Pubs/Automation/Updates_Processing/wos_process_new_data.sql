@@ -57,7 +57,7 @@ CREATE TABLE temp_update_wosid AS
   SELECT source_id
   FROM new_wos_publications;
 CREATE INDEX temp_update_wosid_idx
-  ON temp_update_wosid USING HASH (source_id) TABLESPACE indexes;
+  ON temp_update_wosid USING HASH (source_id) TABLESPACE index_tbs;
 
 -- Create a temporary table to store update WOS IDs that already exist in WOS
 -- tables.
@@ -66,7 +66,7 @@ CREATE TABLE temp_replace_wosid AS
   SELECT a.source_id
   FROM temp_update_wosid a INNER JOIN wos_publications b ON a.source_id = b.source_id;
 CREATE INDEX temp_replace_wosid_idx
-  ON temp_replace_wosid USING HASH (source_id) TABLESPACE indexes;
+  ON temp_replace_wosid USING HASH (source_id) TABLESPACE index_tbs;
 
 -- Update log file.
 -------------------------------

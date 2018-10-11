@@ -16,9 +16,9 @@ UPDATE wos_pmid_mapping SET pmid_int=substring(pmid,9)::int;
 
 CREATE INDEX wos_pmid_mapping_wos_id_idx 
 ON wos_pmid_mapping (wos_id,pmid_int) 
-tablespace indexes;
+TABLESPACE index_tbs;
 CREATE INDEX wos_pmid_mapping_pmid_idx 
-ON wos_pmid_mapping (pmid_int,wos_id) tablespace indexes;
+ON wos_pmid_mapping (pmid_int,wos_id) TABLESPACE index_tbs;
 ALTER TABLE  wos_pmid_mapping owner to ernie_admin;
 
 
