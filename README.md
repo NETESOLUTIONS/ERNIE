@@ -12,4 +12,4 @@ publicly available and commercial sources. Additional servers provide Solr and N
 
 This project has been funded in part as a Fast Track Small Business Innovative Research award with Federal funds from the National Institute on Drug Abuse, National Institutes of Health, US Department of Health and Human Services. In Feb 2018, Phase I was completed. Phase II has since been awarded and commenced on Sept 30, 2018.
  
-ERNIE has been published on [OMICtools](https://omictools.com/ernie-tool)
+ERNIE has been published on [OMICtools](https://omictools.com/ernie-tool).
