@@ -3,6 +3,7 @@
 -- but can be used for benchmarking performance
 -- George Chacko 10/25/2018
 
+SELECT NOW();
 -- randomly select 1000 publications from the period 2005-2010
 DROP TABLE IF EXISTS gc_mc1;
 CREATE TABLE gc_mc1 AS
@@ -62,3 +63,5 @@ DROP TABLE IF EXISTS gc_mc;
 CREATE TABLE gc_mc AS
 SELECT DISTINCT * from gc_mc5;
 CREATE INDEX gc_mc_idx ON gc_mc(source_id,cited_source_uid,source_issn,reference_issn);
+
+SELECT NOW();
