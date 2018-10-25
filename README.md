@@ -10,6 +10,6 @@ Emphasis is placed on the use of Open Source technologies. At present, ERNIE res
 Centos 7.4 VM in the Microsoft Azure cloud. The data in ERNIE are drawn through a variety of custom ETL processes from both 
 publicly available and commercial sources. Additional servers provide Solr and Neo4J support and a Spark cluster is provisioned as needed.  Initial server infrastructure has been set up, core data have been scraped, leased, parsed, loaded, and partially curated and illustrative case studies are under way. The project team will add additional data sources as and when they become available. 
 
-This project has been funded in part as a Fast Track Small Business Innovative Research award with Federal funds from the National Institute on Drug Abuse, National Institutes of Health, US Department of Health and Human Services. In Feb 2018, Phase I was completed. Phase II funding has since been awarded and will commence on Sept 30, 2018.
+This project has been funded in part as a Fast Track Small Business Innovative Research award with Federal funds from the National Institute on Drug Abuse, National Institutes of Health, US Department of Health and Human Services. In Feb 2018, Phase I was completed. Phase II has since been awarded and commenced on Sept 30, 2018.
  
-
+ERNIE has a page including links to related publications on [OMICtools](https://omictools.com/ernie-tool).

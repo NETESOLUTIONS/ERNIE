@@ -6,7 +6,7 @@ ALTER TABLE derwent_patents
 
 ALTER TABLE derwent_patents
   ADD CONSTRAINT derwent_patents_pk PRIMARY KEY (patent_num_orig, patent_type)
-USING INDEX TABLESPACE indexes;
+USING INDEX TABLESPACE index_tbs;
 -- 1m:20s
 
 DROP INDEX IF EXISTS patent_num_orig_index;
@@ -29,7 +29,7 @@ WHERE EXISTS(SELECT 1
 
 ALTER TABLE derwent_agents
   ADD CONSTRAINT derwent_agents_pk PRIMARY KEY (patent_num, organization_name)
-USING INDEX TABLESPACE indexes;
+USING INDEX TABLESPACE index_tbs;
 -- 1m:02s
 -- endregion
 
@@ -58,7 +58,7 @@ WHERE EXISTS(SELECT 1
 
 CREATE UNIQUE INDEX derwent_assignees_uk
   ON derwent_assignees (patent_num, assignee_name, role, city)
-TABLESPACE indexes;
+TABLESPACE index_tbs;
 -- 1m:48s
 -- endregion
 
@@ -79,7 +79,7 @@ WHERE EXISTS(SELECT 1
 
 ALTER TABLE derwent_assignors
   ADD CONSTRAINT derwent_assignors_pk PRIMARY KEY (patent_num, assignor)
-USING INDEX TABLESPACE indexes;
+USING INDEX TABLESPACE index_tbs;
 -- 1m:27s
 -- endregion
 
@@ -101,7 +101,7 @@ WHERE EXISTS(SELECT 1
 
 ALTER TABLE derwent_examiners
   ADD CONSTRAINT derwent_examiners_pk PRIMARY KEY (patent_num, examiner_type)
-USING INDEX TABLESPACE indexes;
+USING INDEX TABLESPACE index_tbs;
 -- 1m:08s
 -- endregion
 
@@ -123,7 +123,7 @@ WHERE EXISTS(SELECT 1
 
 ALTER TABLE derwent_inventors
   ADD CONSTRAINT derwent_inventors_pk PRIMARY KEY (patent_num, inventors)
-USING INDEX TABLESPACE indexes;
+USING INDEX TABLESPACE index_tbs;
 -- 2m:21s
 -- endregion
 
@@ -149,7 +149,7 @@ WHERE EXISTS(SELECT 1
 
 CREATE UNIQUE INDEX derwent_lit_citations_uk
   ON derwent_lit_citations (patent_num_orig, md5(cited_literature))
-TABLESPACE indexes;
+TABLESPACE index_tbs;
 -- 5m:26s
 -- endregion
 
@@ -172,6 +172,6 @@ WHERE EXISTS(SELECT 1
 
 ALTER TABLE derwent_pat_citations
   ADD CONSTRAINT derwent_pat_citations_pk PRIMARY KEY (patent_num_orig, country, cited_patent_orig)
-USING INDEX TABLESPACE indexes;
+USING INDEX TABLESPACE index_tbs;
 -- 27m:27s
 -- endregion

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="dataSourceStorageLocal">
-    <data-source name="ERNIE" uuid="5bb02c2c-aff7-44a7-b231-b3c00bede8d2">
+    <data-source name="ERNIE (tunneled)" uuid="5bb02c2c-aff7-44a7-b231-b3c00bede8d2">
       <database-info product="PostgreSQL" version="9.6.9" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.2" family="POSTGRES" exact-version="9.6.9">
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>
@@ -9,16 +9,6 @@
       <secret-storage>master_key</secret-storage>
       <user-name>dk</user-name>
       <introspection-schemas>ernie:chackoge,information_schema,pg_catalog,public|orpheus_scratchpad:</introspection-schemas>
-      <ssh-properties>
-        <enabled>true</enabled>
-        <proxy-host>ernie1.eastus2.cloudapp.azure.com</proxy-host>
-        <proxy-port>22</proxy-port>
-        <secret-storage>master_key</secret-storage>
-        <user>dk</user>
-        <use-password>false</use-password>
-        <auth-type>KEY_PAIR</auth-type>
-        <private-key-path>$USER_HOME$/.ssh/id_rsa</private-key-path>
-      </ssh-properties>
     </data-source>
   </component>
 </project>

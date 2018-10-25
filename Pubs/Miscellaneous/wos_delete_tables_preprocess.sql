@@ -62,23 +62,23 @@ CREATE TABLE temp_delete_wosid_8 TABLESPACE wos AS
   FROM temp_delete_wosid;
 
 CREATE INDEX temp_delete_wosid_idx0
-  ON temp_delete_wosid USING HASH (source_id) TABLESPACE indexes;
+  ON temp_delete_wosid USING HASH (source_id) TABLESPACE index_tbs;
 CREATE INDEX temp_delete_wosid_idx1
-  ON temp_delete_wosid_1 USING HASH (source_id) TABLESPACE indexes;
+  ON temp_delete_wosid_1 USING HASH (source_id) TABLESPACE index_tbs;
 CREATE INDEX temp_delete_wosid_idx2
-  ON temp_delete_wosid_2 USING HASH (source_id) TABLESPACE indexes;
+  ON temp_delete_wosid_2 USING HASH (source_id) TABLESPACE index_tbs;
 CREATE INDEX temp_delete_wosid_idx3
-  ON temp_delete_wosid_3 USING HASH (source_id) TABLESPACE indexes;
+  ON temp_delete_wosid_3 USING HASH (source_id) TABLESPACE index_tbs;
 CREATE INDEX temp_delete_wosid_idx4
-  ON temp_delete_wosid_4 USING HASH (source_id) TABLESPACE indexes;
+  ON temp_delete_wosid_4 USING HASH (source_id) TABLESPACE index_tbs;
 CREATE INDEX temp_delete_wosid_idx5
-  ON temp_delete_wosid_5 USING HASH (source_id) TABLESPACE indexes;
+  ON temp_delete_wosid_5 USING HASH (source_id) TABLESPACE index_tbs;
 CREATE INDEX temp_delete_wosid_idx6
-  ON temp_delete_wosid_6 USING HASH (source_id) TABLESPACE indexes;
+  ON temp_delete_wosid_6 USING HASH (source_id) TABLESPACE index_tbs;
 CREATE INDEX temp_delete_wosid_idx7
-  ON temp_delete_wosid_7 USING HASH (source_id) TABLESPACE indexes;
+  ON temp_delete_wosid_7 USING HASH (source_id) TABLESPACE index_tbs;
 CREATE INDEX temp_delete_wosid_idx8
-  ON temp_delete_wosid_8 USING HASH (source_id) TABLESPACE indexes;
+  ON temp_delete_wosid_8 USING HASH (source_id) TABLESPACE index_tbs;
 
 -- Update log table.
 INSERT INTO update_log_wos (num_delete)

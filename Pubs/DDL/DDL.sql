@@ -252,7 +252,7 @@ create table wos_references
 	cited_work text,
 	cited_author varchar(3000),
 	cited_year varchar(40),
-	cited_page varchar(200),
+	cited_page varchar(400),
 	created_date date,
 	last_modified_date date,
 	source_filename varchar(200),

@@ -35,7 +35,7 @@ SET log_temp_files = 0;
 
 -- Create index on the chunk of new table.
 CREATE INDEX new_ref_chunk_idx
-  ON :new_ref_chunk USING BTREE (source_id, cited_source_uid) TABLESPACE indexes;
+  ON :new_ref_chunk USING BTREE (source_id, cited_source_uid) TABLESPACE index_tbs;
 
 -- Create a temp table to store WOS IDs from the update file.
 DROP TABLE IF EXISTS temp_update_ref_wosid;
@@ -43,7 +43,7 @@ CREATE TABLE temp_update_ref_wosid AS
   SELECT DISTINCT source_id
   FROM :new_ref_chunk;
 CREATE INDEX temp_update_ref_wosid_idx
-  ON temp_update_ref_wosid USING HASH (source_id) TABLESPACE indexes;
+  ON temp_update_ref_wosid USING HASH (source_id) TABLESPACE index_tbs;
 ANALYZE temp_update_ref_wosid;
 
 -- Create a temporary table to store update WOS IDs that already exist in WOS
@@ -53,7 +53,7 @@ CREATE TABLE temp_replace_ref_wosid AS
   SELECT DISTINCT a.source_id
   FROM temp_update_ref_wosid a INNER JOIN wos_references b ON a.source_id = b.source_id;
 CREATE INDEX temp_replace_ref_wosid_idx
-  ON temp_replace_ref_wosid USING HASH (source_id) TABLESPACE indexes;
+  ON temp_replace_ref_wosid USING HASH (source_id) TABLESPACE index_tbs;
 ANALYZE temp_replace_ref_wosid;
 
 -- Update table: wos_references
@@ -69,7 +69,7 @@ CREATE TABLE temp_wos_reference_1 AS
                FROM temp_replace_ref_wosid b
                WHERE a.source_id = b.source_id);
 CREATE INDEX temp_wos_reference_1_idx
-  ON temp_wos_reference_1 USING BTREE (source_id, cited_source_uid) TABLESPACE indexes;
+  ON temp_wos_reference_1 USING BTREE (source_id, cited_source_uid) TABLESPACE index_tbs;
 ANALYZE temp_wos_reference_1;
 
 -- Copy records to be replaced to update history table.

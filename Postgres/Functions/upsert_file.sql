@@ -1,21 +1,27 @@
-CREATE OR REPLACE FUNCTION upsert_file(toTable TEXT, dataFile TEXT, csvHeaders BOOLEAN = TRUE, delimiter CHAR(1) = ',', dataFormat TEXT = 'CSV', columnList TEXT = NULL, alterDeltaTable TEXT = NULL) RETURNS BIGINT AS $block$
+CREATE OR REPLACE FUNCTION upsert_file(toTable TEXT, dataFile TEXT, csvHeaders BOOLEAN = TRUE, delimiter CHAR(1) = ',' ||
+  '', dataFormat TEXT = 'CSV', columnList TEXT = NULL, forceNotNullColumnList TEXT = NULL) RETURNS BIGINT AS $block$
 --@formatter:off In order to match with stored line numbers avoid wrapping or formatting above.
 /**
 Inserts/updates records from a file.
 
-Parameters:
-  * toTable: destination table in the public schema
-  ** The table must have all columns and the structure of the loaded CSV file.
-  ** The table must have a single unique key: PK or UK (unique index).
-  * dataFile: absolute path. Make sure that the file is readable by postgres user (pardicore group).
-  * csvHeaders: does a CSV file have a line of headers?
-  * delimiter: field delimiter
-  * dataFormat: see COPY documentation for file format details.
-  * columnList: columns present in a file. NULL means that all toTable columns must be present. Other columns in
-  the toTable are populated with default values.
-  * alterDeltaTable: clauses to add to the ALTER TABLE {toTable}_delta statement
+## Parameters ##
+* toTable: destination table in the public schema
+** The table must have all columns and the structure of the loaded CSV file.
+** The table must have a single unique key: PK or UK (unique index).
+* dataFile: absolute path. Make sure that the file is readable by postgres user (pardicore group).
+* csvHeaders: does a CSV file have a line of headers?
+* delimiter: field delimiter
+* dataFormat: see COPY documentation for file format details.
+* columnList: columns present in a file. NULL means that all toTable columns must be present. Other columns in
+the toTable are populated with default values.
+* forceNotNullColumnList: a list of FORCE_NOT_NULL columns populated with empty strings for NULL input data
 
-Returns: number of records inserted or updated (<= # of CSV records because records are de-duplicated prior to upsert)
+## Returns ##
+Number of records inserted or updated (<= # of CSV records because records are de-duplicated prior to upsert)
+
+## Logging ##
+Diagnostic messages are issued at the NOTICE level.
+To suppress them, use `SET client_min_messages ='WARNING';`
  */
 DECLARE --
   -- Matches columns only in table keys e.g '(patent_num, md5((othercit)::text))' -> ['patent_num', 'othercit']
@@ -27,27 +33,20 @@ DECLARE --
   processed BIGINT;
 BEGIN --
   --region CSV import to the delta table
-  EXECUTE format($$
-    CREATE TEMP TABLE %s
-    AS
-    SELECT *
-    FROM %s
-    WITH NO DATA$$, deltaTable, toTable);
+  EXECUTE format($$CREATE TEMP TABLE %I (LIKE %I INCLUDING DEFAULTS)$$, deltaTable, toTable);
   RAISE NOTICE 'Created %', deltaTable;
 
-  --FIXME SQL injection is possible here
-  IF alterDeltaTable IS NOT NULL THEN
-    EXECUTE format($$
-      ALTER TABLE %s
-        %s$$, deltaTable, alterDeltaTable);
-  END IF;
-
-  EXECUTE format($$COPY %s%s FROM %L (FORMAT %s, HEADER %s, DELIMITER %L)$$, --
+  EXECUTE format($$COPY %I%s FROM %L (FORMAT %s, HEADER %s, DELIMITER %L%s)$$, --
                  deltaTable, --
-                 '(' || columnlist || ')', -- expression with NULL would collapse into NULL
+                 -- FIXME SQL Injection might be possible here
+                 '(' || columnlist || ')', -- expression with NULL collapses to NULL
                  dataFile, --
+                 -- FIXME SQL Injection might be possible here
                  dataFormat, --
-                 CASE csvheaders WHEN TRUE THEN 'ON' ELSE 'OFF' END, delimiter);
+                 CASE csvheaders WHEN TRUE THEN 'ON' ELSE 'OFF' END, --
+                 delimiter,
+                 -- FIXME SQL Injection might be possible here
+                 ', FORCE_NOT_NULL (' || forceNotNullColumnList || ')'); -- expression with NULL collapses to NULL
   GET DIAGNOSTICS processed = ROW_COUNT;
   RAISE NOTICE 'Imported % records to %', processed, deltaTable;
   --endregion
@@ -65,7 +64,7 @@ BEGIN --
   -- De-duplicate delta table to prevent the "ON CONFLICT DO UPDATE command cannot affect row a second time" error
   EXECUTE format($$
     DELETE
-    FROM %s t1
+    FROM %I t1
     WHERE EXISTS(SELECT 1
                  FROM %1$s t2
                  WHERE %s = %s
@@ -85,9 +84,9 @@ BEGIN --
   WHERE pc.relname = toTable;
 
   EXECUTE format($$
-    INSERT INTO %s
+    INSERT INTO %I
       SELECT *
-      FROM %s
+      FROM %I
     ON CONFLICT %s
       DO UPDATE SET
         (%s) =
