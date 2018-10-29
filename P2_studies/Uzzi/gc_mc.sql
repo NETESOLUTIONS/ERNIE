@@ -9,11 +9,9 @@ DROP TABLE IF EXISTS gc_mc1;
 CREATE TABLE gc_mc1 AS
 SELECT source_id, publication_year AS source_year 
 FROM wos_publications
-WHERE publication_year::int >= 2005
-AND publication_year::int   <= 2015
+WHERE publication_year::int > 1980
+AND publication_year::int   <= 1990
 AND document_type='Article' 
-ORDER BY RANDOM()
-LIMIT 1000;
 CREATE INDEX gc_mc1_idx ON gc_mc1(source_id);
 
 -- join to get cited references. Expect to lose some data since not all 
