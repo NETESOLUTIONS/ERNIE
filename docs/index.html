@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Scrolling Nav - Start Bootstrap Template</title>
+    <title>ERNIE</title>
 
     <!-- Bootstrap core CSS -->
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -23,21 +23,21 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
       <div class="container">
-        <a class="navbar-brand js-scroll-trigger" href="#page-top">Start Bootstrap</a>
+        <a class="navbar-brand js-scroll-trigger" href="#page-top"><b>ERNIE</b></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="#about">About</a>
+              <a class="nav-link js-scroll-trigger" href="#about"><b>About</b></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="#services">Services</a>
+              <a class="nav-link js-scroll-trigger" href="#showcase"><b>Showcase</b></a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="#contact">Contact</a>
-            </li>
+           <!--  <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#contact"><b>GitHub</b8></a>
+            </li> -->
           </ul>
         </div>
       </div>
@@ -45,55 +45,68 @@
 
     <header class="bg-primary text-white">
       <div class="container text-center">
-        <h1>Welcome to Scrolling Nav</h1>
-        <p class="lead">A landing page template freshly redesigned for Bootstrap 4</p>
+        <h1>Welcome to ERNIE</h1>
+        <p class="lead">Enhanced Research Network Informatics Environment</p>
       </div>
     </header>
-
+  
     <section id="about">
       <div class="container">
-        <div class="row">
-          <div class="col-lg-8 mx-auto">
-            <h2>About this page</h2>
-            <p class="lead">This is a great place to talk about your webpage. This template is purposefully unstyled so you can use it as a boilerplate or starting point for you own landing page designs! This template features:</p>
-            <ul>
-              <li>Clickable nav links that smooth scroll to page sections</li>
-              <li>Responsive behavior when clicking nav links perfect for a one page website</li>
-              <li>Bootstrap's scrollspy feature which highlights which section of the page you're on in the navbar</li>
-              <li>Minimal custom CSS so you are free to explore your own unique design options</li>
-            </ul>
+        
+        <div class="row justify-content-around">
+          <div class="col-lg-2">
+            
+            <h3>GitHub</h3>
+            <a href="https://github.com/NETESOLUTIONS/ERNIE">
+              <img src="GitHub-Mark.png" alt="GitHub Link" style="width:120px;height:120px;border:0;">
+            </a>
+            <p class="lead">Check out our codebase for more details!</p>
+          </div>
+
+          <div class="col-lg-8" >
+            <h2>About ERNIE</h2>
+            <img align="left" src="ERNIE.png" width="250" height="200" border="120" align="middle">
+            <p>Enhanced Research Network Informatics Environment (ERNIE) originates from a thought experiment (inspired by Williams et al. Cell 163:21-23, 2015) intended to address the research assessment problem as well as prior experience in building a database of linked data for internal use by a federal agency. This eventually morphed into an effort to create an knowledge platform for research assessment that would be available to the broader community. ERNIE is being developed by NET ESolutions Corporation (NETE).</p>
+            <p>ERNIE is a data platform with associated workflows that enables the discovery of collaboration networks in scientific research and influential nodes within them. In this first phase of development, ERNIE is being tested with case studies spanning drug development, medical devices/diagnostics, behavioral interventions, and solutions for drug discovery. The focus of these case studies is substance abuse and results will be posted at the earliest.</p>
+            <p>Emphasis is placed on the use of Open Source technologies. At present, ERNIE resides in a PostgreSQL 9.6 database in a Centos 7.4 VM in the Microsoft Azure cloud. The data in ERNIE are drawn through a variety of custom ETL processes from both publicly available and commercial sources. Additional servers provide Solr and Neo4J support and a Spark cluster is provisioned as needed.  Initial server infrastructure has been set up, core data have been scraped, leased, parsed, loaded, and partially curated and illustrative case studies are under way. The project team will add additional data sources as and when they become available.</p>
+            <p>This project has been funded in part as a Fast Track Small Business Innovative Research award with Federal funds from the National Institute on Drug Abuse, National Institutes of Health, US Department of Health and Human Services. In Feb 2018, Phase I was completed. Phase II has since been awarded and commenced on Sept 30, 2018.</p>
+            <p>ERNIE has a page including links to related publications on <a href="https://omictools.com/ernie-tool" style="color: #cc0000">OMICtools</a>.</p>  
           </div>
         </div>
       </div>
     </section>
 
-    <section id="services" class="bg-light">
+    <section id="showcase" class="bg-light">
       <div class="container">
         <div class="row">
           <div class="col-lg-8 mx-auto">
-            <h2>Services we offer</h2>
-            <p class="lead">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut optio velit inventore, expedita quo laboriosam possimus ea consequatur vitae, doloribus consequuntur ex. Nemo assumenda laborum vel, labore ut velit dignissimos.</p>
+            <h2>Big Picture</h2>
+            <img align="left" src="System_Context_Diagram.png" width="879" height="619" border="120" align="middle">
           </div>
         </div>
       </div>
     </section>
 
-    <section id="contact">
+    <!-- <section id="contact">
       <div class="container">
         <div class="row">
           <div class="col-lg-8 mx-auto">
-            <h2>Contact us</h2>
-            <p class="lead">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vero odio fugiat voluptatem dolor, provident officiis, id iusto! Obcaecati incidunt, qui nihil beatae magnam et repudiandae ipsa exercitationem, in, quo totam.</p>
+            <h2>GitHub</h2>
+            <a href="https://github.com/NETESOLUTIONS/ERNIE">
+              <img align="left" src="GitHub-Mark.png" alt="GitHub Link" style="width:120px;height:120px;border:20;">
+            </a>
+            <br><br>
+            <p class="lead" style="text-indent: 30px">Check out our codebase for more details!</p>
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
 
     <!-- Footer -->
     <footer class="py-5 bg-dark">
-      <div class="container">
+ <!--      <div class="container">
         <p class="m-0 text-center text-white">Copyright &copy; Your Website 2017</p>
-      </div>
+      </div> -->
       <!-- /.container -->
     </footer>
 
