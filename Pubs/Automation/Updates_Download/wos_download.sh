@@ -66,7 +66,7 @@ quit
 SCRIPTEND
 
 # Determine delta to download
-grep -F --line-regexp --invert-match --file=begin_filelist.txt new_filelist_wos.txt > wos_download_list.txt
+grep -F --line-regexp --invert-match --file=begin_filelist.txt new_filelist_wos.txt | grep -v 'ESCI' > wos_download_list.txt
 
 # Write a script to get only newly-added filenames to download.
 echo ***Preparing to download newly-added files...
