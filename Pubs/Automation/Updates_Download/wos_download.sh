@@ -58,8 +58,9 @@ rm -f downloaded_filelist.txt
 
 # Get a list of files to download: *WOS* on the WoS FTP server.
 echo ***Getting a list of files from the FTP server...
-ftp -in ftp.webofscience.com << SCRIPTEND
+ftp -inv ftp.webofscience.com << SCRIPTEND
 user ${WOS_USER_NAME} ${WOS_PASSWORD}
+hash 100000000
 binary
 mls *WOS* new_filelist_wos.txt
 quit
@@ -70,8 +71,9 @@ grep -F --line-regexp --invert-match --file=begin_filelist.txt new_filelist_wos.
 
 # Write a script to get only newly-added filenames to download.
 echo ***Preparing to download newly-added files...
-printf 'ftp -in ftp.webofscience.com <<SCRIPTEND\n' > group_download.sh
+printf 'ftp -inv ftp.webofscience.com <<SCRIPTEND\n' > group_download.sh
 echo "user ${WOS_USER_NAME} ${WOS_PASSWORD}" >> group_download.sh
+printf 'hash 100000000\n' >> group_download.sh
 printf 'lcd update_files/\n' >> group_download.sh
 printf 'binary\n' >> group_download.sh
 cat wos_download_list.txt | awk '{print "get " $1}' >> group_download.sh
