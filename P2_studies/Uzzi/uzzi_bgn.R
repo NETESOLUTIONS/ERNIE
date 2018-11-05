@@ -11,7 +11,7 @@ for (i in 1:10) {
 S1 <- sorted %>% 
 select(source_id,source_year,o_cited_source_uid=cited_source_uid,o_refyear=reference_year,o_ref_issn=reference_issn) %>% 
 group_by(o_refyear) %>% 
-mutate(s_cited_source_uid=sample(o_cited_source_uid))
+mutate(s_cited_source_uid=sample(o_cited_source_uid,replace=TRUE))
 
 S2 <- S1 %>% 
 inner_join(refindex,by=c("s_cited_source_uid"="cited_source_uid"))
