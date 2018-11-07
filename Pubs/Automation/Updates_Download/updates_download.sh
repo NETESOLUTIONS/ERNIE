@@ -61,7 +61,6 @@ echo "Getting a list of files from the WoS FTP server..."
 #** mls command requires specifying a local temporary file
 ftp -inv ftp.webofscience.com <<HEREDOC
 user nete ${WOS_PASSWORD}
-hash 10000000
 binary
 mls WOS_RAW_*_CORE.tar.gz WOS*.del.gz wos_ftp_filelist.txt
 quit
@@ -69,7 +68,6 @@ HEREDOC
 
 cat >group_download.sh <<HEREDOC
 ftp -inv ftp.webofscience.com <<SCRIPTEND
-hash 10000000
 user nete ${WOS_PASSWORD}
 lcd update_files/
 binary
