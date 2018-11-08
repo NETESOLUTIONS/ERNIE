@@ -13,10 +13,10 @@ mutate(s_cited_source_uid=sample(o_cited_source_uid,replace=TRUE))
 
 s_delta <- S1 %>% group_by(source_id) %>% summarize(check=sum(duplicated(s_cited_source_uid))) %>% filter(check > 0) %>% select(source_id) 
 
-S1 <- S1 %>% group_by(source_id,s_cited_source_uid) %>% filter(n()==1)
+S2 <- S1[!S1$source_id %in% s_delta$source_id,]
 
-S2 <- S1 %>% 
+S3 <- S2 %>% 
 inner_join(refindex,by=c("s_cited_source_uid"="cited_source_uid"))
-colnames(S2) <- c("source_id","source_year","o_cited_source_uid","o_refyear","o_ref_issn","s_cited_source_uid","s_reference_issn","s_reference_year")
-fwrite(S2,file=paste("~/Desktop/bg_n",i,".csv",sep=""),row.names=FALSE)
+colnames(S3) <- c("source_id","source_year","o_cited_source_uid","o_refyear","o_ref_issn","s_cited_source_uid","s_reference_issn","s_reference_year")
+fwrite(S3,file=paste("~/Desktop/bg_n",i,".csv",sep=""),row.names=FALSE)
 }
