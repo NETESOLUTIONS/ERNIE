@@ -65,8 +65,7 @@ CREATE TABLE gc_mc_1980 AS
 SELECT DISTINCT * from gc_mc5;
 CREATE INDEX gc_mc_1980_idx ON gc_mc_1975(source_id,cited_source_uid,source_issn,reference_issn);
 
-\copy (SELECT * FROM gc_mc_1980) TO '/home/chackoge/data1980.csv' DELIMITER ',' CSV HEADER;
-SELECT NOW();
+\copy (SELECT * FROM gc_mc_1980) TO '/erniedev_data5/P2_studies/chackoge/data1980.csv' DELIMITER ',' CSV HEADER;
 
 DROP TABLE gc_mc1;
 DROP TABLE gc_mc2;
@@ -75,4 +74,4 @@ DROP TABLE gc_mc3;
 DROP TABLE gc_mc4;
 DROP TABLE gc_mc5
 
-;
+SELECT NOW();
