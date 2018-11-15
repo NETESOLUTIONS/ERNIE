@@ -18,14 +18,14 @@ DROP TABLE IF EXISTS gc_mc2;
 CREATE TABLE gc_mc2 AS
 SELECT a.*,b.cited_source_uid
 FROM gc_mc1 a INNER JOIN wos_references b 
-ON a.source_id=b.source_id
+ON a.source_id=b.source_id;
 CREATE INDEX gc_mc2_idx ON gc_mc2(source_id,cited_source_uid);
 
 DROP TABLE IF EXISTS gc_mc_21;
 CREATE TABLE gc_mc_21 AS
 SELECT * FROM gc_mc2
-WHERE substring(b.cited_source_uid,1,4)='WOS:'
-AND length(b.cited_source_uid)=19;
+WHERE substring(cited_source_uid,1,4)='WOS:'
+AND length(cited_source_uid)=19;
 CREATE INDEX gc_mc21_idx ON gc_mc2(source_id,cited_source_uid);
 
 DROP TABLE IF EXISTS gc_mc3;
