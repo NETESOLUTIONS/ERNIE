@@ -19,14 +19,19 @@ CREATE TABLE gc_mc2 AS
 SELECT a.*,b.cited_source_uid
 FROM gc_mc1 a INNER JOIN wos_references b 
 ON a.source_id=b.source_id
+CREATE INDEX gc_mc2_idx ON gc_mc2(source_id,cited_source_uid);
+
+DROP TABLE IF EXISTS gc_mc_21;
+CREATE TABLE gc_mc_21 AS
+SELECT * FROM gc_mc2
 WHERE substring(b.cited_source_uid,1,4)='WOS:'
 AND length(b.cited_source_uid)=19;
-CREATE INDEX gc_mc2_idx ON gc_mc2(source_id,cited_source_uid);
+CREATE INDEX gc_mc21_idx ON gc_mc2(source_id,cited_source_uid);
 
 DROP TABLE IF EXISTS gc_mc3;
 CREATE TABLE gc_mc3 AS
 SELECT a.*,b.publication_year AS reference_year
-FROM gc_mc2 a INNER JOIN wos_publications b
+FROM gc_mc21 a INNER JOIN wos_publications b
 ON a.cited_source_uid=b.source_id;
 CREATE INDEX gc_mc3_idx ON gc_mc3(source_id,cited_source_uid,reference_year);
 
@@ -62,3 +67,12 @@ CREATE INDEX gc_mc_1980_idx ON gc_mc_1975(source_id,cited_source_uid,source_issn
 
 \copy (SELECT * FROM gc_mc_1980) TO '/home/chackoge/data1980.csv' DELIMITER ',' CSV HEADER;
 SELECT NOW();
+
+DROP TABLE gc_mc1;
+DROP TABLE gc_mc2;
+DROP TABLE gc_mc21;
+DROP TABLE gc_mc3;
+DROP TABLE gc_mc4;
+DROP TABLE gc_mc5
+
+;
