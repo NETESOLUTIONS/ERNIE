@@ -21,8 +21,8 @@ FROM gc_mc1 a INNER JOIN wos_references b
 ON a.source_id=b.source_id;
 CREATE INDEX gc_mc2_idx ON gc_mc2(source_id,cited_source_uid);
 
-DROP TABLE IF EXISTS gc_mc_21;
-CREATE TABLE gc_mc_21 AS
+DROP TABLE IF EXISTS gc_mc21;
+CREATE TABLE gc_mc21 AS
 SELECT * FROM gc_mc2
 WHERE substring(cited_source_uid,1,4)='WOS:'
 AND length(cited_source_uid)=19;
@@ -67,11 +67,11 @@ CREATE INDEX gc_mc_1980_idx ON gc_mc_1975(source_id,cited_source_uid,source_issn
 
 \copy (SELECT * FROM gc_mc_1980) TO '/erniedev_data5/P2_studies/chackoge/data1980.csv' DELIMITER ',' CSV HEADER;
 
-DROP TABLE gc_mc1;
-DROP TABLE gc_mc2;
-DROP TABLE gc_mc21;
+--DROP TABLE gc_mc1;
+-- DROP TABLE gc_mc2;
+--DROP TABLE gc_mc21;
 DROP TABLE gc_mc3;
 DROP TABLE gc_mc4;
-DROP TABLE gc_mc5
+DROP TABLE gc_mc5;
 
 SELECT NOW();
