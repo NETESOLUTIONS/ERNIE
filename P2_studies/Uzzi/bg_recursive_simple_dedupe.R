@@ -2,7 +2,7 @@
 
 library(data.table); library(dplyr)
 rm(list=ls())
-sorted <- fread("/erniedev_data5/P2_studies/Uzzi/gc_mc_1980.csv")
+sorted <- fread("/erniedev_data5/P2_studies/Uzzi/data1980.csv")
 refindex <- sorted %>% select(cited_source_uid,reference_issn,reference_year)
 refindex <- data.table(refindex)
 refindex <- unique(refindex,by=c("cited_source_uid","reference_issn","reference_year"))
@@ -18,13 +18,14 @@ s_delta <- S1 %>% group_by(source_id) %>% summarize(check=sum(duplicated(s_cited
 print(dim(s_delta))
 
 S2 <- S1[!S1$source_id %in% s_delta$source_id,]
-print(dim(S2)
+print(dim(S2))
 
 S3 <- S2 %>% group_by(source_id,s_cited_source_uid) %>% filter(n()>1)
 print(dim(S3))
 
 S4 <- S2 %>% inner_join(refindex,by=c("s_cited_source_uid"="cited_source_uid"))
-colnames(S3) <- c("source_id","source_year","o_cited_source_uid","o_refyear","o_ref_issn","s_cited_source_uid","s_reference_issn","s_reference_year")
-print(dimS4)
+colnames(S4) <- c("source_id","source_year","o_cited_source_uid","o_refyear","o_ref_issn","s_cited_source_uid","s_reference_issn","s_reference_year")
+print(dim(S4))
 fwrite(S4,file=paste("/erniedev_data5/P2_studies/Uzzi/bg_n_simple",i,".csv",sep=""),row.names=FALSE)
 }
+
