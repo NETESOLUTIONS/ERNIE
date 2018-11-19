@@ -1,5 +1,4 @@
-CREATE OR REPLACE FUNCTION upsert_file(toTable TEXT, dataFile TEXT, csvHeaders BOOLEAN = TRUE, delimiter CHAR(1) = ',' ||
-  '', dataFormat TEXT = 'CSV', columnList TEXT = NULL, forceNotNullColumnList TEXT = NULL) RETURNS BIGINT AS $block$
+CREATE OR REPLACE FUNCTION upsert_file(toTable TEXT, dataFile TEXT, csvHeaders BOOLEAN = TRUE, delimiter CHAR(1) = ',', dataFormat TEXT = 'CSV', columnList TEXT = NULL, forceNotNullColumnList TEXT = NULL) RETURNS BIGINT AS $block$
 --@formatter:off In order to match with stored line numbers avoid wrapping or formatting above.
 /**
 Inserts/updates records from a file.
