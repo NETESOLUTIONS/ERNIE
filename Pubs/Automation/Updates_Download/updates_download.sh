@@ -59,24 +59,21 @@ rm -f wos_ftp_filelist.txt group_download.sh
 echo "Getting a list of files from the WoS FTP server..."
 # ESCI files are not downloaded
 #** mls command requires specifying a local temporary file
-ftp -inv ftp.webofscience.com <<HEREDOC
-user nete ${WOS_PASSWORD}
-binary
-mls WOS_RAW_*_CORE.tar.gz WOS*.del.gz wos_ftp_filelist.txt
+lftp -u nete,${WOS_PASSWORD} ftp.webofscience.com <<HEREDOC
+nlist WOS_RAW_*_CORE.tar.gz >> wos_ftp_filelist.txt 
+nlist WOS*.del.gz >> wos_ftp_filelist.txt
 quit
 HEREDOC
 
 cat >group_download.sh <<HEREDOC
-ftp -inv ftp.webofscience.com <<SCRIPTEND
-user nete ${WOS_PASSWORD}
+lftp -u nete,${WOS_PASSWORD} ftp.webofscience.com <<SCRIPTEND
 lcd update_files/
-binary
 HEREDOC
 
 # Determine the delta to download
 #** Using awk is unnecessary if all you need is the entire input line
 grep -F --line-regexp --invert-match --file=processed_filelist.txt wos_ftp_filelist.txt | \
-     sed 's/.*/get &/' >>group_download.sh || { echo "Nothing to download" && exit 0; }
+     sed 's/.*/pget &/' >>group_download.sh || { echo "Nothing to download" && exit 0; }
 
 cat >>group_download.sh <<HEREDOC
 quit
