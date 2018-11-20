@@ -1,7 +1,7 @@
 \set ON_ERROR_STOP on
 \set ECHO all
 
-SET default_tablespace = indexes;
+SET default_tablespace = index_tbs;
 
 -- region new_ct_arm_groups
 ALTER TABLE new_ct_arm_groups
