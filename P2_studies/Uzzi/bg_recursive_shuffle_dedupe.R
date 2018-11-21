@@ -27,12 +27,12 @@ S2 <- S1[!S1$source_id %in% s_delta$source_id,]
 print(dim(S2))
 
 # check to see if dupes are removed (should return zero rows)
-S3 <- S2 %>% group_by(source_id,s_cited_source_uid) %>% filter(n()>1)
-print(dim(S3))
+# S3 <- S2 %>% group_by(source_id,s_cited_source_uid) %>% filter(n()>1)
+# print(dim(S3))
 
 #back join, rename, and export
 S4 <- S2 %>% inner_join(refindex,by=c("s_cited_source_uid"="cited_source_uid"))
 colnames(S4) <- c("source_id","source_year","o_cited_source_uid","o_refyear","o_ref_issn","s_cited_source_uid","s_reference_issn","s_reference_year")
 print(dim(S4))
-fwrite(S4,file=paste("bg_n_shuffled”,i,”.csv",sep=""),row.names=FALSE)
+fwrite(S4,file=paste('bg_n_shuffled',i,'.csv',sep=''),row.names=FALSE)
 }
