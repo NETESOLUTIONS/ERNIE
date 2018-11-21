@@ -12,10 +12,10 @@ refindex <- data.table(refindex)
 refindex <- unique(refindex,by=c("cited_source_uid","reference_issn","reference_year"))
 
 # loop to create 10 background models
-for (i in 1:10) {
+for (i in 1:100) {
 S1 <- sorted %>% 
 select(source_id,source_year,o_cited_source_uid=cited_source_uid,o_refyear=reference_year,o_ref_issn=reference_issn) 
-S1$s_cited_source_uid <- sample(S1$o_cited_source_uid)
+S1 <- S1[,s_cited_source_uid := sample(cited_source_uid),by=o_refyear]
 print(dim(S1))
 
 # identify cases of duplication
