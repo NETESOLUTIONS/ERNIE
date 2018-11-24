@@ -158,9 +158,6 @@ Banner /etc/issue.net
 AuthenticationMethods publickey,password publickey,keyboard-interactive
 GatewayPorts yes
 
-#Match User siyu
-#	AuthenticationMethods password publickey,keyboard-interactive
-
 Match group ftpusers
 	PasswordAuthentication yes
 	ChrootDirectory /erniedev_data4/ftp
@@ -169,4 +166,3 @@ Match group ftpusers
 	AllowAgentForwarding no
 	AllowTcpForwarding no
 	X11Forwarding no
-
