@@ -45,10 +45,8 @@ SyslogFacility AUTHPRIV
 
 # Authentication:
 
-#LoginGraceTime 2m
-PermitRootLogin no
+LoginGraceTime 60
 #StrictModes yes
-#MaxAuthTries 6
 #MaxSessions 10
 
 #RSAAuthentication yes
@@ -66,16 +64,14 @@ AuthorizedKeysFile	.ssh/authorized_keys
 # For this to work you will also need host keys in /etc/ssh/ssh_known_hosts
 #RhostsRSAAuthentication no
 # similar for protocol version 2
-#HostbasedAuthentication no
+HostbasedAuthentication no
 # Change to yes if you don't trust ~/.ssh/known_hosts for
 # RhostsRSAAuthentication and HostbasedAuthentication
 #IgnoreUserKnownHosts no
 # Don't read the user's ~/.rhosts and ~/.shosts files
-#IgnoreRhosts yes
 
 # To disable tunneled clear text passwords, change to no here!
 #PasswordAuthentication yes
-#PermitEmptyPasswords no
 PasswordAuthentication yes
 
 # Change to no to disable s/key passwords
@@ -113,8 +109,9 @@ UsePAM yes
 #AllowTcpForwarding yes
 #GatewayPorts no
 X11Forwarding yes
-X11DisplayOffset 10
 X11UseLocalhost no
+#X11DisplayOffset 10
+#PermitTTY yes
 #PrintMotd yes
 #PrintLastLog yes
 #TCPKeepAlive yes
@@ -141,8 +138,7 @@ AcceptEnv LC_IDENTIFICATION LC_ALL LANGUAGE
 AcceptEnv XMODIFIERS
 
 # override default of no subsystems
-#Subsystem	sftp	/usr/libexec/openssh/sftp-server
-Subsystem       sftp    internal-sftp
+Subsystem	sftp	/usr/libexec/openssh/sftp-server
 
 # Example of overriding settings on a per-user basis
 #Match User anoncvs
@@ -150,6 +146,14 @@ Subsystem       sftp    internal-sftp
 #	AllowTcpForwarding no
 #	PermitTTY no
 #	ForceCommand cvs server
+Protocol 2
+LogLevel INFO
+MaxAuthTries 4
+IgnoreRhosts yes
+PermitRootLogin no
+PermitEmptyPasswords no
+PermitUserEnvironment no
+Ciphers aes128-ctr,aes192-ctr,aes256-ctr
 Banner /etc/issue.net
 
 # Digital Ocean Google  Authenticator Stuff

@@ -1,0 +1,10 @@
+/usr/bin/wall
+/usr/bin/write
+/usr/bin/locate
+/usr/bin/ssh-agent
+/usr/sbin/netreport
+/usr/sbin/postdrop
+/usr/sbin/postqueue
+/usr/libexec/utempter/utempter
+/usr/libexec/openssh/ssh-keysign
+/usr/libexec/abrt-action-install-debuginfo-to-abrt-cache
