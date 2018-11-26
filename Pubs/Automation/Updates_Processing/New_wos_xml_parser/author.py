@@ -25,4 +25,3 @@ class author:
         self.address_id=''
         self.addr_seq=''
         self.id=None
-
