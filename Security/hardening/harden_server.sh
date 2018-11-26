@@ -2,11 +2,11 @@
 if [[ $1 == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
-  harden_cent_os.sh -- harden a CentOS server semi-automatically
+  harden_server.sh -- harden a CentOS server semi-automatically
 
 SYNOPSIS
-  sudo harden_cent_os.sh: execute
-  harden_cent_os.sh -h: display this help
+  sudo harden_server.sh: execute
+  harden_server.sh -h: display this help
 
 DESCRIPTION
   Hardens Linux server per the Baseline Config.
@@ -67,11 +67,18 @@ x
 }" $3
 }
 
-# Parameters:
-# $1: check number
-# $2: RPM package name
+########################################
+# Check and uninstall a package
+# Arguments:
+#   $1  message
+#   $2  YUM package name
+# Returns:
+#   None
+# Examples:
+#   uninstall '3.9 Remove DNS Server' bind
+########################################
 uninstall() {
-  echo "$1 Remove $2"
+  echo "$1: package $2 should not be installed"
   echo "___CHECK___"
   if ! rpm -q $2; then
     echo "Check PASSED"
@@ -118,25 +125,32 @@ enable_sysv_service() {
   printf "\n\n"
 }
 
-# Parameters:
-# $1: executable permission mask (for find -perm)
-# $2: permission name
+################################################################################
+# Check for non-whitelisted executables with special permissions
+# Arguments:
+#   $1  executable permission mask (for find -perm)
+#   $2  permission name
+# Returns:
+#   None
+# Examples:
+#   check_execs_with_special_permissions 4000 SUID
+################################################################################
 check_execs_with_special_permissions() {
   echo "____CHECK____: List of non-whitelisted $2 System Executables:"
-  df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -$1 -print | \
-     grep -F --line-regexp --invert-match --file=${absolute_script_dir}/$2_executables_white_list.txt | \
-     tee /tmp/hardening-check_execs_with_special_permissions.log
-  #check the length if it nonzero, then success, otherwise failure.
-  if [[ -s /tmp/hardening-check_execs_with_special_permissions.log ]]; then
-    cat <<'HEREDOC'
+
+  # Non-zero exit codes in the sub-shell are intentionally suppressed using this variable declaration
+  local execs=$(df --local --output=target | tail -n +2 | xargs -I '{}' find '{}' -xdev -type f -perm -$1 -print | \
+     grep -F --line-regexp --invert-match --file=${absolute_script_dir}/$2_executables_white_list.txt)
+
+  if [[ -n "${execs}" ]]; then
+    cat <<HEREDOC
 Check FAILED
-Manual Inspection and revision needed. Do following action for items listed above:
 1. Ensure that no rogue programs have been introduced into the system.
-2. Add legitimate items to the white list (suid_executables_white_list.txt).
+2. Add legitimate items to the white list ($2_executables_white_list.txt).
 HEREDOC
-  else
-    echo "Check PASSED : NO $2 System Executables";
+    exit 1
   fi
+  echo "Check PASSED"
   printf "\n\n"
 }
 
@@ -151,8 +165,8 @@ HEREDOC
 echo 'Section Header: Install Updates, Patches and Additional Security Software'
 printf "\n\n"
 
-echo '1.1 Use the Latest OS Kernel Release'
-echo '(1.2.3 Checks that all OS packages are updated)'
+echo '1.0.7 Use the Latest OS Kernel'
+echo '(1.2.3 checks that all OS packages are updated)'
 yum --enablerepo=elrepo-kernel install kernel-ml python-perf
 installed_kernel_version=$(uname -r)
 available_kernel_version=$(rpm -q --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}' kernel-ml)
@@ -166,8 +180,6 @@ else
   echo "REBOOTING, PLEASE RECONNECT AND RE-RUN ..."
   reboot
 fi
-#echo 'cat /etc/centos-release : Manual Check Please'
-#cat /etc/centos-release
 printf "\n\n"
 
 echo 'Section Header: Filesystem Configuration'
@@ -195,7 +207,7 @@ echo '1.1.2 Set nodev option for /tmp Partition'
 if [[ "$(grep /tmp /etc/fstab |grep nodev)" != "" ]]; then
   echo "Check PASSED"
 else
-  echo "Check FAILED, SHOULD SET MANUALLY!"
+  echo "Check FAILED, correct this!"
 fi
 printf "\n\n"
 
@@ -203,7 +215,7 @@ echo '1.1.3 Set nosuid option for /tmp Partition'
 if [[ "$(grep /tmp /etc/fstab |grep nosuid)" != "" ]]; then
   echo "Check PASSED"
 else
-  echo "Check FAILED, SHOULD SET MANUALLY!"
+  echo "Check FAILED, correct this!"
 fi
 printf "\n\n"
 
@@ -211,7 +223,7 @@ echo '1.1.4 Set noexec option for /tmp Partition'
 if [[ "$(grep /tmp /etc/fstab |grep nosuid)" != "" ]]; then
   echo "Check PASSED"
 else
-  echo "Check FAILED, SHOULD SET MANUALLY!"
+  echo "Check FAILED, correct this!"
 fi
 printf "\n\n"
 
@@ -266,9 +278,7 @@ printf "\n\n"
 #echo "___CHECK___"
 #rpm -qVa | awk '$2 != "c" { print $0 }' | tee /tmp/hardening-1.2.4.log
 #if [[ -s /tmp/hardening-1.2.4.log ]]; then
-#  echo "Check FAILED, correcting ..."
-#  echo "___SET___"
-#  echo "NEEDS MANUAL INSPECTION"
+#  echo "Check FAILED, correct this!"
 #else
 #  echo "Check PASSED"
 #fi
@@ -473,26 +483,27 @@ else
 fi
 printf "\n\n"
 
-echo "3.2 Remove X Window"
-echo "___CHECK 1/2___"
-systemctl get-default
-if [[ "$(systemctl get-default)" = "multi-user.target" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  systemctl set-default multi-user.target
-fi
-echo "___CHECK 2/2___"
-yum grouplist | grep "X Window System"
-if [[ "$(yum grouplist | grep 'X Window System')" = "" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  yum groupremove "X Window System"
-fi
-printf "\n\n"
+# DISABLED X WIndow is required in order to run DataGrip on server(s)
+#echo "3.2 Remove X Window"
+#echo "___CHECK 1/2___"
+#systemctl get-default
+#if [[ "$(systemctl get-default)" = "multi-user.target" ]]; then
+#  echo "Check PASSED"
+#else
+#  echo "Check FAILED, correcting ..."
+#  echo "___SET___"
+#  systemctl set-default multi-user.target
+#fi
+#echo "___CHECK 2/2___"
+#yum grouplist | grep "X Window System"
+#if [[ "$(yum grouplist | grep 'X Window System')" = "" ]]; then
+#  echo "Check PASSED"
+#else
+#  echo "Check FAILED, correcting ..."
+#  echo "___SET___"
+#  yum groupremove "X Window System"
+#fi
+#printf "\n\n"
 
 echo "3.3 Disable Avahi Server"
 echo "___CHECK___"
@@ -508,17 +519,7 @@ printf "\n\n"
 echo "3.4 Disable Print Server - CUPS"
 disable_sysv_service cups
 
-echo "3.5 Remove DHCP Server"
-echo "___CHECK___"
-rpm -q dhcp
-if [[ "$(rpm -q dhcp)" = "package dhcp is not installed" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  yum erase dhcp
-fi
-printf "\n\n"
+uninstall '3.5 Remove DHCP Server' dhcp
 
 echo "3.6 Configure Network Time Protocol (NTP)"
 echo "___CHECK 1/3___"
@@ -552,26 +553,8 @@ else
 fi
 printf "\n\n"
 
-echo "3.7 Remove LDAP"
-echo "___CHECK 1/2___"
-rpm -q openldap-servers
-if [[ "$(rpm -q openldap-servers)" = "package openldap-servers is not installed" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  yum erase openldap-servers
-fi
-echo "___CHECK 2/2___"
-rpm -q openldap-clients
-if [[ "$(rpm -q openldap-clients)" = "package openldap-clients is not installed" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  yum erase openldap-clients
-fi
-printf "\n\n"
+uninstall '3.5 Remove LDAP ___CHECK 1/2___' openldap-servers
+uninstall '___CHECK 2/2___' openldap-clients
 
 echo "3.8 Disable NFS and RPC"
 disable_sysv_service nfslock
@@ -580,89 +563,19 @@ disable_sysv_service rpcbind
 disable_sysv_service rpcidmapd
 disable_sysv_service rpcsvcgssd
 
-echo "3.9 Remove DNS Server"
-echo "___CHECK___"
-rpm -q bind
-if [[ "$(rpm -q bind)" = "package bind is not installed" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  yum erase bind
-fi
-printf "\n\n"
+uninstall '3.9 Remove DNS Server' bind
 
-echo "3.10 Remove FTP Server"
-echo "___CHECK___"
-rpm -q vsftpd
-if [[ "$(rpm -q vsftpd)" = "package vsftpd is not installed" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  yum erase vsftpd
-fi
-printf "\n\n"
+uninstall '3.10 Remove FTP Server' vsftpd
 
-echo "3.11 Remove HTTP Server"
-echo "___CHECK___"
-rpm -q httpd
-if [[ "$(rpm -q httpd)" = "package httpd is not installed" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  yum erase httpd
-fi
-printf "\n\n"
+uninstall '3.11 Remove HTTP Server' httpd
 
-echo "3.12 Remove Dovecot (IMAP and POP3 services)"
-echo "___CHECK___"
-rpm -q dovecot
-if [[ "$(rpm -q dovecot)" = "package dovecot is not installed" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  yum erase dovecot
-fi
-printf "\n\n"
+uninstall '3.12 Remove Dovecot (IMAP and POP3 services)' dovecot
 
-echo "3.13 Remove Samba"
-echo "___CHECK___"
-rpm -q samba
-if [[ "$(rpm -q samba)" = "package samba is not installed" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  yum erase samba
-fi
-printf "\n\n"
+uninstall '3.13 Remove Samba' samba
 
-echo "3.14 Remove HTTP Proxy Server"
-echo "___CHECK___"
-rpm -q squid
-if [[ "$(rpm -q squid)" = "package squid is not installed" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  yum erase squid
-fi
-printf "\n\n"
+uninstall '3.14 Remove HTTP Proxy Server' squid
 
-echo "3.15 Remove SNMP Server"
-echo "___CHECK___"
-rpm -q net-snmp
-if [[ "$(rpm -q net-snmp)" = "package net-snmp is not installed" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  yum erase net-snmp
-fi
-printf "\n\n"
+uninstall '3.15 Remove SNMP Server' net-snmp
 
 echo "3.16 Configure Mail Transfer Agent for Local-Only Mode"
 echo "___CHECK___"
@@ -683,7 +596,7 @@ echo "Section Header: Network Configuration and Firewalls"
 printf "\n\n"
 
 # region TBD DISABLED until the decision on a firewall is made
-#echo "4.7	Enable IPtables"
+#echo "4.0.7	Enable IPtables"
 #echo "____CHECK____"
 #chkconfig --list iptables
 #if [ "$(chkconfig --list iptables)" = "iptables 0:off 1:off 2:on 3:on 4:on 5:on 6:off" ];
@@ -697,7 +610,7 @@ printf "\n\n"
 #printf "\n\n"
 #
 #
-#echo "4.8	Enable IP6tables"
+#echo "4.0.8	Enable IP6tables"
 #echo "____CHECK____"
 #chkconfig --list ip6tables
 #if [ "$(chkconfig --list ip6tables)" = "ip6tables 0:off 1:off 2:on 3:on 4:on 5:on 6:off" ];
@@ -1056,7 +969,7 @@ printf "\n\n"
 echo "Section Header: Logging and Auditing"
 printf "\n\n"
 
-echo "5.3 Configure logrotate"
+echo "5.0.3 Configure logrotate"
 echo "___CHECK 1/6___"
 grep "/var/log/cron" /etc/logrotate.d/syslog
 if [[ "$(grep "/var/log/cron" /etc/logrotate.d/syslog)" == "/var/log/cron" ]]; then
@@ -1245,16 +1158,21 @@ printf "\n\n"
 echo "Section Header: System Access, Authentication and Authorization"
 printf "\n\n"
 
-echo "6.4 Restrict root Login to System Console"
-cat /etc/securetty
-echo "NEEDS MANUAL INSPECTION:"
-echo "Remove entries for any consoles that are not in a physically secure location."
-printf "\n\n"
+# DISABLED N/A for the Cloud hosting
+#echo "6.0.4 Restrict root Login to System Console"
+#cat /etc/securetty
+#echo "NEEDS INSPECTION:"
+#echo "Remove entries for any consoles that are not in a physically secure location."
+#printf "\n\n"
 
-echo "6.5 Restrict Access to the su Command"
-grep wheel /etc/group
-echo "NEEDS MANUAL INSPECTION:"
-echo "Set the proper list of users to be included in the wheel group."
+echo "6.0.5 Restrict Access to the su Command"
+if grep -E '^auth\s+required\s+pam_wheel.so\s+use_uid' /etc/pam.d/su; then
+  echo "Check PASSED"
+else
+  echo "Check FAILED, correcting ..."
+  echo "____SET____"
+  upsert '#*auth\s+required\s+pam_wheel.so' 'auth\t\trequired\tpam_wheel.so use_uid' /etc/pam.d/su
+fi
 printf "\n\n"
 
 echo "Section Header: Configure cron and anacron"
@@ -1377,8 +1295,7 @@ printf "\n\n"
 
 echo "6.1.10 Restrict at Daemon"
 echo "___CHECK 1/2___"
-ls /etc/at.deny
-if [[ "$(ls /etc/at.deny)" != "/etc/at.deny" ]]; then
+if [[ ! -f /etc/at.deny ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -1400,8 +1317,7 @@ printf "\n\n"
 
 echo "6.1.11 Restrict at/cron to Authorized Users"
 echo "___CHECK 1/2___"
-ls /etc/cron.deny
-if [[ "$(ls /etc/cron.deny)" != "/etc/cron.deny" ]]; then
+if [[ ! -f /etc/cron.deny ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -1568,9 +1484,13 @@ echo "6.2.13 Limit Access via SSH"
 if grep -E '^AllowGroups' /etc/ssh/sshd_config; then
   echo "Check PASSED"
 else
-  echo "Check FAILED, correct manually: add AllowGroups to /etc/ssh/sshd_config"
+  cat <<HEREDOC
+Check FAILED, correct this!
+Add AllowGroups to /etc/ssh/sshd_config
+HEREDOC
   exit 1
 fi
+printf "\n\n"
 
 echo "6.2.14 Set SSH Banner"
 echo "____CHECK____"
@@ -1593,6 +1513,7 @@ else
 *                                                                  *
 ********************************************************************
 HEREDOC
+  fi
   upsert '#*Banner ' 'Banner /etc/issue.net' /etc/ssh/sshd_config
   systemctl restart sshd
 fi
@@ -1652,7 +1573,7 @@ printf "\n\n"
 echo "Section Header: User Accounts and Environment"
 printf "\n\n"
 
-echo "7.2 Disable System Accounts"
+echo "7.0.2 Disable System Accounts"
 echo "___CHECK___"
 egrep -v "^\+" /etc/passwd | awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<500 && $7!="/sbin/nologin")'
 if [[ "$(egrep -v "^\+" /etc/passwd | awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<500 && $7!="/sbin/nologin")' | wc -l)" == 0 ]]; then
@@ -1660,20 +1581,18 @@ if [[ "$(egrep -v "^\+" /etc/passwd | awk -F: '($1!="root" && $1!="sync" && $1!=
 else
   echo "Check FAILED, correcting ..."
   echo "___SET___"
-  for user in `awk -F: '($3 < 500) {print $1 }' /etc/passwd`; do
-   if [ $user != "root" ]
-   then
-   /usr/sbin/usermod -L $user
-   if [ $user != "sync" ] && [ $user != "shutdown" ] && [ $user != "halt" ]
-   then
-   /usr/sbin/usermod -s /sbin/nologin $user
-   fi
+  for user in $(awk -F: '($3 < 500) {print $1 }' /etc/passwd); do
+    if [[ "${user}" != "root" ]]; then
+      usermod -L ${user}
+      if [[ ${user} != "sync" && ${user} != "shutdown" && ${user} != "halt" ]]; then
+        usermod -s /sbin/nologin ${user}
+      fi
    fi
   done
 fi
 printf "\n\n"
 
-echo "7.3 Set Default Group for root Account"
+echo "7.0.3 Set Default Group for root Account"
 echo "___CHECK___"
 grep "^root:" /etc/passwd | cut -f4 -d:
 if [[ "$(grep "^root:" /etc/passwd | cut -f4 -d:)" == 0 ]]; then
@@ -1685,12 +1604,10 @@ else
 fi
 printf "\n\n"
 
-# ***NOT RECOMMENDED ***
-
-echo "7.4 Set Default umask for Users"
-echo "NOT RECOMMENDED IN DEV ENVIRONMENT DUE TO LARGE AMOUNT OF INTERSECTING USERS' TASKS"
-printf "\n\n"
-#echo "7.4 Set Default umask for Users"
+# DISABLED Not recommended in dev environment due to large amount of intersecting users' tasks
+#echo "7.0.4 Set Default umask for Users"
+#printf "\n\n"
+#echo "7.0.4 Set Default umask for Users"
 #echo "___CHECK 1/2___"
 #grep "^umask 077" /etc/profile
 #if [[ "$(grep "^umask 077" /etc/profile | wc -l)" != 0 ]]; then
@@ -1713,7 +1630,7 @@ printf "\n\n"
 #fi
 #printf "\n\n"
 
-echo "7.5 Lock Inactive User Accounts"
+echo "7.0.5 Lock Inactive User Accounts"
 echo "___CHECK___"
 useradd -D | grep INACTIVE
 if [[ "$(useradd -D | grep INACTIVE)" == "INACTIVE=35" ]]; then
@@ -1805,8 +1722,7 @@ printf "\n\n"
 
 echo "8.2 Remove OS Information from Login Warning Banners"
 echo "___CHECK 1/3___"
-egrep '(\\v|\\r|\\m|\\s)' /etc/motd
-if [[ "$(egrep '(\\v|\\r|\\m|\\s)' /etc/motd | wc -l)" == 0 ]]; then
+if ! grep -E '(\\v|\\r|\\m|\\s)' /etc/motd; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -1814,8 +1730,7 @@ else
   sed -i '/(\\v\|\\r\|\\m\|\\s)/d' /etc/motd
 fi
 echo "___CHECK 2/3___"
-egrep '(\\v|\\r|\\m|\\s)' /etc/issue
-if [[ "$(egrep '(\\v|\\r|\\m|\\s)' /etc/issue | wc -l)" == 0 ]]; then
+if ! grep -E  '(\\v|\\r|\\m|\\s)' /etc/issue; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -1823,8 +1738,7 @@ else
   sed -i '/(\\v\|\\r\|\\m\|\\s)/d' /etc/issue
 fi
 echo "___CHECK 3/3___"
-egrep '(\\v|\\r|\\m|\\s)' /etc/issue.net
-if [[ "$(egrep '(\\v|\\r|\\m|\\s)' /etc/issue.net | wc -l)" == 0 ]]; then
+if ! grep -E '(\\v|\\r|\\m|\\s)' /etc/issue.net; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -1979,7 +1893,7 @@ else
 fi
 printf "\n\n"
 
-echo "9.1.11	Find Un-owned Files and Directories"
+echo "9.1.11 Find Un-owned Files and Directories"
 echo "____CHECK____: List of Un-owned Files and Directories:"
 df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -ls
 output=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -ls)
@@ -1987,12 +1901,17 @@ output=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -
 if [[ "${#output}" = "0" ]]; then
   echo "Check PASSED : No Un-owned Files and Directories"
 else
-  echo "Check FAILED. Manual Inspection and revision needed: Do following action for directories listed above"
-  echo -e "1-Locate files that are owned by users or groups not listed in the system configuration files \n2-Reset the ownership of these files to some active user on the system as appropriate."
+  cat <<HEREDOC
+Check FAILED: correct this!
+
+For directories listed above:
+1. Locate files that are owned by users or groups not listed in the system configuration files.
+2. Reset the ownership of these files to some active user on the system as appropriate.
+HEREDOC
 fi
 printf "\n\n"
 
-echo "9.1.12	Find Un-grouped Files and Directories"
+echo "9.1.12 Find Un-grouped Files and Directories"
 echo "____CHECK____: List of Un-grouped Files and Directories:"
 df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nogroup -ls
 output=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nogroup -ls)
@@ -2000,86 +1919,63 @@ output=$(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -
 if [ "${#output}" = "0" ];
   then    echo "Check PASSED : No Un-grouped Files and Directories";
 else
-  echo "Check FAILED. Manual Inspection and revision needed: Do following action for directories listed above"
-  echo -e "1-Locate files that are owned by users or groups not listed in the system configuration files \n2-Reset the ownership of these files to some active user on the system as appropriate."
+  cat <<HEREDOC
+Check FAILED: correct this!
+
+For directories listed above:
+1. Locate files that are owned by users or groups not listed in the system configuration files.
+2. Reset the ownership of these files to some active user on the system as appropriate.
+HEREDOC
 fi
 printf "\n\n"
 
-echo "9.1.13	Find SUID System Executables"
+echo "9.1.13 Find SUID System Executables"
 check_execs_with_special_permissions 4000 SUID
 
-echo "9.1.14	Find SGID System Executables"
+echo "9.1.14 Find SGID System Executables"
 check_execs_with_special_permissions 2000 SGID
 
 echo "Section Header: Review User and Group Settings"
 printf "\n\n"
 
-echo "9.2.1	Ensure Password Fields are Not Empty"
-echo "____CHECK 1/2____"
-echo -e "***NEED MANUAL INSPECTION OF THE USER LIST***\n
-******Explainations to Second Column*****:
+echo "9.2.1 Ensure Password Fields are Not Empty"
+failures=$(cat /etc/shadow | awk -F: '($2 == "" ) { print $1 " does not have a password "}')
+if [[ -z "${failures}" ]]; then
+  echo -e "\nCheck PASSED"
+else
+  echo "Check FAILED, correct this!"
+  echo "PLEASE CHECK WHY FOLLOWING USERS HAVING PASSWORD STATUS NP HAVE NOT BEEN SET ANY PASSWORD"
+  for user in $(awk -F ':' '{print $1}' /etc/passwd); do
+    passwd -S ${user}
+  done
+  cat <<HEREDOC
+Status (second column) legend:
+
 PS  : Account has a usable password
 LK  : User account is locked
 L   : if the user account is locked (L)
 NP  : Account has no password (NP)
 P   : Account has a usable password (P)
-"
-echo  -e "Inspect the following list of ALL USERS manually according to above definitions:\n"
-for i in $(awk -F ':' '{print $1}' /etc/passwd);
-do
-user_info=$(passwd -S $i);
-echo $user_info ;
-done
-#get users only having NP code:
-output=$(for i in $(awk -F ':' '{print $1}' /etc/passwd);
-do
-user_info=$(passwd -S $i);
-echo $user_info|grep 'NP' ;
-done
-)
-if [[ "${#output}" = "0" ]]; then
-  echo -e "\nCheck PASSED: No User's password status is NP"
-else
-  echo "PLEASE CHECK WHY FOLLOWING USERS HAVING PASSWORD STATUS NP HAVE NOT BEEN SET ANY PASSWORD";
-  for i in $(awk -F ':' '{print $1}' /etc/passwd);
-  do
-  user_info=$(passwd -S $i);
-  echo $user_info|grep 'NP' ;
-  done
-fi
-echo "____CHECK 2/2____"
-output=$(cat /etc/shadow | awk -F: '($2 == "" ) { print $1 " does not have a password "}')
-if [[ "${#output}" = "0" ]]; then
-  echo -e "\nCheck PASSED: No User's password status is NP"
-else
-  echo "Check FAILED, correcting ..."
-  echo "PLEASE CHECK WHY FOLLOWING USERS HAVING PASSWORD STATUS NP HAVE NOT BEEN SET ANY PASSWORD"
-  for i in $(awk -F ':' '{print $1}' /etc/passwd);
-  do
-  user_info=$(passwd -S $i);
-  echo $user_info|grep 'NP' ;
-  done
+HEREDOC
+  exit 1
 fi
 printf "\n\n"
 
 echo "9.2.4 Verify No Legacy '+' Entries Exist in /etc/passwd,/etc/shadow and /etc/group"
 echo "____CHECK____"
-grep '^+:' /etc/passwd /etc/shadow /etc/group
-output=$(grep '^+:' /etc/passwd /etc/shadow /etc/group)
-#check the length if it nonzero, then success, otherwise failure.
-if [[ "${#output}" = "0" ]]; then
+if ! grep '^+:' /etc/passwd /etc/shadow /etc/group; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  echo "Legacy Account is deleted"
+  echo "Legacy entries are deleted"
   sed -i '/^+:/d' /etc/passwd
   sed -i '/^+:/d' /etc/shadow
   sed -i '/^+:/d' /etc/group
 fi
 printf "\n\n"
 
-echo "9.2.5	Verify No UID 0 Accounts Exist Other Than root"
+echo "9.2.5 Verify No UID 0 Accounts Exist Other Than root"
 echo -e "____CHECK____:
 User List  having UID equals to 0"
 cat /etc/passwd | awk -F: '($3 == 0) { print $1 }'
@@ -2088,465 +1984,280 @@ output=$(cat /etc/passwd | awk -F: '($3 == 0) { print $1 }')
 if [[ "$output" = "root" ]]; then
   echo "Check PASSED"
 else
-  echo "Check FAILED: "
-  echo "____SET____"
-  echo "All users EXCEPT root must be deleted manually in the following user list above."
+  echo "Check FAILED, correct this!"
+  echo "All UID 0 accounts EXCEPT root must be deleted."
+  exit 1
 fi
 printf "\n\n"
 
-echo "9.2.6	Ensure root PATH Integrity"
-echo -e "____CHECK____(manually fix the issue if exist):"
+echo "9.2.6 Ensure root PATH Integrity"
+echo -e "____CHECK____"
 if [[ ""`echo $PATH | grep :: `"" != """" ]]; then
- echo ""Empty Directory in PATH \(::\)""
+  echo "Check FAILED, correct this!"
+  echo "Empty Directory in PATH \(::\)"
+  exit 1
 fi
 
 if [[ "`echo $PATH | grep :$`" != """" ]]; then
- echo ""Trailing : in PATH""
+  echo "Check FAILED, correct this!"
+  echo ""Trailing : in PATH""
+  exit 1
 fi
 
 p=`echo $PATH | sed -e 's/::/:/' -e 's/:$//' -e 's/:/ /g'`
 set -- $p
 while [[ ""$1"" != """" ]]; do
- if [[ ""$1"" = ""."" ]]; then
-   echo ""PATH contains .""
-   shift
-   continue
- fi
- if [[ -d $1 ]]; then
-  dirperm=`ls -ldH $1 | cut -f1 -d"" ""`
-   if [ `echo $dirperm | cut -c6 ` != ""-"" ]; then
-   echo ""Group Write permission set on directory $1""
- fi
- if [ `echo $dirperm | cut -c9 ` != ""-"" ]; then
-  echo ""Other Write permission set on directory $1""
- fi
- dirown=`ls -ldH $1 | awk '{print $3}'`
- if [ ""$dirown"" != ""root"" ] ; then
-  echo $1 is not owned by root
- fi
- else
-  echo $1 is not a directory
- fi
- shift
-done
-output=$(if [ ""`echo $PATH | grep :: `"" != """" ]; then
- echo ""Empty Directory in PATH \(::\)""
-fi
-
-if [ "`echo $PATH | grep :$`" != """" ]; then
- echo ""Trailing : in PATH""
-fi
-
-p=`echo $PATH | sed -e 's/::/:/' -e 's/:$//' -e 's/:/ /g'`
-set -- $p
-while [ ""$1"" != """" ]; do
- if [ ""$1"" = ""."" ]; then
- echo ""PATH contains .""
- shift
- continue
- fi
- if [ -d $1 ]; then
- dirperm=`ls -ldH $1 | cut -f1 -d"" ""`
- if [ `echo $dirperm | cut -c6 ` != ""-"" ]; then
- echo ""Group Write permission set on directory $1""
- fi
- if [ `echo $dirperm | cut -c9 ` != ""-"" ]; then
- echo ""Other Write permission set on directory $1""
- fi
- dirown=`ls -ldH $1 | awk '{print $3}'`
- if [ ""$dirown"" != ""root"" ] ; then
- echo $1 is not owned by root
- fi
- else
- echo $1 is not a directory
- fi
- shift
-done)
-if [ "${#output}" = "0" ];
-  then  echo "Check PASSED";
-else
-  echo -e ""
-  echo "Check FAILED: Manual Inspection and revision needed: Do following action for directories/files/users listed above
-CHECK: Correct or justify any items discovered above"
-fi
-printf "\n\n"
-
-echo "9.2.7	Check Permissions on User Home Directories"
-echo -e "____CHECK CAN NOT BE PERFORMED. CODE IS WRONG. NEED FURTHER INVESTIGATION____:"
-printf "\n\n"
-
-echo "9.2.8	Check User Dot File Permissions"
-echo  -e "____CHECK____: List of Group or world-writable user and Directories:"
-for dir in `cat /etc/passwd | egrep -v '(root|sync|halt|shutdown)' | awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
- for file in $dir/.[A-Za-z0-9]*; do
-	if [ ! -h "$file" -a -f "$file" ]; then
- fileperm=`ls -ld $file | cut -f1 -d" "`
-
- if [ `echo $fileperm | cut -c6 ` != "-" ]; then
- echo "Group Write permission set on file $file"
- fi
- if [ `echo $fileperm | cut -c9 ` != "-" ]; then
- echo "Other Write permission set on file $file"
- fi
- fi
- done
-done
-output=$(for dir in `cat /etc/passwd | egrep -v '(root|sync|halt|shutdown)' | awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
- for file in $dir/.[A-Za-z0-9]*; do
-	if [ ! -h "$file" -a -f "$file" ]; then
- fileperm=`ls -ld $file | cut -f1 -d" "`
-
- if [ `echo $fileperm | cut -c6 ` != "-" ]; then
- echo "Group Write permission set on file $file"
- fi
- if [ `echo $fileperm | cut -c9 ` != "-" ]; then
- echo "Other Write permission set on file $file"
- fi
- fi
- done
-done)
-#check the length if it nonzero, then success, otherwise failure.
-if [ "${#output}" = "0" ];
-  then    echo "Check PASSED";
-else
-  echo ""
-  echo "Check FAILED : Manual Inspection and revision needed: Do following action for directories/files/users listed above"
-  echo -e "Group or world-writable user configuration files may enable malicious users to steal or modify other users' data or to gain another user's system privileges.
-Making global modifications to users' files without alerting the user community can result in unexpected outages and unhappy users.
-Therefore, it is recommended that a monitoring policy be established to report user dot file permissions and determine the action to be taken in accordance with site policy."
-fi
-printf "\n\n"
-
-echo "9.2.9	Check Permissions on User .netrc Files"
-echo  -e "____CHECK____: List of problematic permissions on User .netrc Files:"
-for dir in `cat /etc/passwd | egrep -v '(root|sync|halt|shutdown)' |\
- awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
- for file in $dir/.netrc; do
- if [ ! -h "$file" -a -f "$file" ]; then
- fileperm=`ls -ld $file | cut -f1 -d" "`
- if [ `echo $fileperm | cut -c5 ` != "-" ]
- then
- echo "Group Read set on $file"
- fi
- if [ `echo $fileperm | cut -c6 ` != "-" ]
- then
- echo "Group Write set on $file"
- fi
- if [ `echo $fileperm | cut -c7 ` != "-" ]
- then
- echo "Group Execute set on $file"
- fi
- if [ `echo $fileperm | cut -c8 ` != "-" ]
- then
- echo "Other Read set on $file"
- fi
- if [ `echo $fileperm | cut -c9 ` != "-" ]
- then
- echo "Other Write set on $file"
- fi
- if [ `echo $fileperm | cut -c10 ` != "-" ]
- then
- echo "Other Execute set on $file"
- fi
- fi
- done
-done
-output=$(for dir in `cat /etc/passwd | egrep -v '(root|sync|halt|shutdown)' |\
- awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
- for file in $dir/.netrc; do
- if [ ! -h "$file" -a -f "$file" ]; then
- fileperm=`ls -ld $file | cut -f1 -d" "`
- if [ `echo $fileperm | cut -c5 ` != "-" ]
- then
- echo "Group Read set on $file"
- fi
- if [ `echo $fileperm | cut -c6 ` != "-" ]
- then
- echo "Group Write set on $file"
- fi
- if [ `echo $fileperm | cut -c7 ` != "-" ]
- then
- echo "Group Execute set on $file"
- fi
- if [ `echo $fileperm | cut -c8 ` != "-" ]
- then
- echo "Other Read set on $file"
- fi
- if [ `echo $fileperm | cut -c9 ` != "-" ]
- then
- echo "Other Write set on $file"
- fi
- if [ `echo $fileperm | cut -c10 ` != "-" ]
- then
- echo "Other Execute set on $file"
- fi
- fi
- done
-done)
-#check the length if it nonzero, then success, otherwise failure.
-if [ "${#output}" = "0" ];
-  then    echo "Check PASSED";
-else
-  echo ""
-  echo "Check FAILED : Manual Inspection and revision needed: Do following action for directories/files/users listed above"
-  echo -e "Making global modifications to users' files without alerting the user community can result in unexpected outages and unhappy users.
-Therefore, it is recommended that a monitoring policy be established to report user .netrc file permissions and determine the action to be taken in accordance with site policy."
-fi
-printf "\n\n"
-
-echo "9.2.10	Check for Presence of User .rhosts Files"
-echo -e "____CHECK____: List of  Presence of User .rhosts Files:"
-for dir in `cat /etc/passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
- for file in $dir/.rhosts; do
- if [ ! -h "$file" -a -f "$file" ]; then
- echo ".rhosts file in $dir"
- fi done
-done
-output=$(for dir in `cat /etc/passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
- for file in $dir/.rhosts; do
- if [ ! -h "$file" -a -f "$file" ]; then
- echo ".rhosts file in $dir"
- fi done
-done)
-#check the length if it nonzero, then success, otherwise failure.
-if [[ "${#output}" = "0" ]];
-  then  echo "Check PASSED";
-else
-  echo ""
-  echo "Check FAILED: : Manual Inspection and revision needed: Do following action for directories/files/users listed above"
-  echo "While no .rhosts files are shipped with CentOS 6, users can easily create them.
-This action is only meaningful if .rhosts support is permitted in the file /etc/pam.conf.
-Even though the .rhosts files are ineffective if support is disabled in /etc/pam.conf, they may have been brought over from other systems and could contain information useful to an attacker for those other systems.
-If any users have .rhosts files determine why they have them."
-fi
-printf "\n\n"
-
-echo "9.2.11	Check Groups in /etc/passwd"
-echo -e "____CHECK____(manually fix the issue if exist):"
-for i in $(cut -s -d: -f4 /etc/passwd | sort -u ); do
- grep -q -P "^.*?:x:$i:" /etc/group
- if [ $? -ne 0 ]; then
- echo "Group $i is referenced by /etc/passwd but does not exist in /etc/group"
- fi
-done
-output=$(for i in $(cut -s -d: -f4 /etc/passwd | sort -u ); do
- grep -q -P "^.*?:x:$i:" /etc/group
- if [[ $? -ne 0 ]]; then
- echo "Group $i is referenced by /etc/passwd but does not exist in /etc/group"
- fi
-done)
-if [[ "${#output}" = "0" ]];
-  then  echo "Check PASSED";
-else
-  echo -e ""
-  echo "Check FAILED: Manual Inspection and revision needed: Do following action for directories/files/users listed above
-CHECK:Groups being defined in /etc/passwd but not in /etc/group list is above if exist.
-CHECK:Perform the appropriate action to correct any discrepancies found above"
-fi
-printf "\n\n"
-
-echo "9.2.12	Check That Users Are Assigned Valid Home Directories"
-echo -e "____CHECK____(manually fix the issue if exist):"
-cat /etc/passwd | awk -F: '{ print $1 " " $3 " " $6 }' | while read user uid dir; do
- if [ $uid -ge 500 -a ! -d "$dir" -a $user != "nfsnobody" ]; then
- echo "The home directory ($dir) of user $user does not exist."
- fi
-done
-output=$(cat /etc/passwd | awk -F: '{ print $1 " " $3 " " $6 }' | while read user uid dir; do
- if [ $uid -ge 500 -a ! -d "$dir" -a $user != "nfsnobody" ]; then
- echo "The home directory ($dir) of user $user does not exist."
- fi
-done)
-if [[ "${#output}" = "0" ]];
-  then  echo "Check PASSED";
-else
-  echo -e ""
-  echo "Check FAILED: Manual Inspection and revision needed: Do following action for directories/files/users listed above
-CHECK:If any users  home directories do not exist, create them and make sure the respective user owns the directory.
-CHECK:This script checks to make sure that home directories assigned in the /etc/passwd file exist
-CHECK:Users without an assigned home directory should be removed or assigned a home directory as appropriate. If exist above:	"
-fi
-printf "\n\n"
-
-echo "9.2.13	Check User Home Directory Ownership for non-system users"
-echo -e "____CHECK____(manually fix the issue if exist)"
-check_9_2_13_result=/bin/true
-min_non_system_uid=1000
-while IFS=: read user enc_passwd uid gid full_name home shell; do
-  if [[ ${uid} -ge ${min_non_system_uid} && -d "$home" && ${user} != "nfsnobody" ]]; then
-    owner=$(stat -L -c "%U" "$home")
-    if [[ "$owner" != "$user" ]]; then
-      echo "The home directory ($home) of user $user is owned by different owner: $owner."
-      check_9_2_13_result=false
-    fi
+  if [[ ""$1"" = ""."" ]]; then
+    echo ""PATH contains .""
+    echo "Check FAILED, correct this!"
+    exit 1
   fi
 
-done </etc/passwd
-if [[ "${check_9_2_13_result}" == "/bin/true" ]]; then
-  echo "Check PASSED"
-else
-  cat <<'HEREDOC'
-CHECK FAILED: Manual Inspection and revision needed: Do following action for directories/files/users listed above.
+  if [[ ! -d $1 ]]; then
+    echo $1 is not a directory
+    echo "Check FAILED, correct this!"
+    exit 1
+  fi
+
+  dirperm=`ls -ldH $1 | cut -f1 -d"" ""`
+  if [ `echo $dirperm | cut -c6 ` != ""-"" ]; then
+    echo ""Group Write permission set on directory $1""
+    echo "Check FAILED, correct this!"
+    exit 1
+  fi
+  if [ `echo $dirperm | cut -c9 ` != ""-"" ]; then
+    echo ""Other Write permission set on directory $1""
+    echo "Check FAILED, correct this!"
+    exit 1
+  fi
+
+  dirown=`ls -ldH $1 | awk '{print $3}'`
+  if [ ""$dirown"" != ""root"" ] ; then
+    echo $1 is not owned by root
+    echo "Check FAILED, correct this!"
+    exit 1
+  fi
+  shift
+done
+echo "Check PASSED"
+printf "\n\n"
+
+# FIXME Implement Check can not be performed. Need further investigation.
+#echo "9.2.7 Check Permissions on User Home Directories"
+#printf "\n\n"
+
+echo '9.2.8 Check User "Dot" File Permissions'
+echo  -e "____CHECK____: List of group or world-writable user "dot" files and directories"
+for dir in `cat /etc/passwd | egrep -v '(root|sync|halt|shutdown)' | awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
+  for file in $dir/.[A-Za-z0-9]*; do
+    if [ ! -h "$file" -a -f "$file" ]; then
+      fileperm=`ls -ld $file | cut -f1 -d" "`
+    if [ `echo $fileperm | cut -c6 ` != "-" ]; then
+      echo "Group Write permission set on file $file"
+      echo "Check FAILED, correct this!"
+      exit 1
+    fi
+    if [ `echo $fileperm | cut -c9 ` != "-" ]; then
+      echo "Other Write permission set on file $file"
+      echo "Check FAILED, correct this!"
+      exit 1
+    fi
+  fi
+ done
+done
+
+echo "9.2.9 Check Permissions on User .netrc Files"
+echo  -e "____CHECK____: List of problematic permissions on User .netrc Files:"
+for dir in `cat /etc/passwd | egrep -v '(root|sync|halt|shutdown)' |\
+    awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
+  for file in $dir/.netrc; do
+    if [ ! -h "$file" -a -f "$file" ]; then
+      fileperm=`ls -ld $file | cut -f1 -d" "`
+      if [ `echo $fileperm | cut -c5 ` != "-" ]; then
+        echo "Group Read set on $file"
+        echo "Check FAILED, correct this!"
+        exit 1
+      fi
+      if [ `echo $fileperm | cut -c6 ` != "-" ]; then
+        echo "Group Write set on $file"
+        echo "Check FAILED, correct this!"
+        exit 1
+      fi
+      if [ `echo $fileperm | cut -c7 ` != "-" ]; then
+        echo "Group Execute set on $file"
+        echo "Check FAILED, correct this!"
+        exit 1
+      fi
+      if [ `echo $fileperm | cut -c8 ` != "-" ]; then
+        echo "Other Read set on $file"
+        echo "Check FAILED, correct this!"
+        exit 1
+      fi
+      if [ `echo $fileperm | cut -c9 ` != "-" ]; then
+        echo "Other Write set on $file"
+        echo "Check FAILED, correct this!"
+        exit 1
+      fi
+      if [ `echo $fileperm | cut -c10 ` != "-" ]; then
+        echo "Other Execute set on $file"
+        echo "Check FAILED, correct this!"
+        exit 1
+      fi
+    fi
+   done
+done
+echo "Check PASSED"
+printf "\n\n"
+
+echo "9.2.10 Check for Presence of User .rhosts Files"
+echo -e "____CHECK____: List of  Presence of User .rhosts Files:"
+for d in $(cat /etc/passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/sbin/nologin") { print $6 }'); do
+  for file in ${d}/.rhosts; do
+    if [ ! -h "$file" -a -f "$file" ]; then
+      cat <<HEREDOC
+Check FAILED, correct this!
+.rhosts file in $d
+While no .rhosts files are shipped with OS, users can easily create them. This action is only meaningful if .rhosts
+support is permitted in the PAM config. Even though the .rhosts files are ineffective if support is disabled in the PAM
+config, they may have been brought over from other systems and could contain information useful to an attacker for those
+other systems. If any users have .rhosts files determine why they have them.
+HEREDOC
+      exit 1
+    fi
+  done
+done
+echo "Check PASSED"
+printf "\n\n"
+
+echo "9.2.11 Check Groups in /etc/passwd"
+echo -e "____CHECK____"
+for group in $(cut -s -d: -f4 /etc/passwd | sort -u ); do
+  if ! grep -q -P "^.*?:x:$group:" /etc/group; then
+    echo "Group $group is referenced by /etc/passwd but does not exist in /etc/group"
+    echo "Check FAILED, correct this!"
+    exit 1
+  fi
+done
+echo "Check PASSED"
+printf "\n\n"
+
+echo "9.2.12 Check That Users Are Assigned Valid Home Directories"
+echo -e "____CHECK____"
+cat /etc/passwd | awk -F: '{ print $1 " " $3 " " $6 }' | while read user uid dir; do
+  if [ $uid -ge 500 -a ! -d "$dir" -a $user != "nfsnobody" ]; then
+    cat <<HEREDOC
+Check FAILED, correct this!"
+The home directory ($dir) of user $user does not exist.
+If any home directories do not exist, create them and make sure the respective user owns the directory.
+This script checks to make sure that home directories assigned in the /etc/passwd file exist.
+Users without an assigned home directory should be removed or assigned a home directory as appropriate.
+HEREDOC
+    exit 1
+  fi
+done
+echo "Check PASSED"
+printf "\n\n"
+
+echo "9.2.13 Check User Home Directory Ownership for non-system users"
+echo -e "____CHECK____"
+MIN_NON_SYSTEM_UID=1000
+while IFS=: read user enc_passwd uid gid full_name home shell; do
+  if [[ ${uid} -ge ${MIN_NON_SYSTEM_UID} && -d "$home" && ${user} != "nfsnobody" ]]; then
+    owner=$(stat -L -c "%U" "$home")
+    if [[ "$owner" != "$user" ]]; then
+      cat <<HEREDOC
+Check FAILED, correct this!
+The home directory ($home) of user $user is owned by different owner: $owner.
 Change the ownership of home directories to a correct user.
 HEREDOC
-fi
+      exit 1
+    fi
+  fi
+done </etc/passwd
+echo "Check PASSED"
 printf "\n\n"
 
-echo "9.2.14	Check for Duplicate UIDs"
-echo -e "____CHECK____(manually fix the issue if exist):"
-output=$(cat /etc/passwd | cut -f3 -d":" | sort -n | uniq -c |\
- while read x ; do
- [ -z "${x}" ] && break
- set - $x
- if [ "$1" -gt "1" ]; then
- users=`gawk -F: '($3 == n) { print $1 }' n=$2 \
- /etc/passwd | /usrxargs`
- echo "Duplicate UID $2: ${users}"
- fi
-done)
-if [[ "${#output}" = "0" ]]; then
-  echo -e "\nCheck PASSED: No Duplicate UID"
-else
-  echo "Check FAILED : FIX IT MANUALLY: Duplicate UIDs are: "
-  cat /etc/passwd | cut -f3 -d":" | sort -n | uniq -c |\
-   while read x ; do
-   [ -z "${x}" ] && break
-   set - $x
-   if [ "$1" -gt "1" ]; then
-   users=`gawk -F: '($3 == n) { print $1 }' n=$2 \
-   /etc/passwd | /usrxargs`
-   echo "Duplicate UID $2: ${users}"
-   fi
-  done
-fi
+echo "9.2.14 Check for Duplicate UIDs"
+echo -e "____CHECK____"
+cat /etc/passwd | cut -f3 -d":" | sort -n | uniq -c | while read x; do
+  [[ -z "${x}" ]] && break
+  set - ${x}
+  if [[ "$1" -gt "1" ]]; then
+    echo "Check FAILED, correct this!"
+    echo "Duplicate UIDs $2:"
+    gawk -F: '($3 == n) { print $1 }' n=$2 /etc/passwd | xargs
+    exit 1
+  fi
+done
+echo -e "\nCheck PASSED: No Duplicate UIDs"
 printf "\n\n"
 
-echo "9.2.15	Check for Duplicate GIDs"
-echo -e "____CHECK____(manually fix the issue if exist):"
-output=$(cat /etc/group | cut -f3 -d":"| sort -n | uniq -c |\
- while read x ; do
-  [ -z "${x}" ] && break
-  set - $x
-  if [ "$1" -gt "1" ]; then
- grps=`gawk -F: '($3 == n) { print $1 }' n=$2 \
- /etc/group | xargs`
- echo "Duplicate GID $2: ${grps}"
- fi
-done)
-if [[ "${#output}" = "0" ]];
-  then   echo -e "\nCheck PASSED: No Duplicate GIDs";
-else
-  echo "Check FAILED : FIX IT MANUALLY: Duplicate GIDs are: "
-  cat /etc/group | cut -f3 -d":"| sort -n | uniq -c |\
-   while read x ; do
-    [ -z "${x}" ] && break
-    set - $x
-    if [ "$1" -gt "1" ]; then
-   grps=`gawk -F: '($3 == n) { print $1 }' n=$2 \
-   /etc/group | xargs`
-   echo "Duplicate GID $2: ${grps}"
-   fi
-  done
-fi
+echo "9.2.15 Check for Duplicate GIDs"
+echo -e "____CHECK____"
+cat /etc/group | cut -f3 -d":" | sort -n | uniq -c | while read x; do
+  [[ -z "${x}" ]] && break
+  set - ${x}
+  if [[ "$1" -gt "1" ]]; then
+    echo "Check FAILED, correct this!"
+    echo "Duplicate GIDs $2:"
+    gawk -F: '($3 == n) { print $1 }' n=$2 /etc/group | xargs
+    exit 1
+  fi
+done
+echo -e "\nCheck PASSED: No Duplicate GIDs"
 printf "\n\n"
 
-echo "9.2.16	Check for Duplicate User Names"
-echo -e "____CHECK____(manually fix the issue if exist):"
-output=$(cat /etc/passwd | cut -f1 -d":" | sort -n | uniq -c |\
- while read x ; do
- [ -z "${x}" ] && break
- set - $x
- if [ "$1" -gt "1" ]; then
- uids=`gawk -F: '($1 == n) { print $3 }' n=$2 \
- /etc/passwd | xargs`
- echo "Duplicate User Name $2: ${uids}"
- fi
-done)
-if [[ "${#output}" = "0" ]];
-  then   echo -e "\nCheck PASSED: No Duplicate User Name";
-else
-  echo "Check FAILED : FIX IT MANUALLY: Duplicate Users Name are: "
-  cat /etc/passwd | cut -f1 -d":" | sort -n | uniq -c |\
-   while read x ; do
-   [ -z "${x}" ] && break
-   set - $x
-   if [ "$1" -gt "1" ]; then
-   uids=`gawk -F: '($1 == n) { print $3 }' n=$2 \
-   /etc/passwd | xargs`
-   echo "Duplicate User Name $2: ${uids}"
-   fi
-  done
-fi
+echo "9.2.16 Check for Duplicate User Names"
+echo -e "____CHECK____"
+cat /etc/passwd | cut -f1 -d":" | sort -n | uniq -c | while read x; do
+  [[ -z "${x}" ]] && break
+  set - ${x}
+  if [[ "$1" -gt "1" ]]; then
+    echo "Check FAILED, correct this!"
+    echo "Duplicate User Name $2:}"
+    gawk -F: '($1 == n) { print $3 }' n=$2 /etc/passwd | xargs
+    exit 1
+  fi
+done
+echo -e "\nCheck PASSED: No Duplicate User Name"
 printf "\n\n"
 
-echo "9.2.17	Check for Duplicate Group Names"
-echo -e "____CHECK____(manually fix the issue if exist):"
-output=$(cat /etc/group | cut -f1 -d":" | sort -n | uniq -c |\
- while read x ; do
- [ -z "${x}" ] && break
- set - $x
- if [ "$1" -gt "1" ]; then
- gids=`gawk -F: '($1 == n) { print $3 }' n=$2 \
- /etc/group | xargs`
- echo "Duplicate Group Name $2: ${gids}"
+echo "9.2.17 Check for Duplicate Group Names"
+echo -e "____CHECK____"
+cat /etc/group | cut -f1 -d":" | sort -n | uniq -c | while read x; do
+ [[ -z "${x}" ]] && break
+ set - ${x}
+ if [[ "$1" -gt "1" ]]; then
+   echo "Check FAILED, correct this!"
+   echo "Duplicate Group Name $2:"
+   gawk -F: '($1 == n) { print $3 }' n=$2 /etc/group | xargs
+   exit 1
  fi
-done)
-if [[ "${#output}" = "0" ]];
-  then   echo -e "\nCheck PASSED: No Duplicate Group Name";
-else
-  echo "Check FAILED : FIX IT MANUALLY: Duplicate Group Name are: "
-  cat /etc/group | cut -f1 -d":" | sort -n | uniq -c |\
-   while read x ; do
-   [ -z "${x}" ] && break
-   set - $x
-   if [ "$1" -gt "1" ]; then
-   gids=`gawk -F: '($1 == n) { print $3 }' n=$2 \
-   /etc/group | xargs`
-   echo "Duplicate Group Name $2: ${gids}"
-   fi
-  done
-fi
+done
+echo -e "\nCheck PASSED: No Duplicate Group Name"
 printf "\n\n"
 
-echo "9.2.18	Check for Presence of User .netrc Files"
-echo -e "____CHECK____(manually fix the issue if exist):"
-output=$(for dir in `cat /etc/passwd |\
- awk -F: '{ print $6 }'`; do
- if [ ! -h "$dir/.netrc" -a -f "$dir/.netrc" ]; then
- echo ".netrc file $dir/.netrc exists"
- fi
-done)
-if [[ "${#output}" = "0" ]];
-  then   echo -e "\nCheck PASSED: No Presence of User .netrc Files";
-else
-  echo "Check FAILED : FIX IT MANUALLY: Presence .netrc Files for following users : "
-  for dir in `cat /etc/passwd |\
-   awk -F: '{ print $6 }'`; do
-   if [ ! -h "$dir/.netrc" -a -f "$dir/.netrc" ]; then
-   echo ".netrc file $dir/.netrc exists"
-   fi
-  done
-fi
+echo "9.2.18 Check for Presence of User .netrc Files"
+echo -e "____CHECK____"
+for dir in `cat /etc/passwd | awk -F: '{ print $6 }'`; do
+  if [ ! -h "$dir/.netrc" -a -f "$dir/.netrc" ]; then
+    echo "Check FAILED, correct this!"
+    echo ".netrc file $dir/.netrc exists"
+    exit 1
+  fi
+done
+echo -e "\nCheck PASSED: No Presence of User .netrc Files"
 printf "\n\n"
 
-echo "9.2.19	Check for Presence of User .forward Files"
-echo -e "____CHECK____(manually fix the issue if exist):"
-output=$(for dir in `cat /etc/passwd |\
- awk -F: '{ print $6 }'`; do
- if [ ! -h "$dir/.forward" -a -f "$dir/.forward" ]; then
- echo ".forward file $dir/.forward exists"
- fi
-done)
-if [[ "${#output}" = "0" ]];
-  then   echo -e "\nCheck PASSED: No Presence of User .forward Files";
-else
-  echo "Check FAILED : FIX IT MANUALLY: Presence of .forward Files for following users : "
-  for dir in `cat /etc/passwd |\
-   awk -F: '{ print $6 }'`; do
-   if [ ! -h "$dir/.forward" -a -f "$dir/.forward" ]; then
-   echo ".forward file $dir/.forward exists"
-   fi
-  done
-fi
+echo "9.2.19 Check for Presence of User .forward Files"
+echo -e "____CHECK____"
+for dir in `cat /etc/passwd | awk -F: '{ print $6 }'`; do
+  if [ ! -h "$dir/.forward" -a -f "$dir/.forward" ]; then
+    echo "Check FAILED, correct this!"
+    echo ".forward file $dir/.forward exists"
+    exit 1
+  fi
+done
+echo -e "\nCheck PASSED: No Presence of User .forward Files"
 printf "\n\n"
 # endregion
