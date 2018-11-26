@@ -2,11 +2,11 @@
 if [[ $1 == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
-  harden_PARDI_server.sh -- harden Linux server
+  harden_cent_os.sh -- harden a CentOS server semi-automatically
 
 SYNOPSIS
-  sudo harden_PARDI_server.sh
-  harden_PARDI_server.sh -h: display this help
+  sudo harden_cent_os.sh: execute
+  harden_cent_os.sh -h: display this help
 
 DESCRIPTION
   Hardens Linux server per the Baseline Config.
@@ -29,6 +29,43 @@ absolute_script_dir=$(cd "${script_dir}" && pwd)
 #fi
 #cd "${work_dir}"
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
+
+########################################
+# Update or insert a value in a file
+# Arguments:
+#   $1  line prefix expression (ERE)
+#   $2  replacement
+#   $3  file
+# Returns:
+#   None
+# Examples:
+#   upsert 'foo=' 'foo=bar' file
+#   upsert '#*foo=' 'foo=bar' /tmp/test
+# See https://superuser.com/questions/590630/sed-how-to-replace-line-if-found-or-append-to-end-of-file-if-not-found
+########################################
+upsert() {
+  case $(uname) in
+    Darwin) local sed_options="-i '' -E" ;;
+    Linux) local sed_options="--in-place --regexp-extended" ;;
+  esac
+
+  # If a line matches just copy it to the `h`old space then `s`ubstitute the value.
+  # On the la`$`t line: e`x`change hold space and pattern space then check if the latter is empty. If it's not empty, it
+  # means the substitution was already made. If it's empty, that means no match was found so replace the pattern space
+  # with the desired variable=value then append to the current line in the hold buffer. Finally, e`x`change again.
+  sed ${sed_options} "/^$1/{
+h
+s/$1.*/$2/
+}
+\${
+x
+/^\$/{
+s//$2/
+H
+}
+x
+}" $3
+}
 
 # Parameters:
 # $1: check number
@@ -109,7 +146,7 @@ HEREDOC
 #set -e
 #set -o pipefail
 
-# Baseline Configuration items: 1-100.
+# region Baseline Configuration items: 1-100.
 
 echo 'Section Header: Install Updates, Patches and Additional Security Software'
 printf "\n\n"
@@ -118,7 +155,7 @@ echo '1.1 Use the Latest OS Kernel Release'
 echo '(1.2.3 Checks that all OS packages are updated)'
 yum --enablerepo=elrepo-kernel install kernel-ml python-perf
 installed_kernel_version=$(uname -r)
-available_kernel_version=$(rpm -q --queryformat '%{VERSION}-%{RELEASE}-%{ARCH}' kernel-ml)
+available_kernel_version=$(rpm -q --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}' kernel-ml)
 if [[ ${available_kernel_version} == ${installed_kernel_version} ]]; then
   echo "Check PASSED"
 else
@@ -178,11 +215,8 @@ else
 fi
 printf "\n\n"
 
-# Row 9 to 13 to 20 are required investigation.
-
-# TBD
+# TBD DISABLED
 #echo '1.1.17 Set Sticky Bit on All world-writable directories'
-#echo 'NOT RECOMMENDED FOR DEV ENVIRONMENTS'
 
 echo "Section Header: Configure Software Updates"
 printf "\n\n"
@@ -226,7 +260,7 @@ else
 fi
 printf "\n\n"
 
-# DISABLED. Files get modified on the server for different reasons. It's unclear what could be done to fix a failure.
+# TBD DISABLED Files get modified for different reasons. It's unclear what could be done to fix a failure.
 
 #echo "1.2.4 Verify Package Integrity Using RPM"
 #echo "___CHECK___"
@@ -356,7 +390,7 @@ else
 fi
 printf "\n\n"
 
-# DISABLED
+# TBD DISABLED
 # Samet K.: Exec-shield is no longer an option in sysctl for kernel tuning in CENTOS7, it is by
 # default on. This is a security measure, as documented in the RHEL 7 Security Guide.
 # See http://centosfaq.org/centos/execshield-in-c6-or-c7-kernels/
@@ -648,8 +682,7 @@ printf "\n\n"
 echo "Section Header: Network Configuration and Firewalls"
 printf "\n\n"
 
-# DISABLED temporarily until PAR-496 (http://jira.nete.com/browse/PAR-496) ticket is resolved
-
+# region TBD DISABLED until the decision on a firewall is made
 #echo "4.7	Enable IPtables"
 #echo "____CHECK____"
 #chkconfig --list iptables
@@ -676,6 +709,7 @@ printf "\n\n"
 #  chkconfig ip6tables on
 #fi
 #printf "\n\n"
+# endregion
 
 echo "Section Header: Modify Network Parameters (Host Only)"
 printf "\n\n"
@@ -856,27 +890,22 @@ printf "\n\n"
 #echo "Section Header: Wireless Networking"
 #printf "\n\n"
 #
-#echo "4.3.1	Deactivate Wireless Interfaces"
-#echo "http://askubuntu.com/questions/405508/how-to-find-name-of-currently-active-network-interface/649763
-#http://www.cyberciti.biz/faq/linux-remove-wireless-networking-wifi-802-11-support-drivers/
-#It seems that no wireless interface is installed.
-#"
+#echo "4.3.1	Deactivate Wireless Interfaces (Linux laptops)"
 #printf "\n\n"
 
-echo "Section Header: Disable IPv6"
-printf "\n\n"
+#echo "Section Header: Disable IPv6"
+#printf "\n\n"
 
-echo "4.4.2	Disable IPv6"
-echo "Not required for this baseline configuration"
-echo "Check PASSED"
-printf "\n\n"
+# Not required for this baseline configuration
+#echo "4.4.2	Disable IPv6"
+#printf "\n\n"
 
-echo "Section Header: Configure IPv6"
-printf "\n\n"
-
-echo "4.4.1.1 Disable IPv6 Router Advertisements"
-echo "Not required for this baseline configuration"
-printf "\n\n"
+#echo "Section Header: Configure IPv6"
+#printf "\n\n"
+#
+# Not required for this baseline configuration
+#echo "4.4.1.1 Disable IPv6 Router Advertisements"
+#printf "\n\n"
 
 echo "4.4.1.2 Disable IPv6 Redirect Acceptance"
 echo "____CHECK 1/2____"
@@ -939,16 +968,16 @@ printf "\n\n"
 
 echo "4.5.3 Verify Permissions on /etc/hosts.allow"
 echo "____CHECK____"
-/bin/ls -l /etc/hosts.allow
-access_priviliges_line=$(/bin/ls -l /etc/hosts.allow)
-access_priviliges=${access_priviliges_line:0:10}
-if [[ "$access_priviliges" = "-rw-r--r--" ]]; then
+ls -l /etc/hosts.allow
+access_privileges_line=$(ls -l /etc/hosts.allow)
+access_privileges=${access_privileges_line:0:10}
+if [[ "$access_privileges" = "-rw-r--r--" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  echo "Access mode is changing to 644"
-  /bin/chmod 644 /etc/hosts.allow
+  echo "Access mode is changing to u=rw,go=r"
+  chmod u=rw,go=r /etc/hosts.allow
 fi
 printf "\n\n"
 
@@ -958,21 +987,21 @@ printf "\n\n"
 
 echo "4.5.3 Verify Permissions on /etc/hosts.deny"
 echo "____CHECK____"
-/bin/ls -l /etc/hosts.deny
-access_priviliges_line=$(/bin/ls -l /etc/hosts.deny)
-access_priviliges=${access_priviliges_line:0:10}
-if [[ "$access_priviliges" = "-rw-r--r--" ]]; then
+ls -l /etc/hosts.deny
+access_privileges_line=$(ls -l /etc/hosts.deny)
+access_privileges=${access_privileges_line:0:10}
+if [[ "$access_privileges" = "-rw-r--r--" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  echo "Access mode is changing to 644"
-  /bin/chmod 644 /etc/hosts.deny
+  echo "Access mode is changing to u=rw,go=r"
+  chmod u=rw,go=r /etc/hosts.deny
 fi
 printf "\n\n"
+# endregion
 
-# Baseline Configuration items: 101-199.
-
+# region Baseline Configuration items: 101-199.
 echo "Section Header: Uncommon Network Protocols"
 printf "\n\n"
 
@@ -1395,179 +1424,177 @@ printf "\n\n"
 echo "Section Header: Configure SSH "
 printf "\n\n"
 
-echo "6.2.1 Set SSH Protocol to 2"
+echo "6.2.1 Set SSH Protocol to 2 (default)"
 echo "____CHECK____"
-if [[ "$(cat /etc/ssh/sshd_config|grep '^Protocol')" != "" ]];
-  then echo "Check PASSED"
-else
-  echo "Check FAILED, SET IN ACTION "
-  echo "____SET____"
-  sed -i '/^#Protocol 2/d' /etc/ssh/sshd_config
-  echo "Protocol 2" >> /etc/ssh/sshd_config
-fi
-printf "\n\n"
-
-echo "6.2.2 Set LogLevel to INFO"
-echo "____CHECK____"
-if [[ "$(cat /etc/ssh/sshd_config|grep '^LogLevel INFO')" != "" ]]; then
+if ! grep '^Protocol.*1' /etc/ssh/sshd_config; then
   echo "Check PASSED"
 else
   echo "Check FAILED, SET IN ACTION "
   echo "____SET____"
-  echo "LogLevel INFO" >> /etc/ssh/sshd_config
+  sed --in-place --regexp-extended '/^Protocol.*1/d' /etc/ssh/sshd_config
+fi
+printf "\n\n"
+
+echo "6.2.2 Set LogLevel to INFO (default)"
+echo "____CHECK____"
+if ! grep -E '^LogLevel [^I]' /etc/ssh/sshd_config; then
+  echo "Check PASSED"
+else
+  echo "Check FAILED, SET IN ACTION "
+  echo "____SET____"
+  sed --in-place --regexp-extended '/^LogLevel [^I]/d' /etc/ssh/sshd_config
 fi
 printf "\n\n"
 
 echo "6.2.3 Set Permissions on /etc/ssh/sshd_config"
 echo "____CHECK____"
-/bin/ls -l /etc/ssh/sshd_config
-/bin/chown root:root /etc/ssh/sshd_config
-access_priviliges_line=$(/bin/ls -l /etc/ssh/sshd_config)
-access_priviliges=${access_priviliges_line:0:10}
-if [[ "$access_priviliges" = "-rw-------" ]]; then
+ls -l /etc/ssh/sshd_config
+chown root:root /etc/ssh/sshd_config
+access_privileges_line=$(ls -l /etc/ssh/sshd_config)
+access_privileges=${access_privileges_line:0:10}
+if [[ "$access_privileges" = "-rw-------" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
   echo "Access mode is changing to 600"
-  /bin/chmod 600 /etc/ssh/sshd_config
+  chmod 600 /etc/ssh/sshd_config
 fi
 printf "\n\n"
 
-echo "6.2.4 Disable X11 Forwarding"
-echo "The PARDI system needs to use X11 forwarding"
-printf "\n\n"
+# X11 is needed to run DataGrip on server(s)
+#echo "6.2.4 Disable X11 Forwarding"
+#printf "\n\n"
 
 echo "6.2.5 Set SSH MaxAuth Tries to 4 or less"
 echo "____CHECK____"
-if [[ "$(cat /etc/ssh/sshd_config|grep '^MaxAuthTries')" != "" ]]; then
+declare -i value
+# value = 0 when not found
+value=$(pcregrep --only-matching=1 '^MaxAuthTries (.*)' /etc/ssh/sshd_config) || :
+if (( value > 0 && value <= 4 )); then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  sed -i '/^#MaxAuthTries/d' /etc/ssh/sshd_config
-  sed -i '/^MaxAuthTries/d' /etc/ssh/sshd_config
-  echo "MaxAuthTries 4" >> /etc/ssh/sshd_config
+  upsert '#*MaxAuthTries ' 'MaxAuthTries 4' /etc/ssh/sshd_config
 fi
 printf "\n\n"
 
-echo "6.2.6 Set SSH IgnoreRhosts to yes"
+echo "6.2.6 Set SSH IgnoreRhosts to yes (default)"
 echo "____CHECK____"
-if [[ "$(cat /etc/ssh/sshd_config|grep '^IgnoreRhosts')" != "" ]]; then
+if ! grep -E '^IgnoreRhosts no' /etc/ssh/sshd_config; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  sed -i '/^#IgnoreRhosts/d' /etc/ssh/sshd_config
-  sed -i '/^IgnoreRhosts/d' /etc/ssh/sshd_config
-  echo "IgnoreRhosts yes" >> /etc/ssh/sshd_config
+  upsert 'IgnoreRhosts ' 'IgnoreRhosts yes' /etc/ssh/sshd_config
 fi
 printf "\n\n"
 
-echo "6.2.7 Set SSH HostbasedAuthentication to no"
-echo "The PARDI system needs to use HostbasedAuthentication"
+echo "6.2.7 Set SSH HostbasedAuthentication to no (default)"
+if ! grep -E '^HostbasedAuthentication yes' /etc/ssh/sshd_config; then
+  echo "Check PASSED"
+else
+  echo "Check FAILED, correcting ..."
+  echo "____SET____"
+  upsert 'HostbasedAuthentication ' 'HostbasedAuthentication no' /etc/ssh/sshd_config
+fi
 printf "\n\n"
 
-echo "6.2.8 Set Disable SSH Root Login"
+echo "6.2.8 Disable SSH Root Login"
 echo "____CHECK____"
-if [[ "$(cat /etc/ssh/sshd_config|grep '^PermitRootLogin no')" != "" ]]; then
+if grep -E '^PermitRootLogin no' /etc/ssh/sshd_config; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  sed -i '/^#PermitRootLogin/d' /etc/ssh/sshd_config
-  sed -i '/^PermitRootLogin/d' /etc/ssh/sshd_config
-  echo "PermitRootLogin no" >> /etc/ssh/sshd_config
+  upsert '#*PermitRootLogin ' 'PermitRootLogin no' /etc/ssh/sshd_config
 fi
 printf "\n\n"
 
-echo "6.2.9 Set SSH PermitEmptyPasswords to no"
+echo "6.2.9 Set SSH PermitEmptyPasswords to no (default)"
 echo "____CHECK____"
-if [[ "$(cat /etc/ssh/sshd_config|grep '^PermitEmptyPasswords no')" != "" ]]; then
+if ! grep -E '^PermitEmptyPasswords yes' /etc/ssh/sshd_config; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  sed -i '/^#PermitEmptyPasswords/d' /etc/ssh/sshd_config
-  sed -i '/^PermitEmptyPasswords/d' /etc/ssh/sshd_config
-  echo "PermitEmptyPasswords no" >> /etc/ssh/sshd_config
+  upsert 'PermitEmptyPasswords ' 'PermitEmptyPasswords no' /etc/ssh/sshd_config
 fi
 printf "\n\n"
 
-echo "6.2.10 Set SSH PermitUserEnvironment to no"
+echo "6.2.10 Set SSH PermitUserEnvironment to no (default)"
 echo "____CHECK____"
-if [[ "$(cat /etc/ssh/sshd_config|grep '^PermitUserEnvironment no')" != "" ]]; then
+if ! grep -E '^PermitUserEnvironment yes' /etc/ssh/sshd_config; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  sed -i '/^#PermitUserEnvironment/d' /etc/ssh/sshd_config
-  sed -i '/^PermitUserEnvironment/d' /etc/ssh/sshd_config
-  echo "PermitUserEnvironment no" >> /etc/ssh/sshd_config
+  upsert 'PermitUserEnvironment ' 'PermitUserEnvironment no' /etc/ssh/sshd_config
 fi
 printf "\n\n"
 
-echo "6.2.11 Use Only Approved Cipher in Counter Mode"
+echo "6.2.11 Use Only Approved Ciphers in Counter Mode"
 echo "____CHECK____"
-if [[ "$(cat /etc/ssh/sshd_config|grep '^Ciphers aes128-ctr,aes192-ctr,aes256-ctr')" != "" ]]; then
+if grep -E '^Ciphers aes128-ctr,aes192-ctr,aes256-ctr' /etc/ssh/sshd_config; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  sed -i '/^#Ciphers/d' /etc/ssh/sshd_config
-  sed -i '/^Ciphers/d' /etc/ssh/sshd_config
-  echo "Ciphers aes128-ctr,aes192-ctr,aes256-ctr" >> /etc/ssh/sshd_config
+  upsert '#*Ciphers ' 'Ciphers aes128-ctr,aes192-ctr,aes256-ctr' /etc/ssh/sshd_config
 fi
 printf "\n\n"
 
-echo "6.2.12 Set Idle Timeout Interval for User Login"
+echo "6.2.12 Set SSH Idle Timeout"
 echo "____CHECK 1/2____"
-if [[ "$(cat /etc/ssh/sshd_config|grep '^ClientAliveInterval 300')" != "" ]]; then
+if grep -E '^ClientAliveInterval 3600' /etc/ssh/sshd_config; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  sed -i '/^#ClientAliveInterval/d' /etc/ssh/sshd_config
-  sed -i '/^ClientAliveInterval/d' /etc/ssh/sshd_config
-  echo "ClientAliveInterval 300" >> /etc/ssh/sshd_config
+  upsert '#*ClientAliveInterval ' 'ClientAliveInterval 3600' /etc/ssh/sshd_config
 fi
 echo "____CHECK 2/2____"
-if [[ "$(cat /etc/ssh/sshd_config|grep '^ClientAliveCountMax')" != "" ]]; then
+if grep -E '^ClientAliveCountMax 0' /etc/ssh/sshd_config; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  sed -i '/^#ClientAliveCountMax/d' /etc/ssh/sshd_config
-  sed -i '/^ClientAliveCountMax/d' /etc/ssh/sshd_config
-  echo "ClientAliveCountMax 0" >> /etc/ssh/sshd_config
+  upsert '#*ClientAliveCountMax ' 'ClientAliveCountMax 0' /etc/ssh/sshd_config
 fi
 printf "\n\n"
 
 echo "6.2.13 Limit Access via SSH"
-echo "PARDI need the access via SSH"
+if grep -E '^AllowGroups' /etc/ssh/sshd_config; then
+  echo "Check PASSED"
+else
+  echo "Check FAILED, correct manually: add AllowGroups to /etc/ssh/sshd_config"
+  exit 1
+fi
 
 echo "6.2.14 Set SSH Banner"
 echo "____CHECK____"
-if [[ "$(cat /etc/ssh/sshd_config|grep '^Banner')" != "" ]]; then
+if grep -E '^Banner' /etc/ssh/sshd_config; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  sed -i '/^#Banner/d' /etc/ssh/sshd_config
-  sed -i '/^Banner/d' /etc/ssh/sshd_config
-  echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
-  echo "********************************************************************" >> /etc/issue.net
-  echo "*                                                                  *" >> /etc/issue.net
-  echo "* This system is for the use of authorized users only.  Usage of   *" >> /etc/issue.net
-  echo "* this system may be monitored and recorded by system personnel.   *" >> /etc/issue.net
-  echo "*                                                                  *" >> /etc/issue.net
-  echo "* Anyone using this system expressly consents to such monitoring   *" >> /etc/issue.net
-  echo "* and is advised that if such monitoring reveals possible          *" >> /etc/issue.net
-  echo "* evidence of criminal activity, system personnel may provide the  *" >> /etc/issue.net
-  echo "* evidence from such monitoring to law enforcement officials.      *" >> /etc/issue.net
-  echo "*                                                                  *" >> /etc/issue.net
-  echo "********************************************************************" >> /etc/issue.net
-  systemctl restart sshd.service
+  if [[ ! -f /etc/issue.net ]]; then
+    cat >/etc/issue.net <<'HEREDOC'
+********************************************************************
+*                                                                  *
+* This system is for the use of authorized users only.  Usage of   *
+* this system may be monitored and recorded by system personnel.   *
+*                                                                  *
+* Anyone using this system expressly consents to such monitoring   *
+* and is advised that if such monitoring reveals possible          *
+* evidence of criminal activity, system personnel may provide the  *
+* evidence from such monitoring to law enforcement officials.      *
+*                                                                  *
+********************************************************************
+HEREDOC
+  upsert '#*Banner ' 'Banner /etc/issue.net' /etc/ssh/sshd_config
+  systemctl restart sshd
 fi
 printf "\n\n"
 
@@ -1750,7 +1777,7 @@ else
   echo "___SET___"
   touch /etc/motd
   chown root:root /etc/motd
-  chmod 644 /etc/motd
+  chmod u=rw,go=r /etc/motd
 fi
 echo "___CHECK 2/3___"
 ls /etc/issue
@@ -1761,7 +1788,7 @@ else
   echo "___SET___"
   echo "Authorized uses only. All activity may be monitored and reported." > /etc/issue
   chown root:root /etc/issue
-  chmod 644 /etc/issue
+  chmod u=rw,go=r /etc/issue
 fi
 echo "___CHECK 3/3___"
 ls /etc/issue.net
@@ -1772,7 +1799,7 @@ else
   echo "___SET___"
   echo "Authorized uses only. All activity may be monitored and reported." > /etc/issue.net
   chown root:root /etc/issue.net
-  chmod 644 /etc/issue.net
+  chmod u=rw,go=r /etc/issue.net
 fi
 printf "\n\n"
 
@@ -1819,68 +1846,68 @@ printf "\n\n"
 
 echo "9.1.2	Verify Permissions on /etc/passwd"
 echo "____CHECK____"
-/bin/ls -l /etc/passwd
-access_priviliges_line=$(/bin/ls -l /etc/passwd)
-access_priviliges=${access_priviliges_line:0:10}
-if [[ "$access_priviliges" = "-rw-r--r--" ]]; then
+ls -l /etc/passwd
+access_privileges_line=$(ls -l /etc/passwd)
+access_privileges=${access_privileges_line:0:10}
+if [[ "$access_privileges" = "-rw-r--r--" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  echo "Access mode is changing to 644"
-  /bin/chmod 644 /etc/passwd
+  echo "Access mode is changing to u=rw,go=r"
+  chmod u=rw,go=r /etc/passwd
 fi
 printf "\n\n"
 
 echo "9.1.3	Verify Permissions on /etc/shadow"
 echo "____CHECK____"
-/bin/ls -l /etc/shadow
-access_priviliges_line=$(/bin/ls -l /etc/shadow)
-access_priviliges=${access_priviliges_line:0:10}
-if [[ "$access_priviliges" = "----------" ]]; then
+ls -l /etc/shadow
+access_privileges_line=$(ls -l /etc/shadow)
+access_privileges=${access_privileges_line:0:10}
+if [[ "$access_privileges" = "----------" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  echo "Access mode is changing to 000"
-  /bin/chmod 000 /etc/shadow
+  echo "Access mode is changing to a="
+  chmod a= /etc/shadow
 fi
 printf "\n\n"
 
 echo "9.1.4	Verify Permissions on /etc/gshadow"
 echo "____CHECK____"
-/bin/ls -l /etc/gshadow
-access_priviliges_line=$(/bin/ls -l /etc/gshadow)
-access_priviliges=${access_priviliges_line:0:10}
-if [[ "$access_priviliges" = "----------" ]]; then
+ls -l /etc/gshadow
+access_privileges_line=$(ls -l /etc/gshadow)
+access_privileges=${access_privileges_line:0:10}
+if [[ "$access_privileges" = "----------" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  echo "Access mode is changing to 000"
-  /bin/chmod 000 /etc/gshadow
+  echo "Access mode is changing to a="
+  chmod a= /etc/gshadow
 fi
 printf "\n\n"
 
 echo "9.1.5	Verify Permissions on /etc/group"
 echo "____CHECK____"
-/bin/ls -l /etc/group
-access_priviliges_line=$(/bin/ls -l /etc/group)
-access_priviliges=${access_priviliges_line:0:10}
-if [ "$access_priviliges" = "-rw-r--r--" ];
+ls -l /etc/group
+access_privileges_line=$(ls -l /etc/group)
+access_privileges=${access_privileges_line:0:10}
+if [ "$access_privileges" = "-rw-r--r--" ];
   then    echo "Check PASSED";
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  echo "Access mode is changing to 644"
-  /bin/chmod 644 /etc/group
+  echo "Access mode is changing to u=rw,go=r"
+  chmod u=rw,go=r /etc/group
 fi
 printf "\n\n"
 
 echo "9.1.6	Verify User/Group Ownership on /etc/passwd"
 echo "____CHECK____"
-/bin/ls -l /etc/passwd
-is_root_root=$(/bin/ls -l /etc/passwd | egrep -w "root root")
+ls -l /etc/passwd
+is_root_root=$(ls -l /etc/passwd | egrep -w "root root")
 #check the length if it nonzero, then success, otherwise failure.
 if [[ "${#is_root_root}" != "0" ]];
   then    echo "Check PASSED";
@@ -1888,14 +1915,14 @@ else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
   echo "User/group Ownership is changing to root:root"
-  /bin/chown root:root /etc/passwd
+  chown root:root /etc/passwd
 fi
 printf "\n\n"
 
 echo "9.1.7	Verify User/Group Ownership on /etc/shadow"
 echo "____CHECK____"
-/bin/ls -l /etc/shadow
-is_root_root=$(/bin/ls -l /etc/shadow | egrep -w "root root")
+ls -l /etc/shadow
+is_root_root=$(ls -l /etc/shadow | egrep -w "root root")
 #check the length if it nonzero, then success, otherwise failure.
 if [[ "${#is_root_root}" != "0" ]]; then
   echo "Check PASSED"
@@ -1903,14 +1930,14 @@ else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
   echo "User/group Ownership is changing to root:root"
-  /bin/chown root:root /etc/shadow
+  chown root:root /etc/shadow
 fi
 printf "\n\n"
 
 echo "9.1.8	Verify User/Group Ownership on /etc/gshadow"
 echo "____CHECK____"
-/bin/ls -l /etc/gshadow
-is_root_root=$(/bin/ls -l /etc/gshadow | egrep -w "root root")
+ls -l /etc/gshadow
+is_root_root=$(ls -l /etc/gshadow | egrep -w "root root")
 #check the length if it nonzero, then success, otherwise failure.
 if [[ "${#is_root_root}" != "0" ]]; then
   echo "Check PASSED"
@@ -1918,14 +1945,14 @@ else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
   echo "User/group Ownership is changing to root:root"
-  /bin/chown root:root /etc/gshadow
+  chown root:root /etc/gshadow
 fi
 printf "\n\n"
 
 echo "9.1.9	Verify User/Group Ownership on /etc/group"
 echo "____CHECK____"
-/bin/ls -l /etc/group
-is_root_root=$(/bin/ls -l /etc/group | egrep -w "root root")
+ls -l /etc/group
+is_root_root=$(ls -l /etc/group | egrep -w "root root")
 #check the length if it nonzero, then success, otherwise failure.
 if [[ "${#is_root_root}" != "0" ]]; then
   echo "Check PASSED"
@@ -1933,7 +1960,7 @@ else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
   echo "User/group Ownership is changing to root:root"
-  /bin/chown root:root /etc/group
+  chown root:root /etc/group
 fi
 printf "\n\n"
 
@@ -2021,7 +2048,7 @@ else
   done
 fi
 echo "____CHECK 2/2____"
-output=$(/bin/cat /etc/shadow | /bin/awk -F: '($2 == "" ) { print $1 " does not have a password "}')
+output=$(cat /etc/shadow | awk -F: '($2 == "" ) { print $1 " does not have a password "}')
 if [[ "${#output}" = "0" ]]; then
   echo -e "\nCheck PASSED: No User's password status is NP"
 else
@@ -2055,8 +2082,8 @@ printf "\n\n"
 echo "9.2.5	Verify No UID 0 Accounts Exist Other Than root"
 echo -e "____CHECK____:
 User List  having UID equals to 0"
-/bin/cat /etc/passwd | /bin/awk -F: '($3 == 0) { print $1 }'
-output=$(/bin/cat /etc/passwd | /bin/awk -F: '($3 == 0) { print $1 }')
+cat /etc/passwd | awk -F: '($3 == 0) { print $1 }'
+output=$(cat /etc/passwd | awk -F: '($3 == 0) { print $1 }')
 #check the length if it nonzero, then success, otherwise failure.
 if [[ "$output" = "root" ]]; then
   echo "Check PASSED"
@@ -2069,15 +2096,15 @@ printf "\n\n"
 
 echo "9.2.6	Ensure root PATH Integrity"
 echo -e "____CHECK____(manually fix the issue if exist):"
-if [[ ""`echo $PATH | /bin/grep :: `"" != """" ]]; then
+if [[ ""`echo $PATH | grep :: `"" != """" ]]; then
  echo ""Empty Directory in PATH \(::\)""
 fi
 
-if [[ "`echo $PATH | /bin/grep :$`" != """" ]]; then
+if [[ "`echo $PATH | grep :$`" != """" ]]; then
  echo ""Trailing : in PATH""
 fi
 
-p=`echo $PATH | /bin/sed -e 's/::/:/' -e 's/:$//' -e 's/:/ /g'`
+p=`echo $PATH | sed -e 's/::/:/' -e 's/:$//' -e 's/:/ /g'`
 set -- $p
 while [[ ""$1"" != """" ]]; do
  if [[ ""$1"" = ""."" ]]; then
@@ -2086,11 +2113,11 @@ while [[ ""$1"" != """" ]]; do
    continue
  fi
  if [[ -d $1 ]]; then
-  dirperm=`/bin/ls -ldH $1 | /bin/cut -f1 -d"" ""`
-   if [ `echo $dirperm | /bin/cut -c6 ` != ""-"" ]; then
+  dirperm=`ls -ldH $1 | cut -f1 -d"" ""`
+   if [ `echo $dirperm | cut -c6 ` != ""-"" ]; then
    echo ""Group Write permission set on directory $1""
  fi
- if [ `echo $dirperm | /bin/cut -c9 ` != ""-"" ]; then
+ if [ `echo $dirperm | cut -c9 ` != ""-"" ]; then
   echo ""Other Write permission set on directory $1""
  fi
  dirown=`ls -ldH $1 | awk '{print $3}'`
@@ -2102,15 +2129,15 @@ while [[ ""$1"" != """" ]]; do
  fi
  shift
 done
-output=$(if [ ""`echo $PATH | /bin/grep :: `"" != """" ]; then
+output=$(if [ ""`echo $PATH | grep :: `"" != """" ]; then
  echo ""Empty Directory in PATH \(::\)""
 fi
 
-if [ "`echo $PATH | /bin/grep :$`" != """" ]; then
+if [ "`echo $PATH | grep :$`" != """" ]; then
  echo ""Trailing : in PATH""
 fi
 
-p=`echo $PATH | /bin/sed -e 's/::/:/' -e 's/:$//' -e 's/:/ /g'`
+p=`echo $PATH | sed -e 's/::/:/' -e 's/:$//' -e 's/:/ /g'`
 set -- $p
 while [ ""$1"" != """" ]; do
  if [ ""$1"" = ""."" ]; then
@@ -2119,11 +2146,11 @@ while [ ""$1"" != """" ]; do
  continue
  fi
  if [ -d $1 ]; then
- dirperm=`/bin/ls -ldH $1 | /bin/cut -f1 -d"" ""`
- if [ `echo $dirperm | /bin/cut -c6 ` != ""-"" ]; then
+ dirperm=`ls -ldH $1 | cut -f1 -d"" ""`
+ if [ `echo $dirperm | cut -c6 ` != ""-"" ]; then
  echo ""Group Write permission set on directory $1""
  fi
- if [ `echo $dirperm | /bin/cut -c9 ` != ""-"" ]; then
+ if [ `echo $dirperm | cut -c9 ` != ""-"" ]; then
  echo ""Other Write permission set on directory $1""
  fi
  dirown=`ls -ldH $1 | awk '{print $3}'`
@@ -2150,29 +2177,29 @@ printf "\n\n"
 
 echo "9.2.8	Check User Dot File Permissions"
 echo  -e "____CHECK____: List of Group or world-writable user and Directories:"
-for dir in `/bin/cat /etc/passwd | /bin/egrep -v '(root|sync|halt|shutdown)' | /bin/awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
+for dir in `cat /etc/passwd | egrep -v '(root|sync|halt|shutdown)' | awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
  for file in $dir/.[A-Za-z0-9]*; do
 	if [ ! -h "$file" -a -f "$file" ]; then
- fileperm=`/bin/ls -ld $file | /bin/cut -f1 -d" "`
+ fileperm=`ls -ld $file | cut -f1 -d" "`
 
- if [ `echo $fileperm | /bin/cut -c6 ` != "-" ]; then
+ if [ `echo $fileperm | cut -c6 ` != "-" ]; then
  echo "Group Write permission set on file $file"
  fi
- if [ `echo $fileperm | /bin/cut -c9 ` != "-" ]; then
+ if [ `echo $fileperm | cut -c9 ` != "-" ]; then
  echo "Other Write permission set on file $file"
  fi
  fi
  done
 done
-output=$(for dir in `/bin/cat /etc/passwd | /bin/egrep -v '(root|sync|halt|shutdown)' | /bin/awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
+output=$(for dir in `cat /etc/passwd | egrep -v '(root|sync|halt|shutdown)' | awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
  for file in $dir/.[A-Za-z0-9]*; do
 	if [ ! -h "$file" -a -f "$file" ]; then
- fileperm=`/bin/ls -ld $file | /bin/cut -f1 -d" "`
+ fileperm=`ls -ld $file | cut -f1 -d" "`
 
- if [ `echo $fileperm | /bin/cut -c6 ` != "-" ]; then
+ if [ `echo $fileperm | cut -c6 ` != "-" ]; then
  echo "Group Write permission set on file $file"
  fi
- if [ `echo $fileperm | /bin/cut -c9 ` != "-" ]; then
+ if [ `echo $fileperm | cut -c9 ` != "-" ]; then
  echo "Other Write permission set on file $file"
  fi
  fi
@@ -2192,64 +2219,64 @@ printf "\n\n"
 
 echo "9.2.9	Check Permissions on User .netrc Files"
 echo  -e "____CHECK____: List of problematic permissions on User .netrc Files:"
-for dir in `/bin/cat /etc/passwd | /bin/egrep -v '(root|sync|halt|shutdown)' |\
- /bin/awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
+for dir in `cat /etc/passwd | egrep -v '(root|sync|halt|shutdown)' |\
+ awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
  for file in $dir/.netrc; do
  if [ ! -h "$file" -a -f "$file" ]; then
- fileperm=`/bin/ls -ld $file | /bin/cut -f1 -d" "`
- if [ `echo $fileperm | /bin/cut -c5 ` != "-" ]
+ fileperm=`ls -ld $file | cut -f1 -d" "`
+ if [ `echo $fileperm | cut -c5 ` != "-" ]
  then
  echo "Group Read set on $file"
  fi
- if [ `echo $fileperm | /bin/cut -c6 ` != "-" ]
+ if [ `echo $fileperm | cut -c6 ` != "-" ]
  then
  echo "Group Write set on $file"
  fi
- if [ `echo $fileperm | /bin/cut -c7 ` != "-" ]
+ if [ `echo $fileperm | cut -c7 ` != "-" ]
  then
  echo "Group Execute set on $file"
  fi
- if [ `echo $fileperm | /bin/cut -c8 ` != "-" ]
+ if [ `echo $fileperm | cut -c8 ` != "-" ]
  then
  echo "Other Read set on $file"
  fi
- if [ `echo $fileperm | /bin/cut -c9 ` != "-" ]
+ if [ `echo $fileperm | cut -c9 ` != "-" ]
  then
  echo "Other Write set on $file"
  fi
- if [ `echo $fileperm | /bin/cut -c10 ` != "-" ]
+ if [ `echo $fileperm | cut -c10 ` != "-" ]
  then
  echo "Other Execute set on $file"
  fi
  fi
  done
 done
-output=$(for dir in `/bin/cat /etc/passwd | /bin/egrep -v '(root|sync|halt|shutdown)' |\
- /bin/awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
+output=$(for dir in `cat /etc/passwd | egrep -v '(root|sync|halt|shutdown)' |\
+ awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
  for file in $dir/.netrc; do
  if [ ! -h "$file" -a -f "$file" ]; then
- fileperm=`/bin/ls -ld $file | /bin/cut -f1 -d" "`
- if [ `echo $fileperm | /bin/cut -c5 ` != "-" ]
+ fileperm=`ls -ld $file | cut -f1 -d" "`
+ if [ `echo $fileperm | cut -c5 ` != "-" ]
  then
  echo "Group Read set on $file"
  fi
- if [ `echo $fileperm | /bin/cut -c6 ` != "-" ]
+ if [ `echo $fileperm | cut -c6 ` != "-" ]
  then
  echo "Group Write set on $file"
  fi
- if [ `echo $fileperm | /bin/cut -c7 ` != "-" ]
+ if [ `echo $fileperm | cut -c7 ` != "-" ]
  then
  echo "Group Execute set on $file"
  fi
- if [ `echo $fileperm | /bin/cut -c8 ` != "-" ]
+ if [ `echo $fileperm | cut -c8 ` != "-" ]
  then
  echo "Other Read set on $file"
  fi
- if [ `echo $fileperm | /bin/cut -c9 ` != "-" ]
+ if [ `echo $fileperm | cut -c9 ` != "-" ]
  then
  echo "Other Write set on $file"
  fi
- if [ `echo $fileperm | /bin/cut -c10 ` != "-" ]
+ if [ `echo $fileperm | cut -c10 ` != "-" ]
  then
  echo "Other Execute set on $file"
  fi
@@ -2269,13 +2296,13 @@ printf "\n\n"
 
 echo "9.2.10	Check for Presence of User .rhosts Files"
 echo -e "____CHECK____: List of  Presence of User .rhosts Files:"
-for dir in `/bin/cat /etc/passwd | /bin/egrep -v '(root|halt|sync|shutdown)' | /bin/awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
+for dir in `cat /etc/passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
  for file in $dir/.rhosts; do
  if [ ! -h "$file" -a -f "$file" ]; then
  echo ".rhosts file in $dir"
  fi done
 done
-output=$(for dir in `/bin/cat /etc/passwd | /bin/egrep -v '(root|halt|sync|shutdown)' | /bin/awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
+output=$(for dir in `cat /etc/passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
  for file in $dir/.rhosts; do
  if [ ! -h "$file" -a -f "$file" ]; then
  echo ".rhosts file in $dir"
@@ -2343,7 +2370,7 @@ printf "\n\n"
 
 echo "9.2.13	Check User Home Directory Ownership for non-system users"
 echo -e "____CHECK____(manually fix the issue if exist)"
-check_9_2_13_result=true
+check_9_2_13_result=/bin/true
 min_non_system_uid=1000
 while IFS=: read user enc_passwd uid gid full_name home shell; do
   if [[ ${uid} -ge ${min_non_system_uid} && -d "$home" && ${user} != "nfsnobody" ]]; then
@@ -2355,7 +2382,7 @@ while IFS=: read user enc_passwd uid gid full_name home shell; do
   fi
 
 done </etc/passwd
-if [[ "${check_9_2_13_result}" == "true" ]]; then
+if [[ "${check_9_2_13_result}" == "/bin/true" ]]; then
   echo "Check PASSED"
 else
   cat <<'HEREDOC'
@@ -2367,13 +2394,13 @@ printf "\n\n"
 
 echo "9.2.14	Check for Duplicate UIDs"
 echo -e "____CHECK____(manually fix the issue if exist):"
-output=$(/bin/cat /etc/passwd | /bin/cut -f3 -d":" | /bin/sort -n | /usr/bin/uniq -c |\
+output=$(cat /etc/passwd | cut -f3 -d":" | sort -n | uniq -c |\
  while read x ; do
  [ -z "${x}" ] && break
  set - $x
  if [ "$1" -gt "1" ]; then
- users=`/bin/gawk -F: '($3 == n) { print $1 }' n=$2 \
- /etc/passwd | /usr/bin/xargs`
+ users=`gawk -F: '($3 == n) { print $1 }' n=$2 \
+ /etc/passwd | /usrxargs`
  echo "Duplicate UID $2: ${users}"
  fi
 done)
@@ -2381,13 +2408,13 @@ if [[ "${#output}" = "0" ]]; then
   echo -e "\nCheck PASSED: No Duplicate UID"
 else
   echo "Check FAILED : FIX IT MANUALLY: Duplicate UIDs are: "
-  /bin/cat /etc/passwd | /bin/cut -f3 -d":" | /bin/sort -n | /usr/bin/uniq -c |\
+  cat /etc/passwd | cut -f3 -d":" | sort -n | uniq -c |\
    while read x ; do
    [ -z "${x}" ] && break
    set - $x
    if [ "$1" -gt "1" ]; then
-   users=`/bin/gawk -F: '($3 == n) { print $1 }' n=$2 \
-   /etc/passwd | /usr/bin/xargs`
+   users=`gawk -F: '($3 == n) { print $1 }' n=$2 \
+   /etc/passwd | /usrxargs`
    echo "Duplicate UID $2: ${users}"
    fi
   done
@@ -2396,12 +2423,12 @@ printf "\n\n"
 
 echo "9.2.15	Check for Duplicate GIDs"
 echo -e "____CHECK____(manually fix the issue if exist):"
-output=$(/bin/cat /etc/group | /bin/cut -f3 -d":"| /bin/sort -n | /usr/bin/uniq -c |\
+output=$(cat /etc/group | cut -f3 -d":"| sort -n | uniq -c |\
  while read x ; do
   [ -z "${x}" ] && break
   set - $x
   if [ "$1" -gt "1" ]; then
- grps=`/bin/gawk -F: '($3 == n) { print $1 }' n=$2 \
+ grps=`gawk -F: '($3 == n) { print $1 }' n=$2 \
  /etc/group | xargs`
  echo "Duplicate GID $2: ${grps}"
  fi
@@ -2410,12 +2437,12 @@ if [[ "${#output}" = "0" ]];
   then   echo -e "\nCheck PASSED: No Duplicate GIDs";
 else
   echo "Check FAILED : FIX IT MANUALLY: Duplicate GIDs are: "
-  /bin/cat /etc/group | /bin/cut -f3 -d":"| /bin/sort -n | /usr/bin/uniq -c |\
+  cat /etc/group | cut -f3 -d":"| sort -n | uniq -c |\
    while read x ; do
     [ -z "${x}" ] && break
     set - $x
     if [ "$1" -gt "1" ]; then
-   grps=`/bin/gawk -F: '($3 == n) { print $1 }' n=$2 \
+   grps=`gawk -F: '($3 == n) { print $1 }' n=$2 \
    /etc/group | xargs`
    echo "Duplicate GID $2: ${grps}"
    fi
@@ -2425,12 +2452,12 @@ printf "\n\n"
 
 echo "9.2.16	Check for Duplicate User Names"
 echo -e "____CHECK____(manually fix the issue if exist):"
-output=$(cat /etc/passwd | cut -f1 -d":" | /bin/sort -n | /usr/bin/uniq -c |\
+output=$(cat /etc/passwd | cut -f1 -d":" | sort -n | uniq -c |\
  while read x ; do
  [ -z "${x}" ] && break
  set - $x
  if [ "$1" -gt "1" ]; then
- uids=`/bin/gawk -F: '($1 == n) { print $3 }' n=$2 \
+ uids=`gawk -F: '($1 == n) { print $3 }' n=$2 \
  /etc/passwd | xargs`
  echo "Duplicate User Name $2: ${uids}"
  fi
@@ -2439,12 +2466,12 @@ if [[ "${#output}" = "0" ]];
   then   echo -e "\nCheck PASSED: No Duplicate User Name";
 else
   echo "Check FAILED : FIX IT MANUALLY: Duplicate Users Name are: "
-  cat /etc/passwd | cut -f1 -d":" | /bin/sort -n | /usr/bin/uniq -c |\
+  cat /etc/passwd | cut -f1 -d":" | sort -n | uniq -c |\
    while read x ; do
    [ -z "${x}" ] && break
    set - $x
    if [ "$1" -gt "1" ]; then
-   uids=`/bin/gawk -F: '($1 == n) { print $3 }' n=$2 \
+   uids=`gawk -F: '($1 == n) { print $3 }' n=$2 \
    /etc/passwd | xargs`
    echo "Duplicate User Name $2: ${uids}"
    fi
@@ -2454,12 +2481,12 @@ printf "\n\n"
 
 echo "9.2.17	Check for Duplicate Group Names"
 echo -e "____CHECK____(manually fix the issue if exist):"
-output=$(cat /etc/group | cut -f1 -d":" | /bin/sort -n | /usr/bin/uniq -c |\
+output=$(cat /etc/group | cut -f1 -d":" | sort -n | uniq -c |\
  while read x ; do
  [ -z "${x}" ] && break
  set - $x
  if [ "$1" -gt "1" ]; then
- gids=`/bin/gawk -F: '($1 == n) { print $3 }' n=$2 \
+ gids=`gawk -F: '($1 == n) { print $3 }' n=$2 \
  /etc/group | xargs`
  echo "Duplicate Group Name $2: ${gids}"
  fi
@@ -2468,12 +2495,12 @@ if [[ "${#output}" = "0" ]];
   then   echo -e "\nCheck PASSED: No Duplicate Group Name";
 else
   echo "Check FAILED : FIX IT MANUALLY: Duplicate Group Name are: "
-  cat /etc/group | cut -f1 -d":" | /bin/sort -n | /usr/bin/uniq -c |\
+  cat /etc/group | cut -f1 -d":" | sort -n | uniq -c |\
    while read x ; do
    [ -z "${x}" ] && break
    set - $x
    if [ "$1" -gt "1" ]; then
-   gids=`/bin/gawk -F: '($1 == n) { print $3 }' n=$2 \
+   gids=`gawk -F: '($1 == n) { print $3 }' n=$2 \
    /etc/group | xargs`
    echo "Duplicate Group Name $2: ${gids}"
    fi
@@ -2483,8 +2510,8 @@ printf "\n\n"
 
 echo "9.2.18	Check for Presence of User .netrc Files"
 echo -e "____CHECK____(manually fix the issue if exist):"
-output=$(for dir in `/bin/cat /etc/passwd |\
- /bin/awk -F: '{ print $6 }'`; do
+output=$(for dir in `cat /etc/passwd |\
+ awk -F: '{ print $6 }'`; do
  if [ ! -h "$dir/.netrc" -a -f "$dir/.netrc" ]; then
  echo ".netrc file $dir/.netrc exists"
  fi
@@ -2493,8 +2520,8 @@ if [[ "${#output}" = "0" ]];
   then   echo -e "\nCheck PASSED: No Presence of User .netrc Files";
 else
   echo "Check FAILED : FIX IT MANUALLY: Presence .netrc Files for following users : "
-  for dir in `/bin/cat /etc/passwd |\
-   /bin/awk -F: '{ print $6 }'`; do
+  for dir in `cat /etc/passwd |\
+   awk -F: '{ print $6 }'`; do
    if [ ! -h "$dir/.netrc" -a -f "$dir/.netrc" ]; then
    echo ".netrc file $dir/.netrc exists"
    fi
@@ -2504,8 +2531,8 @@ printf "\n\n"
 
 echo "9.2.19	Check for Presence of User .forward Files"
 echo -e "____CHECK____(manually fix the issue if exist):"
-output=$(for dir in `/bin/cat /etc/passwd |\
- /bin/awk -F: '{ print $6 }'`; do
+output=$(for dir in `cat /etc/passwd |\
+ awk -F: '{ print $6 }'`; do
  if [ ! -h "$dir/.forward" -a -f "$dir/.forward" ]; then
  echo ".forward file $dir/.forward exists"
  fi
@@ -2514,11 +2541,12 @@ if [[ "${#output}" = "0" ]];
   then   echo -e "\nCheck PASSED: No Presence of User .forward Files";
 else
   echo "Check FAILED : FIX IT MANUALLY: Presence of .forward Files for following users : "
-  for dir in `/bin/cat /etc/passwd |\
-   /bin/awk -F: '{ print $6 }'`; do
+  for dir in `cat /etc/passwd |\
+   awk -F: '{ print $6 }'`; do
    if [ ! -h "$dir/.forward" -a -f "$dir/.forward" ]; then
    echo ".forward file $dir/.forward exists"
    fi
   done
 fi
 printf "\n\n"
+# endregion

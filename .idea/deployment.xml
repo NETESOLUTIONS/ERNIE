@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="ERNIE Neo4j" deleteMissingItems="true">
+  <component name="PublishConfigData" serverName="ERNIE Neo4j" overwriteAll="false" deleteMissingItems="true">
     <serverData>
       <paths name="ERNIE">
         <serverdata>
