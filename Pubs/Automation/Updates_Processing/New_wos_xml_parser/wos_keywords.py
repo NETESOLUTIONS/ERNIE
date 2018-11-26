@@ -10,7 +10,7 @@ Date:		03/24/2018
 Changes:
 '''
 
-class keyword:
+class wos_keyword:
 
     def __init__(self):
         self.source_id=''
