@@ -24,6 +24,7 @@ END;
 $update_wos_abstracts_trigger$
 LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_wos_abstracts_trigger ON wos_abstracts;
 CREATE TRIGGER update_wos_abstracts_trigger
   AFTER UPDATE
   ON wos_abstracts
@@ -42,6 +43,7 @@ END;
 $update_wos_addresses_trigger$
 LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_wos_addresses_trigger ON wos_addresses;
 CREATE TRIGGER update_wos_addresses_trigger
   AFTER UPDATE
   ON wos_addresses
@@ -60,6 +62,7 @@ END;
 $update_wos_authors_trigger$
 LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_wos_authors_trigger ON wos_authors;
 CREATE TRIGGER update_wos_authors_trigger
   AFTER UPDATE
   ON wos_authors
@@ -77,6 +80,7 @@ END;
 $update_wos_document_identifiers_trigger$
 LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_wos_document_identifiers_trigger ON wos_document_identifiers;
 CREATE TRIGGER update_wos_document_identifiers_trigger
   AFTER UPDATE
   ON wos_document_identifiers
@@ -95,6 +99,7 @@ END;
 $update_wos_grants_trigger$
 LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_wos_grants_trigger ON wos_grants;
 CREATE TRIGGER update_wos_grants_trigger
   AFTER UPDATE
   ON wos_grants
@@ -112,6 +117,7 @@ END;
 $update_wos_keywords_trigger$
 LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_wos_keywords_trigger ON wos_keywords;
 CREATE TRIGGER update_wos_keywords_trigger
   AFTER UPDATE
   ON wos_keywords
@@ -132,6 +138,7 @@ END;
 $update_wos_publications_trigger$
 LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_wos_publications_trigger ON wos_publications;
 CREATE TRIGGER update_wos_publications_trigger
   AFTER UPDATE
   ON wos_publications
@@ -151,6 +158,7 @@ END;
 $update_wos_references_trigger$
 LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_wos_references_trigger ON wos_references;
 CREATE TRIGGER update_wos_references_trigger
   AFTER UPDATE
   ON wos_references
@@ -168,6 +176,7 @@ END;
 $update_wos_titles_trigger$
 LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_wos_titles_trigger ON wos_titles;
 CREATE TRIGGER update_wos_titles_trigger
   AFTER UPDATE
   ON wos_titles
@@ -184,8 +193,8 @@ END IF;
 END;
 $update_wos_publication_subjects_trigger$
 LANGUAGE plpgsql;
-
-CREATE TRIGGER update_wos_publications_trigger
+DROP TRIGGER IF EXISTS update_wos_publication_subjects_trigger ON wos_publication_subjects;
+CREATE TRIGGER update_wos_publication_subjects_trigger
   AFTER UPDATE
   ON wos_publication_subjects
   FOR EACH ROW EXECUTE PROCEDURE update_wos_publications_function();
