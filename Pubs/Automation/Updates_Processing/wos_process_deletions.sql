@@ -1,4 +1,5 @@
 /*
+TODO: largely remove this script and switch to trigger usage
 This script deletes records in the main WOS table (wos_*) with source_id from wos*.del files.
 Specifically, it does the following things:
     1. Delete records: move records with specified delete WOS IDs to the
@@ -28,8 +29,6 @@ Modified:
 * Refactored to a client-side copy
 * Formatted
 */
-
-
 -- Set temporary tablespace for calculation.
 SET log_temp_files = 0;
 
@@ -46,7 +45,7 @@ CREATE TABLE temp_delete_wosid (
 -- Delete wos_abstracts to del_wos_abstracts.
 \echo ***DELETING FROM TABLE: wos_abstracts
 INSERT INTO del_wos_abstracts
-  SELECT a.*
+  SELECT a.source_id, a.abstract_text, a.source_filename
   FROM wos_abstracts a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
 DELETE FROM wos_abstracts a
 WHERE exists(SELECT 1
@@ -56,7 +55,7 @@ WHERE exists(SELECT 1
 -- Delete wos_addresses to del_wos_addresses.
 \echo ***DELETING FROM TABLE: wos_addresses
 INSERT INTO del_wos_addresses
-  SELECT a.*
+  SELECT a.id,a.source_id,a.address_name,a.organization,a.sub_organization,a.city,a.country,a.zip_code,a.source_filename
   FROM wos_addresses a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
 DELETE FROM wos_addresses a
 WHERE exists(SELECT 1
@@ -66,7 +65,9 @@ WHERE exists(SELECT 1
 -- Delete wos_authors to del_wos_authors.
 \echo ***DELETING FROM TABLE: wos_authors
 INSERT INTO del_wos_authors
-  SELECT a.*
+  SELECT a.id,a.source_id,a.full_name,a.last_name,a.first_name,
+  a.seq_no,a.address_seq,a.address,a.email_address,a.address_id,a.dais_id,
+  a.r_id,a.source_filename
   FROM wos_authors a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
 DELETE FROM wos_authors a
 WHERE exists(SELECT 1
@@ -76,7 +77,7 @@ WHERE exists(SELECT 1
 -- Delete wos_document_identifiers to del_wos_document_identifiers.
 \echo ***DELETING FROM TABLE: wos_document_identifiers
 INSERT INTO del_wos_document_identifiers
-  SELECT a.*
+  SELECT a.id,a.source_id,a.document_id,a.document_id_type,a.source_filename
   FROM wos_document_identifiers a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
 DELETE FROM wos_document_identifiers a
 WHERE exists(SELECT 1
@@ -86,7 +87,7 @@ WHERE exists(SELECT 1
 -- Delete wos_grants to del_wos_grants.
 \echo ***DELETING FROM TABLE: wos_grants
 INSERT INTO del_wos_grants
-  SELECT a.*
+  SELECT a.id,a.source_id,a.grant_number,a.grant_organization,a.funding_ack,a.source_filename
   FROM wos_grants a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
 DELETE FROM wos_grants a
 WHERE exists(SELECT 1
@@ -96,7 +97,7 @@ WHERE exists(SELECT 1
 -- Delete wos_keywords to del_wos_keywords.
 \echo ***DELETING FROM TABLE: wos_keywords
 INSERT INTO del_wos_keywords
-  SELECT a.*
+  SELECT a.id,a.source_id,a.keyword,a.source_filename
   FROM wos_keywords a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
 DELETE FROM wos_keywords a
 WHERE exists(SELECT 1
@@ -107,26 +108,10 @@ WHERE exists(SELECT 1
 \echo ***DELETING FROM TABLE: wos_publications
 INSERT INTO del_wos_publications
   SELECT
-    a.id,
-    a.source_id,
-    a.source_type,
-    a.source_title,
-    a.language,
-    a.document_title,
-    a.document_type,
-    a.has_abstract,
-    a.issue,
-    a.volume,
-    a.begin_page,
-    a.end_page,
-    a.publisher_name,
-    a.publisher_address,
-    a.publication_year,
-    a.publication_date,
-    a.created_date,
-    a.last_modified_date,
-    a.edition,
-    a.source_filename
+    a.id,a.source_id,a.source_type,a.source_title,a.language,a.document_title,
+    a.document_type,a.has_abstract,a.issue,a.volume,a.begin_page,a.end_page,a.publisher_name,
+    a.publisher_address,a.publication_year,a.publication_date,a.created_date,a.last_modified_date,
+    a.edition,a.source_filename
   FROM wos_publications a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
 DELETE FROM wos_publications a
 WHERE exists(SELECT 1
@@ -137,16 +122,8 @@ WHERE exists(SELECT 1
 \echo ***DELETING FROM TABLE: wos_references
 INSERT INTO del_wos_references
   SELECT
-    a.wos_reference_id,
-    a.source_id,
-    a.cited_source_uid,
-    a.cited_title,
-    a.cited_work,
-    a.cited_author,
-    a.cited_year,
-    a.cited_page,
-    a.created_date,
-    a.last_modified_date,
+    a.wos_reference_id,a.source_id,a.cited_source_uid,a.cited_title,a.cited_work,
+    a.cited_author,a.cited_year,a.cited_page,a.created_date,a.last_modified_date,
     a.source_filename
   FROM wos_references a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
 DELETE FROM wos_references a
@@ -157,9 +134,19 @@ WHERE exists(SELECT 1
 -- Delete wos_titles to del_wos_titles.
 \echo ***DELETING FROM TABLE: wos_titles
 INSERT INTO del_wos_titles
-  SELECT a.*
+  SELECT a.id,a.source_id,a.title,a.type,a.source_filename
   FROM wos_titles a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
 DELETE FROM wos_titles a
+WHERE exists(SELECT 1
+             FROM temp_delete_wosid b
+             WHERE a.source_id = b.source_id);
+
+-- Delete wos_subjects to del_wos_publication_subjects
+\echo ***DELETING FROM TABLE: wos_publication_subjects
+INSERT INTO del_wos_publication_subjects
+  SELECT a.wos_subject_id,a.source_id,a.subject_classification_type,a.subject,a.source_filename
+  FROM wos_publication_subjects a INNER JOIN temp_delete_wosid b ON a.source_id = b.source_id;
+DELETE FROM wos_publication_subjects a
 WHERE exists(SELECT 1
              FROM temp_delete_wosid b
              WHERE a.source_id = b.source_id);
