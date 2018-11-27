@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="dataSourceStorageLocal">
-    <data-source name="ERNIE (tunneled)" uuid="5bb02c2c-aff7-44a7-b231-b3c00bede8d2">
+    <data-source name="ERNIE Dev, Prod @ tunnel" uuid="5bb02c2c-aff7-44a7-b231-b3c00bede8d2">
       <database-info product="PostgreSQL" version="9.6.9" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.2" family="POSTGRES" exact-version="9.6.9">
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>

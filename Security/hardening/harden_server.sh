@@ -2,15 +2,22 @@
 if [[ $1 == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
-  harden_server.sh -- harden a CentOS server semi-automatically
+
+    harden_server.sh -- harden a CentOS server semi-automatically
 
 SYNOPSIS
-  sudo harden_server.sh: execute
-  harden_server.sh -h: display this help
+
+    sudo harden_server.sh: execute
+    harden_server.sh -h: display this help
 
 DESCRIPTION
-  Hardens Linux server per the Baseline Config.
-  Fails on the first hardening failure: review and harden manually in this case.
+
+    WARNING: it updates Linux kernel and all packages to their latest versions. In the case of kernel update, it would
+    reboot the server. Re-run the script after the reboot.
+
+    The script automatically makes changes that it can to harden a CentOS server per the Baseline Security Configuration
+    derived from the Center for Internet Security (CIS) Security Benchmarks.
+    The script would fail on the first problem that needs to be fixed manually. Correct the problem and re-run.
 HEREDOC
   exit 1
 fi
