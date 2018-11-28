@@ -197,7 +197,7 @@ DROP TRIGGER IF EXISTS update_wos_publication_subjects_trigger ON wos_publicatio
 CREATE TRIGGER update_wos_publication_subjects_trigger
   AFTER UPDATE
   ON wos_publication_subjects
-  FOR EACH ROW EXECUTE PROCEDURE update_wos_publications_function();
+  FOR EACH ROW EXECUTE PROCEDURE update_wos_publication_subjects_function();
 
 /* COMMENTED OUT FOR NOW
 
