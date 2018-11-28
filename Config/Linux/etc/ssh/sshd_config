@@ -165,8 +165,8 @@ AllowGroups erniecore ernieusers
 #ClientAliveCountMax 2
 AuthenticationMethods publickey,password publickey,keyboard-interactive
 GatewayPorts yes
-# Disable 2FA for intranet
-Match Host 40.123.45.216
+# Disable 2FA for all intranet private IPs (10.0.0.*) only
+Match Address 10.0.0.0/24
         AuthenticationMethods password publickey
 
 Match group ftpusers
