@@ -1554,7 +1554,7 @@ if grep -F "${PWD_CREATION_REQUIREMENTS}" /etc/pam.d/system-auth-ac; then
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  upsert '' "${PWD_CREATION_REQUIREMENTS}"
+  upsert 'password\s+requisite\s+pam_pwquality.so' "${PWD_CREATION_REQUIREMENTS}"
 fi
 printf "\n\n"
 
@@ -1570,8 +1570,7 @@ printf "\n\n"
 
 echo "6.3.4 Limit Password Reuse"
 echo "___CHECK___"
-grep "remember=5" /etc/pam.d/system-auth-ac
-if [[ "$(grep "remember=5" /etc/pam.d/system-auth-ac | wc -l)" != 0 ]]; then
+if grep "remember=5" /etc/pam.d/system-auth-ac; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -1585,8 +1584,8 @@ printf "\n\n"
 
 echo "7.0.2 Disable System Accounts"
 echo "___CHECK___"
-egrep -v "^\+" /etc/passwd | awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<500 && $7!="/sbin/nologin")'
-if [[ "$(egrep -v "^\+" /etc/passwd | awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<500 && $7!="/sbin/nologin")' | wc -l)" == 0 ]]; then
+if grep -E -v "^\+" /etc/passwd | \
+    awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<500 && $7!="/sbin/nologin")'; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -1604,7 +1603,6 @@ printf "\n\n"
 
 echo "7.0.3 Set Default Group for root Account"
 echo "___CHECK___"
-grep "^root:" /etc/passwd | cut -f4 -d:
 if [[ "$(grep "^root:" /etc/passwd | cut -f4 -d:)" == 0 ]]; then
   echo "Check PASSED"
 else
