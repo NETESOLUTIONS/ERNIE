@@ -174,17 +174,21 @@ printf "\n\n"
 
 echo '1.0.7 Use the Latest OS Kernel'
 echo '(1.2.3 checks that all OS packages are updated)'
-yum --enablerepo=elrepo-kernel install kernel-ml python-perf
-installed_kernel_version=$(uname -r)
-available_kernel_version=$(rpm -q --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}' kernel-ml)
-if [[ ${available_kernel_version} == ${installed_kernel_version} ]]; then
+# Install an updated kernel package if available
+yum --enablerepo=elrepo-kernel install -y kernel-ml python-perf
+
+kernel_version=$(uname -r)
+last_installed_kernel_package=$(rpm --query --last kernel-ml | head -1 | pcregrep -o1 'kernel-ml-([^ ]*)')
+# RPM can't format --last output and
+#available_kernel_version=$(rpm --query --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}' kernel-ml)
+if [[ ${kernel_version} == ${last_installed_kernel_package} ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "___SET___"
   grub2-set-default 0
   grub2-mkconfig -o /boot/grub2/grub.cfg
-  echo "REBOOTING, PLEASE RECONNECT AND RE-RUN ..."
+  echo "**Rebooting**, please wait for 2 minutes, then reconnect and re-run."
   reboot
 fi
 printf "\n\n"
@@ -1544,14 +1548,13 @@ printf "\n\n"
 echo "6.3.2 Set Password Creation Requirement Parameters Using pam_cracklib"
 echo "____CHECK____"
 PWD_CREATION_REQUIREMENTS="password    requisite     pam_pwquality.so try_first_pass local_users_only retry=3 \
-authtok_type= minlen=14 ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1"
-if [[ "$(grep pam_pwquality.so /etc/pam.d/system-auth)" == "${PWD_CREATION_REQUIREMENTS}" ]]; then
+authtok_type= ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1"
+if grep -F "${PWD_CREATION_REQUIREMENTS}" /etc/pam.d/system-auth-ac; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  sed -i '/pam_pwquality.so/d' /etc/pam.d/system-auth
-  echo "${PWD_CREATION_REQUIREMENTS}" >> /etc/pam.d/system-auth
+  upsert '' "${PWD_CREATION_REQUIREMENTS}"
 fi
 printf "\n\n"
 
@@ -1567,13 +1570,13 @@ printf "\n\n"
 
 echo "6.3.4 Limit Password Reuse"
 echo "___CHECK___"
-grep "remember=5" /etc/pam.d/system-auth
-if [[ "$(grep "remember=5" /etc/pam.d/system-auth | wc -l)" != 0 ]]; then
+grep "remember=5" /etc/pam.d/system-auth-ac
+if [[ "$(grep "remember=5" /etc/pam.d/system-auth-ac | wc -l)" != 0 ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "___SET___"
-  sed -i '/password(\t\| )*sufficient/s/$/ remember=5/' /etc/pam.d/system-auth
+  sed -i '/password(\t\| )*sufficient/s/$/ remember=5/' /etc/pam.d/system-auth-ac
 fi
 printf "\n\n"
 
