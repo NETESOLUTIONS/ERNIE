@@ -73,7 +73,7 @@ HEREDOC
 # Determine the delta to download
 #** Using awk is unnecessary if all you need is the entire input line
 grep -F --line-regexp --invert-match --file=processed_filelist.txt wos_ftp_filelist.txt | \
-     sed 's/.*/pget &/' >>group_download.sh || { echo "Nothing to download" && exit 0; }
+     sed 's/.*/mirror -v --use-pget -i &/' >>group_download.sh || { echo "Nothing to download" && exit 0; }
 
 cat >>group_download.sh <<HEREDOC
 quit
