@@ -1,11 +1,11 @@
 source('mcstats.R')
 
-mcmc_10_5 <- ucomparison('zscores1980_10_shuffle_5.csv',5,10,2880,4) 
-mcmc_1_5 <- ucomparison('zscores1980_1_shuffle_5.csv',5,1,360,3)
+mcmc_10_5 <- ucomparison('zscores1980_10_shuffle_5.csv',5,10,2700,4) 
+mcmc_1_5 <- ucomparison('zscores1980_1_shuffle_5.csv',5,1,300,3)
 perm_0_5 <- ucomparison('zscores1980_permute_5.csv',5,0,1,1) 
 swr_0_5 <- ucomparison('zscores1980_swr_5.csv',5,0,1,2) 
 
-mcmc_1_10 <- ucomparison('zscores1980_1_shuffle_10.csv',10,1,360,3)
+mcmc_1_10 <- ucomparison('zscores1980_1_shuffle_10.csv',10,1,300,3)
 perm_0_10 <- ucomparison('zscores1980_permute_10.csv',10,0,1,1) 
 swr_0_10 <- ucomparison('zscores1980_swr_10.csv',10,0,1,2) 
 
