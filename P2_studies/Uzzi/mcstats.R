@@ -23,7 +23,7 @@ rundata[7] <- length(unique(df$wos_id_pairs))
 rundata[8] <- length(unique(df$journal_pairs))
 
 df2 <- unique(df[,list(journal_pairs,frequency,z_score)])
-df3 <- df2[!(z_score==Inf | z_score==-Inf)]
+df3 <- df2[!(z_score == Inf | z_score == -Inf)]
 rundata[9] <- length(unique(df3$journal_pairs))
 print(rundata[8])
 print(rundata[9])
@@ -37,8 +37,8 @@ rundata[16] <-quantile(df3$z_score,0.25)
 rundata[17] <-quantile(df3$z_score,0.75)
 
 
-x <- data.frame(cbind(rows,rundata),stringsAsFactors=FALSE)
-str(x)
-colnames(x) <- c("parm","data")
+x <- data.frame(cbind(parm=rows,data=rundata),stringsAsFactors=FALSE)
+x$data <- round(as.numeric(x$data),2)
+
 return(x)
 }
