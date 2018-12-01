@@ -16,7 +16,7 @@ dflist <- list(mcmc_10_5,mcmc_1_5,perm_0_5,swr_0_5,mcmc_1_10,perm_0_10,swr_0_10,
 
 # longer version
 # Reduce(function(x, y) merge(x, y, all=TRUE or by='whateverby'), list(df1, df2, df3))
-summary_data <- reduce(function(...) merge(...,by='parm'),dflist)
+summary_data <- Reduce(function(...) merge(...,by='parm'),dflist)
 
 
 
