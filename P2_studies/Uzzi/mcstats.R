@@ -47,9 +47,9 @@ x <- data.frame(cbind(parm=rows,data=rundata),stringsAsFactors=FALSE)
 x$data <- round(as.numeric(x$data),2)
 if (rundata[1]==1){
 cname <- 'perm'
-} elseif (rundata[1]==2) {
+} else if (rundata[1]==2) {
 cname <- 'swr'
-} elseif (rundata[1]==3) {
+} else if (rundata[1]==3) {
 cname <- 'mcmc_1S'
 } else {
 cname <- 'mcmc_10S'
