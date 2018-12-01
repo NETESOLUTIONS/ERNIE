@@ -12,19 +12,12 @@ swr_0_10 <- ucomparison('zscores1980_swr_10.csv',10,0,1,2)
 perm_0_100 <- ucomparison('zscores1980_permute_100.csv',100,0,1,1) 
 swr_0_100 <- ucomparison('zscores1980_swr_100.csv',100,0,1,2) 
 
-x <- inner_join(mcmc_10_5,mcmc_1_5,by='parm')
-colnames(x) <- c('parm','mcmc_10_5','mcmc_1_5')
-y <- inner_join(swr_0_5,perm_0_5,by='parm')
-colnames(y) <- c('parm','swr_0_5','perm_0_5')
-z <- inner_join(x,y,by='parm')
+dflist <- list(mcmc_10_5,mcmc_1_5,perm_0_5,swr_0_5,mcmc_1_10,perm_0_10,swr_0_10,perm_0_100,swr_0_100)
 
-x <- inner_join(mcmc_1_10,swr_0_10,by='parm')
-colnames(x) <- c('parm','mcmc_1_10','swr_0_10')
-x <-  inner_join(x,perm_0_10,by='parm')
-colnames(x) <- c('parm','mcmc_1_10','swr_0_10','perm_0_10')
-z <- inner_join(z,x,by='parm')
+# longer version
+# Reduce(function(x, y) merge(x, y, all=TRUE or by='whateverby'), list(df1, df2, df3))
+summary_data <- reduce(function(...) merge(...,by='parm'),dflist)
 
-x <- inner_join(swr_0_100,perm_0_100,by='parm')
-colnames(x) <- c('parm','swr_0_100','perm_0_100')
-summary_data <- inner_join(z,x,by='parm')
+
+
 
