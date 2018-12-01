@@ -13,8 +13,8 @@ rows <- c("method","reps","shuffles","runtime (min)",
 "max_zscore","mean_zscore","10th p'cntile zscore","median_zscore",
 "Q1","Q3")	
 
-rundata <- numeric()
 
+rundata <- numeric()
 rundata[1] <- method
 rundata[2] <- reps
 rundata[3] <- shuffles
@@ -45,6 +45,16 @@ rundata[18] <-quantile(df3$z_score,0.75)
 
 x <- data.frame(cbind(parm=rows,data=rundata),stringsAsFactors=FALSE)
 x$data <- round(as.numeric(x$data),2)
+if (rundata[1]==1){
+cname <- 'perm'
+} elseif (rundata[1]==2) {
+cname <- 'swr'
+} elseif (rundata[1]==3) {
+cname <- 'mcmc_1S'
+} else {
+cname <- 'mcmc_10S'
+}
 
+colnames(x) <- c('parm', paste(cname,'_',rundata[3],'_',rundata[2],sep=''))
 return(x)
 }
