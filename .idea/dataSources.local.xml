@@ -8,7 +8,7 @@
       <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
       <secret-storage>master_key</secret-storage>
       <user-name>dk</user-name>
-      <introspection-schemas>ernie:chackoge,information_schema,pg_catalog,public|orpheus_scratchpad:</introspection-schemas>
+      <introspection-schemas>ernie:chackoge,dk,information_schema,pg_catalog,public|orpheus_scratchpad:</introspection-schemas>
     </data-source>
   </component>
 </project>
