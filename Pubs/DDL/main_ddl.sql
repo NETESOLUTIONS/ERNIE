@@ -309,6 +309,10 @@ CREATE TABLE wos_references (
   last_updated_time  TIMESTAMP DEFAULT now(),
   CONSTRAINT wos_references_pk PRIMARY KEY (source_id, cited_source_uid) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE wos_references;
+
+CREATE INDEX wr_cited_source_uid_i
+  ON wos_references (cited_source_uid) TABLESPACE index_tbs;
+
 COMMENT ON TABLE wos_references
 IS 'Thomson Reuters: WoS - WoS cited references';
 COMMENT ON COLUMN wos_references.wos_reference_id
