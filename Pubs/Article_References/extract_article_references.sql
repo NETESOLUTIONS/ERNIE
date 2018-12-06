@@ -16,6 +16,7 @@ JOIN wos_publications reference_wp ON reference_wp.source_id = wr.cited_source_u
 WHERE article_wp.publication_year = '1985' AND article_wp.document_type = 'Article';
 
 -- Step 2
+-- noinspection SqlWithoutWhere
 UPDATE wos_article_references_1985 war
 SET cit_count = (
   SELECT count(1)
