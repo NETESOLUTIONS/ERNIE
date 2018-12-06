@@ -64,9 +64,10 @@ for file in $(grep -Fxvf "${work_dir}/finished_filelist.txt" "${work_dir}/comple
   echo "***Preparing parsing and loading script for files from: ${file}"
   # Reduce amount of logging
   set +x
-  ls *.xml | grep -w xml | parallel --halt soon,fail=1 "echo 'Job @ slot {%} for {}'
-    /anaconda2/bin/python ${absolute_script_dir}/derwent_xml_update_parser_parallel.py -filename {} -csv_dir ${xml_dir}/
-    bash -e {.}/{.}_load.sh"
+  #~ Use set -e in compound commands to stop on the first error
+  ls | grep -E '\.xml$' | parallel --halt soon,fail=1 --line-buffer --tagstring '|job#{#} s#{%}|' "set -e
+  /anaconda2/bin/python ${absolute_script_dir}/derwent_xml_parser.py -filename {} -csv_dir ${xml_dir}/
+  bash -e {.}/{.}_load.sh"
   set -x
 
   # Update Derwent tables.
