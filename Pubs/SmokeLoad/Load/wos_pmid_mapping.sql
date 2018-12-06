@@ -5,20 +5,23 @@
 
 DROP TABLE IF EXISTS wos_pmid_mapping;
 
-CREATE TABLE  wos_pmid_mapping (
-wos_id varchar(19), pmid varchar, pmid_int int)
-tablespace wos;
+CREATE TABLE wos_pmid_mapping (
+  wos_id   VARCHAR(19),
+  pmid     VARCHAR,
+  pmid_int INT
+) TABLESPACE wos_tbs;
 
 -- INSERT PATHED FILE REFERENCE FOR SOURCE FILE
-\COPY wos_pmid_mapping (wos_id,pmid) 
+\COPY wos_pmid_mapping (wos_id,pmid)
 FROM '/tmp/wos_pmid.csv' HEADER DELIMITER ',' CSV;
-UPDATE wos_pmid_mapping SET pmid_int=substring(pmid,9)::int;
+UPDATE wos_pmid_mapping
+SET pmid_int = substring(pmid, 9) :: INT;
 
-CREATE INDEX wos_pmid_mapping_wos_id_idx 
-ON wos_pmid_mapping (wos_id,pmid_int) 
-TABLESPACE index_tbs;
-CREATE INDEX wos_pmid_mapping_pmid_idx 
-ON wos_pmid_mapping (pmid_int,wos_id) TABLESPACE index_tbs;
-ALTER TABLE  wos_pmid_mapping owner to ernie_admin;
+CREATE INDEX wos_pmid_mapping_wos_id_idx
+  ON wos_pmid_mapping (wos_id, pmid_int) TABLESPACE index_tbs;
+CREATE INDEX wos_pmid_mapping_pmid_idx
+  ON wos_pmid_mapping (pmid_int, wos_id) TABLESPACE index_tbs;
+ALTER TABLE wos_pmid_mapping
+  OWNER TO ernie_admin;
 
 

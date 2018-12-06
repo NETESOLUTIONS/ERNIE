@@ -10,22 +10,26 @@ import random
 import time
 random.seed(time.time())
 import os
+import sys
 
+
+inputfile_path=sys.argv[1]
+outputfile_path=sys.argv[2]
 #file_yr = str(2004)
-file_yr = input("Enter file name: ")
-print("you entered ", file_yr)
-#file_yr='gc_mc_1980_1990'
+#file_yr = input("Enter file name: ")
+#print("you entered ", file_yr)
+file_yr='data1980'
 
 #runs = 10
-runs = input("Enter # of trials: ")
-print("you entered ", runs)
-#runs=10
+#runs = input("Enter # of trials: ")
+#print("you entered ", runs)
+runs=10
 
 #iterations = 10
-iterations = input("Enter # of iterations, eg 2*log10(counter): ")
-print("you entered ", iterations)
-iterations = int(iterations)
-#iterations = 10
+#iterations = input("Enter # of iterations, eg 2*log10(counter): ")
+#print("you entered ", iterations)
+#iterations = int(iterations)
+iterations = 10
 
 #define a useful data structure
 class Dlist(dict):
@@ -131,7 +135,7 @@ def permutate (d, r, f):
 #runs = 10
 for run in range(1,int(runs)+1):
 #    fh = open('/dir/' + file_yr + '.txt','r')### This reads the bibliography data
-    fh = open('Uzzi_data/'+file_yr + '.csv','r')
+    fh = open(inputfile_path + file_yr + '.csv','r')
     counter=0
     d = Dset ( dict ) #year-r9s lookup
     r = Dlist ( dict ) #r9-year-t9s lookup lookup
@@ -141,9 +145,9 @@ for run in range(1,int(runs)+1):
         v = line.strip().split(',')
         if counter >= 0:
             #create year lookup dictionary
-            d[v[5]].add(v[6])
-            r[v[6]]['y']=v[5]
-            r[v[6]]['T9s'].append(v[2])
+            d[v[5]].add(v[4])
+            r[v[4]]['y']=v[5]
+            r[v[4]]['T9s'].append(v[0])
             
             
             #d[v[2]].add(v[1])
@@ -151,7 +155,7 @@ for run in range(1,int(runs)+1):
             #r[v[1]]['T9s'].append(v[0])
     
             #create data record dictionary, for switching cites
-            f[v[2]].append(v[6])
+            f[v[0]].append(v[4])
             
             #f[v[0]].append(v[1])
 
@@ -170,8 +174,8 @@ for run in range(1,int(runs)+1):
     
     #save results
     print('saving results....')
-    ensure_dir('Uzzi_data/' + str(file_yr) + '/' + str(run) + '.csv')
-    fh2 = open('Uzzi_data/' + str(file_yr) + '/' + str(run) + '.csv','w')
+    ensure_dir(outputfile_path + str(file_yr) + '/' + str(run) + '.csv')
+    fh2 = open(outputfile_path + str(file_yr) + '/' + str(run) + '.csv','w')
     for T9 in f.keys():
         for R9 in f[T9]:
             print('%s,%s,%s' % (T9,R9,r[R9]['y']),file=fh2)
