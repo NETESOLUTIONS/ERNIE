@@ -42,8 +42,11 @@
       <option name="TABLE_DEFAULTS_ALIGN" value="false" />
       <option name="TABLE_NULLABILITIES_ALIGN" value="false" />
       <option name="TABLE_ALTER_INSTRUCTION_WRAP" value="2" />
+      <option name="POST_OPT_WRAP_2" value="false" />
       <option name="ROUTINE_PG_L_QUOTE_WRAP_BEFORE" value="false" />
       <option name="ROUTINE_PG_R_QUOTE_WRAP_BEFORE" value="false" />
+      <option name="IMP_COMMON_WRAP_EVERY_STATEMENT" value="true" />
+      <option name="IMP_COMMON_KEEP_BLANK_LINES_IN_CODE" value="1" />
       <option name="IMP_DECLARE_EL_WRAP" value="3" />
       <option name="IMP_DECLARE_ALIGN_TYPE" value="false" />
       <option name="IMP_DECLARE_ALIGN_EQ" value="false" />
