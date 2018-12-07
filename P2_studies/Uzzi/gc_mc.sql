@@ -9,8 +9,7 @@ DROP TABLE IF EXISTS gc_mc1;
 CREATE TABLE gc_mc1 AS
 SELECT source_id, publication_year AS source_year 
 FROM wos_publications
-WHERE publication_year::int > 1980
-AND publication_year::int   <= 1990
+WHERE publication_year::int = 1980
 AND document_type='Article'; 
 CREATE INDEX gc_mc1_idx ON gc_mc1(source_id);
 
