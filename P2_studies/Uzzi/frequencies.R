@@ -7,7 +7,8 @@ system.time({
 	t <- fread('dataset1980_dec2018.csv')
 	# subset to columns of interest
 	t1 <- t[, .(cited_source_uid, reference_year)]
-	setkey(t1, cited_source_uid)
+	# commented out because setkey interferes with unique
+	# setkey(t1, cited_source_uid)
 	# calculate frequencies of individual references
 	t1[, `:=`(f, .N), by = c('cited_source_uid')]
 	# suppress duplicate rows to avoid inflating counts by reference year
