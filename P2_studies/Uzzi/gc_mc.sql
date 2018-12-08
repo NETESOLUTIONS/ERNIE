@@ -69,4 +69,6 @@ SELECT * from gc_mc
 -- cleans out references published after pub_year (this is by convention)
 WHERE reference_year::int <= 1980;
 
+\copy (select * from dataset1980) TO '/erniedev_data10/P2_studies/data_slices/dataset1980.csv' CSV HEADER DELIMITER ',';
+
 SELECT NOW();
