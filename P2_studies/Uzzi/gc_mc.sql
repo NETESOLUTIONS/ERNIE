@@ -61,4 +61,12 @@ CREATE TABLE gc_mc AS
 SELECT DISTINCT * from gc_mc5;
 CREATE INDEX gc_mc_idx ON gc_mc(source_id,cited_source_uid,source_issn,reference_issn);
 
+DROP TABLE IF EXISTS dataset1980;
+CREATE TABLE dataset1980 AS
+SELECT * FROM  gc_mc 
+WHERE  reference_year::int <= 1980;
+
+ALTER TABLE dataset1980 SET SCHEMA public;
+
 SELECT NOW();
+
