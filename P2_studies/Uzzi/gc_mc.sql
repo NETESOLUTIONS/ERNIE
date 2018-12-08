@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS gc_mc1;
 CREATE TABLE gc_mc1 AS
 SELECT source_id, publication_year AS source_year 
 FROM wos_publications
-WHERE publication_year::int = 1980
+WHERE publication_year::int = 1985
 AND document_type='Article'; 
 CREATE INDEX gc_mc1_idx ON gc_mc1(source_id);
 
@@ -62,11 +62,19 @@ SELECT DISTINCT * from gc_mc5;
 CREATE INDEX gc_mc_idx ON gc_mc(source_id,cited_source_uid,source_issn,reference_issn);
 
 DROP TABLE IF EXISTS dataset1980;
-CREATE TABLE dataset1980 AS
+CREATE TABLE dataset1985 TABLESPACE p2_studies AS
 SELECT * FROM  gc_mc 
-WHERE  reference_year::int <= 1980;
+WHERE  reference_year::int <= 1985;
 
-ALTER TABLE dataset1980 SET SCHEMA public;
+ALTER TABLE dataset1985 SET SCHEMA public;
+DROP TABLE gc_mc1;
+DROP TABLE gc_mc2;
+DROP TABLE gc_mc3;
+DROP TABLE gc_mc4;
+DROP TABLE gc_mc5;
+DROP TABLE gc_mc;
 
 SELECT NOW();
+
+
 
