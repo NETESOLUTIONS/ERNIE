@@ -1,10 +1,8 @@
 # script to calculate probs for references
-system.time({
-
 	rm(list = ls())
 	library(data.table)
 	# read in data
-	t <- fread('dataset1980_dec2018.csv')
+	t <- fread(x)
 	# subset to columns of interest
 	t1 <- t[, .(cited_source_uid, reference_year)]
 	setkey(t1, cited_source_uid)
@@ -17,5 +15,7 @@ system.time({
 	# calculate probs for references
 	t1[, `:=`(p, f/F)]
 	t1 <- unique(t1)
-})
+	assign(paste0('dataset',y),get('t1'))
+
+
 
