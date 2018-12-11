@@ -14,7 +14,7 @@ CREATE TABLE dblp_publications (
   publication_year   VARCHAR(4) ,
   publisher_address  VARCHAR(300),
   publisher_name     VARCHAR(200),
-  source_id          VARCHAR(30) PRIMARY KEY USING INDEX TABLESPACE index_tbs, 
+  source_id          VARCHAR(100) PRIMARY KEY USING INDEX TABLESPACE index_tbs, 
   source_title       VARCHAR(300),
   source_type        VARCHAR(20) NOT NULL, 
   volume             VARCHAR(20),
@@ -73,7 +73,7 @@ IS ' Example: 202';
 
 CREATE TABLE dblp_document_identifiers (
   id                SERIAL,
-  source_id         VARCHAR(30)  NOT NULL DEFAULT '',
+  source_id         VARCHAR(100)  NOT NULL DEFAULT '',
   document_id       VARCHAR(200) NOT NULL DEFAULT '',
   document_id_type  VARCHAR(30)  NOT NULL DEFAULT '',
   last_updated_time TIMESTAMP             DEFAULT current_timestamp,
@@ -100,7 +100,7 @@ IS 'url/ee/isbn/crossref etc.. Example: url';
 
 CREATE TABLE dblp_authors (
   id                SERIAL,
-  source_id         VARCHAR(30) NOT NULL DEFAULT '',
+  source_id         VARCHAR(100) NOT NULL DEFAULT '',
   full_name         VARCHAR(200),
   last_name         VARCHAR(200),
   first_name        VARCHAR(200),
@@ -114,8 +114,8 @@ CREATE TABLE dblp_authors (
 
 CREATE TABLE dblp_references (
   dblp_reference_id   SERIAL,
-  source_id          VARCHAR(30) NOT NULL,
-  cited_source_id   VARCHAR(30) NOT NULL, 
+  source_id          VARCHAR(100) NOT NULL,
+  cited_source_id   VARCHAR(100) NOT NULL, 
   last_updated_time  TIMESTAMP DEFAULT current_timestamp
 ) TABLESPACE dblp_tbs;
 
