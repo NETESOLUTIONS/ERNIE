@@ -120,10 +120,10 @@ CREATE TABLE dblp_references (
 ) TABLESPACE dblp_tbs;
 
 ALTER TABLE dblp_references
-  ADD CONSTRAINT dblp_references_pk PRIMARY KEY (source_id, cited_source_uid) USING INDEX TABLESPACE index_tbs;
+  ADD CONSTRAINT dblp_references_pk PRIMARY KEY (source_id, cited_source_id) USING INDEX TABLESPACE index_tbs;
 
 CREATE INDEX dblp_cited_source_uid_source_id_i
-  ON dblp_references (cited_source_uid, source_id) TABLESPACE index_tbs;
+  ON dblp_references (cited_source_id, source_id) TABLESPACE index_tbs;
 
 COMMENT ON TABLE dblp_references
 IS 'DBLP data cited references';
@@ -134,5 +134,5 @@ IS 'auto-increment integer, serving as a row key in distributed systems. Example
 COMMENT ON COLUMN dblp_references.source_id
 IS 'Example: journals/toplas/MannaW80';
 
-COMMENT ON COLUMN dblp_references.cited_source_uid
+COMMENT ON COLUMN dblp_references.cited_source_id
 IS 'Example: journals/jacm/Summers77';
