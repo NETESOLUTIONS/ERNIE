@@ -193,7 +193,7 @@ class Parser:
 						new_ref.cited_source_id=cite.text
 
 						curs.execute("INSERT INTO dblp_references(source_id,cited_source_id) VALUES(%s,%s) ON CONFLICT ON CONSTRAINT"\
-							"dblp_references_pk DO UPDATE SET source_id=excluded.source_id,cited_source_id=excluded.cited_source_id,"\
+							" dblp_references_pk DO UPDATE SET source_id=excluded.source_id,cited_source_id=excluded.cited_source_id,"\
 							"last_updated_time=current_timestamp;",(str(new_ref.source_id),str(new_ref.cited_source_id)))
 
 
