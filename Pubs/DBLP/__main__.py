@@ -67,7 +67,7 @@ def main():
 							buffer_REC=''.join([buffer_REC,line])
 
 
-					elif ('<article' in line) or ('<proceedings' in line) o00r ('<inproceedings' in line) or ('<book ' in line) or ('<incollection' in line) or ('<phdthesis' in line) or ('<www' in line) or ('<mastersthesis' in line) or ('<data' in line) or ('<person' in line):
+					elif ('<article' in line) or ('<proceedings' in line) or ('<inproceedings' in line) or ('<book ' in line) or ('<incollection' in line) or ('<phdthesis' in line) or ('<www' in line) or ('<mastersthesis' in line) or ('<data' in line) or ('<person' in line):
 						#print(line)
 						buffer_REC=init_buffer_REC
 						buffer_REC=''.join([buffer_REC,line])
