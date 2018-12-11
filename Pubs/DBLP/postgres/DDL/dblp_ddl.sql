@@ -74,7 +74,7 @@ IS ' Example: 202';
 CREATE TABLE dblp_document_identifiers (
   id                SERIAL,
   source_id         VARCHAR(100)  NOT NULL DEFAULT '',
-  document_id       VARCHAR(200) NOT NULL DEFAULT '',
+  document_id       VARCHAR(300) NOT NULL DEFAULT '',
   document_id_type  VARCHAR(30)  NOT NULL DEFAULT '',
   last_updated_time TIMESTAMP             DEFAULT current_timestamp,
   CONSTRAINT dblp_document_identifiers_pk PRIMARY KEY (source_id, document_id_type, document_id)
