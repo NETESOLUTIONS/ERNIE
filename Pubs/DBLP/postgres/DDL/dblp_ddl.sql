@@ -10,7 +10,7 @@ CREATE TABLE dblp_publications (
   document_type      VARCHAR(50),
   end_page           VARCHAR(30),
   id                 SERIAL      NOT NULL,
-  issue              VARCHAR(10),		  
+  issue              VARCHAR(20),		  
   publication_year   VARCHAR(4) ,
   publisher_address  VARCHAR(300),
   publisher_name     VARCHAR(200),
