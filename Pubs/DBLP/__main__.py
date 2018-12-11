@@ -73,6 +73,9 @@ def main():
 
 					else:
 						buffer_REC=''.join([buffer_REC,line])
+
+				if conn is not None:
+					commit(conn,status,recordNo)
 				
 	conn.close()
 	
