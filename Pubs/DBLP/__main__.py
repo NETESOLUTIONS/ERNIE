@@ -52,7 +52,7 @@ def main():
 							buffer_REC=''.join([buffer_REC,'</dblp>'])
 							#print(buffer_REC)
 							
-							if recordNo > 1273000:
+							if recordNo > 2383000:
 								r_parser=parser.Parser()
 								r_parser.parse(buffer_REC,input_filename,curs)
 								status+=1
