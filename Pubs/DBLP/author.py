@@ -16,3 +16,4 @@ class author:
 		self.first_name=''
 		self.seq_no=''
 		self.editor_name=''
+		self.orc_id=''

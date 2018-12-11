@@ -45,7 +45,10 @@ class Parser:
 				author_fields=REC.findall('author')
 				if author_fields is not None:
 					for auth in author_fields:
-						author_names.append(auth.text)
+							if 'orcid' in auth.attrib:
+								author_names.append((auth.text,auth.attrib.get('orcid'))
+							else:
+								author_names.append((auth.text,None))
 					
 				pages=REC.find('pages')
 				if pages is not None:
@@ -168,18 +171,20 @@ class Parser:
 				seq_no=0	
 
 				for name in author_names:
-					new_auth.first_name=' '.join(name.split()[:-1])
-					new_auth.last_name=name.split()[-1]
-					new_auth.full_name=name
+					new_auth.first_name=' '.join(name[0].split()[:-1])
+					new_auth.last_name=name[0].split()[-1]
+					new_auth.full_name=name[0]
 					new_auth.source_id=new_pub.source_id
 					new_auth.seq_no=seq_no
+					if name[1] is not None:
+						new_auth.orc_id=name[1]
 
 
-					curs.execute("INSERT INTO dblp_authors(source_id,full_name,last_name,first_name,seq_no,editor_name)"\
-						"VALUES(%s,%s,%s,%s,%s,%s) ON CONFLICT (source_id,seq_no) DO UPDATE SET source_id=excluded.source_id,"\
+					curs.execute("INSERT INTO dblp_authors(source_id,full_name,last_name,first_name,seq_no,orc_id,editor_name)"\
+						"VALUES(%s,%s,%s,%s,%s,%s,%s) ON CONFLICT (source_id,seq_no) DO UPDATE SET source_id=excluded.source_id,"\
 						"full_name=excluded.full_name,last_name=excluded.last_name,first_name=excluded.first_name,seq_no=excluded.seq_no,"\
-						"editor_name=excluded.editor_name,last_updated_time=current_timestamp;",(str(new_auth.source_id),str(new_auth.full_name),str(new_auth.last_name),
-							str(new_auth.first_name),str(new_auth.seq_no),str(new_auth.editor_name)))
+						"orc_id=excluded.orc_id,editor_name=excluded.editor_name,last_updated_time=current_timestamp;",(str(new_auth.source_id),str(new_auth.full_name),str(new_auth.last_name),
+							str(new_auth.first_name),str(new_auth.seq_no),str(new_auth.orc_id),str(new_auth.editor_name)))
 
 					seq_no+=1
 			except Exception:
