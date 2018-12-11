@@ -4,11 +4,11 @@
 -- SET default_tablespace = dblp_tbs;
 
 CREATE TABLE dblp_publications (
-  begin_page         VARCHAR(30),
+  begin_page         VARCHAR(50),
   modified_date 	   DATE,
   document_title     VARCHAR(2000),
   document_type      VARCHAR(50),
-  end_page           VARCHAR(30),
+  end_page           VARCHAR(50),
   id                 SERIAL      NOT NULL,
   issue              VARCHAR(50),		  
   publication_year   VARCHAR(4) ,
