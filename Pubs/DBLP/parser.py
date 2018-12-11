@@ -46,7 +46,7 @@ class Parser:
 				if author_fields is not None:
 					for auth in author_fields:
 							if 'orcid' in auth.attrib:
-								author_names.append((auth.text,auth.attrib.get('orcid'))
+								author_names.append((auth.text,auth.attrib.get('orcid')))
 							else:
 								author_names.append((auth.text,None))
 					
