@@ -105,6 +105,7 @@ CREATE TABLE dblp_authors (
   last_name         VARCHAR(200),
   first_name        VARCHAR(200),
   seq_no            INTEGER     NOT NULL DEFAULT 0,
+  orc_id            VARCHAR(30),
   editor_name 		VARCHAR(200),
   last_updated_time TIMESTAMP            DEFAULT current_timestamp,
   CONSTRAINT dblp_authors_pk PRIMARY KEY (source_id, seq_no)
