@@ -52,12 +52,13 @@ def main():
 							buffer_REC=''.join([buffer_REC,'</dblp>'])
 							#print(buffer_REC)
 							
-							r_parser=parser.Parser()
-							r_parser.parse(buffer_REC,input_filename,curs)
-							status+=1
-							if status%ncommit==0:
-								commit(conn,status,recordNo)
-								status=0
+							if recordNo > 1273000:
+								r_parser=parser.Parser()
+								r_parser.parse(buffer_REC,input_filename,curs)
+								status+=1
+								if status%ncommit==0:
+									commit(conn,status,recordNo)
+									status=0
 							if len(separate_records) > 1:
 								buffer_REC=init_buffer_REC
 								buffer_REC=''.join([buffer_REC,separate_records[1]+'>'])
@@ -66,7 +67,7 @@ def main():
 							buffer_REC=''.join([buffer_REC,line])
 
 
-					elif ('<article' in line) or ('<proceedings' in line) or ('<inproceedings' in line) or ('<book ' in line) or ('<incollection' in line) or ('<phdthesis' in line) or ('<www' in line) or ('<mastersthesis' in line) or ('<data' in line) or ('<person' in line):
+					elif ('<article' in line) or ('<proceedings' in line) o00r ('<inproceedings' in line) or ('<book ' in line) or ('<incollection' in line) or ('<phdthesis' in line) or ('<www' in line) or ('<mastersthesis' in line) or ('<data' in line) or ('<person' in line):
 						#print(line)
 						buffer_REC=init_buffer_REC
 						buffer_REC=''.join([buffer_REC,line])
