@@ -10,14 +10,14 @@ CREATE TABLE dblp_publications (
   document_type      VARCHAR(50),
   end_page           VARCHAR(30),
   id                 SERIAL      NOT NULL,
-  issue              VARCHAR(20),		  
+  issue              VARCHAR(30),		  
   publication_year   VARCHAR(4) ,
   publisher_address  VARCHAR(300),
   publisher_name     VARCHAR(200),
   source_id          VARCHAR(100) PRIMARY KEY USING INDEX TABLESPACE index_tbs, 
   source_title       VARCHAR(300),
   source_type        VARCHAR(20) NOT NULL, 
-  volume             VARCHAR(20),
+  volume             VARCHAR(30),
   last_updated_time  TIMESTAMP DEFAULT current_timestamp
 ) TABLESPACE dblp_tbs;
 
