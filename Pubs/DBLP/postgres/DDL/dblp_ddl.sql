@@ -17,7 +17,7 @@ CREATE TABLE dblp_publications (
   source_id          VARCHAR(100) PRIMARY KEY USING INDEX TABLESPACE index_tbs, 
   source_title       VARCHAR(300),
   source_type        VARCHAR(20) NOT NULL, 
-  volume             VARCHAR(30),
+  volume             VARCHAR(50),
   last_updated_time  TIMESTAMP DEFAULT current_timestamp
 ) TABLESPACE dblp_tbs;
 
