@@ -59,7 +59,8 @@ class Parser:
 					new_pub.begin_page=pages.text.split('-')[0]
 
 			title=REC.find('title')
-			new_pub.document_title=title.text
+			if title is not None:
+				new_pub.document_title=title.text
 
 			issue_no=REC.find('number')
 			if issue_no is not None:
