@@ -21,7 +21,7 @@ class Parser:
 	def parse(self,xml_string,input_file_name,curs):
 		
 		
-		parser_dtd=etree.XMLParser(encoding='ISO-8859-1',dtd_validation=True,load_dtd=True,remove_comments=True)
+		parser_dtd=etree.XMLParser(encoding='ISO-8859-1',dtd_validation=True,load_dtd=True,remove_comments=True,recover=True)
 		root = etree.fromstring(xml_string.encode('ISO-8859-1'),parser_dtd)
 		#print(type(root)) 
 		for REC in root:
