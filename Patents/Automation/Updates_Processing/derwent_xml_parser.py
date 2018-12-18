@@ -15,12 +15,14 @@
 # Author: Shixin Jiang, Lingtian "Lindsay" Wan
 # Create Date: 02/14/2016
 # Modified: 05/19/2016, Lindsay Wan, added documentation
-#           08/18/2016, VJ Davey, added parallelized shell script output
+#           08/18/2017, VJ Davey, added parallelized shell script output
+#           06/01/2018, VJ Davey, implemented new function to clean XML prior to parsing
 
 import re
 import csv
 import exceptions
 import time
+import os
 import os.path
 import datetime
 import string
@@ -28,6 +30,20 @@ import sys
 import multiprocessing as mp
 
 from lxml import etree
+
+def clean_xml(input_file):
+    os.rename(input_file, input_file+".bak"); output_file=input_file; input_file=input_file+".bak"
+    tsxm_tags=[
+    "<tsxm:b[^>]*>", "<tsxm:i[^>]*>", "<tsxm:p[^>]*>",
+    "<tsxm:heading[^>]*>", "<tsxm:sub[^>]*>", "<tsxm:sup[^>]*>",
+    "<xhtml:i[^>]*>"
+    ]
+    tags_list = "|".join(tsxm_tags + ["%s/%s"%(i[0],i[1:]) for i in tsxm_tags])
+    with open(input_file,"r") as dirty:
+        with open(output_file,"wb") as clean:
+            for line in dirty:
+                clean.write(re.sub(tags_list,"",line))
+    return output_file
 
 # Check if the file name is provided, otherwise the program will stop.
 #in_arr  = ["-filename", "formatted_new_dwpi.xml", "-csv_dir", "./"]
@@ -60,12 +76,6 @@ _non_alphanum_re = re.compile(r'[^\w\s]+')
 url='{http://schemas.thomson.com/ts/20041221/tsip}'
 urltsxm ='{http://schemas.thomson.com/ts/20041221/tsxm}'
 
-# Give list of pre and after-2001 patent types.
-before_2001 = ['A','A1','P','P1','S','S1','E','E1']
-onafter_2001 = ['B1','B2','P2','P3','S','S1','E','E1']
-
-root = etree.parse(input_filename).getroot()
-
 # Create CSV files
 csvfile_patent = open(xml_csv_dir+input_filename[:-4]+'_patents.csv', 'w')
 csvfile_examiner = open(xml_csv_dir+input_filename[:-4]+'_examiners.csv', 'w')
@@ -75,7 +85,7 @@ csvfile_assignor = open(xml_csv_dir+input_filename[:-4]+'_assignors.csv', 'w')
 csvfile_citation = open(xml_csv_dir+input_filename[:-4]+'_pat_citations.csv', 'w')
 csvfile_litcitation = open(xml_csv_dir+input_filename[:-4]+'_lit_citations.csv', 'w')
 csvfile_agent = open(xml_csv_dir+input_filename[:-4]+'_agents.csv', 'w')
-
+shell_load = open(xml_csv_dir+input_filename[:-4]+'_load.sh', 'w')
 
 writer_patent = csv.writer(csvfile_patent)
 writer_examiner = csv.writer(csvfile_examiner)
@@ -86,9 +96,11 @@ writer_citation = csv.writer(csvfile_citation)
 writer_litcitation = csv.writer(csvfile_litcitation)
 writer_agent = csv.writer(csvfile_agent)
 
-#To check no duplicates enter csvfile_litcitation and csvfile_citataion
-litCitation_Values=[]
-patCitation_Values=[]
+# Give list of pre and after-2001 patent types.
+before_2001 = ['A','A1','P','P1','S','S1','E','E1']
+onafter_2001 = ['B1','B2','P2','P3','S','S1','E','E1']
+input_filename = clean_xml(input_filename)
+root = etree.parse(input_filename).getroot()
 
 #start to parse XML file by REC (a full record schema in DERWENT XML file)
 for tsip in root.findall('.//'+url+'tsip'):
@@ -360,16 +372,13 @@ for tsip in root.findall('.//'+url+'tsip'):
             r_assignee['id'] = r_assignee_seq
             r_assignee['assignee_name']= '\'\''
             r_assignee['city'] = '\'\''
-        r_assignee['state'] = ''
+            r_assignee['state'] = ''
             r_assignee['country'] = ''
-        r_assignee['role']='\'\''
             assignee_name = assignee.find('.//'+url+'nameTotal')
             if assignee_name is not None and assignee_name.text is not None:
                 r_assignee['assignee_name'] = assignee_name.text.\
                                               encode('utf-8')
-            role=assignee.get(url+'appType')
-        if role is not None:
-             r_assignee['role'] = role.encode('utf-8')
+            r_assignee['role'] = assignee.get(url+'appType')
 
             address = assignee.find('.//'+url+'address')
             if address is not None:
@@ -470,10 +479,8 @@ for tsip in root.findall('.//'+url+'tsip'):
                 r_litcitation['lit_cite'] = litcit.text.encode('utf-8')
                 r_litcitation_seq =1
                 r_litcitation['id'] = r_litcitation_seq
-        if r_litcitation['patent_num']+r_litcitation['lit_cite'] not in litCitation_Values:
-            litCitation_Values.append(r_litcitation['patent_num']+r_litcitation['lit_cite'])
-                    writer_litcitation.writerow((r_litcitation['id'],\
-                         r_litcitation['patent_num'],r_litcitation['lit_cite']))
+                writer_litcitation.writerow((r_litcitation['id'],\
+                    r_litcitation['patent_num'],r_litcitation['lit_cite']))
 
     # Parse patent citation data and write it to the csv file
     patentCitations = patent.find('.//'+url+'patentCitations')
@@ -510,7 +517,7 @@ for tsip in root.findall('.//'+url+'tsip'):
                     kind = documentId.find('.//'+url+'kindCode')
                     if kind is not None and kind.text is not None:
                         r_citation['kind'] = kind.text.encode('utf-8')
-                    cited_date = documentId.find('.//'+url+'date')
+                    cited_date = documentId.find('.//'+'date')
                     if cited_date is not None and cited_date.text is not None:
                         r_citation['cited_date'] = cited_date.text.\
                                                    encode('utf-8')
@@ -534,22 +541,21 @@ for tsip in root.findall('.//'+url+'tsip'):
                     subclass = citedUs.find('.//'+url+'subclass')
                     if subclass is not None and subclass.text is not None:
                         r_citation['sub_class'] = subclass.text.encode('utf-8')
-        if r_citation['patent_num']+r_citation['patent_num']+r_citation['country']+r_citation['cited_date'] not in patCitation_Values:
-            patCitation_Values.append(r_citation['patent_num']+r_citation['patent_num']+r_citation['country']+r_citation['cited_date'])
-                        writer_citation.writerow((r_citation['id'],\
-                     r_citation['patent_num'],r_citation['cited_patnum_orig'],\
-                         r_citation['cited_patnum_wila'],\
-                         r_citation['cited_patnum_tsip'],r_citation['country'],\
+
+                writer_citation.writerow((r_citation['id'],\
+                    r_citation['patent_num'],r_citation['cited_patnum_orig'],\
+                    r_citation['cited_patnum_wila'],\
+                    r_citation['cited_patnum_tsip'],r_citation['country'],\
                     r_citation['kind'],r_citation['cited_inventor'],\
                     r_citation['cited_date'],r_citation['main_class'],\
                     r_citation['sub_class']))
 
 # Write parallelized shell/sql code for uploading CSV to PostgreSQL
-shell_load = open(xml_csv_dir+input_filename[:-4]+'_load.sh', 'w') ; cpu_count = mp.cpu_count()
+cpu_count = mp.cpu_count()
 tasks = ['patents','inventors','examiners', 'assignees','pat_citations','agents','assignors','lit_citations']
 for i in range(0, len(tasks)):
     csv_file_name = input_filename[:-4]+"_"+tasks[i]+".csv"
-    copy_command = "psql -d ernie -c \"copy new_derwent_"+tasks[i]+" from \'"+xml_csv_dir+csv_file_name+"\' delimiter \',\' CSV;\" &\n"
+    copy_command = "psql -c \"copy new_derwent_"+tasks[i]+" from \'"+xml_csv_dir+csv_file_name+"\' delimiter \',\' CSV;\" &\n"
     y=i+1; copy_command = copy_command+"wait\n" if (y%cpu_count==0)  else copy_command+"wait\n" if (y==len(tasks)) else copy_command
     shell_load.write((copy_command))
 shell_load.close()

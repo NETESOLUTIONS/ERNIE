@@ -43,22 +43,17 @@ CREATE TABLE temp_update_patnum AS
   SELECT patent_num_orig
   FROM new_derwent_patents;
 
--- Create a temp table to store update patent numbers that already exist in
--- derwent tables.
-DROP TABLE IF EXISTS temp_replace_patnum;
-CREATE TABLE temp_replace_patnum AS
-  SELECT a.patent_num_orig
-  FROM temp_update_patnum a INNER JOIN derwent_patents b ON a.patent_num_orig = b.patent_num_orig;
-
 -- region derwent_agents
 \echo ***UPDATING TABLE: derwent_agents
 INSERT INTO uhs_derwent_agents
   SELECT a.*
-  FROM derwent_agents a INNER JOIN temp_update_patnum b ON a.patent_num = b.patent_num_orig;
+  FROM derwent_agents a INNER JOIN temp_update_patnum b
+    ON a.patent_num = b.patent_num_orig;
 
 DELETE FROM derwent_agents
-WHERE patent_num IN (SELECT *
-FROM temp_replace_patnum);
+WHERE patent_num IN (
+  SELECT *
+  FROM temp_update_patnum);
 
 --@formatter:off
 -- De-duplicate new_derwent_agents
@@ -71,19 +66,31 @@ WHERE EXISTS(SELECT 1
                AND t2.ctid > t1.ctid);
 --@formatter:on
 
-INSERT INTO derwent_agents
-  SELECT *
-  FROM new_derwent_agents;
+INSERT INTO derwent_agents (patent_num, rep_type, last_name, first_name, organization_name, country)
+  SELECT
+    patent_num,
+    rep_type,
+    last_name,
+    first_name,
+    organization_name,
+    country
+  FROM new_derwent_agents
+ON CONFLICT (patent_num, organization_name)
+  DO UPDATE SET rep_type = excluded.rep_type, last_name = excluded.last_name,
+    first_name = excluded.first_name, country = excluded.country;
 -- endregion
 
 -- region derwent_assignees
 \echo ***UPDATING TABLE: derwent_assignees
 INSERT INTO uhs_derwent_assignees
   SELECT a.*
-  FROM derwent_assignees a INNER JOIN temp_update_patnum b ON a.patent_num = b.patent_num_orig;
+  FROM derwent_assignees a INNER JOIN temp_update_patnum b
+    ON a.patent_num = b.patent_num_orig;
+
 DELETE FROM derwent_assignees
-WHERE patent_num IN (SELECT *
-FROM temp_replace_patnum);
+WHERE patent_num IN (
+  SELECT *
+  FROM temp_update_patnum);
 
 --@formatter:off
 -- De-duplicate new_derwent_assignees
@@ -100,32 +107,51 @@ WHERE EXISTS(SELECT 1
                AND t2.ctid > t1.ctid);
 --@formatter:on
 
-INSERT INTO derwent_assignees
-  SELECT *
-  FROM new_derwent_assignees;
+INSERT INTO derwent_assignees (patent_num, assignee_name, role, city, state, country)
+  SELECT
+    coalesce(patent_num,''),
+    coalesce(assignee_name,''),
+    coalesce(role, ''),
+    coalesce(city, ''),
+    state,
+    country
+  FROM new_derwent_assignees --
+  -- Filter out junk assignees
+  WHERE assignee_name IS NOT NULL
+ON CONFLICT (patent_num, assignee_name, role, city)
+  DO UPDATE SET state = excluded.state, country = excluded.country;
 -- endregion
 
--- Update table: derwent_assignors
-\echo ***UPDATING TABLE: derwent_assignors
+-- region derwent_assignors
 INSERT INTO uhs_derwent_assignors
   SELECT a.*
-  FROM derwent_assignors a INNER JOIN temp_update_patnum b ON a.patent_num = b.patent_num_orig;
+  FROM derwent_assignors a INNER JOIN temp_update_patnum b
+    ON a.patent_num = b.patent_num_orig;
+
 DELETE FROM derwent_assignors
-WHERE patent_num IN (SELECT *
-FROM temp_replace_patnum);
-INSERT INTO derwent_assignors
+WHERE patent_num IN (
   SELECT *
-  FROM new_derwent_assignors;
+  FROM temp_update_patnum);
+
+INSERT INTO derwent_assignors (patent_num, assignor)
+  SELECT
+    patent_num,
+    assignor
+  FROM new_derwent_assignors
+ON CONFLICT DO NOTHING; -- Nothing to update
+-- endregion
 
 -- region derwent_examiners
 \echo ***UPDATING TABLE: derwent_examiners
 INSERT INTO uhs_derwent_examiners
   SELECT a.*
-  FROM derwent_examiners a INNER JOIN temp_update_patnum b ON a.patent_num = b.patent_num_orig;
+  FROM derwent_examiners a INNER JOIN temp_update_patnum b
+    ON a.patent_num = b.patent_num_orig;
 
 DELETE FROM derwent_examiners
-WHERE patent_num IN (SELECT *
-FROM temp_replace_patnum);
+WHERE patent_num IN (
+  SELECT *
+  FROM temp_update_patnum);
 
 --@formatter:off
 -- De-duplicate new_derwent_examiners
@@ -147,11 +173,13 @@ INSERT INTO derwent_examiners
 \echo ***UPDATING TABLE: derwent_inventors
 INSERT INTO uhs_derwent_inventors
   SELECT a.*
-  FROM derwent_inventors a INNER JOIN temp_update_patnum b ON a.patent_num = b.patent_num_orig;
+  FROM derwent_inventors a INNER JOIN temp_update_patnum b
+    ON a.patent_num = b.patent_num_orig;
 
 DELETE FROM derwent_inventors
-WHERE patent_num IN (SELECT *
-FROM temp_replace_patnum);
+WHERE patent_num IN (
+  SELECT *
+  FROM temp_update_patnum);
 
 --@formatter:off
 -- De-duplicate new_derwent_inventors
@@ -173,11 +201,13 @@ INSERT INTO derwent_inventors
 \echo ***UPDATING TABLE: derwent_lit_citations
 INSERT INTO uhs_derwent_lit_citations
   SELECT a.*
-  FROM derwent_lit_citations a INNER JOIN temp_update_patnum b ON a.patent_num_orig = b.patent_num_orig;
+  FROM derwent_lit_citations a INNER JOIN temp_update_patnum b
+    ON a.patent_num_orig = b.patent_num_orig;
 
 DELETE FROM derwent_lit_citations
-WHERE patent_num_orig IN (SELECT *
-FROM temp_replace_patnum);
+WHERE patent_num_orig IN (
+  SELECT *
+  FROM temp_update_patnum);
 
 --@formatter:off
 -- De-duplicate new_derwent_lit_citations
@@ -199,11 +229,13 @@ INSERT INTO derwent_lit_citations
 \echo ***UPDATING TABLE: derwent_pat_citations
 INSERT INTO uhs_derwent_pat_citations
   SELECT a.*
-  FROM derwent_pat_citations a INNER JOIN temp_update_patnum b ON a.patent_num_orig = b.patent_num_orig;
+  FROM derwent_pat_citations a INNER JOIN temp_update_patnum b
+    ON a.patent_num_orig = b.patent_num_orig;
 
 DELETE FROM derwent_pat_citations
-WHERE patent_num_orig IN (SELECT *
-FROM temp_replace_patnum);
+WHERE patent_num_orig IN (
+  SELECT *
+  FROM temp_update_patnum);
 
 --@formatter:off
 -- De-duplicate new_derwent_pat_citations
@@ -226,11 +258,13 @@ INSERT INTO derwent_pat_citations
 \echo ***UPDATING TABLE:
 INSERT INTO uhs_derwent_patents
   SELECT a.*
-  FROM derwent_patents a INNER JOIN temp_update_patnum b ON a.patent_num_orig = b.patent_num_orig;
+  FROM derwent_patents a INNER JOIN temp_update_patnum b
+    ON a.patent_num_orig = b.patent_num_orig;
 
 DELETE FROM derwent_patents
-WHERE patent_num_orig IN (SELECT *
-FROM temp_replace_patnum);
+WHERE patent_num_orig IN (
+  SELECT *
+  FROM temp_update_patnum);
 
 --@formatter:off
 -- De-duplicate new_derwent_patents
@@ -242,9 +276,17 @@ WHERE EXISTS(SELECT 1
                AND t2.patent_type = t1.patent_type
                AND t2.ctid > t1.ctid);
 --@formatter:on
-
-INSERT INTO derwent_patents
-  SELECT *
+-- Insert new data into derwent_patents, be mindful that patent_id will correspond to patent_num_tsip (duplicate columns for now)
+INSERT INTO derwent_patents(id,patent_num_orig,patent_num_wila,patent_num_tsip,
+  patent_type,status,file_name,country,date_published,appl_num_orig,appl_num_wila,
+  appl_num_tsip,appl_date,appl_year,appl_type,appl_country,appl_series_code,ipc_classification,
+  main_classification,sub_classification,invention_title,claim_text,government_support,
+  summary_of_invention,parent_patent_num_orig,patent_id)
+  SELECT id,patent_num_orig,patent_num_wila,patent_num_tsip,
+    patent_type,status,file_name,country,date_published,appl_num_orig,appl_num_wila,
+    appl_num_tsip,appl_date,appl_year,appl_type,appl_country,appl_series_code,ipc_classification,
+    main_classification,sub_classification,invention_title,claim_text,government_support,
+    summary_of_invention,parent_patent_num_orig,patent_num_tsip
   FROM new_derwent_patents;
 -- endregion
 
@@ -260,9 +302,14 @@ TRUNCATE TABLE new_derwent_pat_citations;
 TRUNCATE TABLE new_derwent_patents;
 
 -- region Update log file
-INSERT INTO update_log_derwent (last_updated, num_update, num_new, num_derwent)
-VALUES(current_timestamp, --
-      (SELECT count(1) FROM temp_replace_patnum),
-      (SELECT count(1) FROM temp_update_patnum) - (SELECT count(1) FROM temp_replace_patnum),
-      (SELECT count(1) FROM derwent_patents));
+INSERT INTO update_log_derwent (last_updated, num_update, num_new, num_derwent) VALUES (current_timestamp, --
+                                                                                        (
+                                                                                          SELECT count(1)
+                                                                                          FROM temp_update_patnum), (
+                                                                                          SELECT count(1)
+                                                                                          FROM temp_update_patnum) - (
+    SELECT count(1)
+    FROM temp_update_patnum), (
+                                                                                          SELECT count(1)
+                                                                                          FROM derwent_patents));
 -- endregion

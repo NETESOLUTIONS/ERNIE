@@ -1,15 +1,21 @@
 -- test script to test Monte-Carlo methods for networks
 -- this script was specifically developed for the ERNIE project 
 -- but can be used for benchmarking performance
--- George Chacko 10/25/2018
+-- George Chacko 12/8/2018
+-- this version restricts output to the 1980 dataset
+-- you can point it at other years by replacing 1980 with year of choice, e.g. 1985
 
 SELECT NOW();
--- randomly select 1000 publications from the period 2005-2010
+
 DROP TABLE IF EXISTS gc_mc1;
 CREATE TABLE gc_mc1 AS
 SELECT source_id, publication_year AS source_year 
 FROM wos_publications
+<<<<<<< HEAD
 WHERE publication_year::int = 1985
+=======
+WHERE publication_year::int = 1980
+>>>>>>> master
 AND document_type='Article'; 
 CREATE INDEX gc_mc1_idx ON gc_mc1(source_id);
 
@@ -34,7 +40,7 @@ CREATE INDEX gc_mc3_idx ON gc_mc3(source_id,cited_source_uid,reference_year);
 DROP TABLE IF EXISTS gc_mc4;
 CREATE TABLE gc_mc4 AS
 SELECT  a.*,b.document_id as reference_issn,b.document_id_type
-FROM gc_mc3 a LEFT JOIN wos_document_identifiers b
+FROM gc_mc3 a INNER JOIN wos_document_identifiers b
 ON a.cited_source_uid=b.source_id 
 WHERE document_id_type='issn';
 CREATE INDEX gc_mc4_idx ON gc_mc4(source_id,cited_source_uid,reference_year,reference_issn);
@@ -49,7 +55,7 @@ a.cited_source_uid,
 a.reference_year,
 a.reference_issn,
 a.document_id_type AS reference_document_id_type
-FROM gc_mc4 a LEFT JOIN wos_document_identifiers b
+FROM gc_mc4 a INNER JOIN wos_document_identifiers b
 ON a.source_id=b.source_id
 WHERE b.document_id_type='issn';
 
@@ -62,6 +68,7 @@ SELECT DISTINCT * from gc_mc5;
 CREATE INDEX gc_mc_idx ON gc_mc(source_id,cited_source_uid,source_issn,reference_issn);
 
 DROP TABLE IF EXISTS dataset1980;
+<<<<<<< HEAD
 CREATE TABLE dataset1985 TABLESPACE p2_studies AS
 SELECT * FROM  gc_mc 
 WHERE  reference_year::int <= 1985;
@@ -73,6 +80,14 @@ DROP TABLE gc_mc3;
 DROP TABLE gc_mc4;
 DROP TABLE gc_mc5;
 DROP TABLE gc_mc;
+=======
+CREATE TABLE dataset1980 TABLESPACE p2_studies AS
+SELECT * from gc_mc 
+-- cleans out references published after pub_year (this is by convention)
+WHERE reference_year::int <= 1980;
+
+\copy (select * from dataset1980) TO '/erniedev_data10/P2_studies/data_slices/dataset1980.csv' CSV HEADER DELIMITER ',';
+>>>>>>> master
 
 SELECT NOW();
 
