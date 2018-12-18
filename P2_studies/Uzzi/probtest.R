@@ -5,7 +5,7 @@
 
 # Clear workspace
 rm(list = ls())
-setwd("~/")
+# setwd("~/")
 library(data.table)
 library(dplyr)
 
@@ -64,7 +64,7 @@ colnames(x1) <- c("X1", "X2", "X1_refyear", "X1_f", "X1_F", "X1_p")
 x2 <- merge(refpairs_table,freqs,by.x='X2', by.y='cited_source_uid')
 colnames(x2) <- c("X2", "X1", "X2_refyear", "X2_f", "X2_F", "X2_p")
 pairs <- merge(x1, x2, by = c("X1", "X2"))
-pairs <- data.table(pairs)
-# write as csv
-write.csv(pairs,file='pairs.csv',row.names=FALSE)
+dim(pairs)
+print(head(pairs))
+fwrite(pairs,file = 'pairs.csv')
 
