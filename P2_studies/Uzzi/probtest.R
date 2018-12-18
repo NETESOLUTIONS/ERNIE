@@ -10,35 +10,44 @@ library(data.table)
 library(dplyr)
 
 # read data
-d1980 <- fread("dataset1980_dec2018.csv")
+df <- fread("dataset1980_dec2018.csv")
 # read frequency files
 freqs <- fread("dataset1980_freqs.csv")
 
 # select pubs with at least two references 
-print(dim(d1980))
-d1980[,refcount:=.N,by='source_id']
-d1980 <- d1980[refcount>1]
-print(dim(d1980))
+print(dim(df))
+df[,refcount:=.N,by='source_id']
+df <- df[refcount>1]
+print(dim(df))
 
 # get rid of unnecessary columns
-d1980 <- d1980[,c('source_id','cited_source_uid','reference_year')]
+df <- df[,c('source_id','cited_source_uid','reference_year')]
+
+# calculate k-values
+kvals <- data.table::copy(df)
+kvals <- kvals[,k:=.N,by=c('source_id','reference_year')]
+kvals <- kvals[,cited_source_uid:=NULL]
+kvals <- unique(kvals)
+kvals <-kvals[order(source_id,reference_year)]
+write.csv(kvals,file='kvals.csv',row.names=FALSE)
 
 # break data up into chunks of source_id:cited_source_uid and insert into list
 datalist <- list()
-source_id_vec <- as.vector(unique(d1980$source_id)) #unique should not be necessary
+source_id_vec <- as.vector(unique(df$source_id)) #unique should not be necessary
 for (i in 1:length(source_id_vec)) { 
-	datalist[[i]] <- d1980[source_id == source_id_vec[i]]
+	datalist[[i]] <- df[source_id == source_id_vec[i]]
 		if(i%%5000 == 0) {
 		print(paste('completed',i))
 	}
 }
+names(datalist) <- source_id_vec
 
 # collapse list and write as csv
-d1980table <- rbindlist(datalist)
-write.csv(d1980table,file='d1980table.csv',row.names=FALSE)
+dftable <- rbindlist(datalist)
+write.csv(dftable,file='dftable.csv',row.names=FALSE)
 
 # remove d1980 to save memory- it should help in theory at least
-rm(d1980)
+rm(df)
 
 # use lapply to generate a list of dataframes of reference pairs 
 refpair_list <- lapply(datalist,function(x) data.frame(t(combn(x$cited_source_uid,2)),stringsAsFactors=FALSE))
@@ -59,20 +68,3 @@ pairs <- data.table(pairs)
 # write as csv
 write.csv(pairs,file='pairs.csv',row.names=FALSE)
 
-
-# calculate number of draws for each reference in a publication 
-# for example if a pub has three references from 1975 then k=3 for 1975 refs.
-
-# looping through datalist count k values for reference_years for each pub
-ref_k_list <- list()
-for (i in 1:length(datalist)) {
-	x <- datalist[[i]]
-	x <- data.table(x)
-	y <- x[,.N,by=c('source_id','reference_year')]
-	ref_k_list[[i]] <- y
-	names(ref_k_list)[i] <- x[1,1]
-}
-
-# collapse and write to csv
-k_table <- rbindlist(ref_k_list)
-write.csv(k_table,file='k_table.csv',row.names=FALSE)
