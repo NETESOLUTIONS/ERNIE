@@ -22,6 +22,7 @@ print(dim(df))
 
 # get rid of unnecessary columns
 df <- df[,c('source_id','cited_source_uid','reference_year')]
+df <- df[order(source_id,cited_source_uid)]
 
 # calculate k-values
 kvals <- data.table::copy(df)
