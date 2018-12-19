@@ -58,6 +58,13 @@ refpairs_table <- rbindlist(refpair_list)
 refpairs_table <- data.table(refpairs_table)
 refpairs_table <- unique(refpairs_table)
 
+# sort reference pairs
+library(parallel)
+cl <- makeCluster(4)
+rp  <- t(parApply(cl,refpairs_table,1,sort)))
+refpairs_table <- data.table(rp)
+colnames(refpairs_table) <- c('X1','X2')
+
 # merge f,F, and P
 
 x1 <- merge(refpairs_table,freqs,by.x='X1',by.y='cited_source_uid')
