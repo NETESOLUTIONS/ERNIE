@@ -29,6 +29,7 @@ WHERE substring(b.cited_source_uid,1,4)='WOS:'
 AND length(b.cited_source_uid)=19;
 CREATE INDEX uz_ds2_idx ON uz_ds2(source_id,cited_source_uid);
 
+-- inner join on wos_publications to get pub year of references
 DROP TABLE IF EXISTS uz_ds3;
 CREATE TABLE uz_ds3 AS
 SELECT a.*,b.publication_year AS reference_year
@@ -36,6 +37,7 @@ FROM uz_ds2 a INNER JOIN wos_publications b
 ON a.cited_source_uid=b.source_id;
 CREATE INDEX uz_ds3_idx ON uz_ds3(source_id,cited_source_uid,reference_year);
 
+-- add issns for refs
 DROP TABLE IF EXISTS uz_ds4;
 CREATE TABLE uz_ds4 AS
 SELECT  a.*,b.document_id as reference_issn,b.document_id_type
@@ -44,6 +46,7 @@ ON a.cited_source_uid=b.source_id
 WHERE document_id_type='issn';
 CREATE INDEX uz_ds4_idx ON uz_ds4(source_id,cited_source_uid,reference_year,reference_issn);
 
+--add issns for source_id
 DROP TABLE IF EXISTS uz_ds5;
 CREATE TABLE uz_ds5 AS
 SELECT a.source_id,
@@ -61,19 +64,21 @@ WHERE b.document_id_type='issn';
 CREATE INDEX uz_ds5_idx ON uz_ds5(source_id,cited_source_uid,reference_year,reference_issn,source_issn,
 source_year);
 
+-- select distinct 
 DROP TABLE IF EXISTS uz_ds;
 CREATE TABLE uz_ds AS
 SELECT DISTINCT * from uz_ds5;
 CREATE INDEX uz_ds_idx ON uz_ds(source_id,cited_source_uid,source_issn,reference_issn);
 
+-- ensure that ref pubs year is not greater that source_id pubyear
 DROP TABLE IF EXISTS dataset1980;
-
 -- cleans out references published after pub_year (this is by convention)<<<<<<< HEAD
 CREATE TABLE dataset1980 TABLESPACE p2_studies AS
 SELECT * FROM  uz_ds 
 WHERE  reference_year::int <= 1980;
-
 ALTER TABLE dataset1980 SET SCHEMA public;
+
+-- clean up
 DROP TABLE uz_ds1;
 DROP TABLE uz_ds2;
 DROP TABLE uz_ds3;
@@ -82,6 +87,7 @@ DROP TABLE uz_ds5;
 DROP TABLE uz_ds;
 
 SELECT NOW();
+
 
 
 
