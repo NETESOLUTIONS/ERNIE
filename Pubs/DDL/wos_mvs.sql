@@ -5,9 +5,9 @@
 SET TIMEZONE = 'US/Eastern';
 
 CREATE MATERIALIZED VIEW wos_issn_stats TABLESPACE wos_tbs AS
-SELECT CAST(document_id AS CHAR(9)) AS ssn, count(1) AS publication_count
+SELECT CAST(document_id AS CHAR(9)) AS issn, count(1) AS publication_count
 FROM wos_document_identifiers wdi
 WHERE document_id_type = 'issn'
 GROUP BY document_id;
 
-CREATE UNIQUE INDEX wis_ssn_uk ON wos_issn_stats(ssn) TABLESPACE index_tbs;
+CREATE UNIQUE INDEX wis_issn_uk ON wos_issn_stats(issn) TABLESPACE index_tbs;
