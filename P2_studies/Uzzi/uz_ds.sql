@@ -97,12 +97,12 @@ WHERE reference_year::INT <= :year;
 ALTER TABLE :dataset_name SET SCHEMA public;
 
 -- clean up
-DROP TABLE uz_ds1;
-DROP TABLE uz_ds2;
-DROP TABLE uz_ds3;
+-- DROP TABLE uz_ds1;
+-- DROP TABLE uz_ds2;
+-- DROP TABLE uz_ds3;
 -- DROP TABLE uz_ds4;
-DROP TABLE uz_ds5;
-DROP TABLE uz_ds;
+-- DROP TABLE uz_ds5;
+-- DROP TABLE uz_ds;
 
 SELECT NOW();
 
