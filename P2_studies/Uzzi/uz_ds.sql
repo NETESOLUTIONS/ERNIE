@@ -2,9 +2,11 @@
 -- this script was specifically developed for the ERNIE project 
 -- but can be used for benchmarking performance
 -- George Chacko 12/8/2018
--- this version restricts output to the 1980 dataset
--- you can point it at other years by replacing 1980 with year of choice, e.g. 1980
 -- cleaned up bad git merge and replace 'gc_mc' with 'uz_ds' (Uzzi-dataslice)
+-- DK added expresions to select most frequently used issns where multiple values exist
+-- can pass parametes now
+-- e.g., nohup  psql -d ernie -f /home/chackoge/ERNIE/P2_studies/Uzzi/uz_ds.sql 
+-- -v year=1980 -v dataset_name=dataset1980 &
 -- George Chacko 12/20/2018
 
 SELECT NOW();
