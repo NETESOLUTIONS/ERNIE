@@ -47,7 +47,7 @@ names(datalist) <- source_id_vec
 
 # collapse list and write as csv
 dftable <- rbindlist(datalist)
-write.csv(dftable,file='dftable.csv',row.names=FALSE)
+# write.csv(dftable,file='dftable.csv',row.names=FALSE)
 
 # remove d1980 to save memory- it should help in theory at least
 rm(df)
@@ -57,6 +57,7 @@ refpair_list <- lapply(datalist,function(x) data.frame(t(combn(x$cited_source_ui
 
 # collapse list and reduce to unique reference pairs
 refpairs_table <- rbindlist(refpair_list)
+rm (refpair_list)
 refpairs_table <- data.table(refpairs_table)
 refpairs_table <- unique(refpairs_table)
 
@@ -77,4 +78,5 @@ pairs <- merge(x1, x2, by = c("X1", "X2"))
 dim(pairs)
 print(head(pairs))
 fwrite(pairs,file = 'pairs.csv')
+
 
