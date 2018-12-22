@@ -10,7 +10,7 @@ library(data.table)
 library(dplyr)
 
 # read data
-df <- fread("dataset1980_dec2018.csv")
+df <- fread("dataset1980.csv")
 # read frequency files
 freqs <- fread("dataset1980_freqs.csv")
 
@@ -22,6 +22,8 @@ print(dim(df))
 
 # get rid of unnecessary columns
 df <- df[,c('source_id','cited_source_uid','reference_year')]
+
+# sort input for consistent pairwise combinations across R/Pytho
 df <- df[order(source_id,cited_source_uid)]
 
 # calculate k-values
@@ -37,7 +39,7 @@ datalist <- list()
 source_id_vec <- as.vector(unique(df$source_id)) #unique should not be necessary
 for (i in 1:length(source_id_vec)) { 
 	datalist[[i]] <- df[source_id == source_id_vec[i]]
-		if(i%%5000 == 0) {
+		if(i %% 5000 == 0) {
 		print(paste('completed',i))
 	}
 }
@@ -58,12 +60,12 @@ refpairs_table <- rbindlist(refpair_list)
 refpairs_table <- data.table(refpairs_table)
 refpairs_table <- unique(refpairs_table)
 
-# sort reference pairs
-library(parallel)
-cl <- makeCluster(4)
-rp  <- t(parApply(cl,refpairs_table,1,sort)))
-refpairs_table <- data.table(rp)
-colnames(refpairs_table) <- c('X1','X2')
+# sort reference pairs (needs more memory on CentOS)
+# library(parallel)
+# cl <- makeCluster(4)
+# rp  <- t(parApply(cl,refpairs_table,1,sort))
+# refpairs_table <- data.table(rp)
+# colnames(refpairs_table) <- c('X1','X2')
 
 # merge f,F, and P
 
