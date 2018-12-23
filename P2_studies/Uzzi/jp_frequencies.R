@@ -1,0 +1,19 @@
+# script to calculate probs for journal pairs
+rm(list = ls())
+library(data.table)
+# read in data
+t <- fread(x)
+# subset to columns of interest
+t1 <- t[, .(reference_issn, reference_year)]
+# commented out because setkey interferes with unique
+# setkey(t1, reference_issn)
+# calculate frequencies of individual references
+t1[, `:=`(f, .N), by = c("reference_issn")]
+# suppress duplicate rows to avoid inflating counts by reference year
+t1 <- unique(t1)
+# calculate frequency of all references in a year
+t1[, `:=`(F, sum(f)), by = "reference_year"]
+# calculate probs for references
+t1[, `:=`(p, f/F)]
+t1 <- unique(t1)
+assign(paste0("dataset", y), get("t1"))
