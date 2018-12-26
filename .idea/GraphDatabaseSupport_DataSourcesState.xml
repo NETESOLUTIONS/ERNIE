@@ -7,7 +7,7 @@
           <list>
             <DataSourceV1>
               <option name="uuid" value="78023bea-8d89-4b07-899e-44dd0aa562e7" />
-              <option name="name" value="ERNIE Neo4j @ external tunnel" />
+              <option name="name" value="ERNIE Neo4j @ tunnel" />
               <option name="dataSourceType" value="NEO4J_BOLT" />
               <option name="configuration">
                 <map>
