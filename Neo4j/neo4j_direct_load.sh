@@ -46,7 +46,7 @@ fi
 
 echo "Loading ..."
 # language=Cypher
-cypher-shell <<HEREDOC
+cypher-shell --format verbose <<HEREDOC
 // Clean DB
 MATCH (n)
 DETACH DELETE n;
