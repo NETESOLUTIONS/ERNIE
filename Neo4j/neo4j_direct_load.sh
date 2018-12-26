@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-if [[ $1 == "-h" || $# -lt 3 ]]; then
+if [[ $1 == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
   neo4j_direct_load.sh -- cleans the current Neo4j DB and loads data directly over JDBC
@@ -44,6 +44,7 @@ if ! which cypher-shell >/dev/null; then
   exit 1
 fi
 
+echo "Loading ..."
 # language=Cypher
 cypher-shell <<HEREDOC
 // Clean DB
@@ -75,6 +76,7 @@ MERGE (r:Publication {source_id: row.cited_source_uid, title: row.reference_titl
                       issn_type: row.reference_document_id_type, issn: row.reference_issn})
 MERGE (p)-[:CITES]->(r);
 HEREDOC
+echo "Loaded."
 
 #echo "Calculating metrics and indexing ..."
 #cypher-shell <<'HEREDOC'
