@@ -5,12 +5,13 @@
 -- cleaned up bad git merge and replace 'gc_mc' with 'stg_uz_ds' (Uzzi-dataslice)
 -- DK added expresions to select most frequently used issns where multiple values exist
 -- can pass parametes now
--- e.g., nohup  psql -d ernie -f /home/chackoge/ERNIE/P2_studies/Uzzi/stg_uz_ds.sql 
--- -v year=1980 -v dataset_name=dataset1980 &
+-- e.g., nohup  psql -f /home/chackoge/ERNIE/P2_studies/Uzzi/stg_uz_ds.sql -v year=1980 &
 -- George Chacko 12/20/2018
 
 \set ON_ERROR_STOP on
 \set ECHO all
+
+SET SEARCH_PATH = public;
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
@@ -43,9 +44,12 @@ WHERE rank = 1;
 
 ALTER TABLE stg_uz_sources ADD CONSTRAINT stg_uz_sources_pk PRIMARY KEY (source_id) USING INDEX TABLESPACE index_tbs;
 
-DROP TABLE IF EXISTS :dataset_name;
+\set output_table 'dataset':year
+\set output_table_pk 'dataset':year'_pk'
 
-CREATE TABLE :dataset_name TABLESPACE p2_studies AS
+DROP TABLE IF EXISTS :output_table;
+
+CREATE TABLE :output_table TABLESPACE p2_studies AS
   -- The records should be DISTINCT on source_id + cited_source_uid
 SELECT
   source_id,
@@ -78,13 +82,8 @@ FROM (
 ) sq
 WHERE rank = 1;
 
-/*
-TODO
-
-EXECUTE format($$ALTER TABLE %I ADD CONSTRAINT %s_pk' PRIMARY KEY (source_id) USING INDEX TABLESPACE index_tbs $$, :dataset_name);*/
-
--- TODO Migrate to search_path
-ALTER TABLE :dataset_name SET SCHEMA public;
+ALTER TABLE :output_table ADD CONSTRAINT :output_table_pk PRIMARY KEY (source_id, cited_source_uid) --
+  USING INDEX TABLESPACE index_tbs;
 
 -- clean up
 -- DROP TABLE stg_uz_sources;
