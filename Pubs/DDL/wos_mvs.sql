@@ -4,6 +4,7 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
+-- region wos_doc_id_stats
 DROP MATERIALIZED VIEW IF EXISTS wos_doc_id_stats;
 
 CREATE MATERIALIZED VIEW wos_doc_id_stats TABLESPACE wos_tbs AS
@@ -16,8 +17,10 @@ GROUP BY document_id_type, document_id;
 CREATE UNIQUE INDEX wdis_document_id_uk ON wos_doc_id_stats(document_id_type, document_id) TABLESPACE index_tbs;
 
 COMMENT ON MATERIALIZED VIEW wos_doc_id_stats IS 'Total publication counts per ISSN (issn, eissn document identifiers)';
+-- endregion
 
-DROP MATERIALIZED VIEW IF EXISTS wos_doc_id_stats;
+-- region wos_article_issns
+DROP MATERIALIZED VIEW IF EXISTS wos_article_issns;
 
 CREATE MATERIALIZED VIEW wos_article_issns TABLESPACE wos_tbs AS
 SELECT source_id, document_id_type AS issn_type, document_id AS issn
@@ -43,3 +46,4 @@ COMMENT ON MATERIALIZED VIEW wos_article_issns IS
   'A single ISSN per an article publication (when exists). The order of selection preferences is'
   ' 1) ISSN over EISSN type, 2) most frequently used, 3) natural order';
 --@formatter:on
+-- endregion
