@@ -5,7 +5,7 @@
 library(data.table); library(dplyr)
 rm(list=ls())
 # import source file (one year's worth of data- filename is hard coded in this script)
-sorted <- fread('dataset1980.csv')
+sorted <- fread('dataset_1980.csv')
 
 # construct table for backjoining later
 
@@ -40,5 +40,4 @@ print(dim(S4))
 fwrite(S4,file=paste('bg_n_swr',i,'.csv',sep=''),row.names=FALSE)
 print(paste('Ended loop number',i,sep=''))
 }
-
 

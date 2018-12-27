@@ -7,7 +7,7 @@
 library(data.table); library(dplyr)
 rm(list=ls())
 # import source file (one year's worth of data- filename is hard coded as dataset1980.csv in this script)
-sorted <- fread('dataset1980.csv')
+sorted <- fread('dataset_1980.csv')
 
 # construct table for backjoining later
 
