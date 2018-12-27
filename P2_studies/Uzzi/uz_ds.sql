@@ -63,9 +63,8 @@ FROM (
     wp.publication_year AS reference_year,
     wdi.document_id_type,
     wdi.document_id,
-    row_number()
-      OVER (PARTITION BY wp.source_id ORDER BY wdi.document_id_type DESC, wis.publication_count DESC, wdi.document_id)--
-      AS rank
+    row_number() OVER (PARTITION BY sus.source_id, wr.cited_source_uid --
+      ORDER BY wdi.document_id_type DESC, wis.publication_count DESC, wdi.document_id) AS rank
     -- reference_issn
   FROM stg_uz_sources sus
   JOIN wos_references wr ON wr.source_id = sus.source_id
@@ -79,6 +78,12 @@ FROM (
 ) sq
 WHERE rank = 1;
 
+/*
+TODO
+
+EXECUTE format($$ALTER TABLE %I ADD CONSTRAINT %s_pk' PRIMARY KEY (source_id) USING INDEX TABLESPACE index_tbs $$, :dataset_name);*/
+
+-- TODO Migrate to search_path
 ALTER TABLE :dataset_name SET SCHEMA public;
 
 -- clean up
