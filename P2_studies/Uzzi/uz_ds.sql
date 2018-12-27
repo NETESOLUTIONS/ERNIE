@@ -45,7 +45,7 @@ WHERE rank = 1;
 ALTER TABLE stg_uz_sources ADD CONSTRAINT stg_uz_sources_pk PRIMARY KEY (source_id) USING INDEX TABLESPACE index_tbs;
 
 \set output_table 'dataset':year
-\set output_table_pk 'dataset':year'_pk'
+\set output_table_pk :output_table'_pk'
 
 DROP TABLE IF EXISTS :output_table;
 
