@@ -11,15 +11,15 @@
 \set ON_ERROR_STOP on
 \set ECHO all
 
-SET SEARCH_PATH = public;
+\set output_table 'dataset':year
+\set output_table_pk :output_table'_pk'
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-SELECT NOW();
+SET SEARCH_PATH = public;
 
-\set output_table 'dataset':year
-\set output_table_pk :output_table'_pk'
+SELECT NOW();
 
 DROP TABLE IF EXISTS :output_table;
 
@@ -48,7 +48,5 @@ WHERE source_wp.publication_year::INT = :year;
 ALTER TABLE :output_table ADD CONSTRAINT :output_table_pk PRIMARY KEY (source_id, cited_source_uid) --
   USING INDEX TABLESPACE index_tbs;
 
--- clean up
--- DROP TABLE stg_uz_sources;
 
 SELECT NOW();
