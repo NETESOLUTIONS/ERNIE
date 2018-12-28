@@ -10,9 +10,9 @@ library(data.table)
 library(dplyr)
 
 # read data
-df <- fread("dataset1980.csv")
+df <- fread("dataset_1980.csv")
 # read frequency files
-freqs <- fread("dataset1980_freqs.csv")
+freqs <- fread("dataset_1980_freqs.csv")
 
 # select pubs with at least two references 
 print(dim(df))
