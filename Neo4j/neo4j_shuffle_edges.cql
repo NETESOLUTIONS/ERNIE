@@ -1,6 +1,6 @@
 // See "Degree-Preserving Edge-Swap" (https://gist.github.com/dhimmel/f69730d8bdfb880c15ed)
 
-// Optimized swap using ids: x swaps (x <= the number of relationships: a swap could be randomly missed)
+// Optimized swap using ids: x swaps (x = the number of relationships)
 // Assumes all relationships are of the same type
 CALL apoc.periodic.iterate(
 'MATCH ()-[r]->()
@@ -14,6 +14,8 @@ MATCH (u)-[r1]->(v), (x)-[r2]->(y)
   AND x <> u AND y <> v
   AND NOT exists((u)-->(y))
   AND NOT exists((x)-->(v))
+WITH *
+  LIMIT 1
 // Execute the swap
 DELETE r1, r2
 WITH *
