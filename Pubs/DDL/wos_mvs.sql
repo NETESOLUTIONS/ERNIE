@@ -5,7 +5,7 @@
 SET TIMEZONE = 'US/Eastern';
 
 -- region wos_doc_id_stats
-DROP MATERIALIZED VIEW IF EXISTS wos_doc_id_stats;
+DROP MATERIALIZED VIEW IF EXISTS wos_doc_id_stats CASCADE;
 
 CREATE MATERIALIZED VIEW wos_doc_id_stats TABLESPACE wos_tbs AS
 SELECT document_id_type, document_id, count(1) AS publication_count
