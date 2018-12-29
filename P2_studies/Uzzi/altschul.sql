@@ -11,6 +11,7 @@ FROM wos_references WHERE
 cited_source_uid IN
 (SELECT wos_id FROM wos_pmid_mapping 
 WHERE pmid_int=2231712);
+CREATE INDEX altschul1_idx ON altschul1(source_id,cited_source_uid);
 
 -- get second gen of citing references
 DROP TABLE IF EXISTS altschul2;
