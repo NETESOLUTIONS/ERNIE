@@ -29,10 +29,12 @@ INNER JOIN wos_publications b
 ON a.citing1=b.source_id;
 
 DROP TABLE IF EXISTS dataset_reth;
-CREATE TABLE dataset_reth AS
+CREATE TABLE dataset_reth tablespace p2_studies AS
 SELECT seed,citing1,citing1_pubyear,citing2,citing2_pubyear
 FROM reth4  
-WHERE citing1_pubyear <= citing2_pubyear;
+WHERE citing1_pubyear <= citing2_pubyear
+AND citing1_pubyear::int >=1989;
+CREATE INDEX dataset_reth_idx ON dataset_reth(citing1,citing2);
 
 DROP TABLE reth1;
 DROP TABLE reth2;
