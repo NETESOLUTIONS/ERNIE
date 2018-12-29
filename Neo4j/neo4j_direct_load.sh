@@ -2,10 +2,10 @@
 if [[ $1 == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
-  neo4j_direct_load.sh -- cleans the current Neo4j DB and loads data directly over JDBC
+  neo4j_shuffle_edges.sh -- shuffle edges randomly while preserving node degrees
 
 SYNOPSIS
-  neo4j_direct_load.sh
+  neo4j_shuffle_edges.sh
 
 DESCRIPTION
 
