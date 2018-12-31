@@ -48,6 +48,6 @@ cd "${work_dir}"
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
 parallel --halt soon,fail=1 --verbose --line-buffer --tagstring '|job#{#} s#{%}|' \
-  'psql -f blast_analyze.sql -v year={} -v scale_factor=${scale_factor}' ::: $(seq ${start_year} ${end_year})
+  "psql -f blast_analyze.sql -v year={} -v scale_factor=${scale_factor}" ::: $(seq ${start_year} ${end_year})
 
 exit 0

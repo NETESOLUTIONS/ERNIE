@@ -19,10 +19,10 @@ SET TIMEZONE = 'US/Eastern';
 
 SET SEARCH_PATH = public;
 
--- build 1991 slice from gen 1 data
--- join with dataaset_1991 t0 get blast_analysis_1991
+-- build YYYY slice from gen 1 data
 DROP TABLE IF EXISTS :analysis_slice;
 
+-- join with dataasetYYYY t0 get blast_analysis_YYYY
 CREATE TABLE :analysis_slice TABLESPACE p2_studies AS
 SELECT DISTINCT d.*
 FROM dataset_altschul da
@@ -33,7 +33,7 @@ JOIN :dataset d ON d.source_id = da.citing1;
 ALTER TABLE :analysis_slice --
   ADD CONSTRAINT :analysis_slice_pk PRIMARY KEY (source_id, cited_source_uid) USING INDEX TABLESPACE index_tbs;
 
--- create comparison group using same number of source_ids as blast_analysis_1991
+-- create comparison group using same number of source_ids as blast_analysis_YYYY
 DROP TABLE IF EXISTS :comparison_slice;
 
 CREATE TABLE :comparison_slice TABLESPACE p2_studies AS
