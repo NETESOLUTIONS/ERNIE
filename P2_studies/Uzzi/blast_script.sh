@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [ -d "/erniedev_data10/P2_studies/background_file/working_directory/blast/blast_$2" ]; then
-	mkdir /erniedev_data10/P2_studies/background_file/working_directory/blast/blast_$2
-	mkdir /erniedev_data10/P2_studies/background_file/working_directory/blast/blast_$2/analysis
-	mkdir /erniedev_data10/P2_studies/background_file/working_directory/blast/blast_$2/comparison
+if [ ! -d "/erniedev_data10/P2_studies/background_file/working_directory/blast/blast_$2" ]; then
+	mkdir /erniedev_data10/P2_studies/background_file/working_directory/blast_$2
+	mkdir /erniedev_data10/P2_studies/background_file/working_directory/blast_$2/analysis
+	mkdir /erniedev_data10/P2_studies/background_file/working_directory/blast_$2/comparison
 fi
 
 python observed_frequency.py $1 /erniedev_data10/P2_studies/background_file/working_directory/blast_$2/blast_$2_$3_observed_frequency.csv
