@@ -17,7 +17,9 @@ DESCRIPTION
     The following options are available:
 
     start_year, end_year  range of dataset slices to generate (in parallel)
-    scale_factor          scale the comparison dataset relative to the analysis dataset. Default = 1.0.
+
+    scale_factor          Scale the number of publications in the comparison dataset relative to the analysis dataset.
+                          Default = 1.0.
 
 EXAMPLES
 
