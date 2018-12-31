@@ -21,4 +21,4 @@ done
 python journal_count.py /erniedev_data10/P2_studies/background_file/working_directory/blast_$2/$3/ 1000 /erniedev_data10/P2_studies/background_file/working_directory/blast_$2/blast_$2_$3_observed_frequency.csv
 
 
-python Table_generator.py $1 /erniedev_data10/P2_studies/background_file/working_directory/blast_$2/comparison/all_file.csv /erniedev_data10/P2_studies/data_slices/blast/blast_$2/blast_gen1_$3_$2_zscores.csv
+python Table_generator.py $1 /erniedev_data10/P2_studies/background_file/working_directory/blast_$2/$3/all_file.csv /erniedev_data10/P2_studies/data_slices/blast/blast_$2/blast_gen1_$3_$2_zscores.csv
