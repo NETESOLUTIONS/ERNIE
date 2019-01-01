@@ -4,12 +4,12 @@ if [ ! -d "/erniedev_data10/P2_studies/background_file/working_directory/blast/b
 	mkdir /erniedev_data10/P2_studies/background_file/working_directory/blast_$2
 	mkdir /erniedev_data10/P2_studies/background_file/working_directory/blast_$2/analysis
 	mkdir /erniedev_data10/P2_studies/background_file/working_directory/blast_$2/comparison
-  mkdir /erniedev_data10/P2_studies/background_file/working_directory/blast_$2/$3
+  	mkdir /erniedev_data10/P2_studies/background_file/working_directory/blast_$2/$3
 fi
 
 python observed_frequency.py $1 /erniedev_data10/P2_studies/background_file/working_directory/blast_$2/blast_$2_$3_observed_frequency.csv
 
-for i in $(ls $4bm_*.csv)
+for i in $(ls $4bm*.csv)
 do
 	filename=$(basename $i)
 	number=$(echo $filename | tr -dc '0-9')
