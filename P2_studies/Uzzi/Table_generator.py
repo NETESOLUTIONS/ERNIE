@@ -22,11 +22,11 @@ column_names=['source_id','source_year','source_issn','source_document_id_type',
 fields=['source_id','cited_source_uid','reference_issn']
 
 
-data_set=pd.read_csv(filename,header=None,names=column_names,usecols=fields)
+data_set=pd.read_csv(filename,usecols=fields)
 print('Generating Lookup Table')
 
 #Sorting the input file by source_id and reference_issn
-data_set.sort_values(by=['source_id','reference_issn'],inplace=True)
+data_set.sort_values(by=['source_id','reference_issn','cited_source_uid'],inplace=True)
 data_set.reset_index(inplace=True)
 
 reference_name=data_set['source_id'][0]
@@ -62,7 +62,7 @@ for index,row in data_set.iterrows():
         
 print('Calculating pairs done')
 
-
+del(data_set)
 df_c=pd.DataFrame(ui_combo,columns=['C','D'])
 df_c['source_id']=pd.Series(source_values)
 df_c['wos_id_pairs']=df_c['C']+','+df_c['D']
@@ -78,4 +78,5 @@ data_set=pd.read_csv(z_scores)
 
 #Joining with z scores to develop final table
 full_list=pd.merge(df_c.iloc[:,2:],data_set,on='journal_pairs',how='inner')
+print('Writing to file')
 full_list.to_csv(destination_file,index=False)
