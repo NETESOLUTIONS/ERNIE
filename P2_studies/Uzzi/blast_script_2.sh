@@ -9,7 +9,7 @@ fi
 
 python observed_frequency.py $1 /erniedev_data10/P2_studies/background_file/working_directory/blast_$2/blast_$2_$3_observed_frequency.csv
 
-for i in $(ls $4bl_*.csv)
+for i in $(ls $4bm_*.csv)
 do
 	filename=$(basename $i)
 	number=$(echo $filename | tr -dc '0-9')
