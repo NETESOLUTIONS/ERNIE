@@ -34,6 +34,8 @@ column_names=['journal_pairs','obs_frequency']
 column_names.extend([x for x in range(1,number+1)])
 obs_file.columns=column_names
 
+#obs_file.to_csv(bg_files+'combined1.csv',index=False)
+
 #Calculating the mean
 obs_file['mean']=obs_file.iloc[:,2:].mean(axis=1)
 #print('length of file after 100 joins ',len(obs_file['mean'].dropna()))
@@ -46,8 +48,11 @@ obs_file['std']=obs_file.iloc[:,2:number+2].std(axis=1)
 obs_file['z_scores']=(obs_file['obs_frequency']-obs_file['mean'])/obs_file['std']
 #print('length of files after removing null values ',len(obs_file[['journal_pairs','obs_frequency','z_scores']].dropna()))
 
+obs_file.to_csv(bg_files+'combined.csv',index=False)
+
+obs_file['count']=obs_file.iloc[:,2:number].apply(lambda x: x.count(),axis=1)
 #print(len(obs_file[['journal_pairs','obs_frequency','z_scores']].dropna()))
 #obs_file[['journal_pairs','obs_frequency','z_scores']].dropna().to_csv(bg_files+'z_scores_file.csv',index=False)
 
 #print(len(obs_file[['journal_pairs','obs_frequency','mean','z_scores']].dropna()))
-obs_file[['journal_pairs','obs_frequency','mean','z_scores']].dropna().to_csv(bg_files+'all_file.csv',index=False)
+obs_file[['journal_pairs','obs_frequency','mean','z_scores','count']].dropna().to_csv(bg_files+'all_file.csv',index=False)
