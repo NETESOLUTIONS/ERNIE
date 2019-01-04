@@ -2,7 +2,7 @@
 
 dir_name=$(dirname $1)
 
-echo"dirname is $dir_name"
+echo "dirname is $dir_name"
 
 folder_name=$(echo $dir_name | cut -d '/' -f 4-10)
 
