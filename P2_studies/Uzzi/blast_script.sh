@@ -31,7 +31,7 @@ echo "filename without extension $file_name"
 
 python observed_frequency.py $1 $working_directory/${file_name}_observed_frequency.csv
 
-total=$(ls $dir_name/$2 *_permuted_* | wc -l)
+total=$(ls $dir_name/$2/*_permuted_* | wc -l)
 
 echo "number of files is $total"
 
