@@ -54,7 +54,7 @@ DATE=`date +%Y-%m-%d`
 
 if [ -z "$3" ]
 then
-	rm -rf $working_directory/*
+	rm -rf $working_directory*
 else
 	mv $working_directory ${working_directory}_$DATE
 fi
