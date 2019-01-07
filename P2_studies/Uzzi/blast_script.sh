@@ -49,6 +49,10 @@ python3.7 journal_count.py $working_directory/$2/ $total $working_directory/${fi
 
 python3.7 Table_generator.py $1 $working_directory/$2/zscores_file.csv $dir_name/${file_name}_permute.csv
 
+if [ "$?" = 0 ]; then
+	echo "Succesfully completed file name: $dir_name/${file_name}_permute.csv"
+fi
+
 #DATE=`date +%Y-%m-%d`
 
 #chgrp -R erniecore $working_directory
