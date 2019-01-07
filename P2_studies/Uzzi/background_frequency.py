@@ -29,11 +29,11 @@ fields=['source_id','s_reference_issn']
 df=pd.read_csv(source_location+filename,usecols=fields)
 
 #Sorting the input file by source_id and reference_issn
-print('sorting by source_id')
+#print('sorting by source_id')
 df.sort_values(by=['source_id','s_reference_issn'],inplace=True)
 df.reset_index(inplace=True)
 
-print('calculating combinations and frequencies')
+#print('calculating combinations and frequencies')
 #Group by source_id and collect all reference_issn to store as list
 journal_list=df.groupby(['source_id'])['s_reference_issn'].apply(list).values
 
@@ -55,5 +55,6 @@ df_['journal_pairs']=df_['A']+','+df_['B']
 #Getting the aggregated count of each journal pair
 final_counts=df_['journal_pairs'].value_counts()
 final_counts=pd.DataFrame({'journal_pairs':final_counts.index,'frequency':final_counts.values})
-print('Done generating final file')
+#print('Done file number ',number)
 final_counts.to_csv(destination_location+'bg_freq_'+str(number)+'.csv',index=False)
+print('Done file number ',number)
