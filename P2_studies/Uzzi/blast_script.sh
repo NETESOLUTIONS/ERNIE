@@ -47,7 +47,7 @@ done
 
 python3.7 journal_count.py $working_directory/$2/ $total $working_directory/${file_name}_observed_frequency.csv
 
-python3.7 Table_generator.py $1 $working_directory/$2/all_file.csv $dir_name/${file_name}_permute.csv
+python3.7 Table_generator.py $1 $working_directory/$2/zscores_file.csv $dir_name/${file_name}_permute.csv
 
 #DATE=`date +%Y-%m-%d`
 
