@@ -29,7 +29,7 @@ file_name=$(echo $file_name | cut -d '.' -f 1)
 
 echo "filename without extension $file_name"
 
-python3.6 observed_frequency.py $1 $working_directory/${file_name}_observed_frequency.csv
+python3.7 observed_frequency.py $1 $working_directory/${file_name}_observed_frequency.csv
 
 total=$(ls $dir_name/$2/*_permuted_* | wc -l)
 
@@ -39,20 +39,19 @@ for i in $(ls $dir_name/$2/*_permuted_*.csv)
 do
 	filename=$(basename $i)
 	number=$(echo $filename | tr -dc '0-9')
-	python3.6 background_frequency.py $filename $number $dir_name/$2/ $working_directory/$2/
+	python3.7 background_frequency.py $filename $number $dir_name/$2/ $working_directory/$2/
 	echo "Done file number $number"
 	echo " "
 done
 
 
-python3.6 journal_count.py $working_directory/$2/ $total $working_directory/${file_name}_observed_frequency.csv
+python3.7 journal_count.py $working_directory/$2/ $total $working_directory/${file_name}_observed_frequency.csv
 
+python3.7 Table_generator.py $1 $working_directory/$2/all_file.csv $dir_name/${file_name}_permute.csv
 
-python3.6 Table_generator.py $1 $working_directory/$2/all_file.csv $dir_name/${file_name}_permute.csv
+#DATE=`date +%Y-%m-%d`
 
-DATE=`date +%Y-%m-%d`
-
-chgrp -R erniecore $working_directory
+#chgrp -R erniecore $working_directory
 
 #if [ -z "$3" ]
 #then
