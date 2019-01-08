@@ -361,8 +361,8 @@ WHERE EXISTS(SELECT 1
              WHERE t2.nct_id = t1.nct_id AND t2.citation = t1.citation AND t2.ctid > t1.ctid);
 -- 0.2s
 
-ALTER TABLE new_ct_publications
-  ADD CONSTRAINT new_ct_publications_pk PRIMARY KEY (nct_id, citation);
+CREATE UNIQUE INDEX IF NOT EXISTS new_ct_publications_uk
+  ON new_ct_publications (nct_id, md5(citation));
 -- 0.8s
 -- endregion
 
