@@ -43,7 +43,7 @@ do
 	filename=$(basename $i)
 	number=$(echo $filename | tr -dc '0-9')
 	python3.7 background_frequency.py $filename $number $dir_name/$2/ $working_directory/$2/
-	echo "Done file number $number"
+	#echo "Done file number $number"
 	echo " "
 done
 
