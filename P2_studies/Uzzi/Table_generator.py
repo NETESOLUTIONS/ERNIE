@@ -34,7 +34,7 @@ def generate_table(data_set,number):
     pairs=list(map(combinations_function, journal_list))
 
     #Calculating the pairs for journal and cited references
-    print('looping through and creating pairs')
+    #print('looping through and creating pairs')
     for index,row in data_set.iterrows():
         if row['source_id']==reference_name:
             ll.append(row['reference_issn'])
@@ -57,7 +57,7 @@ def generate_table(data_set,number):
             ll.append(row['reference_issn'])
             # cc.append(row['cited_source_uid'])
             
-    print('Calculating pairs done')
+    #print('Calculating pairs done')
 
     del(data_set)
 
@@ -66,14 +66,14 @@ def generate_table(data_set,number):
     df_c['source_id']=pd.Series(source_values)
 
     # del(df_)
-    print('len of file',len(df_c))
+    #print('len of file',len(df_c))
 
-    print('Join with z scores file to create final lookup table')
+    #print('Join with z scores file to create final lookup table')
     data_set=pd.read_csv(z_scores)
 
     #Joining with z scores to develop final table
     full_list=pd.merge(df_c.iloc[:,2:],data_set,on='journal_pairs',how='inner')
-    print('Writing to file')
+    #print('Writing to file')
     if number==0:
         full_list.to_csv(destination_file,index=False)
     else:
@@ -89,7 +89,7 @@ column_names=['source_id','source_year','source_issn','source_document_id_type',
 fields=['source_id','reference_issn']
 
 data_set=pd.read_csv(filename,usecols=fields)
-print('Generating Lookup Table')
+#print('Generating Lookup Table')
 
 #Sorting the input file by source_id and reference_issn
 data_set.sort_values(by=['source_id','reference_issn'],inplace=True)
@@ -100,17 +100,17 @@ start_point=0
 total_len=len(data_set)
 
 if total_len < 4000000:
-    print('Entered if block')
+    #print('Entered if block')
     generate_table(data_set,0)
 else:
-    print('Entered else block')
+    #print('Entered else block')
     number=0
     source_id=data_set['source_id'][end_point]
     while end_point <= total_len:
         end_point+=1
         if source_id != data_set['source_id'][end_point]:
-            print('end_point',data_set['source_id'][end_point])
-            print('end_point-1',data_set['source_id'][end_point-1])
+            #print('end_point',data_set['source_id'][end_point])
+            #print('end_point-1',data_set['source_id'][end_point-1])
             generate_table(data_set.iloc[start_point:end_point,:],number)
             number+=1
             start_point=end_point
@@ -121,3 +121,5 @@ else:
                 end_point=total_len
                 generate_table(data_set.iloc[start_point:,:],number)
                 end_point=total_len+1
+
+print('Done generating z scores file')

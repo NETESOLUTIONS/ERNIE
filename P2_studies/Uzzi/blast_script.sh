@@ -27,36 +27,33 @@ echo "input filename is $file_name"
 
 file_name=$(echo $file_name | cut -d '.' -f 1)
 
-echo "filename without extension $file_name"
+echo "Filename $file_name"
 
-python3.6 observed_frequency.py $1 $working_directory/${file_name}_observed_frequency.csv
+#observed_frequency.py file calculates the frequency for all journal pairs in input dataset
+
+python3.7 observed_frequency.py $1 $working_directory/${file_name}_observed_frequency.csv
 
 total=$(ls $dir_name/$2/*_permuted_* | wc -l)
 
-echo "number of files is $total"
+echo "number of background files is $total"
 
+#For each simulation background file generateed by the permute method journal pairs frequency is calculated 
 for i in $(ls $dir_name/$2/*_permuted_*.csv)
 do
 	filename=$(basename $i)
 	number=$(echo $filename | tr -dc '0-9')
-	python3.6 background_frequency.py $filename $number $dir_name/$2/ $working_directory/$2/
-	echo "Done file number $number"
+	python3.7 background_frequency.py $filename $number $dir_name/$2/ $working_directory/$2/
+	#echo "Done file number $number"
 	echo " "
 done
 
+#Mean, standard deviaiton and z_scores are calculated
+python3.7 journal_count.py $working_directory/$2/ $total $working_directory/${file_name}_observed_frequency.csv
 
-python3.6 journal_count.py $working_directory/$2/ $total $working_directory/${file_name}_observed_frequency.csv
+#Generates file which contains all the journal_pairs, wos_id's, z_scores and observed frequency
+python3.7 Table_generator.py $1 $working_directory/$2/zscores_file.csv $dir_name/${file_name}_permute.csv
 
+if [ "$?" = 0 ]; then
+	echo "Succesfully completed file name: $dir_name/${file_name}_permute.csv"
+fi
 
-python3.6 Table_generator.py $1 $working_directory/$2/all_file.csv $dir_name/${file_name}_permute.csv
-
-DATE=`date +%Y-%m-%d`
-
-chgrp -R erniecore $working_directory
-
-#if [ -z "$3" ]
-#then
-#	rm -rf $working_directory*
-#else
-#	mv $working_directory ${working_directory}_$DATE
-#fi

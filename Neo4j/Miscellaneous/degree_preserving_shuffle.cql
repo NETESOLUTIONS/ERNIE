@@ -1,6 +1,32 @@
 // See "Degree-Preserving Edge-Swap" (https://gist.github.com/dhimmel/f69730d8bdfb880c15ed)
 
-// Optimized swap using ids: x swaps (x = the number of relationships)
+// Tiny sample graph
+CREATE
+// create nodes
+  (n1:Node {name: 'n1'}),
+  (n2:Node {name: 'n2'}),
+  (n3:Node {name: 'n3'}),
+  (n4:Node {name: 'n4'}),
+  (n5:Node {name: 'n5'}),
+  (n6:Node {name: 'n6'}),
+// create relationships
+  (n1)-[:REL {id: 0}]->(n2),
+  (n3)-[:REL {id: 1}]->(n4),
+  (n5)-[:REL {id: 2}]->(n6),
+  (n5)-[:REL {id: 3}]->(n2),
+  (n6)-[:REL {id: 4}]->(n2)
+;
+
+// Clean everything
+MATCH (n)
+DETACH DELETE n;
+
+// Current graph
+MATCH (n)-[r]-()
+RETURN n, r
+LIMIT 100;
+
+// Random shuffle: optimized swap using ids with x swaps (x = the number of relationships)
 // Assumes all relationships are of the same type
 CALL apoc.periodic.iterate(
 'MATCH ()-[r]->()
@@ -27,7 +53,7 @@ RETURN nr1, rel AS nr2',
 );
 // 0.45s-0.161s on a (109)/[100] citation network
 
-// The Hunger method: x swaps (x = the number of relationships)
+// Random shuffle: the Hunger method with x swaps (x = the number of relationships)
 // Assumes all relationships are of the same type
 CALL apoc.periodic.iterate(
 'MATCH ()-[r]->() RETURN r',
