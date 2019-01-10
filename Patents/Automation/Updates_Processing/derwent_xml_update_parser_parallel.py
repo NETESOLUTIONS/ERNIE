@@ -86,6 +86,10 @@ writer_citation = csv.writer(csvfile_citation)
 writer_litcitation = csv.writer(csvfile_litcitation)
 writer_agent = csv.writer(csvfile_agent)
 
+#To check no duplicates enter csvfile_litcitation and csvfile_citataion
+litCitation_Values=[]
+patCitation_Values=[]
+
 #start to parse XML file by REC (a full record schema in DERWENT XML file)
 for tsip in root.findall('.//'+url+'tsip'):
     patent = tsip.find('.//'+url+'patent')
@@ -354,15 +358,18 @@ for tsip in root.findall('.//'+url+'tsip'):
         for assignee in assignees.findall('.//'+url+'assignee'):
             r_assignee_seq = 1
             r_assignee['id'] = r_assignee_seq
-            r_assignee['assignee_name']= ''
-            r_assignee['city'] = ''
-            r_assignee['state'] = ''
+            r_assignee['assignee_name']= '\'\''
+            r_assignee['city'] = '\'\''
+        r_assignee['state'] = ''
             r_assignee['country'] = ''
+        r_assignee['role']='\'\''
             assignee_name = assignee.find('.//'+url+'nameTotal')
             if assignee_name is not None and assignee_name.text is not None:
                 r_assignee['assignee_name'] = assignee_name.text.\
                                               encode('utf-8')
-            r_assignee['role'] = assignee.get(url+'appType')
+            role=assignee.get(url+'appType')
+        if role is not None:
+             r_assignee['role'] = role.encode('utf-8')
 
             address = assignee.find('.//'+url+'address')
             if address is not None:
@@ -463,8 +470,10 @@ for tsip in root.findall('.//'+url+'tsip'):
                 r_litcitation['lit_cite'] = litcit.text.encode('utf-8')
                 r_litcitation_seq =1
                 r_litcitation['id'] = r_litcitation_seq
-                writer_litcitation.writerow((r_litcitation['id'],\
-                    r_litcitation['patent_num'],r_litcitation['lit_cite']))
+        if r_litcitation['patent_num']+r_litcitation['lit_cite'] not in litCitation_Values:
+            litCitation_Values.append(r_litcitation['patent_num']+r_litcitation['lit_cite'])
+                    writer_litcitation.writerow((r_litcitation['id'],\
+                         r_litcitation['patent_num'],r_litcitation['lit_cite']))
 
     # Parse patent citation data and write it to the csv file
     patentCitations = patent.find('.//'+url+'patentCitations')
@@ -501,7 +510,7 @@ for tsip in root.findall('.//'+url+'tsip'):
                     kind = documentId.find('.//'+url+'kindCode')
                     if kind is not None and kind.text is not None:
                         r_citation['kind'] = kind.text.encode('utf-8')
-                    cited_date = documentId.find('.//'+'date')
+                    cited_date = documentId.find('.//'+url+'date')
                     if cited_date is not None and cited_date.text is not None:
                         r_citation['cited_date'] = cited_date.text.\
                                                    encode('utf-8')
@@ -525,11 +534,12 @@ for tsip in root.findall('.//'+url+'tsip'):
                     subclass = citedUs.find('.//'+url+'subclass')
                     if subclass is not None and subclass.text is not None:
                         r_citation['sub_class'] = subclass.text.encode('utf-8')
-
-                writer_citation.writerow((r_citation['id'],\
-                    r_citation['patent_num'],r_citation['cited_patnum_orig'],\
-                    r_citation['cited_patnum_wila'],\
-                    r_citation['cited_patnum_tsip'],r_citation['country'],\
+        if r_citation['patent_num']+r_citation['patent_num']+r_citation['country']+r_citation['cited_date'] not in patCitation_Values:
+            patCitation_Values.append(r_citation['patent_num']+r_citation['patent_num']+r_citation['country']+r_citation['cited_date'])
+                        writer_citation.writerow((r_citation['id'],\
+                     r_citation['patent_num'],r_citation['cited_patnum_orig'],\
+                         r_citation['cited_patnum_wila'],\
+                         r_citation['cited_patnum_tsip'],r_citation['country'],\
                     r_citation['kind'],r_citation['cited_inventor'],\
                     r_citation['cited_date'],r_citation['main_class'],\
                     r_citation['sub_class']))
@@ -539,7 +549,7 @@ shell_load = open(xml_csv_dir+input_filename[:-4]+'_load.sh', 'w') ; cpu_count =
 tasks = ['patents','inventors','examiners', 'assignees','pat_citations','agents','assignors','lit_citations']
 for i in range(0, len(tasks)):
     csv_file_name = input_filename[:-4]+"_"+tasks[i]+".csv"
-    copy_command = "psql -c \"copy new_derwent_"+tasks[i]+" from \'"+xml_csv_dir+csv_file_name+"\' delimiter \',\' CSV;\" &\n"
+    copy_command = "psql -d ernie -c \"copy new_derwent_"+tasks[i]+" from \'"+xml_csv_dir+csv_file_name+"\' delimiter \',\' CSV;\" &\n"
     y=i+1; copy_command = copy_command+"wait\n" if (y%cpu_count==0)  else copy_command+"wait\n" if (y==len(tasks)) else copy_command
     shell_load.write((copy_command))
 shell_load.close()

@@ -370,8 +370,8 @@ for tsip in root.findall('.//'+url+'tsip'):
         for assignee in assignees.findall('.//'+url+'assignee'):
             r_assignee_seq = 1
             r_assignee['id'] = r_assignee_seq
-            r_assignee['assignee_name']= ''
-            r_assignee['city'] = ''
+            r_assignee['assignee_name']= '\'\''
+            r_assignee['city'] = '\'\''
             r_assignee['state'] = ''
             r_assignee['country'] = ''
             assignee_name = assignee.find('.//'+url+'nameTotal')

@@ -1,3 +1,25 @@
+-- Limited non-deterministic sample of publications
+SELECT source_id
+FROM wos_publications wp
+WHERE publication_year = '1980'
+LIMIT 5;
+-- 0.1s
+
+-- Limited deterministic sample of publications
+SELECT source_id
+FROM wos_publications wp
+WHERE publication_year = '1980'
+ORDER BY ctid
+LIMIT 5;
+-- 0.6s
+
+-- Limited deterministic sample of publications
+SELECT source_id
+FROM wos_publications wp
+WHERE publication_year = '1980'
+ORDER BY source_id
+LIMIT 5;
+
 -- Base query
 SELECT source_id, EXISTS(SELECT 1
                          FROM wos_addresses wa
