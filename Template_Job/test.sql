@@ -8,5 +8,3 @@ FROM (
   FROM table
 );
 
---test
-
