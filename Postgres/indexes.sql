@@ -24,9 +24,3 @@ JOIN pg_index pi ON pi.indrelid = table_pc.oid -- pi.indexrelid: The OID of the 
 JOIN pg_class index_pc ON index_pc.oid = pi.indexrelid
 WHERE pi.indisunique AND index_pc.relname NOT LIKE '%_pk%'
 ORDER BY table_pc.relname;
-
--- List of all indexes
-SELECT pi.tablename, pi.indexname, pi.tablespace --, pi.indexdef
-FROM pg_indexes pi
-WHERE pi.schemaname = 'public'
-ORDER BY pi.tablename, pi.indexname;

@@ -2,11 +2,11 @@
 if [[ $1 == "-h" || $# -lt 3 ]]; then
   cat <<'HEREDOC'
 NAME
-  neo4j_bulk_import.sh -- loads CSV in bulk to Neo4j and calculate metrics
+  neo4j_load.sh -- loads CSV in bulk to Neo4j and calculate metrics
 
 SYNOPSIS
-  neo4j_bulk_import.sh nodes_file edges_file current_user_password [DB_comment]
-  neo4j_bulk_import.sh -h: display this help
+  neo4j_load.sh nodes_file edges_file current_user_password [DB_comment]
+  neo4j_load.sh -h: display this help
 
 DESCRIPTION
   # Generates a new DB name. DB_comment is used as an optional `-suffix` (with spaces replaced by underscores)

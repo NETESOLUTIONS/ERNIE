@@ -18,6 +18,24 @@ number=sys.argv[2]
 source_location=sys.argv[3]
 destination_location=sys.argv[4]
 
+#column_names=['source_id','source_year','source_issn','source_document_id_type',
+#              'cited_source_uid','reference_year','reference_issn',
+#              'reference_document_id_type']
+
+#Column names to read
+fields=['source_id','s_reference_issn']
+
+#Reading input file
+df=pd.read_csv(source_location+filename,usecols=fields)
+
+#Sorting the input file by source_id and reference_issn
+print('sorting by source_id')
+df.sort_values(by=['source_id','s_reference_issn'],inplace=True)
+df.reset_index(inplace=True)
+
+print('calculating combinations and frequencies')
+#Group by source_id and collect all reference_issn to store as list
+journal_list=df.groupby(['source_id'])['s_reference_issn'].apply(list).values
 
 def combinations_function(x):
 #     print(x[0])
@@ -25,72 +43,17 @@ def combinations_function(x):
         return [(x[0],x[0])]
     else:
         return list(combinations(x,2))
+    
 
-def generate_obs_freq(df,slice_num):
-	#print('calculating combinations and frequencies')
-	#Group by source_id and collect all reference_issn to store as list
-	df=df.groupby(['source_id'])['s_reference_issn'].apply(list).values
+#Calculating the journal pairs for each publication
+pairs=list(map(combinations_function, journal_list))
 
-	#Calculating the journal pairs for each publication
-	df=list(map(combinations_function, df))
+#Flattening the list and storing it as dataframe
+df_=pd.DataFrame([z for x in pairs for z in x],columns=['A','B'])
+df_['journal_pairs']=df_['A']+','+df_['B']
 
-	#Flattening the list and storing it as dataframe
-	df=pd.DataFrame([z for x in df for z in x],columns=['A','B'])
-	df['journal_pairs']=df['A']+','+df['B']
-
-	#Getting the aggregated count of each journal pair
-	df=df['journal_pairs'].value_counts()
-	df=pd.DataFrame({'journal_pairs':df.index,'frequency':df.values})
-	#print('Done file number ',number)
-	# final_counts.to_csv(destination_location+'bg_freq_'+str(number)+'.csv',index=False)
-	if slice_num==0:
-		df.to_csv(destination_location+'bg_freq_'+str(number)+'.csv',index=False)
-	else:
-		df.to_csv(destination_location+'bg_freq_'+str(number)+'.csv',mode='a',index=False,header=False)
-
-
-
-#Column names to read
-fields=['source_id','s_reference_issn']
-
-#Reading input file
-data_set=pd.read_csv(source_location+filename,usecols=fields)
-
-#Sorting the input file by source_id and reference_issn
-#print('sorting by source_id')
-data_set.sort_values(by=['source_id','s_reference_issn'],inplace=True)
-data_set.reset_index(inplace=True)
-
-
-end_point=4000000
-start_point=0
-total_len=len(data_set)
-
-if total_len < 4000000:
-    # print('Entered if block')
-    generate_obs_freq(data_set,0)
-else:
-    # print('Entered else block')
-    slice_num=0
-    source_id=data_set['source_id'][end_point]
-    while end_point <= total_len:
-        end_point+=1
-        if source_id != data_set['source_id'][end_point]:
-            #print('end_point',data_set['source_id'][end_point])
-            #print('end_point-1',data_set['source_id'][end_point-1])
-            generate_obs_freq(data_set.iloc[start_point:end_point,:],slice_num)
-            slice_num+=1
-            start_point=end_point
-            end_point+=4000000
-            if end_point < total_len:
-                source_id=data_set['source_id'][end_point]
-            if end_point > total_len:
-                end_point=total_len
-                generate_obs_freq(data_set.iloc[start_point:,:],slice_num)
-                end_point=total_len+1
-
-data_set=pd.read_csv(destination_location+'bg_freq_'+str(number)+'.csv')
-data_set=data_set.groupby(by=['journal_pairs'],as_index=False)['frequency'].sum()
-data_set.to_csv(destination_location+'bg_freq_'+str(number)+'.csv',index=False)
-
-print('Done file number ',number)
+#Getting the aggregated count of each journal pair
+final_counts=df_['journal_pairs'].value_counts()
+final_counts=pd.DataFrame({'journal_pairs':final_counts.index,'frequency':final_counts.values})
+print('Done generating final file')
+final_counts.to_csv(destination_location+'bg_freq_'+str(number)+'.csv',index=False)
