@@ -62,8 +62,8 @@ def generate_table(data_set,number):
     del(data_set)
 
     df_c=pd.DataFrame([z for x in pairs for z in x],columns=['A','B'])
-    df_c['journal_pairs']=df_c['A']+','+df_c['B']
     df_c['source_id']=pd.Series(source_values)
+    df_c['journal_pairs']=df_c['A']+','+df_c['B']
 
     # del(df_)
     #print('len of file',len(df_c))
