@@ -66,6 +66,6 @@ readonly PROJECT_DIR=$(pwd)
 export PATH=$PATH:${DATAGRIP_HOME}/bin
 
 git diff --diff-filter=ACMRTUXB ${GIT_PREVIOUS_SUCCESSFUL_COMMIT} ${GIT_COMMIT} --name-only | grep '\.sql$' | \
-    tee /dev/stdout | xargs -I '{}' format.sh -s "${PROJECT_DIR}/.idea/codeStyles/Project.xml" {}
+    xargs -I '{}' format.sh -s "${PROJECT_DIR}/.idea/codeStyles/Project.xml" {}
 
 exit 0
