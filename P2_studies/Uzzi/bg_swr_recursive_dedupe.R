@@ -1,11 +1,11 @@
 # script for background file generation that deletes pubs with duplicate references
 # this script switches references using a sample with replacement approach hence swr
 
-setwd('to your facorite directory')
+# setwd('to your favorite directory')
 library(data.table); library(dplyr)
 rm(list=ls())
 # import source file (one year's worth of data- filename is hard coded in this script)
-sorted <- fread('data1980.csv')
+sorted <- fread('dataset_1980.csv')
 
 # construct table for backjoining later
 

@@ -18,4 +18,4 @@
 --
 -- \include_relative ../../SPIRES/Postgres/DDL/spires_ddl.sql
 --
--- \include_relative ../../WoS/Postgres/DDL/wos_ddl.sql
+\include_relative ../../Pubs/DDL/wos_ddl.sql

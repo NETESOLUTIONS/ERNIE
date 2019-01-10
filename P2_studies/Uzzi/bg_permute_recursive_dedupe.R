@@ -2,12 +2,12 @@
 
 # Don't forget to set working directory to where your
 # input data is located.
-setwd('name of working directory')
+# setwd('name of working directory')
 
 library(data.table); library(dplyr)
 rm(list=ls())
-# import source file (one year's worth of data- filename is hard coded as data1980.csv in this script)
-sorted <- fread('data1980.csv')
+# import source file (one year's worth of data- filename is hard coded as dataset1980.csv in this script)
+sorted <- fread('dataset_1980.csv')
 
 # construct table for backjoining later
 
@@ -42,7 +42,7 @@ S4 <- S2 %>% inner_join(refindex,by=c('s_cited_source_uid'='cited_source_uid'))
 colnames(S4) <- c('source_id','source_year','o_cited_source_uid','o_refyear','o_ref_issn','s_cited_source_uid','s_reference_issn','s_reference_year')
 print(dim(S4))
 # single quotes seem to work better in CentOS although this could be because of passaging through TextEdit.
-fwrite(S4,file=paste('bg_n_shuffled',i,'.csv',sep=''),row.names=FALSE)
+fwrite(S4,file=paste('bg_n_permuted',i,'.csv',sep=''),row.names=FALSE)
 print(paste('Ended loop number',i,sep=''))
 
 }
