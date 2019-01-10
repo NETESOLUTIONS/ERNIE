@@ -1,10 +1,6 @@
+select count(*) from test;
 
-SELECT count(*)
-FROM test;
+select id from (select * from table);
 
-SELECT id
-FROM (
-  SELECT *
-  FROM table
-);
+--test
 
