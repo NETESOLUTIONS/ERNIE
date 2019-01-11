@@ -4,9 +4,9 @@
 # This script takes three parameters: 
 # (i) input_file: self explanatory but should be in .csv format and be a copy of a datasetxxxx table 
 # from the public schema in ERNIE
-# (ii) output_name_string: For example, bl_analysis_permute_, that is used to label output files. This string
+# (ii) output_name_string: For example, bl_analysis_permuted_, that is used to label output files. This string
 # should include _permute_ so that the Python script that calculates z_scores will work on it.
-# (iii) m_permute: an integer specifying how many permutations should be performed. Typically 100-1000.
+# (iii) n_permute: an integer specifying how many permutations should be performed. Typically 100-1000.
 # Thus, "nohup Rscript permute_script.R <input_file> <output_name_string> <n_permute> &
 
 # Command line parameters
