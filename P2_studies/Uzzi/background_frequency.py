@@ -18,6 +18,7 @@ number=sys.argv[2]
 source_location=sys.argv[3]
 destination_location=sys.argv[4]
 
+print('Working on file',filename)
 
 def combinations_function(x):
 #     print(x[0])
