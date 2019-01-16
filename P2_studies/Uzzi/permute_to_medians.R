@@ -95,6 +95,6 @@ nm_cs_1995 <- fread("/erniedev_data10/P2_studies/data_slices/cocit_search/nm_max
 nm_cs_95 <- nm_cs_1995[,.(source_id,z_scores)]
 nm_cs_95 <- nm_cs_95[!z_scores==Inf]
 nm_cs_95 <- nm_cs_95[!z_scores==-Inf]
-nm_s95_zsc_med <- nm_cs_95[, .(med = median(z_scores), ten = quantile(z_scores, 0.1), 
+nm_cs95_zsc_med <- nm_cs_95[, .(med = median(z_scores), ten = quantile(z_scores, 0.1), 
 	one = quantile(z_scores, 0.01)), by = "source_id"]
-fwrite(nm_s95_zsc_med, file = "nm_s95_zsc_med.csv", row.names = FALSE)
+fwrite(nm_cs95_zsc_med, file = "nm_cs95_zsc_med.csv", row.names = FALSE)
