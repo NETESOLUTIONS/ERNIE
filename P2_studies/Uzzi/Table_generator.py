@@ -29,10 +29,11 @@ def generate_table(data_set,number):
     source_values=[]
 
     journal_list=data_set.groupby(['source_id'])['reference_issn'].apply(list).values
+    reference_list=data_set.groupby(['source_id'])['cited_source_uid'].apply(list).values
 
     #Calculating the journal pairs for each publication
     pairs=list(map(combinations_function, journal_list))
-
+    ref_pairs=list(map(combinations_function,reference_list))
     #Calculating the pairs for journal and cited references
     #print('looping through and creating pairs')
     for index,row in data_set.iterrows():
@@ -62,8 +63,11 @@ def generate_table(data_set,number):
     del(data_set)
 
     df_c=pd.DataFrame([z for x in pairs for z in x],columns=['A','B'])
-    df_c['journal_pairs']=df_c['A']+','+df_c['B']
     df_c['source_id']=pd.Series(source_values)
+    df_=pd.DataFrame([z for x in ref_pairs for z in x],columns=['C','D'])
+    df_c['wos_id_pairs']=df_['C']+','+df_['D']
+    del(df_)
+    df_c['journal_pairs']=df_c['A']+','+df_c['B']
 
     # del(df_)
     #print('len of file',len(df_c))
@@ -86,20 +90,20 @@ destination_file=sys.argv[3]
 column_names=['source_id','source_year','source_issn','source_document_id_type','cited_source_uid',
               'reference_year','reference_issn','reference_document_id_type']
 
-fields=['source_id','reference_issn']
+fields=['source_id','cited_source_uid','reference_issn']
 
 data_set=pd.read_csv(filename,usecols=fields)
 #print('Generating Lookup Table')
 
 #Sorting the input file by source_id and reference_issn
-data_set.sort_values(by=['source_id','reference_issn'],inplace=True)
+data_set.sort_values(by=['source_id','reference_issn','cited_source_uid'],inplace=True)
 data_set.reset_index(inplace=True,drop=True)
 
-end_point=4000000
+end_point=3000000
 start_point=0
 total_len=len(data_set)
 
-if total_len < 4000000:
+if total_len < 3000000:
     #print('Entered if block')
     generate_table(data_set,0)
 else:
@@ -114,7 +118,7 @@ else:
             generate_table(data_set.iloc[start_point:end_point,:],number)
             number+=1
             start_point=end_point
-            end_point+=4000000
+            end_point+=3000000
             if end_point < total_len:
                 source_id=data_set['source_id'][end_point]
             if end_point > total_len:
