@@ -153,12 +153,12 @@ Map based Network Analysis
 
 # id_type wos or pmid
 def CoreNodeList(file_name, input_dir, output_dir, id_type):
-    #raw_df = pd.DataFrame.read_csv("edgeList.tsv", sep='\t', header=0)
-    raw_df_all = pd.DataFrame.read_csv("five_pack_orig.csv", sep=',', header=0)
+    #raw_df = pd.read_csv("edgeList.tsv", sep='\t', header=0)
+    raw_df_all = pd.read_csv("five_pack_orig.csv", sep=',', header=0)
     unique_nodes_all = pd.concat([raw_df_all[id_type]]).unique().tolist()
 
     # get drug nodes
-    raw_df = pd.DataFrame.read_csv(filename, sep='\t', header=0)
+    raw_df = pd.read_csv(filename, sep='\t', header=0)
     #unique_nodes = pd.concat([raw_df["citing_"+id_type],raw_df["cited_"+id_type]]).unique().tolist()
     unique_nodes = pd.concat([raw_df["citing_"+id_type]]).unique().tolist()
 
@@ -238,9 +238,9 @@ def pearsonCorr(list1, list2):
 This method returns a data frame which has stype or type as wosid*
 '''
 def NodeList(file_name, input_dir, output_dir):
-    #raw_df = pd.DataFrame.read_csv("edgeList.tsv", sep='\t', header=0)
+    #raw_df = pd.read_csv("edgeList.tsv", sep='\t', header=0)
     #"source"	"stype"	"target"	"ttype"
-    raw_df = pd.DataFrame.read_csv(input_dir+file_name, sep='\t', header=0)
+    raw_df = pd.read_csv(input_dir+file_name, sep='\t', header=0)
     unique_nodes = pd.concat([raw_df['source'],raw_df['target']]).unique().tolist()
     unique_source_nodes = raw_df['source'].unique().tolist()
     unique_target_nodes = raw_df['target'].unique().tolist()
@@ -351,7 +351,7 @@ This method returns a dictionary of authors and their publication set
 '''
 def Auth_pubSet(file_name, input_dir, output_dir):
 
-    raw_df = pd.DataFrame.read_csv(input_dir+file_name, sep='\t', header=0)
+    raw_df = pd.read_csv(input_dir+file_name, sep='\t', header=0)
     only_pub_auth = raw_df[lambda y: (y.ttype=='author')]
     unique_auth_nodes = only_pub_auth['ttype'].unique().tolist()
 
