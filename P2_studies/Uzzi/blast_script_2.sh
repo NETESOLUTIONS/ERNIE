@@ -61,7 +61,7 @@ if [ "$?" != 0 ]; then
 fi
 
 #Generates file which contains all the journal_pairs, wos_id's, z_scores and observed frequency
-python3.7 Table_generator_r.py $1 $working_directory/$2/zscores_file.csv $dir_name/${file_name}_permute.csv
+python3.7 Table_generator_r.py $1 $working_directory/$2/zscores_file.csv $dir_name/${file_name}_permute_ref.csv
 
 if [ "$?" != 0 ]; then
 	exit 1
