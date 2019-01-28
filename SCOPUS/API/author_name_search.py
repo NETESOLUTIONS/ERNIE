@@ -42,7 +42,6 @@ for row in author_df.itertuples():
                 (\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\')
             '''.format(row.Surname,row.Given_Name,author_id,
                     row.Award_Number, row.Phase, row.First_Year, 0,query))
-        #TODO: add else condition for NO AUTHOR ID
     conn.commit()
 if args.output_file!=None:
     cur.execute("COPY cci_s_author_search_results_stg TO \'{}\' CSV HEADER".format(args.output_file))

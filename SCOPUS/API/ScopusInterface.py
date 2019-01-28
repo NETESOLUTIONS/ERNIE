@@ -1,7 +1,7 @@
 '''
 ScopusInterface.py
 
-    This script interfaces with various Scopus APIs including the author, abstract, and affiliation retrieval APIs
+    This helper module interfaces with various Scopus APIs including the author, abstract, and affiliation retrieval APIs
      as well as the SCOPUS search API. A subset of the XML fields are returned in python dictionary format.
     Due to API throttling, it is important to ensure the sleep_time variable is set to a value which would not cause
      the API to choke on response
@@ -12,6 +12,7 @@ ScopusInterface.py
 from lxml import etree
 import sys
 from time import sleep
+import pandas as pd
 from copy import deepcopy
 try:
     from urllib import urlencode
@@ -155,9 +156,14 @@ def author_retrieval(author_id, api_key, view="ENHANCED",query_params=deepcopy(q
         return data_dict,auth_html
     return data_dict
 
+def iter_search_results(result_xml,fields):
+    for entry in result_xml.xpath("//*[local-name()='entry']"):
+        row={ field:next(iter(etree.ElementTree(entry).xpath("//*[local-name()='{}']/text()".format(field))),"").strip() for field in fields}
+        yield pd.DataFrame([row])
+
 # Collect a list of documents by an author given search terms
-def document_search(query,api_key,search_result_limit=4999,field="title,identifier",query_params=deepcopy(query_params_base),query_return=False):
-    query_params.update({'apiKey':api_key, 'field':field, 'query':query})
+def document_search(query,api_key,search_result_limit=4999,view="STANDARD",field="title,identifier",query_params=deepcopy(query_params_base),query_return=False, result_count_only=False):
+    query_params.update({'apiKey':api_key, 'field':field, 'query':query,'view':view})
     document_search_html=scopus_search_header+"?"+urlencode(query_params)
     print("Submitting query string: \"{}\"".format(document_search_html))
     try:
@@ -166,22 +172,25 @@ def document_search(query,api_key,search_result_limit=4999,field="title,identifi
         print(e)
         print("QUERY_ERROR: could not process query string: {}".format(document_search_html))
         return None
-    data_dict={'documents':[]}
+    data_dict={'documents':pd.DataFrame(columns=field.split(','))}
     total = next(iter(xml_auth_documents.xpath("//*[local-name()='totalResults']/text()")),"")
-    data_dict['documents']+=xml_auth_documents.xpath("//*[local-name()='entry']/*[local-name()='identifier']/text()")
-    if total != "":
-        for i in range (0, min(int(total)+1,search_result_limit), inc_step):
-            sleep(sleep_time)
-            query_params.update({'start':i})
-            documents_chunk_html=scopus_search_header+"?"+urlencode(query_params)
-            print('Query string: \"%s\"'%(documents_chunk_html))
-            try:
-                xml_documents_chunk=etree.fromstring(urlopen(documents_chunk_html).read())
-                data_dict['documents']+=xml_documents_chunk.xpath("//*[local-name()='entry']/*[local-name()='identifier']/text()")
-            except Exception as e:
-                print(e)
-                print("QUERY_ERROR: could not process query string: \"%s\""%(documents_chunk_html))
-    data_dict['documents']=set(data_dict['documents']);data_dict['documents']=[i.replace("SCOPUS_ID:", "") for i in data_dict['documents']]; data_dict['process_document_count']=len(data_dict['documents'])
+    if not result_count_only:
+        if total != "":
+            for i in range (0, min(int(total)+1,search_result_limit), inc_step):
+                sleep(sleep_time)
+                query_params.update({'start':i})
+                documents_chunk_html=scopus_search_header+"?"+urlencode(query_params)
+                print('Query string: \"%s\"'%(documents_chunk_html))
+                try:
+                    xml_documents_chunk=etree.fromstring(urlopen(documents_chunk_html).read())
+                    for row in iter_search_results(xml_documents_chunk,field.split(',')):
+                        data_dict['documents']=data_dict['documents'].append(row,ignore_index=True)
+                except Exception as e:
+                    print(e)
+                    print("QUERY_ERROR: could not process query string: \"%s\""%(documents_chunk_html))
+    data_dict['documents']=data_dict['documents'].drop_duplicates().reset_index(drop=True)
+    data_dict['process_document_count']=len(data_dict['documents'])
+    data_dict['totalResults']=total
     if query_return==True:
         return data_dict,document_search_html
     return data_dict
