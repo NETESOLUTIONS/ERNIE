@@ -22,3 +22,5 @@ c) collect_affiliation_profiles.py: This script utilizes the ScopusInterface scr
 d) collect_author_profiles.py:  This script utilizes the ScopusInterface script, item a) above, to populate *author* profile related CSV files based on API HTML responses.
 
 e) collect_document_profiles.py: This script utilizes the ScopusInterface script, item a) above, to populate *document* profile related CSV files based on API HTML responses.
+
+f) collect_funding_info.py: This script utilizes the ScopusInterface script, item a) above, to populate sponsor related CSV files based on API HTML responses.
