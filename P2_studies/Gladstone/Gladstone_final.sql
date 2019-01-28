@@ -145,5 +145,3 @@ DROP TABLE ipsc_stem_temp;
 DROP TABLE ipsc_temp1;
 DROP TABLE ipsc_cit_counts_temp2;
 DROP TABLE ipsc_cit_counts_temp3;
-DROP TABLE glastone_temp;
-
