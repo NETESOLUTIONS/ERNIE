@@ -7,7 +7,7 @@ import psycopg2
 import pandas; import os
 from time import sleep
 import argparse
-api_key=os.environ['SCOPUS_API_KEY']
+
 parser = argparse.ArgumentParser(description='''
 author_name_search.py
     This script utilizes the ScopusInterface script with a provided CSV file of preprocessed

@@ -8,7 +8,7 @@ collect_author_profiles.py
 import ScopusInterface as si
 import sys
 from time import sleep
-api_key="8e7af5ee40800398206fe9d119deccd3" # INSERT API KEY HERE
+api_key=# INSERT API KEY HERE
 
 # CSV file set up
 profiles=['authors','author_document_mappings']#'author_affiliation_mappings','author_document_mappings']
