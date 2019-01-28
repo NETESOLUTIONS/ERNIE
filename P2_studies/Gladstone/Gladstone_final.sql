@@ -63,10 +63,10 @@ DROP TABLE IF EXISTS ipsc_stem_citation_status;
 CREATE TABLE public.ipsc_stem_citation_status AS
 SELECT source_id, 
 	CASE WHEN source_id IN (SELECT cited_source_uid FROM ipsc_stem_data) THEN 'both'
-	ELSE 'cited' 
+	ELSE 'cites' 
 	END AS source_status, cited_source_uid,
 	CASE WHEN cited_source_uid IN (SELECT source_id FROM ipsc_stem_data) THEN 'both'
-	ELSE 'citing' 
+	ELSE 'is-cited' 
 	END AS cited_source_status
 FROM ipsc_stem_data;
 
