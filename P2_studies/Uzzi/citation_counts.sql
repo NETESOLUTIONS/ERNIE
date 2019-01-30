@@ -32,7 +32,7 @@ CREATE TABLE :temp_table_1 tablespace p2_studies AS
 SELECT cited_source_uid AS :column_name,source_id AS citing_pub_id 
 FROM wos_references 
 WHERE cited_source_uid IN (SELECT DISTINCT source_id FROM :input_table);
-CREATE INDEX :temp_table_pk_1 ON :temp_table_1(source_id,citing_pub_id);
+CREATE INDEX :temp_table_pk_1 ON :temp_table_1(:column_name,citing_pub_id);
 
 -- restrict citing references to <= 8 years
 DROP TABLE IF EXISTS :temp_table_2;
