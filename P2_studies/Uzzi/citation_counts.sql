@@ -6,18 +6,18 @@
 \set ECHO all
 
 \set number_of_years :count
-\set temp_table_1 'dataset':year:'_temp1'
+\set temp_table_1 'dataset':year'_temp1'
 \set temp_table_pk_1 :temp_table_1'_pk'
 
-\set temp_table_2 'dataset':year:'_cit_counts_temp1'
+\set temp_table_2 'dataset':year'_cit_counts_temp1'
 \set temp_table_pk_2 :temp_table_2'_pk'
 
-\set output_table 'dataset':year:'_cit_counts'
+\set output_table 'dataset':year'_cit_counts'
 \set output_table_pk :output_table'_pk'
 
 \set input_table 'dataset':year
 -- Column name
-\set column_name 'd':year:'_source_id'
+\set column_name 'd':year'_source_id'
 
 
 -- Start execution from here
