@@ -133,7 +133,10 @@
                                     "password": "[parameters('sshPassword')]"
                                 }
                             },
-                            "virtualNetworkProfile": null,
+                            "virtualNetworkProfile": {
+                                "id": "/subscriptions/efbef82a-58a0-4853-bad2-3bdc1236ec8f/resourceGroups/ERNIE/providers/Microsoft.Network/virtualNetworks/ERNIE-vnet",
+                                "subnet": "/subscriptions/efbef82a-58a0-4853-bad2-3bdc1236ec8f/resourceGroups/ERNIE/providers/Microsoft.Network/virtualNetworks/ERNIE-vnet/subnets/default"
+                            },
                             "scriptActions": []
                         },
                         {
