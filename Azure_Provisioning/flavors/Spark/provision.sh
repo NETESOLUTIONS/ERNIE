@@ -20,8 +20,9 @@ ENVIRONMENT
   ADMIN_USERNAME
   ADMIN_PASSWD
   HEAD_NODE_VIRTUAL_MACHINE_SIZE
-  WORKER_VIRTUAL_MACHINE_SIZE
+  WORKER_NODE_VIRTUAL_MACHINE_SIZE
   WORKER_NODE_COUNT
+  HEAD_NODE_COUNT
   CLUSTER_NAME
   RESOURCE_GROUP_NAME
   RESOURCE_GROUP_LOCATION
@@ -56,10 +57,14 @@ cat temp.json | jq ".parameters.clusterLoginPassword.value =\"${ADMIN_PASSWD}\""
  | jq ".parameters.sshUserName.value =\"${ADMIN_USERNAME}\""\
  | jq ".parameters.clusterName.value =\"${CLUSTER_NAME}\""\
  | jq ".parameters.location.value =\"${RESOURCE_GROUP_LOCATION}\""\
- | jq ".parameters.clusterHeadNodeSize.value =\"${HEAD_NODE_SIZE}\""\
- | jq ".parameters.clusterWorkerNodeSize.value =\"${WORKER_NODE_SIZE}\""\
+ | jq ".parameters.clusterHeadNodeSize.value =\"${HEAD_NODE_VIRTUAL_MACHINE_SIZE}\""\
+ | jq ".parameters.clusterWorkerNodeSize.value =\"${WORKER_NODE_VIRTUAL_MACHINE_SIZE}\""\
  | jq ".parameters.clusterWorkerNodeCount.value = ${WORKER_NODE_COUNT}"\
  | jq ".parameters.clusterHeadNodeCount.value = ${HEAD_NODE_COUNT}"  > parameters.json
+
+echo "***THE FOLLOWING PARAMETERS ARE SET***"
+cat parameters.json
+echo "**************************************"
 
 # Login to azure using saved credentials
 az account show 1> /dev/null
