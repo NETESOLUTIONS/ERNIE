@@ -73,7 +73,7 @@ then
 	az login
 fi
 # Set the default subscription id
-az account set --subscription ${AZURE_SUBSCRIPTION_ID}
+az account set --subscription "${AZURE_SUBSCRIPTION_ID}"
 set +e
 
 #Start deployment
