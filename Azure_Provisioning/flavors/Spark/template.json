@@ -94,6 +94,9 @@
                 "clusterVersion": "[parameters('clusterVersion')]",
                 "osType": "Linux",
                 "tier": "standard",
+                "networkSecurityGroup": {
+                    "id": "/subscriptions/efbef82a-58a0-4853-bad2-3bdc1236ec8f/resourceGroups/ERNIE/providers/Microsoft.Network/networkSecurityGroups/ERNIE-Private"
+                },
                 "clusterDefinition": {
                     "kind": "[parameters('clusterKind')]",
                     "componentVersion": {
