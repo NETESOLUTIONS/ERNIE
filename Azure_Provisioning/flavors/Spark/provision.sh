@@ -90,22 +90,20 @@ fi
 cat deployment.json
 
 
-#server_id=$(jq -r ".properties.outputResources[0].id" deployment.json)
+# Extract the necessary values from the JSON - get the IPs for all the nodes
+cluster_id=$(jq -r ".properties.outputResources[0].id" deployment.json)
+echo $cluster_id > ~/spark_cluster_id.txt # Save this for later deprovisioning
+az resource show --ids $cluster_id > cluster.json
+nodes_subnet=$(jq -r ".properties.computeProfile.roles[0].virtualNetworkProfile.subnet" cluster.json)
+az resource show --ids $nodes_subnet > nodes.json
+>ips.txt
+while read node ; do
+   ntype=$( echo $node | grep -q "headnode" && echo "headnode" || echo "other")
+   ip=$(az resource show --ids $node | jq -r ".properties.privateIPAddress")
+   echo "${ip}|${ntype}" >> ips.txt
+done < <(jq -r ".properties.ipConfigurations[].id" nodes.json)
 
-# Collect Private IP address for provisioned server (head node address), swap keys
-#private_ip=$(jq -r ".properties.outputs.privateIPAddress.value" deployment.json)
-#sed -i "/^${private_ip}.*$/d" ~/.ssh/known_hosts
-#sshpass -p "${ADMIN_PASSWD}" ssh-copy-id -i ~/.ssh/id_rsa.pub -o StrictHostKeyChecking=no ${ADMIN_USERNAME}@${private_ip}
-#PRIVATE=~/.ssh/id_rsa
+#TODO: INCORPORATE AUTOMATED ADDITION TO JENKINS PUBLISH OVER SSH WITH GROOVY
 
-# Add the information for the server to PublishOverSSH configuration
-#sed -i "s/def name = \"\"/def name = \"${VIRTUAL_MACHINE_NAME}\"/g" add_server_to_config.groovy
-#sed -i "s/def username = \"\"/def username = \"${ADMIN_USERNAME}\"/g" add_server_to_config.groovy
-#sed -i "s/def hostname = \"\"/def hostname = \"${private_ip}\"/g" add_server_to_config.groovy
-#sed -i "s|def keyPath = \"\"|def keyPath = \"${PRIVATE}\"|g" add_server_to_config.groovy
-
-# Save miscellaneous information to file for a later deprovision job
-#solr_directory=~/solr_$(date +%Y%m%d_%H%M)UTC
-#mkdir $solr_directory
-#chmod 700 $solr_directory
-#cp deployment.json $solr_directory/deployment.json
+echo "*** THE FOLLOWING NODES HAVE BEEN CREATED AND ARE NOW ACCESSIBLE WITHIN THE PRIVATE IP RANGE ***"
+cat ips.txt
