@@ -37,7 +37,7 @@ hdfs dfs -rm -r /user/spark/data/*
 echo "*** SPARK IMPORT STARTED : $(date) ***"
 echo "*** LOADING dataset1980 ***"
 sqoop import --verbose --connect jdbc:postgresql://${POSTGRES_HOSTNAME}/${POSTGRES_DATABASE} \
---username ${POSTGRES_USER} --password ${POSTGRES_PASSWORD} --table dataset1980 \
+--username ${POSTGRES_USER} --password ${POSTGRES_PASSWORD} -m 1 --table dataset1980 \
 --columns source_id,source_year,source_document_id_type,source_issn,cited_source_uid,reference_year,reference_document_id_type,reference_issn \
 --map-column-java source_id=String,source_year=String,source_document_id_type=String,\
 source_issn=String,cited_source_uid=String,reference_year=Integer,\
