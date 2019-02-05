@@ -44,3 +44,6 @@ source_issn=String,cited_source_uid=String,reference_year=Integer,\
 reference_document_id_type=String,reference_issn=String \
 --warehouse-dir=/hive/warehouse --hive-import --hive-table dataset1995 -- --schema ${POSTGRES_SCHEMA}
 echo "*** SPARK IMPORT COMPLETED : $(date) ***"
+
+# After data is imported, submit a job to pyspark that will make use of the imported table(s)
+$SPARK_HOME/bin/spark-submit --driver-memory 8g  permute_in_spark.py
