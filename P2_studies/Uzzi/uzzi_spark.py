@@ -116,9 +116,9 @@ def final_table(iterations):
 
 def z_score_calculations(iterations):
     #z-score calculations
-    print('printing the spark dataframe')
-    testing=spark.sql("SELECT * from obs_frequency")
-    testing.show(n=5)
+    # print('printing the spark dataframe')
+    # testing=spark.sql("SELECT * from obs_frequency")
+    # testing.show(n=5)
     pandas_df=spark.sql("SELECT * from obs_frequency").toPandas()
 
     #Calculating the mean
@@ -134,8 +134,8 @@ def z_score_calculations(iterations):
     pandas_df['count']=pandas_df.iloc[:,3:iterations+3].apply(lambda x: x.count(),axis=1)
 
     pandas_df=pandas_df[['journal_pair_A','journal_pair_B','obs_frequency','mean','z_score','count']].dropna()
-    print('printing the pandas dataframe')
-    pandas_df.head(n=10)
+    # print('printing the pandas dataframe')
+    # pandas_df.head(n=10)
     # obs_file['count']=obs_file.iloc[:,2:number].apply(lambda x: x.count(),axis=1)
     # obs_file[['journal_pairs','obs_frequency','mean','z_scores','count']].dropna().to_csv(bg_files+'zscores_file.csv',index=False)
     obs_df=spark.createDataFrame(pandas_df)
@@ -162,7 +162,7 @@ for i in range(0,int(number_of_repetitions)+1):
         .mapPartitions(shuffle_generator) \
         .collect()
     shuffled_dataset = spark.createDataFrame(shuffled_rows)
-    shuffled_dataset.show()
+    # shuffled_dataset.show()
     calculate_journal_pairs_freq(shuffled_dataset,i)
 
 z_score_calculations(number_of_repetitions)
