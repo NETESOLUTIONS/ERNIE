@@ -14,9 +14,10 @@ input_dataset = spark.read.format("csv").option("header", "true").load(DATA_FILE
 print("Input:")
 input_dataset.show()
 
+# row_list = []
 
 def shuffle(ref_year_group):
-    global row_list
+    # global row_list
     group = []
     size = 0
     for row in ref_year_group:
@@ -32,10 +33,14 @@ def shuffle(ref_year_group):
                              reference_year=group[size - 1 - i].reference_year,
                              reference_document_id_type=group[size - 1 - i].reference_document_id_type,
                              reference_issn=group[size - 1 - i].reference_issn)
-            spark.createDataFrame(result_row, input_dataset.schema) \
-                .write.mode('append') \
-                .parquet('dataset_test.parquet')
+            print(row)
+            # FIXME not possible
+            # row_list.append(result_row)
 
+            # FIXME not possible
+            # spark.createDataFrame(result_row, input_dataset.schema) \
+            #     .write.mode('append') \
+            #     .parquet('dataset_test.parquet')
 
 input_dataset.repartition("reference_year") \
     .withColumn("rand", rand()) \
