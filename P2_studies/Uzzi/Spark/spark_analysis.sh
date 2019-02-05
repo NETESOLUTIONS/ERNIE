@@ -35,12 +35,12 @@ hdfs dfs -rm -r /user/spark/data/*
 
 # Next, import the target tables from the PostgreSQL database
 echo "*** SPARK IMPORT STARTED : $(date) ***"
-echo "*** LOADING dataset1980 ***"
+echo "*** LOADING dataset1995 ***"
 sqoop import --verbose --connect jdbc:postgresql://${POSTGRES_HOSTNAME}/${POSTGRES_DATABASE} \
---username ${POSTGRES_USER} --password ${POSTGRES_PASSWORD} -m 1 --table dataset1980 \
+--username ${POSTGRES_USER} --password ${POSTGRES_PASSWORD} -m 1 --table dataset1995 \
 --columns source_id,source_year,source_document_id_type,source_issn,cited_source_uid,reference_year,reference_document_id_type,reference_issn \
 --map-column-java source_id=String,source_year=String,source_document_id_type=String,\
 source_issn=String,cited_source_uid=String,reference_year=Integer,\
 reference_document_id_type=String,reference_issn=String \
---warehouse-dir=/hive/warehouse --hive-import --hive-table dataset1980 -- --schema ${POSTGRES_SCHEMA}
+--warehouse-dir=/hive/warehouse --hive-import --hive-table dataset1995 -- --schema ${POSTGRES_SCHEMA}
 echo "*** SPARK IMPORT COMPLETED : $(date) ***"
