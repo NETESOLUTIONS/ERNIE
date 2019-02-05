@@ -4,9 +4,6 @@ from pyspark import Row
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import rand
 
-os.environ["PYSPARK_PYTHON"] = "/usr/local/opt/anaconda3/bin/python"
-os.environ["PYSPARK_DRIVER_PYTHON"] = os.environ["PYSPARK_PYTHON"]
-
 DATA_FILE = "dataset_test.csv"
 spark = SparkSession.builder.appName("permute_in_spark").getOrCreate()
 # spark.sparkContext.setLogLevel("INFO")
@@ -16,7 +13,6 @@ input_dataset.show()
 
 
 def shuffle(ref_year_group):
-    global row_list
     group = []
     size = 0
     for row in ref_year_group:
@@ -32,9 +28,10 @@ def shuffle(ref_year_group):
                              reference_year=group[size - 1 - i].reference_year,
                              reference_document_id_type=group[size - 1 - i].reference_document_id_type,
                              reference_issn=group[size - 1 - i].reference_issn)
-            spark.createDataFrame(result_row, input_dataset.schema) \
-                .write.mode('append') \
-                .parquet('dataset_test.parquet')
+            print(result_row)
+            # spark.createDataFrame(result_row, input_dataset.schema) \
+            #     .write.mode('append') \
+            #     .parquet('dataset_test.parquet')
 
 
 input_dataset.repartition("reference_year") \
