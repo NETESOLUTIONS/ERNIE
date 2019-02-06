@@ -38,6 +38,7 @@ shuffled_rows = input_dataset \
     .sortWithinPartitions("rand") \
     .rdd \
     .mapPartitions(shuffle_generator) \
+    .distinct() \
     .collect()
 
 # region Solution using RDD.aggregate

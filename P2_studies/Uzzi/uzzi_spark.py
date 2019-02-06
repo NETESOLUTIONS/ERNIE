@@ -160,6 +160,7 @@ for i in range(0,int(number_of_repetitions)+1):
         .sortWithinPartitions("rand") \
         .rdd \
         .mapPartitions(shuffle_generator) \
+        .distinct() \
         .collect()
     shuffled_dataset = spark.createDataFrame(shuffled_rows)
     # shuffled_dataset.show()
