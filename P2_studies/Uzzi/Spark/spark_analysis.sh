@@ -46,4 +46,4 @@ reference_document_id_type=String,reference_issn=String \
 echo "*** SPARK IMPORT COMPLETED : $(date) ***"
 
 # After data is imported, submit a job to pyspark that will make use of the imported table(s)
-$SPARK_HOME/bin/spark-submit --driver-memory 8g  permute_in_spark.py
+$SPARK_HOME/bin/spark-submit --driver-memory 8g  ./permute_in_spark.py
