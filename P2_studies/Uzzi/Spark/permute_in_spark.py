@@ -2,14 +2,9 @@ from pyspark import Row
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import rand
 
-# os.environ["PYSPARK_PYTHON"] = "/usr/local/opt/anaconda3/bin/python"
-# os.environ["PYSPARK_DRIVER_PYTHON"] = os.environ["PYSPARK_PYTHON"]
 
-DATA_FILE = "test_data/dataset_test.csv"
 spark = SparkSession.builder.appName("permute_in_spark").getOrCreate()
-# spark.sparkContext.setLogLevel("INFO")
-input_dataset = spark.read.format("csv").option("header", "true").load(DATA_FILE)
-print("Input:")
+input_dataset = spark.sql("SELECT * FROM dataset1995")
 input_dataset.show()
 
 
