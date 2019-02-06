@@ -15,7 +15,7 @@ spark = SparkSession.builder.appName("permute_in_spark") \
 spark.conf.set("spark.sql.autoBroadcastJoinThreshold", -1)
 
 # Read the input dataset into a variable
-input_dataset = spark.sql("SELECT * FROM dataset1995 LIMIT 10000")
+input_dataset = spark.sql("SELECT * FROM dataset1995 LIMIT 900000")
 input_dataset.show()
 
 def shuffle_generator(ref_year_group):
