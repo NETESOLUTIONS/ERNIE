@@ -17,7 +17,7 @@ spark.conf.set("spark.sql.autoBroadcastJoinThreshold", -1)
 number_of_repetitions=3
 
 # Read the input dataset into a variable
-input_dataset = spark.sql("SELECT * FROM dataset1995 LIMIT 5000")
+input_dataset = spark.sql("SELECT * FROM dataset1995")
 input_dataset.show()
 
 
