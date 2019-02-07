@@ -38,7 +38,7 @@ hdfs dfs -rm -r -f /user/spark/data/*
 # Next, import the target table from the PostgreSQL database
 echo "*** SPARK IMPORT STARTED : $(date) ***"
 echo "*** LOADING ${TARGET_DATASET} ***"
-/usr/bin/hive -e "DROP TABLE ${TARGET_DATASET}"
+/usr/bin/hive -e "DROP TABLE IF EXISTS ${TARGET_DATASET}"
 sqoop import --verbose --connect jdbc:postgresql://${POSTGRES_HOSTNAME}/${POSTGRES_DATABASE} \
 --username ${POSTGRES_USER} --password ${POSTGRES_PASSWORD} -m 1 --table ${TARGET_DATASET} \
 --columns source_id,source_year,source_document_id_type,source_issn,cited_source_uid,reference_year,reference_document_id_type,reference_issn \
@@ -53,7 +53,7 @@ for (( i=0; i<$NUM_PERMUTATIONS; i++ )); do
   # Then, import the target table's shuffled version from the PostgreSQL database
   echo "*** SPARK IMPORT STARTED : $(date) ***"
   echo "*** LOADING ${TARGET_DATASET}_shuffled ***"
-  /usr/bin/hive -e "DROP TABLE ${TARGET_DATASET}_shuffled"
+  /usr/bin/hive -e "DROP TABLE IF EXISTS ${TARGET_DATASET}_shuffled"
   sqoop import --verbose --connect jdbc:postgresql://${POSTGRES_HOSTNAME}/${POSTGRES_DATABASE} \
   --username ${POSTGRES_USER} --password ${POSTGRES_PASSWORD} -m 1 --table ${TARGET_DATASET}_shuffled \
   --columns source_id,source_year,source_document_id_type,source_issn,shuffled_cited_source_uid,shuffled_reference_year,shuffled_reference_document_id_type,shuffled_reference_issn \

@@ -38,7 +38,7 @@ def obs_frequency_calculations():
 
     return obs_df
 
-def shuffle_generator(ref_year_group):
+'''def shuffle_generator(ref_year_group):
     group = []
     group_size = 0
     for row in ref_year_group:
@@ -54,7 +54,7 @@ def shuffle_generator(ref_year_group):
                       cited_source_uid=group[shuffle_index].cited_source_uid,
                       reference_year=group[shuffle_index].reference_year,
                       reference_document_id_type=group[shuffle_index].reference_document_id_type,
-                      reference_issn=group[shuffle_index].reference_issn))
+                      reference_issn=group[shuffle_index].reference_issn))'''
 
 def calculate_journal_pairs_freq(file_name,i):
 
