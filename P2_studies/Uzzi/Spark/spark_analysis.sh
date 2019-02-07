@@ -29,9 +29,9 @@ fi
 
 # First, clean the HDFS if needed
 echo "*** CLEANING HIVE DATA WAREHOUSE : $(date)"
-hdfs dfs -rm -rf /hive/warehouse/*
+hdfs dfs -rm -r -f /hive/warehouse/*
 echo "*** CLEANING ANY MISCELLANEOUS DATA : $(date)"
-hdfs dfs -rm -rf /user/spark/data/*
+hdfs dfs -rm -r -f /user/spark/data/*
 
 # Next, import the target table from the PostgreSQL database
 echo "*** SPARK IMPORT STARTED : $(date) ***"
