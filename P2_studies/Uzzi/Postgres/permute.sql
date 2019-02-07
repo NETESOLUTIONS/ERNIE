@@ -47,3 +47,8 @@ SELECT
   coalesce(lead(reference_issn, 1) OVER (PARTITION BY reference_year ORDER BY random()),
            first_value(reference_issn) OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_issn
 FROM dataset1980;
+
+SELECT *
+FROM dataset1980_shuffled
+WHERE shuffled_reference_year = '1900'
+ORDER BY source_id;
