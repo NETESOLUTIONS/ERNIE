@@ -4,7 +4,7 @@ SHOW search_path;
 -- Aliases: current_catalog = current_database(), current_role = current_user
 SELECT current_database(), current_schema, current_schemas(TRUE) AS search_path, current_user;
 
--- Locks
+-- Waiting on locks
 SELECT
   coalesce(blocking_pl.relation :: REGCLASS :: TEXT, blocking_pl.locktype) AS locked_item,
   now() - blocked_psa.query_start AS waiting_duration,
@@ -22,8 +22,15 @@ JOIN pg_locks blocking_pl ON (((blocking_pl.transactionid = blocked_pl.transacti
 JOIN pg_stat_activity blocking_psa ON blocking_pl.pid = blocking_psa.pid AND blocking_psa.datid = blocked_psa.datid
 WHERE NOT blocked_pl.granted AND blocking_psa.datname = current_database();
 
+SELECT *
+FROM running;
+
 -- Terminate any query via SIGINT. Find a query pid in pg_stat_activity.
 SELECT pg_cancel_backend(:pid);
+
+-- Cancel *all* running queries. Check them before running.
+SELECT pid, query, pg_cancel_backend(pid) AS cancelled
+FROM running;
 
 -- Terminate any query via SIGTERM. Find a query pid in pg_stat_activity.
 SELECT pg_terminate_backend(:pid);

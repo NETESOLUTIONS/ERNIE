@@ -7,6 +7,11 @@ SELECT
 
 -- ## Current configuration ##
 
+-- All parameters by category. Reload configuration first for pending_restart to be correct.
+SELECT pending_restart, name, setting, unit, category, context, source, min_val, max_val, enumvals
+FROM pg_settings
+ORDER BY category, name;
+
 -- All parameters
 SHOW ALL;
 
@@ -41,10 +46,19 @@ ALTER SYSTEM SET work_mem = '1GB';
 
 ALTER SYSTEM SET maintenance_work_mem = '2GB';
 
+ALTER SYSTEM SET max_wal_size = '2GB';
+
 ALTER SYSTEM SET temp_tablespaces = 'temp_tbs';
 
 --region Client Connection Defaults
 ALTER SYSTEM SET default_tablespace = 'user_tbs';
+
+-- SELECT *
+-- FROM pg_timezone_names;
+
+ALTER SYSTEM RESET TimeZone;
+
+SELECT now();
 --endregion
 --endregion
 

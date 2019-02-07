@@ -9,3 +9,7 @@ ORDER BY table_pc.relname;
 SELECT pi.indexname, pi.indexdef
 FROM pg_indexes pi
 WHERE pi.tablename = :table_name;
+
+-- This works on PKs and FKs
+ALTER TABLE :table
+    RENAME CONSTRAINT :old_constraint_name TO :new_constraint_name;
