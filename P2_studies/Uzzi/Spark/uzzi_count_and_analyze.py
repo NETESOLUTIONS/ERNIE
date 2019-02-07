@@ -136,9 +136,9 @@ parser.add_argument('-tt','--target_table',help='the target table in HDFS to per
 parser.add_argument('-o','--operation',help='the operation to perform',type=str,required=True)
 parser.add_argument('-i','--iteration',help='the permute we are currently on (used for frequency count and background table population)',type=int)
 args = parser.parse_args()
-target_table = argparse.target_table
-operation = argparse.operation
-iteration = argparse.iteration
+target_table = args.target_table
+operation = args.operation
+iteration = args.iteration
 
 if operation == "START":
     obs_frequency_calculations(target_table)
