@@ -33,7 +33,7 @@ def obs_frequency_calculations(input_dataset):
     obs_df.write.mode("overwrite").saveAsTable("observed_frequencies")
 
 def calculate_journal_pairs_freq(input_dataset,i):
-    df=spark.sql("SELECT source_id,reference_issn FROM {}".format(input_dataset)) #TODO: remember shuffle names, and prepare to cast it
+    df=spark.sql("SELECT source_id,shuffled_reference_issn as reference_issn FROM {}".format(input_dataset))
     df=df.withColumn('id',monotonically_increasing_id())
     df.createOrReplaceTempView('bg_table')
     df=spark.sql('''
