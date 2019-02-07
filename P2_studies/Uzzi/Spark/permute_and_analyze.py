@@ -14,10 +14,9 @@ spark = SparkSession.builder.appName("permute_in_spark") \
                     .getOrCreate()
 spark.conf.set("spark.sql.autoBroadcastJoinThreshold", -1)
 
-number_of_repetitions=3
 
 # Read the input dataset into a variable
-input_dataset = spark.sql("SELECT * FROM dataset1995 LIMIT 5000")
+input_dataset = spark.sql("SELECT * FROM {}".format(sys.argv[1]))
 input_dataset.show()
 
 
@@ -39,7 +38,7 @@ def obs_frequency_calculations():
 
     return obs_df
 
-def shuffle_generator(ref_year_group):
+'''def shuffle_generator(ref_year_group):
     group = []
     group_size = 0
     for row in ref_year_group:
@@ -55,7 +54,7 @@ def shuffle_generator(ref_year_group):
                       cited_source_uid=group[shuffle_index].cited_source_uid,
                       reference_year=group[shuffle_index].reference_year,
                       reference_document_id_type=group[shuffle_index].reference_document_id_type,
-                      reference_issn=group[shuffle_index].reference_issn))
+                      reference_issn=group[shuffle_index].reference_issn))'''
 
 def calculate_journal_pairs_freq(file_name,i):
 
@@ -144,20 +143,6 @@ def z_score_calculations(iterations):
 
 obs_df=obs_frequency_calculations()
 obs_df.createOrReplaceTempView('obs_frequency')
-
-#for i in range(0,int(number_of_repetitions)+1):
-#print("STARTING PERMUTATION {}".format(i))
-shuffled_rows = input_dataset \
-    .repartition("reference_year") \
-    .withColumn("rand", rand()) \
-    .sortWithinPartitions("rand") \
-    .rdd \
-    .mapPartitions(shuffle_generator) \
-    .take(100)
-
-shuffled_dataset = spark.createDataFrame(shuffled_rows)
-shuffled_dataset.show()
-#calculate_journal_pairs_freq(shuffled_dataset,i)
-
-#z_score_calculations(number_of_repetitions)
-#spark.stop()
+calculate_journal_pairs_freq(input_dataset,i)
+z_score_calculations(number_of_repetitions)
+spark.stop()

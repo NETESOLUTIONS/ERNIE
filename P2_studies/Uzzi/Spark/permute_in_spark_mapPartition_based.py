@@ -20,6 +20,7 @@ input_dataset.show()
 
 def shuffle_generator(ref_year_group):
     group = []
+    df = pd.DataFrame()
     group_size = 0
     for row in ref_year_group:
         group.append(row)
@@ -27,14 +28,15 @@ def shuffle_generator(ref_year_group):
     if group_size > 0:  # ready to process
         for i, row in enumerate(group):
             shuffle_index = i + 1 if i < group_size - 1 else 0
-            yield Row(source_id=row.source_id,
-                      source_year=row.source_year,
-                      source_document_id_type=row.source_document_id_type,
-                      source_issn=row.source_issn,
-                      cited_source_uid=group[shuffle_index].cited_source_uid,
-                      reference_year=group[shuffle_index].reference_year,
-                      reference_document_id_type=group[shuffle_index].reference_document_id_type,
-                      reference_issn=group[shuffle_index].reference_issn)
+            df.append({'source_id'=row.source_id,
+                      'source_year'=row.source_year,
+                      'source_document_id_type'=row.source_document_id_type,
+                      'source_issn'=row.source_issn,
+                      'cited_source_uid'=group[shuffle_index].cited_source_uid,
+                      'reference_year'=group[shuffle_index].reference_year,
+                      'reference_document_id_type'=group[shuffle_index].reference_document_id_type,
+                      'reference_issn'=group[shuffle_index].reference_issn})
+    yield df
 
 shuffled_rows = input_dataset \
 	    .repartition("reference_year") \
@@ -42,10 +44,10 @@ shuffled_rows = input_dataset \
 	    .sortWithinPartitions("rand") \
 	    .rdd \
 	    .mapPartitions(shuffle_generator) \
-	    .distinct() \
 	    .collect()
+print(shuffled_rows)
 
-shuffled_dataset = spark.createDataFrame(shuffled_rows)
-shuffled_dataset.show()
+#shuffled_dataset = spark.createDataFrame(shuffled_rows)
+#shuffled_dataset.show()
 
 spark.stop()
