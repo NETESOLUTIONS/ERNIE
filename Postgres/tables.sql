@@ -128,7 +128,17 @@ SELECT
   c.relname
 FROM pg_catalog.pg_class c LEFT JOIN pg_catalog.pg_namespace n
   ON n.oid = c.relnamespace
-WHERE c.relname ~ ('^(' || :tablename || ')$') AND pg_catalog.pg_table_is_visible(c.oid)
+WHERE c.relname = :table_name AND pg_catalog.pg_table_is_visible(c.oid)
+ORDER BY 2, 3;
+
+-- Is it visible on the search path (by a regex pattern)?
+SELECT
+  c.oid,
+  n.nspname,
+  c.relname
+FROM pg_catalog.pg_class c LEFT JOIN pg_catalog.pg_namespace n
+  ON n.oid = c.relnamespace
+WHERE c.relname ~ ('^(' || :table_pattern || ')$') AND pg_catalog.pg_table_is_visible(c.oid)
 ORDER BY 2, 3;
 
 -- DDL

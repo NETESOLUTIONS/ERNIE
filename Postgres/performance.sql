@@ -24,3 +24,10 @@ SELECT
   100 * buffers_checkpoint / (buffers_checkpoint + buffers_clean + buffers_backend) AS checkpoint_write_pct,
   100 * buffers_backend / (buffers_checkpoint + buffers_clean + buffers_backend) AS backend_write_pct
 FROM pg_stat_bgwriter, settings_cte;
+
+-- Metadata retrieval
+-- Sync in DataGrip:
+-- (Prod) 33.0s after DB restart
+-- (Prod) 1m:42s under load: 12 running processes (8 INSERTs, 3 VACUUMs)
+-- (Prod) 9m:18s under load: 11 running processed (8 INSERTS, 3 pg_catalog VACUUMs)
+-- (Prod) 2m:43s under load: 4 running processes (4 INSERTs)

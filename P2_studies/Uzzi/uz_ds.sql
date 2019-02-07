@@ -11,8 +11,10 @@
 \set ON_ERROR_STOP on
 \set ECHO all
 
-\set output_table 'dataset':year
-\set output_table_pk :output_table'_pk'
+\set dataset 'dataset':year
+\set dataset_pk :dataset'_pk'
+\set dataset_index 'd':year'_reference_year_i'
+\set shuffled_view :dataset'_shuffled'
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
@@ -21,9 +23,9 @@ SET SEARCH_PATH = public;
 
 SELECT NOW();
 
-DROP TABLE IF EXISTS :output_table;
+DROP TABLE IF EXISTS :dataset;
 
-CREATE TABLE :output_table TABLESPACE p2_studies AS
+CREATE TABLE :dataset TABLESPACE p2_studies AS
 SELECT
   source_wp.source_id,
   CAST(:year AS INT) AS source_year,
@@ -45,8 +47,28 @@ JOIN wos_publications ref_wp
 JOIN wos_publication_issns ref_wpi ON ref_wpi.source_id = ref_wp.source_id
 WHERE source_wp.publication_year::INT = :year AND source_wp.document_type = 'Article';
 
-ALTER TABLE :output_table ADD CONSTRAINT :output_table_pk PRIMARY KEY (source_id, cited_source_uid) --
+ALTER TABLE :dataset ADD CONSTRAINT :dataset_pk PRIMARY KEY (source_id, cited_source_uid) --
   USING INDEX TABLESPACE index_tbs;
 
+CREATE INDEX IF NOT EXISTS :dataset_index ON :dataset(reference_year) TABLESPACE index_tbs;
+
+CREATE OR REPLACE VIEW :shuffled_view AS
+SELECT
+  source_id,
+  source_year,
+  source_document_id_type,
+  source_issn,
+   -- Can’t embed a window function as lead() default expressions
+  coalesce(lead(cited_source_uid, 1) OVER (PARTITION BY reference_year ORDER BY random()), --
+           first_value(cited_source_uid)
+                       OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_cited_source_uid,
+  coalesce(lead(reference_year, 1) OVER (PARTITION BY reference_year ORDER BY random()),
+           first_value(reference_year) OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_year,
+  coalesce(lead(reference_document_id_type, 1) OVER (PARTITION BY reference_year ORDER BY random()),
+           first_value(reference_document_id_type)
+                       OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_document_id_type,
+  coalesce(lead(reference_issn, 1) OVER (PARTITION BY reference_year ORDER BY random()),
+           first_value(reference_issn) OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_issn
+FROM :dataset;
 
 SELECT NOW();
