@@ -105,7 +105,7 @@ def final_table(input_dataset,iterations):
             WHERE a.reference_issn < b.reference_issn ''')
     df.createOrReplaceTempView('final_table')
     df=spark.sql('''
-            SELECT a.*,b.obs_frequency,b.z_score,b.count,b.mean
+            SELECT a.*,b.obs_frequency,b.z_score,b.count,b.mean, b.std
             FROM final_table a
             JOIN z_scores_table b
             ON a.journal_pair_A=b.journal_pair_A
@@ -126,8 +126,8 @@ def z_score_calculations(input_dataset,iterations):
 
     #Calculating the count
     pandas_df['count']=pandas_df.iloc[:,3:iterations+3].apply(lambda x: x.count(),axis=1)
-
-    pandas_df=pandas_df[['journal_pair_A','journal_pair_B','obs_frequency','mean','z_score','count']].dropna()
+    pandas_df.to_csv('temp.csv')
+    pandas_df=pandas_df[['journal_pair_A','journal_pair_B','obs_frequency','mean','std','z_score','count']].dropna()
     obs_df=spark.createDataFrame(pandas_df)
     obs_df.write.mode("overwrite").saveAsTable("z_scores_table")
     final_table(input_dataset,iterations)
