@@ -157,25 +157,33 @@ url = 'postgresql://{}:{}/{}'.format(args.postgres_host,args.postgres_port,args.
 properties = {'user': args.postgres_user, 'password': args.postgres_password}
 
 # Read in the target table to the HDFS then perform the initial round of observed frequency calculations
-print("*** STARTING COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR BASE SET ***")
+print("*** START -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR BASE SET ***")
 read_postgres_table_into_HDFS(args.target_table,url,properties)
 obs_frequency_calculations(args.target_table)
-print("*** COMPLETED COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR BASE SET ***")
+print("*** END -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR BASE SET ***")
+
 # For the number of desired permutations, generate a random permute structure and collect observed frequency calculations
 for i in range(1,args.permutations+1):
-    print("*** STARTING COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
+    print("*** START -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
     read_postgres_table_into_memory("{}_shuffled".format(args.target_table),url,properties)
     calculate_journal_pairs_freq("{}_shuffled".format(args.target_table),i)
-    print("*** COMPLETED COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
-
+    print("*** END -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
     # Conditional Statement for iteration number - if 10 or 100 take a pause to calculate z scores for the observations and write to postgres
     if i==10 or i==100:
+        print("*** START -  Z-SCORE CALCULATION BREAK FOR PERMUTATION {} ***".format(i))
         z_score_calculations(args.target_table,i)
+        print("*** END -  Z-SCORE CALCULATION BREAK FOR PERMUTATION {} ***".format(i))
+        print("*** START -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
         write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,i),url,properties)
+        print("*** END -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
+
 # Analyze the final results stored
-print("*** STARTING Z-SCORE CALCULATIONS {}")
+print("*** START -  Z-SCORE CALCULATIONS ***")
 z_score_calculations(args.target_table,args.permutations)
+print("*** END -  Z-SCORE CALCULATIONS ***")
+print("*** START -  FINAL POSTGRES EXPORT ***")
 write_table_to_postgres("output_table","spark_results_{}".format(args.target_table),url,properties)
-print("*** COMPLETED Z-SCORE CALCULATIONS {}")
+write_table_to_postgres("observed_frequencies","spark_observed_frequencies_{}".format(args.target_table),url,properties)
+print("*** END -  FINAL POSTGRES EXPORT ***")
 # Close out the spark session
 spark.stop()
