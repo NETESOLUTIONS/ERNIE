@@ -13,6 +13,8 @@ def read_postgres_table_into_HDFS(table_name,connection_string,properties):
 def read_postgres_table_into_memory(table_name,connection_string,properties):
     spark.read.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties).registerTempTable(table_name)
 
+#TODO: implement postgres write function here
+
 def obs_frequency_calculations(input_dataset):
     obs_df=spark.sql("SELECT source_id,reference_issn FROM {}".format(input_dataset))
     obs_df=obs_df.withColumn('id',monotonically_increasing_id())
@@ -107,7 +109,7 @@ def final_table(input_dataset,iterations):
             JOIN z_scores_table b
             ON a.journal_pair_A=b.journal_pair_A
              AND a.journal_pair_B=b.journal_pair_B''')
-    df.repartition(1).write.csv("spark_results_"+str(iterations),header=True,mode='overwrite')
+    df.repartition(1).write.csv("/user/spark/data/spark_results_{}".format(iterations),header=True,mode='overwrite')
 
 def z_score_calculations(input_dataset,iterations):
     pandas_df=spark.sql("SELECT * FROM observed_frequencies").toPandas()

@@ -38,5 +38,3 @@ hdfs dfs -rm -r -f /user/spark/data/*
 # Next run PySpark calculations
 $SPARK_HOME/bin/spark-submit --driver-memory 4g --driver-class-path $(pwd)/postgresql-42.0.0.jar --jars $(pwd)/postgresql-42.0.0.jar \
   ./uzzi_count_and_analyze.py -tt ${TARGET_DATASET} -ph ${POSTGRES_HOSTNAME} -pd ${POSTGRES_DATABASE} -U ${POSTGRES_USER} -W "${POSTGRES_PASSWORD}" -i ${NUM_PERMUTATIONS}
-
-#TODO : export final results back to postgres 
