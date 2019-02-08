@@ -13,7 +13,8 @@ def read_postgres_table_into_HDFS(table_name,connection_string,properties):
 def read_postgres_table_into_memory(table_name,connection_string,properties):
     spark.read.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties).registerTempTable(table_name)
 def write_table_to_postgres(spark_table_name,postgres_table_name,connection_string,properties):
-    spark.write.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties, mode="overwrite")
+    df=spark.table(spark_table_name)
+    df.write.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties, mode="overwrite")
 
 def obs_frequency_calculations(input_dataset):
     obs_df=spark.sql("SELECT source_id,reference_issn FROM {}".format(input_dataset))
