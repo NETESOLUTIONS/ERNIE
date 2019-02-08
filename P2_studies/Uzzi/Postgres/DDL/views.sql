@@ -19,7 +19,7 @@ DO $block$
         RAISE NOTICE 'Creating %_shuffled view ...', dataset;
         sql := format($$
 CREATE OR REPLACE VIEW %s_shuffled AS
-SELECT
+SELECT DISTINCT
   source_id,
   source_year,
   source_document_id_type,

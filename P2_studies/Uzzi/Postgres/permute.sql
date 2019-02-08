@@ -8,7 +8,7 @@ SELECT first_value(cited_source_uid) OVER (ORDER BY random()) AS shuffled_cited_
 FROM dataset1980
 GROUP BY reference_year;
 
-SELECT
+SELECT DISTINCT
   source_id,
   source_year,
   source_document_id_type,
@@ -25,12 +25,12 @@ SELECT
   coalesce(lead(reference_issn, 1) OVER (PARTITION BY reference_year ORDER BY random()),
            first_value(reference_issn) OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_issn
 FROM dataset2005;
--- 45.1s
+-- 1m:48s
 
 DROP VIEW dataset1980_shuffled;
 
 CREATE OR REPLACE VIEW dataset1980_shuffled AS
-SELECT
+SELECT DISTINCT
   source_id,
   source_year,
   source_document_id_type,

@@ -53,7 +53,7 @@ ALTER TABLE :dataset ADD CONSTRAINT :dataset_pk PRIMARY KEY (source_id, cited_so
 CREATE INDEX IF NOT EXISTS :dataset_index ON :dataset(reference_year) TABLESPACE index_tbs;
 
 CREATE OR REPLACE VIEW :shuffled_view AS
-SELECT
+SELECT DISTINCT
   source_id,
   source_year,
   source_document_id_type,
