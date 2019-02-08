@@ -14,7 +14,7 @@ def read_postgres_table_into_memory(table_name,connection_string,properties):
     spark.read.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties).registerTempTable(table_name)
 def write_table_to_postgres(spark_table_name,postgres_table_name,connection_string,properties):
     df=spark.table(spark_table_name)
-    df.write.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties, mode="overwrite")
+    df.write.jdbc(url='jdbc:{}'.format(connection_string), table=postgres_table_name, properties=properties, mode="overwrite")
 
 def obs_frequency_calculations(input_dataset):
     obs_df=spark.sql("SELECT source_id,reference_issn FROM {}".format(input_dataset))
@@ -110,10 +110,7 @@ def final_table(input_dataset,iterations):
             JOIN z_scores_table b
             ON a.journal_pair_A=b.journal_pair_A
              AND a.journal_pair_B=b.journal_pair_B''')
-    final_table = "/user/spark/data/{}_spark_results_{}".format(input_dataset,iterations)
-    df.repartition(1).write.csv(final_table,header=True,mode='overwrite')
-    return final_table
-
+    df.write.mode("overwrite").saveAsTable("final_table")
 
 def z_score_calculations(input_dataset,iterations):
     pandas_df=spark.sql("SELECT * FROM observed_frequencies").toPandas()
@@ -165,7 +162,7 @@ read_postgres_table_into_HDFS(args.target_table,url,properties)
 obs_frequency_calculations(args.target_table)
 print("*** COMPLETED COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR BASE SET ***")
 # For the number of desired permutations, generate a random permute structure and collect observed frequency calculations
-for i in range(args.permutations):
+for i in range(1,args.permutations+1):
     print("*** STARTING COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
     read_postgres_table_into_memory("{}_shuffled".format(args.target_table),url,properties)
     calculate_journal_pairs_freq("{}_shuffled".format(args.target_table),i)
@@ -173,7 +170,7 @@ for i in range(args.permutations):
 # Analyze the final results stored
 print("*** STARTING Z-SCORE CALCULATIONS {}")
 final_table = z_score_calculations(args.target_table,args.permutations)
-write_table_to_postgres("csv.`{}`".format(final_table),"spark_results_{}".format(args.target_table),url,properties)
+write_table_to_postgres("final_table","spark_results_{}".format(args.target_table),url,properties)
 print("*** COMPLETED Z-SCORE CALCULATIONS {}")
 # Close out the spark session
 spark.stop()
