@@ -35,49 +35,8 @@ hdfs dfs -rm -r -f /hive/warehouse/*
 echo "*** CLEANING ANY MISCELLANEOUS DATA : $(date)"
 hdfs dfs -rm -r -f /user/spark/data/*
 
-# Next, import the target table from the PostgreSQL database
-echo "*** SPARK IMPORT STARTED : $(date) ***"
-echo "*** LOADING ${TARGET_DATASET} ***"
-/usr/bin/hive -e "DROP TABLE IF EXISTS ${TARGET_DATASET}"
-sqoop import --verbose --connect jdbc:postgresql://${POSTGRES_HOSTNAME}/${POSTGRES_DATABASE} \
---username ${POSTGRES_USER} --password ${POSTGRES_PASSWORD} -m 1 --table ${TARGET_DATASET} \
---columns source_id,source_year,source_document_id_type,source_issn,cited_source_uid,reference_year,reference_document_id_type,reference_issn \
---map-column-java source_id=String,source_year=String,source_document_id_type=String,\
-source_issn=String,cited_source_uid=String,reference_year=Integer,\
-reference_document_id_type=String,reference_issn=String \
---warehouse-dir=/hive/warehouse --hive-import --hive-table ${TARGET_DATASET} -- --schema ${POSTGRES_SCHEMA}
-echo "*** SPARK IMPORT COMPLETED : $(date) ***"
-echo "*** PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR BASE SET: $(date) ***"
-$SPARK_HOME/bin/spark-submit --driver-memory 4g  ./uzzi_count_and_analyze.py -tt ${TARGET_DATASET} -o "START"
-echo "*** COMPLETED OBSERVED FREQUENCY CALCULATIONS FOR BASE SET: $(date) ***"
+# Next run PySpark calculations
+$SPARK_HOME/bin/spark-submit --driver-memory 4g --driver-class-path $(pwd)/postgresql-42.0.0.jar --jars $(pwd)/postgresql-42.0.0.jar \
+  ./uzzi_count_and_analyze.py -tt ${TARGET_DATASET} -ph ${POSTGRES_HOSTNAME} -pd ${POSTGRES_DATABASE} -U ${POSTGRES_USER} -W "${POSTGRES_PASSWORD}" -i ${NUM_PERMUTATIONS}
 
-
-
-for (( i=0; i<$NUM_PERMUTATIONS; i++ )); do
-  # Then, import the target table's shuffled version from the PostgreSQL database
-  echo "*** SPARK IMPORT STARTED : $(date) ***"
-  echo "*** LOADING ${TARGET_DATASET}_shuffled , PERMUTATION ${i} ***"
-  /usr/bin/hive -e "DROP TABLE IF EXISTS ${TARGET_DATASET}_shuffled"
-  sqoop import --verbose --connect jdbc:postgresql://${POSTGRES_HOSTNAME}/${POSTGRES_DATABASE} \
-  --username ${POSTGRES_USER} --password ${POSTGRES_PASSWORD} -m 1 --table ${TARGET_DATASET}_shuffled \
-  --columns source_id,source_year,source_document_id_type,source_issn,shuffled_cited_source_uid,shuffled_reference_year,shuffled_reference_document_id_type,shuffled_reference_issn \
-  --map-column-java source_id=String,source_year=String,source_document_id_type=String,\
-source_issn=String,shuffled_cited_source_uid=String,shuffled_reference_year=Integer,\
-shuffled_reference_document_id_type=String,shuffled_reference_issn=String \
-  --warehouse-dir=/hive/warehouse --hive-import --hive-table ${TARGET_DATASET}_shuffled -- --schema ${POSTGRES_SCHEMA}
-  echo "*** SPARK IMPORT COMPLETED, PERMUTATION ${i} : $(date) ***"
-
-  # After data is imported, submit a job to pyspark that will make use of the imported tables
-  echo "*** PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION ${i}: $(date) ***"
-  $SPARK_HOME/bin/spark-submit --driver-memory 4g  ./uzzi_count_and_analyze.py -tt ${TARGET_DATASET}_shuffled -o "COUNT" -i ${i}
-  echo "*** COMPLETED OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION ${i}: $(date) ***"
-done
-
-
-# After that, perform final table construction
-echo "*** PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION ${i}: $(date) ***"
-$SPARK_HOME/bin/spark-submit --driver-memory 4g  ./uzzi_count_and_analyze.py -tt ${TARGET_DATASET} -o "ANALYZE" -i ${NUM_PERMUTATIONS}
-echo "*** COMPLETED OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION ${i}: $(date) ***"
-
-
-#TODO: Export data back into ERNIE PostgreSQL with Sqoop
+#TODO : export final results back to postgres 

@@ -6,6 +6,13 @@ import time,sys
 import argparse
 import pandas as pd
 
+
+
+def read_postgres_table_into_HDFS(table_name,connection_string,properties):
+    spark.read.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties).write.mode("overwrite").saveAsTable(table)
+def read_postgres_table_into_memory(table_name,connection_string,properties):
+    spark.read.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties)).registerTempTable(table)
+
 def obs_frequency_calculations(input_dataset):
     obs_df=spark.sql("SELECT source_id,reference_issn FROM {}".format(input_dataset))
     obs_df=obs_df.withColumn('id',monotonically_increasing_id())
@@ -33,6 +40,7 @@ def obs_frequency_calculations(input_dataset):
     obs_df.write.mode("overwrite").saveAsTable("observed_frequencies")
 
 def calculate_journal_pairs_freq(input_dataset,i):
+
     df=spark.sql("SELECT source_id,shuffled_reference_issn as reference_issn FROM {}".format(input_dataset))
     df=df.withColumn('id',monotonically_increasing_id())
     df.createOrReplaceTempView('bg_table')
@@ -135,25 +143,30 @@ parser = argparse.ArgumentParser(description='''
  This script interfaces with the PostgreSQL database and then creates summary tables for the Abt project
 ''', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-tt','--target_table',help='the target table in HDFS to perform an operation on',default='localhost',type=str)
-parser.add_argument('-o','--operation',help='the operation to perform',type=str,required=True)
-parser.add_argument('-i','--iteration',help='the permute we are currently on (used for frequency count and background table population)',type=int)
+parser.add_argument('-ph','--postgres_host',help='the server hosting the PostgreSQL server',default='localhost',type=str)
+parser.add_argument('-pd','--postgres_dbname',help='the database to query in the PostgreSQL server',type=str,required=True)
+parser.add_argument('-pp','--postgres_port',help='the port hosting the PostgreSQL service on the server', default='5432',type=int)
+parser.add_argument('-U','--postgres_user',help='the PostgreSQL user to log in as',required=True)
+parser.add_argument('-W','--postgres_password',help='the password of the PostgreSQL user',required=True)
+parser.add_argument('-i','--permutations',help='the number of permutations we wish to execute',type=int)
 args = parser.parse_args()
-target_table = args.target_table
-operation = args.operation
-iteration = args.iteration
+url = 'postgresql://{}:{}/{}'.format(args.postgres_host,args.postgres_port,args.postgres_dbname)
+properties = {'user': args.postgres_user, 'password': args.postgres_password}
 
-if operation == "START":
-    obs_frequency_calculations(target_table)
-elif operation == "COUNT":
-    calculate_journal_pairs_freq(target_table,iteration)
-elif operation == "ANALYZE":
-    z_score_calculations(target_table,iteration)
-
-'''
-obs_df=obs_frequency_calculations()
-obs_df.createOrReplaceTempView('obs_frequency')
-calculate_journal_pairs_freq(shuffled_dataset,i)
-z_score_calculations(number_of_repetitions)
-'''
-
+# Read in the target table to the HDFS then perform the initial round of observed frequency calculations
+print("*** STARTING COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR BASE SET ***")
+read_postgres_table_into_HDFS(args.target_table,url,properties)
+obs_frequency_calculations(args.target_table)
+print("*** COMPLETED COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR BASE SET ***")
+# For the number of desired permutations, generate a random permute structure and collect observed frequency calculations
+for i in range(args.permutations):
+    print("*** STARTING COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
+    read_postgres_table_into_memory("{}_shuffled".format(args.target_table),url,properties)
+    calculate_journal_pairs_freq("{}_shuffled".format(args.target_table),i)
+    print("*** COMPLETED COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
+# Analyze the final results stored
+print("*** STARTING Z-SCORE CALCULATIONS {}")
+z_score_calculations(args.target_table,args.permutations)
+print("*** COMPLETED Z-SCORE CALCULATIONS {}")
+# Close out the spark session
 spark.stop()
