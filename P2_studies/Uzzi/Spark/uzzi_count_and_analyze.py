@@ -126,7 +126,7 @@ def z_score_calculations(input_dataset,iterations):
 
     #Calculating the count
     pandas_df['count']=pandas_df.iloc[:,3:iterations+3].apply(lambda x: x.count(),axis=1)
-    pandas_df.to_csv('temp.csv')
+    #pandas_df.to_csv('temp.csv')
     pandas_df=pandas_df[['journal_pair_A','journal_pair_B','obs_frequency','mean','std','z_score','count']].dropna()
     obs_df=spark.createDataFrame(pandas_df)
     obs_df.write.mode("overwrite").saveAsTable("z_scores_table")
