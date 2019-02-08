@@ -167,9 +167,14 @@ for i in range(1,args.permutations+1):
     read_postgres_table_into_memory("{}_shuffled".format(args.target_table),url,properties)
     calculate_journal_pairs_freq("{}_shuffled".format(args.target_table),i)
     print("*** COMPLETED COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
+
+    # Conditional Statement for iteration number - if 10 or 100 take a pause to calculate z scores for the observations and write to postgres
+    if i==10 or i==100:
+        z_score_calculations(args.target_table,i)
+        write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,i),url,properties)
 # Analyze the final results stored
 print("*** STARTING Z-SCORE CALCULATIONS {}")
-final_table = z_score_calculations(args.target_table,args.permutations)
+z_score_calculations(args.target_table,args.permutations)
 write_table_to_postgres("output_table","spark_results_{}".format(args.target_table),url,properties)
 print("*** COMPLETED Z-SCORE CALCULATIONS {}")
 # Close out the spark session
