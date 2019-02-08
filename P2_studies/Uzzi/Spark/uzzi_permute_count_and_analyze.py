@@ -8,19 +8,17 @@ import pandas as pd
 
 warehouse_location = '/user/spark/data'
 
-spark = SparkSession.builder.appName("permute_in_spark") \
+spark = SparkSession.builder.appName("uzzi_analysis") \
                     .config("spark.sql.warehouse.dir", warehouse_location) \
                     .enableHiveSupport() \
                     .getOrCreate()
 spark.conf.set("spark.sql.autoBroadcastJoinThreshold", -1)
 
-
 # Read the input dataset into a variable
-input_dataset = spark.sql("SELECT * FROM {}".format(sys.argv[1]))
-input_dataset.show()
+input_dataset = sys.argv[1])
+shuffled_dataset = "{}_shuffled".format(input_dataset)
 
-
-def obs_frequency_calculations():
+def obs_frequency_calculations(input_dataset):
     obs_df=input_dataset.select(['source_id','reference_issn'])
 
     obs_df=obs_df.withColumn('id',monotonically_increasing_id())
