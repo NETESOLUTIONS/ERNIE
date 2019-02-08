@@ -110,7 +110,7 @@ def final_table(input_dataset,iterations):
             JOIN z_scores_table b
             ON a.journal_pair_A=b.journal_pair_A
              AND a.journal_pair_B=b.journal_pair_B''')
-    df.write.mode("overwrite").saveAsTable("final_table")
+    df.write.mode("overwrite").saveAsTable("output_table")
 
 def z_score_calculations(input_dataset,iterations):
     pandas_df=spark.sql("SELECT * FROM observed_frequencies").toPandas()
@@ -170,7 +170,7 @@ for i in range(1,args.permutations+1):
 # Analyze the final results stored
 print("*** STARTING Z-SCORE CALCULATIONS {}")
 final_table = z_score_calculations(args.target_table,args.permutations)
-write_table_to_postgres("final_table","spark_results_{}".format(args.target_table),url,properties)
+write_table_to_postgres("output_table","spark_results_{}".format(args.target_table),url,properties)
 print("*** COMPLETED Z-SCORE CALCULATIONS {}")
 # Close out the spark session
 spark.stop()
