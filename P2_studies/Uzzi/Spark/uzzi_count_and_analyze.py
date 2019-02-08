@@ -182,7 +182,7 @@ print("*** START -  Z-SCORE CALCULATIONS ***")
 z_score_calculations(args.target_table,args.permutations)
 print("*** END -  Z-SCORE CALCULATIONS ***")
 print("*** START -  FINAL POSTGRES EXPORT ***")
-write_table_to_postgres("output_table","spark_results_{}".format(args.target_table),url,properties)
+write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,args.permutations),url,properties)
 write_table_to_postgres("observed_frequencies","spark_observed_frequencies_{}".format(args.target_table),url,properties)
 print("*** END -  FINAL POSTGRES EXPORT ***")
 # Close out the spark session
