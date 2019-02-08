@@ -172,7 +172,7 @@ for i in range(args.permutations):
 # Analyze the final results stored
 print("*** STARTING Z-SCORE CALCULATIONS {}")
 final_table = z_score_calculations(args.target_table,args.permutations)
-write_table_to_postgres("csv.`{}`".format(final_table),"spark_results_{}".format(args.target_table),connection_string,properties)
+write_table_to_postgres("csv.`{}`".format(final_table),"spark_results_{}".format(args.target_table),url,properties)
 print("*** COMPLETED Z-SCORE CALCULATIONS {}")
 # Close out the spark session
 spark.stop()
