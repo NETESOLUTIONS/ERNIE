@@ -12,8 +12,8 @@ def read_postgres_table_into_HDFS(table_name,connection_string,properties):
     spark.read.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties).write.mode("overwrite").saveAsTable(table_name)
 def read_postgres_table_into_memory(table_name,connection_string,properties):
     spark.read.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties).registerTempTable(table_name)
-
-#TODO: implement postgres write function here
+def write_table_to_postgres(spark_table_name,postgres_table_name,connection_string,properties):
+    spark.write.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties, mode="overwrite")
 
 def obs_frequency_calculations(input_dataset):
     obs_df=spark.sql("SELECT source_id,reference_issn FROM {}".format(input_dataset))
@@ -109,7 +109,10 @@ def final_table(input_dataset,iterations):
             JOIN z_scores_table b
             ON a.journal_pair_A=b.journal_pair_A
              AND a.journal_pair_B=b.journal_pair_B''')
-    df.repartition(1).write.csv("/user/spark/data/spark_results_{}".format(iterations),header=True,mode='overwrite')
+    final_table = "/user/spark/data/{}_spark_results_{}".format(input_dataset,iterations)
+    df.repartition(1).write.csv(final_table,header=True,mode='overwrite')
+    return final_table
+
 
 def z_score_calculations(input_dataset,iterations):
     pandas_df=spark.sql("SELECT * FROM observed_frequencies").toPandas()
@@ -168,7 +171,8 @@ for i in range(args.permutations):
     print("*** COMPLETED COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
 # Analyze the final results stored
 print("*** STARTING Z-SCORE CALCULATIONS {}")
-z_score_calculations(args.target_table,args.permutations)
+final_table = z_score_calculations(args.target_table,args.permutations)
+write_table_to_postgres("csv.`{}`".format(final_table),"spark_results_{}".format(args.target_table),connection_string,properties)
 print("*** COMPLETED Z-SCORE CALCULATIONS {}")
 # Close out the spark session
 spark.stop()
