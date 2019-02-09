@@ -1,0 +1,135 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminPassword": {
+            "type": "SecureString"
+        },
+        "diagnosticsStorageAccountId": {
+            "type": "String",
+            "defaultValue": "/subscriptions/c4070ca9-0340-45a8-8037-8b1c47aff36f/resourceGroups/pardi/providers/Microsoft.Storage/storageAccounts/pardidiag569"
+        },
+        "virtualMachineSize": {
+            "type": "String"
+        },
+        "adminUsername": {
+            "type": "String"
+        },
+        "networkSecurityGroupName": {
+            "type": "String",
+            "defaultValue":"pardidev"
+        },
+        "diskSizeGB": {
+            "type": "String"
+        },
+        "location": {
+            "type": "String"
+        },
+        "diagnosticsStorageAccountName": {
+            "type": "String",
+            "defaultValue":"pardidiag569"
+        },
+        "subnetName": {
+            "type": "String",
+            "defaultValue":"NIHSUBNET01"
+        },
+        "virtualNetworkName": {
+            "type": "String",
+            "defaultValue":"NIHVNET01"
+        },
+        "virtualMachineName": {
+            "type": "String",
+            "defaultValue":"solr1"
+        },
+        "networkInterfaceName": {
+            "type": "String",
+            "defaultValue":"solr1797"
+        }
+    },
+    "variables": {
+        "vnetId": "[resourceId('PARDI','Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('virtualMachineName')]",
+            "apiVersion": "2017-03-30",
+            "location": "[parameters('location')]",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "name": "solr1_OS_Disk",
+                        "osType":"Linux",
+                        "createOption": "Attach",
+                        "managedDisk": {
+                            "id":"['/subscriptions/c4070ca9-0340-45a8-8037-8b1c47aff36f/resourceGroups/PARDI/providers/Microsoft.Compute/disks/solr1_OS_Disk']"
+                        }
+                    },
+                    "dataDisks": [
+                      {
+                        "name":"pardisolr_data1",
+                        "lun":0,
+                        "createOption": "Attach",
+                        "managedDisk": {
+                            "id":"['/subscriptions/c4070ca9-0340-45a8-8037-8b1c47aff36f/resourceGroups/PARDI/providers/Microsoft.Compute/disks/pardisolr_data1']"
+                        }
+                      }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "storageUri": "[reference(resourceId('pardi', 'Microsoft.Storage/storageAccounts', parameters('diagnosticsStorageAccountName')), '2015-06-15').primaryEndpoints['blob']]",
+                        "enabled": true
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', parameters('networkInterfaceName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('networkInterfaceName')]",
+            "apiVersion": "2016-09-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "networkSecurityGroup": {
+                    "id": "[resourceId('PARDI', 'Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+                },
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic"
+                        }
+                    }
+                ]
+            },
+            "dependsOn": []
+        }
+    ],
+    "outputs": {
+        "adminUsername": {
+            "type": "String",
+            "value": "[parameters('adminUsername')]"
+        },
+        "privateIPAddress":{
+          "type":"String",
+          "value":"[reference(concat(parameters('networkInterfaceName'))).ipConfigurations[0].properties.privateIPAddress]"
+        }
+    }
+}
