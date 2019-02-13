@@ -9,7 +9,7 @@ DO $block$
     entity TEXT;
     sql TEXT;
   BEGIN
-    FOR year IN 1980..2005 LOOP
+    FOR year IN 1980..2015 LOOP
       table := 'dataset' || year;
       -- Is table visible on the search path?
       IF EXISTS(SELECT 1
