@@ -10,7 +10,7 @@ DO $block$
     sql TEXT;
   BEGIN
     FOR year IN 1980..2015 LOOP
-      table := 'dataset' || year;
+      entity := 'dataset' || year;
       -- Is table visible on the search path?
       IF EXISTS(SELECT 1
                 FROM pg_catalog.pg_class c
