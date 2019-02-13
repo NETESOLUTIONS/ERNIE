@@ -8,6 +8,7 @@ DO $block$
   DECLARE
     entity TEXT;
     sql TEXT;
+    processed BIGINT;
   BEGIN
     FOR year IN 1980..2015 LOOP
       entity := 'dataset' || year;
@@ -25,6 +26,8 @@ DO $block$
             $$, year, entity);
         RAISE NOTICE USING MESSAGE = sql;
         EXECUTE sql;
+        GET DIAGNOSTICS processed = ROW_COUNT;
+        RAISE NOTICE 'Inserted/updated % record(s)', processed;
       END IF;
     END LOOP;
   END $block$;

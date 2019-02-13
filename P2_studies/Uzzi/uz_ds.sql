@@ -42,8 +42,7 @@ JOIN wos_references wr ON wr.source_id = source_wp.source_id
   -- AND substring(wr.cited_source_uid, 1, 4) = 'WOS:'
   -- AND length(wr.cited_source_uid) = 19
   -- ensure that ref pubs year is not greater that source_id pub year
-JOIN wos_publications ref_wp
-     ON ref_wp.source_id = wr.cited_source_uid AND ref_wp.publication_year::INT <= :year
+JOIN wos_publications ref_wp ON ref_wp.source_id = wr.cited_source_uid AND ref_wp.publication_year::INT <= :year
 JOIN wos_publication_issns ref_wpi ON ref_wpi.source_id = ref_wp.source_id
 WHERE source_wp.publication_year::INT = :year AND source_wp.document_type = 'Article';
 
@@ -58,7 +57,7 @@ SELECT DISTINCT
   source_year,
   source_document_id_type,
   source_issn,
-   -- Can’t embed a window function as lead() default expressions
+  -- Can’t embed a window function as lead() default expressions
   coalesce(lead(cited_source_uid, 1) OVER (PARTITION BY reference_year ORDER BY random()), --
            first_value(cited_source_uid)
                        OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_cited_source_uid,
@@ -69,6 +68,12 @@ SELECT DISTINCT
                        OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_document_id_type,
   coalesce(lead(reference_issn, 1) OVER (PARTITION BY reference_year ORDER BY random()),
            first_value(reference_issn) OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_issn
-FROM :dataset;
+FROM : dataset;
+
+INSERT INTO dataset_stats(year, unique_source_id_count, unique_cited_id_count, cited_id_count)
+SELECT :year, COUNT(DISTINCT source_id), COUNT(DISTINCT cited_source_uid), COUNT(cited_source_uid)
+FROM :dataset d
+ON CONFLICT (year) DO UPDATE SET unique_source_id_count = excluded.unique_source_id_count, --
+  unique_cited_id_count = excluded.unique_cited_id_count, cited_id_count = excluded.cited_id_count;
 
 SELECT NOW();
