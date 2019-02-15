@@ -54,7 +54,7 @@ obs_file['z_scores']=(obs_file['obs_frequency']-obs_file['mean'])/obs_file['std'
 
 #obs_file.to_csv(bg_files+'combined.csv',index=False)
 
-obs_file['count']=obs_file.iloc[:,2:number].apply(lambda x: x.count(),axis=1)
+obs_file['count']=obs_file.iloc[:,2:number+2].apply(lambda x: x.count(),axis=1)
 #print(len(obs_file[['journal_pairs','obs_frequency','z_scores']].dropna()))
 #obs_file[['journal_pairs','obs_frequency','z_scores']].dropna().to_csv(bg_files+'z_scores_file.csv',index=False)
 
