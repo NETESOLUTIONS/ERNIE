@@ -28,5 +28,22 @@ sum_udf=udf(lambda row: float(pandas_sum(row)), sql_type.DoubleType())
 
 #target columns
 a = spark.table("observed_frequencies")
-b=a.withColumn('mean', mean_udf(struct( [a[col] for col in a.columns[3:]] )))
-b.show()
+b = a.withColumn('mean', mean_udf(struct( [a[col] for col in a.columns[3:]] )))
+b.write.mode("overwrite").saveAsTable("z_score_prep_table")
+a = spark.table("z_score_prep_table")
+b = a.withColumn('std', std_udf(struct( [a[col] for col in a.columns[3:-1]] )))
+b.write.mode("overwrite").saveAsTable("z_score_prep_table2")
+df=spark.sql('''
+        SELECT journal_pair_A,journal_pair_B,obs_frequency,mean,std,
+        CASE
+            WHEN std=0 AND (obs_frequency-mean) > 0
+                THEN 'Infinity'
+            WHEN std=0 AND (obs_frequency-mean) < 0
+                THEN '-Infinity'
+            WHEN std=0 AND (obs_frequency-mean) = 0
+                THEN NULL
+            ELSE (obs_frequency-mean)/std
+        END as z_score
+        FROM z_score_prep_table2 a
+        ''').na.drop()
+df.write.mode("overwrite").saveAsTable("z_scores_table")
