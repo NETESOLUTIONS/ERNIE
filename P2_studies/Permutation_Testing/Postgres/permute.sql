@@ -8,47 +8,49 @@ SELECT first_value(cited_source_uid) OVER (ORDER BY random()) AS shuffled_cited_
 FROM dataset1980
 GROUP BY reference_year;
 
-SELECT DISTINCT
+DROP MATERIALIZED VIEW dataset1980_shuffled;
+
+CREATE MATERIALIZED VIEW dataset1980_shuffled AS
+WITH cte AS (
+  SELECT
+    source_id,
+    source_year,
+    source_document_id_type,
+    source_issn,
+    -- Can’t embed a window function as lead() default expressions
+    coalesce(lead(cited_source_uid, 1) OVER (PARTITION BY reference_year ORDER BY random()),
+             first_value(cited_source_uid) OVER (PARTITION BY reference_year ORDER BY random())) --*
+      AS shuffled_cited_source_uid,
+    coalesce(lead(reference_year, 1) OVER (PARTITION BY reference_year ORDER BY random()),
+             first_value(reference_year) OVER (PARTITION BY reference_year ORDER BY random())) --*
+      AS shuffled_reference_year,
+    coalesce(lead(reference_document_id_type, 1) OVER (PARTITION BY reference_year ORDER BY random()),
+             first_value(reference_document_id_type) OVER (PARTITION BY reference_year ORDER BY random())) --*
+      AS shuffled_reference_document_id_type,
+    coalesce(lead(reference_issn, 1) OVER (PARTITION BY reference_year ORDER BY random()),
+             first_value(reference_issn) OVER (PARTITION BY reference_year ORDER BY random())) --*
+      AS shuffled_reference_issn
+  FROM dataset1980
+)
+SELECT
   source_id,
   source_year,
   source_document_id_type,
   source_issn,
-   -- Can’t embed a window function as lead() default expressions
-  coalesce(lead(cited_source_uid, 1) OVER (PARTITION BY reference_year ORDER BY random()), --
-           first_value(cited_source_uid)
-                       OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_cited_source_uid,
-  coalesce(lead(reference_year, 1) OVER (PARTITION BY reference_year ORDER BY random()),
-           first_value(reference_year) OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_year,
-  coalesce(lead(reference_document_id_type, 1) OVER (PARTITION BY reference_year ORDER BY random()),
-           first_value(reference_document_id_type)
-                       OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_document_id_type,
-  coalesce(lead(reference_issn, 1) OVER (PARTITION BY reference_year ORDER BY random()),
-           first_value(reference_issn) OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_issn
-FROM dataset2005;
--- 1m:48s
+  shuffled_cited_source_uid,
+  shuffled_reference_year,
+  shuffled_reference_document_id_type,
+  shuffled_reference_issn
+FROM cte
+WHERE source_id NOT IN (
+  SELECT source_id
+  FROM cte
+  GROUP BY source_id, shuffled_cited_source_uid
+  HAVING COUNT(1) > 1
+);
+-- 26.9s (cold)
 
-DROP VIEW dataset1980_shuffled;
-
-CREATE OR REPLACE VIEW dataset1980_shuffled AS
-SELECT DISTINCT
-  source_id,
-  source_year,
-  source_document_id_type,
-  source_issn,
-   -- Can’t embed a window function as lead() default expressions
-  coalesce(lead(cited_source_uid, 1) OVER (PARTITION BY reference_year ORDER BY random()), --
-           first_value(cited_source_uid)
-                       OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_cited_source_uid,
-  coalesce(lead(reference_year, 1) OVER (PARTITION BY reference_year ORDER BY random()),
-           first_value(reference_year) OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_year,
-  coalesce(lead(reference_document_id_type, 1) OVER (PARTITION BY reference_year ORDER BY random()),
-           first_value(reference_document_id_type)
-                       OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_document_id_type,
-  coalesce(lead(reference_issn, 1) OVER (PARTITION BY reference_year ORDER BY random()),
-           first_value(reference_issn) OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_issn
-FROM dataset1980;
-
-SELECT *
-FROM dataset1980_shuffled
-WHERE shuffled_reference_year = '1900'
-ORDER BY source_id;
+--@formatter:off
+COMMENT ON MATERIALIZED VIEW dataset1980_shuffled IS 'References randomly shuffled within the same reference year.'
+'Sources with any randomly generated duplicates are discarded (in order to preserve the number of references).';
+--@formatter:on
