@@ -65,6 +65,7 @@ COMMENT ON MATERIALIZED VIEW %s_shuffled IS
 'References randomly shuffled within the same reference year.'
 'Sources with any randomly generated duplicates are discarded (in order to preserve the number of references).'
           $$, dataset);
+        COMMIT;
       END IF;
     END LOOP;
   END $block$;
