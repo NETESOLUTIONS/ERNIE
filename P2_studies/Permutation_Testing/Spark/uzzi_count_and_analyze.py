@@ -66,20 +66,10 @@ def calculate_journal_pairs_freq(input_dataset,i):
         GROUP BY ref1,ref2''',i)
     df=df.withColumnRenamed('ref1','journal_pair_A').withColumnRenamed('ref2','journal_pair_B')
     df.createOrReplaceTempView('bg_table')
-    df = =spark.sql('''SELECT * FROM observed_frequencies UNION ALL SELECT * FROM bg_table ''') # TODO: check for an append statement, if so append bg table directly to observed frequencies table
+    df=spark.sql('''SELECT * FROM observed_frequencies UNION ALL SELECT * FROM bg_table ''') # TODO: check for an append statement, if so append bg table directly to observed frequencies table
     df.write.mode("overwrite").saveAsTable("temp_observed_frequencies")
     temp_table=spark.table("temp_observed_frequencies")
     temp_table.write.mode("overwrite").saveAsTable("observed_frequencies")
-
-    #df=spark.sql('''SELECT a.*,b.bg_freq
-    #                FROM observed_frequencies a
-    #                LEFT JOIN bg_table b
-    #                ON a.journal_pair_A=b.journal_pair_A
-    #                 AND a.journal_pair_B=b.journal_pair_B ''')
-    #df=df.withColumnRenamed('bg_freq','bg_'+str(i))
-    #df.write.mode("overwrite").saveAsTable("temp_observed_frequencies")
-    #temp_table=spark.table("temp_observed_frequencies")
-    #temp_table.write.mode("overwrite").saveAsTable("observed_frequencies")
 
 def final_table(input_dataset,iterations):
     df=spark.sql("SELECT source_id,cited_source_uid,reference_issn FROM {}".format(input_dataset)) #TODO: remember shuffle names, and prepare to cast it
@@ -127,7 +117,7 @@ def final_table(input_dataset,iterations):
 def z_score_calculations(input_dataset,iterations):
     #pandas_df=spark.sql("SELECT * FROM observed_frequencies").toPandas()
     obs_df=spark.sql('''
-            SELECT journal_pair_A,journal_pair_B,avg(obs_frequency) as mean, std(obs_frequency) as std, COUNT(obs_frequency) as count
+            SELECT journal_pair_A,journal_pair_B,avg(obs_frequency) as mean,stddev_pop(obs_frequency) as std, COUNT(obs_frequency) as count
             FROM observed_frequencies
             WHERE permutation != 0
             GROUP BY journal_pair_A,journal_pair_B
@@ -149,21 +139,6 @@ def z_score_calculations(input_dataset,iterations):
     df.write.mode("overwrite").saveAsTable("temp_z_scores_table")
     temp_table=spark.table("temp_z_scores_table")
     temp_table.write.mode("overwrite").saveAsTable("z_scores_table")
-    #Calculating the mean
-    #pandas_df['mean']=pandas_df.iloc[:,3:].mean(axis=1)
-
-    #Calculating the standard deviation
-    #pandas_df['std']=pandas_df.iloc[:,3:iterations+3].std(axis=1)
-
-    #Calculating z_scores
-    #pandas_df['z_score']=(pandas_df['obs_frequency']-pandas_df['mean'])/pandas_df['std']
-
-    #Calculating the count
-    #pandas_df['count']=pandas_df.iloc[:,3:iterations+3].apply(lambda x: x.count(),axis=1)
-    #pandas_df.to_csv('temp.csv')
-    #pandas_df=pandas_df[['journal_pair_A','journal_pair_B','obs_frequency','mean','std','z_score','count']].dropna()
-    #obs_df=spark.createDataFrame(pandas_df)
-    #obs_df.write.mode("overwrite").saveAsTable("z_scores_table")
     final_table(input_dataset,iterations)
 
 
