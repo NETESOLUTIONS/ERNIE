@@ -21,54 +21,95 @@ SET TIMEZONE = 'US/Eastern';
 
 SET SEARCH_PATH = public;
 
-SELECT NOW();
+-- SELECT NOW();
 
 DROP TABLE IF EXISTS :dataset CASCADE;
 
 CREATE TABLE :dataset TABLESPACE p2_studies AS
 SELECT
-  source_wp.source_id,
-  CAST(:year AS INT) AS source_year,
-  source_wpi.issn_type AS source_document_id_type,
-  source_wpi.issn AS source_issn,
-  wr.cited_source_uid,
-  ref_wp.publication_year AS reference_year,
-  ref_wpi.issn_type AS reference_document_id_type,
-  ref_wpi.issn AS reference_issn
-FROM wos_publications source_wp
-JOIN wos_publication_issns source_wpi ON source_wpi.source_id = source_wp.source_id
-JOIN wos_references wr ON wr.source_id = source_wp.source_id
-  -- Checks below are redundant since we're joining to wos_publications
-  -- AND substring(wr.cited_source_uid, 1, 4) = 'WOS:'
-  -- AND length(wr.cited_source_uid) = 19
-  -- ensure that ref pubs year is not greater that source_id pub year
-JOIN wos_publications ref_wp ON ref_wp.source_id = wr.cited_source_uid AND ref_wp.publication_year::INT <= :year
-JOIN wos_publication_issns ref_wpi ON ref_wpi.source_id = ref_wp.source_id
-WHERE source_wp.publication_year::INT = :year AND source_wp.document_type = 'Article';
+  source_id,
+  source_year,
+  source_document_id_type,
+  source_issn,
+  cited_source_uid,
+  reference_year,
+  reference_document_id_type,
+  reference_issn
+FROM (
+  SELECT
+    source_wp.source_id,
+    CAST(:year AS INT) AS source_year,
+    source_wpi.issn_type AS source_document_id_type,
+    source_wpi.issn AS source_issn,
+    wr.cited_source_uid,
+    ref_wp.publication_year AS reference_year,
+    ref_wpi.issn_type AS reference_document_id_type,
+    ref_wpi.issn AS reference_issn,
+    COUNT(1) OVER (PARTITION BY source_wp.source_id) AS ref_count
+  FROM wos_publications source_wp
+  JOIN wos_publication_issns source_wpi ON source_wpi.source_id = source_wp.source_id
+  JOIN wos_references wr
+       ON wr.source_id = source_wp.source_id -- Checks below are redundant since we're joining to wos_publications
+    -- AND substring(wr.cited_source_uid, 1, 4) = 'WOS:'
+    -- AND length(wr.cited_source_uid) = 19
+    -- ensure that ref pubs year is not greater that source_id pub year
+  JOIN wos_publications ref_wp ON ref_wp.source_id = wr.cited_source_uid AND ref_wp.publication_year::INT <= :year
+  JOIN wos_publication_issns ref_wpi ON ref_wpi.source_id = ref_wp.source_id
+  WHERE source_wp.publication_year::INT = :year AND source_wp.document_type = 'Article'
+) sq
+WHERE ref_count > 1;
 
 ALTER TABLE :dataset ADD CONSTRAINT :dataset_pk PRIMARY KEY (source_id, cited_source_uid) --
   USING INDEX TABLESPACE index_tbs;
 
 CREATE INDEX IF NOT EXISTS :dataset_index ON :dataset(reference_year) TABLESPACE index_tbs;
 
-CREATE OR REPLACE VIEW :shuffled_view AS
-SELECT DISTINCT
+DROP MATERIALIZED VIEW IF EXISTS :shuffled_view;
+
+CREATE MATERIALIZED VIEW :shuffled_view AS
+SELECT
   source_id,
   source_year,
   source_document_id_type,
   source_issn,
-  -- Can’t embed a window function as lead() default expressions
-  coalesce(lead(cited_source_uid, 1) OVER (PARTITION BY reference_year ORDER BY random()), --
-           first_value(cited_source_uid)
-                       OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_cited_source_uid,
-  coalesce(lead(reference_year, 1) OVER (PARTITION BY reference_year ORDER BY random()),
-           first_value(reference_year) OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_year,
-  coalesce(lead(reference_document_id_type, 1) OVER (PARTITION BY reference_year ORDER BY random()),
-           first_value(reference_document_id_type)
-                       OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_document_id_type,
-  coalesce(lead(reference_issn, 1) OVER (PARTITION BY reference_year ORDER BY random()),
-           first_value(reference_issn) OVER (PARTITION BY reference_year ORDER BY random())) AS shuffled_reference_issn
-FROM : dataset;
+  shuffled_cited_source_uid,
+  shuffled_reference_year,
+  shuffled_reference_document_id_type,
+  shuffled_reference_issn
+FROM (
+  SELECT
+    source_id,
+    source_year,
+    source_document_id_type,
+    source_issn,
+    -- Can’t embed a window function as lead() default expressions
+    coalesce(lead(cited_source_uid, 1) OVER (PARTITION BY reference_year ORDER BY random()),
+             first_value(cited_source_uid) OVER (PARTITION BY reference_year ORDER BY random())) --*
+      AS shuffled_cited_source_uid,
+    coalesce(lead(reference_year, 1) OVER (PARTITION BY reference_year ORDER BY random()),
+             first_value(reference_year) OVER (PARTITION BY reference_year ORDER BY random())) --*
+      AS shuffled_reference_year,
+    coalesce(lead(reference_document_id_type, 1) OVER (PARTITION BY reference_year ORDER BY random()),
+             first_value(reference_document_id_type) OVER (PARTITION BY reference_year ORDER BY random())) --*
+      AS shuffled_reference_document_id_type,
+    coalesce(lead(reference_issn, 1) OVER (PARTITION BY reference_year ORDER BY random()),
+             first_value(reference_issn) OVER (PARTITION BY reference_year ORDER BY random())) --*
+      AS shuffled_reference_issn
+  FROM :dataset
+) sq
+GROUP BY source_id,
+         source_year,
+         source_document_id_type,
+         source_issn,
+         shuffled_cited_source_uid,
+         shuffled_reference_year,
+         shuffled_reference_document_id_type,
+         shuffled_reference_issn
+HAVING COUNT(1) = 1;
+
+COMMENT ON MATERIALIZED VIEW :shuffled_view IS
+'References randomly shuffled within the same reference year.'
+'Sources with any randomly generated duplicates are discarded (in order to preserve the number of references).';
 
 INSERT INTO dataset_stats(year, unique_source_id_count, unique_cited_id_count, cited_id_count)
 SELECT :year, COUNT(DISTINCT source_id), COUNT(DISTINCT cited_source_uid), COUNT(cited_source_uid)
@@ -76,4 +117,4 @@ FROM :dataset d
 ON CONFLICT (year) DO UPDATE SET unique_source_id_count = excluded.unique_source_id_count, --
   unique_cited_id_count = excluded.unique_cited_id_count, cited_id_count = excluded.cited_id_count;
 
-SELECT NOW();
+-- SELECT NOW();
