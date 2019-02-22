@@ -10,3 +10,5 @@
 /usr/libexec/abrt-action-install-debuginfo-to-abrt-cache
 /usr/bin/cgexec
 /usr/bin/cgclassify
+/usr/sbin/lockdev
+/usr/lib64/vte-2.91/gnome-pty-helper

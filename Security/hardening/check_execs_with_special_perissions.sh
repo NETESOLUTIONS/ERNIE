@@ -17,11 +17,11 @@ check_execs_with_special_permissions() {
   # Non-zero exit codes in the sub-shell are intentionally suppressed using this variable declaration
   check_home=$(df --local --output=target | tail -n +2 | \
      xargs -I '{}' find '{}' ${EXCLUDE_DIRS} -xdev -type f -perm -$1 -print | \
-     grep -e "^/home" || echo "")
+     grep -e "^/erniedev_data1/home" || echo "")
 
   for path in $check_home
   do
-    parent=$(echo $path | cut -d/ -f 1-3)
+    parent=$(echo $path | cut -d/ -f 1-4)
     if [[ $(stat -c "%a" $parent) == 700 ]]; then
       [[ ${FINAL_EXCLUDE_DIRS} ]] && FINAL_EXCLUDE_DIRS="${FINAL_EXCLUDE_DIRS} " || FINAL_EXCLUDE_DIRS="${EXCLUDE_DIRS} "
       FINAL_EXCLUDE_DIRS="${FINAL_EXCLUDE_DIRS}-not -path $path"
