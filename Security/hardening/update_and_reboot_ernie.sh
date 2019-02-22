@@ -17,9 +17,9 @@ last_installed_kernel_package=$(rpm --query --last kernel-ml | head -1 | pcregre
 if [[ ${kernel_version} == ${last_installed_kernel_package} ]]; then
   echo "Check PASSED"
   echo "Sending email notification..."
-  printf "Kernel version was checked and is up-to-date\n Current version: ${kernel_version}" | mailx -S smtp=localhost -s "Hardening: kernel check" w6y4s9s6d2d1a7a4@neteteam.slack.com
+  printf "Kernel version was checked and is up-to-date\n Current version: ${kernel_version}" | mailx -S smtp=localhost -s "Hardening: kernel check" j1c0b0d0w9w7g7v2@neteteam.slack.com
   echo "Disabling cron job..."
-  ( crontab -l | grep -v -F "$absolute_script_dir/update_and_reboot_prod.sh >> $absolute_script_dir/log/reboot.log" ) | crontab -   
+  ( crontab -l | grep -v -F "$absolute_script_dir/update_and_reboot_ernie.sh >> $absolute_script_dir/log/reboot.log" ) | crontab -   
 else
   echo "Check FAILED, correcting ..."
   echo "___SET___"
@@ -30,24 +30,24 @@ else
   grub2-mkconfig -o /boot/grub2/grub.cfg
 
   ## Wait loop for running sql query and end-user linux process##
-  if [[ $(sudo -u pardi_admin psql pardi -Atf $absolute_script_dir/check_running.sql 2>&1) != "sudo: psql: command not found" ]]; then
-    running_postgres_pids=$(sudo -u pardi_admin psql pardi -Atf $absolute_script_dir/check_running.sql) 
+  if [[ $(sudo -u ernie_admin psql ernie -Atf $absolute_script_dir/check_running.sql 2>&1) != "sudo: psql: command not found" ]]; then
+    running_postgres_pids=$(sudo -u ernie_admin psql ernie -Atf $absolute_script_dir/check_running.sql) 
   else 
     running_postgres_pids=""
   fi
   jenkins_process_count=$(ps ax o user,group | grep jenkins | wc -l || :)
-  remote_server_processes_count=$(ps ax o user | grep pardi_admin | wc -l || :)
-  end_user_processes=$(ps ax o group | grep pardiusers || :)
+  remote_server_processes_count=$(ps ax o user | grep ernie_admin | wc -l || :)
+  end_user_processes=$(ps ax o group | grep ernieusers || :)
 
   #If there is no running postgres sql, no other Jenkins job but only Jenkins server, and no end user process
   #Disable cron job from crontab and reboot
   #Otherwise the cron job will check every 10min until the system can be rebooted
-  if [[ ${running_postgres_pids} == "" && ${jenkins_process_count} -eq 0 && ${remote_server_processes_count} == 0 && ${end_user_processes} == "" ]];then
+  if [[ ${running_postgres_pids} == "" && ${jenkins_process_count} -eq 1 && ${remote_server_processes_count} == 0 && ${end_user_processes} == "" ]];then
     echo "Disabling cron job..."
-    ( crontab -l | grep -v -F "$absolute_script_dir/update_and_reboot_prod.sh >> $absolute_script_dir/log/reboot.log" ) | crontab -
+    ( crontab -l | grep -v -F "$absolute_script_dir/update_and_reboot_ernie.sh >> $absolute_script_dir/log/reboot.log" ) | crontab -
     
     echo "Sending email notification..."
-    printf "Kernel updates from:\n Current kernel version: ${kernel_version}\n To\n Latest kernel version: ${last_installed_kernel_package}\n" | mailx -S smtp=localhost -s "Reboot notification" w6y4s9s6d2d1a7a4@neteteam.slack.com
+    printf "Kernel updates from:\n Current kernel version: ${kernel_version}\n To\n Latest kernel version: ${last_installed_kernel_package}\n" | mailx -S smtp=localhost -s "Reboot notification" j1c0b0d0w9w7g7v2@neteteam.slack.com
     
     sleep 10
     echo "**Rebooting**, please wait for 2 minutes, then reconnect"
