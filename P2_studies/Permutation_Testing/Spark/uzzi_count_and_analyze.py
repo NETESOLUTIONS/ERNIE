@@ -122,7 +122,7 @@ def final_table(input_dataset,iterations):
     df.createOrReplaceTempView('final_table')
     #TODO: ensure z-score is a double on export, also readd the count column
     df=spark.sql('''
-            SELECT a.*,b.obs_frequency,b.z_score,b.mean,b.std,b.permutation_count as count
+            SELECT a.*,b.obs_frequency,b.mean,b.std,b.z_score::double precision,b.permutation_count as count
             FROM final_table a
             JOIN z_scores_table b
             ON a.journal_pair_A=b.journal_pair_A
