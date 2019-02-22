@@ -29,7 +29,7 @@ DESCRIPTION
 
 EXAMPLES
 
-    sudo ./harden_server.sh pardi_admin /pardidata1/upsource
+    sudo ./main_ernie.sh ernie_admin /erniedata1/upsource
 HEREDOC
   exit 1
 fi
@@ -2146,6 +2146,6 @@ if [[ ! -d "${log_dir}" ]]; then
   chmod g+w "${log_dir}"
 fi
 echo "Cron job has been activated"
-crontab -l && echo "*/10 * * * * sudo $absolute_script_dir/update_and_reboot_dev.sh >> $absolute_script_dir/log/reboot.log" | crontab -
-$absolute_script_dir/update_and_reboot_dev.sh
+crontab -l && echo "*/10 * * * * sudo $absolute_script_dir/update_and_reboot_ernie.sh >> $absolute_script_dir/log/reboot.log" | crontab -
+$absolute_script_dir/update_and_reboot_ernie.sh
 # endregion
