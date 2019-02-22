@@ -13,7 +13,7 @@ import threading as thr
 
 # Issue a command to postgres to shuffle the target table
 def shuffle_data(table_name,connection_string,properties):
-    spark.read.option("query","REFRESH MATERIALIZED VIEW {}".format(table_name)).jdbc(url='jdbc:{}'.format(connection_string),properties=properties)
+    spark.write.option("query","REFRESH MATERIALIZED VIEW {}".format(table_name)).jdbc(url='jdbc:{}'.format(connection_string),properties=properties)
 
 # Functions to handle RW operations to PostgreSQL
 def read_postgres_table_into_HDFS(table_name,connection_string,properties):
