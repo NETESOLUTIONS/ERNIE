@@ -1780,7 +1780,7 @@ else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
   echo "Removing write access for 'other' ..."
-  chmod o-w ${output}
+  chmod -R o-w ${output}
 fi
 printf "\n\n"
 
