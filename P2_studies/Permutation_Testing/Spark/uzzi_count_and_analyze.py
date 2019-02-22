@@ -31,11 +31,12 @@ def pandas_mean(number_list):
     return pd.DataFrame(pd.to_numeric(number_list, errors='coerce')).mean()
 def pandas_std(number_list):
     return pd.DataFrame(pd.to_numeric(number_list, errors='coerce')).std()
-def pandas_sum(number_list):
-    return pd.DataFrame(pd.to_numeric(number_list, errors='coerce')).sum()
+def pandas_count(number_list):
+    return pd.DataFrame(pd.to_numeric(number_list, errors='coerce')).count()
+
 mean_udf=udf(lambda row: float(pandas_mean(row)), sql_type.DoubleType())
 std_udf=udf(lambda row: float(pandas_std(row)), sql_type.DoubleType())
-sum_udf=udf(lambda row: float(pandas_sum(row)), sql_type.DoubleType())
+count_udf=udf(lambda row: float(pandas_count(row)), sql_type.IntegerType())
 
 def obs_frequency_calculations(input_dataset):
     obs_df=spark.sql("SELECT source_id,reference_issn FROM {}".format(input_dataset))
@@ -121,7 +122,7 @@ def final_table(input_dataset,iterations):
     df.createOrReplaceTempView('final_table')
     #TODO: ensure z-score is a double on export, also readd the count column
     df=spark.sql('''
-            SELECT a.*,b.obs_frequency,b.z_score,b.mean, b.std
+            SELECT a.*,b.obs_frequency,b.z_score,b.mean,b.std,b.count
             FROM final_table a
             JOIN z_scores_table b
             ON a.journal_pair_A=b.journal_pair_A
@@ -136,8 +137,11 @@ def z_score_calculations(input_dataset,iterations):
     a = spark.table("z_score_prep_table")
     b = a.withColumn('std', std_udf(struct( [a[col] for col in a.columns[3:-1]] )))
     b.write.mode("overwrite").saveAsTable("z_score_prep_table2")
+    a = spark.table("z_score_prep_table2")
+    b = a.withColumn('count', count_udf(struct( [a[col] for col in a.columns[3:-2]] )))
+    b.write.mode("overwrite").saveAsTable("z_score_prep_table3")
     df=spark.sql('''
-            SELECT journal_pair_A,journal_pair_B,obs_frequency,mean,std,
+            SELECT journal_pair_A,journal_pair_B,obs_frequency,mean,std,count
             CASE
                 WHEN std=0 AND (obs_frequency-mean) > 0
                     THEN 'Infinity'
@@ -147,7 +151,7 @@ def z_score_calculations(input_dataset,iterations):
                     THEN NULL
                 ELSE (obs_frequency-mean)/std
             END as z_score
-            FROM z_score_prep_table2 a
+            FROM z_score_prep_table3 a
             ''').na.drop()
     df.write.mode("overwrite").saveAsTable("z_scores_table")
     final_table(input_dataset,iterations)
