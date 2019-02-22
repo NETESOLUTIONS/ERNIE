@@ -179,6 +179,7 @@ postgres_conn=psycopg2.connect(dbname=args.postgres_dbname,user=args.postgres_us
 
 # Issue the first background shuffle
 shuffle_thread = thr.Thread(target=shuffle_data, args=(postgres_conn,"{}_shuffled".format(args.target_table)))
+shuffle_thread.start()
 # Read in the target table to the HDFS then perform the initial round of observed frequency calculations
 print("*** START -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR BASE SET ***")
 read_postgres_table_into_HDFS(args.target_table,url,properties)
@@ -194,6 +195,7 @@ for i in range(1,args.permutations+1):
     read_postgres_table_into_memory("{}_shuffled".format(args.target_table),url,properties)
     # Calculate journal pair frequencies and issue a background task to Postgres to reshuffle data in the materialized view
     shuffle_thread = thr.Thread(target=shuffle_data, args=(postgres_conn,"{}_shuffled".format(args.target_table)))
+    shuffle_thread.start()
     calculate_journal_pairs_freq("{}_shuffled".format(args.target_table),i)
     # If shuffling is taking longer than the journal pair calculation, wait for shuffling to complete
     if shuffle_thread.isAlive():
