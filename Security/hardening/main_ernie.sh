@@ -29,7 +29,7 @@ DESCRIPTION
 
 EXAMPLES
 
-    sudo ./main_ernie.sh ernie_admin /erniedata1/upsource
+    sudo ./main_ernie.sh ernie_admin
 HEREDOC
   exit 1
 fi
