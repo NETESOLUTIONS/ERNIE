@@ -123,8 +123,8 @@ def final_table(input_dataset,iterations):
     #TODO: ensure z-score is a double on export, also readd the count column
     df=spark.sql('''
             SELECT a.source_id,
-                   ('||a.wos_id_A||','||a.wos_id_B||')' AS wos_id_pairs,
-                   ('||a.journal_pair_A||','||a.journal_pair_B||')' AS journal_pairs,
+                   '('||a.wos_id_A||','||a.wos_id_B||')' AS wos_id_pairs,
+                   '('||a.journal_pair_A||','||a.journal_pair_B||')' AS journal_pairs,
                    b.obs_frequency,
                    b.mean,
                    CAST(b.z_score AS double),
