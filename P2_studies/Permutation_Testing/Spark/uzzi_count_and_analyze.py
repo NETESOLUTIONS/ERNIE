@@ -100,10 +100,8 @@ def final_table(input_dataset,iterations):
     df.createOrReplaceTempView('final_table')
     df=spark.sql('''
             SELECT a.source_id,
-                   a.cited_source_uid AS wos_id_A,
-                   b.cited_source_uid AS wos_id_B,
-                   a.reference_issn AS journal_pair_A,
-                   b.reference_issn AS journal_pair_B
+                   '('||a.cited_source_uid||','||b.cited_source_uid||')' AS wos_id_pairs,
+                   '('||a.reference_issn||','||b.reference_issn||')' AS journal_pairs
             FROM final_table a
             JOIN final_table b
              ON a.source_id=b.source_id
@@ -122,7 +120,7 @@ def final_table(input_dataset,iterations):
     df.createOrReplaceTempView('final_table')
     #TODO: ensure z-score is a double on export, also readd the count column
     df=spark.sql('''
-            SELECT a.*,b.obs_frequency,b.mean,b.std,b.z_score::double precision,b.permutation_count as count
+            SELECT a.*,b.obs_frequency,b.mean,b.z_score::double precision,b.permutation_count as count,b.std
             FROM final_table a
             JOIN z_scores_table b
             ON a.journal_pair_A=b.journal_pair_A
