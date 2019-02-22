@@ -109,7 +109,7 @@ def final_table(input_dataset,iterations):
             AND a.id!=b.id and a.id < b.id
             UNION ALL
             SELECT a.source_id,
-                   '('||a.cited_source_uid||','||b.cited_source_uid||')'
+                   '('||a.cited_source_uid||','||b.cited_source_uid||')',
                    '('||a.reference_issn||','||b.reference_issn||')'
             FROM final_table a
             JOIN final_table b
