@@ -119,9 +119,9 @@ def final_table(input_dataset,iterations):
              ON a.source_id=b.source_id
             WHERE a.reference_issn < b.reference_issn ''')
     df.createOrReplaceTempView('final_table')
-    #TODO: ensure z-score is a double on export
+    #TODO: ensure z-score is a double on export, also readd the count column
     df=spark.sql('''
-            SELECT a.*,b.obs_frequency,b.z_score,b.count,b.mean, b.std
+            SELECT a.*,b.obs_frequency,b.z_score,b.mean, b.std
             FROM final_table a
             JOIN z_scores_table b
             ON a.journal_pair_A=b.journal_pair_A
