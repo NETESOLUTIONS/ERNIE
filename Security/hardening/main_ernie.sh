@@ -29,7 +29,7 @@ DESCRIPTION
 
 EXAMPLES
 
-    sudo ./main_ernie.sh ernie_admin /erniedata1/upsource
+    sudo ./main_ernie.sh ernie_admin
 HEREDOC
   exit 1
 fi
@@ -1780,7 +1780,7 @@ else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
   echo "Removing write access for 'other' ..."
-  chmod o-w ${output}
+  chmod -R o-w ${output}
 fi
 printf "\n\n"
 
