@@ -9,11 +9,13 @@ import numpy as np
 from pyspark.sql.functions import col, udf, lit,struct
 import pyspark.sql.types as sql_type
 import threading as thr
-#import psycopg2
+import psycopg2
 
 # Issue a command to postgres to shuffle the target table
-def shuffle_data(table_name,connection_string,properties):
-    spark.write.option("query","REFRESH MATERIALIZED VIEW {}".format(table_name)).jdbc(url='jdbc:{}'.format(connection_string),properties=properties)
+def shuffle_data(conn,table_name):
+    cur = conn.cursor()
+    cur.execute("REFRESH MATERIALIZED VIEW {}".format(table_name))
+    conn.commit()
 
 # Functions to handle RW operations to PostgreSQL
 def read_postgres_table_into_HDFS(table_name,connection_string,properties):
@@ -173,10 +175,10 @@ parser.add_argument('-i','--permutations',help='the number of permutations we wi
 args = parser.parse_args()
 url = 'postgresql://{}:{}/{}'.format(args.postgres_host,args.postgres_port,args.postgres_dbname)
 properties = {'user': args.postgres_user, 'password': args.postgres_password}
-#postgres_conn=psycopg2.connect(dbname=args.postgres_dbname,user=args.postgres_user,password=args.postgres_password, host=args.postgres_host, port=args.postgres_port)
+postgres_conn=psycopg2.connect(dbname=args.postgres_dbname,user=args.postgres_user,password=args.postgres_password, host=args.postgres_host, port=args.postgres_port)
 
 # Issue the first background shuffle
-shuffle_thread = thr.Thread(target=shuffle_data, args=("{}_shuffled".format(args.target_table),url,properties))
+shuffle_thread = thr.Thread(target=shuffle_data, args=(postgres_conn,"{}_shuffled".format(args.target_table)))
 # Read in the target table to the HDFS then perform the initial round of observed frequency calculations
 print("*** START -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR BASE SET ***")
 read_postgres_table_into_HDFS(args.target_table,url,properties)
@@ -191,7 +193,7 @@ for i in range(1,args.permutations+1):
     print("*** START -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
     read_postgres_table_into_memory("{}_shuffled".format(args.target_table),url,properties)
     # Calculate journal pair frequencies and issue a background task to Postgres to reshuffle data in the materialized view
-    shuffle_thread = thr.Thread(target=shuffle_data, args=("{}_shuffled".format(args.target_table),url,properties))
+    shuffle_thread = thr.Thread(target=shuffle_data, args=(postgres_conn,"{}_shuffled".format(args.target_table)))
     calculate_journal_pairs_freq("{}_shuffled".format(args.target_table),i)
     # If shuffling is taking longer than the journal pair calculation, wait for shuffling to complete
     if shuffle_thread.isAlive():
