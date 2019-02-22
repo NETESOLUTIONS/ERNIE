@@ -18,6 +18,17 @@
 /usr/bin/su
 /usr/bin/sudo
 /usr/bin/umount
+/usr/bin/Xorg
+/usr/bin/ksu
+/usr/bin/fusermount
+/usr/sbin/mount.nfs
+/usr/libexec/spice-gtk-x86_64/spice-client-glib-usb-acl-helper
+/usr/libexec/sssd/krb5_child
+/usr/libexec/sssd/ldap_child
+/usr/libexec/sssd/selinux_child
+/usr/libexec/sssd/proxy_child
+/usr/libexec/qemu-bridge-helper
+/usr/libexec/flatpak-bwrap
 /usr/lib/polkit-1/polkit-agent-helper-1
 /usr/libexec/abrt-action-install-debuginfo-to-abrt-cache
 /usr/libexec/dbus-1/dbus-daemon-launch-helper
