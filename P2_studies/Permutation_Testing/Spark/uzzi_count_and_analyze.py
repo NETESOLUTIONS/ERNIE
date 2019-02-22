@@ -100,8 +100,10 @@ def final_table(input_dataset,iterations):
     df.createOrReplaceTempView('final_table')
     df=spark.sql('''
             SELECT a.source_id,
-                   '('||a.cited_source_uid||','||b.cited_source_uid||')' AS wos_id_pairs,
-                   '('||a.reference_issn||','||b.reference_issn||')' AS journal_pairs
+                   a.cited_source_uid AS wos_id_A,
+                   b.cited_source_uid AS wos_id_B,
+                   a.reference_issn AS journal_pair_A,
+                   b.reference_issn AS journal_pair_B
             FROM final_table a
             JOIN final_table b
              ON a.source_id=b.source_id
@@ -109,8 +111,10 @@ def final_table(input_dataset,iterations):
             AND a.id!=b.id and a.id < b.id
             UNION ALL
             SELECT a.source_id,
-                   '('||a.cited_source_uid||','||b.cited_source_uid||')',
-                   '('||a.reference_issn||','||b.reference_issn||')'
+                   a.cited_source_uid,
+                   b.cited_source_uid,
+                   a.reference_issn,
+                   b.reference_issn
             FROM final_table a
             JOIN final_table b
              ON a.source_id=b.source_id
@@ -118,7 +122,14 @@ def final_table(input_dataset,iterations):
     df.createOrReplaceTempView('final_table')
     #TODO: ensure z-score is a double on export, also readd the count column
     df=spark.sql('''
-            SELECT a.*,b.obs_frequency,b.mean,CAST(b.z_score AS double),b.permutation_count as count,b.std
+            SELECT a.source_id,
+                   ('||a.wos_id_A||','||b.wos_id_B||')' AS wos_id_pairs,
+                   ('||a.journal_pair_A||','||b.journal_pair_B||')' AS journal_pairs,
+                   b.obs_frequency,
+                   b.mean,
+                   CAST(b.z_score AS double),
+                   b.permutation_count as count,
+                   b.std
             FROM final_table a
             JOIN z_scores_table b
             ON a.journal_pair_A=b.journal_pair_A
