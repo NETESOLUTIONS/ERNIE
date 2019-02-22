@@ -13,33 +13,41 @@ SELECT *
 FROM pg_available_extensions
 ORDER BY name;
 
--- Install available extension
-
--- region postgresql96-contrib
+-- region Install out-of-the-box extensions: postgresql96-contrib
 CREATE EXTENSION postgres_fdw;
+CREATE EXTENSION dblink;
+CREATE EXTENSION pg_buffercache;
 CREATE EXTENSION fuzzystrmatch;
 -- endregion
 
--- Foreign servers
-SELECT *
-FROM information_schema.foreign_servers;
+-- region Install third-party extensions
+CREATE EXTENSION pg_dropcache;
+-- endregion
 
--- Define foreign servers
-CREATE SERVER pardi_prod FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host '10.253.56.8', dbname 'pardi', PORT '5432');
+-- Cache, ordered by the number of buffers
+SELECT pn.nspname AS schema, pc.relname, count(1) AS buffers, sum(pb.isdirty :: INT) AS dirty_pages
+FROM pg_buffercache pb
+JOIN pg_class pc ON pb.relfilenode = pg_relation_filenode(pc.oid) --
+    AND pb.reldatabase IN(0,
+                          (SELECT oid
+                           FROM pg_database
+                           WHERE datname = current_database()))
+JOIN pg_namespace pn ON pn.oid = pc.relnamespace
+GROUP BY pc.relname, pn.nspname
+ORDER BY buffers DESC;
 
--- User mapping for each user
--- Trusted system user doesn't require password
-CREATE USER MAPPING FOR pardi_admin SERVER pardi_prod OPTIONS (USER 'pardi_admin');
+-- Cache by object names
+SELECT pn.nspname AS schema, pc.relname, count(1) AS buffers, sum(pb.isdirty :: INT) AS dirty_pages
+FROM pg_buffercache pb
+JOIN pg_class pc ON pb.relfilenode = pg_relation_filenode(pc.oid) --
+    AND pb.reldatabase IN(0,
+                          (SELECT oid
+                           FROM pg_database
+                           WHERE datname = current_database()))
+JOIN pg_namespace pn ON pn.oid = pc.relnamespace
+WHERE pc.relname SIMILAR TO '(wos_|dataset)%'
+GROUP BY pc.relname, pn.nspname
+ORDER BY relname;
 
-DROP USER MAPPING IF EXISTS FOR dk SERVER pardi_prod;
-CREATE USER MAPPING FOR dk SERVER pardi_prod OPTIONS (USER 'dk', PASSWORD :'password');
-
--- Create schema
-DROP SCHEMA IF EXISTS foreign_prod CASCADE;
-CREATE SCHEMA foreign_prod AUTHORIZATION pardi_admin;
-
--- Import foreign schema
-IMPORT FOREIGN SCHEMA public FROM SERVER pardi_prod INTO foreign_prod;
-
-SELECT *
-FROM foreign_prod.cg_uids;
+-- Drop cache by object(s)
+SELECT pg_drop_rel_cache('wos_references'), pg_drop_rel_cache('wos_references_pk');
