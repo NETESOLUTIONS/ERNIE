@@ -5,7 +5,15 @@ from pyspark.sql.functions import monotonically_increasing_id
 import time,sys
 import argparse
 import pandas as pd
+import numpy as np
+from pyspark.sql.functions import col, udf, lit,struct
+import pyspark.sql.types as sql_type
+import threading as thr
+#import psycopg2
 
+# Issue a command to postgres to shuffle the target table
+def shuffle_data(table_name,connection_string,properties):
+    spark.read.option("query","REFRESH MATERIALIZED VIEW {}".format(table_name)).jdbc(url='jdbc:{}'.format(connection_string),properties=properties)
 
 # Functions to handle RW operations to PostgreSQL
 def read_postgres_table_into_HDFS(table_name,connection_string,properties):
@@ -165,20 +173,32 @@ parser.add_argument('-i','--permutations',help='the number of permutations we wi
 args = parser.parse_args()
 url = 'postgresql://{}:{}/{}'.format(args.postgres_host,args.postgres_port,args.postgres_dbname)
 properties = {'user': args.postgres_user, 'password': args.postgres_password}
+#postgres_conn=psycopg2.connect(dbname=args.postgres_dbname,user=args.postgres_user,password=args.postgres_password, host=args.postgres_host, port=args.postgres_port)
 
+# Issue the first background shuffle
+shuffle_thread = thr.Thread(target=shuffle_data, args=("{}_shuffled".format(args.target_table),url,properties))
 # Read in the target table to the HDFS then perform the initial round of observed frequency calculations
 print("*** START -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR BASE SET ***")
 read_postgres_table_into_HDFS(args.target_table,url,properties)
 obs_frequency_calculations(args.target_table)
 print("*** END -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR BASE SET ***")
+if shuffle_thread.isAlive():
+    print("Waiting on shuffle completion in PostgreSQL for the first permutation")
+    shuffle_thread.join()
 
 # For the number of desired permutations, generate a random permute structure and collect observed frequency calculations
 for i in range(1,args.permutations+1):
     print("*** START -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
     read_postgres_table_into_memory("{}_shuffled".format(args.target_table),url,properties)
     # Calculate journal pair frequencies and issue a background task to Postgres to reshuffle data in the materialized view
+    shuffle_thread = thr.Thread(target=shuffle_data, args=("{}_shuffled".format(args.target_table),url,properties))
     calculate_journal_pairs_freq("{}_shuffled".format(args.target_table),i)
+    # If shuffling is taking longer than the journal pair calculation, wait for shuffling to complete
+    if shuffle_thread.isAlive():
+        print("Waiting on shuffle completion in PostgreSQL for the next permutation")
+        shuffle_thread.join()
     print("*** END -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
+
     # Conditional Statement for iteration number - if 10 or 100 take a pause to calculate z scores for the observations and write to postgres
     if i==10 or i==100:
         print("*** START -  Z-SCORE CALCULATION BREAK FOR PERMUTATION {} ***".format(i))
