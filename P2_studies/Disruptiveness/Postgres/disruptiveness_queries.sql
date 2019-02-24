@@ -1,5 +1,5 @@
--- Assuming there are no double references
-SELECT i_j_sq.*, j_plus_k_sq.*, CAST(i_j_sq.i - i_j_sq.j AS FLOAT) / (i_j_sq.i + j_plus_k_sq.j_plus_k) AS disruption
+SELECT i_j_sq.*, (j_plus_k_sq.j_plus_k - i_j_sq.j) AS k,
+  CAST(i_j_sq.i - i_j_sq.j AS FLOAT) / (i_j_sq.i + j_plus_k_sq.j_plus_k) AS disruption
 FROM (
        SELECT
          sum(CASE
@@ -21,18 +21,18 @@ FROM (
                ELSE 0
              END) AS j
        FROM wos_references citing_focal_wr
-       WHERE citing_focal_wr.cited_source_uid = 'WOS:A1990ED16700008' -- focal paper
+       WHERE citing_focal_wr.cited_source_uid = :pub_id -- focal paper
      ) i_j_sq, (
        SELECT count(DISTINCT source_id) AS j_plus_k
        FROM wos_references citing_wr
        WHERE EXISTS(SELECT 1
                     FROM wos_references focal_cited_wr
-                    WHERE focal_cited_wr.source_id = 'WOS:A1990ED16700008' -- focal paper
+                    WHERE focal_cited_wr.source_id = :pub_id -- focal paper
                       AND focal_cited_wr.cited_source_uid = citing_wr.cited_source_uid)
+       AND source_id <> :pub_id -- focal paper
      ) j_plus_k_sq;
 -- 10.8s-34.7s (cold-ish)
 
--- Assuming there are no double references
 WITH
   cte AS (
     SELECT *
@@ -78,7 +78,6 @@ FROM
 ;
 -- runaway query
 
--- Assuming there are no double references
 SELECT count(1) AS i
 FROM wos_references citing_focal_wr
 WHERE cited_source_uid = 'WOS:A1990ED16700008' -- focal paper
@@ -90,7 +89,6 @@ WHERE cited_source_uid = 'WOS:A1990ED16700008' -- focal paper
 -- 47563
 -- 1m:03s (cold)
 
--- Assuming there are no double references
 SELECT count(1) AS j
 FROM wos_references citing_focal_wr
 WHERE cited_source_uid = 'WOS:A1990ED16700008' -- focal paper
@@ -110,6 +108,3 @@ WHERE EXISTS(SELECT 1
                AND focal_cited_wr.cited_source_uid = citing_wr.cited_source_uid);
 -- 19969
 -- 0.4s-5.4s (cold)
-
-
-select count(ij_set) from allison_96_citing where ij_set not in (select k_set from allison_96_cites_cited);
