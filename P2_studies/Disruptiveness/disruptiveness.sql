@@ -36,4 +36,4 @@ FROM (
                     WHERE focal_cited_wr.source_id = :pub_uid -- focal paper
                       AND focal_cited_wr.cited_source_uid = citing_wr.cited_source_uid)
      ) j_plus_k_sq;
--- 10.8s-13.2s (cold)
+-- 10.8s-34.7s (cold-ish)

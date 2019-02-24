@@ -21,7 +21,7 @@ FROM (
                ELSE 0
              END) AS j
        FROM wos_references citing_focal_wr
-       WHERE cited_source_uid = 'WOS:A1990ED16700008' -- focal paper
+       WHERE citing_focal_wr.cited_source_uid = 'WOS:A1990ED16700008' -- focal paper
      ) i_j_sq, (
        SELECT count(DISTINCT source_id) AS j_plus_k
        FROM wos_references citing_wr
@@ -30,7 +30,7 @@ FROM (
                     WHERE focal_cited_wr.source_id = 'WOS:A1990ED16700008' -- focal paper
                       AND focal_cited_wr.cited_source_uid = citing_wr.cited_source_uid)
      ) j_plus_k_sq;
--- 10.8s-13.2s (cold-ish)
+-- 10.8s-34.7s (cold-ish)
 
 -- Assuming there are no double references
 WITH
@@ -40,11 +40,12 @@ WITH
       VALUES ('WOS:A1990ED16700008')
     ) AS t(focal_paper_uid)
   )
-SELECT cte.focal_paper_uid, i_j_sq.*
+SELECT i_j_sq.*
 --, j_plus_k_sq.*, CAST(i_j_sq.i - i_j_sq.j AS FLOAT) / (i_j_sq.i + j_plus_k_sq.j_plus_k) AS disruption
-FROM cte,
+FROM
 (
   SELECT
+    cte.focal_paper_uid,
     sum(CASE
           WHEN NOT EXISTS(SELECT 1
                           FROM wos_references wr
@@ -64,7 +65,8 @@ FROM cte,
           ELSE 0
         END) AS j
   FROM wos_references citing_focal_wr
-  WHERE cited_source_uid = cte.focal_paper_uid
+  JOIN cte ON cte.focal_paper_uid = citing_focal_wr.cited_source_uid
+  GROUP BY cte.focal_paper_uid
 ) i_j_sq/*, (
        SELECT count(DISTINCT source_id) AS j_plus_k
        FROM wos_references citing_wr
@@ -108,3 +110,6 @@ WHERE EXISTS(SELECT 1
                AND focal_cited_wr.cited_source_uid = citing_wr.cited_source_uid);
 -- 19969
 -- 0.4s-5.4s (cold)
+
+
+select count(ij_set) from allison_96_citing where ij_set not in (select k_set from allison_96_cites_cited);
