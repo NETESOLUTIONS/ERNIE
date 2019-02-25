@@ -46,9 +46,8 @@ FROM (
     ) AS k
 ) sq;
 --@formatter:on
--- 676,811,11714
--- 7.2s
--- 0.1s (warm)
+-- 'WOS:A1996UB15100049': 7.2s (cold-ish)
+-- 676,811,11714,-0.01022649799257632
 
 -- Query with an input table
 --@formatter:off
@@ -211,8 +210,8 @@ FROM (
                       AND focal_cited_wr.cited_source_uid = citing_wr.cited_source_uid)
          AND source_id <> :pub_id -- focal paper
      ) j_plus_k_sq;
+-- 'WOS:A1996UB15100049': 10.8s-34.7s (cold-ish)
 -- 676,811,11714
--- 10.8s-34.7s (cold-ish)
 -- 0.4s (warm)
 
 WITH
