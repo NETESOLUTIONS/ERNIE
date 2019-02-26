@@ -31,7 +31,7 @@ ENVIRONMENT
 
 EXAMPLES
 
-        $ cat dataset100_wos_ids.csv | calculate_disruption.sh out/dataset100_disruption_measure.csv
+        $ cat dataset100_wos_ids.csv | ./calculate_disruption.sh out/disruption_measures.csv
 
 AUTHOR(S)
 
