@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="ERNIE" overwriteAll="false" deleteMissingItems="true" exclude=".svn;.cvs;.DS_Store;.git;.hg;*.hprof;*.pyc">
+  <component name="PublishConfigData" serverName="ERNIE" stopOnFirstError="true" overwriteAll="false" deleteMissingItems="true" exclude=".svn;.cvs;.DS_Store;.git;.hg;*.hprof;*.pyc" filePermissions="484">
     <serverData>
       <paths name="ERNIE">
         <serverdata>

@@ -1,6 +1,12 @@
+\set ON_ERROR_STOP on
+\set ECHO all
+
+-- DataGrip: start execution from here
+SET TIMEZONE = 'US/Eastern';
+
 -- Single focal paper query, simplified
 --@formatter:off
-SELECT sq.*, CAST(sq.i - sq.j AS FLOAT) / (sq.i + sq.j + sq.k) AS disruption
+SELECT :pub_id AS focal_paper_id, sq.*, CAST(sq.i - sq.j AS FLOAT) / (sq.i + sq.j + sq.k) AS disruption
 FROM (
   WITH
   cited_cte AS (
@@ -46,7 +52,7 @@ FROM (
     ) AS k
 ) sq;
 --@formatter:on
--- 'WOS:A1996UB15100049': 7.2s (cold-ish)
+-- 'WOS:A1996UB15100049': 7.2-51.5s (cold-ish)
 -- 676,811,11714,-0.01022649799257632
 
 -- Query with an input table

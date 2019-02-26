@@ -12,7 +12,7 @@ SYNOPSIS
 
 DESCRIPTION
 
-    Processes all supplied publications: text on STDIN, CSV-like with one WoS id per line
+    Processes all supplied publications: in text format on `stdin`, CSV-like with one WoS id per line
     Header lines and any invalid ids (not starting with 'WOS:') are skipped automatically.
 
     Produces a CSV with the header.
@@ -45,23 +45,28 @@ set -o pipefail
 
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
-readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
+declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 
-readonly OUTPUT_FILE="$1"
+declare -rx OUTPUT_FILE="$1"
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
+# Executed in a subshell by `parallel`
 process_focal_paper() {
   set -e
   local input=$1
-  if [[ $input = WOS:* ]]; then
+  # Header lines and any invalid ids (not starting with 'WOS:') are skipped
+  if [[ "${input}" == WOS:* ]]; then
     echo "Processing ${input} ..."
-    psql -f "${ABSOLUTE_SCRIPT_DIR}/disruption.sql" -v pub_id="${input}" >>"${OUTPUT_FILE}"
+    psql --quiet --tuples-only --no-align --field-separator=, -f "${ABSOLUTE_SCRIPT_DIR}/disruption.sql" \
+        -v pub_id="${input}" >>"${OUTPUT_FILE}"
     echo "${input}: done."
   fi
 }
 export -f process_focal_paper
 
-parallel --halt soon,fail=1 --verbose --line-buffer --tagstring '|job#{#} s#{%}|' process_focal_paper {} <&1
+echo "focal_paper_id,disruption_i,disruption_j,disruption_k,disruption" >"${OUTPUT_FILE}"
+# Reading input from the script `stdin`
+parallel --halt soon,fail=1 --verbose --line-buffer --tagstring '|job#{#} s#{%}|' process_focal_paper {}
 
 exit 0
