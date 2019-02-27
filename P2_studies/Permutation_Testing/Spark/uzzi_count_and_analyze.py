@@ -26,17 +26,19 @@ def write_table_to_postgres(spark_table_name,postgres_table_name,connection_stri
     df=spark.table(spark_table_name)
     df.write.jdbc(url='jdbc:{}'.format(connection_string), table=postgres_table_name, properties=properties, mode="overwrite")
 
-# User Defined Functions for use with Spark data, TODO: add a function to capture boolean count data on appearances in the simulation
-def pandas_mean(number_list):
-    return pd.DataFrame(pd.to_numeric(number_list, errors='coerce')).mean()
-def pandas_std(number_list):
-    return pd.DataFrame(pd.to_numeric(number_list, errors='coerce')).std()
-def pandas_count(number_list):
-    return pd.Series(pd.to_numeric(number_list, errors='coerce')).count()
+# User Defined Functions for use with Spark data
+def running_mean(running_counts,running_sum):
+    if running_counts == 0:
+        return np.nan
+    return running_sum/running_counts
 
-mean_udf=udf(lambda row: float(pandas_mean(row)), sql_type.DoubleType())
-std_udf=udf(lambda row: float(pandas_std(row)), sql_type.DoubleType())
-count_udf=udf(lambda row: int(pandas_count(row)), sql_type.IntegerType())
+def running_std(running_counts,running_sum,running_sum_of_squares):
+    if running_counts == 0:
+        return np.nan
+    return np.sqrt(running_sum_of_squares/running_counts - running_mean(running_counts,running_sum)**2)
+
+mean_udf = udf(lambda x: float(running_mean(x[0],x[1])), sql_type.DoubleType())
+std_udf = udf(lambda x: float(running_std(x[0],x[1],x[2])), sql_type.DoubleType())
 
 def obs_frequency_calculations(input_dataset):
     obs_df=spark.sql("SELECT source_id,reference_issn FROM {}".format(input_dataset))
@@ -120,7 +122,6 @@ def final_table(input_dataset,iterations):
              ON a.source_id=b.source_id
             WHERE a.reference_issn < b.reference_issn ''')
     df.createOrReplaceTempView('final_table')
-    #TODO: ensure z-score is a double on export, also readd the count column
     df=spark.sql('''
             SELECT a.source_id,
                    '('||a.wos_id_A||','||a.wos_id_B||')' AS wos_id_pairs,
@@ -128,7 +129,7 @@ def final_table(input_dataset,iterations):
                    b.obs_frequency,
                    b.mean,
                    CAST(b.z_score AS double),
-                   b.permutation_count as count,
+                   b.count,
                    b.std
             FROM final_table a
             JOIN z_scores_table b
@@ -136,32 +137,26 @@ def final_table(input_dataset,iterations):
              AND a.journal_pair_B=b.journal_pair_B''')
     df.write.mode("overwrite").saveAsTable("output_table")
 
-#def z_score_calculations(input_dataset,iterations):
+def z_score_calculations(input_dataset,iterations):
 
-    #a = spark.table("observed_frequencies")
-    #b = a.withColumn('mean', mean_udf(struct( [a[col] for col in a.columns[3:]] )))
-    #b.write.mode("overwrite").saveAsTable("z_score_prep_table")
-    #a = spark.table("z_score_prep_table")
-    #b = a.withColumn('std', std_udf(struct( [a[col] for col in a.columns[3:-1]] )))
-    #b.write.mode("overwrite").saveAsTable("z_score_prep_table2")
-    #a = spark.table("z_score_prep_table2")
-    #b = a.withColumn('permutation_count', count_udf(struct( [a[col] for col in a.columns[3:-2]] )))
-    #b.write.mode("overwrite").saveAsTable("z_score_prep_table3")
-    #df=spark.sql('''
-    #        SELECT journal_pair_A,journal_pair_B,obs_frequency,mean,std,permutation_count,
-    #        CASE
-    #            WHEN std=0 AND (obs_frequency-mean) > 0
-    #                THEN 'Infinity'
-    #            WHEN std=0 AND (obs_frequency-mean) < 0
-    #                THEN '-Infinity'
-    #            WHEN std=0 AND (obs_frequency-mean) = 0
-    #                THEN NULL
-    #            ELSE (obs_frequency-mean)/std
-    #        END as z_score
-    #        FROM z_score_prep_table3 a
-    #        ''').na.drop()
-    #df.write.mode("overwrite").saveAsTable("z_scores_table")
-    #final_table(input_dataset,iterations)
+    a = spark.table("observed_frequencies").withColumn('mean', mean_udf(struct('count','running_sum')))
+    b = a.withColumn('std',std_udf(struct('count','running_sum','running_sum_of_squares')))
+    b.write.mode("overwrite").saveAsTable("z_score_prep_table")
+    df=spark.sql('''
+            SELECT journal_pair_A,journal_pair_B,obs_frequency,mean,std,permutation_count,
+            CASE
+                WHEN std=0 AND (obs_frequency-mean) > 0
+                    THEN 'Infinity'
+                WHEN std=0 AND (obs_frequency-mean) < 0
+                    THEN '-Infinity'
+                WHEN std=0 AND (obs_frequency-mean) = 0
+                    THEN NULL
+                ELSE (obs_frequency-mean)/std
+                END as z_scores
+            FROM z_score_prep_table a
+           ''').na.drop()
+    df.write.mode("overwrite").saveAsTable("z_scores_table")
+    final_table(input_dataset,iterations)
 
 
 warehouse_location = '/user/spark/data'
@@ -227,9 +222,9 @@ for i in range(1,args.permutations+1):
     #        write_table_to_postgres("observed_frequencies","spark_observed_frequencies_10_permutations_{}".format(args.target_table),url,properties)
 
 # Analyze the final results stored
-#print("*** START -  Z-SCORE CALCULATIONS ***")
-#z_score_calculations(args.target_table,args.permutations)
-#print("*** END -  Z-SCORE CALCULATIONS ***")
+print("*** START -  Z-SCORE CALCULATIONS ***")
+z_score_calculations(args.target_table,args.permutations)
+print("*** END -  Z-SCORE CALCULATIONS ***")
 #print("*** START -  FINAL POSTGRES EXPORT ***")
 #write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,args.permutations),url,properties)
 #print("*** END -  FINAL POSTGRES EXPORT ***")
