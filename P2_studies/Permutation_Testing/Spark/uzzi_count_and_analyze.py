@@ -143,7 +143,7 @@ def z_score_calculations(input_dataset,iterations):
     b = a.withColumn('std',std_udf(struct('count','running_sum','running_sum_of_squares')))
     b.write.mode("overwrite").saveAsTable("z_score_prep_table")
     df=spark.sql('''
-            SELECT journal_pair_A,journal_pair_B,obs_frequency,mean,std,permutation_count,
+            SELECT journal_pair_A,journal_pair_B,obs_frequency,mean,std,count,
             CASE
                 WHEN std=0 AND (obs_frequency-mean) > 0
                     THEN 'Infinity'
