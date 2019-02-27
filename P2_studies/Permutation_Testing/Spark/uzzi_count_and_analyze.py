@@ -210,23 +210,23 @@ for i in range(1,args.permutations+1):
     print("*** END -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
 
     # Conditional Statement for iteration number - if 10 or 100 take a pause to calculate z scores for the observations and write to postgres
-    #if i==10 or i==100:
-    #    print("*** START -  Z-SCORE CALCULATION BREAK FOR PERMUTATION {} ***".format(i))
-    #    z_score_calculations(args.target_table,i)
-    #    print("*** END -  Z-SCORE CALCULATION BREAK FOR PERMUTATION {} ***".format(i))
-    #    print("*** START -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
-    #    write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,i),url,properties)
-    #    print("*** END -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
-    #    # if we are at 10 permutations specficically, export the observed frequency table so that it can be analyzed by
-    #    if i==10:
-    #        write_table_to_postgres("observed_frequencies","spark_observed_frequencies_10_permutations_{}".format(args.target_table),url,properties)
+    if i==10 or i==100:
+        print("*** START -  Z-SCORE CALCULATION BREAK FOR PERMUTATION {} ***".format(i))
+        z_score_calculations(args.target_table,i)
+        print("*** END -  Z-SCORE CALCULATION BREAK FOR PERMUTATION {} ***".format(i))
+        print("*** START -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
+        write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,i),url,properties)
+        print("*** END -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
+        # if we are at 10 permutations specficically, export the observed frequency table so that it can be analyzed by
+        if i==10:
+            write_table_to_postgres("observed_frequencies","spark_observed_frequencies_10_permutations_{}".format(args.target_table),url,properties)
 
 # Analyze the final results stored
 print("*** START -  Z-SCORE CALCULATIONS ***")
 z_score_calculations(args.target_table,args.permutations)
 print("*** END -  Z-SCORE CALCULATIONS ***")
-#print("*** START -  FINAL POSTGRES EXPORT ***")
-#write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,args.permutations),url,properties)
-#print("*** END -  FINAL POSTGRES EXPORT ***")
+print("*** START -  FINAL POSTGRES EXPORT ***")
+write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,args.permutations),url,properties)
+print("*** END -  FINAL POSTGRES EXPORT ***")
 # Close out the spark session
 spark.stop()
