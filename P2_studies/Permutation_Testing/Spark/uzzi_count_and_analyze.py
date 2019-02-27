@@ -57,7 +57,7 @@ def obs_frequency_calculations(input_dataset):
                     JOIN input_table b
                      ON a.source_id=b.source_id
                     WHERE a.reference_issn < b.reference_issn) temp
-            GROUP BY ref1,ref2''')
+            GROUP BY journal_pair_A,journal_pair_B''')
     spark.catalog.dropTempView('input_table')
     obs_df.write.mode("overwrite").saveAsTable("observed_frequencies")
 
@@ -79,7 +79,7 @@ def calculate_journal_pairs_freq(input_dataset,i):
                 FROM bg_table a
                 JOIN bg_table b ON a.source_id=b.source_id
                 WHERE a.reference_issn < b.reference_issn) temp
-        GROUP BY ref1,ref2''')
+        GROUP BY journal_pair_A,journal_pair_B''')
     df.createOrReplaceTempView('bg_table')
     df=spark.sql('''SELECT a.journal_pair_A,a.journal_pair_B,
                            a.obs_frequency,
