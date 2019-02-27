@@ -136,7 +136,7 @@ def final_table(input_dataset,iterations):
              AND a.journal_pair_B=b.journal_pair_B''')
     df.write.mode("overwrite").saveAsTable("output_table")
 
-def z_score_calculations(input_dataset,iterations):
+#def z_score_calculations(input_dataset,iterations):
 
     #a = spark.table("observed_frequencies")
     #b = a.withColumn('mean', mean_udf(struct( [a[col] for col in a.columns[3:]] )))
