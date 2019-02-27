@@ -43,7 +43,7 @@ def obs_frequency_calculations(input_dataset):
     obs_df=obs_df.withColumn('id',monotonically_increasing_id())
     obs_df.createOrReplaceTempView('input_table')
     obs_df=spark.sql('''
-            SELECT ref1,ref2,count(*) as obs_frequency, 0.0 as running_sum, 0.0 as running_sum_of_squares, 0.0 as count
+            SELECT journal_pair_A,journal_pair_B,count(*) as obs_frequency, 0.0 as running_sum, 0.0 as running_sum_of_squares, 0.0 as count
             FROM (
                     SELECT a.reference_issn as journal_pair_A, b.reference_issn as journal_pair_B
                     FROM input_table a
@@ -66,7 +66,7 @@ def calculate_journal_pairs_freq(input_dataset,i):
     df=df.withColumn('id',monotonically_increasing_id())
     df.createOrReplaceTempView('bg_table')
     df=spark.sql('''
-        SELECT ref1,ref2,count(*) as bg_freq
+        SELECT journal_pair_A,journal_pair_B,count(*) as bg_freq
         FROM (
                 SELECT a.reference_issn as journal_pair_A, b.reference_issn as journal_pair_B
                 FROM bg_table a
