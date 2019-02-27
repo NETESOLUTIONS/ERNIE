@@ -43,9 +43,9 @@ def obs_frequency_calculations(input_dataset):
     obs_df=obs_df.withColumn('id',monotonically_increasing_id())
     obs_df.createOrReplaceTempView('input_table')
     obs_df=spark.sql('''
-            SELECT ref1,ref2,count(*) as obs_frequency
+            SELECT ref1,ref2,count(*) as obs_frequency, 0.0 as running_sum, 0.0 as running_sum_of_squares, 0.0 as count
             FROM (
-                    SELECT a.reference_issn as ref1, b.reference_issn as ref2
+                    SELECT a.reference_issn as journal_pair_A, b.reference_issn as journal_pair_B
                     FROM input_table a
                     JOIN input_table b
                      ON a.source_id=b.source_id
@@ -58,19 +58,17 @@ def obs_frequency_calculations(input_dataset):
                      ON a.source_id=b.source_id
                     WHERE a.reference_issn < b.reference_issn) temp
             GROUP BY ref1,ref2''')
-    obs_df=obs_df.withColumnRenamed('ref1','journal_pair_A').withColumnRenamed('ref2','journal_pair_B')
     spark.catalog.dropTempView('input_table')
     obs_df.write.mode("overwrite").saveAsTable("observed_frequencies")
 
 def calculate_journal_pairs_freq(input_dataset,i):
-
     df=spark.sql("SELECT source_id,shuffled_reference_issn as reference_issn FROM {}".format(input_dataset))
     df=df.withColumn('id',monotonically_increasing_id())
     df.createOrReplaceTempView('bg_table')
     df=spark.sql('''
         SELECT ref1,ref2,count(*) as bg_freq
         FROM (
-                SELECT a.reference_issn as ref1, b.reference_issn as ref2
+                SELECT a.reference_issn as journal_pair_A, b.reference_issn as journal_pair_B
                 FROM bg_table a
                 JOIN bg_table b
                  ON a.source_id=b.source_id
@@ -82,14 +80,16 @@ def calculate_journal_pairs_freq(input_dataset,i):
                 JOIN bg_table b ON a.source_id=b.source_id
                 WHERE a.reference_issn < b.reference_issn) temp
         GROUP BY ref1,ref2''')
-    df=df.withColumnRenamed('ref1','journal_pair_A').withColumnRenamed('ref2','journal_pair_B')
     df.createOrReplaceTempView('bg_table')
-    df=spark.sql('''SELECT a.*,b.bg_freq
-                    FROM observed_frequencies a
-                    LEFT JOIN bg_table b
-                    ON a.journal_pair_A=b.journal_pair_A
-                     AND a.journal_pair_B=b.journal_pair_B ''')
-    df=df.withColumnRenamed('bg_freq','bg_'+str(i))
+    df=spark.sql('''SELECT a.journal_pair_A,a.journal_pair_B,
+                           a.obs_frequency,
+                           a.running_sum+COALESCE(b.bg_freq,0) as running_sum,
+                           a.running_sum_of_squares+(COALESCE(b.bg_freq,0)*COALESCE(b.bg_freq,0)) as running_sum_of_squares,
+                           a.count + CASE WHEN b.bg_freq IS NULL THEN 0 ELSE 1 END as count
+                        FROM observed_frequencies a
+                        LEFT JOIN bg_table b
+                        ON a.journal_pair_A=b.journal_pair_A
+                         AND a.journal_pair_B=b.journal_pair_B ''')
     df.write.mode("overwrite").saveAsTable("temp_observed_frequencies")
     temp_table=spark.table("temp_observed_frequencies")
     temp_table.write.mode("overwrite").saveAsTable("observed_frequencies")
@@ -137,31 +137,31 @@ def final_table(input_dataset,iterations):
     df.write.mode("overwrite").saveAsTable("output_table")
 
 def z_score_calculations(input_dataset,iterations):
-    #TODO: Add a step for the boolean count UDF
-    a = spark.table("observed_frequencies")
-    b = a.withColumn('mean', mean_udf(struct( [a[col] for col in a.columns[3:]] )))
-    b.write.mode("overwrite").saveAsTable("z_score_prep_table")
-    a = spark.table("z_score_prep_table")
-    b = a.withColumn('std', std_udf(struct( [a[col] for col in a.columns[3:-1]] )))
-    b.write.mode("overwrite").saveAsTable("z_score_prep_table2")
-    a = spark.table("z_score_prep_table2")
-    b = a.withColumn('permutation_count', count_udf(struct( [a[col] for col in a.columns[3:-2]] )))
-    b.write.mode("overwrite").saveAsTable("z_score_prep_table3")
-    df=spark.sql('''
-            SELECT journal_pair_A,journal_pair_B,obs_frequency,mean,std,permutation_count,
-            CASE
-                WHEN std=0 AND (obs_frequency-mean) > 0
-                    THEN 'Infinity'
-                WHEN std=0 AND (obs_frequency-mean) < 0
-                    THEN '-Infinity'
-                WHEN std=0 AND (obs_frequency-mean) = 0
-                    THEN NULL
-                ELSE (obs_frequency-mean)/std
-            END as z_score
-            FROM z_score_prep_table3 a
-            ''').na.drop()
-    df.write.mode("overwrite").saveAsTable("z_scores_table")
-    final_table(input_dataset,iterations)
+
+    #a = spark.table("observed_frequencies")
+    #b = a.withColumn('mean', mean_udf(struct( [a[col] for col in a.columns[3:]] )))
+    #b.write.mode("overwrite").saveAsTable("z_score_prep_table")
+    #a = spark.table("z_score_prep_table")
+    #b = a.withColumn('std', std_udf(struct( [a[col] for col in a.columns[3:-1]] )))
+    #b.write.mode("overwrite").saveAsTable("z_score_prep_table2")
+    #a = spark.table("z_score_prep_table2")
+    #b = a.withColumn('permutation_count', count_udf(struct( [a[col] for col in a.columns[3:-2]] )))
+    #b.write.mode("overwrite").saveAsTable("z_score_prep_table3")
+    #df=spark.sql('''
+    #        SELECT journal_pair_A,journal_pair_B,obs_frequency,mean,std,permutation_count,
+    #        CASE
+    #            WHEN std=0 AND (obs_frequency-mean) > 0
+    #                THEN 'Infinity'
+    #            WHEN std=0 AND (obs_frequency-mean) < 0
+    #                THEN '-Infinity'
+    #            WHEN std=0 AND (obs_frequency-mean) = 0
+    #                THEN NULL
+    #            ELSE (obs_frequency-mean)/std
+    #        END as z_score
+    #        FROM z_score_prep_table3 a
+    #        ''').na.drop()
+    #df.write.mode("overwrite").saveAsTable("z_scores_table")
+    #final_table(input_dataset,iterations)
 
 
 warehouse_location = '/user/spark/data'
@@ -215,23 +215,23 @@ for i in range(1,args.permutations+1):
     print("*** END -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
 
     # Conditional Statement for iteration number - if 10 or 100 take a pause to calculate z scores for the observations and write to postgres
-    if i==10 or i==100:
-        print("*** START -  Z-SCORE CALCULATION BREAK FOR PERMUTATION {} ***".format(i))
-        z_score_calculations(args.target_table,i)
-        print("*** END -  Z-SCORE CALCULATION BREAK FOR PERMUTATION {} ***".format(i))
-        print("*** START -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
-        write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,i),url,properties)
-        print("*** END -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
-        # if we are at 10 permutations specficically, export the observed frequency table so that it can be analyzed by
-        if i==10:
-            write_table_to_postgres("observed_frequencies","spark_observed_frequencies_10_permutations_{}".format(args.target_table),url,properties)
+    #if i==10 or i==100:
+    #    print("*** START -  Z-SCORE CALCULATION BREAK FOR PERMUTATION {} ***".format(i))
+    #    z_score_calculations(args.target_table,i)
+    #    print("*** END -  Z-SCORE CALCULATION BREAK FOR PERMUTATION {} ***".format(i))
+    #    print("*** START -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
+    #    write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,i),url,properties)
+    #    print("*** END -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
+    #    # if we are at 10 permutations specficically, export the observed frequency table so that it can be analyzed by
+    #    if i==10:
+    #        write_table_to_postgres("observed_frequencies","spark_observed_frequencies_10_permutations_{}".format(args.target_table),url,properties)
 
 # Analyze the final results stored
-print("*** START -  Z-SCORE CALCULATIONS ***")
-z_score_calculations(args.target_table,args.permutations)
-print("*** END -  Z-SCORE CALCULATIONS ***")
-print("*** START -  FINAL POSTGRES EXPORT ***")
-write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,args.permutations),url,properties)
-print("*** END -  FINAL POSTGRES EXPORT ***")
+#print("*** START -  Z-SCORE CALCULATIONS ***")
+#z_score_calculations(args.target_table,args.permutations)
+#print("*** END -  Z-SCORE CALCULATIONS ***")
+#print("*** START -  FINAL POSTGRES EXPORT ***")
+#write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,args.permutations),url,properties)
+#print("*** END -  FINAL POSTGRES EXPORT ***")
 # Close out the spark session
 spark.stop()
