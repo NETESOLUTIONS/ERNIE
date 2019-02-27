@@ -128,7 +128,7 @@ def final_table(input_dataset,iterations):
                    '('||a.journal_pair_A||','||a.journal_pair_B||')' AS journal_pairs,
                    b.obs_frequency,
                    b.mean,
-                   CAST(b.z_score AS double),
+                   CAST(b.z_scores AS double),
                    b.count,
                    b.std
             FROM final_table a
