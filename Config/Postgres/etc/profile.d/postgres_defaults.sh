@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export PGDATA=/var/lib/pgsql/9.6/data
+export PGDATA=/var/lib/pgsql/11/data
 
 ## Connection Defaults ##
 #export PGHOST=localhost

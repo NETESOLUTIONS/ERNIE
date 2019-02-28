@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="ERNIE" stopOnFirstError="true" overwriteAll="false" deleteMissingItems="true" exclude=".svn;.cvs;.DS_Store;.git;.hg;*.hprof;*.pyc" filePermissions="484">
+  <component name="PublishConfigData" serverName="ERNIE2" stopOnFirstError="true" overwriteAll="false" deleteMissingItems="true" exclude=".svn;.cvs;.DS_Store;.git;.hg;*.hprof;*.pyc" filePermissions="484">
     <serverData>
-      <paths name="ERNIE">
+      <paths name="ERNIE Neo4j">
         <serverdata>
           <mappings>
             <mapping deploy="ERNIE" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="ERNIE Neo4j">
+      <paths name="ERNIE1">
+        <serverdata>
+          <mappings>
+            <mapping deploy="ERNIE" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="ERNIE2">
         <serverdata>
           <mappings>
             <mapping deploy="ERNIE" local="$PROJECT_DIR$" web="/" />
