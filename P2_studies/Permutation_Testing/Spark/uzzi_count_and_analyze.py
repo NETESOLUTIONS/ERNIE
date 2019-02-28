@@ -26,26 +26,38 @@ def write_table_to_postgres(spark_table_name,postgres_table_name,connection_stri
     df=spark.table(spark_table_name)
     df.write.jdbc(url='jdbc:{}'.format(connection_string), table=postgres_table_name, properties=properties, mode="overwrite")
 
-# User Defined Functions for use with Spark data, TODO: add a function to capture boolean count data on appearances in the simulation
-def pandas_mean(number_list):
-    return pd.DataFrame(pd.to_numeric(number_list, errors='coerce')).mean()
-def pandas_std(number_list):
-    return pd.DataFrame(pd.to_numeric(number_list, errors='coerce')).std()
-def pandas_count(number_list):
-    return pd.Series(pd.to_numeric(number_list, errors='coerce')).count()
+# User Defined Functions for use with Spark data
+def running_mean(running_counts,running_sum):
+    if running_counts == 0:
+        return np.nan
+    return running_sum/running_counts
 
-mean_udf=udf(lambda row: float(pandas_mean(row)), sql_type.DoubleType())
-std_udf=udf(lambda row: float(pandas_std(row)), sql_type.DoubleType())
-count_udf=udf(lambda row: int(pandas_count(row)), sql_type.IntegerType())
+def running_var(running_counts,running_sum,running_sum_of_squares,ddof=0):
+    # Naive calculation of standard deviation that can be derived with simple math.
+    #Prone to castatrophic failure for low variance+high value data (think a super close knit group of numbers in the 10**8 range).
+    #In the event those type of numbers are being worked with, implement Welford's algorithm
+    # Note that the line used for the return value could be different, but leaving it in this way allows for manipulation of the degrees of freedom (choice between standard and population statistics)
+    if running_counts <= ddof:
+        return np.nan
+    return (running_sum_of_squares - running_counts * running_mean(running_counts,running_sum)**2)/(running_counts-ddof)
+
+def running_std(running_counts,running_sum,running_sum_of_squares,ddof=0):
+    if running_counts <= ddof:
+        return np.nan
+    return np.sqrt(running_var(running_counts,running_sum,running_sum_of_squares,ddof))
+
+mean_udf = udf(lambda x: float(running_mean(x[0],x[1])), sql_type.DoubleType())
+pop_std_udf = udf(lambda x: float(running_std(x[0],x[1],x[2],0)), sql_type.DoubleType())
+samp_std_udf = udf(lambda x: float(running_std(x[0],x[1],x[2],1)), sql_type.DoubleType())
 
 def obs_frequency_calculations(input_dataset):
     obs_df=spark.sql("SELECT source_id,reference_issn FROM {}".format(input_dataset))
     obs_df=obs_df.withColumn('id',monotonically_increasing_id())
     obs_df.createOrReplaceTempView('input_table')
     obs_df=spark.sql('''
-            SELECT ref1,ref2,count(*) as obs_frequency
+            SELECT journal_pair_A,journal_pair_B,count(*) as obs_frequency, 0.0 as running_sum, 0.0 as running_sum_of_squares, 0.0 as count
             FROM (
-                    SELECT a.reference_issn as ref1, b.reference_issn as ref2
+                    SELECT a.reference_issn as journal_pair_A, b.reference_issn as journal_pair_B
                     FROM input_table a
                     JOIN input_table b
                      ON a.source_id=b.source_id
@@ -57,20 +69,18 @@ def obs_frequency_calculations(input_dataset):
                     JOIN input_table b
                      ON a.source_id=b.source_id
                     WHERE a.reference_issn < b.reference_issn) temp
-            GROUP BY ref1,ref2''')
-    obs_df=obs_df.withColumnRenamed('ref1','journal_pair_A').withColumnRenamed('ref2','journal_pair_B')
+            GROUP BY journal_pair_A,journal_pair_B''')
     spark.catalog.dropTempView('input_table')
     obs_df.write.mode("overwrite").saveAsTable("observed_frequencies")
 
 def calculate_journal_pairs_freq(input_dataset,i):
-
     df=spark.sql("SELECT source_id,shuffled_reference_issn as reference_issn FROM {}".format(input_dataset))
     df=df.withColumn('id',monotonically_increasing_id())
     df.createOrReplaceTempView('bg_table')
     df=spark.sql('''
-        SELECT ref1,ref2,count(*) as bg_freq
+        SELECT journal_pair_A,journal_pair_B,count(*) as bg_freq
         FROM (
-                SELECT a.reference_issn as ref1, b.reference_issn as ref2
+                SELECT a.reference_issn as journal_pair_A, b.reference_issn as journal_pair_B
                 FROM bg_table a
                 JOIN bg_table b
                  ON a.source_id=b.source_id
@@ -81,15 +91,17 @@ def calculate_journal_pairs_freq(input_dataset,i):
                 FROM bg_table a
                 JOIN bg_table b ON a.source_id=b.source_id
                 WHERE a.reference_issn < b.reference_issn) temp
-        GROUP BY ref1,ref2''')
-    df=df.withColumnRenamed('ref1','journal_pair_A').withColumnRenamed('ref2','journal_pair_B')
+        GROUP BY journal_pair_A,journal_pair_B''')
     df.createOrReplaceTempView('bg_table')
-    df=spark.sql('''SELECT a.*,b.bg_freq
-                    FROM observed_frequencies a
-                    LEFT JOIN bg_table b
-                    ON a.journal_pair_A=b.journal_pair_A
-                     AND a.journal_pair_B=b.journal_pair_B ''')
-    df=df.withColumnRenamed('bg_freq','bg_'+str(i))
+    df=spark.sql('''SELECT a.journal_pair_A,a.journal_pair_B,
+                           a.obs_frequency,
+                           a.running_sum+COALESCE(b.bg_freq,0) as running_sum,
+                           a.running_sum_of_squares+(COALESCE(b.bg_freq,0)*COALESCE(b.bg_freq,0)) as running_sum_of_squares,
+                           a.count + CASE WHEN b.bg_freq IS NULL THEN 0 ELSE 1 END as count
+                        FROM observed_frequencies a
+                        LEFT JOIN bg_table b
+                        ON a.journal_pair_A=b.journal_pair_A
+                         AND a.journal_pair_B=b.journal_pair_B ''')
     df.write.mode("overwrite").saveAsTable("temp_observed_frequencies")
     temp_table=spark.table("temp_observed_frequencies")
     temp_table.write.mode("overwrite").saveAsTable("observed_frequencies")
@@ -120,15 +132,14 @@ def final_table(input_dataset,iterations):
              ON a.source_id=b.source_id
             WHERE a.reference_issn < b.reference_issn ''')
     df.createOrReplaceTempView('final_table')
-    #TODO: ensure z-score is a double on export, also readd the count column
     df=spark.sql('''
             SELECT a.source_id,
                    '('||a.wos_id_A||','||a.wos_id_B||')' AS wos_id_pairs,
                    '('||a.journal_pair_A||','||a.journal_pair_B||')' AS journal_pairs,
                    b.obs_frequency,
                    b.mean,
-                   CAST(b.z_score AS double),
-                   b.permutation_count as count,
+                   CAST(b.z_scores AS double),
+                   b.count,
                    b.std
             FROM final_table a
             JOIN z_scores_table b
@@ -137,18 +148,12 @@ def final_table(input_dataset,iterations):
     df.write.mode("overwrite").saveAsTable("output_table")
 
 def z_score_calculations(input_dataset,iterations):
-    #TODO: Add a step for the boolean count UDF
-    a = spark.table("observed_frequencies")
-    b = a.withColumn('mean', mean_udf(struct( [a[col] for col in a.columns[3:]] )))
+
+    a = spark.table("observed_frequencies").withColumn('mean', mean_udf(struct('count','running_sum')))
+    b = a.withColumn('std',samp_std_udf(struct('count','running_sum','running_sum_of_squares')))
     b.write.mode("overwrite").saveAsTable("z_score_prep_table")
-    a = spark.table("z_score_prep_table")
-    b = a.withColumn('std', std_udf(struct( [a[col] for col in a.columns[3:-1]] )))
-    b.write.mode("overwrite").saveAsTable("z_score_prep_table2")
-    a = spark.table("z_score_prep_table2")
-    b = a.withColumn('permutation_count', count_udf(struct( [a[col] for col in a.columns[3:-2]] )))
-    b.write.mode("overwrite").saveAsTable("z_score_prep_table3")
     df=spark.sql('''
-            SELECT journal_pair_A,journal_pair_B,obs_frequency,mean,std,permutation_count,
+            SELECT journal_pair_A,journal_pair_B,obs_frequency,mean,std,count,
             CASE
                 WHEN std=0 AND (obs_frequency-mean) > 0
                     THEN 'Infinity'
@@ -157,9 +162,9 @@ def z_score_calculations(input_dataset,iterations):
                 WHEN std=0 AND (obs_frequency-mean) = 0
                     THEN NULL
                 ELSE (obs_frequency-mean)/std
-            END as z_score
-            FROM z_score_prep_table3 a
-            ''').na.drop()
+                END as z_scores
+            FROM z_score_prep_table a
+           ''').na.drop()
     df.write.mode("overwrite").saveAsTable("z_scores_table")
     final_table(input_dataset,iterations)
 
