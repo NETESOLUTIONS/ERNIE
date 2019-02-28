@@ -32,13 +32,23 @@ def running_mean(running_counts,running_sum):
         return np.nan
     return running_sum/running_counts
 
-def running_std(running_counts,running_sum,running_sum_of_squares):
-    if running_counts == 0:
+def running_var(running_counts,running_sum,running_sum_of_squares,ddof=0):
+    # Naive calculation of standard deviation that can be derived with simple math.
+    #Prone to castatrophic failure for low variance+high value data (think a super close knit group of numbers in the 10**8 range).
+    #In the event those type of numbers are being worked with, implement Welford's algorithm
+    # Note that the line used for the return value could be different, but leaving it in this way allows for manipulation of the degrees of freedom (choice between standard and population statistics)
+    if running_counts <= ddof:
         return np.nan
-    return np.sqrt(running_sum_of_squares/running_counts - running_mean(running_counts,running_sum)**2)
+    return (running_sum_of_squares - running_counts * running_mean(running_counts,running_sum)**2)/(running_counts-ddof)
+
+def running_std(running_counts,running_sum,running_sum_of_squares,ddof=0):
+    if running_counts <= ddof:
+        return np.nan
+    return np.sqrt(running_var(running_counts,running_sum,running_sum_of_squares,ddof))
 
 mean_udf = udf(lambda x: float(running_mean(x[0],x[1])), sql_type.DoubleType())
-std_udf = udf(lambda x: float(running_std(x[0],x[1],x[2])), sql_type.DoubleType())
+pop_std_udf = udf(lambda x: float(running_std(x[0],x[1],x[2],0)), sql_type.DoubleType())
+samp_std_udf = udf(lambda x: float(running_std(x[0],x[1],x[2],1)), sql_type.DoubleType())
 
 def obs_frequency_calculations(input_dataset):
     obs_df=spark.sql("SELECT source_id,reference_issn FROM {}".format(input_dataset))
@@ -140,7 +150,7 @@ def final_table(input_dataset,iterations):
 def z_score_calculations(input_dataset,iterations):
 
     a = spark.table("observed_frequencies").withColumn('mean', mean_udf(struct('count','running_sum')))
-    b = a.withColumn('std',std_udf(struct('count','running_sum','running_sum_of_squares')))
+    b = a.withColumn('std',samp_std_udf(struct('count','running_sum','running_sum_of_squares')))
     b.write.mode("overwrite").saveAsTable("z_score_prep_table")
     df=spark.sql('''
             SELECT journal_pair_A,journal_pair_B,obs_frequency,mean,std,count,
