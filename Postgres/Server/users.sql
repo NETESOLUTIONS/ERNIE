@@ -7,6 +7,11 @@ ORDER BY rolname;
 SELECT *
 FROM pg_group;
 
+CREATE USER avon SUPERUSER;
+CREATE USER chackoge SUPERUSER;
+CREATE USER sitaram SUPERUSER;
+CREATE USER siyu SUPERUSER;
+
 CREATE USER jenkins SUPERUSER;
 ALTER USER jenkins SUPERUSER;
 
@@ -17,6 +22,7 @@ GRANT ALL ON SCHEMA public TO jenkins;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO jenkins;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO jenkins;
 GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO jenkins;
+-- endregion
 
 ALTER DEFAULT PRIVILEGES --
 -- All active users who can create public objects would grant theses privileges in the future
