@@ -69,7 +69,7 @@ def sponsored_centiles(postgres_conn):
         FROM cci_s_author_search_results a
         INNER JOIN cci_s_author_document_mappings b -- May need to be chopped down to give a more fine tuned look at viable author ids
         ON a.author_id=b.author_id
-        INNER JOIN sl_sr_all_authors_combined d
+        INNER JOIN sl_sr_all_personel_and_comp d
         ON a.author_id=d.author_id
         WHERE a.award_number='COMP'
         OR a.award_number IN (SELECT award_number FROM cci_phase_awards WHERE phase IN ('II'))
@@ -130,7 +130,7 @@ def sponsored_centile_list(postgres_conn):
         FROM cci_s_author_search_results a
         INNER JOIN cci_s_author_document_mappings b -- May need to be chopped down to give a more fine tuned look at viable author ids
         ON a.author_id=b.author_id
-        INNER JOIN sl_sr_all_authors_combined d
+        INNER JOIN sl_sr_all_personel_and_comp d
         ON a.author_id=d.author_id
         WHERE a.award_number='COMP'
         OR a.award_number IN (SELECT award_number FROM cci_phase_awards WHERE phase IN ('II'))
@@ -185,7 +185,7 @@ def sponsored_centile_list_w_extra_awards(postgres_conn):
         FROM cci_s_author_search_results a
         INNER JOIN cci_s_author_document_mappings b -- May need to be chopped down to give a more fine tuned look at viable author ids
         ON a.author_id=b.author_id
-        INNER JOIN sl_sr_all_authors_combined d
+        INNER JOIN sl_sr_all_personel_and_comp d
         ON a.author_id=d.author_id
         WHERE a.award_number='COMP'
         OR a.award_number IN (SELECT award_number FROM cci_phase_awards WHERE phase IN ('II'))
@@ -238,7 +238,7 @@ def perc_pubs_per_center_with_n_or_more_participants(postgres_conn):
                 FROM cci_s_author_search_results a
                 INNER JOIN cci_s_author_document_mappings b
                 ON a.author_id=b.author_id
-                INNER JOIN sl_sr_all_authors_combined d
+                INNER JOIN sl_sr_all_personel_and_comp d
                 ON a.author_id=d.author_id
                 WHERE a.award_number!='COMP'
             )

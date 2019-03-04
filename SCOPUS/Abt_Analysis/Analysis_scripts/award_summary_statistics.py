@@ -38,7 +38,7 @@ def mean_pubs_per_center(distance,phases,continuing,conn):
                   FROM cci_s_author_search_results a
                   INNER JOIN cci_s_author_document_mappings b
                   ON a.author_id=b.author_id
-                  INNER JOIN sl_sr_all_authors_combined d
+                  INNER JOIN sl_sr_all_personel_and_comp d
                   ON a.author_id=d.author_id
                   WHERE a.award_number!='COMP'
                   AND a.award_number IN (SELECT award_number FROM cci_phase_awards
@@ -74,7 +74,7 @@ def mean_citations_per_center(distance,phases,continuing,conn):
                 FROM cci_s_author_search_results a
                 INNER JOIN cci_s_author_document_mappings b
                 ON a.author_id=b.author_id
-                INNER JOIN sl_sr_all_authors_combined d
+                INNER JOIN sl_sr_all_personel_and_comp d
                 ON a.author_id=d.author_id
                 WHERE a.award_number!='COMP'
                 AND a.award_number IN (SELECT award_number FROM cci_phase_awards
@@ -109,7 +109,7 @@ def mean_pubs_per_participant(distance,phases,continuing,conn):
                     FROM cci_s_author_search_results a
                     INNER JOIN cci_s_author_document_mappings b
                     ON a.author_id=b.author_id
-                    INNER JOIN sl_sr_all_authors_combined d
+                    INNER JOIN sl_sr_all_personel_and_comp d
                     ON a.author_id=d.author_id
                     WHERE a.award_number!='COMP'
                     AND a.award_number IN (SELECT award_number FROM cci_phase_awards
@@ -144,7 +144,7 @@ def mean_citations_per_participant(distance,phases,continuing,conn):
                   FROM cci_s_author_search_results a
                   INNER JOIN cci_s_author_document_mappings b
                   ON a.author_id=b.author_id
-                  INNER JOIN sl_sr_all_authors_combined d
+                  INNER JOIN sl_sr_all_personel_and_comp d
                   ON a.author_id=d.author_id
                   WHERE a.award_number!='COMP'
                   AND a.award_number IN (SELECT award_number FROM cci_phase_awards
@@ -178,7 +178,7 @@ def perc_pubs_per_center_with_n_or_more_participants(distance,phases,continuing,
               FROM cci_s_author_search_results a
               INNER JOIN cci_s_author_document_mappings b
               ON a.author_id=b.author_id
-              INNER JOIN sl_sr_all_authors_combined d
+              INNER JOIN sl_sr_all_personel_and_comp d
               ON a.author_id=d.author_id
               WHERE a.award_number!='COMP'
               AND a.award_number IN (SELECT award_number FROM cci_phase_awards
@@ -216,7 +216,7 @@ def perc_pubs_per_center_with_num_participants_in_range(distance,phases,continui
               FROM cci_s_author_search_results a
               INNER JOIN cci_s_author_document_mappings b
               ON a.author_id=b.author_id
-              INNER JOIN sl_sr_all_authors_combined d
+              INNER JOIN sl_sr_all_personel_and_comp d
               ON a.author_id=d.author_id
               WHERE a.award_number!='COMP'
               AND a.award_number IN (SELECT award_number FROM cci_phase_awards
@@ -255,7 +255,7 @@ def mean_pubs_per_comp_participant(distance,conn):
                     FROM cci_s_author_search_results a
                     INNER JOIN cci_s_author_document_mappings b
                     ON a.author_id=b.author_id
-                    INNER JOIN sl_sr_all_authors_combined d
+                    INNER JOIN sl_sr_all_personel_and_comp d
                     ON a.author_id=d.author_id
                     WHERE a.award_number='COMP'
                 )
@@ -287,7 +287,7 @@ def mean_citations_per_comp_participant(distance,conn):
                     FROM cci_s_author_search_results a
                     INNER JOIN cci_s_author_document_mappings b
                     ON a.author_id=b.author_id
-                    INNER JOIN sl_sr_all_authors_combined d
+                    INNER JOIN sl_sr_all_personel_and_comp d
                     ON a.author_id=d.author_id
                     WHERE a.award_number='COMP'
                 )
@@ -319,7 +319,7 @@ def productivity_centile_calculations_center(center,conn):
                   FROM cci_s_author_search_results a
                   INNER JOIN cci_s_author_document_mappings b
                   ON a.author_id=b.author_id
-                  INNER JOIN sl_sr_all_authors_combined d
+                  INNER JOIN sl_sr_all_personel_and_comp d
                   ON a.author_id=d.author_id
                   WHERE a.award_number=%(center)s
                   --OR a.award_number='COMP'
@@ -358,7 +358,7 @@ def phase_II_centile_calculations_center_and_comp(conn):
                   FROM cci_s_author_search_results a
                   INNER JOIN cci_s_author_document_mappings b -- May need to be chopped down to give a more fine tuned look at viable author ids
                   ON a.author_id=b.author_id
-                  INNER JOIN sl_sr_all_authors_combined d
+                  INNER JOIN sl_sr_all_personel_and_comp d
                   ON a.author_id=d.author_id
                   WHERE a.award_number='COMP'
                   OR a.award_number IN (SELECT award_number FROM cci_phase_awards WHERE phase IN ('II'))
