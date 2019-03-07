@@ -63,7 +63,7 @@ def spark_shuffle_data(table_name):
 def read_postgres_table_into_HDFS(table_name,connection_string,properties):
     spark.read.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties).write.mode("overwrite").saveAsTable(table_name)
 def read_postgres_table_into_memory(table_name,connection_string,properties):
-    spark.read.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties).registerTempTable(table_name)
+    spark.read.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties).write.mode("overwrite").saveAsTable(table_name)
 def write_table_to_postgres(spark_table_name,postgres_table_name,connection_string,properties):
     df=spark.table(spark_table_name)
     df.write.jdbc(url='jdbc:{}'.format(connection_string), table=postgres_table_name, properties=properties, mode="overwrite")
@@ -122,7 +122,7 @@ spark_shuffle_times = []
 for i in range(0,args.permutations):
     print("On iteration {}/{} for task".format(i+1,args.permutations))
     start = datetime.datetime.now()
-    spark_shuffle_data("{}_shuffled".format(args.target_table)).registerTempTable("{}_shuffled".format(args.target_table))
+    spark_shuffle_data("{}".format(args.target_table)).registerTempTable("{}_shuffled".format(args.target_table))
     SQLContext(spark).cacheTable("{}_shuffled".format(args.target_table))
     end = datetime.datetime.now()
     time_taken = end-start
