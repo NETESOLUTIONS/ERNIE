@@ -2,6 +2,7 @@ from pyspark import Row
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import rand
 from pyspark.sql.functions import monotonically_increasing_id
+from pyspark.sql import SQLContext
 import time,sys
 import argparse
 import pandas as pd
@@ -11,6 +12,7 @@ from pyspark.sql.functions import col, udf, lit,struct
 import pyspark.sql.types as sql_type
 import threading as thr
 import psycopg2
+
 
 # Issue a command to postgres to shuffle the target table
 def postgres_shuffle_data(conn,table_name):
