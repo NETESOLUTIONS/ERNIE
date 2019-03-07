@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ =====================================================================
+ * Licensed Materials - Property of Elsevier.
+ * (C) Copyright 2005 Elsevier.
+ =====================================================================
+ Author:      Chetan Patel
+ Create date: 12/16/2008
+ Description: This document is an XML schema that defines elements within
+              the "xml" namespace that are used in the ani512.xsd.  This
+              schema was designed to be imported by the xocs-ani512.xsd, 
+              which it was was created by the Elsevier Dayton IT (EDIT) 
+              team to validate converted documents within the XML
+              Fabrication system.
+ =====================================================================
+
+ Revision history:
+
+ author        date         changes
+ =====================================================================
+ Chetan Patel	12/16/2008	Initial Version.
+ Nan Xu         11/07/2016  Update to version 513
+ ======================================================================= -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.w3.org/XML/1998/namespace">
+
+	<xs:attribute name="lang"/>
+
+</xs:schema>
