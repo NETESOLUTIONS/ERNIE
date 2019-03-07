@@ -129,7 +129,7 @@ for i in range(0,args.permutations):
     end = datetime.datetime.now()
     time_taken = end-start
     spark_shuffle_times += [time_taken.total_seconds()]
-num_executors = int(sc._conf.get('spark.executor.instances'))
+num_executors = int(spark._conf.get('spark.executor.instances'))
 stat_df = pd.DataFrame({'postgres_raw_shuffle':postgres_raw_shuffle_times,
                         'postgres_import':postgres_import_times,
                         'spark_shuffle (Using {} executors)'.format(num_executors):spark_shuffle_times})
