@@ -17,34 +17,81 @@ def shuffle_data(conn,table_name):
     cur.execute("REFRESH MATERIALIZED VIEW {}".format(table_name))
     conn.commit()
 
+# Shuffle dataset in Spark -- must use rand() here instead of random per https://spark.apache.org/docs/2.4.0/api/sql/#rand
+# TODO: test/look for differences in random number generation and check if this has any effect on output
+def shuffle_data(table_name):
+    sql = '''
+        WITH cte AS (
+          SELECT
+            source_id,
+            source_year,
+            source_document_id_type,
+            source_issn,
+            coalesce(lead(cited_source_uid, 1) OVER (PARTITION BY reference_year ORDER BY rand()),
+                     first_value(cited_source_uid) OVER (PARTITION BY reference_year ORDER BY rand()))
+              AS shuffled_cited_source_uid,
+            coalesce(lead(reference_year, 1) OVER (PARTITION BY reference_year ORDER BY rand()),
+                     first_value(reference_year) OVER (PARTITION BY reference_year ORDER BY rand()))
+              AS shuffled_reference_year,
+            coalesce(lead(reference_document_id_type, 1) OVER (PARTITION BY reference_year ORDER BY rand()),
+                     first_value(reference_document_id_type) OVER (PARTITION BY reference_year ORDER BY rand()))
+              AS shuffled_reference_document_id_type,
+            coalesce(lead(reference_issn, 1) OVER (PARTITION BY reference_year ORDER BY rand()),
+                     first_value(reference_issn) OVER (PARTITION BY reference_year ORDER BY rand()))
+              AS shuffled_reference_issn
+          FROM {}
+        )
+        SELECT
+          source_id,
+          source_year,
+          source_document_id_type,
+          source_issn,
+          shuffled_cited_source_uid,
+          shuffled_reference_year,
+          shuffled_reference_document_id_type,
+          shuffled_reference_issn
+        FROM cte
+        WHERE source_id NOT IN (
+          SELECT source_id
+          FROM cte
+          GROUP BY source_id, shuffled_cited_source_uid
+          HAVING COUNT(1) > 1)'''.format(table_name)
+    return spark.sql(sql)
+
+
 # Functions to handle RW operations to PostgreSQL
 def read_postgres_table_into_HDFS(table_name,connection_string,properties):
     spark.read.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties).write.mode("overwrite").saveAsTable(table_name)
 def read_postgres_table_into_memory(table_name,connection_string,properties):
-    spark.read.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties).registerTempTable(table_name)
+    spark.read.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties).write.mode("overwrite").saveAsTable(table_name)
 def write_table_to_postgres(spark_table_name,postgres_table_name,connection_string,properties):
     df=spark.table(spark_table_name)
     df.write.jdbc(url='jdbc:{}'.format(connection_string), table=postgres_table_name, properties=properties, mode="overwrite")
 
 # User Defined Functions for use with Spark data
-def running_mean(running_counts,running_sum):
-    if running_counts == 0:
-        return np.nan
-    return running_sum/running_counts
+'''
+    A pass through Welford's algorithm is used here to update values stored in the SQL tables.
 
-def running_var(running_counts,running_sum,running_sum_of_squares,ddof=0):
-    # Naive calculation of standard deviation that can be derived with simple math.
-    #Prone to castatrophic failure for low variance+high value data (think a super close knit group of numbers in the 10**8 range).
-    #In the event those type of numbers are being worked with, implement Welford's algorithm
-    # Note that the line used for the return value could be different, but leaving it in this way allows for manipulation of the degrees of freedom (choice between standard and population statistics)
-    if running_counts <= ddof:
-        return np.nan
-    return (running_sum_of_squares - running_counts * running_mean(running_counts,running_sum)**2)/(running_counts-ddof)
+    Welford's algorithm, while potentially slower than the naive approach (Sum of Squares - derived from playing with the variance formula)
+    due to there being a division operation at each pass rather than one big division at the end, is useful because it allows us to avoid a
+    catastrophic cancellation event, which usually happens during the subtraction operation of the naive approach when working with
+    high-value low-variance sets of data
 
-def running_std(running_counts,running_sum,running_sum_of_squares,ddof=0):
-    if running_counts <= ddof:
-        return np.nan
-    return np.sqrt(running_var(running_counts,running_sum,running_sum_of_squares,ddof))
+    https://alessior.wordpress.com/2017/10/09/onlinerecursive-variance-calculation-welfords-method/
+    https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_Online_algorithm
+    https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Example
+    https://en.wikipedia.org/wiki/Loss_of_significance
+'''
+#TODO: break up pass function and implement welford pass for larger datasets
+def update_mean():
+    updated_mean = current_mean + (x - current_mean) / k
+    return updated_mean
+
+
+def welford_pass(x,current_mean,current_sum_squared_distances_from_mean, k):
+    updated_mean = current_mean + (x - current_mean) / k
+    updated_sum_squared_distances_from_mean = current_sum_squared_distances_from_mean + (x - current_mean)*(x - updated_mean)
+    return updated_mean,updated_sum_squared_distances_from_mean
 
 mean_udf = udf(lambda x: float(running_mean(x[0],x[1])), sql_type.DoubleType())
 pop_std_udf = udf(lambda x: float(running_std(x[0],x[1],x[2],0)), sql_type.DoubleType())
@@ -55,7 +102,7 @@ def obs_frequency_calculations(input_dataset):
     obs_df=obs_df.withColumn('id',monotonically_increasing_id())
     obs_df.createOrReplaceTempView('input_table')
     obs_df=spark.sql('''
-            SELECT journal_pair_A,journal_pair_B,count(*) as obs_frequency, 0.0 as running_sum, 0.0 as running_sum_of_squares, 0.0 as count
+            SELECT journal_pair_A,journal_pair_B,count(*) as obs_frequency, 0.0 as current_mean, 0.0 as current_sum_squared_distances_from_mean, 0.0 as count
             FROM (
                     SELECT a.reference_issn as journal_pair_A, b.reference_issn as journal_pair_B
                     FROM input_table a
@@ -95,7 +142,8 @@ def calculate_journal_pairs_freq(input_dataset,i):
     df.createOrReplaceTempView('bg_table')
     df=spark.sql('''SELECT a.journal_pair_A,a.journal_pair_B,
                            a.obs_frequency,
-                           a.running_sum+COALESCE(b.bg_freq,0) as running_sum,
+                           CASE WHEN b.bg_freq IS NULL THEN a.current_mean
+                           a.current_mean+COALESCE(b.bg_freq,0)- as running_sum,
                            a.running_sum_of_squares+(COALESCE(b.bg_freq,0)*COALESCE(b.bg_freq,0)) as running_sum_of_squares,
                            a.count + CASE WHEN b.bg_freq IS NULL THEN 0 ELSE 1 END as count
                         FROM observed_frequencies a

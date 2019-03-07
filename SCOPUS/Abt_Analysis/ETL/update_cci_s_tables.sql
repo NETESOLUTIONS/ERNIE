@@ -99,7 +99,7 @@ INSERT INTO cci_s_document_search_results
               from cci_s_document_search_results_stg group by scopus_id, award_number, submitted_title) b
     ON a.table_id=b.table_id
 )
-WJERE a.submitted_doi!=''
+WHERE a.submitted_doi!=''
 ON CONFLICT (scopus_id, award_number, submitted_title)
   DO UPDATE SET  submitted_title = excluded.submitted_title, submitted_doi = excluded.submitted_doi,
   document_type = excluded.document_type, award_number = excluded.award_number,

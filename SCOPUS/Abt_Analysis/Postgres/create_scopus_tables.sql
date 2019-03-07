@@ -34,7 +34,7 @@ CREATE TABLE scopus_affiliations(
 );
 
 CREATE TABLE scopus_documents(
-  scopus_id varchar NOT NULL,
+  scopus_id bigint NOT NULL,
   title varchar,
   document_type varchar,
   scopus_cited_by_count integer,
@@ -87,18 +87,18 @@ CREATE TABLE scopus_author_affiliations(
 
 CREATE TABLE scopus_author_documents(
   author_id varchar NOT NULL,
-  scopus_id varchar NOT NULL,
+  scopus_id bigint NOT NULL,
   PRIMARY KEY(author_id, scopus_id)
 );
 
 CREATE TABLE scopus_document_affiliations(
-  scopus_id varchar NOT NULL,
+  scopus_id bigint NOT NULL,
   affiliation_id varchar NOT NULL,
   PRIMARY KEY(scopus_id, affiliation_id)
 );
 
 CREATE TABLE scopus_document_citations(
-  citing_scopus_id varchar NOT NULL,
-  cited_scopus_id varchar NOT NULL,
+  citing_scopus_id bigint NOT NULL,
+  cited_scopus_id bigint NOT NULL,
   PRIMARY KEY(citing_scopus_id, cited_scopus_id)
 );
