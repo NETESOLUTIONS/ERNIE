@@ -18,7 +18,7 @@ def shuffle_data(conn,table_name):
     conn.commit()
 
 # Shuffle dataset in Spark -- must use rand() here instead of random per https://spark.apache.org/docs/2.4.0/api/sql/#rand
-# TODO: test/look for differences in random number generation and check if this has any effect on output 
+# TODO: test/look for differences in random number generation and check if this has any effect on output
 def shuffle_data(table_name):
     sql = '''
         WITH cte AS (
@@ -82,7 +82,7 @@ def write_table_to_postgres(spark_table_name,postgres_table_name,connection_stri
     https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Example
     https://en.wikipedia.org/wiki/Loss_of_significance
 '''
-#TODO: break up pass function
+#TODO: break up pass function and implement welford pass for larger datasets
 def update_mean():
     updated_mean = current_mean + (x - current_mean) / k
     return updated_mean
