@@ -93,7 +93,7 @@ properties = {'user': args.postgres_user, 'password': args.postgres_password}
 postgres_conn=psycopg2.connect(dbname=args.postgres_dbname,user=args.postgres_user,password=args.postgres_password, host=args.postgres_host, port=args.postgres_port)
 
 # Issue the specified amount of shuffles in Postgres on the materialized view. Caculate average time and populate into dataframe
-print("Shuffling data in PostgreSQL {} times. Collecting performance statistics".format(i))
+print("Shuffling data in PostgreSQL {} times. Collecting performance statistics".format(args.permutations))
 postgres_raw_shuffle_times = []
 for i in range(0,args.permutations):
     print("On iteration {}/{} for task".format(i+1,args.permutations))
@@ -105,7 +105,7 @@ for i in range(0,args.permutations):
 
 
 # Issue the specified amount of shuffles in Postgres on the materialized view + import into HDFS. Caculate average time and populate into dataframe
-print("Uploading raw data from Postgres into HDFS {} times. Collecting performance statistics".format(i))
+print("Uploading raw data from Postgres into HDFS {} times. Collecting performance statistics".format(args.permutations))
 postgres_import_times = []
 for i in range(0,args.permutations):
     print("On iteration {}/{} for task".format(i+1,args.permutations))
@@ -117,7 +117,7 @@ for i in range(0,args.permutations):
 
 
 # Shuffle and cache table locally in spark. Caculate average time and populate into dataframe
-print("Shuffling data locally in PySpark {} times. Collecting performance statistics".format(i))
+print("Shuffling data locally in PySpark {} times. Collecting performance statistics".format(args.permutations))
 spark_shuffle_times = []
 for i in range(0,args.permutations):
     print("On iteration {}/{} for task".format(i+1,args.permutations))
