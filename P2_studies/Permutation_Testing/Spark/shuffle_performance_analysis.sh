@@ -38,7 +38,7 @@ hdfs dfs -rm -r -f /hive/warehouse/*
 echo "*** CLEANING ANY MISCELLANEOUS DATA : $(date)"
 hdfs dfs -rm -r -f /user/spark/data/*
 
-# Next run PySpark calculations - TODO: fiddle around with executor config for speed ups
-$SPARK_HOME/bin/spark-submit --driver-memory 10g \ #--num-executors ${NUM_EXECUTORS} --executor-cores ${EXECUTOR_CORES} --executor-memory ${EXECUTOR_MEMORY} \
+# Next run PySpark calculations - TODO: fiddle around with executor config for speed ups  #--num-executors ${NUM_EXECUTORS} --executor-cores ${EXECUTOR_CORES} --executor-memory ${EXECUTOR_MEMORY} \
+$SPARK_HOME/bin/spark-submit --driver-memory 10g \
    --driver-class-path $(pwd)/postgresql-42.0.0.jar --jars $(pwd)/postgresql-42.0.0.jar \
   ./shuffle_times.py -tt ${TARGET_DATASET} -ph ${POSTGRES_HOSTNAME} -pd ${POSTGRES_DATABASE} -U ${POSTGRES_USER} -W "${POSTGRES_PASSWORD}" -i ${NUM_PERMUTATIONS}
