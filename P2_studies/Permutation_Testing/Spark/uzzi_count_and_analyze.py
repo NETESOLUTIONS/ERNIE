@@ -5,6 +5,7 @@ from pyspark.sql.functions import monotonically_increasing_id
 from pyspark.sql import SQLContext
 import time,sys
 import argparse
+from decimal import *
 import pandas as pd
 import datetime
 import numpy as np
@@ -82,9 +83,9 @@ def calculate_std_dev(sum_squared_distances_from_mean,k,ddof=0):
         return np.NaN
     return np.sqrt(calculate_variance(sum_squared_distances_from_mean,k,ddof))
 
-update_mean_udf = udf(lambda x: float(update_mean(x[0],x[1],x[2])), sql_type.DoubleType())
-welford_pass_udf = udf(lambda x: float(welford_pass(x[0],x[1],x[2],x[3])), sql_type.DoubleType())
-std_udf = udf(lambda x: float(calculate_std_dev(x[0],x[1],0)), sql_type.DoubleType()) ##TODO: adjust this based on whether team wants population or sample STDDEV
+update_mean_udf = udf(lambda x: update_mean(Decimal(x[0]),Decimal(x[1]),Decimal(x[2])), sql_type.DoubleType())
+welford_pass_udf = udf(lambda x: welford_pass(Decimal(x[0]),Decimal(x[1]),Decimal(x[2]),Decimal(x[3])), sql_type.DoubleType())
+std_udf = udf(lambda x: calculate_std_dev(Decimal(x[0]),Decimal(x[1]),0.0)), sql_type.DoubleType()) ##TODO: adjust this based on whether team wants population or sample STDDEV
 
 def obs_frequency_calculations(input_dataset):
     obs_df=spark.sql("SELECT source_id,reference_issn FROM {}".format(input_dataset))
@@ -142,8 +143,8 @@ def calculate_journal_pairs_freq(input_dataset,i):
                     a.journal_pair_B,
                     a.current_mean,
                     a.current_sum_squared_distances_from_mean,
-                    a.count + CASE WHEN b.bg_freq IS NULL THEN 0.0 ELSE 1.0 END as count,
-                    CASE WHEN b.bg_freq IS NULL THEN 0.0 ELSE CAST(b.bg_freq AS double) END as bg_freq
+                    a.count + CASE WHEN b.bg_freq IS NULL THEN 0 ELSE 1 END as count,
+                    CASE WHEN b.bg_freq IS NULL THEN 0 ELSE b.bg_freq END as bg_freq
             FROM observed_frequencies a
             LEFT JOIN bg_table b
             ON a.journal_pair_A=b.journal_pair_A
