@@ -42,6 +42,7 @@ parser.add_argument('-W','--postgres_password',help='the password of the Postgre
 parser.add_argument('-A','--award_numbers',help='a string containing a comma seperated list of award_numbers (e.g "1038028,1305427")',required=True)
 parser.add_argument('-S','--start_year',help='the lower end of the publication year range to consider',default='1930')
 parser.add_argument('-E','--end_year',help='the upper end of the publication year range to consider',default='2018')
+parser.add_argument('-f','--output_file_prepend',help='name to prepend to the output file')
 args = parser.parse_args()
 postgres_dsn={'host':args.postgres_host,'dbname':args.postgres_dbname,'port':args.postgres_port,'user':args.postgres_user,'password':args.postgres_password}
 postgres_conn=psycopg2.connect(" ".join("{}={}".format(k,postgres_dsn[k]) for k in postgres_dsn))
@@ -57,13 +58,13 @@ coauthor_df=pd.read_sql_query('''
                       SELECT DISTINCT
                        concat(foo.given_name,' ', foo.surname) as name,
                        a.scopus_id,
-                       (SELECT b.publication_year FROM cci_s_documents b WHERE a.scopus_id=b.scopus_id) as publication_year
+                       (SELECT b.publication_year FROM cci_s_documents_jeroen_updated b WHERE a.scopus_id=b.scopus_id) as publication_year
                       FROM cci_s_author_document_mappings a
                       INNER JOIN
                       (SELECT author_id,surname,given_name
                             FROM cci_s_author_search_results
                             WHERE award_number IN %(award_numbers)s
-                            AND author_id IN (SELECT author_id FROM chackoge.sl_sr_combined)
+                            AND author_id IN (SELECT author_id FROM sl_sr_all_personel_and_comp)
                       ) foo
                       ON a.author_id=foo.author_id
                     ),
@@ -108,18 +109,18 @@ data_df=pd.DataFrame(data_matrix)
 for axis in ['columns', 'index']:
     data_df=data_df.rename({i:unique_authors_series[i] for i in range(data_matrix.shape[0])}, axis=axis)
 print(data_df)
-data_df.to_csv('author_collaboration_matrix.csv')
+data_df.to_csv('{}_author_collaboration_matrix.csv'.format(args.output_file_prepend))
 three_col_df=data_df.stack().reset_index()
 three_col_df=three_col_df.rename({'level_0':'Author1','level_1':'Author2',0:'Number Of Collaborations'}, axis='columns')
 print(three_col_df)
-three_col_df.to_csv('author_collaboration_three_cols.csv',index=False)
+three_col_df.to_csv('{}_author_collaboration_three_cols.csv'.format(args.output_file_prepend),index=False)
 
 
 labels=list(unique_authors)
 seed_color=[180, 65, 35, .85]
 colors=fibonacci_color(seed_color[0],seed_color[1],seed_color[2],seed_color[3],num_colors=data_matrix.shape[0])
 print('length_colors:{}'.format(len(colors)))
-title='Prather Center Chord Diagram'
+title='{} Chord Diagram'.format(args.output_file_prepend)
 dimensions=1200
 hover_text={
             'inside':'',

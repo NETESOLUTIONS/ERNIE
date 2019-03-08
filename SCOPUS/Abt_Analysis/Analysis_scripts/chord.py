@@ -46,7 +46,7 @@ def make_ideogram_arc(R, phi, a=50):
     if not test_2PI(phi[0]) or not test_2PI(phi[1]):
         phi=[moduloAB(t, 0, 2*PI) for t in phi]
     length=(phi[1]-phi[0])% 2*PI
-    nr=5 if length<=PI/4 else int(a*length/PI)
+    nr=50 if length<=PI/4 else int(a*length/PI)
 
     if phi[0] < phi[1]:
         theta=np.linspace(phi[0], phi[1], nr)
@@ -156,7 +156,7 @@ def make_ideo_shape(path, line_color, fill_color):
     return  dict(
                   line=dict(
                   color=line_color,
-                  width=2
+                  width=1
                  ),
 
             path=  path,
