@@ -62,6 +62,8 @@ def write_table_to_postgres(spark_table_name,postgres_table_name,connection_stri
     https://en.wikipedia.org/wiki/Loss_of_significance
 '''
 def update_mean(current_mean,x,k):
+    if k==0:
+        return current_mean
     updated_mean = current_mean + (x - current_mean) / k
     return updated_mean
 
@@ -141,7 +143,7 @@ def calculate_journal_pairs_freq(input_dataset,i):
                     a.current_mean,
                     a.current_sum_squared_distances_from_mean,
                     a.count + CASE WHEN b.bg_freq IS NULL THEN 0 ELSE 1 END as count,
-                    CASE WHEN b.bg_freq IS NULL THEN 0 ELSE b.bg_freq END as bg_freq 
+                    CASE WHEN b.bg_freq IS NULL THEN 0 ELSE b.bg_freq END as bg_freq
             FROM observed_frequencies a
             LEFT JOIN bg_table b
             ON a.journal_pair_A=b.journal_pair_A
