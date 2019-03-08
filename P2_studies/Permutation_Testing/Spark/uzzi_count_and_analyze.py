@@ -2,14 +2,17 @@ from pyspark import Row
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import rand
 from pyspark.sql.functions import monotonically_increasing_id
+from pyspark.sql import SQLContext
 import time,sys
 import argparse
 import pandas as pd
+import datetime
 import numpy as np
 from pyspark.sql.functions import col, udf, lit,struct
 import pyspark.sql.types as sql_type
 import threading as thr
 import psycopg2
+
 
 # Shuffle dataset in Spark -- must use rand() here instead of random per https://spark.apache.org/docs/2.4.0/api/sql/#rand
 def spark_shuffle_data(table_name):
@@ -269,7 +272,7 @@ for i in range(1,args.permutations+1):
         print("*** START -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
         #write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,i),url,properties)
         print("*** END -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
-        
+
 # Analyze the final results stored
 print("*** START -  Z-SCORE CALCULATIONS ***")
 z_score_calculations(args.target_table,args.permutations)
