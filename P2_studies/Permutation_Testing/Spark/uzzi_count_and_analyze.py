@@ -143,15 +143,14 @@ def calculate_journal_pairs_freq(input_dataset,i):
                     a.journal_pair_B,
                     a.current_mean,
                     a.current_sum_squared_distances_from_mean,
-                    a.count + CASE WHEN b.bg_freq IS NULL THEN 0 ELSE 1 END as count,
-                    CASE WHEN b.bg_freq IS NULL THEN 0 ELSE b.bg_freq END as bg_freq
+                    a.count + CASE WHEN b.bg_freq IS NULL THEN 0 ELSE 1 END as updated_count,
+                    CASE WHEN b.bg_freq IS NULL THEN 0 ELSE b.bg_freq END as x
             FROM observed_frequencies a
             LEFT JOIN bg_table b
             ON a.journal_pair_A=b.journal_pair_A
              AND a.journal_pair_B=b.journal_pair_B ''')
-    temp_df.createOrReplaceTempView('update_table')
-    a = spark.table("update_table").withColumn('updated_mean', update_mean_udf(struct('current_mean','bg_freq','count')))
-    b = a.withColumn('updated_sum_squared_distances_from_mean',welford_pass_udf(struct('bg_freq','current_mean','current_sum_squared_distances_from_mean','count')))
+    a = temp_df.withColumn('updated_mean', update_mean_udf(struct('current_mean','x','updated_count')))
+    b = a.withColumn('updated_sum_squared_distances_from_mean',welford_pass_udf(struct('x','current_mean','current_sum_squared_distances_from_mean','updated_count')))
     b.registerTempTable("update_table_finished")
     df=spark.sql('''
             SELECT  a.journal_pair_A,
@@ -159,7 +158,7 @@ def calculate_journal_pairs_freq(input_dataset,i):
                     a.obs_frequency,
                     b.updated_mean as current_mean,
                     b.updated_sum_squared_distances_from_mean as current_sum_squared_distances_from_mean,
-                    b.count
+                    b.updated_count as count
             FROM observed_frequencies a
             LEFT JOIN update_table_finished b
             ON a.journal_pair_A=b.journal_pair_A
