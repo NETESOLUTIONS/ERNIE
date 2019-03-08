@@ -140,7 +140,7 @@ def calculate_journal_pairs_freq(input_dataset,i):
                     a.journal_pair_B,
                     a.current_mean,
                     a.current_sum_squared_distances_from_mean,
-                    a.count + CASE WHEN b.bg_freq IS NULL THEN 0 ELSE 1 END as count
+                    a.count + CASE WHEN b.bg_freq IS NULL THEN 0 ELSE 1 END as count,
                     b.bg_freq
             FROM observed_frequencies a
             LEFT JOIN bg_table b
@@ -155,7 +155,7 @@ def calculate_journal_pairs_freq(input_dataset,i):
                     a.journal_pair_B,
                     a.obs_frequency,
                     b.updated_mean as current_mean,
-                    b.updated_sum_squared_distances_from_mean as current_sum_squared_distances_from_mean
+                    b.updated_sum_squared_distances_from_mean as current_sum_squared_distances_from_mean,
                     b.count
             FROM observed_frequencies a
             LEFT JOIN update_table_finished b
