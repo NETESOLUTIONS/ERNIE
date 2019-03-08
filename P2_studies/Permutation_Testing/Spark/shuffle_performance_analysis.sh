@@ -25,6 +25,8 @@ ENVIRONMENT
   * TARGET_DATASET                              the target dataset to evaluate
   * NUM_PERMUTATIONS                            num of permutations to run
   * NUM_EXECUTORS                               num executors for the spark job
+  * EXECUTOR_CORES                              num of cores to allocate per executor for the spark job
+  * EXECUTOR_MEMORY                             amount of memory to allocate per executor for the spark job
 HEREDOC
   exit 1
 fi
@@ -37,5 +39,6 @@ echo "*** CLEANING ANY MISCELLANEOUS DATA : $(date)"
 hdfs dfs -rm -r -f /user/spark/data/*
 
 # Next run PySpark calculations - TODO: add num executors
-$SPARK_HOME/bin/spark-submit --driver-memory 10g --driver-class-path $(pwd)/postgresql-42.0.0.jar --jars $(pwd)/postgresql-42.0.0.jar \
+$SPARK_HOME/bin/spark-submit --driver-memory 10g --num-executors ${NUM_EXECUTORS} --executor-cores ${EXECUTOR_CORES} --executor-memory ${EXECUTOR_MEMORY} \
+   --driver-class-path $(pwd)/postgresql-42.0.0.jar --jars $(pwd)/postgresql-42.0.0.jar \
   ./shuffle_times.py -tt ${TARGET_DATASET} -ph ${POSTGRES_HOSTNAME} -pd ${POSTGRES_DATABASE} -U ${POSTGRES_USER} -W "${POSTGRES_PASSWORD}" -i ${NUM_PERMUTATIONS}
