@@ -146,7 +146,7 @@ def calculate_journal_pairs_freq(input_dataset,i):
             LEFT JOIN bg_table b
             ON a.journal_pair_A=b.journal_pair_A
              AND a.journal_pair_B=b.journal_pair_B ''')
-    df.createOrReplaceTempView('update_table')
+    temp_df.createOrReplaceTempView('update_table')
     a = spark.table("update_table").withColumn('updated_mean', update_mean_udf(struct('current_mean','bg_freq','count')))
     b = a.withColumn('updated_sum_squared_distances_from_mean',welford_pass_udf(struct('bg_freq','current_mean','current_sum_squared_distances_from_mean','count')))
     b.registerTempTable("update_table_finished")
