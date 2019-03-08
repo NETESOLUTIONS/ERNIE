@@ -11,12 +11,6 @@ import pyspark.sql.types as sql_type
 import threading as thr
 import psycopg2
 
-# Issue a command to postgres to shuffle the target table
-def shuffle_data(conn,table_name):
-    cur = conn.cursor()
-    cur.execute("REFRESH MATERIALIZED VIEW {}".format(table_name))
-    conn.commit()
-
 # Shuffle dataset in Spark -- must use rand() here instead of random per https://spark.apache.org/docs/2.4.0/api/sql/#rand
 def spark_shuffle_data(table_name):
     sql = '''
@@ -41,7 +35,6 @@ def spark_shuffle_data(table_name):
      HAVING count(1) = 1'''.format(table_name)
     return spark.sql(sql)
 
-
 # Functions to handle RW operations to PostgreSQL
 def read_postgres_table_into_HDFS(table_name,connection_string,properties):
     spark.read.jdbc(url='jdbc:{}'.format(connection_string), table=table_name, properties=properties).write.mode("overwrite").saveAsTable(table_name)
@@ -65,27 +58,40 @@ def write_table_to_postgres(spark_table_name,postgres_table_name,connection_stri
     https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Example
     https://en.wikipedia.org/wiki/Loss_of_significance
 '''
-#TODO: break up pass function and implement welford pass for larger datasets
-def update_mean():
+def update_mean(current_mean,x,k):
     updated_mean = current_mean + (x - current_mean) / k
     return updated_mean
 
-
 def welford_pass(x,current_mean,current_sum_squared_distances_from_mean, k):
-    updated_mean = current_mean + (x - current_mean) / k
+    updated_mean = update_mean(current_mean,x,k)
     updated_sum_squared_distances_from_mean = current_sum_squared_distances_from_mean + (x - current_mean)*(x - updated_mean)
-    return updated_mean,updated_sum_squared_distances_from_mean
+    return updated_sum_squared_distances_from_mean #can also return updated mean here, but Spark doesnt seem to play nice with a double return that can update two columns simultaneously -- might be worthwhile to test passing a tuple into the udf for this function at some point, i.e. store a tuple of floats in the database instead of two columns for M and S
 
-mean_udf = udf(lambda x: float(running_mean(x[0],x[1])), sql_type.DoubleType())
-pop_std_udf = udf(lambda x: float(running_std(x[0],x[1],x[2],0)), sql_type.DoubleType())
-samp_std_udf = udf(lambda x: float(running_std(x[0],x[1],x[2],1)), sql_type.DoubleType())
+def calculate_variance(sum_squared_distances_from_mean,k,ddof=0):
+    if k-ddof < 1:
+        return np.NaN
+    return sum_squared_distances_from_mean/(k-ddof)
+
+def calculate_std_dev(sum_squared_distances_from_mean,k,ddof=0):
+    if k-ddof < 1:
+        return np.NaN
+    return np.sqrt(calculate_variance(sum_squared_distances_from_mean,k,ddof))
+
+update_mean_udf = udf(lambda x: float(running_mean(x[0],x[1],x[2])), sql_type.DoubleType())
+welford_pass_udf = udf(lambda x: float(running_std(x[0],x[1],x[2],x[3])), sql_type.DoubleType())
+std_udf = udf(lambda x: float(calculate_std_dev(x[0],x[1],0)), sql_type.DoubleType()) ##TODO: adjust this based on whether team wants population or sample STDDEV
 
 def obs_frequency_calculations(input_dataset):
     obs_df=spark.sql("SELECT source_id,reference_issn FROM {}".format(input_dataset))
     obs_df=obs_df.withColumn('id',monotonically_increasing_id())
     obs_df.createOrReplaceTempView('input_table')
     obs_df=spark.sql('''
-            SELECT journal_pair_A,journal_pair_B,count(*) as obs_frequency, 0.0 as current_mean, 0.0 as current_sum_squared_distances_from_mean, 0.0 as count
+            SELECT  journal_pair_A,
+                    journal_pair_B,
+                    count(*) as obs_frequency,
+                    0.0 as current_mean,
+                    0.0 as current_sum_squared_distances_from_mean,
+                    0.0 as count
             FROM (
                     SELECT a.reference_issn as journal_pair_A, b.reference_issn as journal_pair_B
                     FROM input_table a
@@ -108,34 +114,51 @@ def calculate_journal_pairs_freq(input_dataset,i):
     df=df.withColumn('id',monotonically_increasing_id())
     df.createOrReplaceTempView('bg_table')
     df=spark.sql('''
-        SELECT journal_pair_A,journal_pair_B,count(*) as bg_freq
-        FROM (
-                SELECT a.reference_issn as journal_pair_A, b.reference_issn as journal_pair_B
-                FROM bg_table a
-                JOIN bg_table b
-                 ON a.source_id=b.source_id
-                WHERE a.reference_issn = b.reference_issn
-                AND a.id!=b.id and a.id < b.id
-                UNION ALL
-                SELECT a.reference_issn,b.reference_issn
-                FROM bg_table a
-                JOIN bg_table b ON a.source_id=b.source_id
-                WHERE a.reference_issn < b.reference_issn) temp
-        GROUP BY journal_pair_A,journal_pair_B''')
+            SELECT  journal_pair_A,
+                    journal_pair_B,
+                    count(*) as bg_freq
+            FROM (
+                    SELECT a.reference_issn as journal_pair_A, b.reference_issn as journal_pair_B
+                    FROM bg_table a
+                    JOIN bg_table b
+                     ON a.source_id=b.source_id
+                    WHERE a.reference_issn = b.reference_issn
+                    AND a.id!=b.id and a.id < b.id
+                    UNION ALL
+                    SELECT a.reference_issn,b.reference_issn
+                    FROM bg_table a
+                    JOIN bg_table b ON a.source_id=b.source_id
+                    WHERE a.reference_issn < b.reference_issn) temp
+            GROUP BY journal_pair_A,journal_pair_B''')
     df.createOrReplaceTempView('bg_table')
-    df=spark.sql('''SELECT a.journal_pair_A,a.journal_pair_B,
-                           a.obs_frequency,
-                           CASE WHEN b.bg_freq IS NULL THEN a.current_mean
-                           a.current_mean+COALESCE(b.bg_freq,0)- as running_sum,
-                           a.running_sum_of_squares+(COALESCE(b.bg_freq,0)*COALESCE(b.bg_freq,0)) as running_sum_of_squares,
-                           a.count + CASE WHEN b.bg_freq IS NULL THEN 0 ELSE 1 END as count
-                        FROM observed_frequencies a
-                        LEFT JOIN bg_table b
-                        ON a.journal_pair_A=b.journal_pair_A
-                         AND a.journal_pair_B=b.journal_pair_B ''')
-    df.write.mode("overwrite").saveAsTable("temp_observed_frequencies")
-    temp_table=spark.table("temp_observed_frequencies")
-    temp_table.write.mode("overwrite").saveAsTable("observed_frequencies")
+    # Join frequency counts from BG table to obs_frequency table
+    temp_df=spark.sql('''
+            SELECT  a.journal_pair_A,
+                    a.journal_pair_B,
+                    a.current_mean,
+                    a.current_sum_squared_distances_from_mean,
+                    a.count + CASE WHEN b.bg_freq IS NULL THEN 0 ELSE 1 END as count
+                    b.bg_freq
+            FROM observed_frequencies a
+            LEFT JOIN bg_table b
+            ON a.journal_pair_A=b.journal_pair_A
+             AND a.journal_pair_B=b.journal_pair_B ''')
+    df.createOrReplaceTempView('update_table')
+    a = spark.table("update_table").withColumn('updated_mean', update_mean_udf(struct('current_mean','bg_freq','count')))
+    b = a.withColumn('updated_sum_squared_distances_from_mean',welford_pass_udf(struct('bg_freq','current_mean','current_sum_squared_distances_from_mean','count')))
+    b.registerTempTable("update_table_finished")
+    df=spark.sql('''
+            SELECT  a.journal_pair_A,
+                    a.journal_pair_B,
+                    a.obs_frequency,
+                    b.updated_mean as current_mean,
+                    b.updated_sum_squared_distances_from_mean as current_sum_squared_distances_from_mean
+                    b.count
+            FROM observed_frequencies a
+            LEFT JOIN update_table_finished b
+            ON a.journal_pair_A=b.journal_pair_A
+             AND a.journal_pair_B=b.journal_pair_B ''')
+    df.write.mode("overwrite").saveAsTable("observed_frequencies")
 
 def final_table(input_dataset,iterations):
     df=spark.sql("SELECT source_id,cited_source_uid,reference_issn FROM {}".format(input_dataset))
@@ -179,26 +202,23 @@ def final_table(input_dataset,iterations):
     df.write.mode("overwrite").saveAsTable("output_table")
 
 def z_score_calculations(input_dataset,iterations):
-
-    a = spark.table("observed_frequencies").withColumn('mean', mean_udf(struct('count','running_sum')))
-    b = a.withColumn('std',samp_std_udf(struct('count','running_sum','running_sum_of_squares')))
-    b.write.mode("overwrite").saveAsTable("z_score_prep_table")
+    a = spark.table("observed_frequencies").withColumn('std', std_udf(struct('current_sum_squared_distances_from_mean','count')))
+    a.write.mode("overwrite").saveAsTable("z_score_prep_table")
     df=spark.sql('''
-            SELECT journal_pair_A,journal_pair_B,obs_frequency,mean,std,count,
+            SELECT journal_pair_A,journal_pair_B,obs_frequency,current_mean as mean,std,count,
             CASE
-                WHEN std=0 AND (obs_frequency-mean) > 0
+                WHEN std=0 AND (obs_frequency-current_mean) > 0
                     THEN 'Infinity'
-                WHEN std=0 AND (obs_frequency-mean) < 0
+                WHEN std=0 AND (obs_frequency-current_mean) < 0
                     THEN '-Infinity'
-                WHEN std=0 AND (obs_frequency-mean) = 0
+                WHEN std=0 AND (obs_frequency-current_mean) = 0
                     THEN NULL
-                ELSE (obs_frequency-mean)/std
+                ELSE (obs_frequency-current_mean)/std
                 END as z_scores
             FROM z_score_prep_table a
            ''').na.drop()
     df.write.mode("overwrite").saveAsTable("z_scores_table")
     final_table(input_dataset,iterations)
-
 
 warehouse_location = '/user/spark/data'
 spark = SparkSession.builder.appName("uzzi_analysis") \
@@ -224,30 +244,21 @@ url = 'postgresql://{}:{}/{}'.format(args.postgres_host,args.postgres_port,args.
 properties = {'user': args.postgres_user, 'password': args.postgres_password}
 postgres_conn=psycopg2.connect(dbname=args.postgres_dbname,user=args.postgres_user,password=args.postgres_password, host=args.postgres_host, port=args.postgres_port)
 
-# Issue the first background shuffle
-shuffle_thread = thr.Thread(target=shuffle_data, args=(postgres_conn,"{}_shuffled".format(args.target_table)))
-shuffle_thread.start()
 # Read in the target table to the HDFS then perform the initial round of observed frequency calculations
 print("*** START -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR BASE SET ***")
 read_postgres_table_into_HDFS(args.target_table,url,properties)
 obs_frequency_calculations(args.target_table)
 print("*** END -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR BASE SET ***")
-if shuffle_thread.isAlive():
-    print("Waiting on shuffle completion in PostgreSQL for the first permutation")
-    shuffle_thread.join()
+
 
 # For the number of desired permutations, generate a random permute structure and collect observed frequency calculations
 for i in range(1,args.permutations+1):
     print("*** START -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
-    read_postgres_table_into_memory("{}_shuffled".format(args.target_table),url,properties)
-    # Calculate journal pair frequencies and issue a background task to Postgres to reshuffle data in the materialized view
-    shuffle_thread = thr.Thread(target=shuffle_data, args=(postgres_conn,"{}_shuffled".format(args.target_table)))
-    shuffle_thread.start()
+    print("*** Performing shuffle in Spark ***".format(i))
+    spark_shuffle_data("{}".format(args.target_table)).registerTempTable("{}_shuffled".format(args.target_table))
+    SQLContext(spark).cacheTable("{}_shuffled".format(args.target_table))
+    print("*** Calculating observed frequencies ***".format(i))
     calculate_journal_pairs_freq("{}_shuffled".format(args.target_table),i)
-    # If shuffling is taking longer than the journal pair calculation, wait for shuffling to complete
-    if shuffle_thread.isAlive():
-        print("Waiting on shuffle completion in PostgreSQL for the next permutation")
-        shuffle_thread.join()
     print("*** END -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR PERMUTATION {} ***".format(i))
 
     # Conditional Statement for iteration number - if 10 or 100 take a pause to calculate z scores for the observations and write to postgres
@@ -256,18 +267,15 @@ for i in range(1,args.permutations+1):
         z_score_calculations(args.target_table,i)
         print("*** END -  Z-SCORE CALCULATION BREAK FOR PERMUTATION {} ***".format(i))
         print("*** START -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
-        write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,i),url,properties)
+        #write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,i),url,properties)
         print("*** END -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
-        # if we are at 10 permutations specficically, export the observed frequency table so that it can be analyzed by
-        if i==10:
-            write_table_to_postgres("observed_frequencies","spark_observed_frequencies_10_permutations_{}".format(args.target_table),url,properties)
-
+        
 # Analyze the final results stored
 print("*** START -  Z-SCORE CALCULATIONS ***")
 z_score_calculations(args.target_table,args.permutations)
 print("*** END -  Z-SCORE CALCULATIONS ***")
 print("*** START -  FINAL POSTGRES EXPORT ***")
-write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,args.permutations),url,properties)
+#write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,args.permutations),url,properties)
 print("*** END -  FINAL POSTGRES EXPORT ***")
 # Close out the spark session
 spark.stop()
