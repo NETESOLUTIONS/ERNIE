@@ -83,9 +83,9 @@ def calculate_std_dev(sum_squared_distances_from_mean,k,ddof=0):
         return np.NaN
     return np.sqrt(calculate_variance(sum_squared_distances_from_mean,k,ddof))
 
-update_mean_udf = udf(lambda x: update_mean(Decimal(x[0]),Decimal(x[1]),Decimal(x[2])), sql_type.DoubleType())
-welford_pass_udf = udf(lambda x: welford_pass(Decimal(x[0]),Decimal(x[1]),Decimal(x[2]),Decimal(x[3])), sql_type.DoubleType())
-std_udf = udf(lambda x: calculate_std_dev(Decimal(x[0]),Decimal(x[1]),0.0), sql_type.DoubleType()) ##TODO: adjust this based on whether team wants population or sample STDDEV
+update_mean_udf = udf(lambda x: float(update_mean(Decimal(x[0]),Decimal(x[1]),Decimal(x[2]))), sql_type.DoubleType())
+welford_pass_udf = udf(lambda x: float(welford_pass(Decimal(x[0]),Decimal(x[1]),Decimal(x[2]),Decimal(x[3]))), sql_type.DoubleType())
+std_udf = udf(lambda x: float(calculate_std_dev(Decimal(x[0]),Decimal(x[1]),0.0)), sql_type.DoubleType()) ##TODO: adjust this based on whether team wants population or sample STDDEV
 
 def obs_frequency_calculations(input_dataset):
     obs_df=spark.sql("SELECT source_id,reference_issn FROM {}".format(input_dataset))
