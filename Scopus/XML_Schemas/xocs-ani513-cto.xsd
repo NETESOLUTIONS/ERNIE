@@ -1,0 +1,57 @@
+<xsd:schema targetNamespace="http://www.elsevier.com/xml/cto/dtd"
+    xmlns="http://www.elsevier.com/xml/cto/dtd"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns:cto="http://www.elsevier.com/xml/cto/dtd"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<!--
+	 =====================================================================
+	 * Licensed Materials - Property of Elsevier.
+	 * (C) Copyright 2004 Elsevier.
+	 =====================================================================
+	 Author:      Mike Appel
+	 Create date: 7/28/2004
+	 Description: This document is an XML schema that defines elements within
+	              the "cto" namespace.  This schema was designed to be imported
+				  by other xml schemas used in the XML Fabrication System. 
+	 =====================================================================
+	
+	 Revision history:
+
+ 	 author        date         changes
+ 	 =====================================================================
+ 	 patelc1	12/16/2008		Rename the filename to xocs-ani512-cto.xsd
+     weltersk	30 April 2013	SC XF 13-2 BOOKSUI add doctype
+     Gnanasgx	18 Nov	2014	orcid element added to unique-author 
+     weltersk	March 2015	SCFast2SOLR changes for cto:unique-author: 
+     	                                        add seq attribute
+     						create element for author even if no auid
+     						create element for email address if present
+     						create element for suffix if present
+     Nan Xu     11/07/2016  Update to version 513
+  	 ======================================================================= -->
+    <xsd:element name="doctype" type="xsd:string"/>
+	<xsd:element name="group-id" type="xsd:unsignedLong" nillable="false"/>
+	<xsd:element name="ref-id" type="xsd:unsignedLong" nillable="false"/>
+	<xsd:element name="unique-author" type="cto:unique-author-tp"/>
+	<xsd:element name="unique-auth-count" type="xsd:integer"/>
+
+	<xsd:complexType name="unique-author-tp">
+		<xsd:sequence>
+			<xsd:element name="auth-initials" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="auth-indexed-name" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="auth-surname" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="auth-id" type="xsd:unsignedLong" nillable="false" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="orcid" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+		        <xsd:element name="auth-e-address" type="cto:auth-e-address-tp" minOccurs="0" maxOccurs="1"/>
+		        <xsd:element name="auth-suffix" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence>
+		<xsd:attribute name="seq" use="required"/>
+	</xsd:complexType>
+
+
+      <xsd:complexType name="auth-e-address-tp" mixed="true">
+             <xsd:attribute name="type" default="email" type="xsd:string"/>
+      </xsd:complexType>
+
+
+</xsd:schema>
