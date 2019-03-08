@@ -81,7 +81,7 @@ def calculate_variance(sum_squared_distances_from_mean,k,ddof=0):
 def calculate_std_dev(sum_squared_distances_from_mean,k,ddof=0):
     if k-ddof < 1:
         return np.NaN
-    return np.sqrt(calculate_variance(sum_squared_distances_from_mean,k,ddof))
+    return float(np.sqrt(calculate_variance(sum_squared_distances_from_mean,k,ddof)))
 
 update_mean_udf = udf(lambda x: update_mean(float(x[0]),float(x[1]),float(x[2])), sql_type.DoubleType())
 welford_pass_udf = udf(lambda x: welford_pass(float(x[0]),float(x[1]),float(x[2]),float(x[3])), sql_type.DoubleType())
