@@ -18,44 +18,27 @@ def shuffle_data(conn,table_name):
     conn.commit()
 
 # Shuffle dataset in Spark -- must use rand() here instead of random per https://spark.apache.org/docs/2.4.0/api/sql/#rand
-# TODO: test/look for differences in random number generation and check if this has any effect on output
-def shuffle_data(table_name):
+def spark_shuffle_data(table_name):
     sql = '''
-        WITH cte AS (
-          SELECT
-            source_id,
-            source_year,
-            source_document_id_type,
-            source_issn,
-            coalesce(lead(cited_source_uid, 1) OVER (PARTITION BY reference_year ORDER BY rand()),
-                     first_value(cited_source_uid) OVER (PARTITION BY reference_year ORDER BY rand()))
-              AS shuffled_cited_source_uid,
-            coalesce(lead(reference_year, 1) OVER (PARTITION BY reference_year ORDER BY rand()),
-                     first_value(reference_year) OVER (PARTITION BY reference_year ORDER BY rand()))
-              AS shuffled_reference_year,
-            coalesce(lead(reference_document_id_type, 1) OVER (PARTITION BY reference_year ORDER BY rand()),
-                     first_value(reference_document_id_type) OVER (PARTITION BY reference_year ORDER BY rand()))
-              AS shuffled_reference_document_id_type,
-            coalesce(lead(reference_issn, 1) OVER (PARTITION BY reference_year ORDER BY rand()),
-                     first_value(reference_issn) OVER (PARTITION BY reference_year ORDER BY rand()))
-              AS shuffled_reference_issn
-          FROM {}
-        )
-        SELECT
-          source_id,
-          source_year,
-          source_document_id_type,
-          source_issn,
-          shuffled_cited_source_uid,
-          shuffled_reference_year,
-          shuffled_reference_document_id_type,
-          shuffled_reference_issn
-        FROM cte
-        WHERE source_id NOT IN (
-          SELECT source_id
-          FROM cte
-          GROUP BY source_id, shuffled_cited_source_uid
-          HAVING COUNT(1) > 1)'''.format(table_name)
+        SELECT sq.source_id,
+        sq.source_year,
+        sq.source_document_id_type,
+        sq.source_issn,
+        sq.shuffled_cited_source_uid,
+        sq.shuffled_reference_year,
+        sq.shuffled_reference_document_id_type,
+        sq.shuffled_reference_issn
+       FROM ( SELECT a.source_id,
+                a.source_year,
+                a.source_document_id_type,
+                a.source_issn,
+                COALESCE(lead(a.cited_source_uid, 1) OVER (PARTITION BY a.reference_year ORDER BY (rand())), first_value(a.cited_source_uid) OVER (PARTITION BY a.reference_year ORDER BY (rand()))) AS shuffled_cited_source_uid,
+                COALESCE(lead(a.reference_year, 1) OVER (PARTITION BY a.reference_year ORDER BY (rand())), first_value(a.reference_year) OVER (PARTITION BY a.reference_year ORDER BY (rand()))) AS shuffled_reference_year,
+                COALESCE(lead(a.reference_document_id_type, 1) OVER (PARTITION BY a.reference_year ORDER BY (rand())), first_value(a.reference_document_id_type) OVER (PARTITION BY a.reference_year ORDER BY (rand()))) AS shuffled_reference_document_id_type,
+                COALESCE(lead(a.reference_issn, 1) OVER (PARTITION BY a.reference_year ORDER BY (rand())), first_value(a.reference_issn) OVER (PARTITION BY a.reference_year ORDER BY (rand()))) AS shuffled_reference_issn
+               FROM {} a) sq
+      GROUP BY sq.source_id, sq.source_year, sq.source_document_id_type, sq.source_issn, sq.shuffled_cited_source_uid, sq.shuffled_reference_year, sq.shuffled_reference_document_id_type, sq.shuffled_reference_issn
+     HAVING count(1) = 1'''.format(table_name)
     return spark.sql(sql)
 
 
