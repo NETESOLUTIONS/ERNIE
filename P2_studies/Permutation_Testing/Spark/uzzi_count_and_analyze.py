@@ -161,7 +161,9 @@ def calculate_journal_pairs_freq(input_dataset,i):
             LEFT JOIN update_table_finished b
             ON a.journal_pair_A=b.journal_pair_A
              AND a.journal_pair_B=b.journal_pair_B ''')
-    df.write.mode("overwrite").saveAsTable("observed_frequencies")
+    df.write.mode("overwrite").saveAsTable("temp_observed_frequencies")
+    temp_table=spark.table("temp_observed_frequencies")
+    temp_table.write.mode("overwrite").saveAsTable("observed_frequencies")
 
 def final_table(input_dataset,iterations):
     df=spark.sql("SELECT source_id,cited_source_uid,reference_issn FROM {}".format(input_dataset))
