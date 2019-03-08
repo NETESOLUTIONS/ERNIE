@@ -5,7 +5,7 @@ from pyspark.sql.functions import monotonically_increasing_id
 from pyspark.sql import SQLContext
 import time,sys
 import argparse
-from float import *
+from decimal import *
 import pandas as pd
 import datetime
 import numpy as np
