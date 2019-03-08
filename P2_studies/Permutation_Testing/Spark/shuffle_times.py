@@ -130,9 +130,11 @@ for i in range(0,args.permutations):
     time_taken = end-start
     spark_shuffle_times += [time_taken.total_seconds()]
 num_executors = int(spark._conf.get('spark.executor.instances'))
+executor_memory = =spark._conf.get('spark.executor.memory')
+num_cores_per_excutor = int(spark._conf.get('spark.executor.cores'))
 stat_df = pd.DataFrame({'postgres_raw_shuffle':postgres_raw_shuffle_times,
                         'postgres_import':postgres_import_times,
-                        'spark_shuffle (Using {} executors)'.format(num_executors):spark_shuffle_times})
+                        'spark_shuffle (Using {} executors, {} cores per executor, and {} memory per executor)'.format(num_executors,num_cores_per_excutor,executor_memory):spark_shuffle_times})
 print(stat_df)
 print("mean run times:")
 print(stat_df.mean())
