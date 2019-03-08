@@ -80,8 +80,8 @@ def calculate_std_dev(sum_squared_distances_from_mean,k,ddof=0):
         return np.NaN
     return np.sqrt(calculate_variance(sum_squared_distances_from_mean,k,ddof))
 
-update_mean_udf = udf(lambda x: float(running_mean(x[0],x[1],x[2])), sql_type.DoubleType())
-welford_pass_udf = udf(lambda x: float(running_std(x[0],x[1],x[2],x[3])), sql_type.DoubleType())
+update_mean_udf = udf(lambda x: float(update_mean(x[0],x[1],x[2])), sql_type.DoubleType())
+welford_pass_udf = udf(lambda x: float(welford_pass(x[0],x[1],x[2],x[3])), sql_type.DoubleType())
 std_udf = udf(lambda x: float(calculate_std_dev(x[0],x[1],0)), sql_type.DoubleType()) ##TODO: adjust this based on whether team wants population or sample STDDEV
 
 def obs_frequency_calculations(input_dataset):
