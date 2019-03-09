@@ -276,7 +276,7 @@ for i in range(1,args.permutations+1):
         z_score_calculations(args.target_table,i)
         print("*** END -  Z-SCORE CALCULATION BREAK FOR PERMUTATION {} ***".format(i))
         print("*** START -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
-        #write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,i),url,properties)
+        write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,i),url,properties)
         print("*** END -  POSTGRES EXPORT FOR PERMUTATION {} ***".format(i))
 
 # Analyze the final results stored
@@ -284,7 +284,7 @@ print("*** START -  Z-SCORE CALCULATIONS ***")
 z_score_calculations(args.target_table,args.permutations)
 print("*** END -  Z-SCORE CALCULATIONS ***")
 print("*** START -  FINAL POSTGRES EXPORT ***")
-#write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,args.permutations),url,properties)
+write_table_to_postgres("output_table","spark_results_{}_{}_permutations".format(args.target_table,args.permutations),url,properties)
 print("*** END -  FINAL POSTGRES EXPORT ***")
 # Close out the spark session
 spark.stop()
