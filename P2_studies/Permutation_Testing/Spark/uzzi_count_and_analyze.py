@@ -152,7 +152,7 @@ def calculate_journal_pairs_freq(input_dataset,i):
     a = temp_df.withColumn('updated_mean', update_mean_udf(struct('current_mean','x','updated_count')))
     b = a.withColumn('updated_sum_squared_distances_from_mean',welford_pass_udf(struct('x','current_mean','current_sum_squared_distances_from_mean','updated_count')))
     b.registerTempTable("update_table_finished")
-    print(spark.sql("SELECT * FROM update_table_finished").show()) # test
+    #print(spark.sql("SELECT * FROM update_table_finished").show()) # test
     df=spark.sql('''
             SELECT  a.journal_pair_A,
                     a.journal_pair_B,
@@ -165,7 +165,7 @@ def calculate_journal_pairs_freq(input_dataset,i):
             ON a.journal_pair_A=b.journal_pair_A
              AND a.journal_pair_B=b.journal_pair_B ''')
     df.write.mode("overwrite").saveAsTable("temp_observed_frequencies")
-    print(spark.sql("SELECT * FROM temp_observed_frequencies").show())
+    #print(spark.sql("SELECT * FROM temp_observed_frequencies").show())
     temp_table=spark.table("temp_observed_frequencies")
     temp_table.write.mode("overwrite").saveAsTable("observed_frequencies")
 
