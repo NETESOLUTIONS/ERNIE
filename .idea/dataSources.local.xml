@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="dataSourceStorageLocal">
-    <data-source name="ERNIE1 @ tunnel" uuid="5bb02c2c-aff7-44a7-b231-b3c00bede8d2">
+    <data-source name="ERNIE Dev, Prod @ tunnel" uuid="5bb02c2c-aff7-44a7-b231-b3c00bede8d2">
       <database-info product="PostgreSQL" version="9.6.12" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.2" dbms="POSTGRES" exact-version="9.6.12" exact-driver-version="42.2">
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>
@@ -17,16 +17,10 @@
       <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
       <secret-storage>master_key</secret-storage>
       <user-name>dk</user-name>
-      <introspection-schemas>ernie:chackoge,dk,information_schema,pg_catalog,public|orpheus_scratchpad:</introspection-schemas>
+      <introspection-schemas>@:@</introspection-schemas>
     </data-source>
     <data-source name="ERNIE2 (ernie_admin) @ tunnel" uuid="9566f9ea-4fe2-4a6d-96b3-fbbdfec20991">
-      <database-info product="PostgreSQL" version="11.2" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.2" dbms="POSTGRES" exact-version="11.2" exact-driver-version="42.2">
-        <identifier-quote-string>&quot;</identifier-quote-string>
-      </database-info>
-      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
-      <secret-storage>master_key</secret-storage>
-      <user-name>ernie_admin</user-name>
-      <introspection-schemas>ernie:chackoge,dk,information_schema,pg_catalog,public|orpheus_scratchpad:</introspection-schemas>
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="POSTGRES" exact-version="0" />
     </data-source>
   </component>
 </project>
