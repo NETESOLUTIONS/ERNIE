@@ -24,13 +24,8 @@ DO $block$
     SELECT string_agg(ssd.scopus_doc_line, chr(10) ORDER BY ssd.scopus_doc_line_num) INTO scopus_doc
     FROM stg_scopus_doc ssd;
 
-    BEGIN
-      SELECT xmlparse(DOCUMENT scopus_doc) INTO scopus_doc_xml
-      FROM stg_scopus_doc;
-    EXCEPTION
-      WHEN OTHERS THEN RAISE NOTICE E'ERROR during parsing of:\n-----\n%\n-----', scopus_doc;
-      RAISE;
-    END;
+    SELECT xmlparse(DOCUMENT scopus_doc) INTO scopus_doc_xml
+    FROM stg_scopus_doc;
 
     FOR cur IN (
       SELECT
@@ -39,9 +34,9 @@ DO $block$
         make_date(pub_year, pub_month, pub_day) AS pub_date,
         scp,
         language_code,
-        citation_title,
-        title_lang_code,
-        abstract_lang_code,
+        coalesce(citation_title_eng, citation_title_original) AS citation_title,
+        coalesce(title_lang_code_eng, title_lang_code_original) AS title_lang_code,
+        --   abstract_lang_code,
         correspondence_person_indexed_name,
         correspondence_city,
         correspondence_country,
@@ -61,12 +56,11 @@ DO $block$
         -- region scopus_publications
         scp BIGINT PATH 'item-info/itemidlist/itemid[@idtype="SCP"]',
         language_code CHAR(3) PATH 'head/citation-info/citation-language/@xml:lang',
-        citation_title TEXT PATH
-          'head/citation-title/titletext[@xml:lang="eng"] | head/citation-title/titletext[@original="y"]',
-        title_lang_code CHAR(3) PATH
-          'head/citation-title/titletext[@xml:lang="eng"]/@xml:lang | head/citation-title/titletext[@original="y"]/@xml:lang',
-        abstract_lang_code CHAR(3) PATH
-          'head/abstracts/abstract[@xml:lang="eng"]/@xml:lang | head/abstracts/abstract[@original="y"]/@xml:lang',
+        citation_title_eng TEXT PATH 'head/citation-title/titletext[@xml:lang="eng"]',
+        citation_title_original TEXT PATH 'head/citation-title/titletext[@original="y"]',
+        title_lang_code_eng CHAR(3) PATH 'head/citation-title/titletext[@xml:lang="eng"]/@xml:lang',
+        title_lang_code_original CHAR(3) PATH 'head/citation-title/titletext[@original="y"]/@xml:lang',
+      --   abstract_lang_code CHAR(3) PATH 'head/abstracts/abstract[@xml:lang="eng"]/@xml:lang,
         correspondence_person_indexed_name TEXT PATH 'head/correspondence/person/ce:indexed-name',
         correspondence_city TEXT PATH 'head/correspondence/affiliation/city',
         correspondence_country TEXT PATH 'head/correspondence/affiliation/country',
@@ -143,6 +137,10 @@ DO $block$
       pub_ref_id SMALLINT PATH '@id'
       --@formatter:on
       );
+  EXCEPTION
+    WHEN OTHERS THEN --
+      RAISE NOTICE E'ERROR during processing of:\n-----\n%\n-----', scopus_doc;
+      RAISE;
   END $block$;
 
 /*
