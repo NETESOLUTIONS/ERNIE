@@ -4,10 +4,7 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-TRUNCATE scopus_publication_groups CASCADE;
--- TRUNCATE scopus_publications;
--- TRUNCATE scopus_pub_authors;
--- TRUNCATE scopus_references;
+-- FIXME For production deployment, INSERTs need tobe converted to MERGEs
 
 CREATE TEMPORARY TABLE stg_scopus_doc (
   scopus_doc_line_num SERIAL,
