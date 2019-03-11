@@ -24,9 +24,9 @@ CREATE TABLE scopus_publications (
 /*Element citation-language contains the language(s) of the original document. If the document
 is published in parallel translation, up to three languages may be given.*/
 --   language_code CHAR(3),
-
-  citation_title TEXT NOT NULL,
-  citation_title_lang_code CHAR(3) NOT NULL,
+  -- There are some outliers with absent titles
+  citation_title TEXT,
+  citation_title_lang_code CHAR(3),
   --   abstract TEXT,
   --   abstract_lang_code CHAR(3),
   correspondence_person_indexed_name TEXT,

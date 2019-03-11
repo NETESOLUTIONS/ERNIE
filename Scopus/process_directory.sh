@@ -16,6 +16,7 @@ DESCRIPTION
     Extract *.zip in the working directory one-by-one, updating files: newer and non-existent only.
     Process an extracted sub-directory and remove it at the end.
     Use the specified working_directory (current directory by default).
+    Produce logs with reduced verbosity to reduce log volume.
 
     The following options are available:
 
@@ -65,7 +66,7 @@ parse_xml() {
   local xml="$1"
   echo "Processing $xml ..."
   psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql <"$xml"
-  echo "$xml: done.'"
+  echo "$xml: done."
 }
 export -f parse_xml
 
@@ -79,6 +80,7 @@ fi
 for scopus_data_archive in *.zip; do
   echo "Processing ${scopus_data_archive} ..."
 
+  # Reduced verbosity
   # -u extracting files that are newer and files that do not already exist on disk
   # -q perform operations quietly
   unzip -u -q "${scopus_data_archive}"
