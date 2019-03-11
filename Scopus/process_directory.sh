@@ -12,11 +12,11 @@ SYNOPSIS
 
 DESCRIPTION
 
-    Parse all source Scopus files and update data in the DB in parallel.
-    Extract *.zip in the working directory one-by-one, updating files: newer and non-existent only.
-    Process an extracted sub-directory and remove it at the end.
-    Use the specified working_directory (current directory by default).
-    Produce logs with reduced verbosity to reduce log volume.
+    * Parse all source Scopus files and update data in the DB in parallel.
+    * Use the specified working_directory (current directory by default).
+    * Extract *.zip in the working directory one-by-one, updating files: newer and non-existent only.
+    * Rename processed *.zip files to *.processed.
+    * Produce logs with reduced verbosity to reduce log volume.
 
     The following options are available:
 
@@ -77,24 +77,30 @@ if [[ "${CLEAN_MODE}" == true ]]; then
 HEREDOC
 fi
 
+[[ ! -d tmp ]] && mkdir tmp
+[[ ! -d processed ]] && mkdir processed
+
 for scopus_data_archive in *.zip; do
   echo "Processing ${scopus_data_archive} ..."
 
   # Reduced verbosity
   # -u extracting files that are newer and files that do not already exist on disk
   # -q perform operations quietly
-  unzip -u -q "${scopus_data_archive}"
-
+  unzip -u -q "${scopus_data_archive}" -d tmp
+  cd tmp
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
     # Process Scopus XML files in parallel
     # Reduced verbosity
     find "${subdir}" -name '2*.xml' | \
       parallel --halt soon,fail=1 --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"
     # xargs -n: Set the maximum number of arguments taken from standard input for each invocation of utility
-    # find . -name '2*.xml' -print0 | xargs -0 -n 1 -I '{}' bash -c "parse_xml {}"
+    # TODO follow up re: fail early for find -exec
+    #  find . -name '2*.xml' -print0 | xargs -0 -n 1 -I '{}' bash -c "parse_xml {}"
     #  bash -c "set -e; echo -e '\n{}\n'; psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql <{}; echo '{}: done.'" \;
     rm -rf "${subdir}"
   done
+  cd ..
+  mv "${scopus_data_archive}" processed/
 done
 
 exit 0
