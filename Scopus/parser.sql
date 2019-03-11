@@ -49,7 +49,7 @@ DO $block$
       FROM xmltable(--
       -- The `xml:` namespace doesn’t need to be specified
         XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
-        '//bibrecord' PASSING :scopus_doc COLUMNS --
+        '//bibrecord' PASSING scopus_doc_xml COLUMNS --
         --@formatter:off
         -- region scopus_publication_groups
         sgr BIGINT PATH 'item-info/itemidlist/itemid[@idtype="SGR"]',
