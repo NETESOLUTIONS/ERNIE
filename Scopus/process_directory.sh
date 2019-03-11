@@ -102,5 +102,6 @@ for scopus_data_archive in *.zip; do
   cd ..
   mv "${scopus_data_archive}" processed/
 done
+rmdir tmp
 
 exit 0
