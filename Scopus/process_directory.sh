@@ -79,8 +79,9 @@ fi
 for scopus_data_archive in *.zip; do
   echo "Processing ${scopus_data_archive} ..."
 
-  # -u update existing files and create new ones if needed
-  unzip -u "${scopus_data_archive}"
+  # -u extracting files that are newer and files that do not already exist on disk
+  # -q perform operations quietly
+  unzip -u -q "${scopus_data_archive}"
 
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
     cd "${subdir}"
