@@ -86,14 +86,13 @@ for scopus_data_archive in *.zip; do
   unzip -u -q "${scopus_data_archive}"
 
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
-    cd "${subdir}"
     # Process Scopus XML files in parallel
     # Reduced verbosity
-    find . -name '2*.xml' | parallel --halt soon,fail=1 --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"
+    find "${subdir}" -name '2*.xml' | \
+      parallel --halt soon,fail=1 --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"
     # xargs -n: Set the maximum number of arguments taken from standard input for each invocation of utility
     # find . -name '2*.xml' -print0 | xargs -0 -n 1 -I '{}' bash -c "parse_xml {}"
     #  bash -c "set -e; echo -e '\n{}\n'; psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql <{}; echo '{}: done.'" \;
-    cd ..
     rm -rf "${subdir}"
   done
 done
