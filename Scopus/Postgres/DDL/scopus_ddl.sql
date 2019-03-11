@@ -25,8 +25,8 @@ CREATE TABLE scopus_publications (
 is published in parallel translation, up to three languages may be given.*/
 --   language_code CHAR(3),
 
-  citation_title TEXT,
-  title_lang_code CHAR(3),
+  citation_title TEXT NOT NULL,
+  --   title_lang_code CHAR(3),
   --   abstract TEXT,
   --   abstract_lang_code CHAR(3),
   correspondence_person_indexed_name TEXT,

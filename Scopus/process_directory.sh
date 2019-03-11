@@ -7,7 +7,7 @@ NAME
 
 SYNOPSIS
 
-    process_directory.sh [working_directory]
+    process_directory.sh [-c] [working_directory]
     process_directory.sh -h: display this help
 
 DESCRIPTION
@@ -16,6 +16,10 @@ DESCRIPTION
     Extract *.zip in the working directory one-by-one, updating files: newer and non-existent only.
     Process an extracted sub-directory and remove it at the end.
     Use the specified working_directory (current directory by default).
+
+    The following options are available:
+
+    -c    clean data before processing and don't resume processing. WARNING: be aware that you'll lose all loaded data!
 
 ENVIRONMENT
 
@@ -36,6 +40,16 @@ set -o pipefail
 readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 
+while (( $# > 0 )); do
+  case "$1" in
+    -c)
+      readonly CLEAN_MODE=true;;
+    *)
+      break
+  esac
+  shift
+done
+
 if (( $# > 0 )); then
   cd "$1"
 fi
@@ -54,6 +68,13 @@ parse_xml() {
   echo "$xml: done.'"
 }
 export -f parse_xml
+
+# language=PostgresPLSQL
+if [[ "${CLEAN_MODE}" == true ]]; then
+  psql -v ON_ERROR_STOP=on --echo-all <<'HEREDOC'
+    TRUNCATE scopus_publication_groups CASCADE;
+HEREDOC
+fi
 
 for scopus_data_archive in *.zip; do
   echo "Processing ${scopus_data_archive} ..."

@@ -72,11 +72,9 @@ DO $block$
       VALUES (cur.sgr, cur.pub_year, cur.pub_date)
       ON CONFLICT DO NOTHING;
 
-      INSERT INTO scopus_publications(scp, sgr, citation_title, title_lang_code,
-                                      correspondence_person_indexed_name, correspondence_city,
+      INSERT INTO scopus_publications(scp, sgr, citation_title, correspondence_person_indexed_name, correspondence_city,
                                       correspondence_country, correspondence_e_address)
-      VALUES (cur.scp, cur.sgr, cur.citation_title, cur.title_lang_code,
-              cur.correspondence_person_indexed_name, cur.correspondence_city,
+      VALUES (cur.scp, cur.sgr, cur.citation_title, cur.correspondence_person_indexed_name, cur.correspondence_city,
               cur.correspondence_country, cur.correspondence_e_address)
       ON CONFLICT DO NOTHING;
     END LOOP;
