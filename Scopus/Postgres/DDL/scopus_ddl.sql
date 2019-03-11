@@ -4,7 +4,7 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-DROP TABLE IF EXISTS scopus_publications CASCADE;
+DROP TABLE IF EXISTS scopus_publication_groups CASCADE;
 
 CREATE TABLE scopus_publication_groups (
   sgr BIGINT,
@@ -20,7 +20,11 @@ CREATE TABLE scopus_publications (
     CONSTRAINT scopus_publications_pk PRIMARY KEY USING INDEX TABLESPACE index_tbs,
   sgr BIGINT
     CONSTRAINT sp_sgr_fk REFERENCES scopus_publication_groups ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-  language_code CHAR(3),
+
+/*Element citation-language contains the language(s) of the original document. If the document
+is published in parallel translation, up to three languages may be given.*/
+--   language_code CHAR(3),
+
   citation_title TEXT,
   title_lang_code CHAR(3),
   --   abstract TEXT,
