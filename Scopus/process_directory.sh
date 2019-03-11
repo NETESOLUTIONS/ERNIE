@@ -28,7 +28,8 @@ HEREDOC
   exit 1
 fi
 
-set -ex
+set -e
+#set -ex
 set -o pipefail
 
 # Get a script directory, same as by $(dirname $0)
@@ -63,8 +64,8 @@ for scopus_data_archive in *.zip; do
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
     cd "${subdir}"
     # Process Scopus XML files in parallel
-    find . -name '2*.xml' | \
-      parallel --halt soon,fail=1 --verbose --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"
+    # Reduced verbosity
+    find . -name '2*.xml' | parallel --halt soon,fail=1 --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"
     # xargs -n: Set the maximum number of arguments taken from standard input for each invocation of utility
     # find . -name '2*.xml' -print0 | xargs -0 -n 1 -I '{}' bash -c "parse_xml {}"
     #  bash -c "set -e; echo -e '\n{}\n'; psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql <{}; echo '{}: done.'" \;
