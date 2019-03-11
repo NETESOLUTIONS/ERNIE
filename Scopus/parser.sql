@@ -4,7 +4,7 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
--- FIXME For production deployment, INSERTs need tobe converted to MERGEs
+-- FIXME For production deployment, ON CONFLICT DO NOTHING need to be replaced by updatess
 
 CREATE TEMPORARY TABLE stg_scopus_doc (
   scopus_doc_line_num SERIAL,
@@ -70,14 +70,16 @@ DO $block$
         )
     ) LOOP
       INSERT INTO scopus_publication_groups(sgr, pub_year, pub_date)
-      VALUES (cur.sgr, cur.pub_year, cur.pub_date);
+      VALUES (cur.sgr, cur.pub_year, cur.pub_date)
+      ON CONFLICT DO NOTHING;
 
       INSERT INTO scopus_publications(scp, sgr, language_code, citation_title, title_lang_code,
                                       correspondence_person_indexed_name, correspondence_city,
                                       correspondence_country, correspondence_e_address)
       VALUES (cur.scp, cur.sgr, cur.language_code, cur.citation_title, cur.title_lang_code,
               cur.correspondence_person_indexed_name, cur.correspondence_city,
-              cur.correspondence_country, cur.correspondence_e_address);
+              cur.correspondence_country, cur.correspondence_e_address)
+      ON CONFLICT DO NOTHING;
     END LOOP;
 
     -- scopus_publications: concatenated correspondence organizations
@@ -124,7 +126,8 @@ DO $block$
       author_initials TEXT PATH 'ce:initials',
       author_e_address TEXT PATH 'ce:e-address'
       --@formatter:on
-      );
+      )
+    ON CONFLICT DO NOTHING;
 
     -- scopus_references
     INSERT INTO scopus_references(scp, ref_sgr, pub_ref_id)
@@ -136,7 +139,8 @@ DO $block$
       ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]',
       pub_ref_id SMALLINT PATH '@id'
       --@formatter:on
-      );
+      )
+    ON CONFLICT DO NOTHING;
   EXCEPTION
     WHEN OTHERS THEN --
       RAISE NOTICE E'ERROR during processing of:\n-----\n%\n-----', scopus_doc;
