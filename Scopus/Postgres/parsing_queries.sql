@@ -21,7 +21,7 @@ SELECT
 FROM xmltable(--
 -- The `xml:` namespace doesn’t need to be specified
   XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
-  '//bibrecord' PASSING :scopus_doc COLUMNS --
+  '//bibrecord' PASSING xmlparse(DOCUMENT :scopus_doc) COLUMNS --
   --@formatter:off
   -- region scopus_publication_groups
   sgr BIGINT PATH 'item-info/itemidlist/itemid[@idtype="SGR"]',
@@ -98,11 +98,12 @@ FROM xmltable(--
   );
 
 -- scopus_references
-SELECT scp, ref_sgr
+SELECT scp, ref_sgr, pub_ref_id
 FROM xmltable(--
   '//bibrecord/tail/bibliography/reference' PASSING :scopus_doc COLUMNS --
   --@formatter:off
   scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
-  ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]'
+  ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]',
+  pub_ref_id SMALLINT PATH '@id'
   --@formatter:on
   );
