@@ -26,7 +26,7 @@ is published in parallel translation, up to three languages may be given.*/
 --   language_code CHAR(3),
 
   citation_title TEXT NOT NULL,
-  --   title_lang_code CHAR(3),
+  citation_title_lang_code CHAR(3) NOT NULL,
   --   abstract TEXT,
   --   abstract_lang_code CHAR(3),
   correspondence_person_indexed_name TEXT,

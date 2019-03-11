@@ -41,42 +41,44 @@ DO $block$
             <titletext original="y" xml:lang="eng" language="English">Curare y anestesia.</titletext>
         </citation-title>
         */
-        coalesce(citation_title_eng_translated, citation_title_eng_original) AS citation_title,
+        trim(coalesce(citation_title_eng_translated, citation_title_eng_original,
+                      citation_title_original)) AS citation_title,
+        CASE
+          WHEN coalesce(citation_title_eng_translated, citation_title_eng_original) IS NOT NULL THEN 'eng'
+          ELSE citation_title_original_lang_code
+        END AS citation_title_lang_code,
         correspondence_person_indexed_name,
         correspondence_city,
         correspondence_country,
         correspondence_e_address
       FROM xmltable(--
-      -- The `xml:` namespace doesn’t need to be specified
+      -- The `xml:` namespace doesn't need to be specified
         XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
         '//bibrecord' PASSING scopus_doc_xml COLUMNS --
-        --@formatter:off
-        -- region scopus_publication_groups
-        sgr BIGINT PATH 'item-info/itemidlist/itemid[@idtype="SGR"]',
-        pub_year SMALLINT PATH 'head/source/publicationyear/@first',
-        pub_month SMALLINT PATH 'head/source/publicationdate/month',
-        pub_day SMALLINT PATH 'head/source/publicationdate/day',
-        -- endregion
-
-        -- region scopus_publications
-        scp BIGINT PATH 'item-info/itemidlist/itemid[@idtype="SCP"]',
-        citation_title_eng_original TEXT PATH 'head/citation-title/titletext[@xml:lang="eng"][@original="y"]',
-        citation_title_eng_translated TEXT PATH 'head/citation-title/titletext[@xml:lang="eng"][@original="n"]',
-        correspondence_person_indexed_name TEXT PATH 'head/correspondence/person/ce:indexed-name',
-        correspondence_city TEXT PATH 'head/correspondence/affiliation/city',
-        correspondence_country TEXT PATH 'head/correspondence/affiliation/country',
-        correspondence_e_address TEXT PATH 'head/correspondence/ce:e-address'
-        -- endregion
-        --@formatter:on
-        )
+          sgr BIGINT PATH 'item-info/itemidlist/itemid[@idtype="SGR"]', --
+          pub_year SMALLINT PATH 'head/source/publicationyear/@first', --
+          pub_month SMALLINT PATH 'head/source/publicationdate/month', --
+          pub_day SMALLINT PATH 'head/source/publicationdate/day', --
+          scp BIGINT PATH 'item-info/itemidlist/itemid[@idtype="SCP"]', --
+          -- noramlize-space() converts NULLs to empty strings
+          citation_title_eng_original TEXT PATH 'head/citation-title/titletext[@xml:lang="eng"][@original="y"]', --
+          citation_title_eng_translated TEXT PATH 'head/citation-title/titletext[@xml:lang="eng"][@original="n"]', --
+          citation_title_original TEXT PATH 'head/citation-title/titletext[@original="y"]', --
+          citation_title_original_lang_code TEXT PATH 'head/citation-title/titletext[@original="y"]/@xml:lang', --
+          correspondence_person_indexed_name TEXT PATH 'head/correspondence/person/ce:indexed-name', --
+          correspondence_city TEXT PATH 'head/correspondence/affiliation/city', --
+          correspondence_country TEXT PATH 'head/correspondence/affiliation/country', --
+          correspondence_e_address TEXT PATH 'head/correspondence/ce:e-address')
     ) LOOP
       INSERT INTO scopus_publication_groups(sgr, pub_year, pub_date)
       VALUES (cur.sgr, cur.pub_year, cur.pub_date)
       ON CONFLICT DO NOTHING;
 
-      INSERT INTO scopus_publications(scp, sgr, citation_title, correspondence_person_indexed_name, correspondence_city,
+      INSERT INTO scopus_publications(scp, sgr, citation_title, citation_title_lang_code,
+                                      correspondence_person_indexed_name, correspondence_city,
                                       correspondence_country, correspondence_e_address)
-      VALUES (cur.scp, cur.sgr, cur.citation_title, cur.correspondence_person_indexed_name, cur.correspondence_city,
+      VALUES (cur.scp, cur.sgr, cur.citation_title, cur.citation_title_lang_code,
+              cur.correspondence_person_indexed_name, cur.correspondence_city,
               cur.correspondence_country, cur.correspondence_e_address)
       ON CONFLICT DO NOTHING;
     END LOOP;
