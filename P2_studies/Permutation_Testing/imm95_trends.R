@@ -1,7 +1,7 @@
 source('state.R')
 rm(list=setdiff(ls(), c("cat_imm95", "cat_bl95","cat_imm95","cat_metab95")))
 
-# Imm95 background is cocit95
+# Imm95 background is imm95
 print(dim(cat_imm95))
 print(head(cat_imm95,5))
 setDT(cat_imm95)
