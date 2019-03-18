@@ -3,7 +3,7 @@
 if [[ $1 == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
-  spark_analysis.sh -- import data from PostgreSQL, analyze in PySpark, and export back to PostgreSQL
+  shuffle_performance_analysis.sh
 
 SYNOPSIS
   spark_analysis.sh
@@ -24,6 +24,9 @@ ENVIRONMENT
   * POSTGRES_SCHEMA                             the schema to execute code against
   * TARGET_DATASET                              the target dataset to evaluate
   * NUM_PERMUTATIONS                            num of permutations to run
+  * NUM_EXECUTORS                               num executors for the spark job
+  * EXECUTOR_CORES                              num of cores to allocate per executor for the spark job
+  * EXECUTOR_MEMORY                             amount of memory to allocate per executor for the spark job
 HEREDOC
   exit 1
 fi
@@ -35,7 +38,7 @@ hdfs dfs -rm -r -f /hive/warehouse/*
 echo "*** CLEANING ANY MISCELLANEOUS DATA : $(date)"
 hdfs dfs -rm -r -f /user/spark/data/*
 
-# Next run PySpark calculations
-$SPARK_HOME/bin/spark-submit --driver-memory 10g --executor-memory 20g --num-executors 18 \
-  --driver-class-path $(pwd)/postgresql-42.0.0.jar --jars $(pwd)/postgresql-42.0.0.jar \
-  ./uzzi_count_and_analyze.py -tt ${TARGET_DATASET} -ph ${POSTGRES_HOSTNAME} -pd ${POSTGRES_DATABASE} -U ${POSTGRES_USER} -W "${POSTGRES_PASSWORD}" -i ${NUM_PERMUTATIONS}
+# Next run PySpark calculations - TODO: fiddle around with executor config for speed ups  #--num-executors ${NUM_EXECUTORS} --executor-cores ${EXECUTOR_CORES} --executor-memory ${EXECUTOR_MEMORY} \
+$SPARK_HOME/bin/spark-submit --driver-memory 10g \
+   --driver-class-path $(pwd)/postgresql-42.0.0.jar --jars $(pwd)/postgresql-42.0.0.jar \
+  ./shuffle_times.py -tt ${TARGET_DATASET} -ph ${POSTGRES_HOSTNAME} -pd ${POSTGRES_DATABASE} -U ${POSTGRES_USER} -W "${POSTGRES_PASSWORD}" -i ${NUM_PERMUTATIONS}

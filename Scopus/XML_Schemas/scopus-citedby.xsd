@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+			elementFormDefault="unqualified" 
+    		attributeFormDefault="unqualified"
+			targetNamespace="http://www.elsevier.com/xml/xocs/dtd" 
+			xmlns:xocs="http://www.elsevier.com/xml/xocs/dtd">
+
+<!-- Defines the XSD schema for the Cited By feeds from FAST -->
+<!-- Creation Date: 22 March, 2005 -->
+<!-- Version: 1.0 -->
+<!-- Author: Chetan Patel -->
+
+ <xsd:element name="metadoc">
+  <xsd:complexType>
+   <xsd:sequence>
+      <xsd:element name='cited-by' type='xocs:citedbyType'/>
+   </xsd:sequence>
+   <xsd:attribute name='metatype' type='xsd:string' default="cited-by"/>
+   <xsd:attribute name='id' type='xsd:string' default="ANI-CITEDBY"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <!-- Current Timestamp -->
+ <xsd:element name="timestamp" type="xocs:nonEmptyString"/>
+
+ <!-- cited by Type -->
+ <xsd:complexType name="citedbyType">
+   <xsd:sequence>
+     <xsd:element name="eid" type="xocs:nonEmptyString"/>
+	 <xsd:element ref='xocs:timestamp'/>
+     <xsd:element name="count" type="xsd:nonNegativeInteger"/>
+   </xsd:sequence>
+ </xsd:complexType>
+
+ <xsd:simpleType name="nonEmptyString">
+	<xsd:restriction base="xsd:string">
+		<xsd:minLength value="1"/>
+		<xsd:whiteSpace value="collapse"/>
+	</xsd:restriction>
+ </xsd:simpleType>
+
+</xsd:schema>

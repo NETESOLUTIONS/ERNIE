@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ =====================================================================
+ * Licensed Materials - Property of Elsevier.
+ * (C) Copyright 2008 Elsevier.
+ =====================================================================
+ Author:      Chetan Patel
+ Create date: 12/16/2008
+ Description: This document is an XML schema that defines elements within
+              the "ait" namespace that are used in the ani512.xsd. This 
+              schema was designed to be imported by the xocs-ani512.xsd,
+              which it was was created by the Elsevier Dayton IT (EDIT) 
+              team to validate converted documents within the XML 
+              Fabrication system.
+ =====================================================================
+
+ Revision history:
+
+ author        date         changes
+ =====================================================================
+ Chetan Patel	12/16/2008	Initial version
+ Nan Xu         11/07/2016  Update to version 513
+ ======================================================================= -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.elsevier.com/xml/ani/ait" xmlns:ait="http://www.elsevier.com/xml/ani/ait" xmlns:ce="http://www.elsevier.com/xml/ani/common">
+
+    <xs:import namespace="http://www.elsevier.com/xml/ani/common" schemaLocation="xocs-ani513-ce.xsd"/>
+
+    <xs:element name="process-info">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="ait:date-delivered"/>
+                <xs:element ref="ait:date-sort"/>
+                <xs:element ref="ait:status"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="date-delivered">
+        <xs:complexType>
+            <xs:attributeGroup ref="ce:date.att"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="date-sort" type="ait:date-sort-tp"/>
+	<xs:complexType name="date-sort-tp">
+		<xs:simpleContent>
+			<xs:extension base="ait:date-tp">
+				<xs:attribute name="year" type="xs:NMTOKEN" use="required"/>
+				<xs:attribute name="month" type="xs:NMTOKEN" use="required"/>
+				<xs:attribute name="day" type="xs:NMTOKEN" use="required"/>
+				<xs:attribute name="timestamp" type="xs:dateTime" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:simpleType name="date-tp">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(.{0})|([0-9]{8})"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+    <xs:element name="status">
+        <xs:complexType>
+            <xs:attribute name="type" use="required">
+                <xs:simpleType>
+                    <xs:restriction base="xs:token">
+                        <xs:enumeration value="core"/>
+                        <xs:enumeration value="dummy"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="state" use="required">
+                <xs:simpleType>
+                    <xs:restriction base="xs:token">
+                        <xs:enumeration value="new"/>
+                        <xs:enumeration value="update"/>
+                        <xs:enumeration value="delete"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="stage" default="S300">
+                <xs:simpleType>
+                    <xs:restriction base="xs:token">
+                        <xs:enumeration value="S100"/>
+                        <xs:enumeration value="S200"/>
+                        <xs:enumeration value="S300"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="priority" type="xs:NMTOKEN"/>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

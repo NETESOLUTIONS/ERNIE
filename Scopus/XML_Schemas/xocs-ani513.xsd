@@ -1,0 +1,1877 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ =====================================================================
+ * Licensed Materials - Property of Elsevier.
+ * (C) Copyright 2005 Elsevier.
+ =====================================================================
+ Author:      Chetan Patel
+ Create date: 12/10/2008
+ Description: This XML schema was created by the Elsevier Dayton IT (EDIT)
+              team to validate converted documents within the XML 
+              Fabrication system.  This schema includes an XML schema 
+              equivalent of the ani512.xsd.
+ =====================================================================
+
+ Revision history:
+
+ author        date         changes
+ =====================================================================
+ patelc1	12/10/2008	Initial version
+ patelc1	2/03/2009	Updated to add p2 changes.
+ GnanaSGX	5/17/2012	Updated to add xocs:fulltext-eid
+ weltersk   04/30/2013  SC XF 13-2 BOOKSUI add  doctype to xocs:meta
+ zgheibbs	10/10/2013	SC 13-3B SCUDD add xocs:doi and xocs:pmid to xocs:meta
+ xunx       01/30/2014  Updated the following fields based on changes in 
+                        Elsevier shared OpsBank schema elements Version 5.12p8:
+						Citation types; Descriptor types; Classification types;
+						Chemical source types; Source Types;  pubdateType;
+						ipc-code; sublink
+Ilamparithi 09/02/2014  SC 14-2.2.02 Add new element xocs:sort-yyyymm for CTO enhancement
+patelc1		02/05/2015	Added new elements and modifying existing elements for SCFAST2SOLR
+xunx		07/21/2016  CONT-2834: Added new element grant-text to the xocs storage schema.
+xunx        11/07/2016  update schema to new version 513
+                        - added tb(Tombstone) in citationtype.att
+                        - added @author-instance-id and new element ce:alt-name in personalnameType
+						- added affiliation-id element and @affiliation-instance-id in affiliationType
+						- added itemid in related-item-tp
+						- added @date-locked in author-tp
+						- added @collaboration-instance-id in collaboration-tp
+						- added @date-locked in affiliation-tp
+						- added @status, @type in enhancement-tp
+						- make LT-count optional (minOccurs="0") in API-ATM-tp
+						- added @date-locked in reference-tp
+
+pusapasx      09/05/2017    Added new elements for xocs:funding-list
+pusapasx      12/10/2017    Added open-access elements - xocs:open-access
+xunx	      08/01/2018    CONT-4159:
+                            Added new enum type "st" for citationtype.att
+                            Added new attributes for element author-keyword
+                            Added new attribute @perspective in titletext
+							CONT-4209:
+							Added minOccurs="0" for ce:indexed-name in personalnameType
+			    Added xocs namespace for pui-match-type
+
+Bassem			09/07/2018 CONT-4271 
+							added the needed element to the open-access node related to oaDOI (upw)
+							upw-open-access element
+							 
+======================================================================= -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="http://www.elsevier.com/xml/xocs/dtd" xmlns:ait="http://www.elsevier.com/xml/ani/ait"
+           xmlns:ani="http://www.elsevier.com/xml/ani/ani" xmlns:xocs="http://www.elsevier.com/xml/xocs/dtd" xmlns:cto="http://www.elsevier.com/xml/cto/dtd" xmlns:ce="http://www.elsevier.com/xml/ani/common">
+
+	<xs:import namespace="http://www.elsevier.com/xml/ani/ait" schemaLocation="xocs-ani513-ait.xsd"/>
+	<xs:import namespace="http://www.elsevier.com/xml/ani/common" schemaLocation="xocs-ani513-ce.xsd"/>
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xocs-ani513-xml.xsd"/>
+	<xs:import namespace="http://www.elsevier.com/xml/ani/ani" schemaLocation="xocs-ani513-ani-ce.xsd"/>
+	<xs:import namespace="http://www.elsevier.com/xml/cto/dtd" schemaLocation="xocs-ani513-cto.xsd"/>
+
+	<xs:element name="doc" type="xocs:doc-tp"/>
+
+	<xs:complexType name="doc-tp">
+		<xs:sequence>
+			<xs:element name="meta" type="xocs:meta-tp"/>
+			<xs:element name="item" type="xocs:item-tp"/>
+			<!-- xs:element ref="xocs:item"/ -->
+		</xs:sequence>
+		<xs:attribute name="content-type" type="xocs:content-type-tp" use="required"/>
+		<xs:attribute name="dbname" type="xocs:dbname-tp" use="required"/>
+	</xs:complexType>
+
+	<xs:simpleType name="content-type-tp">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Abstract"/>
+			<xs:enumeration value="journal"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="dbname-tp">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="scopusbase"/>
+			<xs:enumeration value="econlit"/>
+			<xs:enumeration value="psycinfo"/>
+			<xs:enumeration value="medline"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="meta-tp">
+		<xs:sequence>
+			<xs:element name="eid" type="xocs:nonEmptyString" nillable="false"/>
+			<xs:element name="oeid" type="xs:string"/>
+			<xs:element name="doi" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="pmid" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="online-status" type="xocs:online-status-tp"/>
+			<xs:element name="pui" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="pii" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="fulltext-eid" type="xocs:fulltext-eid-tp" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="sdfullavail" type="xs:integer"/>
+			<xs:element name="issn" type="xs:string"/>
+			<xs:element name="volume" type="xs:string"/>
+			<xs:element name="issue" type="xs:string"/>
+			<xs:element name="author-surname" type="xs:string"/>
+			<xs:element name="author-fi" type="xs:string"/>
+			<xs:element name="firstpage" type="xs:string"/>
+			<xs:element name="lastpage" type="xs:string"/>
+			<xs:element name="sort-year" type="xs:string"/>
+			<xs:element name="sort-yyyymm" type="xs:string"/>
+			<xs:element name="pub-year" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="timestamp" type="xocs:date-time-tp" nillable="false"/>
+			<xs:element name="orig-load-date" type="xocs:date-tp" nillable="false"/>
+			<xs:element name="datesort" type="xs:integer" nillable="false"/>
+			<xs:element name="indexeddate" type="xocs:indexed-date-tp"/>
+			<xs:element name="absavail" type="xs:integer"/>
+			<xs:element name="suppressdummy" type="xocs:yes-no-string-tp"/>
+			<xs:element name="srctype" type="xs:string"/>
+			<xs:element name="subjareas" type="xocs:subj-areas-tp" minOccurs="0"/>
+			<xs:element name="srctitle" type="xs:string"/>
+			<xs:element name="countries" type="xocs:countries-tp" minOccurs="0"/>
+			<xs:element name="languages" type="xocs:languages-tp" minOccurs="0"/>
+			<xs:element name="prefnameauids" type="xocs:prefnameauids-tp" minOccurs="0"/>
+			<xs:element name="open-access" type="xocs:open-access-type" minOccurs="0"/>
+			<xs:element name="funding-list" type="xocs:funding-addon-type" minOccurs="0"/>
+			<xs:element ref="cto:doctype" maxOccurs="unbounded"/>
+			<xs:element ref="cto:group-id"/>
+			<xs:element ref="cto:ref-id" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="cto:unique-author" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="cto:unique-auth-count"/>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<!-- the following simple type states that the content must be a string with atleast one non Whitespace character -->
+	<xs:simpleType name="nonEmptyString">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:whiteSpace value="collapse"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="online-status-tp">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="available"/>
+			<xs:enumeration value="unavailable"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- fulltext-eid score -->
+	<xs:complexType name="fulltext-eid-tp">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="score" use="required" type="xs:string"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+
+	<!-- ========== Citation types ==========
+        ab  Abstract Report
+        ar  Article
+        ba
+        bk  Book
+        br  Book Review
+        bz  Business Article
+        cb  Conference Abstract
+        ch  Chapter
+        cp  Conference Paper
+        cr  Conference Review
+        di  Dissertation
+        ed  Editorial
+        er  Erratum
+        ip  Article in Press
+        le  Letter
+        no  Note
+        pa  Patent
+        pr  Press Release
+        re  Review
+        rf
+        rp  Report
+        sh  Short Survey
+        tb  Tombstone
+        wp  Working Paper
+    -->
+	<xs:simpleType name="citationtype.att">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="ab"/>
+			<xs:enumeration value="ar"/>
+			<xs:enumeration value="ba"/>
+			<xs:enumeration value="bk"/>
+			<xs:enumeration value="br"/>
+			<xs:enumeration value="bz"/>
+			<xs:enumeration value="cb"/>
+			<xs:enumeration value="ch"/>
+			<xs:enumeration value="cp"/>
+			<xs:enumeration value="cr"/>
+			<xs:enumeration value="di"/>
+			<xs:enumeration value="ed"/>
+			<xs:enumeration value="er"/>
+			<xs:enumeration value="ip"/>
+			<xs:enumeration value="le"/>
+			<xs:enumeration value="no"/>
+			<xs:enumeration value="pa"/>
+			<xs:enumeration value="pr"/>
+			<xs:enumeration value="re"/>
+			<xs:enumeration value="rf"/>
+			<xs:enumeration value="rp"/>
+			<xs:enumeration value="sh"/>
+			<xs:enumeration value="st"/>
+			<xs:enumeration value="tb"/>
+			<xs:enumeration value="wp"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+
+	<!-- ========== GenCitation types ==========
+        bk  Book
+        ch  Chapter
+        co  Conference Proceeding
+        cp  Conference Paper
+        di  Dissertation
+        ep  E-print
+        ot  Other
+        pa  Patent
+        st  Standard
+        tr  Technical Report
+    -->
+	<xs:simpleType name="gencitationtype.att">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="bk"/>
+			<xs:enumeration value="ch"/>
+			<xs:enumeration value="co"/>
+			<xs:enumeration value="cp"/>
+			<xs:enumeration value="di"/>
+			<xs:enumeration value="ep"/>
+			<xs:enumeration value="ot"/>
+			<xs:enumeration value="pa"/>
+			<xs:enumeration value="st"/>
+			<xs:enumeration value="tr"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- ========== Sequencebank types ==========
+    -->
+	<xs:simpleType name="sequencebanktype.att">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="DDBJ"/>
+			<xs:enumeration value="EMBL"/>
+			<xs:enumeration value="GENBANK"/>
+			<xs:enumeration value="PIR"/>
+			<xs:enumeration value="SWISSPROT"/>
+			<xs:enumeration value="UNNAMED"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- ========== Descriptor types ==========
+    -->
+	<xs:simpleType name="descriptortype.att">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="AUD"/>
+			<xs:enumeration value="AUT"/>
+			<xs:enumeration value="BLS"/>
+			<xs:enumeration value="BTC"/>
+			<xs:enumeration value="CBA"/>
+			<xs:enumeration value="CBB"/>
+			<xs:enumeration value="CBC"/>
+			<xs:enumeration value="CBE"/>
+			<xs:enumeration value="CCV"/>
+			<xs:enumeration value="CFL"/>
+			<xs:enumeration value="CLU"/>
+			<xs:enumeration value="CMH"/>
+			<xs:enumeration value="CNC"/>
+			<xs:enumeration value="CSL"/>
+			<xs:enumeration value="CSS"/>
+			<xs:enumeration value="CSW"/>
+			<xs:enumeration value="CTB"/>
+			<xs:enumeration value="CTC"/>
+			<xs:enumeration value="CTN"/>
+			<xs:enumeration value="DID"/>
+			<xs:enumeration value="DRA"/>
+			<xs:enumeration value="DRG"/>
+			<xs:enumeration value="ECN"/>
+			<xs:enumeration value="FDE"/>
+			<xs:enumeration value="GDE"/>
+			<xs:enumeration value="GLY"/>
+			<xs:enumeration value="KWD"/>
+			<xs:enumeration value="MEA"/>
+			<xs:enumeration value="MED"/>
+			<xs:enumeration value="MGS"/>
+			<xs:enumeration value="MKW"/>
+			<xs:enumeration value="MLA"/>
+			<xs:enumeration value="MMS"/>
+			<xs:enumeration value="MSC"/>
+			<xs:enumeration value="MSF"/>
+			<xs:enumeration value="MSH"/>
+			<xs:enumeration value="MUD"/>
+			<xs:enumeration value="OZR"/>
+			<xs:enumeration value="PCV"/>
+			<xs:enumeration value="REA"/>
+			<xs:enumeration value="RGI"/>
+			<xs:enumeration value="SID"/>
+			<xs:enumeration value="SPC"/>
+			<xs:enumeration value="SPO"/>
+			<xs:enumeration value="SUA"/>
+			<xs:enumeration value="TRP"/>
+			<xs:enumeration value="WDE"/>
+			<xs:enumeration value="SCO"/>
+			<xs:enumeration value="SCT"/>
+			<xs:enumeration value="IBT"/>
+			<xs:enumeration value="IGI"/>
+			<xs:enumeration value="SCC"/>
+			<xs:enumeration value="MDV"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- ========== Classification types ==========
+    -->
+	<xs:simpleType name="classificationtype.att">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="ASJC"/>
+			<xs:enumeration value="AUTARC-CONFIGURATION"/>
+			<xs:enumeration value="CABSCLASS"/>
+			<xs:enumeration value="CBNBGEO"/>
+			<xs:enumeration value="CBNBSCOPE"/>
+			<xs:enumeration value="CBNBSECTOR"/>
+			<xs:enumeration value="CBNBSIC"/>
+			<xs:enumeration value="CONFIGURATION-VALUE"/>
+			<xs:enumeration value="CPXCLASS"/>
+			<xs:enumeration value="EMCLASS"/>
+			<xs:enumeration value="ESBD"/>
+			<xs:enumeration value="COMPASSCLASS"/>
+			<xs:enumeration value="ENCOMPASSCLASS"/>
+			<xs:enumeration value="FLXCLASS"/>
+			<xs:enumeration value="GEOCLASS"/>
+			<xs:enumeration value="PATAUTO"/>
+			<xs:enumeration value="PATENT-FAMILY"/>
+			<xs:enumeration value="PATMANU"/>
+			<xs:enumeration value="REAXYS-PRIORITY"/>
+			<xs:enumeration value="SATURATION"/>
+			<xs:enumeration value="SUBJECT"/>
+			<xs:enumeration value="SUPPORT-INFORMATION"/>
+			<xs:enumeration value="WTACLASS"/>
+			<xs:enumeration value="SUBJABBR"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- ========== Tradename types ==========
+    -->
+	<xs:simpleType name="tradenametype.att">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="TNM"/>
+			<xs:enumeration value="TNV"/>
+			<xs:enumeration value="TNW"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- ========== Manufacturer types ==========
+    -->
+	<xs:simpleType name="manufacturertype.att">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="MNF"/>
+			<xs:enumeration value="MNV"/>
+			<xs:enumeration value="MNW"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- ========== Chemical source types ==========
+    -->
+	<xs:simpleType name="chemicalsourcetype.att">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="esbd"/>
+			<xs:enumeration value="nlm"/>
+			<xs:enumeration value="cbnb"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- ========== Source Types ==========
+        b  Book
+        d  Trade Journal
+        j  Journal
+        k  Book Series
+        m  Multi-volume Reference Works
+        p  Conference Proceeding
+        r  Report
+        n  Newsletter
+        w  Newspaper
+    -->
+	<xs:simpleType name="sourcetype.att">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="b"/>
+			<xs:enumeration value="d"/>
+			<xs:enumeration value="j"/>
+			<xs:enumeration value="k"/>
+			<xs:enumeration value="m"/>
+			<xs:enumeration value="p"/>
+			<xs:enumeration value="r"/>
+			<xs:enumeration value="n"/>
+			<xs:enumeration value="w"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- ========== Contributor Roles ==========
+        auth  author
+        comp  compiler
+        edit  editor
+        illu  illustrator
+        phot  photographer
+        publ  publisher
+        revi  reviewer
+        tran  translator
+    -->
+	<xs:simpleType name="contributorrole.att">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="auth"/>
+			<xs:enumeration value="comp"/>
+			<xs:enumeration value="edit"/>
+			<xs:enumeration value="illu"/>
+			<xs:enumeration value="phot"/>
+			<xs:enumeration value="publ"/>
+			<xs:enumeration value="revi"/>
+			<xs:enumeration value="tran"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="yesno.att">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="y"/>
+			<xs:enumeration value="n"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:group name="pubdateType">
+		<xs:sequence>
+			<xs:element name="year" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:element name="month" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:element name="day" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:element name="date-text" type="xocs:date-text-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:group>
+	<!--xs:group name="pubdateType">
+		<xs:sequence>
+			<xs:sequence minOccurs="0" maxOccurs="1">
+				<xs:element name="year" type="xs:string" form="unqualified"/>
+				<xs:choice minOccurs="0">
+					<xs:sequence>
+						<xs:element name="month" type="xs:string" form="unqualified"/>
+						<xs:element name="day" type="xs:string" minOccurs="0" form="unqualified"/>
+					</xs:sequence>
+				</xs:choice>
+			</xs:sequence>
+			<xs:element name="date-text" type="xocs:date-text-tp" form="unqualified"/>
+		</xs:sequence>
+	</xs:group-->
+
+	<xs:complexType name="date-text-tp" mixed="true">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="xfab-added" use="optional" type="xs:boolean"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="personalnameType">
+		<xs:sequence>
+			<xs:element minOccurs="0" ref="ce:initials"/>
+			<xs:element minOccurs="0" ref="ce:indexed-name"/>
+			<xs:choice minOccurs="0">
+				<xs:sequence>
+					<xs:element minOccurs="0" ref="ce:degrees"/>
+					<xs:element ref="ce:surname"/>
+					<xs:element minOccurs="0" ref="ce:given-name"/>
+					<xs:element minOccurs="0" ref="ce:suffix"/>
+					<xs:element minOccurs="0" ref="ce:alt-name"/>
+				</xs:sequence>
+				<xs:element name="nametext" type="xs:string" form="unqualified"/>
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute name="author-instance-id" type="xs:NMTOKEN"/>
+	</xs:complexType>
+
+	<xs:complexType name="affiliationIdType">
+		<xs:attribute name="afid" type="xs:positiveInteger"/>
+		<xs:attribute name="dptid" type="xs:positiveInteger" use="optional"/>
+	</xs:complexType>
+
+
+	<xs:complexType name="affiliationType">
+		<xs:sequence>
+			<xs:choice>
+				<xs:element ref="ce:text"/>
+				<xs:sequence>
+					<xs:element name="organization" type="xocs:organization-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+					<xs:element name="address-part" type="xocs:address-part-tp" minOccurs="0" form="unqualified"/>
+					<xs:choice minOccurs="0">
+						<xs:element name="city-group" type="xs:string" form="unqualified"/>
+						<xs:sequence>
+							<xs:element name="city" type="xs:string" minOccurs="0" form="unqualified"/>
+							<xs:element name="state" type="xs:string" minOccurs="0" form="unqualified"/>
+							<xs:element name="postal-code" type="xocs:postal-code-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+						</xs:sequence>
+					</xs:choice>
+				</xs:sequence>
+			</xs:choice>
+			<xs:element name="affiliation-id" minOccurs="0" maxOccurs="unbounded" type="xocs:affiliationIdType" form="unqualified"/>
+			<xs:element name="country" type="xs:string" minOccurs="0" maxOccurs="1" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="affiliation-instance-id" type="xs:NMTOKEN"/>
+	</xs:complexType>
+
+	<xs:complexType name="classification-tp" mixed="true">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="classification-code" type="xs:string" form="unqualified"/>
+			<xs:element name="classification-description" type="xs:string" form="unqualified"/>
+		</xs:choice>
+		<xs:attribute name="weight">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="-"/>
+					<xs:enumeration value="?"/>
+					<xs:enumeration value="+"/>
+					<xs:enumeration value="++"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<!-- ========== Wrapper and process info ========== -->
+
+	<xs:complexType name="item-tp">
+		<xs:sequence>
+			<xs:element name="item" type="xocs:origItem-tp" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="origItem-tp">
+		<xs:sequence>
+			<xs:element ref="ait:process-info"/>
+			<xs:element name="bibrecord" type="xocs:bibrecord-tp" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="bibrecord-tp">
+		<xs:sequence>
+			<xs:element name="item-info" type="xocs:item-info-tp" form="unqualified"/>
+			<xs:element name="itemfilelinks" type="xocs:itemfilelinks-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="head" type="xocs:head-tp" form="unqualified"/>
+			<xs:element name="tail" type="xocs:tail-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- ========== Bibliographic record ========== -->
+
+	<xs:complexType name="item-info-tp">
+		<xs:sequence>
+			<xs:element name="copyright" type="xocs:copyright-tp" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="itemidlist" type="xocs:itemidlist-tp" form="unqualified"/>
+			<xs:element name="history" type="xocs:history-tp" form="unqualified"/>
+			<xs:element name="dbcollection" type="xs:string" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="external-source" type="xs:string" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="itemfilelinks-tp">
+		<xs:sequence>
+			<xs:element name="itemfilelink" type="xocs:itemfilelink-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="itemfilelink-tp">
+		<xs:attribute name="href" use="required"/>
+		<xs:attribute name="MIME-type"/>
+	</xs:complexType>
+
+	<xs:complexType name="copyright-tp" mixed="true">
+		<xs:attribute name="type"/>
+	</xs:complexType>
+
+	<xs:complexType name="itemidlist-tp">
+		<xs:sequence>
+			<xs:element ref="ce:pii" minOccurs="0" maxOccurs="1"/>
+			<xs:element ref="ce:doi" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="itemid" type="xocs:itemid-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="itemid-tp" mixed="true">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="idtype" type="xs:NMTOKEN" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<!-- Item history elements -->
+
+	<xs:complexType name="history-tp">
+		<xs:sequence>
+			<xs:element name="date-created" type="xocs:date-created-tp" form="unqualified"/>
+			<xs:element name="date-completed" type="xocs:date-completed-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="date-revised" type="xocs:date-revised-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="date-created-tp">
+		<xs:attributeGroup ref="ce:date.att"/>
+	</xs:complexType>
+	<xs:complexType name="date-completed-tp">
+		<xs:attributeGroup ref="ce:date.att"/>
+	</xs:complexType>
+
+	<xs:complexType name="date-revised-tp">
+		<xs:simpleContent>
+			<xs:extension base="xocs:date-content-tp">
+				<xs:attribute name="year" type="xs:NMTOKEN" use="required"/>
+				<xs:attribute name="month" type="xs:NMTOKEN" use="required"/>
+				<xs:attribute name="day" type="xs:NMTOKEN" use="required"/>
+				<xs:attribute name="timestamp" type="xs:dateTime" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:simpleType name="date-content-tp">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(.{0})|([0-9]{8})"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- ========== head ========== -->
+
+	<xs:complexType name="head-tp">
+		<xs:sequence>
+			<xs:element name="citation-info" type="xocs:citation-info-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="related-item" type="xocs:related-item-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="citation-title" type="xocs:citation-title-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="author-group" type="xocs:author-group-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="correspondence" type="xocs:correspondence-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="grantlist" type="xocs:grantlist-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="abstracts" type="xocs:abstracts-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="source" type="xocs:source-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="enhancement" type="xocs:enhancement-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Citation elements -->
+	<xs:complexType name="citation-info-tp">
+		<xs:sequence>
+			<xs:element name="citation-type" type="xocs:citation-type-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="citation-language" type="xocs:citation-language-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="abstract-language" type="xocs:abstract-language-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="patent" type="xocs:patent-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="author-keywords" type="xocs:author-keywords-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="dummy-link" type="xocs:dummy-link-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="figure-information" type="xs:string" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="citation-type-tp">
+		<xs:attribute name="code" use="required" type="xocs:citationtype.att"/>
+	</xs:complexType>
+	<xs:complexType name="citation-language-tp">
+		<xs:attribute ref="xml:lang" use="required"/>
+		<xs:attribute name="language" use="required" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="abstract-language-tp">
+		<xs:attribute ref="xml:lang" use="required"/>
+		<xs:attribute name="language" use="required" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="author-keywords-tp">
+		<xs:sequence>
+			<xs:element name="author-keyword" type="xocs:author-keyword-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="author-keyword-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+		<xs:attribute name="perspective"/>
+		<xs:attribute ref="xml:lang" default="eng"/>
+		<xs:attribute name="original" type="xocs:yesno.att"/>
+	</xs:complexType>
+	<xs:complexType name="dummy-link-tp">
+		<xs:sequence>
+			<xs:element name="gen-citationtype" type="xocs:gen-citationtype-tp" form="unqualified"/>
+			<xs:element name="itemlink" type="xs:string" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="restricted-access" type="xocs:yesno.att" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="gen-citationtype-tp">
+		<xs:attribute name="code" use="required" type="xocs:gencitationtype.att"/>
+	</xs:complexType>
+
+	<xs:complexType name="related-item-tp">
+		<xs:sequence>
+			<xs:element minOccurs="0" ref="ce:pii"/>
+			<xs:element minOccurs="0" ref="ce:doi"/>
+			<xs:element name="itemid" type="xocs:itemid-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="citation-info" type="xocs:citation-info-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="citation-title" type="xocs:citation-title-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="contributor-group" type="xocs:contributor-group-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="source" type="xocs:source-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="type" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="citation-title-tp">
+		<xs:sequence>
+			<xs:element name="titletext" type="xocs:titletext-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="titletext-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+		<xs:attribute name="perspective"/>
+		<xs:attribute ref="xml:lang" default="eng"/>
+		<xs:attribute name="language" type="xs:string"/>
+		<xs:attribute name="original" type="xocs:yesno.att"/>
+	</xs:complexType>
+	<xs:complexType name="contributor-group-tp">
+		<xs:sequence>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="contributor" type="xocs:contributor-tp" form="unqualified"/>
+				<xs:element name="collaboration" type="xocs:collaboration-tp" form="unqualified"/>
+			</xs:choice>
+			<xs:element name="et-al" type="xocs:et-al-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="affiliation" type="xocs:affiliation-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="contributor-tp">
+		<xs:complexContent>
+			<xs:extension base="xocs:personalnameType">
+				<xs:sequence>
+					<xs:element minOccurs="0" ref="ce:e-address"/>
+				</xs:sequence>
+				<xs:attribute name="role" use="required" type="xocs:contributorrole.att"/>
+				<xs:attribute name="auid"/>
+				<xs:attribute name="seq" use="required"/>
+				<xs:attribute name="type"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<!-- AuthorGroup elements -->
+
+	<xs:complexType name="author-group-tp">
+		<xs:sequence>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="author" type="xocs:author-tp" form="unqualified"/>
+				<xs:element name="collaboration" type="xocs:collaboration-tp" form="unqualified"/>
+			</xs:choice>
+			<xs:element name="et-al" type="xocs:et-al-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="affiliation" type="xocs:affiliation-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="author-tp">
+		<xs:complexContent>
+			<xs:extension base="xocs:personalnameType">
+				<xs:sequence>
+					<xs:element name="preferred-name" type="xocs:personalnameType" minOccurs="0" form="unqualified"/>
+					<xs:element minOccurs="0" ref="ce:e-address"/>
+				</xs:sequence>
+				<xs:attribute name="auid"/>
+				<xs:attribute name="seq" use="required"/>
+				<xs:attribute name="type"/>
+				<xs:attribute name="orcid"/>
+				<xs:attribute name="date-locked" type="xs:dateTime"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="collaboration-tp">
+		<xs:sequence>
+			<xs:element ref="ce:indexed-name"/>
+			<xs:element ref="ce:text"/>
+		</xs:sequence>
+		<xs:attribute name="seq" use="required"/>
+		<xs:attribute name="collaboration-instance-id" type="xs:NMTOKEN"/>
+	</xs:complexType>
+	<xs:complexType name="et-al-tp"/>
+	<xs:complexType name="affiliation-tp">
+		<xs:complexContent>
+			<xs:extension base="xocs:affiliationType">
+				<xs:attribute name="afid"/>
+				<xs:attribute name="dptid"/>
+				<xs:attribute name="country"/>
+				<xs:attribute name="date-locked" type="xs:dateTime"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="organization-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+	<xs:complexType name="address-part-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+	<xs:complexType name="postal-code-tp" mixed="true">
+		<xs:attribute name="type">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="pre"/>
+					<xs:enumeration value="post"/>
+					<xs:enumeration value="zip"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="country-tp">
+		<xs:attribute name="iso-code" type="xocs:iso-code-tp" use="required"/>
+	</xs:complexType>
+
+	<!-- Correspondence Address elements -->
+
+	<xs:complexType name="correspondence-tp">
+		<xs:sequence>
+			<xs:element name="person" type="xocs:personalnameType" minOccurs="0" form="unqualified"/>
+			<xs:element name="affiliation" type="xocs:affiliation-tp" minOccurs="0" form="unqualified"/>
+			<xs:element minOccurs="0" ref="ce:e-address"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Grant elements -->
+
+	<xs:complexType name="grantlist-tp">
+		<xs:sequence>
+			<xs:element name="grant" type="xocs:grant-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="grant-text" type="xocs:grant-text-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="complete" default="y" type="xocs:yesno.att"/>
+	</xs:complexType>
+	<xs:complexType name="grant-tp">
+		<xs:sequence>
+			<xs:element name="grant-id" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:element name="grant-acronym" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:element name="grant-agency" type="xocs:grand-agency-tp" form="unqualified"/>
+			<xs:element name="grant-agency-id" type="xs:string" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- grand-agency -->
+	<xs:complexType name="grand-agency-tp" mixed="true">
+		<xs:attribute name="iso-code" use="optional" type="xocs:iso-code-tp"/>
+	</xs:complexType>
+
+	<xs:complexType name="grant-text-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+		<xs:attribute ref="xml:lang" default="eng"/>
+	</xs:complexType>
+
+	<!-- Source elements -->
+
+	<xs:complexType name="source-tp">
+		<xs:sequence>
+			<xs:element name="sourcetitle" type="xocs:sourcetitle-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="preferred-sourcetitle" type="xocs:preferred-sourcetitle-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="sourcetitle-abbrev" type="xocs:sourcetitle-abbrev-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="translated-sourcetitle" type="xocs:translated-sourcetitle-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="volumetitle" type="xocs:volumetitle-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="issuetitle" type="xocs:issuetitle-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="issue-designation" type="xocs:issue-designation-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="issn" type="xocs:issn-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="isbn" type="xocs:isbn-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="codencode" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:element name="part" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:element name="volisspag" type="xocs:volisspag-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="article-number" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:element name="publicationyear" type="xocs:publicationyear-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="publicationdate" type="xocs:publicationdate-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="website" type="xocs:website-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="contributor-group" type="xocs:contributor-group-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="editors" type="xocs:editors-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="publisher" type="xocs:publisher-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="additional-srcinfo" type="xocs:additional-srcinfo-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="bib-text" type="xs:string" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="srcid"/>
+		<xs:attribute name="type" type="xocs:sourcetype.att"/>
+		<xs:attribute name="country"/>
+	</xs:complexType>
+
+	<xs:complexType name="sourcetitle-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+		<xs:attribute name="xfab-added" use="optional" type="xs:boolean"/>
+	</xs:complexType>
+	<xs:complexType name="preferred-sourcetitle-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+	<xs:complexType name="sourcetitle-abbrev-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+	<xs:complexType name="translated-sourcetitle-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+		<xs:attribute ref="xml:lang"/>
+	</xs:complexType>
+	<xs:complexType name="volumetitle-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+	<xs:complexType name="issuetitle-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+	<xs:complexType name="issue-designation-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+
+	<xs:complexType name="issn-tp" mixed="true">
+		<xs:attribute name="type">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="print"/>
+					<xs:enumeration value="electronic"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="isbn-tp" mixed="true">
+		<xs:attribute name="type"/>
+		<xs:attribute name="length">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="10"/>
+					<xs:enumeration value="13"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="level">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="set"/>
+					<xs:enumeration value="volume"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="volisspag-tp">
+		<xs:choice>
+			<xs:sequence>
+				<xs:element name="voliss" type="xocs:voliss-tp" form="unqualified"/>
+				<xs:element name="supplement" type="xs:string" minOccurs="0" form="unqualified"/>
+				<xs:choice minOccurs="0">
+					<xs:element name="pagerange" type="xocs:pagerange-tp" form="unqualified"/>
+					<xs:element name="pages" type="xs:string" form="unqualified"/>
+				</xs:choice>
+				<xs:element name="pagecount" type="xocs:pagecount-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			</xs:sequence>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element name="pagerange" type="xocs:pagerange-tp" form="unqualified"/>
+					<xs:element name="pages" type="xs:string" form="unqualified"/>
+					<xs:element name="pagecount" type="xocs:pagecount-tp" form="unqualified"/>
+				</xs:choice>
+				<xs:element name="pagecount" type="xocs:pagecount-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			</xs:sequence>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="voliss-tp">
+		<xs:attribute name="volume"/>
+		<xs:attribute name="issue"/>
+	</xs:complexType>
+
+	<xs:complexType name="pagerange-tp">
+		<xs:attribute name="first" use="required"/>
+		<xs:attribute name="last"/>
+	</xs:complexType>
+	<xs:complexType name="pagecount-tp" mixed="true">
+		<xs:attribute name="type" default="arabic">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="arabic"/>
+					<xs:enumeration value="roman"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="publicationyear-tp">
+		<xs:attribute name="first" use="required"/>
+		<xs:attribute name="last"/>
+	</xs:complexType>
+	<xs:complexType name="publicationdate-tp">
+		<xs:sequence>
+			<xs:group ref="xocs:pubdateType"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="website-tp">
+		<xs:choice>
+			<xs:sequence>
+				<xs:element name="websitename" type="xs:string" form="unqualified"/>
+				<xs:element minOccurs="0" ref="ce:e-address"/>
+			</xs:sequence>
+			<xs:element ref="ce:e-address"/>
+		</xs:choice>
+		<xs:attribute name="type">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="item"/>
+					<xs:enumeration value="source"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="editors-tp">
+		<xs:sequence>
+			<xs:element name="editor" type="xocs:editor-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="complete" type="xocs:yesno.att" default="y"/>
+	</xs:complexType>
+	<xs:complexType name="editor-tp">
+		<xs:complexContent>
+			<xs:extension base="xocs:personalnameType">
+				<xs:attribute name="role"/>
+				<xs:attribute name="type"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="publisher-tp">
+		<xs:sequence>
+			<xs:element name="publishername" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:choice minOccurs="0">
+				<xs:element name="publisheraddress" type="xs:string" form="unqualified"/>
+				<xs:element name="affiliation" type="xocs:affiliation-tp" form="unqualified"/>
+			</xs:choice>
+			<xs:element minOccurs="0" ref="ce:e-address"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="additional-srcinfo-tp">
+		<xs:sequence>
+			<xs:element name="secondaryjournal" type="xocs:secondaryjournal-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="conferenceinfo" type="xocs:conferenceinfo-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="reportinfo" type="xocs:reportinfo-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="secondaryjournal-tp">
+		<xs:sequence>
+			<xs:element name="sourcetitle" type="xocs:sourcetitle-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="sourcetitle-abbrev" type="xocs:sourcetitle-abbrev-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="issn" type="xocs:issn-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="publicationyear" type="xocs:publicationyear-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="publicationdate" type="xocs:publicationdate-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="voliss" type="xocs:voliss-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="conferenceinfo-tp">
+		<xs:sequence>
+			<xs:element name="confevent" type="xocs:confevent-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="confpublication" type="xocs:confpublication-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="confevent-tp">
+		<xs:sequence>
+			<xs:element name="confname" type="xocs:confname-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="confnumber" type="xocs:confnumber-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="conftheme" type="xocs:conftheme-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="confseriestitle" type="xocs:confseriestitle-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="conflocation" type="xocs:conflocation-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="confdate" type="xocs:confdate-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="conforganization" type="xocs:conforganization-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="confURL" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:element name="confcatnumber" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:element name="confcode" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:element name="confsponsors" type="xocs:confsponsors-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="confname-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+	<xs:complexType name="confnumber-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+	<xs:complexType name="conftheme-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+	<xs:complexType name="confseriestitle-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+	<xs:complexType name="conflocation-tp">
+		<xs:sequence>
+			<xs:element name="venue" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:element name="address-part" type="xocs:address-part-tp" minOccurs="0" form="unqualified"/>
+			<xs:choice minOccurs="0">
+				<xs:element name="city-group" type="xs:string" form="unqualified"/>
+				<xs:sequence>
+					<xs:element name="city" type="xs:string" minOccurs="0" form="unqualified"/>
+					<xs:element name="state" type="xs:string" minOccurs="0" form="unqualified"/>
+					<xs:element name="postal-code" type="xocs:postal-code-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+				</xs:sequence>
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute name="country"/>
+	</xs:complexType>
+	<xs:complexType name="confdate-tp">
+		<xs:choice>
+			<xs:sequence>
+				<xs:element name="startdate" type="xocs:startdate-tp" form="unqualified"/>
+				<xs:element name="enddate" type="xocs:enddate-tp" minOccurs="0" form="unqualified"/>
+			</xs:sequence>
+			<xs:element name="date-text" type="xocs:date-text-tp" form="unqualified"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="startdate-tp">
+		<xs:attributeGroup ref="ce:date.att"/>
+	</xs:complexType>
+	<xs:complexType name="enddate-tp">
+		<xs:attributeGroup ref="ce:date.att"/>
+	</xs:complexType>
+	<xs:complexType name="conforganization-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+	<xs:complexType name="confsponsors-tp">
+		<xs:sequence>
+			<xs:element name="confsponsor" type="xs:string" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="complete" type="xocs:yesno.att" default="y"/>
+	</xs:complexType>
+	<xs:complexType name="confpublication-tp">
+		<xs:sequence>
+			<xs:element name="confeditors" type="xocs:confeditors-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="procpartno" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:element name="procpagerange" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:element name="procpagecount" type="xs:string" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="confeditors-tp">
+		<xs:sequence>
+			<xs:element name="editors" type="xocs:editors-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="editororganization" type="xs:string" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="editoraddress" type="xs:string" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="reportinfo-tp">
+		<xs:sequence>
+			<xs:element name="reportnumber" type="xs:string" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Patent elements -->
+
+	<xs:complexType name="patent-tp">
+		<xs:sequence>
+			<xs:element name="registrations" type="xocs:registrations-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="localapplications" type="xocs:localapplications-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="prioapplications" type="xocs:prioapplications-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="assignees" type="xocs:assignees-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="designatedcountries" type="xocs:designatedcountries-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="ipc-codes" type="xocs:ipc-codes-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="inventors" type="xocs:inventors-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="registrations-tp">
+		<xs:sequence>
+			<xs:element name="registration" type="xs:string" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="localapplications-tp">
+		<xs:sequence>
+			<xs:element name="localapplication" type="xs:string" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="prioapplications-tp">
+		<xs:sequence>
+			<xs:element name="prioapplication" type="xs:string" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="assignees-tp">
+		<xs:sequence>
+			<xs:element name="assignee" type="xs:string" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="designatedcountries-tp">
+		<xs:sequence>
+			<xs:element name="country" type="xocs:country-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ipc-codes-tp">
+		<xs:sequence>
+			<xs:element name="ipc-code" type="xs:string" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="seq" type="xs:positiveInteger"/>
+	</xs:complexType>
+
+	<xs:complexType name="inventors-tp">
+		<xs:sequence>
+			<xs:element name="inventor" type="xs:string" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- ========== Abstract elements ========== -->
+
+	<xs:complexType name="abstracts-tp">
+		<xs:sequence>
+			<xs:element name="abstract" type="xocs:abstract-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="abstract-tp">
+		<xs:sequence>
+			<xs:element name="publishercopyright" type="xocs:publishercopyright-tp" minOccurs="0" form="unqualified"/>
+			<xs:element maxOccurs="unbounded" ref="ce:para"/>
+		</xs:sequence>
+		<xs:attribute name="perspective"/>
+		<xs:attribute ref="xml:lang" default="eng"/>
+		<xs:attribute name="original" use="required" type="xocs:yesno.att"/>
+		<xs:attribute name="source"/>
+	</xs:complexType>
+	<xs:complexType name="publishercopyright-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+
+	<!-- ========== Enhancements elements ========== -->
+
+	<xs:complexType name="enhancement-tp">
+		<xs:sequence>
+			<xs:element name="patent" type="xocs:patent-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="descriptorgroup" type="xocs:descriptorgroup-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="API-descriptorgroup" type="xocs:API-descriptorgroup-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="classificationgroup" type="xocs:classificationgroup-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="manufacturergroup" type="xocs:manufacturergroup-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="tradenamegroup" type="xocs:tradenamegroup-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="sequencebanks" type="xocs:sequencebanks-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="chemicalgroup" type="xocs:chemicalgroup-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="status">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="001"/>
+					<xs:enumeration value="002"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="type">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="17"/>
+					<xs:enumeration value="8"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<!-- Descriptor elements -->
+
+	<xs:complexType name="descriptorgroup-tp">
+		<xs:sequence>
+			<xs:element name="descriptors" type="xocs:descriptors-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="descriptors-tp">
+		<xs:sequence>
+			<xs:element name="descriptor" type="xocs:descriptor-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="controlled" type="xocs:yesno.att" use="required"/>
+		<xs:attribute name="type" type="xocs:descriptortype.att" use="required"/>
+		<xs:attribute name="name"/>
+	</xs:complexType>
+	<xs:complexType name="descriptor-tp">
+		<xs:sequence>
+			<xs:element name="mainterm" type="xocs:mainterm-tp" form="unqualified"/>
+			<xs:sequence minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="link" type="xocs:link-tp" form="unqualified"/>
+				<xs:sequence minOccurs="0" maxOccurs="unbounded">
+					<xs:element name="sublink" type="xocs:sublink-tp" form="unqualified"/>
+					<xs:element name="subsublink" type="xocs:subsublink-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+				</xs:sequence>
+			</xs:sequence>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="mainterm-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+		<xs:attribute name="weight" default="b">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="a"/>
+					<xs:enumeration value="b"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="candidate" type="xocs:yesno.att" default="n"/>
+		<xs:attribute name="sort-pos"/>
+		<xs:attribute name="code"/>
+	</xs:complexType>
+	<xs:complexType name="link-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+		<xs:attribute name="linknr"/>
+	</xs:complexType>
+	<xs:complexType name="sublink-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+		<xs:attribute name="linknr"/>
+		<xs:attribute name="weight" default="not-defined">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="a"/>
+					<xs:enumeration value="b"/>
+					<xs:enumeration value="not-defined"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="subsublink-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+		<xs:attribute name="linknr"/>
+	</xs:complexType>
+
+	<!-- API descriptor group elements -->
+
+	<xs:complexType name="API-descriptorgroup-tp">
+		<xs:choice>
+			<xs:element name="autoposting" type="xocs:autoposting-tp" form="unqualified"/>
+			<xs:sequence>
+				<xs:element name="API-groups" type="xocs:API-groups-tp" form="unqualified"/>
+				<xs:element name="autoposting" type="xocs:autoposting-tp" minOccurs="0" form="unqualified"/>
+			</xs:sequence>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="API-groups-tp">
+		<xs:choice maxOccurs="unbounded">
+			<xs:element name="API-ATM-termgroup" type="xocs:API-ATM-termgroup-tp" form="unqualified"/>
+			<xs:element name="API-LTM-termgroup" type="xocs:API-LTM-termgroup-tp" form="unqualified"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="API-ATM-termgroup-tp">
+		<xs:sequence>
+			<xs:element name="ATM-template" type="xocs:ATM-template-tp" form="unqualified"/>
+			<xs:element name="API-term" type="xocs:API-term-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="ATM-Vgroup" type="xocs:ATM-Vgroup-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="ATM-Sgroup" type="xocs:ATM-Sgroup-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ATM-template-tp" mixed="true">
+		<xs:attribute name="template-role">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="A"/>
+					<xs:enumeration value="P"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="API-term-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+		<xs:attribute name="major-term-indicator">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="M"/>
+					<xs:enumeration value="N"/>
+					<xs:enumeration value="P"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="role">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="A"/>
+					<xs:enumeration value="I"/>
+					<xs:enumeration value="P"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="group-indicator"/>
+		<xs:attribute name="sort-pos"/>
+	</xs:complexType>
+	<xs:complexType name="ATM-Vgroup-tp">
+		<xs:sequence>
+			<xs:element name="API-term" type="xocs:API-term-tp" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="API-termgroup" type="xocs:API-termgroup-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ATM-Sgroup-tp">
+		<xs:sequence>
+			<xs:element name="API-term" type="xocs:API-term-tp" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="API-termgroup" type="xocs:API-termgroup-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="API-termgroup-tp">
+		<xs:sequence>
+			<xs:element name="API-term" type="xocs:API-term-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="API-LTM-termgroup-tp">
+		<xs:sequence>
+			<xs:element name="API-term" type="xocs:API-term-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="autoposting-tp">
+		<xs:sequence>
+			<xs:element name="API-CC" type="xocs:API-CC-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="API-LTM" type="xocs:API-LTM-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="API-ALC" type="xocs:API-ALC-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="API-ATM-group" type="xocs:API-ATM-group-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="API-AMS" type="xocs:API-AMS-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="API-APC" type="xocs:API-APC-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="API-ANC" type="xocs:API-ANC-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="API-AT" type="xocs:API-AT-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="API-CT" type="xocs:API-CT-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="API-LT" type="xocs:API-LT-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="API-CRN" type="xocs:API-CRN-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="API-CC-tp">
+		<xs:sequence>
+			<xs:element name="classification" type="xocs:classification-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="API-LTM-tp">
+		<xs:sequence>
+			<xs:element name="API-LTM-group" type="xocs:API-LTM-group-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="API-LTM-group-tp">
+		<xs:sequence>
+			<xs:element name="autoposting-term" type="xocs:autoposting-term-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="API-ALC-tp">
+		<xs:sequence>
+			<xs:element name="LTM-count" type="xs:string" form="unqualified"/>
+			<xs:element name="LT-count" type="xs:string" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="API-ATM-group-tp">
+		<xs:sequence>
+			<xs:element name="API-ATM" type="xocs:API-ATM-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="API-ATM-tp">
+		<xs:sequence>
+			<xs:element name="ATM-template" type="xocs:ATM-template-tp" form="unqualified"/>
+			<xs:element name="LT-count" type="xs:string" minOccurs="0" form="unqualified"/>
+			<xs:element name="API-term" type="xocs:API-term-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="ATM-Vgroup" type="xocs:ATM-Vgroup-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="ATM-Sgroup" type="xocs:ATM-Sgroup-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="API-AMS-tp">
+		<xs:sequence>
+			<xs:element name="API-term" type="xocs:API-term-tp" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="API-APC-tp">
+		<xs:sequence>
+			<xs:element name="API-term" type="xocs:API-term-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="API-ANC-tp">
+		<xs:sequence>
+			<xs:element name="API-term" type="xocs:API-term-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="API-AT-tp">
+		<xs:sequence>
+			<xs:element name="autoposting-term" type="xocs:autoposting-term-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="autoposting-term-tp" mixed="true">
+		<xs:attribute name="prefix"/>
+		<xs:attribute name="postfix"/>
+		<xs:attribute name="CAS-nr" default="n">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="n"/>
+					<xs:enumeration value="y"/>
+					<xs:enumeration value="b"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="API-CT-tp">
+		<xs:sequence>
+			<xs:element name="autoposting-term" type="xocs:autoposting-term-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="API-LT-tp">
+		<xs:sequence>
+			<xs:element name="autoposting-term" type="xocs:autoposting-term-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="API-CRN-tp">
+		<xs:sequence>
+			<xs:element name="autoposting-term" type="xocs:autoposting-term-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Classification elements -->
+
+	<xs:complexType name="classificationgroup-tp">
+		<xs:sequence>
+			<xs:element name="classifications" type="xocs:classifications-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="classifications-tp">
+		<xs:sequence>
+			<xs:element name="classification" type="xocs:classification-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="type" type="xocs:classificationtype.att" use="required"/>
+	</xs:complexType>
+
+	<!-- Manufacturer elements -->
+
+	<xs:complexType name="manufacturergroup-tp">
+		<xs:sequence>
+			<xs:element name="manufacturers" type="xocs:manufacturers-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="manufacturers-tp">
+		<xs:sequence>
+			<xs:element name="manufacturer" type="xocs:manufacturer-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="type" type="xocs:manufacturertype.att" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="manufacturer-tp" mixed="true">
+		<xs:attribute name="country"/>
+	</xs:complexType>
+
+	<!-- Tradename elements -->
+
+	<xs:complexType name="tradenamegroup-tp">
+		<xs:sequence>
+			<xs:element name="tradenames" type="xocs:tradenames-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="tradenames-tp">
+		<xs:sequence>
+			<xs:element name="trademanuitem" type="xocs:trademanuitem-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="type" type="xocs:tradenametype.att" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="trademanuitem-tp">
+		<xs:sequence>
+			<xs:element name="tradename" type="xs:string" form="unqualified"/>
+			<xs:element name="manufacturer" type="xocs:manufacturer-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- SequenceBankList elements -->
+
+	<xs:complexType name="sequencebanks-tp">
+		<xs:sequence>
+			<xs:element name="sequencebank" type="xocs:sequencebank-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="sequencebank-tp">
+		<xs:sequence>
+			<xs:element name="sequence-number" type="xocs:sequence-number-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="name" use="required" type="xocs:sequencebanktype.att"/>
+		<xs:attribute name="complete" type="xocs:yesno.att" default="y"/>
+	</xs:complexType>
+	<xs:complexType name="sequence-number-tp" mixed="true">
+		<xs:attributeGroup ref="xocs:sequence-number.attlist"/>
+	</xs:complexType>
+	<xs:attributeGroup name="sequence-number.attlist">
+		<xs:attribute name="type" default="referenced">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="submitted"/>
+					<xs:enumeration value="referenced"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:attributeGroup>
+
+	<!-- Chemical group elements -->
+
+	<xs:complexType name="chemicalgroup-tp">
+		<xs:sequence>
+			<xs:element name="chemicals" type="xocs:chemicals-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="chemicals-tp">
+		<xs:sequence>
+			<xs:element name="chemical" type="xocs:chemical-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="source" type="xocs:chemicalsourcetype.att" default="esbd"/>
+	</xs:complexType>
+	<xs:complexType name="chemical-tp">
+		<xs:sequence>
+			<xs:element name="chemical-name" type="xs:string" form="unqualified"/>
+			<xs:element name="cas-registry-number" type="xs:string" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+			<xs:element name="enzyme-commission-number" type="xs:string" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- ========== tail ========== -->
+
+	<xs:complexType name="tail-tp">
+		<xs:sequence>
+			<xs:element name="bibliography" type="xocs:bibliography-tp" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- ReferenceList elements -->
+
+	<xs:complexType name="bibliography-tp">
+		<xs:sequence>
+			<xs:element name="reference" type="xocs:reference-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+		<xs:attribute name="refcount" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="reference-tp">
+		<xs:sequence>
+			<xs:element name="ref-info" type="xocs:ref-info-tp" form="unqualified"/>
+			<xs:element name="ref-fulltext" type="xocs:ref-fulltext-tp" minOccurs="0" form="unqualified"/>
+			<!--xs:element name="refd-itemcitation" type="xocs:refd-itemcitation-tp" minOccurs="0" form="unqualified"/ -->
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:NMTOKEN"/>
+		<xs:attribute name="date-locked" type="xs:dateTime"/>
+	</xs:complexType>
+
+	<xs:complexType name="ref-info-tp">
+		<xs:sequence>
+			<xs:element name="ref-title" type="xocs:ref-title-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="refd-itemidlist" type="xocs:refd-itemidlist-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="ref-authors" type="xocs:ref-authors-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="ref-sourcetitle" type="xocs:ref-sourcetitle-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="ref-publicationyear" type="xocs:ref-publicationyear-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="ref-volisspag" type="xocs:ref-volisspag-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="ref-website" type="xocs:ref-website-tp" minOccurs="0" form="unqualified"/>
+			<xs:element name="ref-text" type="xocs:ref-text-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ref-title-tp">
+		<xs:sequence>
+			<xs:element name="ref-titletext" type="xocs:ref-titletext-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ref-titletext-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+	<xs:complexType name="refd-itemidlist-tp">
+		<xs:sequence>
+			<xs:element name="itemid" type="xocs:itemid-tp" maxOccurs="unbounded" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ref-authors-tp">
+		<xs:sequence>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="author" type="xocs:author-tp" form="unqualified"/>
+				<xs:element name="collaboration" type="xocs:collaboration-tp" form="unqualified"/>
+			</xs:choice>
+			<xs:element name="et-al" type="xocs:et-al-tp" minOccurs="0" form="unqualified"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ref-sourcetitle-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+	<xs:complexType name="ref-publicationyear-tp">
+		<xs:attribute name="first" use="required"/>
+		<xs:attribute name="last"/>
+	</xs:complexType>
+	<xs:complexType name="ref-volisspag-tp">
+		<xs:sequence>
+			<xs:element name="voliss" type="xocs:voliss-tp" minOccurs="0" form="unqualified"/>
+			<xs:choice minOccurs="0">
+				<xs:element name="pagerange" type="xocs:pagerange-tp" form="unqualified"/>
+				<xs:element name="pages" type="xs:string" form="unqualified"/>
+				<xs:element name="pagecount" type="xocs:pagecount-tp" form="unqualified"/>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ref-website-tp">
+		<xs:choice>
+			<xs:sequence>
+				<xs:element name="websitename" type="xs:string" form="unqualified"/>
+				<xs:element minOccurs="0" ref="ce:e-address"/>
+			</xs:sequence>
+			<xs:element ref="ce:e-address"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="ref-text-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+	<xs:complexType name="ref-fulltext-tp" mixed="true">
+		<xs:group minOccurs="0" maxOccurs="unbounded" ref="ani:richstring.data"/>
+	</xs:complexType>
+	<xs:complexType name="refd-itemcitation-tp">
+		<xs:choice>
+			<xs:sequence>
+				<xs:element minOccurs="0" ref="ce:pii"/>
+				<xs:element minOccurs="0" ref="ce:doi"/>
+				<xs:element name="citation-title" type="xocs:citation-title-tp" minOccurs="0" form="unqualified"/>
+				<xs:element name="author-group" type="xocs:author-group-tp" minOccurs="0" form="unqualified"/>
+				<xs:element name="sourcetitle" type="xocs:sourcetitle-tp" minOccurs="0" form="unqualified"/>
+				<xs:element name="sourcetitle-abbrev" type="xocs:sourcetitle-abbrev-tp" minOccurs="0" form="unqualified"/>
+				<xs:element name="issn" type="xocs:issn-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+				<xs:element name="isbn" type="xocs:isbn-tp" minOccurs="0" maxOccurs="unbounded" form="unqualified"/>
+				<xs:element name="codencode" type="xs:string" minOccurs="0" form="unqualified"/>
+				<xs:element name="part" type="xs:string" minOccurs="0" form="unqualified"/>
+				<xs:element name="publicationyear" type="xocs:publicationyear-tp" minOccurs="0" form="unqualified"/>
+				<xs:element name="volisspag" type="xocs:volisspag-tp" minOccurs="0" form="unqualified"/>
+				<xs:element name="article-number" type="xs:string" minOccurs="0" form="unqualified"/>
+				<xs:element name="website" type="xocs:website-tp" minOccurs="0" form="unqualified"/>
+			</xs:sequence>
+			<xs:element name="ref-text" type="xocs:ref-text-tp" form="unqualified"/>
+		</xs:choice>
+		<xs:attribute name="type"/>
+	</xs:complexType>
+
+	<xs:simpleType name="iso-code-tp">
+		<xs:restriction base="xs:token">
+			<xs:pattern value="[a-z]{3}"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="date-time-tp">
+		<xs:simpleContent>
+			<xs:extension base="xs:dateTime">
+				<xs:attribute name="yyyymmdd" type="xs:integer" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="date-tp">
+		<xs:simpleContent>
+			<xs:extension base="xs:date">
+				<xs:attribute name="yyyymmdd" type="xs:integer" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="indexed-date-tp">
+		<xs:simpleContent>
+			<xs:extension base="xs:dateTime">
+				<xs:attribute name="epoch" type="xs:integer" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:simpleType name="yes-no-string-tp">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="yes"/>
+			<xs:enumeration value="no"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="subj-areas-tp">
+		<xs:annotation>
+			<xs:documentation>Contains the subject area code.  There can be more than 1 subject area element.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="subjarea" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="countries-tp">
+		<xs:annotation>
+			<xs:documentation>Contains the country name.  There can be more than 1 country element.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="country" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="languages-tp">
+		<xs:annotation>
+			<xs:documentation>Contains the language name.  There can be more than 1 language element.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="language" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="prefnameauids-tp">
+		<xs:annotation>
+			<xs:documentation>Contains the prefnameauid name.  There can be more than 1 prefnameauid element.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="prefnameauid" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="funding-addon-type">
+		<xs:annotation>
+			<xs:documentation>Contains the funding addon information obtained from VTW.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="funding-source-document" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="source-document-type" type="xs:string" use="required"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="funding-addon-generated-timestamp" type="xs:string"/>
+			<xs:element name="funding-addon-type" type="xs:string" minOccurs="0"/>
+			<xs:element name="funding" type="xocs:funding-type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="funding-text" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="has-funding-info" type="xs:boolean" use="required"/>
+		<xs:attribute name="pui-match" type="xocs:pui-match-type" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="funding-type">
+		<xs:sequence>
+			<xs:element name="funding-agency-matched-string" type="xs:string" minOccurs="0"/>
+			<xs:element name="funding-id" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="funding-agency-acronym" type="xs:string" minOccurs="0"/>
+			<xs:element name="funding-agency" type="xs:string" minOccurs="0"/>
+			<xs:element name="funding-agency-id" type="xs:string" minOccurs="0"/>
+			<xs:element name="funding-agency-country" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="pui-match-type">
+		<xs:annotation>
+			<xs:documentation>indicates if the eid matching with pui has the pui as a primary or secondary pui.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="primary"/>
+			<xs:enumeration value="secondary"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="open-access-type">
+		<xs:annotation>
+			<xs:documentation>Contains the open-access information obtained from CrossRef.
+			                  Changed the "is-open-access type to string so '2' is allowed.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="oa-access-effective-date" minOccurs="0" type="xs:string"/>
+			<xs:element name="oa-article-status" minOccurs="0">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="is-open-access" type="xs:string" use="required"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="oa-user-license" minOccurs="0" type="xs:string"/>
+			<xs:element name="upw-open-access" type="xocs:upw-open-access-type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="upw-open-access-type">
+		<xs:annotation>
+			<xs:documentation>Contains the open-access information obtained from UPW (oaDOI)</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="upw-oa-article-status" minOccurs="0" type="xs:string"/>
+			<xs:element name="upw-timestamp" minOccurs="0" type="xs:string"/>
+			<xs:element name="upw-oa-journal-is-oa" minOccurs="0" type="xs:string"/>
+			<xs:element name="upw-oa-journal-is-in-doaj" minOccurs="0" type="xs:string"/>
+			<xs:element name="upw-best_oa_location" minOccurs="0" type="xocs:upw-oa_location-type"/>
+			<xs:element name="upw-oa_locations" minOccurs="0" type="xocs:upw-oa_locations-type"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="upw-oa_locations-type">
+
+		<xs:sequence>
+			<xs:element name="upw-oa_location" minOccurs="0" maxOccurs="unbounded" type="xocs:upw-oa_location-type"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="upw-oa_location-type">
+
+		<xs:sequence>
+			<xs:element name="upw-url" minOccurs="0" type="xs:string"/>
+			<xs:element name="upw-pmh_id" minOccurs="0" type="xs:string"/>
+			<xs:element name="upw-is_best" minOccurs="0" type="xs:string"/>
+			<xs:element name="upw-license" minOccurs="0" type="xs:string"/>
+			<xs:element name="upw-updated" minOccurs="0" type="xs:string"/>
+			<xs:element name="upw-version" minOccurs="0" type="xs:string"/>
+			<xs:element name="upw-evidence" minOccurs="0" type="xs:string"/>
+			<xs:element name="upw-host_type" minOccurs="0" type="xs:string"/>
+			<xs:element name="upw-url_for_pdf" minOccurs="0" type="xs:string"/>
+			<xs:element name="upw-url_for_landing_page" minOccurs="0" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

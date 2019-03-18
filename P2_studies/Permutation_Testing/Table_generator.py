@@ -57,7 +57,8 @@ def generate_table(data_set,number):
             reference_name=row['source_id']
             ll.append(row['reference_issn'])
             # cc.append(row['cited_source_uid'])
-            
+    no_of_pairs=((len(ll)*(len(ll)-1))/2)
+    source_values.extend([reference_name]*int(no_of_pairs))
     #print('Calculating pairs done')
 
     del(data_set)
