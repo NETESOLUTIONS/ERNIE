@@ -4,7 +4,7 @@
     <entry_points version="2.0" />
   </component>
   <component name="ProjectResources">
-    <resource url="http://www.elsevier.com/xml/xocs/dtd" location="$PROJECT_DIR$/SCOPUS/XML_Schemas/xocs-ani513.xsd" />
+    <resource url="http://www.elsevier.com/xml/xocs/dtd" location="$PROJECT_DIR$/Scopus/XML_Schemas/xocs-ani513.xsd" />
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="Anaconda3" project-jdk-type="Python SDK" />
   <component name="TaskProjectConfiguration">
