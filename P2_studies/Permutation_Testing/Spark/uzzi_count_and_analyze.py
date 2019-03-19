@@ -251,7 +251,6 @@ parser.add_argument('-i','--permutations',help='the number of permutations we wi
 args = parser.parse_args()
 url = 'postgresql://{}:{}/{}'.format(args.postgres_host,args.postgres_port,args.postgres_dbname)
 properties = {'user': args.postgres_user, 'password': args.postgres_password}
-postgres_conn=psycopg2.connect(dbname=args.postgres_dbname,user=args.postgres_user,password=args.postgres_password, host=args.postgres_host, port=args.postgres_port)
 
 # Read in the target table to the HDFS then perform the initial round of observed frequency calculations
 print("*** START -  COLLECTING DATA AND PERFORMING OBSERVED FREQUENCY CALCULATIONS FOR BASE SET ***")
