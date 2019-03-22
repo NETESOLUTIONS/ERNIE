@@ -1,8 +1,11 @@
 March 22, 2019
 # Author: George Chacko
 
-The contents of this folder are a set of scripts authored by Jim Bradley (james.bradley@mason.wm.edu)used in statistical analysis of the data and pertain to Figure 2 and relevant supplementary information for the manuscript titled 'Co-citations in Context' Bradley et al. (2019). Other scripts relevant to the
-manuscript can be found in /P2_studies/Permutation_Testing/. This latter set is used by various Jenkins jobs and the effort involved in fixing broken paths didn't warrant moving them to this folder. 
+The contents of this folder are a set of scripts authored by Jim Bradley (james.bradley@mason.wm.edu)
+used in statistical analysis of the data and pertain to Figure 2 and relevant supplementary information 
+for the manuscript titled 'Co-citations in Context' Bradley et al. (2019). Other scripts relevant to the
+manuscript can be found in /P2_studies/Permutation_Testing/. This latter set is used by various Jenkins 
+jobs and the effort involved in fixing broken paths didn't warrant moving them to this folder. 
 
 /* Background Information */
 As part of our co-citation study, we constructed datasets based on broad keyword based searches intended 
