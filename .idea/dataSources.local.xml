@@ -20,7 +20,7 @@
       <introspection-schemas>@:@,information_schema,pg_catalog</introspection-schemas>
     </data-source>
     <data-source name="ERNIE2 (ernie_admin) @ tunnel" uuid="9566f9ea-4fe2-4a6d-96b3-fbbdfec20991">
-      <database-info product="PostgreSQL" version="11.2" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.2" dbms="POSTGRES" exact-version="11.2" exact-driver-version="42.2">
+      <database-info product="PostgreSQL" version="9.6.12" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.2" dbms="POSTGRES" exact-version="9.6.12" exact-driver-version="42.2">
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>
       <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
