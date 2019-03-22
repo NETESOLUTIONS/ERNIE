@@ -47,7 +47,7 @@ metabolism_1985_wos_ids (78998 publications)
 metabolism_1995_wos_ids (121247 publications)
 metabolism_2005_wos_ids (200052 publications)
 
-source_ids(publications) from these datasets were used to subset whole-year WoS slices to create input 
+source_ids(publication identifiers) from these datasets were used to subset whole-year WoS slices to create input 
 files for permutation calculations. Corresponding z-scores were calculated as described elsewhere in this 
 repo.
 
