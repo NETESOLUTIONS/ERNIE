@@ -55,6 +55,8 @@ if (( $# > 0 )); then
   cd "$1"
 fi
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
+year_dir=$(pwd)
+mkdir -p ${year_dir}/corrupted
 
 if ! which parallel >/dev/null; then
   echo "Please install GNU Parallel"
@@ -65,7 +67,7 @@ parse_xml() {
   set -e
   local xml="$1"
   echo "Processing $xml ..."
-  psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql <"$xml"
+  psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql <"$xml" 2>> ~/error_log.txt
   echo "$xml: done."
 }
 export -f parse_xml
@@ -91,14 +93,29 @@ for scopus_data_archive in *.zip; do
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
     # Process Scopus XML files in parallel
     # Reduced verbosity
+    set +e
+    set +o
+    
     find "${subdir}" -name '2*.xml' | \
-      parallel --halt soon,fail=1 --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"
+      parallel --joblog ~/parallel_log.txt --halt never --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"
+    set -e
+    set -o pipefail
+    file_names=$(cut -f 7,9 ~/parallel_log.txt | awk '{if ($1 == "3") print $3;}') 
+    for i in $(echo $file_names)
+    do
+	full_path=$(realpath $i)
+   	full_path=$(dirname $full_path)
+ 	mv $full_path/ ${year_dir}/corrupted/
+    done
     # xargs -n: Set the maximum number of arguments taken from standard input for each invocation of utility
     # TODO follow up re: fail early for find -exec
     #  find . -name '2*.xml' -print0 | xargs -0 -n 1 -I '{}' bash -c "parse_xml {}"
     #  bash -c "set -e; echo -e '\n{}\n'; psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql <{}; echo '{}: done.'" \;
     rm -rf "${subdir}"
   done
+  error_contents=$(grep ERROR /home/sitaram/error_log.txt | grep -v NOTICE | head -n 1)
+  echo -e "Path ${year_dir}/corrupted contains all corrupted files for year $1 \n ${error_contents}" | mailx -s "Scopus year $1" j1c0b0d0w9w7g7v2@neteteam.slack.com
+  rm ~/error_log.txt
   cd ..
   mv "${scopus_data_archive}" processed/
 done

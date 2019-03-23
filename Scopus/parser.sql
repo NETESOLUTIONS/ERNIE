@@ -142,6 +142,9 @@ DO $block$
       --@formatter:on
       )
     ON CONFLICT DO NOTHING;
+
+    CALL scopus_abstracts_titles_keywords_publication_identifiers(scopus_doc_xml);
+
   EXCEPTION
     WHEN OTHERS THEN --
       RAISE NOTICE E'ERROR during processing of:\n-----\n%\n-----', scopus_doc;
