@@ -1,11 +1,11 @@
-# 12/22/2018 The scripts in this folder all relate to data prep and analysis for 
+# 3/22/2019 The scripts in this folder all relate to data prep and analysis for 
 # the co-citation analysis project that is largely inspired by a combination of
 # our experience with the data in ERNIE and the Science paper in 2013 by Uzzi et al.
 
 1) Jenkins job: /P2_studies/Permutation_Testing/uz_ds.sql- generates year slices of the WoS dataset selecting publications of type Article and retaining only those references that have complete records in the wos_publications table in our PostgreSQL schema.
 2) Permutation script: permute_script.R permutes the multi-set of references grouped by publications and reference year.
 3) SWR script: bg_swr_recursive_dedupe.R: implements the background model using sampling with replacement
-4) frequencies.R: calculates the frequency of citation (number of times it has been cited) within the year slice
+4) frequencies.R: calculates the frequency of citation (number of times it has been cited) within a year slice
 5) probtest.R: generates kvals and pairs.csv to implement Warnow's closed form solution of the background model
 6) observed_frequency.py: generates journal pair frequencies for the year slices of the WoS dataset
 7) background_frequency.py: generates journal pair frequencies for the background model implemented using permute and swr
