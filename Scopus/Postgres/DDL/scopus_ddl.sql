@@ -70,7 +70,8 @@ CREATE TABLE IF NOT EXISTS scopus_publication_identifiers (
     CONSTRAINT spi_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   document_id TEXT NOT NULL,
   document_id_type TEXT NOT NULL,
-  CONSTRAINT scopus_publiaction_identifiers_pk PRIMARY KEY (scp_id, document_id_type, document_id) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_publiaction_identifiers_pk PRIMARY KEY (scp_id, document_id_type, document_id) --
+    USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
 COMMENT ON TABLE scopus_publication_identifiers IS 'ELSEVIER: Scopus document identifiers of documents such as doi';

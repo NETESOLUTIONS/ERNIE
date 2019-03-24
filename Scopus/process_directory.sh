@@ -7,13 +7,14 @@ NAME
 
 SYNOPSIS
 
-    process_directory.sh [-c] working_dir [failed_files_dir]
+    process_directory.sh [-c] [-e] working_dir [failed_files_dir]
     process_directory.sh -h: display this help
 
 DESCRIPTION
 
-    * Parse all source Scopus files from he specified `working_dir` and update data in the DB in parallel.
+    * Parse all source Scopus files from the specified `working_dir` and update data in the DB in parallel.
     * Extract *.zip in the working directory one-by-one, updating files: newer and non-existent only.
+    * Parsing and other SQL errors don't fail the build unless `-e` is specified.
     * Move XML files failed to be parsed to `failed_files_dir`, relative to the working dir. (../failed/ by default)
     * Produce a separate error log.
     * Produce output with reduced verbosity to reduce log volume.
@@ -22,6 +23,8 @@ DESCRIPTION
 
     -c    clean load: truncate data and remove previously failed files before processing.
     WARNING: be aware that you'll lose all loaded data!
+
+    -e    stop on the first error
 
 ENVIRONMENT
 
@@ -42,13 +45,16 @@ set -o pipefail
 readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx ERROR_LOG=errors.log
-readonly PARALLEL_JOB_LOG=parallel_job.log
+#readonly PARALLEL_JOB_LOG=parallel_job.log
 declare -x FAILED_FILES="False"
 
 while (( $# > 0 )); do
   case "$1" in
     -c)
       readonly CLEAN_MODE=true
+      ;;
+    -e)
+      readonly STOP_ON_THE_FIRST_ERROR=true
       ;;
     *)
       break
@@ -69,17 +75,17 @@ if ! which parallel >/dev/null; then
 fi
 
 parse_xml() {
-  set -e
   local xml="$1"
   echo "Processing $xml ..."
-  if psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql <"$xml" 2>> "${ERROR_LOG}"; then
+  if psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" 2>> "${ERROR_LOG}"; then
     echo "$xml: DONE."
   else
-    echo -e "$xml FAILED\n===\n\n" | tee -a "${ERROR_LOG}"
+    echo -e "$xml FAILED\n" | tee -a "${ERROR_LOG}"
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     full_path=$(realpath ${xml})
     full_path=$(dirname ${full_path})
     mv -f $full_path/ "${failed_files_dir}/"
+    exit 1
   fi
 }
 export -f parse_xml
@@ -97,6 +103,8 @@ rm -rf tmp
 mkdir tmp
 #[[ ! -d processed ]] && mkdir processed
 
+[[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
+
 for scopus_data_archive in *.zip; do
   echo "Processing ${scopus_data_archive} ..."
 
@@ -111,9 +119,9 @@ for scopus_data_archive in *.zip; do
     # Reduced verbosity
     set +e
     set +o pipefail
-    # No halting on errors
+    # --joblog "${PARALLEL_JOB_LOG}"
     find "${subdir}" -name '2*.xml' | \
-      parallel --joblog "${PARALLEL_JOB_LOG}" --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"
+      parallel ${PARALLEL_HALT_OPTION} --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"
     set -e
     set -o pipefail
 #    failed_files=$(cut -f 7,9 "${PARALLEL_JOB_LOG}" | awk '{if ($1 == "3") print $3;}')
@@ -137,21 +145,23 @@ done
 if [[ -s tmp/${ERROR_LOG} ]]; then
   cat <<HEREDOC
 Error(s) occurred during processing of ${PWD}.
-===
+=====
 HEREDOC
   cat tmp/${ERROR_LOG}
-  echo "==="
+  echo "====="
 
-  declare error_contents=$(grep ERROR tmp/${ERROR_LOG} | grep -v NOTICE | head -n 1)
-  { cat <<HEREDOC
-Error(s) occurred during processing of ${PWD}.
-See the failed files in $(cd "${FAILED_FILES_DIR}" && pwd)/.
-The first error:
----
-${error_contents}
----
-HEREDOC
-  } | mailx -s "Scopus processing errors for ${PWD}/" j1c0b0d0w9w7g7v2@neteteam.slack.com
+# No longer need a separate email notification now.
+# The build fails at the end if any errors occurred hence we get heads up.
+#  declare error_contents=$(grep ERROR tmp/${ERROR_LOG} | grep -v NOTICE | head -n 1)
+#  { cat <<HEREDOC
+#Error(s) occurred during processing of ${PWD}/
+#See the failed files in $(cd "${FAILED_FILES_DIR}" && pwd)/
+#The first error:
+#---
+#${error_contents}
+#---
+#HEREDOC
+#  } | mailx -s "Scopus processing errors for ${PWD}/" j1c0b0d0w9w7g7v2@neteteam.slack.com
 
   exit 1
 fi
