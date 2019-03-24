@@ -42,7 +42,6 @@ readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx PSQL_ERROR_LOG=psql_errors.log
 readonly PARALLEL_JOB_LOG=parallel_job.log
-readonly BAD_FILES_DIR=../../bad
 
 while (( $# > 0 )); do
   case "$1" in
@@ -58,6 +57,8 @@ done
 if (( $# > 0 )); then
   cd "$1"
 fi
+readonly BAD_FILES_DIR=$(cd "../../bad" && pwd)
+
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 #year_dir=$(pwd)
 #mkdir -p ${year_dir}/corrupted
@@ -81,6 +82,8 @@ if [[ "${CLEAN_MODE}" == true ]]; then
   psql -v ON_ERROR_STOP=on --echo-all <<'HEREDOC'
     TRUNCATE scopus_publication_groups CASCADE;
 HEREDOC
+
+  rm -rf "${BAD_FILES_DIR}"
 fi
 
 [[ ! -d tmp ]] && mkdir tmp
@@ -106,15 +109,15 @@ for scopus_data_archive in *.zip; do
     set -o pipefail
     file_names=$(cut -f 7,9 "${PARALLEL_JOB_LOG}" | awk '{if ($1 == "3") print $3;}')
     for i in $(echo $file_names); do
-      [[ ! -d "${BAD_FILES_DIR}" ]] && mkdir -f "${BAD_FILES_DIR}"
+      [[ ! -d "${BAD_FILES_DIR}" ]] && mkdir -p "${BAD_FILES_DIR}"
       full_path=$(realpath $i)
       full_path=$(dirname $full_path)
-      mv $full_path/ "${BAD_FILES_DIR}"/
+      mv $full_path/ "${BAD_FILES_DIR}/"
     done
     rm -rf "${subdir}"
   done
   error_contents=$(grep ERROR ${PSQL_ERROR_LOG} | grep -v NOTICE | head -n 1)
-  echo -e "Error(s) occurred during processing of ${scopus_data_archive}: see $(cd "${BAD_FILES_DIR}" && pwd).
+  echo -e "Error(s) occurred during processing of ${scopus_data_archive}: see "${BAD_FILES_DIR}/".
     ${error_contents}" | mailx -s "Scopus processing errors for ${PWD}" j1c0b0d0w9w7g7v2@neteteam.slack.com
   rm "${PSQL_ERROR_LOG}"
   cd ..
