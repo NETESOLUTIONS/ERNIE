@@ -130,12 +130,12 @@ if [[ "$NOTIFICATIONS" == "True" ]]; then
 
   declare error_contents=$(grep ERROR ${PSQL_ERROR_LOG} | grep -v NOTICE | head -n 1)
   { cat <<HEREDOC
-  Error(s) occurred during processing of ${scopus_data_archive}.
-  See the error log in ${PWD}/${PSQL_ERROR_LOG} and failed files in $(cd "${failed_files_dir}" && pwd)/.
-  The first error:
-  ---
-  ${error_contents}
-  ---
+Error(s) occurred during processing of ${scopus_data_archive}.
+See the error log in ${PWD}/${PSQL_ERROR_LOG} and failed files in $(cd "${FAILED_FILES_DIR}" && pwd)/.
+The first error:
+---
+${error_contents}
+---
 HEREDOC
   } | mailx -s "Scopus processing errors for ${PWD}/" j1c0b0d0w9w7g7v2@neteteam.slack.com
 
