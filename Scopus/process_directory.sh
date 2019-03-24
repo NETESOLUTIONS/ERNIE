@@ -124,7 +124,6 @@ for scopus_data_archive in *.zip; do
   # mv "${scopus_data_archive}" processed/
   cd ..
 done
-#cd tmp
 
 if [[ "$NOTIFICATIONS" == "True" ]]; then
 
@@ -139,6 +138,6 @@ ${error_contents}
 HEREDOC
   } | mailx -s "Scopus processing errors for ${PWD}/" j1c0b0d0w9w7g7v2@neteteam.slack.com
 
+  exit 1
 fi
-cd ..
 exit 0
