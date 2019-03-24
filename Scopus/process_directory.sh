@@ -20,7 +20,8 @@ DESCRIPTION
 
     The following options are available:
 
-    -c    clean data before processing and clean "bad" files. WARNING: be aware that you'll lose all loaded data!
+    -c    clean load: truncate data and remove "bad" files before processing.
+    WARNING: be aware that you'll lose all loaded data!
 
 ENVIRONMENT
 
@@ -35,12 +36,12 @@ fi
 
 set -e
 set -o pipefail
-#set -x
+set -x
 
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
-declare -rx PSQL_ERROR_LOG=psql_errors.log
+declare -rx PSQL_ERROR_LOG=../psql_errors.log
 readonly PARALLEL_JOB_LOG=parallel_job.log
 
 while (( $# > 0 )); do
@@ -91,6 +92,8 @@ fi
 
 for scopus_data_archive in *.zip; do
   echo "Processing ${scopus_data_archive} ..."
+  rm -f "${PSQL_ERROR_LOG}"
+  bad_files_dir="${BAD_FILES_DIR}/${scopus_data_archive}"
 
   # Reduced verbosity
   # -u extracting files that are newer and files that do not already exist on disk
@@ -109,19 +112,19 @@ for scopus_data_archive in *.zip; do
     set -o pipefail
     file_names=$(cut -f 7,9 "${PARALLEL_JOB_LOG}" | awk '{if ($1 == "3") print $3;}')
     for i in $(echo $file_names); do
-      [[ ! -d "${BAD_FILES_DIR}" ]] && mkdir -p "${BAD_FILES_DIR}"
+      [[ ! -d "${bad_files_dir}" ]] && mkdir -p "${bad_files_dir}"
       full_path=$(realpath $i)
       full_path=$(dirname $full_path)
-      mv $full_path/ "${BAD_FILES_DIR}/"
+      mv $full_path/ "${bad_files_dir}/"
     done
     rm -rf "${subdir}"
   done
   error_contents=$(grep ERROR ${PSQL_ERROR_LOG} | grep -v NOTICE | head -n 1)
-  echo -e "Error(s) occurred during processing of ${scopus_data_archive}: see "$(cd "$BAD_FILES_DIR" && pwd)/".
-    ${error_contents}" | mailx -s "Scopus processing errors for ${PWD}" j1c0b0d0w9w7g7v2@neteteam.slack.com
-  rm "${PSQL_ERROR_LOG}"
   cd ..
-  mv "${scopus_data_archive}" processed/
+#  mv "${scopus_data_archive}" processed/
+
+  echo -e "Error(s) occurred during processing of ${scopus_data_archive}: see "$(cd "${bad_files_dir}" && pwd)/".
+    ${error_contents}" | mailx -s "Scopus processing errors for ${PWD}" j1c0b0d0w9w7g7v2@neteteam.slack.com
 done
 rmdir tmp
 
