@@ -77,12 +77,11 @@ parse_xml() {
 }
 export -f parse_xml
 
-# language=PostgresPLSQL
 if [[ "${CLEAN_MODE}" == true ]]; then
+  # language=PostgresPLSQL
   psql -v ON_ERROR_STOP=on --echo-all <<'HEREDOC'
     TRUNCATE scopus_publication_groups CASCADE;
 HEREDOC
-
 
   rm -rf "${BAD_FILES_DIR}"
 fi
