@@ -85,12 +85,12 @@ HEREDOC
   rm -rf "${FAILED_FILES_DIR}"
 fi
 
-[[ ! -d tmp ]] && mkdir tmp
-[[ ! -d processed ]] && mkdir processed
+rm -rf tmp
+mkdir tmp
+#[[ ! -d processed ]] && mkdir processed
 
 for scopus_data_archive in *.zip; do
   echo "Processing ${scopus_data_archive} ..."
-  rm -rf tmp
 
   # Reduced verbosity
   # -u extracting files that are newer and files that do not already exist on disk
@@ -127,10 +127,10 @@ done
 
 if [[ "$NOTIFICATIONS" == "True" ]]; then
 
-  declare error_contents=$(grep ERROR ${PSQL_ERROR_LOG} | grep -v NOTICE | head -n 1)
+  declare error_contents=$(grep ERROR tmp/${PSQL_ERROR_LOG} | grep -v NOTICE | head -n 1)
   { cat <<HEREDOC
 Error(s) occurred during processing of ${scopus_data_archive}.
-See the error log in ${PWD}/${PSQL_ERROR_LOG} and failed files in $(cd "${FAILED_FILES_DIR}" && pwd)/.
+See the error log in ${PWD}/tmp/${PSQL_ERROR_LOG} and failed files in $(cd "${FAILED_FILES_DIR}" && pwd)/.
 The first error:
 ---
 ${error_contents}
