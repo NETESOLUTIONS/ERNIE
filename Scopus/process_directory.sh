@@ -19,7 +19,7 @@ DESCRIPTION
 
     The following options are available:
 
-    -c    clean load: truncate data and remove "bad" files before processing.
+    -c    clean load: truncate data and remove previously failed files before processing.
     WARNING: be aware that you'll lose all loaded data!
 
 ENVIRONMENT
@@ -55,7 +55,7 @@ while (( $# > 0 )); do
 done
 
 cd "$1"
-readonly FAILED_FILES_DIR=../failed
+readonly FAILED_FILES_DIR=${2:-../failed}
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 #year_dir=$(pwd)
