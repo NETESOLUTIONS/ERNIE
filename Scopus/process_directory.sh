@@ -115,7 +115,7 @@ for scopus_data_archive in *.zip; do
       [[ ! -d "${bad_files_dir}" ]] && mkdir -p "${bad_files_dir}"
       full_path=$(realpath $i)
       full_path=$(dirname $full_path)
-      mv $full_path/ "${bad_files_dir}/"
+      mv -f $full_path/ "${bad_files_dir}/"
     done
     rm -rf "${subdir}"
   done
