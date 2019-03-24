@@ -63,6 +63,15 @@ CREATE TABLE scopus_references (
   CONSTRAINT scopus_references_pk PRIMARY KEY (scp, ref_sgr, pub_ref_id) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
+COMMENT ON TABLE scopus_references
+IS 'Elsevier: Scopus - Scopus references table for documents';
+COMMENT ON COLUMN scopus_references.scp
+IS 'Scopus ID for a document. Example: 25766560';
+COMMENT ON COLUMN scopus_references.ref_sgr
+IS 'Scopus Group ID for the referenced document. Example: 343442899';
+COMMENT ON COLUMN scopus_references.pub_ref_id
+IS 'Uniquely (and serially?) identifies a reference in the bibliography. Example: 1';
+
 
 -- Added by Sitaram Devarakonda 03/22/2019
 -- DDL for scopus_publication_identifiers, scopus_abstracts, scopus_titles, scopus_keywords and scopus_chemicalgroups
