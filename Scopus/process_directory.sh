@@ -40,7 +40,7 @@ set -x
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
-declare -rx PSQL_ERROR_LOG=../psql_errors.log
+declare -rx PSQL_ERROR_LOG=psql_errors.log
 readonly PARALLEL_JOB_LOG=parallel_job.log
 
 while (( $# > 0 )); do
@@ -89,7 +89,7 @@ fi
 
 for scopus_data_archive in *.zip; do
   echo "Processing ${scopus_data_archive} ..."
-  rm -f "${PSQL_ERROR_LOG}"
+  rm -rf tmp
 
   # Reduced verbosity
   # -u extracting files that are newer and files that do not already exist on disk
@@ -117,12 +117,16 @@ for scopus_data_archive in *.zip; do
     rm -rf "${subdir}"
   done
   declare error_contents=$(grep ERROR ${PSQL_ERROR_LOG} | grep -v NOTICE | head -n 1)
-  cd ..
-#  mv "${scopus_data_archive}" processed/
+  { cat <<HEREDOC
+Error(s) occurred during processing of ${scopus_data_archive}.
+See the error log in ${PWD}/tmp/${PSQL_ERROR_LOG} and failed files in $(cd "${failed_files_dir}" && pwd)/.
+The first error:
+${error_contents}
+HEREDOC
+  } | mailx -s "Scopus processing errors for ${PWD}/" j1c0b0d0w9w7g7v2@neteteam.slack.com
 
-  echo -e "Error(s) occurred during processing of ${scopus_data_archive}: see "$(cd "${failed_files_dir}" && pwd)/".
-    ${error_contents}" | mailx -s "Scopus processing errors for ${PWD}" j1c0b0d0w9w7g7v2@neteteam.slack.com
+# mv "${scopus_data_archive}" processed/
+  cd ..
 done
-rmdir tmp
 
 exit 0
