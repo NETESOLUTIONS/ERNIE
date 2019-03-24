@@ -57,7 +57,7 @@ done
 if (( $# > 0 )); then
   cd "$1"
 fi
-readonly BAD_FILES_DIR=$(cd "../../bad" && pwd)
+readonly BAD_FILES_DIR=../../bad
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 #year_dir=$(pwd)
@@ -117,7 +117,7 @@ for scopus_data_archive in *.zip; do
     rm -rf "${subdir}"
   done
   error_contents=$(grep ERROR ${PSQL_ERROR_LOG} | grep -v NOTICE | head -n 1)
-  echo -e "Error(s) occurred during processing of ${scopus_data_archive}: see "${BAD_FILES_DIR}/".
+  echo -e "Error(s) occurred during processing of ${scopus_data_archive}: see "$(cd "$BAD_FILES_DIR" && pwd)/".
     ${error_contents}" | mailx -s "Scopus processing errors for ${PWD}" j1c0b0d0w9w7g7v2@neteteam.slack.com
   rm "${PSQL_ERROR_LOG}"
   cd ..
