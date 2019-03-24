@@ -1,3 +1,9 @@
+\set ON_ERROR_STOP on
+\set ECHO all
+
+-- DataGrip: start execution from here
+SET TIMEZONE = 'US/Eastern';
+
 -- This function performs a bulk update by inserting mapped XML data from a staging table which holds (raw) XML from the update files.
 -- On failure it reverts to a debugger version of the function which performs individual inserts of valid instances of the mapped XML data
 CREATE OR REPLACE FUNCTION update_references(input_xml XML) RETURNS VOID AS
@@ -15,7 +21,7 @@ $$
     ON CONFLICT DO NOTHING;
     EXCEPTION WHEN OTHERS THEN
       RAISE NOTICE 'FAILURE OCCURED ON BULK INSERT, SWITCHING TO INDIVIDUAL INSERT+DEBUG FUNCTION';
-      PERFORM update_references_debug();
+      PERFORM update_references_debug(input_xml);
   END;
 $$
 LANGUAGE plpgsql;
@@ -28,8 +34,7 @@ $$
   BEGIN
       FOR row IN
         SELECT xmltable.*
-         FROM staging_xml_table,
-         XMLTABLE('//bibrecord/tail/bibliography/reference' PASSING input_xml
+         FROM XMLTABLE('//bibrecord/tail/bibliography/reference' PASSING input_xml
                   COLUMNS
                       scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
                       ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',

@@ -143,6 +143,8 @@ DO $block$
       )
     ON CONFLICT DO NOTHING;
 
+    CALL update_references(scopus_doc_xml);
+
     CALL scopus_abstracts_titles_keywords_publication_identifiers(scopus_doc_xml);
 
   EXCEPTION
