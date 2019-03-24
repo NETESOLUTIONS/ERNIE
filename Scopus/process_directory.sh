@@ -20,7 +20,7 @@ DESCRIPTION
 
     The following options are available:
 
-    -c    clean data before processing and don't resume processing. WARNING: be aware that you'll lose all loaded data!
+    -c    clean data before processing and clean "bad" files. WARNING: be aware that you'll lose all loaded data!
 
 ENVIRONMENT
 
@@ -34,17 +34,20 @@ HEREDOC
 fi
 
 set -e
-#set -ex
 set -o pipefail
+#set -x
 
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
+declare -rx PSQL_ERROR_LOG=psql_errors.log
+readonly PARALLEL_JOB_LOG=parallel_job.log
 
 while (( $# > 0 )); do
   case "$1" in
     -c)
-      readonly CLEAN_MODE=true;;
+      readonly CLEAN_MODE=true
+      ;;
     *)
       break
   esac
@@ -54,9 +57,11 @@ done
 if (( $# > 0 )); then
   cd "$1"
 fi
+readonly BAD_FILES_DIR=$(cd "../../bad" && pwd)
+
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
-year_dir=$(pwd)
-mkdir -p ${year_dir}/corrupted
+#year_dir=$(pwd)
+#mkdir -p ${year_dir}/corrupted
 
 if ! which parallel >/dev/null; then
   echo "Please install GNU Parallel"
@@ -67,16 +72,18 @@ parse_xml() {
   set -e
   local xml="$1"
   echo "Processing $xml ..."
-  psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql <"$xml" 2>> ~/error_log.txt
+  psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql <"$xml" 2>> "${PSQL_ERROR_LOG}"
   echo "$xml: done."
 }
 export -f parse_xml
 
-# language=PostgresPLSQL
 if [[ "${CLEAN_MODE}" == true ]]; then
+  # language=PostgresPLSQL
   psql -v ON_ERROR_STOP=on --echo-all <<'HEREDOC'
     TRUNCATE scopus_publication_groups CASCADE;
 HEREDOC
+
+  rm -rf "${BAD_FILES_DIR}"
 fi
 
 [[ ! -d tmp ]] && mkdir tmp
@@ -94,28 +101,25 @@ for scopus_data_archive in *.zip; do
     # Process Scopus XML files in parallel
     # Reduced verbosity
     set +e
-    set +o
+    set +o pipefail
     
     find "${subdir}" -name '2*.xml' | \
-      parallel --joblog ~/parallel_log.txt --halt never --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"
+      parallel --joblog "${PARALLEL_JOB_LOG}" --halt never --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"
     set -e
     set -o pipefail
-    file_names=$(cut -f 7,9 ~/parallel_log.txt | awk '{if ($1 == "3") print $3;}') 
-    for i in $(echo $file_names)
-    do
-	full_path=$(realpath $i)
-   	full_path=$(dirname $full_path)
- 	mv $full_path/ ${year_dir}/corrupted/
+    file_names=$(cut -f 7,9 "${PARALLEL_JOB_LOG}" | awk '{if ($1 == "3") print $3;}')
+    for i in $(echo $file_names); do
+      [[ ! -d "${BAD_FILES_DIR}" ]] && mkdir -p "${BAD_FILES_DIR}"
+      full_path=$(realpath $i)
+      full_path=$(dirname $full_path)
+      mv $full_path/ "${BAD_FILES_DIR}/"
     done
-    # xargs -n: Set the maximum number of arguments taken from standard input for each invocation of utility
-    # TODO follow up re: fail early for find -exec
-    #  find . -name '2*.xml' -print0 | xargs -0 -n 1 -I '{}' bash -c "parse_xml {}"
-    #  bash -c "set -e; echo -e '\n{}\n'; psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql <{}; echo '{}: done.'" \;
     rm -rf "${subdir}"
   done
-  error_contents=$(grep ERROR /home/sitaram/error_log.txt | grep -v NOTICE | head -n 1)
-  echo -e "Path ${year_dir}/corrupted contains all corrupted files for year $1 \n ${error_contents}" | mailx -s "Scopus year $1" j1c0b0d0w9w7g7v2@neteteam.slack.com
-  rm ~/error_log.txt
+  error_contents=$(grep ERROR ${PSQL_ERROR_LOG} | grep -v NOTICE | head -n 1)
+  echo -e "Error(s) occurred during processing of ${scopus_data_archive}: see "${BAD_FILES_DIR}/".
+    ${error_contents}" | mailx -s "Scopus processing errors for ${PWD}" j1c0b0d0w9w7g7v2@neteteam.slack.com
+  rm "${PSQL_ERROR_LOG}"
   cd ..
   mv "${scopus_data_archive}" processed/
 done
