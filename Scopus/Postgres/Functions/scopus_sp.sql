@@ -21,7 +21,7 @@ AS $$
         chemical_name TEXT PATH '../chemical-name',
         cas_registry_number TEXT PATH '.'
         ) )LOOP
-        INSERT INTO scopus_chemicals(scp_id, chemicals_source,chemical_name, cas_registry_number)
+        INSERT INTO scopus_chemicalgroups(scp_id, chemicals_source,chemical_name, cas_registry_number)
         VALUES(cur.scp_id,cur.chemicals_source,cur.chemical_name,cur.cas_registry_number)
       ON CONFLICT DO NOTHING;
     END LOOP;

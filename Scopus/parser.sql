@@ -15,7 +15,6 @@ CREATE TEMPORARY TABLE stg_scopus_doc (
 -- Import file to a table of lines
 \copy stg_scopus_doc(scopus_doc_line) FROM pstdin
 
--- scopus_publication_groups, scopus_publications attributes
 DO $block$
   DECLARE
     scopus_doc TEXT;
@@ -28,6 +27,7 @@ DO $block$
     SELECT xmlparse(DOCUMENT scopus_doc) INTO scopus_doc_xml
     FROM stg_scopus_doc;
 
+    -- scopus_publication_groups, scopus_publications attributes
     FOR cur IN (
       SELECT
         sgr,
@@ -41,12 +41,6 @@ DO $block$
             <titletext original="y" xml:lang="eng" language="English">Curare y anestesia.</titletext>
         </citation-title>
         */
-        trim(coalesce(citation_title_eng_translated, citation_title_eng_original,
-                      citation_title_original)) AS citation_title,
-        CASE
-          WHEN coalesce(citation_title_eng_translated, citation_title_eng_original) IS NOT NULL THEN 'eng'
-          ELSE citation_title_original_lang_code
-        END AS citation_title_lang_code,
         correspondence_person_indexed_name,
         correspondence_city,
         correspondence_country,
@@ -61,10 +55,6 @@ DO $block$
           pub_day SMALLINT PATH 'head/source/publicationdate/day', --
           scp BIGINT PATH 'item-info/itemidlist/itemid[@idtype="SCP"]', --
           -- noramlize-space() converts NULLs to empty strings
-          citation_title_eng_original TEXT PATH 'head/citation-title/titletext[@xml:lang="eng"][@original="y"]', --
-          citation_title_eng_translated TEXT PATH 'head/citation-title/titletext[@xml:lang="eng"][@original="n"]', --
-          citation_title_original TEXT PATH 'head/citation-title/titletext[@original="y"]', --
-          citation_title_original_lang_code TEXT PATH 'head/citation-title/titletext[@original="y"]/@xml:lang', --
           correspondence_person_indexed_name TEXT PATH 'head/correspondence/person/ce:indexed-name', --
           correspondence_city TEXT PATH 'head/correspondence/affiliation/city', --
           correspondence_country TEXT PATH 'head/correspondence/affiliation/country', --
@@ -131,17 +121,7 @@ DO $block$
     ON CONFLICT DO NOTHING;
 
     -- scopus_references
-    INSERT INTO scopus_references(scp, ref_sgr, pub_ref_id)
-    SELECT scp, ref_sgr, pub_ref_id
-    FROM xmltable(--
-      '//bibrecord/tail/bibliography/reference' PASSING scopus_doc_xml COLUMNS --
-      --@formatter:off
-      scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
-      ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]',
-      pub_ref_id SMALLINT PATH '@id'
-      --@formatter:on
-      )
-    ON CONFLICT DO NOTHING;
+    CALL update_references(scopus_doc_xml);
 
     CALL scopus_abstracts_titles_keywords_publication_identifiers(scopus_doc_xml);
 
