@@ -119,7 +119,7 @@ for scopus_data_archive in *.zip; do
   declare error_contents=$(grep ERROR ${PSQL_ERROR_LOG} | grep -v NOTICE | head -n 1)
   { cat <<HEREDOC
 Error(s) occurred during processing of ${scopus_data_archive}.
-See the error log in ${PWD}/tmp/${PSQL_ERROR_LOG} and failed files in $(cd "${failed_files_dir}" && pwd)/.
+See the error log in ${PWD}/${PSQL_ERROR_LOG} and failed files in $(cd "${failed_files_dir}" && pwd)/.
 The first error:
 ${error_contents}
 HEREDOC
