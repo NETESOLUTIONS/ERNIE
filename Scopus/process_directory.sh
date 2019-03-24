@@ -42,6 +42,7 @@ readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx PSQL_ERROR_LOG=psql_errors.log
 readonly PARALLEL_JOB_LOG=parallel_job.log
+declare -x NOTIFICATIONS="False"
 
 while (( $# > 0 )); do
   case "$1" in
@@ -108,6 +109,9 @@ for scopus_data_archive in *.zip; do
     set -e
     set -o pipefail
     file_names=$(cut -f 7,9 "${PARALLEL_JOB_LOG}" | awk '{if ($1 == "3") print $3;}')
+    if [[ -n ${file_names} ]]; then
+        NOTIFICATIONS="True"
+    fi
     for i in $(echo $file_names); do
       [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
       full_path=$(realpath $i)
@@ -116,19 +120,25 @@ for scopus_data_archive in *.zip; do
     done
     rm -rf "${subdir}"
   done
+  
+# mv "${scopus_data_archive}" processed/
+cd ..
+done
+cd tmp
+
+if [[ "$NOTIFICATIONS" == "True" ]]; then
+
   declare error_contents=$(grep ERROR ${PSQL_ERROR_LOG} | grep -v NOTICE | head -n 1)
-  { cat <<HEREDOC
-Error(s) occurred during processing of ${scopus_data_archive}.
-See the error log in ${PWD}/${PSQL_ERROR_LOG} and failed files in $(cd "${failed_files_dir}" && pwd)/.
-The first error:
----
-${error_contents}
----
+    { cat <<HEREDOC
+  Error(s) occurred during processing of ${scopus_data_archive}.
+  See the error log in ${PWD}/${PSQL_ERROR_LOG} and failed files in $(cd "${failed_files_dir}" && pwd)/.
+  The first error:
+  ---
+  ${error_contents}
+  ---
 HEREDOC
   } | mailx -s "Scopus processing errors for ${PWD}/" j1c0b0d0w9w7g7v2@neteteam.slack.com
 
-# mv "${scopus_data_archive}" processed/
-  cd ..
-done
-
+fi
+cd ..
 exit 0
