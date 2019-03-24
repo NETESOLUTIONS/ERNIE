@@ -83,6 +83,7 @@ if [[ "${CLEAN_MODE}" == true ]]; then
     TRUNCATE scopus_publication_groups CASCADE;
 HEREDOC
 
+
   rm -rf "${BAD_FILES_DIR}"
 fi
 
