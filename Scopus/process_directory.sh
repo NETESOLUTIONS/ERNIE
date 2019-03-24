@@ -119,7 +119,7 @@ for scopus_data_archive in *.zip; do
     done
     rm -rf "${subdir}"
   done
-  error_contents=$(grep ERROR ${PSQL_ERROR_LOG} | grep -v NOTICE | head -n 1)
+  declare error_contents=$(grep ERROR ${PSQL_ERROR_LOG} | grep -v NOTICE | head -n 1)
   cd ..
 #  mv "${scopus_data_archive}" processed/
 
