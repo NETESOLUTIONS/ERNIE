@@ -121,15 +121,15 @@ for scopus_data_archive in *.zip; do
     rm -rf "${subdir}"
   done
   
-# mv "${scopus_data_archive}" processed/
-cd ..
+  # mv "${scopus_data_archive}" processed/
+  cd ..
 done
-cd tmp
+#cd tmp
 
 if [[ "$NOTIFICATIONS" == "True" ]]; then
 
   declare error_contents=$(grep ERROR ${PSQL_ERROR_LOG} | grep -v NOTICE | head -n 1)
-    { cat <<HEREDOC
+  { cat <<HEREDOC
   Error(s) occurred during processing of ${scopus_data_archive}.
   See the error log in ${PWD}/${PSQL_ERROR_LOG} and failed files in $(cd "${failed_files_dir}" && pwd)/.
   The first error:

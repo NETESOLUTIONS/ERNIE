@@ -6,7 +6,7 @@ SET TIMEZONE = 'US/Eastern';
 
 -- This function performs a bulk update by inserting mapped XML data from a staging table which holds (raw) XML from the update files.
 -- On failure it reverts to a debugger version of the function which performs individual inserts of valid instances of the mapped XML data
-CREATE OR REPLACE FUNCTION update_references(input_xml XML) RETURNS VOID AS
+CREATE OR REPLACE PROCEDURE update_references(input_xml XML) AS
 $$
   BEGIN
     INSERT INTO scopus_references(scp,ref_sgr,pub_ref_id)
@@ -28,7 +28,7 @@ LANGUAGE plpgsql;
 
 -- This function loops through XML records in the staging table and inserts valid instances of mapped data. It's slower than the other function, but safer.
 -- On failure it will raise a notice regarding the invalid XML
-CREATE OR REPLACE FUNCTION update_references_debug(input_xml XML) RETURNS VOID AS
+CREATE OR REPLACE PROCEDURE update_references_debug(input_xml XML) AS
 $$
   DECLARE row RECORD;
   BEGIN
