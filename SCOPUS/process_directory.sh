@@ -20,7 +20,7 @@ DESCRIPTION
 
     The following options are available:
 
-    -c    clean data before processing and don't resume processing. WARNING: be aware that you'll lose all loaded data!
+    -c    clean data before processing and clean "bad" files. WARNING: be aware that you'll lose all loaded data!
 
 ENVIRONMENT
 
@@ -34,14 +34,15 @@ HEREDOC
 fi
 
 set -e
-#set -ex
 set -o pipefail
+#set -x
 
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx PSQL_ERROR_LOG=psql_errors.log
 readonly PARALLEL_JOB_LOG=parallel_job.log
+readonly BAD_FILES_DIR=../../bad
 
 while (( $# > 0 )); do
   case "$1" in
@@ -105,16 +106,16 @@ for scopus_data_archive in *.zip; do
     set -o pipefail
     file_names=$(cut -f 7,9 "${PARALLEL_JOB_LOG}" | awk '{if ($1 == "3") print $3;}')
     for i in $(echo $file_names); do
-      [[ ! -d ../corrupted ]] && mkdir -f ../corrupted
+      [[ ! -d "${BAD_FILES_DIR}" ]] && mkdir -f "${BAD_FILES_DIR}"
       full_path=$(realpath $i)
       full_path=$(dirname $full_path)
-      mv $full_path/ ../corrupted/
+      mv $full_path/ "${BAD_FILES_DIR}"/
     done
     rm -rf "${subdir}"
   done
   error_contents=$(grep ERROR ${PSQL_ERROR_LOG} | grep -v NOTICE | head -n 1)
-  echo -e "Error(s) occurred during processing of ${scopus_data_archive}: see ${PWD}/corrupted.\n  ${error_contents}"|\
-    mailx -s "Scopus processing errors for ${PWD}" j1c0b0d0w9w7g7v2@neteteam.slack.com
+  echo -e "Error(s) occurred during processing of ${scopus_data_archive}: see $(cd "${BAD_FILES_DIR}" && pwd).
+    ${error_contents}" | mailx -s "Scopus processing errors for ${PWD}" j1c0b0d0w9w7g7v2@neteteam.slack.com
   rm "${PSQL_ERROR_LOG}"
   cd ..
   mv "${scopus_data_archive}" processed/
