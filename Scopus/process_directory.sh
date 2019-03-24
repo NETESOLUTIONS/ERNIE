@@ -35,7 +35,7 @@ fi
 
 set -e
 set -o pipefail
-set -x
+#set -x
 
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
