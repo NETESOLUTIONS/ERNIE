@@ -37,7 +37,7 @@ AS $$
         XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
         '//bibrecord/head/abstracts/abstract/ce:para' PASSING scopus_doc_xml COLUMNS
         scp_id BIGINT PATH '../../../../item-info/itemidlist/itemid[@idtype="SCP"]',
-        abstract_text TEXT PATH '.',
+        abstract_text TEXT PATH 'normalize-space()',
         abstract_language TEXT PATH '../@xml:lang',
         abstract_source TEXT PATH '../@source'
         )
