@@ -28,7 +28,7 @@ CREATE TABLE scopus_publications (
   pub_type TEXT,
   process_stage TEXT,
   state TEXT,
-  date_sort DATE,
+  date_sort DATE
 ) TABLESPACE scopus_tbs;
 
 DROP TABLE IF EXISTS scopus_pub_authors CASCADE;

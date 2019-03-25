@@ -327,10 +327,10 @@ IS 'Conference name';
 COMMENT ON COLUMN scopus_conferences.conf_address
 IS 'Conference address';
 
-COMMENT ON COLUMN scopus_conferences.city
+COMMENT ON COLUMN scopus_conferences.conf_city
 IS 'City of conference event';
 
-COMMENT ON COLUMN scopus_conferences.postal_code
+COMMENT ON COLUMN scopus_conferences.conf_postal_code
 IS 'Postal code of conference event';
 
 COMMENT ON COLUMN scopus_conferences.conf_start_date
@@ -339,7 +339,7 @@ IS 'Conference start date';
 COMMENT ON COLUMN scopus_conferences.conf_end_date
 IS 'Conference end date';
 
-COMMENT ON COLUMN scopus_conferences.number
+COMMENT ON COLUMN scopus_conferences.conf_number
 IS 'Sequencenumber of the conference';
 
 COMMENT ON COLUMN scopus_conferences.conf_catnumber
