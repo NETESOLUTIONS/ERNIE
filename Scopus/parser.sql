@@ -17,7 +17,7 @@ DO $block$
     SELECT xmlparse(DOCUMENT convert_from(pg_read_binary_file(current_setting('script.xml_file')), 'UTF8'))
       INTO scopus_doc_xml;
 
-    CALL scopus_parse_publications(scopus_doc_xml);
+    CALL scopus_parse_publication(scopus_doc_xml);
 
     CALL update_scopus_source_classifications(scopus_doc_xml);
 
