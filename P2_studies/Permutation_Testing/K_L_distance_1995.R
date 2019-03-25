@@ -1,5 +1,6 @@
 # calculates K-L distance using the seewave library
 # Used on the 'ernie3' temp server (120 Gb RAM, Centos 7.4)
+# George Chacko 3/25/2019
 setwd "/erniedev_data1/Misc_Calculations"
 rm(list = ls())
 library(data.table); library(seewave)
