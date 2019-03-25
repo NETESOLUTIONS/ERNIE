@@ -80,7 +80,7 @@ parse_xml() {
   if psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" 2>> "${ERROR_LOG}"; then
     echo "$xml: DONE."
   else
-    echo -e "$xml FAILED\n" | tee -a "${ERROR_LOG}"
+#    echo -e "$xml FAILED\n" | tee -a "${ERROR_LOG}"
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     full_path=$(realpath ${xml})
     full_path=$(dirname ${full_path})

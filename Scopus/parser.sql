@@ -18,21 +18,16 @@ DO $block$
       INTO scopus_doc_xml;
 
     CALL scopus_parse_publication(scopus_doc_xml);
-
     CALL update_scopus_source_classifications(scopus_doc_xml);
-
     CALL update_scopus_author_affiliations(scopus_doc_xml);
-
     CALL update_scopus_additional_source(scopus_doc_xml);
-
     -- scopus_references
     CALL update_references(scopus_doc_xml);
-
     CALL scopus_abstracts_titles_keywords_publication_identifiers(scopus_doc_xml);
-
   EXCEPTION
     WHEN OTHERS THEN --
-      RAISE NOTICE E'ERROR during processing of:\n-----\n%\n-----', scopus_doc_xml;
+      RAISE NOTICE E'Processing of % FAILED', current_setting('script.xml_file');
+      --  RAISE NOTICE E'ERROR during processing of:\n-----\n%\n-----', scopus_doc_xml;
       RAISE;
   END $block$;
 
