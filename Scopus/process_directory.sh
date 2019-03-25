@@ -7,20 +7,24 @@ NAME
 
 SYNOPSIS
 
-    process_directory.sh [-c] working_directory [failed_files_directory]
+    process_directory.sh [-c] [-e] working_dir [failed_files_dir]
     process_directory.sh -h: display this help
 
 DESCRIPTION
 
-    * Parse all source Scopus files from he specified working_directory and update data in the DB in parallel.
+    * Parse all source Scopus files from the specified `working_dir` and update data in the DB in parallel.
     * Extract *.zip in the working directory one-by-one, updating files: newer and non-existent only.
-    * Move failed XML files to `failed_files_directory`, relative to the working directory (../failed/ by default)
-    * Produce logs with reduced verbosity to reduce log volume.
+    * Parsing and other SQL errors don't fail the build unless `-e` is specified.
+    * Move XML files failed to be parsed to `failed_files_dir`, relative to the working dir. (../failed/ by default)
+    * Produce a separate error log.
+    * Produce output with reduced verbosity to reduce log volume.
 
     The following options are available:
 
     -c    clean load: truncate data and remove previously failed files before processing.
     WARNING: be aware that you'll lose all loaded data!
+
+    -e    stop on the first error
 
 ENVIRONMENT
 
@@ -40,14 +44,17 @@ set -o pipefail
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
-declare -rx PSQL_ERROR_LOG=psql_errors.log
-readonly PARALLEL_JOB_LOG=parallel_job.log
-declare -x NOTIFICATIONS="False"
+declare -rx ERROR_LOG=errors.log
+#readonly PARALLEL_JOB_LOG=parallel_job.log
+declare -x FAILED_FILES="False"
 
 while (( $# > 0 )); do
   case "$1" in
     -c)
       readonly CLEAN_MODE=true
+      ;;
+    -e)
+      readonly STOP_ON_THE_FIRST_ERROR=true
       ;;
     *)
       break
@@ -68,11 +75,18 @@ if ! which parallel >/dev/null; then
 fi
 
 parse_xml() {
-  set -e
   local xml="$1"
   echo "Processing $xml ..."
-  psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql <"$xml" 2>> "${PSQL_ERROR_LOG}"
-  echo "$xml: done."
+  if psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" 2>> "${ERROR_LOG}"; then
+    echo "$xml: DONE."
+  else
+    echo -e "$xml FAILED\n" | tee -a "${ERROR_LOG}"
+    [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
+    full_path=$(realpath ${xml})
+    full_path=$(dirname ${full_path})
+    mv -f $full_path/ "${failed_files_dir}/"
+    exit 1
+  fi
 }
 export -f parse_xml
 
@@ -89,6 +103,8 @@ rm -rf tmp
 mkdir tmp
 #[[ ! -d processed ]] && mkdir processed
 
+[[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
+
 for scopus_data_archive in *.zip; do
   echo "Processing ${scopus_data_archive} ..."
 
@@ -97,27 +113,27 @@ for scopus_data_archive in *.zip; do
   # -q perform operations quietly
   unzip -u -q "${scopus_data_archive}" -d tmp
   cd tmp
-  failed_files_dir="../${FAILED_FILES_DIR}/${scopus_data_archive}"
+  export failed_files_dir="../${FAILED_FILES_DIR}/${scopus_data_archive}"
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
     # Process Scopus XML files in parallel
     # Reduced verbosity
     set +e
     set +o pipefail
-    
+    # --joblog "${PARALLEL_JOB_LOG}"
     find "${subdir}" -name '2*.xml' | \
-      parallel --joblog "${PARALLEL_JOB_LOG}" --halt never --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"
+      parallel ${PARALLEL_HALT_OPTION} --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"
     set -e
     set -o pipefail
-    file_names=$(cut -f 7,9 "${PARALLEL_JOB_LOG}" | awk '{if ($1 == "3") print $3;}')
-    if [[ -n ${file_names} ]]; then
-        NOTIFICATIONS="True"
-    fi
-    for i in $(echo $file_names); do
-      [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
-      full_path=$(realpath $i)
-      full_path=$(dirname $full_path)
-      mv -f $full_path/ "${failed_files_dir}/"
-    done
+#    failed_files=$(cut -f 7,9 "${PARALLEL_JOB_LOG}" | awk '{if ($1 == "3") print $3;}')
+#    if [[ -n ${failed_files} ]]; then
+#      FAILED_FILES="True"
+#    fi
+#    for i in $(echo $failed_files); do
+#      [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
+#      full_path=$(realpath $i)
+#      full_path=$(dirname $full_path)
+#      mv -f $full_path/ "${failed_files_dir}/"
+#    done
     rm -rf "${subdir}"
   done
   
@@ -125,18 +141,27 @@ for scopus_data_archive in *.zip; do
   cd ..
 done
 
-if [[ "$NOTIFICATIONS" == "True" ]]; then
-
-  declare error_contents=$(grep ERROR tmp/${PSQL_ERROR_LOG} | grep -v NOTICE | head -n 1)
-  { cat <<HEREDOC
-Error(s) occurred during processing of ${scopus_data_archive}.
-See the error log in ${PWD}/tmp/${PSQL_ERROR_LOG} and failed files in $(cd "${FAILED_FILES_DIR}" && pwd)/.
-The first error:
----
-${error_contents}
----
+# Errors occurred? Has the error log a size greater than zero?
+if [[ -s tmp/${ERROR_LOG} ]]; then
+  cat <<HEREDOC
+Error(s) occurred during processing of ${PWD}.
+=====
 HEREDOC
-  } | mailx -s "Scopus processing errors for ${PWD}/" j1c0b0d0w9w7g7v2@neteteam.slack.com
+  cat tmp/${ERROR_LOG}
+  echo "====="
+
+# No longer need a separate email notification now.
+# The build fails at the end if any errors occurred hence we get heads up.
+#  declare error_contents=$(grep ERROR tmp/${ERROR_LOG} | grep -v NOTICE | head -n 1)
+#  { cat <<HEREDOC
+#Error(s) occurred during processing of ${PWD}/
+#See the failed files in $(cd "${FAILED_FILES_DIR}" && pwd)/
+#The first error:
+#---
+#${error_contents}
+#---
+#HEREDOC
+#  } | mailx -s "Scopus processing errors for ${PWD}/" j1c0b0d0w9w7g7v2@neteteam.slack.com
 
   exit 1
 fi

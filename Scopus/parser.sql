@@ -5,27 +5,18 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
--- FIXME For production deployment, ON CONFLICT DO NOTHING need to be replaced by updatess
+SET script.xml_file = :'xml_file';
 
-CREATE TEMPORARY TABLE stg_scopus_doc (
-  scopus_doc_line_num SERIAL,
-  scopus_doc_line TEXT
-);
-
--- Import file to a table of lines
-\copy stg_scopus_doc(scopus_doc_line) FROM pstdin
+-- TODO ON CONFLICT DO NOTHING need to be replaced by updates
 
 DO $block$
   DECLARE
-    scopus_doc TEXT;
+    -- scopus_doc TEXT;
     scopus_doc_xml XML;
     cur RECORD;
   BEGIN
-    SELECT string_agg(ssd.scopus_doc_line, chr(10) ORDER BY ssd.scopus_doc_line_num) INTO scopus_doc
-    FROM stg_scopus_doc ssd;
-
-    SELECT xmlparse(DOCUMENT scopus_doc) INTO scopus_doc_xml
-    FROM stg_scopus_doc;
+    SELECT xmlparse(DOCUMENT convert_from(pg_read_binary_file(current_setting('script.xml_file')), 'UTF8'))
+      INTO scopus_doc_xml;
 
     -- scopus_publication_groups, scopus_publications attributes
     FOR cur IN (
@@ -125,7 +116,7 @@ DO $block$
 
   EXCEPTION
     WHEN OTHERS THEN --
-      RAISE NOTICE E'ERROR during processing of:\n-----\n%\n-----', scopus_doc;
+      RAISE NOTICE E'ERROR during processing of:\n-----\n%\n-----', scopus_doc_xml;
       RAISE;
   END $block$;
 
