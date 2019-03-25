@@ -368,3 +368,31 @@ AS $$
   END;
   $$
   LANGUAGE plpgsql;
+
+-- additional source information
+CREATE OR REPLACE PROCEDURE update_scopus_publications_singular(scopus_doc_xml XML)
+AS $$
+  BEGIN
+
+    UPDATE scopus_publications sp
+    SET pub_type = singular.pub_type,
+        process_stage = singular.process_stage,
+        state = singular.state,
+        date_sort = singular.date_sort
+    FROM (SELECT scp, pub_type, process_stage, state, make_date(sort_year, sort_month, sort_day) AS date_sort
+          FROM xmltable(--
+               XMLNAMESPACES ('http://www.elsevier.com/xml/ani/ait' AS ait), --
+               '//ait:process-info' PASSING scopus_doc_xml COLUMNS --
+                scp BIGINT PATH '//bibrecord/item-info/itemidlist/itemid[@idtype="SCP"]',
+                pub_type TEXT PATH 'ait:status/@type',
+                process_stage TEXT PATH 'ait:status/@stage',
+                state TEXT PATH 'ait:status/@state',
+                sort_year SMALLINT PATH 'ait:date-sort/@year',
+                sort_month SMALLINT PATH 'ait:date-sort/@month',
+                sort_day SMALLINT PATH 'ait:date-sort/@day')
+         ) AS singular
+    WHERE sp.scp = singular.scp;
+    
+  END;
+  $$
+  LANGUAGE plpgsql;
