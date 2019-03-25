@@ -24,7 +24,11 @@ CREATE TABLE scopus_publications (
   correspondence_orgs TEXT,
   correspondence_city TEXT,
   correspondence_country TEXT,
-  correspondence_e_address TEXT
+  correspondence_e_address TEXT,
+  pub_type TEXT,
+  process_stage TEXT,
+  state TEXT,
+  date_sort DATE,
 ) TABLESPACE scopus_tbs;
 
 DROP TABLE IF EXISTS scopus_pub_authors CASCADE;
