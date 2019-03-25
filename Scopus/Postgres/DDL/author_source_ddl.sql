@@ -115,6 +115,12 @@ IS 'The order of the authors in the document. Example: 1';
 COMMENT ON COLUMN scopus_affiliation_mapping.affiliation_no
 IS 'Affiliation sequence in the document. Example: 1';
 
+ALTER TABLE scopus_affiliation_mapping
+  ADD CONSTRAINT scopus_scp_author_seq_fk FOREIGN KEY (scp, author_seq) REFERENCES scopus_authors (scp, author_seq) ON DELETE CASCADE;
+
+ALTER TABLE scopus_affiliation_mapping
+  ADD CONSTRAINT scopus_scp_affiliation_no_fk FOREIGN KEY (scp, affiliation_no) REFERENCES scopus_affiliations (scp, affiliation_no) ON DELETE CASCADE;
+  
 -- scopus_sources
 DROP TABLE IF EXISTS scopus_sources CASCADE;
 
