@@ -85,10 +85,37 @@ parse_xml() {
     full_path=$(realpath ${xml})
     full_path=$(dirname ${full_path})
     mv -f $full_path/ "${failed_files_dir}/"
-    exit 1
+    return 1
   fi
 }
 export -f parse_xml
+
+check_errors() {
+  # Errors occurred? Has the error log a size greater than zero?
+  if [[ -s tmp/${ERROR_LOG} ]]; then
+    cat <<HEREDOC
+Error(s) occurred during processing of ${PWD}.
+=====
+HEREDOC
+    cat tmp/${ERROR_LOG}
+    echo "====="
+
+  # No longer need a separate email notification now.
+  # The build fails at the end if any errors occurred hence we get heads up.
+  #  declare error_contents=$(grep ERROR tmp/${ERROR_LOG} | grep -v NOTICE | head -n 1)
+  #  { cat <<HEREDOC
+  #Error(s) occurred during processing of ${PWD}/
+  #See the failed files in $(cd "${FAILED_FILES_DIR}" && pwd)/
+  #The first error:
+  #---
+  #${error_contents}
+  #---
+  #HEREDOC
+  #  } | mailx -s "Scopus processing errors for ${PWD}/" j1c0b0d0w9w7g7v2@neteteam.slack.com
+
+    exit 1
+  fi
+}
 
 if [[ "${CLEAN_MODE}" == true ]]; then
   # language=PostgresPLSQL
@@ -117,13 +144,15 @@ for scopus_data_archive in *.zip; do
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
     # Process Scopus XML files in parallel
     # Reduced verbosity
-    set +e
-    set +o pipefail
+#    set +e
+#    set +o pipefail
     # --joblog "${PARALLEL_JOB_LOG}"
-    find "${subdir}" -name '2*.xml' | \
-      parallel ${PARALLEL_HALT_OPTION} --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"
-    set -e
-    set -o pipefail
+    if ! find "${subdir}" -name '2*.xml' | \
+        parallel ${PARALLEL_HALT_OPTION} --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"; then
+      [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors
+    fi
+#    set -e
+#    set -o pipefail
 #    failed_files=$(cut -f 7,9 "${PARALLEL_JOB_LOG}" | awk '{if ($1 == "3") print $3;}')
 #    if [[ -n ${failed_files} ]]; then
 #      FAILED_FILES="True"
@@ -141,28 +170,5 @@ for scopus_data_archive in *.zip; do
   cd ..
 done
 
-# Errors occurred? Has the error log a size greater than zero?
-if [[ -s tmp/${ERROR_LOG} ]]; then
-  cat <<HEREDOC
-Error(s) occurred during processing of ${PWD}.
-=====
-HEREDOC
-  cat tmp/${ERROR_LOG}
-  echo "====="
-
-# No longer need a separate email notification now.
-# The build fails at the end if any errors occurred hence we get heads up.
-#  declare error_contents=$(grep ERROR tmp/${ERROR_LOG} | grep -v NOTICE | head -n 1)
-#  { cat <<HEREDOC
-#Error(s) occurred during processing of ${PWD}/
-#See the failed files in $(cd "${FAILED_FILES_DIR}" && pwd)/
-#The first error:
-#---
-#${error_contents}
-#---
-#HEREDOC
-#  } | mailx -s "Scopus processing errors for ${PWD}/" j1c0b0d0w9w7g7v2@neteteam.slack.com
-
-  exit 1
-fi
+check_errors
 exit 0
