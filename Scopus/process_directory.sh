@@ -24,8 +24,6 @@ DESCRIPTION
     -c    clean load: truncate data and remove previously failed files before processing.
     WARNING: be aware that you'll lose all loaded data!
 
-    -e    stop on the first error
-
 ENVIRONMENT
 
     * PGHOST/PGDATABASE/PGUSER  default Postgres connection parameters
@@ -34,8 +32,10 @@ AUTHOR(S)
 
     Written by Dmitriy "DK" Korobskiy.
 HEREDOC
+#-e    stop on the first error
   exit 1
 fi
+
 
 set -e
 set -o pipefail
@@ -54,8 +54,9 @@ while (( $# > 0 )); do
       readonly CLEAN_MODE=true
       ;;
     -e)
+      # TODO This is not working currently
       readonly STOP_ON_THE_FIRST_ERROR=true
-      echo "Would stop on a first error."
+      echo "process_directory.sh should stop on the first error."
       ;;
     *)
       break
@@ -92,7 +93,7 @@ parse_xml() {
 export -f parse_xml
 
 check_errors() {
-  # Errors occurred? Has the error log a size greater than zero?
+  # Errors occurred? Does the error log have a size greater than zero?
   if [[ -s tmp/${ERROR_LOG} ]]; then
     cat <<HEREDOC
 Error(s) occurred during processing of ${PWD}.

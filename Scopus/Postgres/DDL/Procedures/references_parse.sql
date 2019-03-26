@@ -21,7 +21,7 @@ $$
     ON CONFLICT DO NOTHING;
     EXCEPTION WHEN OTHERS THEN
       RAISE NOTICE 'FAILURE OCCURED ON BULK INSERT, SWITCHING TO INDIVIDUAL INSERT+DEBUG FUNCTION';
-      PERFORM update_references_debug(input_xml);
+      CALL update_references_debug(input_xml);
   END;
 $$
 LANGUAGE plpgsql;
