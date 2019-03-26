@@ -1,7 +1,7 @@
 # Code for Statistical Analysis
 
 This folder contains the following Python code files, which were used in:
-- Statistical Analysis
+- Executing statistical analysis
 - Creating JSON files for later graphing
 - Creating graphs for Figure 2 in the main paper
 - Preparing Latex-formatted text for tables in the main paper, the SI document and the ancillary data (https://bit.ly/2CFMOuf)
