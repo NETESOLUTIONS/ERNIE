@@ -16,5 +16,6 @@ This folder contains the following documents:
 HypothesisTestsFinal.py
     - For computing hypothesis tests, creating Latex table text, JSON graph files, and other output
 - jpScatterPlot.py
+    - For plotting scatter plot of journal-pair z-scores relative to the Immunology and Web of Science data sets as shown in Figure 2, Panel (a)
 - tabHitRateFinal.py
     - For accumulating hit rate data from JSON data files and creating Latex table text
