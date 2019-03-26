@@ -14,9 +14,10 @@ $$
      FROM
      XMLTABLE('//bibrecord/tail/bibliography/reference' PASSING input_xml
               COLUMNS
-                  scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
-                  ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',
-                  pub_ref_id INT PATH'@id'
+                scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
+                ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',
+                pub_ref_id INT PATH'@id',
+                ref_fulltext TEXT PATH 'ref-fulltext/text()[1]'
                 )
     ON CONFLICT DO NOTHING;
     EXCEPTION WHEN OTHERS THEN
@@ -36,13 +37,14 @@ $$
         SELECT xmltable.*
          FROM XMLTABLE('//bibrecord/tail/bibliography/reference' PASSING input_xml
                   COLUMNS
-                      scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
-                      ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',
-                      pub_ref_id INT PATH'@id'
+                    scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
+                    ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',
+                    pub_ref_id INT PATH'@id',
+                    ref_fulltext TEXT PATH 'ref-fulltext/text()[1]'
                     )
       LOOP
         BEGIN
-          INSERT INTO scopus_references VALUES (row.scp,row.ref_sgr,row.pub_ref_id) ON CONFLICT DO NOTHING;
+          INSERT INTO scopus_references VALUES (row.scp,row.ref_sgr,row.pub_ref_id,row.ref_fulltext) ON CONFLICT DO NOTHING;
         -- Exception commented out so that error bubbles up
         /*EXCEPTION WHEN OTHERS THEN
           RAISE NOTICE 'CANNOT INSERT VALUES (scp=%,ref_sgr=%,pub_ref_id=%)',row.scp,row.ref_sgr,row.pub_ref_id;
