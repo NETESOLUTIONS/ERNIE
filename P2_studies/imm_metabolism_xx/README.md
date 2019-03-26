@@ -25,7 +25,8 @@ metabolism_2005_wos_ids (200052 records)
 
 source_ids from these datasets were used to subset whole-year WoS slices to create input 
 files for permutation calculations. Then z-scores were calculated as described elsewhere
-in this repo.
+in this repo. *Note that the number of records decreases when merged with citation data
+since we select for publications that have at least one citation and some have none*
  
 
 
