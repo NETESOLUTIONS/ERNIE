@@ -11,7 +11,7 @@ All code is implemented with Python Version 3.6.
 This folder contains the following documents:
 - graphJSONPaperFinal.py
     - For computing the graphs showns in the main paper
-- graphAll.py
+- graphAllJSONFinal.py
     - For graphing all results
 - HypothesisTestsFinal.py
     - For computing hypothesis tests, creating Latex table text, JSON graph files, and other output

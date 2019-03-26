@@ -9,14 +9,15 @@ SET TIMEZONE = 'US/Eastern';
 CREATE OR REPLACE PROCEDURE update_references(input_xml XML) AS
 $$
   BEGIN
-    INSERT INTO scopus_references(scp,ref_sgr,pub_ref_id)
+    INSERT INTO scopus_references(scp,ref_sgr,pub_ref_id,ref_fulltext)
     SELECT xmltable.*
      FROM
      XMLTABLE('//bibrecord/tail/bibliography/reference' PASSING input_xml
               COLUMNS
-                  scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
-                  ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',
-                  pub_ref_id INT PATH'@id'
+                scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
+                ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',
+                pub_ref_id INT PATH'@id',
+                ref_fulltext TEXT PATH 'ref-fulltext/text()[1]' -- should work around situations where additional tags are included in the text field (e.g. a <br/> tag). Otherwise, would encounter a "more than one value returned by column XPath expression" error.
                 )
     ON CONFLICT DO NOTHING;
     EXCEPTION WHEN OTHERS THEN
@@ -36,13 +37,14 @@ $$
         SELECT xmltable.*
          FROM XMLTABLE('//bibrecord/tail/bibliography/reference' PASSING input_xml
                   COLUMNS
-                      scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
-                      ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',
-                      pub_ref_id INT PATH'@id'
+                    scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
+                    ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',
+                    pub_ref_id INT PATH'@id',
+                    ref_fulltext TEXT PATH 'ref-fulltext/text()[1]' -- should work around situations where additional tags are included in the text field (e.g. a <br/> tag)
                     )
       LOOP
         BEGIN
-          INSERT INTO scopus_references VALUES (row.scp,row.ref_sgr,row.pub_ref_id) ON CONFLICT DO NOTHING;
+          INSERT INTO scopus_references VALUES (row.scp,row.ref_sgr,row.pub_ref_id,row.ref_fulltext) ON CONFLICT DO NOTHING;
         -- Exception commented out so that error bubbles up
         /*EXCEPTION WHEN OTHERS THEN
           RAISE NOTICE 'CANNOT INSERT VALUES (scp=%,ref_sgr=%,pub_ref_id=%)',row.scp,row.ref_sgr,row.pub_ref_id;
