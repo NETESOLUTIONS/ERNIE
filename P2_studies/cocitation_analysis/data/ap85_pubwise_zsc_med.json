@@ -1,0 +1,274 @@
+{
+  "H01N10": {
+    "LNHC": {
+      "hit": 11,
+      "non-hit": 2069,
+      "total": 2080,
+      "hitPerc": 0.0052884615,
+      "totPerc": 0.2472364198,
+      "Ehits": 21.0150956852
+    },
+    "HNLC": {
+      "hit": 49,
+      "non-hit": 3947,
+      "total": 3996,
+      "hitPerc": 0.0122622623,
+      "totPerc": 0.4749791989,
+      "Ehits": 40.373231903
+    },
+    "LNLC": {
+      "hit": 0,
+      "non-hit": 212,
+      "total": 212,
+      "hitPerc": 0.0,
+      "totPerc": 0.0251990966,
+      "Ehits": 2.1419232141
+    },
+    "HNHC": {
+      "hit": 25,
+      "non-hit": 2100,
+      "total": 2125,
+      "hitPerc": 0.0117647059,
+      "totPerc": 0.2525852847,
+      "Ehits": 21.4697491977
+    }
+  },
+  "H01N01": {
+    "LNHC": {
+      "hit": 6,
+      "non-hit": 1494,
+      "total": 1500,
+      "hitPerc": 0.004,
+      "totPerc": 0.1782954951,
+      "Ehits": 15.1551170807
+    },
+    "HNLC": {
+      "hit": 49,
+      "non-hit": 3987,
+      "total": 4036,
+      "hitPerc": 0.0121407334,
+      "totPerc": 0.4797337454,
+      "Ehits": 40.7773683585
+    },
+    "LNLC": {
+      "hit": 0,
+      "non-hit": 172,
+      "total": 172,
+      "hitPerc": 0.0,
+      "totPerc": 0.0204445501,
+      "Ehits": 1.7377867586
+    },
+    "HNHC": {
+      "hit": 30,
+      "non-hit": 2675,
+      "total": 2705,
+      "hitPerc": 0.011090573,
+      "totPerc": 0.3215262094,
+      "Ehits": 27.3297278022
+    }
+  },
+  "H02N10": {
+    "LNHC": {
+      "hit": 19,
+      "non-hit": 2061,
+      "total": 2080,
+      "hitPerc": 0.0091346154,
+      "totPerc": 0.2472364198,
+      "Ehits": 42.2774277903
+    },
+    "HNLC": {
+      "hit": 98,
+      "non-hit": 3898,
+      "total": 3996,
+      "hitPerc": 0.0245245245,
+      "totPerc": 0.4749791989,
+      "Ehits": 81.2214430049
+    },
+    "LNLC": {
+      "hit": 2,
+      "non-hit": 210,
+      "total": 212,
+      "hitPerc": 0.0094339623,
+      "totPerc": 0.0251990966,
+      "Ehits": 4.3090455248
+    },
+    "HNHC": {
+      "hit": 52,
+      "non-hit": 2073,
+      "total": 2125,
+      "hitPerc": 0.0244705882,
+      "totPerc": 0.2525852847,
+      "Ehits": 43.19208368
+    }
+  },
+  "H02N01": {
+    "LNHC": {
+      "hit": 8,
+      "non-hit": 1492,
+      "total": 1500,
+      "hitPerc": 0.0053333333,
+      "totPerc": 0.1782954951,
+      "Ehits": 30.4885296565
+    },
+    "HNLC": {
+      "hit": 98,
+      "non-hit": 3938,
+      "total": 4036,
+      "hitPerc": 0.0242814668,
+      "totPerc": 0.4797337454,
+      "Ehits": 82.0344704624
+    },
+    "LNLC": {
+      "hit": 2,
+      "non-hit": 170,
+      "total": 172,
+      "hitPerc": 0.011627907,
+      "totPerc": 0.0204445501,
+      "Ehits": 3.4960180673
+    },
+    "HNHC": {
+      "hit": 63,
+      "non-hit": 2642,
+      "total": 2705,
+      "hitPerc": 0.0232902033,
+      "totPerc": 0.3215262094,
+      "Ehits": 54.9809818139
+    }
+  },
+  "H05N10": {
+    "LNHC": {
+      "hit": 62,
+      "non-hit": 2018,
+      "total": 2080,
+      "hitPerc": 0.0298076923,
+      "totPerc": 0.2472364198,
+      "Ehits": 105.0754784262
+    },
+    "HNLC": {
+      "hit": 219,
+      "non-hit": 3777,
+      "total": 3996,
+      "hitPerc": 0.0548048048,
+      "totPerc": 0.4749791989,
+      "Ehits": 201.866159515
+    },
+    "LNLC": {
+      "hit": 6,
+      "non-hit": 206,
+      "total": 212,
+      "hitPerc": 0.0283018868,
+      "totPerc": 0.0251990966,
+      "Ehits": 10.7096160704
+    },
+    "HNHC": {
+      "hit": 138,
+      "non-hit": 1987,
+      "total": 2125,
+      "hitPerc": 0.0649411765,
+      "totPerc": 0.2525852847,
+      "Ehits": 107.3487459884
+    }
+  },
+  "H05N01": {
+    "LNHC": {
+      "hit": 35,
+      "non-hit": 1465,
+      "total": 1500,
+      "hitPerc": 0.0233333333,
+      "totPerc": 0.1782954951,
+      "Ehits": 75.7755854035
+    },
+    "HNLC": {
+      "hit": 219,
+      "non-hit": 3817,
+      "total": 4036,
+      "hitPerc": 0.0542616452,
+      "totPerc": 0.4797337454,
+      "Ehits": 203.8868417925
+    },
+    "LNLC": {
+      "hit": 6,
+      "non-hit": 166,
+      "total": 172,
+      "hitPerc": 0.0348837209,
+      "totPerc": 0.0204445501,
+      "Ehits": 8.6889337929
+    },
+    "HNHC": {
+      "hit": 165,
+      "non-hit": 2540,
+      "total": 2705,
+      "hitPerc": 0.0609981516,
+      "totPerc": 0.3215262094,
+      "Ehits": 136.6486390111
+    }
+  },
+  "H10N10": {
+    "LNHC": {
+      "hit": 140,
+      "non-hit": 1940,
+      "total": 2080,
+      "hitPerc": 0.0673076923,
+      "totPerc": 0.2472364198,
+      "Ehits": 211.1399025318
+    },
+    "HNLC": {
+      "hit": 422,
+      "non-hit": 3574,
+      "total": 3996,
+      "hitPerc": 0.1056056056,
+      "totPerc": 0.4749791989,
+      "Ehits": 405.6322358255
+    },
+    "LNLC": {
+      "hit": 11,
+      "non-hit": 201,
+      "total": 212,
+      "hitPerc": 0.0518867925,
+      "totPerc": 0.0251990966,
+      "Ehits": 21.5200285273
+    },
+    "HNHC": {
+      "hit": 281,
+      "non-hit": 1844,
+      "total": 2125,
+      "hitPerc": 0.1322352941,
+      "totPerc": 0.2525852847,
+      "Ehits": 215.7078331154
+    }
+  },
+  "H10N01": {
+    "LNHC": {
+      "hit": 83,
+      "non-hit": 1417,
+      "total": 1500,
+      "hitPerc": 0.0553333333,
+      "totPerc": 0.1782954951,
+      "Ehits": 152.2643527874
+    },
+    "HNLC": {
+      "hit": 423,
+      "non-hit": 3613,
+      "total": 4036,
+      "hitPerc": 0.1048067393,
+      "totPerc": 0.4797337454,
+      "Ehits": 409.6926185665
+    },
+    "LNLC": {
+      "hit": 10,
+      "non-hit": 162,
+      "total": 172,
+      "hitPerc": 0.0581395349,
+      "totPerc": 0.0204445501,
+      "Ehits": 17.4596457863
+    },
+    "HNHC": {
+      "hit": 338,
+      "non-hit": 2367,
+      "total": 2705,
+      "hitPerc": 0.1249537893,
+      "totPerc": 0.3215262094,
+      "Ehits": 274.5833828599
+    }
+  }
+}
