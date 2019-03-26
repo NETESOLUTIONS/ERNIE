@@ -8,7 +8,7 @@ This folder contains the following Python code files, which were used in:
 
 This folder contains the following documents:
 - HypothesisTestsFinal.py
-    - For computing hypothesis tests, creating Latex table text, JSON graph files, and otehr output
+    - For computing hypothesis tests, creating Latex table text, JSON graph files, and other output
 - .json
 - graphJSONPaperV5.py
 - jpScatterPlot.py
