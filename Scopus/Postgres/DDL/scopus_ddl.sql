@@ -73,17 +73,17 @@ COMMENT ON COLUMN scopus_references.ref_fulltext IS --
 DROP TABLE IF EXISTS scopus_publication_identifiers CASCADE;
 
 CREATE TABLE IF NOT EXISTS scopus_publication_identifiers (
-  scp_id BIGINT
+  scp BIGINT
     CONSTRAINT spi_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   document_id TEXT NOT NULL,
   document_id_type TEXT NOT NULL,
-  CONSTRAINT scopus_publiaction_identifiers_pk PRIMARY KEY (scp_id, document_id_type, document_id) --
+  CONSTRAINT scopus_publiaction_identifiers_pk PRIMARY KEY (scp, document_id_type, document_id) --
     USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
 COMMENT ON TABLE scopus_publication_identifiers IS 'ELSEVIER: Scopus document identifiers of documents such as doi';
 
-COMMENT ON COLUMN scopus_publication_identifiers.scp_id IS --
+COMMENT ON COLUMN scopus_publication_identifiers.scp IS --
   'Scopus id that uniquely identifies document Ex: 85046115382';
 
 COMMENT ON COLUMN scopus_publication_identifiers.document_id IS 'Document id Ex: S1322769617302901';
@@ -94,18 +94,18 @@ COMMENT ON COLUMN scopus_publication_identifiers.document_id_type IS 'Document i
 DROP TABLE IF EXISTS scopus_abstracts CASCADE;
 
 CREATE TABLE IF NOT EXISTS scopus_abstracts (
-  scp_id BIGINT
+  scp BIGINT
     CONSTRAINT sa_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   abstract_text TEXT NOT NULL,
   abstract_language TEXT NOT NULL,
   abstract_source TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_abstracts_pk PRIMARY KEY (scp_id, abstract_language) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_abstracts_pk PRIMARY KEY (scp, abstract_language) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
 COMMENT ON TABLE scopus_abstracts IS 'ELSEVIER: Scopus abstracts of publications';
 
-COMMENT ON COLUMN scopus_abstracts.scp_id IS 'Scopus id that uniquely identifies document Ex: 85046115382';
+COMMENT ON COLUMN scopus_abstracts.scp IS 'Scopus id that uniquely identifies document Ex: 85046115382';
 
 COMMENT ON COLUMN scopus_abstracts.abstract_text IS 'Contains an abstract of the document';
 
@@ -117,18 +117,18 @@ COMMENT ON COLUMN scopus_abstracts.abstract_source IS --
 DROP TABLE IF EXISTS scopus_titles CASCADE;
 
 CREATE TABLE IF NOT EXISTS scopus_titles (
-  scp_id BIGINT
+  scp BIGINT
     CONSTRAINT st_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   title TEXT NOT NULL,
   type TEXT NOT NULL,
   language TEXT NOT NULL,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_titles_pk PRIMARY KEY (scp_id, language) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_titles_pk PRIMARY KEY (scp, language) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
 COMMENT ON TABLE scopus_titles IS 'ELSEVIER: Scopus title of publications';
 
-COMMENT ON COLUMN scopus_titles.scp_id IS 'Scopus id that uniquely identifies document Ex: 85046115382';
+COMMENT ON COLUMN scopus_titles.scp IS 'Scopus id that uniquely identifies document Ex: 85046115382';
 
 COMMENT ON COLUMN scopus_titles.title IS --
   'Contains the original or translated title of the document. Ex: The genus Tragus';
@@ -141,16 +141,16 @@ COMMENT ON COLUMN scopus_titles.language IS 'Language of the title Ex: eng,esp';
 DROP TABLE IF EXISTS scopus_keywords CASCADE;
 
 CREATE TABLE IF NOT EXISTS scopus_keywords (
-  scp_id BIGINT
+  scp BIGINT
     CONSTRAINT sk_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   keyword TEXT NOT NULL,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_keywords_pk PRIMARY KEY (scp_id, keyword) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_keywords_pk PRIMARY KEY (scp, keyword) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
 COMMENT ON TABLE scopus_keywords IS 'ELSEVIER: Keyword information table';
 
-COMMENT ON COLUMN scopus_keywords.scp_id IS 'Scopus id that uniquely identifies document Ex: 85046115382';
+COMMENT ON COLUMN scopus_keywords.scp IS 'Scopus id that uniquely identifies document Ex: 85046115382';
 
 COMMENT ON COLUMN scopus_keywords.keyword IS --
   'Keywords assigned to document by authors Ex: headache, high blood pressure';
@@ -158,19 +158,19 @@ COMMENT ON COLUMN scopus_keywords.keyword IS --
 DROP TABLE IF EXISTS scopus_chemicalgroups CASCADE;
 
 CREATE TABLE IF NOT EXISTS scopus_chemicalgroups (
-  scp_id BIGINT
+  scp BIGINT
     CONSTRAINT sc_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   chemicals_source TEXT NOT NULL,
   chemical_name TEXT NOT NULL,
   cas_registry_number TEXT NOT NULL DEFAULT ' ',
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_chemicalgroups_pk PRIMARY KEY (scp_id, chemical_name, cas_registry_number) --
+  CONSTRAINT scopus_chemicalgroups_pk PRIMARY KEY (scp, chemical_name, cas_registry_number) --
     USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
 COMMENT ON TABLE scopus_chemicalgroups IS 'ELSEVIER: Chemical names that occur in the document';
 
-COMMENT ON COLUMN scopus_chemicalgroups.scp_id IS 'Scopus id that uniquely identifies document Ex: 85046115382';
+COMMENT ON COLUMN scopus_chemicalgroups.scp IS 'Scopus id that uniquely identifies document Ex: 85046115382';
 
 COMMENT ON COLUMN scopus_chemicalgroups.chemicals_source IS 'Source of the chemical elements Ex: mln,esbd';
 
