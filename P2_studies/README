@@ -9,4 +9,5 @@ All the folders at this level relate to studies done in Phase II of the ERNIE pr
 8. workflow_pnas.pdf- graphic of our principal MCMC workflow (pdf)
 9. workflow_png.001.png- graphic of our principal MCMC workflow (png)
 10. Analytical scripts relating  to Bradley et al (2019) (submitted) are in the Permutation_Testing 
-and cocitation_analysis folders
+and cocitation_analysis folders, Production processes, some controlled by the Jenkins CI server, are
+found in other parts of this repo.
