@@ -60,7 +60,8 @@ Thus, the workflow is
 This process tends to slow down with large dataset such as WoS in 2005 with ~886,000 publications and 5.8 million
 journal pairs. Thus, the entire process has been ported to Spark and provisioning a cluster, copying source data from 
 the ERNIE PostgreSQL database over to Spark, conducting in-memory calculations, and copying a final table back to 
-PostgreSQL has been automated (see Spark folder).
+PostgreSQL has been automated (see Spark folder). Comparative performance data has been generated and will be posted 
+soon.
 
 
 
