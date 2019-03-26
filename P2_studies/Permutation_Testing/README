@@ -25,8 +25,9 @@ Using the *multi-set* accounts for existing citation frequency when selecting po
 in year X that has accumulated 10,000 citations is more likely to be selected than a publication that is cited only once. 
 Thus, reference a in publications A,B,C could be replaced by references [a,b,c]. This process is very fast in comparison 
 and we have scaled it up even further by porting it to the Spark environment. In a recent comparison of publications in 
-WoS in 1995, a single simulation using the 'satyam_mukherjee_mcmc.py' In contrast, we ran 1,000 simulations in 60 hours 
-for the same dataset (admittedly by using a small cluster).
+WoS in 1995, ten simulations using the 'satyam_mukherjee_mcmc.py' took roughly 22 hours per simulation on a 32 Gb 
+CentOS VM. In contrast, we ran 1,000 simulations in 60 hours for the same dataset (admittedly by using a small 
+Spark cluster).
 
 For input data we selected all publications of type 'Article' in WoS for a given year. Articles are then filtered to 
 those that have at least two references in them. Further, only those references that have complete records in the Web 
