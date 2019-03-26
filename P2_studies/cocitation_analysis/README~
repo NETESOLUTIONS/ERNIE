@@ -1,0 +1,55 @@
+March 22, 2019
+# Author: George Chacko
+
+The contents of this folder are a set of scripts authored by Jim Bradley (james.bradley@mason.wm.edu)used 
+in statistical analysis of the data and pertain to Figure 2 and relevant supplementary information for the manuscript 
+titled 'Co-citations in Context' Bradley et al. (2019).
+
+/* Background Information */
+As part of our co-citation study, we constructed datasets based on broad keyword based searches intended 
+to assemble sets of publications within biomedical research. Accordingly, 
+
+ap85: search subject field in wos_publication_subjects (see schema) for 'physics, applied' and joining the 
+output with wos_publications to restrict by publication_year='1985'.
+imm85: search PubMed for 'immunology' in all fields plus pub dates of 1985-01-01 to 1985-12-31. Match 
+resultant pmids with wos_ids using wos_pmid_mapping table.
+metab85: search PubMed for 'metabolism' in all fields plus pub dates of 1985-01-01 to 1985-12-31. Match 
+resultant pmids with wos_ids using wos_pmid_mapping table.
+
+ap95: search subject field in wos_publication_subjects (see schema) for 'physics, applied' and joining the 
+output with wos_publications to restrict by publication_year='1995'.
+imm95: search PubMed for 'immunology' in all fields plus pub dates of 1995-01-01 to 1995-12-31. Match 
+resultant pmids with wos_ids using wos_pmid_mapping table.
+metab95: search PubMed for 'metabolism' in all fields plus pub dates of 1995-01-01 to 1995-12-31. Match 
+resultant pmids with wos_ids using wos_pmid_mapping table.
+
+ap2005: search subject field in wos_publication_subjects (see schema) for 'physics, applied' and joining the 
+output with wos_publications to restrict by publication_year='2005'.
+imm2005: search PubMed for 'immunology' in all fields plus pub dates of 1995-01-01 to 1995-12-31. Match 
+resultant pmids with wos_ids using wos_pmid_mapping table.
+metab2005: search PubMed for 'metabolism' in all fields plus pub dates of 1995-01-01 to 1995-12-31. Match 
+resultant pmids with wos_ids using wos_pmid_mapping table.
+
+pmids were downloaded for these searches and mapped to wos_ids to create the tables
+
+dataset1985_ap (10298 publications)
+dataset1995_ap (21012 publications)
+dataset2005_ap (35600 publications)   
+
+immunology_1985_wos_ids (21606 publications)
+immunology_1995_wos_ids (29320 publications)
+immunology_2005_wos_ids (37296 publications)
+
+
+metabolism_1985_wos_ids (78998 publications)
+metabolism_1995_wos_ids (121247 publications)
+metabolism_2005_wos_ids (200052 publications)
+
+source_ids(publications) from these datasets were used to subset whole-year WoS slices to create input 
+files for permutation calculations. Corresponding z-scores were calculated as described elsewhere in this 
+repo.
+
+
+ 
+
+
