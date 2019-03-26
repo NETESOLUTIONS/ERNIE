@@ -13,7 +13,7 @@ This folder contains the following documents:
     - For computing the graphs showns in the main paper
 - graphAll.py
     - For graphing all results
-HypothesisTestsFinal.py
+- HypothesisTestsFinal.py
     - For computing hypothesis tests, creating Latex table text, JSON graph files, and other output
 - jpScatterPlot.py
     - For plotting scatter plot of journal-pair z-scores relative to the Immunology and Web of Science data sets as shown in Figure 2, Panel (a)
