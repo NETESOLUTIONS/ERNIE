@@ -14,3 +14,5 @@ This folder contains the following documents:
 - graphAll.py
     - For graphing all results
 - jpScatterPlot.py
+- tabHitRateFinal.py
+    - For accumulating hit rate data from JSON data files and creating Latex table text
