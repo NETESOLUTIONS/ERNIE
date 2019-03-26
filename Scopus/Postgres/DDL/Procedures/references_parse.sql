@@ -17,7 +17,7 @@ $$
                 scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
                 ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',
                 pub_ref_id INT PATH'@id',
-                ref_fulltext TEXT PATH 'ref-fulltext/text()[1]'
+                ref_fulltext TEXT PATH 'ref-fulltext/text()[1]' -- should work around situations where additional tags are included in the text field (e.g. a <br/> tag). Otherwise, would encounter a "more than one value returned by column XPath expression" error.
                 )
     ON CONFLICT DO NOTHING;
     EXCEPTION WHEN OTHERS THEN
@@ -40,7 +40,7 @@ $$
                     scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
                     ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',
                     pub_ref_id INT PATH'@id',
-                    ref_fulltext TEXT PATH 'ref-fulltext/text()[1]'
+                    ref_fulltext TEXT PATH 'ref-fulltext/text()[1]' -- should work around situations where additional tags are included in the text field (e.g. a <br/> tag)
                     )
       LOOP
         BEGIN
