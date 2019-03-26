@@ -9,7 +9,12 @@ various operations. In plain language, an iteration process selects publication 
 said publication is replaced by a random selection from the *set* of eligible references published in the same year. 
 If the potential replacement candidate is not the same as the reference to be replaced then a switch is made. If 
 it is the same, then up to 20 tries are made to find a non-self replacement. This process occurs for all the references 
-in the set of publications being analyzed. See 'satyam_mukherjee_mcmc.py' kindly provided by the authors of this paper. 
+in the set of publications being analyzed. Secondly, for this substitution, a reciprocal substitution is also made for 
+a corresponding publication. Thus, if publication A cites reference a published in year X then a is substituted with 
+reference b also published in year X and and a randomly selected publication, say publication B that cites b, will 
+have b replaced with a. 
+
+ See 'satyam_mukherjee_mcmc.py' kindly provided by the authors of this paper. 
 Thus, reference a in publications A,B,C could be replaced by references [b,c,d] or [b,b,d] but not a. 
 
 Our approach is very similar but we use the data.table package in R for speedup. References are first grouped by 
