@@ -6,7 +6,7 @@ This folder contains the following Python code files, which were used in:
 - Creating graphs for Figure 2 in the main paper
 - Preparing Latex-formatted text for tables in the main paper, the SI document and the ancillary data (https://github.com/NETESOLUTIONS/ERNIE/blob/master/P2_studies/cocitation_analysis/data/PNASCocitAncillaryData.pdf)
 
-All code using Python Version 3.6.
+All code is implemented with Python Version 3.6.
 
 This folder contains the following documents:
 - graphJSONPaperFinal.py
