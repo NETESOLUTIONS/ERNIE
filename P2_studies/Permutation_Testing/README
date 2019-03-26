@@ -2,42 +2,52 @@
 # the co-citation analysis project that is largely inspired by a combination of
 # our experience with the data in ERNIE and the Science paper in 2013 by Uzzi et al.
 
-# Discussion of algorithmic approach in Uzzi et al (2013) vs the one we used. The MCMC algorithmic approach in Uzzi et al (2013), 
-DOI: 10.1126/science.1240474 for citation switching involves building three dicts containing publications, references, and year of publication 
-information, and using them as lookup tables for various operations. In plain language, an iteration process selects publication in turn. Then 
-each reference in that publication is replaced by a random selection from the *set* of eligible references published in the same year. If the 
-potential replacement candidate is not the same as the reference to be replaced then a switch is made. If it is the same, then upto 20 tries are made
-to find a non-self replacement. This process occurs for all the references in the set of publications being analyzed. See 'satyam_mukherjee_mcmc.py' 
-kindly provided by the authors of this paper. Thus, reference a in publications A,B,C could be replaced by references [b,c,d] or [b,b,d] but not 
-a. 
+# Discussion of algorithmic approach in Uzzi et al (2013) vs the one we used. The MCMC algorithmic approach 
+in Uzzi et al (2013), DOI: 10.1126/science.1240474 for citation switching involves building three dicts 
+containing publications, references, and year of publication information, and using them as lookup tables for 
+various operations. In plain language, an iteration process selects publication in turn. Then each reference in 
+said publication is replaced by a random selection from the *set* of eligible references published in the same year. 
+If the potential replacement candidate is not the same as the reference to be replaced then a switch is made. If 
+it is the same, then up to 20 tries are made to find a non-self replacement. This process occurs for all the references 
+in the set of publications being analyzed. See 'satyam_mukherjee_mcmc.py' kindly provided by the authors of this paper. 
+Thus, reference a in publications A,B,C could be replaced by references [b,c,d] or [b,b,d] but not a. 
 
-Our approach is very similar but we use the data.table package in R for speedup. References are first grouped by year of publication
-and then the sample function is used on the *multi-set* to permute all references within it in a single step. This permuted set is added 
-back as an extra column in the dataframe holding publications (source_id), references (cited_source_uid), and publication years for
-both references and publication. A check is then run to see if the permutation process has created any duplicate references within 
-each publication. Those publications with duplicate references are then deleted (typically 0.2% or less). A key difference is that 
-the pool of replacement candidates is the *set* in one case and the *multi-set* in the other. However, ever substitution in the 
-first approach is independent even for the same reference. See 'permute_script.R'. 
+Our approach is very similar but we use the data.table package in R for speedup. References are first grouped by 
+year of publication and then the sample function is used on the *multi-set* to permute all references within it in 
+a single step. This permuted set is added back as an extra column in the dataframe holding publications (source_id), 
+references (cited_source_uid), and publication years for both references and publication. A check is then run to see 
+if the permutation process has created any duplicate references within each publication. Those publications with 
+duplicate references are then deleted (typically 0.2% or less). A key difference is that the pool of replacement 
+candidates is the *set* in one case and the *multi-set* in the other. However, ever substitution in the first approach 
+is independent even for the same reference. See 'permute_script.R'. 
 
-Using the *multi-set* accounts for existing citation frequency when selecting possible replacements. Thus a publication in year X that 
-has accumulated 10,000 citations is more likely to be selected than a publication that is cited only once. Thus, reference a in publications 
-A,B,C could be replaced by references [a,b,c]. This process is very fast in comparison and we have scaled it up even further by 
-porting it to the Spark environment. In a recent comparison of publications in WoS in 1995, a single simulation using the 
-'satyam_mukherjee_mcmc.py' In contrast, we ran 1,000 simulations in 60 hours for the same dataset (admittedly by using a small cluster).
+Using the *multi-set* accounts for existing citation frequency when selecting possible replacements. Thus a publication 
+in year X that has accumulated 10,000 citations is more likely to be selected than a publication that is cited only once. 
+Thus, reference a in publications A,B,C could be replaced by references [a,b,c]. This process is very fast in comparison 
+and we have scaled it up even further by porting it to the Spark environment. In a recent comparison of publications in 
+WoS in 1995, a single simulation using the 'satyam_mukherjee_mcmc.py' In contrast, we ran 1,000 simulations in 60 hours 
+for the same dataset (admittedly by using a small cluster).
 
-For input data we selected all publications of type 'Article' in WoS for a given year. Articles are then filtered to those that have
-at least two references in them. Further, only those references that have complete records in the Web of Science Core Collection are
-considered. This eliminates those that have cryptic references to ther data sources or are just placeholders. Publications and references
-are mapped to their respective journals using ISSNs as identifiers. Where a reference has more than one ISSN, the most popular one is 
-assigned to ensure that each reference is associated only with one journal.
+For input data we selected all publications of type 'Article' in WoS for a given year. Articles are then filtered to 
+those that have at least two references in them. Further, only those references that have complete records in the Web 
+of Science Core Collection are considered. This eliminates those that have cryptic references to ther data sources or 
+are just placeholders. Publications and references are mapped to their respective journals using ISSNs as identifiers. 
+Where a reference has more than one ISSN, the most popular one is assigned to ensure that each reference is associated 
+only with one journal.
 
-For n <= 1000 simulations on disciplinary networks (immunology, metabolism, applied physics) permute_script.R is used to generate n files 
-each with shuffled references. The permutation_testing_script.sh shell script is then run, which calls four Python scripts in turn. 
+For n <= 1000 simulations on disciplinary networks (immunology, metabolism, applied physics) permute_script.R is 
+used to generate n files each with shuffled references. Typicall run times are less than 2 min per simulation on a 
+32 Gb CentOS box with 8 CPUs in MS Azure, The permutation_testing_script.sh shell script is then run, which calls 
+four Python scripts in turn. 
 
-1) observed_frequency.py: generates journal pair frequencies for the year slice of the WoS or disciplinary dataset being analyzed.
-2) background_frequency.py: generates journal pair frequencies for the background model implemented using permute_script.R
-3) journal_count.py: Joins all permuted files generated by background_frequency and calculates mean,std and z-scores.
-4) Table_generator.py: Final output file which contains all publications, reference pairs along with observed frequency and z-scores.
+1) observed_frequency.py: generates journal pair frequencies for the year slice of the WoS or disciplinary dataset 
+being analyzed.
+2) background_frequency.py: generates journal pair frequencies for the background model implemented using 
+permute_script.R
+3) journal_count.py: Joins all permuted files generated by background_frequency and calculates mean,std 
+and z-scores.
+4) Table_generator.py: Final output file which contains all publications, reference pairs along with observed 
+frequency and z-scores.
 
 Thus, the workflow is 
 
@@ -46,9 +56,10 @@ Thus, the workflow is
 3) calculate journal pair frequencies 
 4) Consolidate observed and simulated frequencies into a single table and calculate z-scores.
 
-More recently, the entire process has been ported to Spark and provisioning a cluster, copying source data from the ERNIE PostgreSQL 
-database over to Spark, conducting in-memory calculations, and copying a final table back to PostgreSQL has been automated (see
-Spark folder).
+This process tends to slow down with large dataset such as WoS in 2005 with ~886,000 publications and 5.8 million
+journal pairs. Thus, the entire process has been ported to Spark and provisioning a cluster, copying source data from 
+the ERNIE PostgreSQL database over to Spark, conducting in-memory calculations, and copying a final table back to 
+PostgreSQL has been automated (see Spark folder).
 
 
 
