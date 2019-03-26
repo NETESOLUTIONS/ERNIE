@@ -9,7 +9,7 @@ SET TIMEZONE = 'US/Eastern';
 CREATE OR REPLACE PROCEDURE update_references(input_xml XML) AS
 $$
   BEGIN
-    INSERT INTO scopus_references(scp,ref_sgr,pub_ref_id)
+    INSERT INTO scopus_references(scp,ref_sgr,pub_ref_id,ref_fulltext)
     SELECT xmltable.*
      FROM
      XMLTABLE('//bibrecord/tail/bibliography/reference' PASSING input_xml
