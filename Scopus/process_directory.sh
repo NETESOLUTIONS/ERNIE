@@ -55,6 +55,7 @@ while (( $# > 0 )); do
       ;;
     -e)
       readonly STOP_ON_THE_FIRST_ERROR=true
+      echo "Would stop on a first error."
       ;;
     *)
       break
@@ -118,11 +119,13 @@ HEREDOC
 }
 
 if [[ "${CLEAN_MODE}" == true ]]; then
+  echo "In clean mode: truncating all data ..."
   # language=PostgresPLSQL
   psql -v ON_ERROR_STOP=on --echo-all <<'HEREDOC'
     TRUNCATE scopus_publication_groups CASCADE;
 HEREDOC
 
+  echo "In clean mode: removing previously failed files ..."
   rm -rf "${FAILED_FILES_DIR}"
 fi
 
