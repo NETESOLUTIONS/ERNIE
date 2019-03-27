@@ -57,7 +57,31 @@ CREATE TABLE scopus_references (
   pub_ref_id SMALLINT,
   ref_fulltext TEXT,
   CONSTRAINT scopus_references_pk PRIMARY KEY (scp, ref_sgr, pub_ref_id) USING INDEX TABLESPACE index_tbs
-) TABLESPACE scopus_tbs;
+) PARTITION BY RANGE (scp) TABLESPACE scopus_tbs;
+
+CREATE TABLE scopus_references_partition_1 PARTITION OF scopus_references
+FOR VALUES FROM (0) TO (12500000000);
+
+CREATE TABLE scopus_references_partition_2 PARTITION OF scopus_references
+FOR VALUES FROM (12500000001) TO (25000000000);
+
+CREATE TABLE scopus_references_partition_3 PARTITION OF scopus_references
+FOR VALUES FROM (25000000001) TO (37500000000);
+
+CREATE TABLE scopus_references_partition_4 PARTITION OF scopus_references
+FOR VALUES FROM (37500000001) TO (50000000000);
+
+CREATE TABLE scopus_references_partition_5 PARTITION OF scopus_references
+FOR VALUES FROM (50000000001) TO (62500000000);
+
+CREATE TABLE scopus_references_partition_6 PARTITION OF scopus_references
+FOR VALUES FROM (62500000001) TO (75000000000);
+
+CREATE TABLE scopus_references_partition_7 PARTITION OF scopus_references
+FOR VALUES FROM (75000000001) TO (87500000000);
+
+CREATE TABLE scopus_references_partition_8 PARTITION OF scopus_references
+FOR VALUES FROM (87500000001) TO (100000000000);
 
 COMMENT ON TABLE scopus_references IS 'Elsevier: Scopus - Scopus references table for documents';
 COMMENT ON COLUMN scopus_references.scp IS 'Scopus ID for a document. Example: 25766560';
