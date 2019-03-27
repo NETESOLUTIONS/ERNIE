@@ -10,16 +10,15 @@ AS $$
   BEGIN
   
     -- scopus_sources
-    INSERT INTO scopus_sources(scp, source_id, source_type, source_title, issn_print, issn_electronic,
+    INSERT INTO scopus_sources(scp, source_id, source_type, source_title, issn_print,
                                    coden_code,issue,volume,first_page,last_page,publication_year,publication_date,
                                    publisher_name,publisher_e_address)
-    SELECT
+    SELECT DISTINCT
      scp,
      source_id,
      source_type,
      source_title,
      issn_print,
-     issn_electronic,
      coden_code,
      issue,
      volume,
@@ -38,7 +37,6 @@ AS $$
       source_type TEXT PATH '@type',
       source_title TEXT PATH 'sourcetitle',
       issn_print TEXT PATH 'issn[@type="print"]',
-      issn_electronic TEXT PATH 'issn[@type="electronic"]',
       coden_code TEXT PATH 'codencode',
       issue TEXT PATH 'volisspag/voliss/@issue',
       volume TEXT PATH 'volisspag/voliss/@volume',
@@ -51,6 +49,18 @@ AS $$
       publisher_e_address TEXT PATH 'publisher/ce:e-address'
       )
       ON CONFLICT DO NOTHING;
+
+    UPDATE scopus_sources ss
+    SET issn_electronic = sq.issn_electronic
+    FROM (
+         SELECT DISTINCT scp, issn_electronic
+         FROM xmltable(--
+         '//bibrecord/head/source/issn[@type="electronic"]' PASSING scopus_doc_xml COLUMNS --
+         scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
+         issn_electronic TEXT PATH '.'
+          )
+          ) AS sq
+    WHERE ss.scp=sq.scp;
 
     UPDATE scopus_sources ss
     SET indexed_terms=sq.indexed_terms
