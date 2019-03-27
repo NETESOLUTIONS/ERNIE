@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#Python script for the mcmc algorithm implemented in UZZI et al. (2013) Science.
-#Kindly provided by satyam mukherjee (satyam.mukherjee@gmail.com) per request for the MCMC code in UZZI et al. (2013) Science.
+#Python script for the mcmc algorithm implemented in UZZI et al.(2013) Science.
 
-#The following code has been updated to run on python3.
-#Also small changes include: passing input/output filenames as arguments. Capturing total time taken to finish simulations
-#Note: Original functionality hasn't been changed at all
+"""The core of the algorithm is provided by satyam mukherjee (satyam.mukherjee@gmail.com) per request
+for the MCMC code in UZZI et al. (2013) Science."""
 #Original Code: https://github.com/NETESOLUTIONS/ERNIE/blob/master/P2_studies/Permutation_Testing/satyam_mukherjee_mcmc.py
+#The following are changes made to run on python3
+#Passing input/output filenames as arguments. Capturing total time taken to finish simulations
+#Syntactical changes wherever necessary.
 
 #The code does 10 simulations for each iteration with a total of 10 iterations
 #The workflow after this script is completed is as follows:

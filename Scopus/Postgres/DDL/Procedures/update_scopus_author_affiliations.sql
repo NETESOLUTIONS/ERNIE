@@ -8,7 +8,7 @@ SET TIMEZONE = 'US/Eastern';
 CREATE OR REPLACE PROCEDURE update_scopus_author_affiliations(scopus_doc_xml XML)
 AS $$
   BEGIN
-    -- scopus_pub_authors
+    -- scopus_authors
     INSERT INTO scopus_authors(scp, author_seq, auid, author_indexed_name, author_surname, author_given_name,
                                    author_initials, author_e_address)
     SELECT
@@ -36,7 +36,7 @@ AS $$
       )
     ON CONFLICT DO NOTHING;
 
-    -- scopus_auth_affiliations
+    -- scopus_affiliations
     INSERT INTO scopus_affiliations(scp, affiliation_no, afid, dptid, city_group, state, postal_code, country_code, country)
 
     SELECT
@@ -44,10 +44,7 @@ AS $$
       affiliation_no, 
       afid,
       dptid,
-      CASE
-          WHEN coalesce(city_group) IS NOT NULL THEN city_group
-          ELSE city
-      END AS city_group,
+      coalesce(city_group, city) AS city_group,
       state,
       postal_code,
       country_code, 
@@ -68,7 +65,7 @@ AS $$
     ON CONFLICT DO NOTHING;
 
     UPDATE scopus_affiliations sa
-    SET organization=temp1.organization
+    SET organization=sq.organization
     FROM (
          SELECT scp, string_agg(organization, ',') AS organization
          FROM xmltable(--
@@ -77,12 +74,12 @@ AS $$
          organization TEXT PATH 'normalize-space()'
          )
          GROUP BY scp
-         )as temp1
-    WHERE sa.scp=temp1.scp;
+         )as sq
+    WHERE sa.scp=sq.scp;
 
 
-    -- scopus_auth_affiliation_mapping
-    INSERT INTO scopus_affiliation_mapping(scp, author_seq,affiliation_no)
+    -- scopus_author_affiliations
+    INSERT INTO scopus_author_affiliations(scp, author_seq,affiliation_no)
     SELECT
       t1.scp,
       t1.author_seq,
