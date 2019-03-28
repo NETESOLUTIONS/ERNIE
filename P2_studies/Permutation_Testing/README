@@ -2,7 +2,7 @@
 # et al. (2019) currently under review. A related set of scripts 
 # focused on statistical analysis is found at 
 # https://github.com/NETESOLUTIONS/ERNIE/tree/master/P2_studies/cocitation_analysis
-# Artifacts of data generation and analysis are summarized in [document_name]
+# Artifacts of data generation and analysis are summarized in PNAS_Cocit_SI.pdf in this folder. 
 
 # The MCMC algorithmic approach in Uzzi et al (2013), DOI: 10.1126/science.1240474 for citation switching involves 
 building three dicts containing publications, references, and year of publication information, and using them as 
