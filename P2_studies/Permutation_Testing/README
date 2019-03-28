@@ -1,6 +1,6 @@
-# 3/22/2019 The scripts in this folder all relate to data prep and analysis for 
-# the co-citation analysis project that is largely inspired by a combination of
-# our experience with the data in ERNIE and the Science paper in 2013 by Uzzi et al.
+# 3/22/2019 The scripts in this folder all relate to data prep and analysis for the manuscript by Bradley et al (2019) 
+currently under review that relates to co-citation analysis. A related set of scripts focused on statistical analysis
+is found in 
 
 # Discussion of algorithmic approach in Uzzi et al (2013) vs the one we used. The MCMC algorithmic approach 
 in Uzzi et al (2013), DOI: 10.1126/science.1240474 for citation switching involves building three dicts 
