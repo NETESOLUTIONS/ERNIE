@@ -10,14 +10,19 @@ CREATE OR REPLACE PROCEDURE update_references(input_xml XML) AS
 $$
   BEGIN
     INSERT INTO scopus_references(scp,ref_sgr,pub_ref_id,ref_fulltext)
-    SELECT xmltable.*
+    SELECT
+          xmltable.scp,
+          xmltable.ref_sgr,
+          xmltable.pub_ref_id,
+          COALESCE(xmltable.ref_fulltext,xmltable.ref_text)
      FROM
      XMLTABLE('//bibrecord/tail/bibliography/reference' PASSING input_xml
               COLUMNS
                 scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
                 ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',
                 pub_ref_id INT PATH'@id',
-                ref_fulltext TEXT PATH 'ref-fulltext/text()[1]' -- should work around situations where additional tags are included in the text field (e.g. a <br/> tag). Otherwise, would encounter a "more than one value returned by column XPath expression" error.
+                ref_fulltext TEXT PATH 'ref-fulltext/text()[1]', -- should work around situations where additional tags are included in the text field (e.g. a <br/> tag). Otherwise, would encounter a "more than one value returned by column XPath expression" error.
+                ref_text TEXT PATH 'ref-info/ref-text/text()[1]'
                 )
     ON CONFLICT DO NOTHING;
     EXCEPTION WHEN OTHERS THEN
@@ -34,13 +39,18 @@ $$
   DECLARE row RECORD;
   BEGIN
       FOR row IN
-        SELECT xmltable.*
+        SELECT
+              xmltable.scp,
+              xmltable.ref_sgr,
+              xmltable.pub_ref_id,
+              COALESCE(xmltable.ref_fulltext,xmltable.ref_text)
          FROM XMLTABLE('//bibrecord/tail/bibliography/reference' PASSING input_xml
                   COLUMNS
                     scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
                     ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',
                     pub_ref_id INT PATH'@id',
-                    ref_fulltext TEXT PATH 'ref-fulltext/text()[1]' -- should work around situations where additional tags are included in the text field (e.g. a <br/> tag)
+                    ref_fulltext TEXT PATH 'ref-fulltext/text()[1]', -- should work around situations where additional tags are included in the text field (e.g. a <br/> tag)
+                    ref_text TEXT PATH 'ref-info/ref-text/text()[1]'
                     )
       LOOP
         BEGIN
