@@ -2,41 +2,42 @@
 # et al. (2019) currently under review. A related set of scripts 
 # focused on statistical analysis is found at 
 # https://github.com/NETESOLUTIONS/ERNIE/tree/master/P2_studies/cocitation_analysis
-# Artifacts of data generation and analysis are summarized in PNAS_Cocit_SI.pdf in this folder. 
+# Supplemental information such as artifacts of data generation and analysis are summarized 
+# in *Cocit_SI.pdf* in this folder. 
 
 # The MCMC algorithmic approach in Uzzi et al (2013), DOI: 10.1126/science.1240474 for citation switching involves 
 building three dicts containing publications, references, and year of publication information, and using them as 
-lookup tables for various operations. In plain language, an iteration process selects publication in turn. Then each 
-reference in said publication is replaced by a random selection from the *set* of eligible references published in the 
-same year. If the potential replacement candidate is not the same as the reference to be replaced then a replacement 
-is made. If it is the same, then up to 20 tries are made to find a non-self replacement. This process occurs for all 
-the references in the set of publications being analyzed. Thus, reference a in three publications A,B,C could be 
-replaced by references [b,c,d] or [b,b,d] but not [a,b,c]. Secondly, a reciprocal switch is made with a publication 
-that cites the replacement. Thus, if publication A cites reference a published in year X then a is substituted with 
-reference b also published in year X and and a randomly selected publication, say publication B that cites b, will 
-have b replaced with a. See 'satyam_mukherjee_mcmc.py' kindly provided by the authors of DOI: 10.1126/science.1240474.
+lookup tables. In plain language, each reference in a publication is replaced by a random selection from the 
+*set* of eligible references published in the same year. If the potential replacement candidate is not the same 
+as the reference to be replaced then a replacement is made. If it is the same, then up to 20 tries are made to find 
+a non-self replacement. This process occurs for all the references in the set of publications being analyzed. 
+Thus, reference a in three publications A,B,C could be replaced by references [b,c,d] or [b,b,d] but not [a,b,c]. 
+Secondly, a reciprocal switch is made with a publication that cites the replacement. Thus, if publication A cites 
+reference a published in year X then a is substituted with reference b also published in year X and and a randomly 
+selected publication, say publication B that cites b, will have b replaced with a. See 'satyam_mukherjee_mcmc.py' 
+kindly provided by the authors of DOI: 10.1126/science.1240474.
 
 Our approach is roughly similar. References are first grouped by year of publication and then the sample function 
-is used on the *multi-set* of potential replacements to permute all references in a single step. A check is then run 
-to see if the permutation process has created any duplicate references within each publication. Those publications 
-with duplicate references are then deleted (typically <= 0.2%). See 'permute_script.R'. 
+is used on the *multi-set* of potential replacements to permute all references in a single step. A check is then 
+run to see if the permutation process has created any duplicate references within each publication. Those 
+publications with duplicate references are then deleted (typically <= 0.2%). See 'permute_script.R'. 
 
-A key difference is that the pool of replacement candidates is the *set* in one case and the *multi-set* in the 
-other. Every substitution in the first approach is independent for instances of the same reference. Using 
-the *multi-set* accounts for existing citation frequency when selecting possible replacements. Thus a publication 
-in year X that has accumulated 10,000 citations is more likely to be selected than a publication that is cited only once. 
-Reference a in publications A,B,C could be replaced by references [a,b,c]. This process is very fast in comparison 
-and we have scaled it up even further by porting it to the Spark environment. In a recent comparison of publications in 
-WoS in 1995, ten simulations using the 'satyam_mukherjee_mcmc.py' took roughly 22 hours per simulation on a 32 Gb 
-CentOS VM. In contrast, we ran 1,000 simulations in 60 hours for the same dataset (admittedly by using a small 
-Spark cluster).
+A key difference is that the pool of replacement candidates is the *set* in one case and the *multi-set* in 
+the other. Every substitution in the first approach is independent for instances of the same reference. Using 
+the *multi-set* accounts for existing citation frequency when selecting possible replacements. Thus a 
+publication in year X that has accumulated 10,000 citations is more likely to be selected than a publication that 
+is cited only once. Reference a in publications A,B,C could be replaced by references [a,b,c]. This process is very 
+fast in comparison and we have scaled it up even further by porting it to the Spark environment. In a recent comparison 
+of publications in WoS in 1995, ten simulations using the 'satyam_mukherjee_mcmc.py' took roughly 22 hours per 
+simulation on a 32 Gb CentOS VM. In contrast, we ran 1,000 simulations in 60 hours for the same dataset on a small
+Spark cluster.
 
-For input data we selected all publications of type 'Article' in WoS for a given year. Articles are then filtered to 
-those that have at least two references in them. Further, only those references that have complete records in the Web 
-of Science Core Collection are considered. This eliminates those that have cryptic references to other data sources or 
-are just placeholders. Publications and references are mapped to their respective journals using ISSNs as identifiers. 
-Where a reference has more than one ISSN, the most popular one is assigned to ensure that each reference is associated 
-only with one journal.
+For input data we selected all publications of type 'Article' in WoS for a given year. Articles are then filtered 
+to those that have at least two references in them. Further, only those references that have complete records in the 
+Web of Science Core Collection are considered. This eliminates those that have cryptic references to other data sources 
+or are just placeholders. Publications and references are mapped to their respective journals using ISSNs as 
+identifiers. Where a reference has more than one ISSN, the most popular one is assigned to ensure that each reference 
+is associated with only with one journal.
 
 For n <= 1000 simulations on disciplinary networks (immunology, metabolism, applied physics) permute_script.R is 
 used to generate n files each with shuffled references. Typically, run times are less than 2 min per simulation on a 
