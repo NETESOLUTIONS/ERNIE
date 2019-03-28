@@ -1,19 +1,19 @@
-# 3/22/2019 The scripts in this folder all relate to data prep and analysis for the manuscript by Bradley et al (2019) 
-currently under review that relates to co-citation analysis. A related set of scripts focused on statistical analysis
-is found in 
+# 3/22/2019 The scripts in this folder all relate to data prep and analysis for the manuscript by Bradley 
+# et al. (2019) currently under review that relates to co-citation analysis. A related set of scripts 
+# focused on statistical analysis is found at 
+# https://github.com/NETESOLUTIONS/ERNIE/tree/master/P2_studies/cocitation_analysis
 
-# Discussion of algorithmic approach in Uzzi et al (2013) vs the one we used. The MCMC algorithmic approach 
-in Uzzi et al (2013), DOI: 10.1126/science.1240474 for citation switching involves building three dicts 
-containing publications, references, and year of publication information, and using them as lookup tables for 
-various operations. In plain language, an iteration process selects publication in turn. Then each reference in 
-said publication is replaced by a random selection from the *set* of eligible references published in the same year. 
-If the potential replacement candidate is not the same as the reference to be replaced then a replacement is made. If 
-it is the same, then up to 20 tries are made to find a non-self replacement. This process occurs for all the references 
-in the set of publications being analyzed. Thus, reference a in three publications A,B,C could be replaced by references 
-[b,c,d] or [b,b,d] but not [a,b,c]. Secondly, a reciprocal switch is made with a publication that cites the replacement. 
-Thus, if publication A cites reference a published in year X then a is substituted with reference b also published in 
-year X and and a randomly selected publication, say publication B that cites b, will have b replaced with a. 
-See 'satyam_mukherjee_mcmc.py' kindly provided by the authors of this paper DOI: 10.1126/science.1240474.
+# The MCMC algorithmic approach in Uzzi et al (2013), DOI: 10.1126/science.1240474 for citation switching involves 
+building three dicts containing publications, references, and year of publication information, and using them as 
+lookup tables for various operations. In plain language, an iteration process selects publication in turn. Then each 
+reference in said publication is replaced by a random selection from the *set* of eligible references published in the 
+same year. If the potential replacement candidate is not the same as the reference to be replaced then a replacement 
+is made. If it is the same, then up to 20 tries are made to find a non-self replacement. This process occurs for all 
+the references in the set of publications being analyzed. Thus, reference a in three publications A,B,C could be 
+replaced by references [b,c,d] or [b,b,d] but not [a,b,c]. Secondly, a reciprocal switch is made with a publication 
+that cites the replacement. Thus, if publication A cites reference a published in year X then a is substituted with 
+reference b also published in year X and and a randomly selected publication, say publication B that cites b, will 
+have b replaced with a. See 'satyam_mukherjee_mcmc.py' kindly provided by the authors of DOI: 10.1126/science.1240474.
 
 Our approach is roughly similar. References are first grouped by year of publication and then the sample function 
 is used on the *multi-set* of potential replacements to permute all references in a single step. A check is then run 
