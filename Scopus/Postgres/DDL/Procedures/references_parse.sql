@@ -9,12 +9,12 @@ SET TIMEZONE = 'US/Eastern';
 CREATE OR REPLACE PROCEDURE update_references(input_xml XML) AS
 $$
   BEGIN
-    INSERT INTO scopus_references(scp,ref_sgr,pub_ref_id,ref_fulltext)
+    INSERT INTO scopus_references(scp,ref_sgr,pub_ref_id,citation_text)
     SELECT
-          xmltable.scp,
-          xmltable.ref_sgr,
-          xmltable.pub_ref_id,
-          COALESCE(xmltable.ref_fulltext,xmltable.ref_text)
+          xmltable.scp AS scp,
+          xmltable.ref_sgr AS ref_sgr,
+          xmltable.pub_ref_id AS pub_ref_id,
+          COALESCE(xmltable.ref_fulltext,xmltable.ref_text) AS citation_text
      FROM
      XMLTABLE('//bibrecord/tail/bibliography/reference' PASSING input_xml
               COLUMNS
@@ -40,10 +40,10 @@ $$
   BEGIN
       FOR row IN
         SELECT
-              xmltable.scp,
-              xmltable.ref_sgr,
-              xmltable.pub_ref_id,
-              COALESCE(xmltable.ref_fulltext,xmltable.ref_text)
+              xmltable.scp AS scp,
+              xmltable.ref_sgr AS ref_sgr,
+              xmltable.pub_ref_id AS pub_ref_id,
+              COALESCE(xmltable.ref_fulltext,xmltable.ref_text) AS citation_text
          FROM XMLTABLE('//bibrecord/tail/bibliography/reference' PASSING input_xml
                   COLUMNS
                     scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
@@ -54,7 +54,7 @@ $$
                     )
       LOOP
         BEGIN
-          INSERT INTO scopus_references VALUES (row.scp,row.ref_sgr,row.pub_ref_id,row.ref_fulltext) ON CONFLICT DO NOTHING;
+          INSERT INTO scopus_references VALUES (row.scp,row.ref_sgr,row.pub_ref_id,row.citation_text) ON CONFLICT DO NOTHING;
         -- Exception commented out so that error bubbles up
         /*EXCEPTION WHEN OTHERS THEN
           RAISE NOTICE 'CANNOT INSERT VALUES (scp=%,ref_sgr=%,pub_ref_id=%)',row.scp,row.ref_sgr,row.pub_ref_id;

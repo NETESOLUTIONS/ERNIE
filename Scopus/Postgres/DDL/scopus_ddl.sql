@@ -55,7 +55,7 @@ CREATE TABLE scopus_references (
   -- FK is possible to enable only after the complete data load
   -- CONSTRAINT sr_ref_sgr_fk REFERENCES scopus_publication_groups ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   pub_ref_id SMALLINT,
-  ref_fulltext TEXT,
+  citation_text TEXT,
   CONSTRAINT scopus_references_pk PRIMARY KEY (scp, ref_sgr, pub_ref_id) USING INDEX TABLESPACE index_tbs
 ) PARTITION BY RANGE (scp) TABLESPACE scopus_tbs;
 
@@ -89,7 +89,7 @@ COMMENT ON COLUMN scopus_references.ref_sgr IS 'Scopus Group ID for the referenc
 COMMENT ON COLUMN scopus_references.pub_ref_id IS --
   'Uniquely (and serially?) identifies a reference in the bibliography. Example: 1';
 COMMENT ON COLUMN scopus_references.ref_fulltext IS --
-  'Full citation text provided with a reference. Example: "Harker LA, Kadatz RA. Mechanism of action of dipyridamole. Thromb Res 1983;suppl IV:39-46."';
+  'Citation text provided with a reference. Example: "Harker LA, Kadatz RA. Mechanism of action of dipyridamole. Thromb Res 1983;suppl IV:39-46."';
 
 -- Added by Sitaram Devarakonda 03/22/2019
 -- DDL for scopus_publication_identifiers, scopus_abstracts, scopus_titles, scopus_keywords and scopus_chemicalgroups
