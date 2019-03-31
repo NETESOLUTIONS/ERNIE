@@ -69,7 +69,7 @@ AS $$
          ) as sq
     WHERE sce.conf_code=sq.conf_code;
 
-    /* FIXME This is failing
+    /* TODO This is failing
     -- scopus_conf_publications
     INSERT INTO scopus_conf_publications(scp,proc_part_no,proc_page_range,proc_page_count)
 
