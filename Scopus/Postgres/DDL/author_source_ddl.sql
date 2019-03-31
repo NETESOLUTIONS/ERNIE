@@ -1,3 +1,9 @@
+\set ON_ERROR_STOP on
+\set ECHO all
+
+-- DataGrip: start execution from here
+SET TIMEZONE = 'US/Eastern';
+
 -- scopus_authors
 DROP TABLE IF EXISTS scopus_authors CASCADE;
 
@@ -316,7 +322,7 @@ IS 'Example: Public Health, Social Medicine and Epidemiology';
 DROP TABLE IF EXISTS scopus_conferences CASCADE;
 
 CREATE TABLE scopus_conferences (
-  scp BIGINTCONSTRAINT sconf_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+  scp BIGINT CONSTRAINT sconf_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   conf_code BIGINT,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT scopus_conferences_pk PRIMARY KEY (scp,conf_code) USING INDEX TABLESPACE index_tbs
@@ -361,10 +367,10 @@ IS 'Conference name';
 COMMENT ON COLUMN scopus_conference_events.conf_address
 IS 'Conference address';
 
-COMMENT ON COLUMN scopus_conference_events.city
+COMMENT ON COLUMN scopus_conference_events.conf_city
 IS 'City of conference event';
 
-COMMENT ON COLUMN scopus_conference_events.postal_code
+COMMENT ON COLUMN scopus_conference_events.conf_postal_code
 IS 'Postal code of conference event';
 
 COMMENT ON COLUMN scopus_conference_events.conf_start_date
@@ -373,7 +379,7 @@ IS 'Conference start date';
 COMMENT ON COLUMN scopus_conference_events.conf_end_date
 IS 'Conference end date';
 
-COMMENT ON COLUMN scopus_conference_events.number
+COMMENT ON COLUMN scopus_conference_events.conf_number
 IS 'Sequencenumber of the conference';
 
 COMMENT ON COLUMN scopus_conference_events.conf_catalog_number

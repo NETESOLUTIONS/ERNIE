@@ -59,6 +59,7 @@ CREATE TABLE scopus_references (
   CONSTRAINT scopus_references_pk PRIMARY KEY (scp, ref_sgr, pub_ref_id) USING INDEX TABLESPACE index_tbs
 ) PARTITION BY RANGE (scp) TABLESPACE scopus_tbs;
 
+--@formatter:off
 CREATE TABLE scopus_references_partition_1 PARTITION OF scopus_references
 FOR VALUES FROM (0) TO (12500000000);
 
@@ -82,14 +83,16 @@ FOR VALUES FROM (75000000001) TO (87500000000);
 
 CREATE TABLE scopus_references_partition_8 PARTITION OF scopus_references
 FOR VALUES FROM (87500000001) TO (100000000000);
+--@formatter:on
 
 COMMENT ON TABLE scopus_references IS 'Elsevier: Scopus - Scopus references table for documents';
 COMMENT ON COLUMN scopus_references.scp IS 'Scopus ID for a document. Example: 25766560';
 COMMENT ON COLUMN scopus_references.ref_sgr IS 'Scopus Group ID for the referenced document. Example: 343442899';
 COMMENT ON COLUMN scopus_references.pub_ref_id IS --
   'Uniquely (and serially?) identifies a reference in the bibliography. Example: 1';
-COMMENT ON COLUMN scopus_references.ref_fulltext IS --
-  'Citation text provided with a reference. Example: "Harker LA, Kadatz RA. Mechanism of action of dipyridamole. Thromb Res 1983;suppl IV:39-46."';
+COMMENT ON COLUMN scopus_references.citation_text IS --
+  'Citation text provided with a reference. ' --
+  'Example: "Harker LA, Kadatz RA. Mechanism of action of dipyridamole. Thromb Res 1983;suppl IV:39-46."';
 
 -- Added by Sitaram Devarakonda 03/22/2019
 -- DDL for scopus_publication_identifiers, scopus_abstracts, scopus_titles, scopus_keywords and scopus_chemicalgroups
