@@ -107,7 +107,7 @@ AS $$
       isbn_type TEXT PATH '@type'
       )
     ON CONFLICT DO NOTHING;
-scopus_keywords
+
     -- scopus_subjects
     INSERT INTO scopus_subjects (scp, subj_abbr)
 

@@ -69,6 +69,7 @@ AS $$
          ) as sq
     WHERE sce.conf_code=sq.conf_code;
 
+    /* FIXME This is failing
     -- scopus_conf_publications
     INSERT INTO scopus_conf_publications(scp,proc_part_no,proc_page_range,proc_page_count)
 
@@ -87,6 +88,7 @@ AS $$
       )
     WHERE proc_part_no IS NOT NULL OR proc_page_range IS NOT NULL or proc_page_count IS NOT NULL
     ON CONFLICT DO NOTHING;
+    */
 
     -- scopus_conf_editors
     INSERT INTO scopus_conf_editors(conf_code,indexed_name,role_type,initials,surname,given_name,degree,suffix)
