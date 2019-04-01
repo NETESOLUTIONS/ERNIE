@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE scopus_abstracts_titles_keywords_publication_identifiers(scopus_doc_xml XML)
+CREATE OR REPLACE PROCEDURE update_scopus_chemicalgroups(scopus_doc_xml XML)
 AS $$
   DECLARE
     cur RECORD;
@@ -8,9 +8,7 @@ AS $$
     FOR cur IN(
       SELECT
         scp,
-        case WHEN chemicals_source is null then 'esbd'
-          ELSE chemicals_source
-        end as chemicals_source,
+        coalesce(chemicals_source,'esbd') as chemicals_source,
         chemical_name,
         cas_registry_number
       FROM xmltable(
@@ -25,8 +23,14 @@ AS $$
         VALUES(cur.scp,cur.chemicals_source,cur.chemical_name,cur.cas_registry_number)
       ON CONFLICT DO NOTHING;
     END LOOP;
+  END;
+  $$
+  LANGUAGE plpgsql;
 
-      -- scopus_abstracts
+CREATE OR REPLACE PROCEDURE update_scopus_abstracts_title(scopus_doc_xml XML)
+AS $$
+  BEGIN
+       -- scopus_abstracts
       INSERT INTO scopus_abstracts(scp, abstract_text, abstract_language, abstract_source)
       SELECT
         scp,
@@ -58,10 +62,16 @@ AS $$
         language TEXT PATH '@language'
         )
       ON CONFLICT DO NOTHING;
+  END;
+  $$
+  LANGUAGE plpgsql;
 
 
-      -- scopus_keywords
-      INSERT INTO scopus_keywords(scp, keyword)
+
+CREATE OR REPLACE PROCEDURE update_scopus_keywords(scopus_doc_xml XML)
+AS $$
+  BEGIN
+       INSERT INTO scopus_keywords(scp, keyword)
       SELECT
         scp,
         keyword
@@ -72,9 +82,13 @@ AS $$
         keyword TEXT PATH '.'
         )
       ON CONFLICT DO NOTHING;
+  END;
+  $$
+  LANGUAGE plpgsql;
 
-
-      -- scopus_publication_identifiers
+CREATE OR REPLACE PROCEDURE update_scopus_publication_identifiers(scopus_doc_xml XML)
+AS $$
+  BEGIN
       INSERT INTO scopus_publication_identifiers(scp, document_id, document_id_type)
       SELECT
           scp,
@@ -89,7 +103,7 @@ AS $$
           document_id_type TEXT PATH '@idtype'
           --@formatter:on
           )
-      WHERE document_id_type!='SCP'
+      WHERE document_id_type!='SCP' and document_id_type!='SGR'
       UNION
       SELECT
           scp,
@@ -97,11 +111,11 @@ AS $$
           upper(substr(document_id_type,4))
       FROM xmltable(
         XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
-        '//bibrecord/item-info/itemidlist' PASSING scopus_doc_xml COLUMNS
-        scp BIGINT PATH 'itemid[@idtype="SCP"]',
-        document_id TEXT PATH 'ce:doi',
-        document_id_type TEXT PATH 'name(ce:doi)'
-        ) WHERE document_id_type like 'ce%'
+        '//bibrecord/item-info/itemidlist/ce:doi' PASSING scopus_doc_xml COLUMNS
+        scp BIGINT PATH '../itemid[@idtype="SCP"]',
+        document_id TEXT PATH '.',
+        document_id_type TEXT PATH 'name(.)'
+        )
       UNION
       SELECT
           scp,
@@ -109,13 +123,12 @@ AS $$
           upper(substr(document_id_type,4))
       FROM xmltable(
         XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
-        '//bibrecord/item-info/itemidlist' PASSING scopus_doc_xml COLUMNS
-        scp BIGINT PATH 'itemid[@idtype="SCP"]',
-        document_id TEXT PATH 'ce:pii',
-        document_id_type TEXT PATH 'name(ce:pii)'
-        ) WHERE document_id_type like 'ce%'
+        '//bibrecord/item-info/itemidlist/ce:pii' PASSING scopus_doc_xml COLUMNS
+        scp BIGINT PATH '../itemid[@idtype="SCP"]',
+        document_id TEXT PATH '.',
+        document_id_type TEXT PATH 'name(.)'
+        )
       ON CONFLICT DO NOTHING;
   END;
   $$
-  LANGUAGE plpgsql;
-
+LANGUAGE plpgsql;
