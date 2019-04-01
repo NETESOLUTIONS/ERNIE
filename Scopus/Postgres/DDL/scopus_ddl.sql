@@ -29,8 +29,7 @@ CREATE TABLE scopus_publications (
   citation_type scopus_citation_type,
   process_stage TEXT,
   state TEXT,
-  date_sort DATE,
-  conf_code TEXT
+  date_sort DATE
 ) TABLESPACE scopus_tbs;
 
 COMMENT ON COLUMN scopus_publications.pub_type
