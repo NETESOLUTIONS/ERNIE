@@ -45,8 +45,6 @@ IS '"NEW": delivered for the first time or "update": update and replace previous
 COMMENT ON COLUMN scopus_publications.date_sort
 IS 'Publication date or creation date of the record';
 
-COMMENT ON COLUMN scopus_publications.conf_code
-IS 'Conference code, assigned by Elsevier DB';
 -- scopus_authors
 DROP TABLE IF EXISTS scopus_authors CASCADE;
 
@@ -191,6 +189,7 @@ CREATE TABLE scopus_sources (
   publisher_name TEXT,
   publisher_e_address TEXT,
   indexed_terms TEXT,
+  conf_code TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT scopus_sources_pk PRIMARY KEY (scp) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
@@ -248,6 +247,9 @@ IS 'Example: acmhelp@acm.org';
 
 COMMENT ON COLUMN scopus_sources.indexed_terms
 IS 'Subject index terms';
+
+COMMENT ON COLUMN scopus_sources.conf_code
+IS 'Conference code, assigned by Elsevier DB';
 
 -- scopus_source_isbns
 DROP TABLE IF EXISTS scopus_source_isbns CASCADE;
@@ -365,7 +367,7 @@ IS 'Example: Public Health, Social Medicine and Epidemiology';
 DROP TABLE IF EXISTS scopus_conference_events CASCADE;
 
 CREATE TABLE scopus_conference_events (
-  conf_code TEXT CONSTRAINT sconf_conf_code_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+  conf_code TEXT CONSTRAINT sconf_conf_code_fk REFERENCES scopus_sources ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   conf_name TEXT,
   conf_address TEXT,
   conf_city TEXT,
@@ -417,7 +419,7 @@ DROP TABLE IF EXISTS scopus_conf_proceedings CASCADE;
 
 CREATE TABLE scopus_conf_proceedings (
   scp BIGINT CONSTRAINT sconf_pro_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-  conf_code TEXT CONSTRAINT sconf_pro_conf_code_fk REFERENCES scopus_conference_events ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+  conf_code TEXT CONSTRAINT sconf_pro_conf_code_fk REFERENCES scopus_sources ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   proc_part_no TEXT,
   proc_page_range TEXT,
   proc_page_count SMALLINT,
@@ -447,7 +449,7 @@ IS 'Number of pages in a conference proceeding';
 DROP TABLE IF EXISTS scopus_conf_editors CASCADE;
 
 CREATE TABLE scopus_conf_editors (
-  conf_code TEXT CONSTRAINT sconf_editor_conf_code_fk REFERENCES scopus_conference_events ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+  conf_code TEXT CONSTRAINT sconf_editor_conf_code_fk REFERENCES scopus_sources ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   indexed_name TEXT,
   role_type TEXT,
   initials TEXT,

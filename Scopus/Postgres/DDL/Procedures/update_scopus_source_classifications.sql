@@ -12,7 +12,7 @@ AS $$
     -- scopus_sources
     INSERT INTO scopus_sources(scp, source_id, source_type, source_title, issn_print,
                                    coden_code,issue,volume,first_page,last_page,publication_year,publication_date,
-                                   publisher_name,publisher_e_address)
+                                   publisher_name,publisher_e_address,conf_code)
     SELECT DISTINCT
      scp,
      source_id,
@@ -27,7 +27,8 @@ AS $$
      publication_year,
      make_date(publication_year, pub_month, pub_day) AS publication_date,
      publisher_name,
-     publisher_e_address
+     publisher_e_address,
+     coalesce(conf_code,'') AS conf_code
     FROM xmltable(--
       XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
       '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
@@ -46,7 +47,8 @@ AS $$
       pub_month SMALLINT PATH 'publicationdate/month',
       pub_day SMALLINT PATH 'publicationdate/day',
       publisher_name TEXT PATH 'publisher/publishername',
-      publisher_e_address TEXT PATH 'publisher/ce:e-address'
+      publisher_e_address TEXT PATH 'publisher/ce:e-address',
+      conf_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcode'
       )
       ON CONFLICT DO NOTHING;
 
