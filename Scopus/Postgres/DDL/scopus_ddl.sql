@@ -30,7 +30,7 @@ CREATE TABLE scopus_publications (
   process_stage TEXT,
   state TEXT,
   date_sort DATE,
-  conf_code TEXT,
+  conf_code TEXT
 ) TABLESPACE scopus_tbs;
 
 COMMENT ON COLUMN scopus_publications.pub_type
@@ -391,10 +391,10 @@ IS 'Conference name';
 COMMENT ON COLUMN scopus_conference_events.conf_address
 IS 'Conference address';
 
-COMMENT ON COLUMN scopus_conference_events.city
+COMMENT ON COLUMN scopus_conference_events.conf_city
 IS 'City of conference event';
 
-COMMENT ON COLUMN scopus_conference_events.postal_code
+COMMENT ON COLUMN scopus_conference_events.conf_postal_code
 IS 'Postal code of conference event';
 
 COMMENT ON COLUMN scopus_conference_events.conf_start_date
@@ -403,7 +403,7 @@ IS 'Conference start date';
 COMMENT ON COLUMN scopus_conference_events.conf_end_date
 IS 'Conference end date';
 
-COMMENT ON COLUMN scopus_conference_events.number
+COMMENT ON COLUMN scopus_conference_events.conf_number
 IS 'Sequencenumber of the conference';
 
 COMMENT ON COLUMN scopus_conference_events.conf_catalog_number

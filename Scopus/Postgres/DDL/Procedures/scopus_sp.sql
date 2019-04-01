@@ -1,3 +1,9 @@
+\set ON_ERROR_STOP on
+\set ECHO all
+
+-- DataGrip: start execution from here
+SET TIMEZONE = 'US/Eastern';
+
 CREATE OR REPLACE PROCEDURE update_scopus_chemicalgroups(scopus_doc_xml XML)
 AS $$
   DECLARE
