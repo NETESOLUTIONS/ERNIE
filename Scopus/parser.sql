@@ -23,7 +23,10 @@ DO $block$
     CALL update_scopus_additional_source(scopus_doc_xml);
     -- scopus_references
     CALL update_references(scopus_doc_xml);
-    CALL scopus_abstracts_titles_keywords_publication_identifiers(scopus_doc_xml);
+    CALL update_scopus_chemicalgroups(scopus_doc_xml);
+    CALL update_scopus_abstracts_title(scopus_doc_xml);
+    CALL update_scopus_keywords(scopus_doc_xml);
+    CALL update_scopus_publication_identifiers(scopus_doc_xml);
   EXCEPTION
     WHEN OTHERS THEN --
       RAISE NOTICE E'Processing of % FAILED', current_setting('script.xml_file');
