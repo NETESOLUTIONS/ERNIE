@@ -26,7 +26,8 @@ AS $$
         correspondence_person_indexed_name,
         correspondence_city,
         correspondence_country,
-        correspondence_e_address
+        correspondence_e_address,
+        citation_type
       FROM xmltable(--
       -- The `xml:` namespace doesn't need to be specified
         XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
@@ -40,16 +41,17 @@ AS $$
           correspondence_person_indexed_name TEXT PATH 'head/correspondence/person/ce:indexed-name', --
           correspondence_city TEXT PATH 'head/correspondence/affiliation/city', --
           correspondence_country TEXT PATH 'head/correspondence/affiliation/country', --
-          correspondence_e_address TEXT PATH 'head/correspondence/ce:e-address')
+          correspondence_e_address TEXT PATH 'head/correspondence/ce:e-address'),
+          citation_type TEXT PATH 'head/citation-info/citation-type/@code'
     ) LOOP
       INSERT INTO scopus_publication_groups(sgr, pub_year, pub_date)
       VALUES (cur.sgr, cur.pub_year, cur.pub_date)
       ON CONFLICT DO NOTHING;
 
       INSERT INTO scopus_publications(scp, sgr, correspondence_person_indexed_name, correspondence_city,
-                                      correspondence_country, correspondence_e_address)
+                                      correspondence_country, correspondence_e_address,citation_type)
       VALUES (cur.scp, cur.sgr, cur.correspondence_person_indexed_name, cur.correspondence_city,
-              cur.correspondence_country, cur.correspondence_e_address)
+              cur.correspondence_country, cur.correspondence_e_address,cur.citation_type)
       ON CONFLICT DO NOTHING;
     END LOOP;
 
