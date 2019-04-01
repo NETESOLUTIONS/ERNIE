@@ -33,6 +33,20 @@ CREATE TABLE scopus_publications (
   conf_code TEXT,
 ) TABLESPACE scopus_tbs;
 
+COMMENT ON COLUMN scopus_publications.pub_type
+IS '"core": full bibliography or "dummy item": unlinked reference';
+
+COMMENT ON COLUMN scopus_publications.process_stage
+IS '"S100": uncorrected proof or "S200": corrected proof or "S300": published';
+
+COMMENT ON COLUMN scopus_publications.state
+IS '"NEW": delivered for the first time or "update": update and replace previous one or "delete": previous delivered should be deleted';
+
+COMMENT ON COLUMN scopus_publications.date_sort
+IS 'Publication date or creation date of the record';
+
+COMMENT ON COLUMN scopus_publications.conf_code
+IS 'Conference code, assigned by Elsevier DB';
 -- scopus_authors
 DROP TABLE IF EXISTS scopus_authors CASCADE;
 
