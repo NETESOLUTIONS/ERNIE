@@ -9,20 +9,6 @@ CREATE OR REPLACE PROCEDURE update_scopus_additional_source(scopus_doc_xml XML)
 AS $$
   BEGIN
   
-    -- scopus_conferences
-    INSERT INTO scopus_conferences(scp,conf_code)
-
-    SELECT
-      scp,
-      conf_code
-    FROM
-      xmltable(--
-      '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confevent' PASSING scopus_doc_xml COLUMNS --
-      scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
-      conf_code BIGINT PATH 'confcode'
-      )
-      ON CONFLICT DO NOTHING;
-
     -- scopus_conference_events
     INSERT INTO scopus_conference_events(conf_code, conf_name, conf_address,conf_city, conf_postal_code, conf_start_date,
                                     conf_end_date, conf_number, conf_catalog_number)
@@ -69,12 +55,12 @@ AS $$
          ) as sq
     WHERE sce.conf_code=sq.conf_code;
 
-    /* TODO This is failing
     -- scopus_conf_publications
-    INSERT INTO scopus_conf_publications(scp,proc_part_no,proc_page_range,proc_page_count)
+    INSERT INTO scopus_conf_proceedings(scp,conf_code,proc_part_no,proc_page_range,proc_page_count)
 
     SELECT
       scp,
+      conf_code,
       proc_part_no,
       proc_page_range,
       proc_page_count
@@ -82,13 +68,13 @@ AS $$
       xmltable(--
       '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication' PASSING scopus_doc_xml COLUMNS --
       scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
+      conf_code BIGINT PATH 'preceding-sibling::confevent/confcode',
       proc_part_no TEXT PATH 'procpartno',
       proc_page_range TEXT PATH 'procpagerange',
       proc_page_count SMALLINT PATH 'procpagecount'
       )
     WHERE proc_part_no IS NOT NULL OR proc_page_range IS NOT NULL or proc_page_count IS NOT NULL
     ON CONFLICT DO NOTHING;
-    */
 
     -- scopus_conf_editors
     INSERT INTO scopus_conf_editors(conf_code,indexed_name,role_type,initials,surname,given_name,degree,suffix)

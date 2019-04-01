@@ -41,8 +41,8 @@ AS $$
           correspondence_person_indexed_name TEXT PATH 'head/correspondence/person/ce:indexed-name', --
           correspondence_city TEXT PATH 'head/correspondence/affiliation/city', --
           correspondence_country TEXT PATH 'head/correspondence/affiliation/country', --
-          correspondence_e_address TEXT PATH 'head/correspondence/ce:e-address'),
-          citation_type TEXT PATH 'head/citation-info/citation-type/@code'
+          correspondence_e_address TEXT PATH 'head/correspondence/ce:e-address',
+          citation_type TEXT PATH 'head/citation-info/citation-type/@code')
     ) LOOP
       INSERT INTO scopus_publication_groups(sgr, pub_year, pub_date)
       VALUES (cur.sgr, cur.pub_year, cur.pub_date)
@@ -78,8 +78,9 @@ AS $$
     SET pub_type = singular.pub_type,
         process_stage = singular.process_stage,
         state = singular.state,
-        date_sort = singular.date_sort
-    FROM (SELECT scp, pub_type, process_stage, state, make_date(sort_year, sort_month, sort_day) AS date_sort
+        date_sort = singular.date_sort,
+        conf_code = singular.conf_code
+    FROM (SELECT scp, pub_type, process_stage, state, make_date(sort_year, sort_month, sort_day) AS date_sort, conf_code
           FROM xmltable(--
                XMLNAMESPACES ('http://www.elsevier.com/xml/ani/ait' AS ait), --
                '//ait:process-info' PASSING scopus_doc_xml COLUMNS --
@@ -89,7 +90,8 @@ AS $$
                 state TEXT PATH 'ait:status/@state',
                 sort_year SMALLINT PATH 'ait:date-sort/@year',
                 sort_month SMALLINT PATH 'ait:date-sort/@month',
-                sort_day SMALLINT PATH 'ait:date-sort/@day')
+                sort_day SMALLINT PATH 'ait:date-sort/@day',
+                conf_code BIGINT PATH '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confevent/confcode')
          ) AS singular
     WHERE sp.scp = singular.scp;
 
