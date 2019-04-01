@@ -14,7 +14,7 @@ AS $$
                                     conf_end_date, conf_number, conf_catalog_number)
 
     SELECT
-      conf_code,
+      coalesce(conf_code,'') AS conf_code,
       conf_name,
       conf_address,
       conf_city,
@@ -26,7 +26,7 @@ AS $$
     FROM
       xmltable(--
       '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confevent' PASSING scopus_doc_xml COLUMNS --
-      conf_code BIGINT PATH 'confcode',
+      conf_code TEXT PATH 'confcode',
       conf_name TEXT PATH 'confname',
       conf_address TEXT PATH 'conflocation/address-part',
       conf_city TEXT PATH 'conflocation/city-group',
@@ -48,7 +48,7 @@ AS $$
          SELECT conf_code, string_agg(conf_sponsor,',') AS conf_sponsor
          FROM xmltable(--
          '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confevent/confsponsors/confsponsor' PASSING scopus_doc_xml COLUMNS --
-         conf_code BIGINT PATH '../../confcode',
+         conf_code TEXT PATH '../../confcode',
          conf_sponsor TEXT PATH 'normalize-space()'
          )
          GROUP BY conf_code
@@ -60,7 +60,7 @@ AS $$
 
     SELECT
       scp,
-      conf_code,
+      coalesce(conf_code,'') AS conf_code,
       proc_part_no,
       proc_page_range,
       proc_page_count
@@ -68,7 +68,7 @@ AS $$
       xmltable(--
       '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication' PASSING scopus_doc_xml COLUMNS --
       scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
-      conf_code BIGINT PATH 'preceding-sibling::confevent/confcode',
+      conf_code TEXT PATH 'preceding-sibling::confevent/confcode',
       proc_part_no TEXT PATH 'procpartno',
       proc_page_range TEXT PATH 'procpagerange',
       proc_page_count SMALLINT PATH 'procpagecount'
@@ -80,7 +80,7 @@ AS $$
     INSERT INTO scopus_conf_editors(conf_code,indexed_name,role_type,initials,surname,given_name,degree,suffix)
 
     SELECT
-      conf_code,
+      coalesce(conf_code,'') AS conf_code,
       indexed_name,
       coalesce(edit_role, edit_type) AS role_type,
       initials,
@@ -92,7 +92,7 @@ AS $$
       xmltable(--
       XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
       '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication/confeditors/editors/editor' PASSING scopus_doc_xml COLUMNS --
-      conf_code BIGINT PATH '../../../preceding-sibling::confevent/confcode',
+      conf_code TEXT PATH '../../../preceding-sibling::confevent/confcode',
       indexed_name TEXT PATH 'ce:indexed-name',
       edit_role TEXT PATH '@role',
       edit_type TEXT PATH '@type',
@@ -110,7 +110,7 @@ AS $$
          SELECT conf_code, string_agg(address, ',') AS address
          FROM xmltable(--
          '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication/confeditors/editoraddress' PASSING scopus_doc_xml COLUMNS --
-         conf_code BIGINT PATH '../../preceding-sibling::confevent/confcode',
+         conf_code TEXT PATH '../../preceding-sibling::confevent/confcode',
          address TEXT PATH 'normalize-space()'
          )
          GROUP BY conf_code
@@ -123,13 +123,12 @@ AS $$
          SELECT conf_code, string_agg(organization, ',') AS organization
          FROM xmltable(--
          '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication/confeditors/editororganization' PASSING scopus_doc_xml COLUMNS --
-         conf_code BIGINT PATH '../../preceding-sibling::confevent/confcode',
+         conf_code TEXT PATH '../../preceding-sibling::confevent/confcode',
          organization TEXT PATH 'normalize-space()'
          )
          GROUP BY conf_code
          ) as sq
     WHERE sce.conf_code=sq.conf_code;
-
     
   END;
   $$

@@ -365,7 +365,7 @@ IS 'Example: Public Health, Social Medicine and Epidemiology';
 DROP TABLE IF EXISTS scopus_conference_events CASCADE;
 
 CREATE TABLE scopus_conference_events (
-  conf_code BIGINT CONSTRAINT sconf_conf_code_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+  conf_code TEXT CONSTRAINT sconf_conf_code_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   conf_name TEXT,
   conf_address TEXT,
   conf_city TEXT,
@@ -376,7 +376,7 @@ CREATE TABLE scopus_conference_events (
   conf_catalog_number TEXT,
   conf_sponsor TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_conference_events_pk PRIMARY KEY (conf_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_conference_events_pk PRIMARY KEY (conf_code,conf_name) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
 COMMENT ON TABLE scopus_conference_events
@@ -417,7 +417,7 @@ DROP TABLE IF EXISTS scopus_conf_proceedings CASCADE;
 
 CREATE TABLE scopus_conf_proceedings (
   scp BIGINT CONSTRAINT sconf_pro_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-  conf_code BIGINT CONSTRAINT sconf_pro_conf_code_fk REFERENCES scopus_conference_events ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+  conf_code TEXT CONSTRAINT sconf_pro_conf_code_fk REFERENCES scopus_conference_events ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   proc_part_no TEXT,
   proc_page_range TEXT,
   proc_page_count SMALLINT,
@@ -447,7 +447,7 @@ IS 'Number of pages in a conference proceeding';
 DROP TABLE IF EXISTS scopus_conf_editors CASCADE;
 
 CREATE TABLE scopus_conf_editors (
-  conf_code BIGINT CONSTRAINT sconf_editor_conf_code_fk REFERENCES scopus_conference_events ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+  conf_code TEXT CONSTRAINT sconf_editor_conf_code_fk REFERENCES scopus_conference_events ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   indexed_name TEXT,
   role_type TEXT,
   initials TEXT,

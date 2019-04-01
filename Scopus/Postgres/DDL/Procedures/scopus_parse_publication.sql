@@ -80,7 +80,7 @@ AS $$
         state = singular.state,
         date_sort = singular.date_sort,
         conf_code = singular.conf_code
-    FROM (SELECT scp, pub_type, process_stage, state, make_date(sort_year, sort_month, sort_day) AS date_sort, conf_code
+    FROM (SELECT scp, pub_type, process_stage, state, make_date(sort_year, sort_month, sort_day) AS date_sort, coalesce(conf_code,'') AS conf_code
           FROM xmltable(--
                XMLNAMESPACES ('http://www.elsevier.com/xml/ani/ait' AS ait), --
                '//ait:process-info' PASSING scopus_doc_xml COLUMNS --
@@ -91,7 +91,7 @@ AS $$
                 sort_year SMALLINT PATH 'ait:date-sort/@year',
                 sort_month SMALLINT PATH 'ait:date-sort/@month',
                 sort_day SMALLINT PATH 'ait:date-sort/@day',
-                conf_code BIGINT PATH '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confevent/confcode')
+                conf_code TEXT PATH '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confevent/confcode')
          ) AS singular
     WHERE sp.scp = singular.scp;
 
