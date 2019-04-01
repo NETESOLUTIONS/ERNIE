@@ -42,7 +42,7 @@ AS $$
           correspondence_city TEXT PATH 'head/correspondence/affiliation/city', --
           correspondence_country TEXT PATH 'head/correspondence/affiliation/country', --
           correspondence_e_address TEXT PATH 'head/correspondence/ce:e-address',
-          citation_type TEXT PATH 'head/citation-info/citation-type/@code')
+          citation_type scopus_citation_type PATH 'head/citation-info/citation-type/@code')
     ) LOOP
       INSERT INTO scopus_publication_groups(sgr, pub_year, pub_date)
       VALUES (cur.sgr, cur.pub_year, cur.pub_date)
