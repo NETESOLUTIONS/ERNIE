@@ -45,19 +45,17 @@ AS $$
 
 
       -- scopus_titles
-      INSERT INTO scopus_titles(scp, title, language,type)
+      INSERT INTO scopus_titles(scp, title, language)
       SELECT
         scp,
         title,
-        language,
-        type
+        language
       FROM xmltable(
         XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
         '//bibrecord/head/citation-title/titletext' PASSING scopus_doc_xml COLUMNS
         scp BIGINT PATH '../../../item-info/itemidlist/itemid[@idtype="SCP"]',
         title TEXT PATH 'normalize-space()',
-        language TEXT PATH '@language',
-        type TEXT PATH  '../../citation-info/citation-type/@code'
+        language TEXT PATH '@language'
         )
       ON CONFLICT DO NOTHING;
 
