@@ -40,8 +40,8 @@ CREATE TRIGGER update_scopus_publication_identifiers_trigger
   FOR EACH ROW EXECUTE PROCEDURE update_scp_function();
 
 
-DROP TRIGGER IF EXISTS update_scopus_chemicalgroups_trigger ON scopus_chemicalgroups;
-CREATE TRIGGER update_scopus_chemicalgroups_trigger
-  BEFORE UPDATE ON scopus_chemicalgroups
+DROP TRIGGER IF EXISTS update_scopus_chemical_groups_trigger ON scopus_chemical_groups;
+CREATE TRIGGER update_scopus_chemical_groups_trigger
+  BEFORE UPDATE ON scopus_chemical_groups
   FOR EACH ROW EXECUTE PROCEDURE update_scp_function();
 

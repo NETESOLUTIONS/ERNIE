@@ -4,13 +4,13 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-CREATE OR REPLACE PROCEDURE update_scopus_chemicalgroups(scopus_doc_xml XML)
+CREATE OR REPLACE PROCEDURE update_scopus_chemical_groups(scopus_doc_xml XML)
 AS $$
   DECLARE
     cur RECORD;
   BEGIN
 
-    --scopus_chemicalgroups
+    --scopus_chemical_groups
     FOR cur IN(
       SELECT
         scp,
@@ -25,7 +25,7 @@ AS $$
         chemical_name TEXT PATH '../chemical-name',
         cas_registry_number TEXT PATH '.'
         ) )LOOP
-        INSERT INTO scopus_chemicalgroups(scp, chemicals_source,chemical_name, cas_registry_number)
+        INSERT INTO scopus_chemical_groups(scp, chemicals_source,chemical_name, cas_registry_number)
         VALUES(cur.scp,cur.chemicals_source,cur.chemical_name,cur.cas_registry_number)
       ON CONFLICT DO NOTHING;
     END LOOP;
