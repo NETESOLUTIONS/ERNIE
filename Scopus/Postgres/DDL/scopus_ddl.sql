@@ -1,7 +1,6 @@
 \set ON_ERROR_STOP on
 \set ECHO all
 
-SET search_path TO avon;
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
@@ -381,10 +380,10 @@ IS 'Conference name';
 COMMENT ON COLUMN scopus_conference_events.conf_address
 IS 'Conference address';
 
-COMMENT ON COLUMN scopus_conference_events.city
+COMMENT ON COLUMN scopus_conference_events.conf_city
 IS 'City of conference event';
 
-COMMENT ON COLUMN scopus_conference_events.postal_code
+COMMENT ON COLUMN scopus_conference_events.conf_postal_code
 IS 'Postal code of conference event';
 
 COMMENT ON COLUMN scopus_conference_events.conf_start_date
@@ -393,7 +392,7 @@ IS 'Conference start date';
 COMMENT ON COLUMN scopus_conference_events.conf_end_date
 IS 'Conference end date';
 
-COMMENT ON COLUMN scopus_conference_events.number
+COMMENT ON COLUMN scopus_conference_events.conf_number
 IS 'Sequencenumber of the conference';
 
 COMMENT ON COLUMN scopus_conference_events.conf_catalog_number
