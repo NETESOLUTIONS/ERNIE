@@ -61,6 +61,8 @@ CREATE TABLE scopus_references (
   CONSTRAINT scopus_references_pk PRIMARY KEY (scp, ref_sgr) USING INDEX TABLESPACE index_tbs
 ) PARTITION BY RANGE (scp) TABLESPACE scopus_tbs;
 
+CREATE UNIQUE INDEX reference_pub_ref_id ON scopus_references (scp, pub_ref_id);
+
 CREATE TABLE scopus_references_partition_1 PARTITION OF scopus_references
 FOR VALUES FROM (0) TO (12500000000);
 
