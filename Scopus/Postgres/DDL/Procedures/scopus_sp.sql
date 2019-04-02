@@ -56,18 +56,19 @@ AS $$
       -- scopus_abstracts: concatenated abstract_text
       WITH
       sca AS (
-        SELECT scp,string_agg(abstract_text,chr(10)) as abstract_text
+        SELECT scp,abstract_languagestring_agg(abstract_text,chr(10)) as abstract_text
         FROM test_scopus_2, XMLTABLE(
         XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
         '//bibrecord/head/abstracts/abstract/ce:para' PASSING test_table COLUMNS
             scp BIGINT PATH '../../../../item-info/itemidlist/itemid[@idtype="SCP"]',
-            abstract_text TEXT PATH 'normalize-space()'
+            abstract_text TEXT PATH 'normalize-space()',
+            abstract_language TEXT PATH '../@xml:lang'
             )
-            GROUP BY scp
+            GROUP BY scp,abstract_language
         )
         UPDATE scopus_abstracts sa
         SET abstract_text=sca.abstract_text
-        FROM sca WHERE sa.scp=sca.scp;
+        FROM sca WHERE sa.scp=sca.scp and sa.abstract_language=sca.abstract_language;
 
 
       -- scopus_titles
