@@ -42,7 +42,7 @@ AS $$
           correspondence_city TEXT PATH 'head/correspondence/affiliation/city', --
           correspondence_country TEXT PATH 'head/correspondence/affiliation/country', --
           correspondence_e_address TEXT PATH 'head/correspondence/ce:e-address',
-          citation_type scopus_citation_type PATH 'head/citation-info/citation-type/@code')
+          citation_type TEXT PATH 'head/citation-info/citation-type/@code')
     ) LOOP
       INSERT INTO scopus_publication_groups(sgr, pub_year, pub_date)
       VALUES (cur.sgr, cur.pub_year, cur.pub_date)
@@ -78,8 +78,9 @@ AS $$
     SET pub_type = singular.pub_type,
         process_stage = singular.process_stage,
         state = singular.state,
-        date_sort = singular.date_sort,
-    FROM (SELECT scp, pub_type, process_stage, state, make_date(sort_year, sort_month, sort_day) AS date_sort
+        date_sort = singular.date_sort
+    FROM (
+         SELECT scp, pub_type, process_stage, state, make_date(sort_year, sort_month, sort_day) AS date_sort
           FROM xmltable(--
                XMLNAMESPACES ('http://www.elsevier.com/xml/ani/ait' AS ait), --
                '//ait:process-info' PASSING scopus_doc_xml COLUMNS --
