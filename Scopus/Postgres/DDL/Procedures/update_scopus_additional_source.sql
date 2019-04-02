@@ -77,9 +77,10 @@ AS $$
     ON CONFLICT DO NOTHING;
 
     -- scopus_conf_editors
-    INSERT INTO scopus_conf_editors(conf_code,indexed_name,role_type,initials,surname,given_name,degree,suffix)
+    INSERT INTO scopus_conf_editors(scp,conf_code,indexed_name,role_type,initials,surname,given_name,degree,suffix)
 
     SELECT
+      scp,
       coalesce(conf_code,'') AS conf_code,
       indexed_name,
       coalesce(edit_role, edit_type) AS role_type,
@@ -92,6 +93,7 @@ AS $$
       xmltable(--
       XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
       '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication/confeditors/editors/editor' PASSING scopus_doc_xml COLUMNS --
+      scp BIGINT PATH '//item-info/itemidlist/itemid[@idtype="SCP"]',
       conf_code TEXT PATH '../../../preceding-sibling::confevent/confcode',
       indexed_name TEXT PATH 'ce:indexed-name',
       edit_role TEXT PATH '@role',
