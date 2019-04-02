@@ -27,6 +27,7 @@ CREATE TABLE scopus_publications (
   correspondence_country TEXT,
   correspondence_e_address TEXT,
   pub_type TEXT,
+  citation_type scopus_citation_type,
   process_stage TEXT,
   state TEXT,
   date_sort DATE
