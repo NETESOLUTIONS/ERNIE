@@ -594,7 +594,6 @@ CREATE TABLE IF NOT EXISTS scopus_titles (
   scp BIGINT
     CONSTRAINT st_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   title TEXT NOT NULL,
-  type TEXT NOT NULL,
   language TEXT NOT NULL,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT scopus_titles_pk PRIMARY KEY (scp, language) USING INDEX TABLESPACE index_tbs
@@ -606,8 +605,6 @@ COMMENT ON COLUMN scopus_titles.scp IS 'Scopus id that uniquely identifies docum
 
 COMMENT ON COLUMN scopus_titles.title IS --
   'Contains the original or translated title of the document. Ex: The genus Tragus';
-
-COMMENT ON COLUMN scopus_titles.type IS 'Contains the item type of original document Ex: ar,le';
 
 COMMENT ON COLUMN scopus_titles.language IS 'Language of the title Ex: eng,esp';
 
