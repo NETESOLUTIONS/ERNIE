@@ -37,21 +37,37 @@ CREATE OR REPLACE PROCEDURE update_scopus_abstracts_title(scopus_doc_xml XML)
 AS $$
   BEGIN
        -- scopus_abstracts
-      INSERT INTO scopus_abstracts(scp, abstract_text, abstract_language, abstract_source)
+      INSERT INTO scopus_abstracts(scp, abstract_language, abstract_source)
       SELECT
         scp,
-        abstract_text,
         abstract_language,
         abstract_source
       FROM xmltable(
         XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
         '//bibrecord/head/abstracts/abstract/ce:para' PASSING scopus_doc_xml COLUMNS
         scp BIGINT PATH '../../../../item-info/itemidlist/itemid[@idtype="SCP"]',
-        abstract_text TEXT PATH 'normalize-space()',
+--         abstract_text TEXT PATH 'normalize-space()',
         abstract_language TEXT PATH '../@xml:lang',
         abstract_source TEXT PATH '../@source'
         )
       ON CONFLICT DO NOTHING;
+
+
+      -- scopus_abstracts: concatenated abstract_text
+      WITH
+      sca AS (
+        SELECT scp,string_agg(abstract_text,chr(10)) as abstract_text
+        FROM test_scopus_2, XMLTABLE(
+        XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
+        '//bibrecord/head/abstracts/abstract/ce:para' PASSING test_table COLUMNS
+            scp BIGINT PATH '../../../../item-info/itemidlist/itemid[@idtype="SCP"]',
+            abstract_text TEXT PATH 'normalize-space()'
+            )
+            GROUP BY scp
+        )
+        UPDATE scopus_abstracts sa
+        SET abstract_text=sca.abstract_text
+        FROM sca WHERE sa.scp=sca.scp;
 
 
       -- scopus_titles

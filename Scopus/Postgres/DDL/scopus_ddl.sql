@@ -569,7 +569,7 @@ DROP TABLE IF EXISTS scopus_abstracts CASCADE;
 CREATE TABLE IF NOT EXISTS scopus_abstracts (
   scp BIGINT
     CONSTRAINT sa_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-  abstract_text TEXT NOT NULL,
+  abstract_text TEXT,
   abstract_language TEXT NOT NULL,
   abstract_source TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
@@ -628,25 +628,25 @@ COMMENT ON COLUMN scopus_keywords.scp IS 'Scopus id that uniquely identifies doc
 COMMENT ON COLUMN scopus_keywords.keyword IS --
   'Keywords assigned to document by authors Ex: headache, high blood pressure';
 
-DROP TABLE IF EXISTS scopus_chemicalgroups CASCADE;
+DROP TABLE IF EXISTS scopus_chemical_groups CASCADE;
 
-CREATE TABLE IF NOT EXISTS scopus_chemicalgroups (
+CREATE TABLE IF NOT EXISTS scopus_chemical_groups (
   scp BIGINT
     CONSTRAINT sc_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   chemicals_source TEXT NOT NULL,
   chemical_name TEXT NOT NULL,
   cas_registry_number TEXT NOT NULL DEFAULT ' ',
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_chemicalgroups_pk PRIMARY KEY (scp, chemical_name, cas_registry_number) --
+  CONSTRAINT scopus_chemical_groups_pk PRIMARY KEY (scp, chemical_name, cas_registry_number) --
     USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
-COMMENT ON TABLE scopus_chemicalgroups IS 'ELSEVIER: Chemical names that occur in the document';
+COMMENT ON TABLE scopus_chemical_groups IS 'ELSEVIER: Chemical names that occur in the document';
 
-COMMENT ON COLUMN scopus_chemicalgroups.scp IS 'Scopus id that uniquely identifies document Ex: 85046115382';
+COMMENT ON COLUMN scopus_chemical_groups.scp IS 'Scopus id that uniquely identifies document Ex: 85046115382';
 
-COMMENT ON COLUMN scopus_chemicalgroups.chemicals_source IS 'Source of the chemical elements Ex: mln,esbd';
+COMMENT ON COLUMN scopus_chemical_groups.chemicals_source IS 'Source of the chemical elements Ex: mln,esbd';
 
-COMMENT ON COLUMN scopus_chemicalgroups.chemical_name IS 'Name of the chemical substance Ex: iodine';
+COMMENT ON COLUMN scopus_chemical_groups.chemical_name IS 'Name of the chemical substance Ex: iodine';
 
-COMMENT ON COLUMN scopus_chemicalgroups.cas_registry_number IS 'CAS registry number associated with chemical name Ex: 15715-08-9';
+COMMENT ON COLUMN scopus_chemical_groups.cas_registry_number IS 'CAS registry number associated with chemical name Ex: 15715-08-9';
