@@ -57,9 +57,9 @@ AS $$
       WITH
       sca AS (
         SELECT scp,abstract_languagestring_agg(abstract_text,chr(10)) as abstract_text
-        FROM test_scopus_2, XMLTABLE(
+        FROM xmltable(
         XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
-        '//bibrecord/head/abstracts/abstract/ce:para' PASSING test_table COLUMNS
+        '//bibrecord/head/abstracts/abstract/ce:para' PASSING scopus_doc_xml COLUMNS
             scp BIGINT PATH '../../../../item-info/itemidlist/itemid[@idtype="SCP"]',
             abstract_text TEXT PATH 'normalize-space()',
             abstract_language TEXT PATH '../@xml:lang'
