@@ -56,7 +56,7 @@ AS $$
       -- scopus_abstracts: concatenated abstract_text
       WITH
       sca AS (
-        SELECT scp,abstract_languagestring_agg(abstract_text,chr(10)) as abstract_text
+        SELECT scp,abstract_language,string_agg(abstract_text,chr(10)) as abstract_text
         FROM xmltable(
         XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
         '//bibrecord/head/abstracts/abstract/ce:para' PASSING scopus_doc_xml COLUMNS
