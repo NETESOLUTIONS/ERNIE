@@ -8,14 +8,13 @@ SET TIMEZONE = 'US/Eastern';
 CREATE OR REPLACE PROCEDURE update_scopus_additional_source(scopus_doc_xml XML)
 AS $$
   BEGIN
-  
     -- scopus_conference_events
     INSERT INTO scopus_conference_events(conf_code, conf_name, conf_address,conf_city, conf_postal_code, conf_start_date,
                                     conf_end_date, conf_number, conf_catalog_number)
 
     SELECT
       coalesce(conf_code,'') AS conf_code,
-      conf_name,
+      coalesce(conf_name,'') AS conf_name,
       conf_address,
       conf_city,
       conf_postal_code,
@@ -45,30 +44,38 @@ AS $$
     UPDATE scopus_conference_events sce
     SET conf_sponsor=sq.conf_sponsor
     FROM (
-         SELECT conf_code, string_agg(conf_sponsor,',') AS conf_sponsor
+         SELECT
+          coalesce(conf_code, '') AS conf_code,
+          coalesce(conf_name,'') AS conf_name,
+          string_agg(conf_sponsor,',') AS conf_sponsor
          FROM xmltable(--
          '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confevent/confsponsors/confsponsor' PASSING scopus_doc_xml COLUMNS --
          conf_code TEXT PATH '../../confcode',
+         conf_name TEXT PATH '../../confname',
          conf_sponsor TEXT PATH 'normalize-space()'
          )
-         GROUP BY conf_code
+         GROUP BY conf_code, conf_name
          ) as sq
-    WHERE sce.conf_code=sq.conf_code;
+    WHERE sce.conf_code=sq.conf_code AND sce.conf_name=sq.conf_name;
 
-    -- scopus_conf_publications
-    INSERT INTO scopus_conf_proceedings(scp,conf_code,proc_part_no,proc_page_range,proc_page_count)
+    -- scopus_conf_proceedings
+    INSERT INTO scopus_conf_proceedings(source_id,issn,conf_code,conf_name,proc_part_no,proc_page_range,proc_page_count)
 
     SELECT
-      scp,
+      coalesce(source_id,'') AS source_id,
+      coalesce(issn,'') AS issn,
       coalesce(conf_code,'') AS conf_code,
+      coalesce(conf_name,'') AS conf_name,
       proc_part_no,
       proc_page_range,
       proc_page_count
     FROM
       xmltable(--
       '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication' PASSING scopus_doc_xml COLUMNS --
-      scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
+      source_id TEXT PATH '../../../@srcid',
+      issn TEXT PATH '../../../issn[@type="print"]',
       conf_code TEXT PATH 'preceding-sibling::confevent/confcode',
+      conf_name TEXT PATH 'preceding-sibling::confevent/confname',
       proc_part_no TEXT PATH 'procpartno',
       proc_page_range TEXT PATH 'procpagerange',
       proc_page_count SMALLINT PATH 'procpagecount'
@@ -77,11 +84,14 @@ AS $$
     ON CONFLICT DO NOTHING;
 
     -- scopus_conf_editors
-    INSERT INTO scopus_conf_editors(scp,conf_code,indexed_name,role_type,initials,surname,given_name,degree,suffix)
+    INSERT INTO scopus_conf_editors(source_id, issn, conf_code,conf_name,indexed_name,role_type,
+                                    initials,surname,given_name,degree,suffix)
 
     SELECT
-      scp,
+      coalesce(source_id,'') AS source_id,
+      coalesce(issn,'') AS issn,
       coalesce(conf_code,'') AS conf_code,
+      coalesce(conf_name,'') AS conf_name,
       indexed_name,
       coalesce(edit_role, edit_type) AS role_type,
       initials,
@@ -93,8 +103,10 @@ AS $$
       xmltable(--
       XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
       '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication/confeditors/editors/editor' PASSING scopus_doc_xml COLUMNS --
-      scp BIGINT PATH '//item-info/itemidlist/itemid[@idtype="SCP"]',
+      source_id TEXT PATH '//bibrecord/head/source/@srcid',
+      issn TEXT PATH '//bibrecord/head/source/issn[@type="print"]',
       conf_code TEXT PATH '../../../preceding-sibling::confevent/confcode',
+      conf_name TEXT PATH '../../../preceding-sibling::confevent/confname',
       indexed_name TEXT PATH 'ce:indexed-name',
       edit_role TEXT PATH '@role',
       edit_type TEXT PATH '@type',
@@ -106,31 +118,47 @@ AS $$
       )
       ON CONFLICT DO NOTHING;
 
-    UPDATE scopus_conf_editors sce
+    UPDATE scopus_conf_editors sed
     SET address=sq.address
     FROM (
-         SELECT conf_code, string_agg(address, ',') AS address
+         SELECT
+          coalesce(source_id,'') AS source_id,
+          coalesce(issn,'') AS issn,
+          coalesce(conf_code,'') AS conf_code,
+          coalesce(conf_name,'') AS conf_name,
+          string_agg(address, ',') AS address
          FROM xmltable(--
          '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication/confeditors/editoraddress' PASSING scopus_doc_xml COLUMNS --
+         source_id TEXT PATH '//bibrecord/head/source/@srcid',
+         issn TEXT PATH '//bibrecord/head/source/issn[@type="print"]',
          conf_code TEXT PATH '../../preceding-sibling::confevent/confcode',
+         conf_name TEXT PATH '../../preceding-sibling::confevent/confname',
          address TEXT PATH 'normalize-space()'
          )
-         GROUP BY conf_code
+         GROUP BY source_id, issn, conf_code, conf_name
          ) as sq
-    WHERE sce.conf_code=sq.conf_code;
+    WHERE sed.conf_code=sq.conf_code AND sed.source_id=sq.source_id AND sed.issn=sq.issn AND sed.conf_name=sq.conf_name;
 
-    UPDATE scopus_conf_editors sce
+    UPDATE scopus_conf_editors sed
     SET organization=sq.organization
     FROM (
-         SELECT conf_code, string_agg(organization, ',') AS organization
+         SELECT
+          coalesce(source_id,'') AS source_id,
+          coalesce(issn,'') AS issn,
+          coalesce(conf_code,'') AS conf_code,
+          coalesce(conf_name,'') AS conf_name,
+          string_agg(organization, ',') AS organization
          FROM xmltable(--
          '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication/confeditors/editororganization' PASSING scopus_doc_xml COLUMNS --
+         source_id TEXT PATH '//bibrecord/head/source/@srcid',
+         issn TEXT PATH '//bibrecord/head/source/issn[@type="print"]',
          conf_code TEXT PATH '../../preceding-sibling::confevent/confcode',
+         conf_name TEXT PATH '../../preceding-sibling::confevent/confname',
          organization TEXT PATH 'normalize-space()'
          )
-         GROUP BY conf_code
+         GROUP BY source_id, issn, conf_code, conf_name
          ) as sq
-    WHERE sce.conf_code=sq.conf_code;
+    WHERE sed.conf_code=sq.conf_code AND sed.source_id=sq.source_id AND sed.issn=sq.issn AND sed.conf_name=sq.conf_name;
     
   END;
   $$
