@@ -78,9 +78,18 @@ AS $$
     SET pub_type = singular.pub_type,
         process_stage = singular.process_stage,
         state = singular.state,
-        date_sort = singular.date_sort
+        date_sort = singular.date_sort,
+        source_id = singular.source_id,
+        issn = singular.issn
     FROM (
-         SELECT scp, pub_type, process_stage, state, make_date(sort_year, sort_month, sort_day) AS date_sort
+         SELECT 
+          scp, 
+          pub_type, 
+          process_stage, 
+          state, 
+          make_date(sort_year, CASE WHEN sort_month = 0 THEN 1 ELSE sort_month END, sort_day) AS date_sort, 
+          coalesce(source_id,'') AS source_id,
+          coalesce(issn,'') AS issn,
           FROM xmltable(--
                XMLNAMESPACES ('http://www.elsevier.com/xml/ani/ait' AS ait), --
                '//ait:process-info' PASSING scopus_doc_xml COLUMNS --
@@ -90,7 +99,10 @@ AS $$
                 state TEXT PATH 'ait:status/@state',
                 sort_year SMALLINT PATH 'ait:date-sort/@year',
                 sort_month SMALLINT PATH 'ait:date-sort/@month',
-                sort_day SMALLINT PATH 'ait:date-sort/@day')
+                sort_day SMALLINT PATH 'ait:date-sort/@day',
+                source_id TEXT PATH '//bibrecord/head/source/@srcid',
+                issn TEXT PATH '//bibrecord/head/source/issn[@type="print"]'
+                )
          ) AS singular
     WHERE sp.scp = singular.scp;
 
