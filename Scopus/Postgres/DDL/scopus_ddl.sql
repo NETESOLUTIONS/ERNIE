@@ -30,7 +30,9 @@ CREATE TABLE scopus_publications (
   citation_type TEXT,
   process_stage TEXT,
   state TEXT,
-  date_sort DATE
+  date_sort DATE,
+  source_id TEXT,
+  issn TEXT
 ) TABLESPACE scopus_tbs;
 
 -- scopus_authors
@@ -160,26 +162,17 @@ IS 'Affiliation sequence in the document. Example: 1';
 DROP TABLE IF EXISTS scopus_sources CASCADE;
 
 CREATE TABLE scopus_sources (
-  scp BIGINT CONSTRAINT s_sources_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-  source_id BIGINT,
+  source_id TEXT,
+  issn TEXT,
   source_type TEXT,
   source_title TEXT,
-  issn_print TEXT,
   issn_electronic TEXT,
   coden_code TEXT,
-  issue TEXT,
-  volume TEXT,
-  first_page TEXT,
-  last_page TEXT,
-  publication_year SMALLINT,
-  publication_date DATE,
   website TEXT,
   publisher_name TEXT,
   publisher_e_address TEXT,
-  indexed_terms TEXT,
-  conf_code TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_sources_pk PRIMARY KEY (scp, conf_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_sources_pk PRIMARY KEY (source_id, issn) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
 COMMENT ON TABLE scopus_sources
@@ -197,7 +190,7 @@ IS 'Source type. Example: j for journal';
 COMMENT ON COLUMN scopus_sources.source_title
 IS 'Journal name. Example: American Heart Journal';
 
-COMMENT ON COLUMN scopus_sources.issn_print
+COMMENT ON COLUMN scopus_sources.issn
 IS 'The ISSN of a serial publication (print). Example: 00028703';
 
 COMMENT ON COLUMN scopus_sources.issn_electronic
@@ -205,24 +198,6 @@ IS 'The ISSN of a serial publication (electronic). Example: 10976744';
 
 COMMENT ON COLUMN scopus_sources.coden_code
 IS 'The CODEN code that uniquely identifies the source. Example: AHJOA';
-
-COMMENT ON COLUMN scopus_sources.issue
-IS 'Example: 5';
-
-COMMENT ON COLUMN scopus_sources.volume
-IS 'Example: 40';
-
-COMMENT ON COLUMN scopus_sources.first_page
-IS 'Page range. Example: 706';
-
-COMMENT ON COLUMN scopus_sources.last_page
-IS 'Page range. Example: 730';
-
-COMMENT ON COLUMN scopus_sources.publication_year
-IS 'Example: 1950';
-
-COMMENT ON COLUMN scopus_sources.publication_date
-IS 'Example: 1950-05-20';
 
 COMMENT ON COLUMN scopus_sources.website
 IS 'Example: http://dl.acm.org/citation.cfm?id=111048';
@@ -233,11 +208,56 @@ IS 'Example: Oxford University Press';
 COMMENT ON COLUMN scopus_sources.publisher_e_address
 IS 'Example: acmhelp@acm.org';
 
-COMMENT ON COLUMN scopus_sources.indexed_terms
+-- scopus_pub_sources
+DROP TABLE IF EXISTS scopus_pub_sources CASCADE;
+
+CREATE TABLE scopus_pub_sources (
+  scp BIGINT CONSTRAINT spub_sources_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+  issue TEXT,
+  volume TEXT,
+  first_page TEXT,
+  last_page TEXT,
+  publication_year SMALLINT,
+  publication_date DATE,
+  indexed_terms TEXT,
+  conf_code TEXT,
+  conf_name TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT scopus_pub_sources_pk PRIMARY KEY (scp) USING INDEX TABLESPACE index_tbs
+) TABLESPACE scopus_tbs;
+
+COMMENT ON TABLE scopus_pub_sources
+IS 'Journal source information table';
+
+COMMENT ON COLUMN scopus_pub_sources.scp
+IS 'Scopus id. Example: 50349106526';
+
+COMMENT ON COLUMN scopus_pub_sources.issue
+IS 'Example: 5';
+
+COMMENT ON COLUMN scopus_pub_sources.volume
+IS 'Example: 40';
+
+COMMENT ON COLUMN scopus_pub_sources.first_page
+IS 'Page range. Example: 706';
+
+COMMENT ON COLUMN scopus_pub_sources.last_page
+IS 'Page range. Example: 730';
+
+COMMENT ON COLUMN scopus_pub_sources.publication_year
+IS 'Example: 1950';
+
+COMMENT ON COLUMN scopus_pub_sources.publication_date
+IS 'Example: 1950-05-20';
+
+COMMENT ON COLUMN scopus_pub_sources.indexed_terms
 IS 'Subject index terms';
 
-COMMENT ON COLUMN scopus_sources.conf_code
+COMMENT ON COLUMN scopus_pub_sources.conf_code
 IS 'Conference code, assigned by Elsevier DB';
+
+COMMENT ON COLUMN scopus_pub_sources.conf_name
+IS 'Conference name';
 
 -- scopus_source_isbns
 DROP TABLE IF EXISTS scopus_source_isbns CASCADE;
@@ -402,30 +422,41 @@ IS 'Conference catalogue number';
 COMMENT ON COLUMN scopus_conference_events.conf_sponsor
 IS 'Conference sponser names';
 
---scopus_conf_publications
+--scopus_conf_processdings
 DROP TABLE IF EXISTS scopus_conf_proceedings CASCADE;
 
 CREATE TABLE scopus_conf_proceedings (
-  scp BIGINT, 
+  source_id TEXT,
+  issn TEXT, 
   conf_code TEXT,
+  conf_name TEXT,
   proc_part_no TEXT,
   proc_page_range TEXT,
   proc_page_count SMALLINT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_conf_proceedings_pk PRIMARY KEY (scp, conf_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_conf_proceedings_pk PRIMARY KEY (source_id, issn, conf_code, conf_name) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
 ALTER TABLE scopus_conf_proceedings
-  ADD CONSTRAINT sconf_scp_conf_code_fk FOREIGN KEY (scp, conf_code) REFERENCES scopus_sources (scp, conf_code) ON DELETE CASCADE;
+  ADD CONSTRAINT sconf_source_id_issn_fk FOREIGN KEY (source_id, issn) REFERENCES scopus_sources (source_id, issn) ON DELETE CASCADE;
+
+ALTER TABLE scopus_conf_proceedings
+  ADD CONSTRAINT sconf_code_name_fk FOREIGN KEY (conf_code, conf_name) REFERENCES scopus_conference_events (conf_code, conf_name) ON DELETE CASCADE;
 
 COMMENT ON TABLE scopus_conf_proceedings
 IS 'Conference publications information';
 
-COMMENT ON COLUMN scopus_conf_proceedings.scp
-IS 'Scopus id. Example: 25767560';
+COMMENT ON COLUMN scopus_conf_proceedings.source_id
+IS 'Source id';
+
+COMMENT ON COLUMN scopus_conf_proceedings.issn
+IS 'Source issn number, dafault print issn';
 
 COMMENT ON COLUMN scopus_conf_proceedings.conf_code
 IS 'Conference code, assigned by Elsevier DB';
+
+COMMENT ON COLUMN scopus_conf_proceedings.conf_name
+IS 'Conference name';
 
 COMMENT ON COLUMN scopus_conf_proceedings.proc_part_no
 IS 'Part number of the conference proceeding';
@@ -440,8 +471,10 @@ IS 'Number of pages in a conference proceeding';
 DROP TABLE IF EXISTS scopus_conf_editors CASCADE;
 
 CREATE TABLE scopus_conf_editors (
-  scp BIGINT,
+  source_id TEXT,
+  issn TEXT, 
   conf_code TEXT,
+  conf_name TEXT,
   indexed_name TEXT,
   role_type TEXT,
   initials TEXT,
@@ -452,20 +485,29 @@ CREATE TABLE scopus_conf_editors (
   address TEXT,
   organization TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_conf_editors_pk PRIMARY KEY (conf_code, indexed_name) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_conf_editors_pk PRIMARY KEY (source_id, issn, conf_code, conf_name) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
 ALTER TABLE scopus_conf_editors
-  ADD CONSTRAINT sconf_editor_conf_code_fk FOREIGN KEY (scp, conf_code) REFERENCES scopus_sources (scp, conf_code) ON DELETE CASCADE;
+  ADD CONSTRAINT seditor_source_id_issn_fk FOREIGN KEY (source_id, issn) REFERENCES scopus_sources (source_id, issn) ON DELETE CASCADE;
+
+ALTER TABLE scopus_conf_editors
+  ADD CONSTRAINT seditor_code_name_fk FOREIGN KEY (conf_code, conf_name) REFERENCES scopus_conference_events (conf_code, conf_name) ON DELETE CASCADE;
 
 COMMENT ON TABLE scopus_conf_editors
 IS 'Conference editors information';
 
-COMMENT ON COLUMN scopus_conf_editors.scp
-IS 'Scopus id. Example: 25767560';
+COMMENT ON COLUMN scopus_conf_editors.source_id
+IS 'Source id';
+
+COMMENT ON COLUMN scopus_conf_editors.issn
+IS 'Source issn number, default issn print';
 
 COMMENT ON COLUMN scopus_conf_editors.conf_code
-IS 'Conference publications information';
+IS 'Conference code';
+
+COMMENT ON COLUMN scopus_conf_editors.conf_name
+IS 'Conference name';
 
 COMMENT ON COLUMN scopus_conf_editors.indexed_name
 IS 'A sortable variant of the editor surname and initials';
