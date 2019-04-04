@@ -36,6 +36,9 @@ CREATE TABLE scopus_publications (
   source_id TEXT,
   issn TEXT
 ) TABLESPACE scopus_tbs;
+
+ALTER TABLE scopus_publications
+  ADD CONSTRAINT spub_source_id_issn_fk FOREIGN KEY (source_id, issn) REFERENCES scopus_sources (source_id, issn) ON DELETE CASCADE;
 -- endregion
 
 -- region scopus_authors
@@ -215,10 +218,10 @@ COMMENT ON COLUMN scopus_sources.publisher_e_address
 IS 'Example: acmhelp@acm.org';
 -- endregion
 
--- scopus_pub_sources
-DROP TABLE IF EXISTS scopus_pub_sources CASCADE;
+-- scopus_source_publication_details
+DROP TABLE IF EXISTS scopus_source_publication_details CASCADE;
 
-CREATE TABLE scopus_pub_sources (
+CREATE TABLE scopus_source_publication_details (
   scp BIGINT CONSTRAINT spub_sources_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   issue TEXT,
   volume TEXT,
@@ -230,68 +233,71 @@ CREATE TABLE scopus_pub_sources (
   conf_code TEXT,
   conf_name TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_pub_sources_pk PRIMARY KEY (scp) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_source_publication_details_pk PRIMARY KEY (scp) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
-COMMENT ON TABLE scopus_pub_sources
-IS 'Journal source information table';
+ALTER TABLE scopus_source_publication_details
+  ADD CONSTRAINT spub_conf_code_conf_name_fk FOREIGN KEY (conf_code, conf_name) REFERENCES scopus_authors (conf_code, conf_name) ON DELETE CASCADE;
 
-COMMENT ON COLUMN scopus_pub_sources.scp
+COMMENT ON TABLE scopus_source_publication_details
+IS 'Details of individual publication in a (journal) source';
+
+COMMENT ON COLUMN scopus_source_publication_details.scp
 IS 'Scopus id. Example: 50349106526';
 
-COMMENT ON COLUMN scopus_pub_sources.issue
+COMMENT ON COLUMN scopus_source_publication_details.issue
 IS 'Example: 5';
 
-COMMENT ON COLUMN scopus_pub_sources.volume
+COMMENT ON COLUMN scopus_source_publication_details.volume
 IS 'Example: 40';
 
-COMMENT ON COLUMN scopus_pub_sources.first_page
+COMMENT ON COLUMN scopus_source_publication_details.first_page
 IS 'Page range. Example: 706';
 
-COMMENT ON COLUMN scopus_pub_sources.last_page
+COMMENT ON COLUMN scopus_source_publication_details.last_page
 IS 'Page range. Example: 730';
 
-COMMENT ON COLUMN scopus_pub_sources.publication_year
+COMMENT ON COLUMN scopus_source_publication_details.publication_year
 IS 'Example: 1950';
 
-COMMENT ON COLUMN scopus_pub_sources.publication_date
+COMMENT ON COLUMN scopus_source_publication_details.publication_date
 IS 'Example: 1950-05-20';
 
-COMMENT ON COLUMN scopus_pub_sources.indexed_terms
+COMMENT ON COLUMN scopus_source_publication_details.indexed_terms
 IS 'Subject index terms';
 
-COMMENT ON COLUMN scopus_pub_sources.conf_code
+COMMENT ON COLUMN scopus_source_publication_details.conf_code
 IS 'Conference code, assigned by Elsevier DB';
 
-COMMENT ON COLUMN scopus_pub_sources.conf_name
+COMMENT ON COLUMN scopus_source_publication_details.conf_name
 IS 'Conference name';
 
--- scopus_source_isbns
-DROP TABLE IF EXISTS scopus_source_isbns CASCADE;
+-- scopus_isbns
+DROP TABLE IF EXISTS scopus_isbns CASCADE;
 
-CREATE TABLE scopus_source_isbns (
+CREATE TABLE scopus_isbns (
   scp BIGINT CONSTRAINT ssi_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   isbn TEXT,
   isbn_length SMALLINT,
   isbn_level TEXT,
   isbn_type TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_source_isbns_pk PRIMARY KEY (scp,isbn) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_isbns_pk PRIMARY KEY (scp,isbn) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
-COMMENT ON TABLE scopus_source_isbns
+COMMENT ON TABLE scopus_isbns
 IS 'Scopus publications isbn information';
 
-COMMENT ON COLUMN scopus_source_isbns.isbn
+COMMENT ON COLUMN scopus_isbns.isbn
 IS 'ISBN number. Example: 0080407749';
 
-COMMENT ON COLUMN scopus_source_isbns.isbn_length
+COMMENT ON COLUMN scopus_isbns.isbn_length
 IS 'ISBN length. Example: 10 or 13';
 
-COMMENT ON COLUMN scopus_source_isbns.isbn_level
+COMMENT ON COLUMN scopus_isbns.isbn_level
 IS 'Example: set or volume';
 
-COMMENT ON COLUMN scopus_source_isbns.isbn_type
+COMMENT ON COLUMN scopus_isbns.isbn_type
 IS 'Example: hardcover, paperback, cloth';
 
 -- scopus_subjects
