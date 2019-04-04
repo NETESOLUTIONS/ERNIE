@@ -8,56 +8,6 @@ SET TIMEZONE = 'US/Eastern';
 CREATE OR REPLACE PROCEDURE update_scopus_additional_source(scopus_doc_xml XML)
 AS $$
   BEGIN
-    -- scopus_conference_events
-    INSERT INTO scopus_conference_events(conf_code, conf_name, conf_address,conf_city, conf_postal_code, conf_start_date,
-                                    conf_end_date, conf_number, conf_catalog_number)
-
-    SELECT
-      coalesce(conf_code,'') AS conf_code,
-      coalesce(conf_name,'') AS conf_name,
-      conf_address,
-      conf_city,
-      conf_postal_code,
-      make_date(s_year, s_month, s_day) AS conf_start_date,
-      make_date(e_year, e_month, e_day) AS conf_end_date,
-      conf_number,
-      conf_catalog_number
-    FROM
-      xmltable(--
-      '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confevent' PASSING scopus_doc_xml COLUMNS --
-      conf_code TEXT PATH 'confcode',
-      conf_name TEXT PATH 'confname',
-      conf_address TEXT PATH 'conflocation/address-part',
-      conf_city TEXT PATH 'conflocation/city-group',
-      conf_postal_code TEXT PATH 'conflocation/postal-code',
-      s_year SMALLINT PATH 'confdate/startdate/@year',
-      s_month SMALLINT PATH 'confdate/startdate/@month',
-      s_day SMALLINT PATH 'confdate/startdate/@day',
-      e_year SMALLINT PATH 'confdate/enddate/@year',
-      e_month SMALLINT PATH 'confdate/enddate/@month',
-      e_day SMALLINT PATH 'confdate/enddate/@day',
-      conf_number TEXT PATH 'confnumber',
-      conf_catalog_number TEXT PATH 'confcatnumber'
-      )
-    ON CONFLICT DO NOTHING;
-
-    UPDATE scopus_conference_events sce
-    SET conf_sponsor=sq.conf_sponsor
-    FROM (
-         SELECT
-          coalesce(conf_code, '') AS conf_code,
-          coalesce(conf_name,'') AS conf_name,
-          string_agg(conf_sponsor,',') AS conf_sponsor
-         FROM xmltable(--
-         '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confevent/confsponsors/confsponsor' PASSING scopus_doc_xml COLUMNS --
-         conf_code TEXT PATH '../../confcode',
-         conf_name TEXT PATH '../../confname',
-         conf_sponsor TEXT PATH 'normalize-space()'
-         )
-         GROUP BY conf_code, conf_name
-         ) as sq
-    WHERE sce.conf_code=sq.conf_code AND sce.conf_name=sq.conf_name;
-
     -- scopus_conf_proceedings
     INSERT INTO scopus_conf_proceedings(source_id,issn,conf_code,conf_name,proc_part_no,proc_page_range,proc_page_count)
 

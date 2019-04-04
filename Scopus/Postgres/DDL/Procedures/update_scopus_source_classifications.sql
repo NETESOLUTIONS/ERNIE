@@ -69,6 +69,56 @@ AS $$
          ) as sq
     WHERE ss.source_id=sq.source_id AND ss.issn=sq.issn;
 
+    -- scopus_conference_events
+    INSERT INTO scopus_conference_events(conf_code, conf_name, conf_address,conf_city, conf_postal_code, conf_start_date,
+                                    conf_end_date, conf_number, conf_catalog_number)
+
+    SELECT
+      coalesce(conf_code,'') AS conf_code,
+      coalesce(conf_name,'') AS conf_name,
+      conf_address,
+      conf_city,
+      conf_postal_code,
+      make_date(s_year, s_month, s_day) AS conf_start_date,
+      make_date(e_year, e_month, e_day) AS conf_end_date,
+      conf_number,
+      conf_catalog_number
+    FROM
+      xmltable(--
+      '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
+      conf_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcode',
+      conf_name TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confname',
+      conf_address TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/conflocation/address-part',
+      conf_city TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/conflocation/city-group',
+      conf_postal_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/conflocation/postal-code',
+      s_year SMALLINT PATH 'additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@year',
+      s_month SMALLINT PATH 'additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@month',
+      s_day SMALLINT PATH 'additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@day',
+      e_year SMALLINT PATH 'additional-srcinfo/conferenceinfo/confevent/confdate/enddate/@year',
+      e_month SMALLINT PATH 'additional-srcinfo/conferenceinfo/confevent/confdate/enddate/@month',
+      e_day SMALLINT PATH 'additional-srcinfo/conferenceinfo/confevent/confdate/enddate/@day',
+      conf_number TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confnumber',
+      conf_catalog_number TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcatnumber'
+      )
+    ON CONFLICT DO NOTHING;
+
+    UPDATE scopus_conference_events sce
+    SET conf_sponsor=sq.conf_sponsor
+    FROM (
+         SELECT
+          coalesce(conf_code, '') AS conf_code,
+          coalesce(conf_name,'') AS conf_name,
+          string_agg(conf_sponsor,',') AS conf_sponsor
+         FROM xmltable(--
+         '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confevent/confsponsors/confsponsor' PASSING scopus_doc_xml COLUMNS --
+         conf_code TEXT PATH '../../confcode',
+         conf_name TEXT PATH '../../confname',
+         conf_sponsor TEXT PATH 'normalize-space()'
+         )
+         GROUP BY conf_code, conf_name
+         ) as sq
+    WHERE sce.conf_code=sq.conf_code AND sce.conf_name=sq.conf_name;
+
     -- scopus_source_publication_details
     INSERT INTO scopus_source_publication_details(scp,issue,volume,first_page,last_page,publication_year,publication_date,conf_code,conf_name)
 
