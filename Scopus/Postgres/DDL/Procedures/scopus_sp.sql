@@ -8,13 +8,14 @@ CREATE OR REPLACE PROCEDURE update_scopus_chemical_groups(scopus_doc_xml XML)
 AS $$
   DECLARE
     cur RECORD;
+    ELSEVIER_BIBLIO_DB_DIVISION_CHEMICAL_SRC CONSTANT VARCHAR = 'esbd';
   BEGIN
 
     --scopus_chemical_groups
     FOR cur IN(
       SELECT
         scp,
-        coalesce(chemicals_source,'esbd') as chemicals_source,
+        coalesce(chemicals_source,ELSEVIER_BIBLIO_DB_DIVISION_CHEMICAL_SRC) as chemicals_source,
         chemical_name,
         cas_registry_number
       FROM xmltable(
