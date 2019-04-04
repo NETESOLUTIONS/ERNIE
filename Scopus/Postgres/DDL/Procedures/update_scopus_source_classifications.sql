@@ -69,8 +69,8 @@ AS $$
          ) as sq
     WHERE ss.source_id=sq.source_id AND ss.issn=sq.issn;
 
-    -- scopus_pub_sources
-    INSERT INTO scopus_pub_sources(scp,issue,volume,first_page,last_page,publication_year,publication_date,conf_code,conf_name)
+    -- scopus_source_publication_details
+    INSERT INTO scopus_source_publication_details(scp,issue,volume,first_page,last_page,publication_year,publication_date,conf_code,conf_name)
 
     SELECT
       scp,
@@ -98,7 +98,7 @@ AS $$
       )
     ON CONFLICT DO NOTHING;
 
-    UPDATE scopus_pub_sources sps
+    UPDATE scopus_source_publication_details spd
     SET indexed_terms=sq.indexed_terms
     FROM (
          SELECT
@@ -111,10 +111,10 @@ AS $$
          )
          GROUP BY scp
          ) as sq
-    WHERE sps.scp=sq.scp;
+    WHERE spd.scp=sq.scp;
 
-    -- scopus_source_isbns
-    INSERT INTO scopus_source_isbns(scp,isbn,isbn_length,isbn_level,isbn_type)
+    -- scopus_isbns
+    INSERT INTO scopus_isbns(scp,isbn,isbn_length,isbn_level,isbn_type)
 
     SELECT
       scp,
