@@ -87,9 +87,9 @@ AS $$
           pub_type, 
           process_stage, 
           state, 
-          make_date(sort_year, CASE WHEN sort_month = 0 THEN 1 ELSE sort_month END, sort_day) AS date_sort, 
+          make_date(sort_year, CASE WHEN sort_month = 00 THEN 01 ELSE sort_month END, sort_day) AS date_sort, 
           coalesce(source_id,'') AS source_id,
-          coalesce(issn,'') AS issn,
+          coalesce(issn,'') AS issn
           FROM xmltable(--
                XMLNAMESPACES ('http://www.elsevier.com/xml/ani/ait' AS ait), --
                '//ait:process-info' PASSING scopus_doc_xml COLUMNS --
