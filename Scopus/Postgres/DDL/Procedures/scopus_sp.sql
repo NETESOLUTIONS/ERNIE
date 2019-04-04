@@ -8,13 +8,14 @@ CREATE OR REPLACE PROCEDURE update_scopus_chemical_groups(scopus_doc_xml XML)
 AS $$
   DECLARE
     cur RECORD;
+    ELSEVIER_BIBLIO_DB_DIVISION_CHEMICAL_SRC CONSTANT VARCHAR = 'esbd';
   BEGIN
 
     --scopus_chemical_groups
     FOR cur IN(
       SELECT
         scp,
-        coalesce(chemicals_source,'esbd') as chemicals_source,
+        coalesce(chemicals_source,ELSEVIER_BIBLIO_DB_DIVISION_CHEMICAL_SRC) as chemicals_source,
         chemical_name,
         cas_registry_number
       FROM xmltable(
@@ -37,21 +38,38 @@ CREATE OR REPLACE PROCEDURE update_scopus_abstracts_title(scopus_doc_xml XML)
 AS $$
   BEGIN
        -- scopus_abstracts
-      INSERT INTO scopus_abstracts(scp, abstract_text, abstract_language, abstract_source)
+      INSERT INTO scopus_abstracts(scp, abstract_language, abstract_source)
       SELECT
         scp,
-        abstract_text,
         abstract_language,
         abstract_source
       FROM xmltable(
         XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
         '//bibrecord/head/abstracts/abstract/ce:para' PASSING scopus_doc_xml COLUMNS
         scp BIGINT PATH '../../../../item-info/itemidlist/itemid[@idtype="SCP"]',
-        abstract_text TEXT PATH 'normalize-space()',
+--         abstract_text TEXT PATH 'normalize-space()',
         abstract_language TEXT PATH '../@xml:lang',
         abstract_source TEXT PATH '../@source'
         )
       ON CONFLICT DO NOTHING;
+
+
+      -- scopus_abstracts: concatenated abstract_text
+      WITH
+      sca AS (
+        SELECT scp,abstract_language,string_agg(abstract_text,chr(10)) as abstract_text
+        FROM xmltable(
+        XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
+        '//bibrecord/head/abstracts/abstract/ce:para' PASSING scopus_doc_xml COLUMNS
+            scp BIGINT PATH '../../../../item-info/itemidlist/itemid[@idtype="SCP"]',
+            abstract_text TEXT PATH 'normalize-space()',
+            abstract_language TEXT PATH '../@xml:lang'
+            )
+            GROUP BY scp,abstract_language
+        )
+        UPDATE scopus_abstracts sa
+        SET abstract_text=sca.abstract_text
+        FROM sca WHERE sa.scp=sca.scp and sa.abstract_language=sca.abstract_language;
 
 
       -- scopus_titles

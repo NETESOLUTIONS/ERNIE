@@ -1,35 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Diagram>
   <ID>DATABASE</ID>
-  <OriginalElement>c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_arm_groups</OriginalElement>
-  <nodes>
-    <node x="168.0" y="392.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_authorities</node>
-    <node x="0.0" y="170.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_intervention_browses</node>
-    <node x="-118.0" y="465.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_links</node>
-    <node x="0.0" y="0.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_clinical_studies</node>
-    <node x="-104.0" y="385.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_intervention_arm_group_labels</node>
-    <node x="0.0" y="318.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_collaborators</node>
-    <node x="160.0" y="466.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_outcomes</node>
-    <node x="-241.0" y="245.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_location_investigators</node>
-    <node x="352.0" y="318.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_publications</node>
-    <node x="329.0" y="392.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_references</node>
-    <node x="316.0" y="466.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_keywords</node>
-    <node x="-163.0" y="99.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_arm_groups</node>
-    <node x="-252.0" y="167.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_intervention_other_names</node>
-    <node x="0.0" y="244.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_location_countries</node>
-    <node x="227.0" y="170.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_condition_browses</node>
-    <node x="403.0" y="244.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_overall_officials</node>
-    <node x="176.0" y="318.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_interventions</node>
-    <node x="0.0" y="466.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_conditions</node>
-    <node x="208.0" y="244.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_overall_contacts</node>
-    <node x="470.0" y="466.0">c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_locations</node>
-  </nodes>
+  <OriginalElement />
+  <nodes />
   <notes />
   <edges />
-  <settings layout="Hierarchic Group" zoom="1.0" x="245.0" y="285.0" />
-  <SelectedNodes>
-    <node>c0709d4b-5cd6-4e60-9909-ef08fffeae42.TABLE:ernie.public.ct_links</node>
-  </SelectedNodes>
+  <settings layout="Hierarchic Group" zoom="1.0" x="657.0" y="729.0" />
+  <SelectedNodes />
   <Categories>
     <Category>Key columns</Category>
   </Categories>
