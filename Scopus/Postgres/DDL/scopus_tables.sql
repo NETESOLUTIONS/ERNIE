@@ -387,30 +387,7 @@ IS 'Scopus id. Example: 37049154082';
 COMMENT ON COLUMN scopus_subject_keywords.subject
 IS 'Example: Health';
 
--- scopus_classes
-DROP TABLE IF EXISTS scopus_classes CASCADE;
-
-CREATE TABLE scopus_classes (
-  scp BIGINT CONSTRAINT sclass_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-  class_type TEXT,
-  class_code TEXT,
-  last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_classes_pk PRIMARY KEY (scp,class_code) USING INDEX TABLESPACE index_tbs
-) TABLESPACE scopus_tbs;
-
-COMMENT ON TABLE scopus_classes
-IS 'All type of classification code of publications';
-
-COMMENT ON COLUMN scopus_classes.scp
-IS 'Scopus id. Example: 37049154082';
-
-COMMENT ON COLUMN scopus_classes.class_type
-IS 'Example: EMCLASS';
-
-COMMENT ON COLUMN scopus_classes.class_code
-IS 'Example: 23.2.2';
-
---scopus_classification_lookup
+-- region scopus_classification_lookup
 DROP TABLE IF EXISTS scopus_classification_lookup CASCADE;
 
 CREATE TABLE scopus_classification_lookup (
@@ -432,6 +409,37 @@ IS 'Example: 17';
 
 COMMENT ON COLUMN scopus_classification_lookup.description
 IS 'Example: Public Health, Social Medicine and Epidemiology';
+-- endregion
+
+-- scopus_classes
+DROP TABLE IF EXISTS scopus_classes CASCADE;
+
+CREATE TABLE scopus_classes (
+  scp BIGINT CONSTRAINT sclass_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+  class_type TEXT,
+  class_code TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT scopus_classes_pk PRIMARY KEY (scp,class_code) USING INDEX TABLESPACE index_tbs
+) TABLESPACE scopus_tbs;
+
+/*
+TODO There are some FK violations, which we need to analyze.
+
+ALTER TABLE scopus_classes ADD CONSTRAINT sc_class_type_class_code_fk FOREIGN KEY (class_type, class_code) --
+    REFERENCES scopus_classification_lookup ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
+*/
+
+COMMENT ON TABLE scopus_classes
+IS 'All type of classification code of publications';
+
+COMMENT ON COLUMN scopus_classes.scp
+IS 'Scopus id. Example: 37049154082';
+
+COMMENT ON COLUMN scopus_classes.class_type
+IS 'Example: EMCLASS';
+
+COMMENT ON COLUMN scopus_classes.class_code
+IS 'Example: 23.2.2';
 
 --scopus_conf_processdings
 DROP TABLE IF EXISTS scopus_conf_proceedings CASCADE;

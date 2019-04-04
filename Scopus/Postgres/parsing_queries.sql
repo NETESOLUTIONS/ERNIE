@@ -78,7 +78,7 @@ FROM xmltable(--
 GROUP BY scp;
 --@formatter:on
 
--- scopus_pub_authors
+-- Pub Authors
 SELECT scp, author_seq, auid, author_indexed_name, author_surname, author_given_name, author_initials, author_e_address
 FROM xmltable(--
   XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
