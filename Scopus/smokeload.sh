@@ -81,9 +81,8 @@ for dir in "${sorted_args[@]}"; do
   echo "Processing${resume_mode} ${dir} directory ..."
   # TODO: have option to pass c as option and specify clean mode
   #"${absolute_script_dir}/process_directory.sh" ${clean_mode} "${dir}"
-  sleep 1
-
   stop_time=$(date '+%s')
+  
   ((delta=stop_time - start_time)) || :
   ((delta_s=delta % 60)) || :
   ((delta_m=(delta / 60) % 60)) || :
