@@ -36,9 +36,6 @@ CREATE TABLE scopus_publications (
   source_id TEXT,
   issn TEXT
 ) TABLESPACE scopus_tbs;
-
-ALTER TABLE scopus_publications
-  ADD CONSTRAINT spub_source_id_issn_fk FOREIGN KEY (source_id, issn) REFERENCES scopus_sources (source_id, issn) ON DELETE CASCADE;
 -- endregion
 
 -- region scopus_authors
@@ -184,23 +181,23 @@ CREATE TABLE scopus_sources (
   CONSTRAINT scopus_sources_pk PRIMARY KEY (source_id, issn) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
+ALTER TABLE scopus_publications
+  ADD CONSTRAINT spub_source_id_issn_fk FOREIGN KEY (source_id, issn) REFERENCES scopus_sources (source_id, issn) ON DELETE CASCADE;
+
 COMMENT ON TABLE scopus_sources
 IS 'Journal source information table';
 
-COMMENT ON COLUMN scopus_sources.scp
-IS 'Scopus id. Example: 50349106526';
-
 COMMENT ON COLUMN scopus_sources.source_id
 IS 'Journal source id. Example: 22414';
+
+COMMENT ON COLUMN scopus_sources.issn
+IS 'The ISSN of a serial publication (print). Example: 00028703';
 
 COMMENT ON COLUMN scopus_sources.source_type
 IS 'Source type. Example: j for journal';
 
 COMMENT ON COLUMN scopus_sources.source_title
 IS 'Journal name. Example: American Heart Journal';
-
-COMMENT ON COLUMN scopus_sources.issn
-IS 'The ISSN of a serial publication (print). Example: 00028703';
 
 COMMENT ON COLUMN scopus_sources.issn_electronic
 IS 'The ISSN of a serial publication (electronic). Example: 10976744';
@@ -235,9 +232,6 @@ CREATE TABLE scopus_source_publication_details (
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT scopus_source_publication_details_pk PRIMARY KEY (scp) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
-
-ALTER TABLE scopus_source_publication_details
-  ADD CONSTRAINT spub_conf_code_conf_name_fk FOREIGN KEY (conf_code, conf_name) REFERENCES scopus_authors (conf_code, conf_name) ON DELETE CASCADE;
 
 COMMENT ON TABLE scopus_source_publication_details
 IS 'Details of individual publication in a (journal) source';
@@ -402,6 +396,9 @@ CREATE TABLE scopus_conference_events (
   CONSTRAINT scopus_conference_events_pk PRIMARY KEY (conf_code,conf_name) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
+ALTER TABLE scopus_source_publication_details
+  ADD CONSTRAINT spub_conf_code_conf_name_fk FOREIGN KEY (conf_code, conf_name) REFERENCES scopus_conference_events (conf_code, conf_name) ON DELETE CASCADE;
+
 COMMENT ON TABLE scopus_conference_events
 IS 'Conference events information';
 
@@ -440,7 +437,7 @@ DROP TABLE IF EXISTS scopus_conf_proceedings CASCADE;
 
 CREATE TABLE scopus_conf_proceedings (
   source_id TEXT,
-  issn TEXT, 
+  issn TEXT,
   conf_code TEXT,
   conf_name TEXT,
   proc_part_no TEXT,
@@ -485,7 +482,7 @@ DROP TABLE IF EXISTS scopus_conf_editors CASCADE;
 
 CREATE TABLE scopus_conf_editors (
   source_id TEXT,
-  issn TEXT, 
+  issn TEXT,
   conf_code TEXT,
   conf_name TEXT,
   indexed_name TEXT,
