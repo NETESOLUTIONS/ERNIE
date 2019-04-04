@@ -15,6 +15,106 @@ CREATE TABLE scopus_publication_groups (
 ) TABLESPACE scopus_tbs;
 -- endregion
 
+-- region scopus_sources
+DROP TABLE IF EXISTS scopus_sources CASCADE;
+
+CREATE TABLE scopus_sources (
+  source_id TEXT,
+  issn TEXT,
+  source_type TEXT,
+  source_title TEXT,
+  issn_electronic TEXT,
+  coden_code TEXT,
+  website TEXT,
+  publisher_name TEXT,
+  publisher_e_address TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT scopus_sources_pk PRIMARY KEY (source_id, issn) USING INDEX TABLESPACE index_tbs
+) TABLESPACE scopus_tbs;
+
+COMMENT ON TABLE scopus_sources
+IS 'Journal source information table';
+
+COMMENT ON COLUMN scopus_sources.source_id
+IS 'Journal source id. Example: 22414';
+
+COMMENT ON COLUMN scopus_sources.issn
+IS 'The ISSN of a serial publication (print). Example: 00028703';
+
+COMMENT ON COLUMN scopus_sources.source_type
+IS 'Source type. Example: j for journal';
+
+COMMENT ON COLUMN scopus_sources.source_title
+IS 'Journal name. Example: American Heart Journal';
+
+COMMENT ON COLUMN scopus_sources.issn_electronic
+IS 'The ISSN of a serial publication (electronic). Example: 10976744';
+
+COMMENT ON COLUMN scopus_sources.coden_code
+IS 'The CODEN code that uniquely identifies the source. Example: AHJOA';
+
+COMMENT ON COLUMN scopus_sources.website
+IS 'Example: http://dl.acm.org/citation.cfm?id=111048';
+
+COMMENT ON COLUMN scopus_sources.publisher_name
+IS 'Example: Oxford University Press';
+
+COMMENT ON COLUMN scopus_sources.publisher_e_address
+IS 'Example: acmhelp@acm.org';
+-- endregion
+
+-- region scopus_conference_events
+DROP TABLE IF EXISTS scopus_conference_events CASCADE;
+
+CREATE TABLE scopus_conference_events (
+  conf_code TEXT,
+  conf_name TEXT,
+  conf_address TEXT,
+  conf_city TEXT,
+  conf_postal_code TEXT,
+  conf_start_date DATE,
+  conf_end_date DATE,
+  conf_number TEXT,
+  conf_catalog_number TEXT,
+  conf_sponsor TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT scopus_conference_events_pk PRIMARY KEY (conf_code,conf_name) USING INDEX TABLESPACE index_tbs
+) TABLESPACE scopus_tbs;
+
+COMMENT ON TABLE scopus_conference_events
+IS 'Conference events information';
+
+COMMENT ON COLUMN scopus_conference_events.conf_code
+IS 'Conference code, assigned by Elsevier DB';
+
+COMMENT ON COLUMN scopus_conference_events.conf_name
+IS 'Conference name';
+
+COMMENT ON COLUMN scopus_conference_events.conf_address
+IS 'Conference address';
+
+COMMENT ON COLUMN scopus_conference_events.conf_city
+IS 'City of conference event';
+
+COMMENT ON COLUMN scopus_conference_events.conf_postal_code
+IS 'Postal code of conference event';
+
+COMMENT ON COLUMN scopus_conference_events.conf_start_date
+IS 'Conference start date';
+
+COMMENT ON COLUMN scopus_conference_events.conf_end_date
+IS 'Conference end date';
+
+COMMENT ON COLUMN scopus_conference_events.conf_number
+IS 'Sequence number of the conference';
+
+COMMENT ON COLUMN scopus_conference_events.conf_catalog_number
+IS 'Conference catalogue number';
+
+COMMENT ON COLUMN scopus_conference_events.conf_sponsor
+IS 'Conference sponsor names';
+-- endregion
+
 -- region scopus_publications
 DROP TABLE IF EXISTS scopus_publications CASCADE;
 
@@ -36,6 +136,9 @@ CREATE TABLE scopus_publications (
   source_id TEXT,
   issn TEXT
 ) TABLESPACE scopus_tbs;
+
+ALTER TABLE scopus_publications
+  ADD CONSTRAINT spub_source_id_issn_fk FOREIGN KEY (source_id, issn) REFERENCES scopus_sources (source_id, issn) ON DELETE CASCADE;
 -- endregion
 
 -- region scopus_authors
@@ -164,57 +267,6 @@ COMMENT ON COLUMN scopus_author_affiliations.affiliation_no
 IS 'Affiliation sequence in the document. Example: 1';
 -- endregion
 
--- region scopus_sources
-DROP TABLE IF EXISTS scopus_sources CASCADE;
-
-CREATE TABLE scopus_sources (
-  source_id TEXT,
-  issn TEXT,
-  source_type TEXT,
-  source_title TEXT,
-  issn_electronic TEXT,
-  coden_code TEXT,
-  website TEXT,
-  publisher_name TEXT,
-  publisher_e_address TEXT,
-  last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_sources_pk PRIMARY KEY (source_id, issn) USING INDEX TABLESPACE index_tbs
-) TABLESPACE scopus_tbs;
-
-ALTER TABLE scopus_publications
-  ADD CONSTRAINT spub_source_id_issn_fk FOREIGN KEY (source_id, issn) REFERENCES scopus_sources (source_id, issn) ON DELETE CASCADE;
-
-COMMENT ON TABLE scopus_sources
-IS 'Journal source information table';
-
-COMMENT ON COLUMN scopus_sources.source_id
-IS 'Journal source id. Example: 22414';
-
-COMMENT ON COLUMN scopus_sources.issn
-IS 'The ISSN of a serial publication (print). Example: 00028703';
-
-COMMENT ON COLUMN scopus_sources.source_type
-IS 'Source type. Example: j for journal';
-
-COMMENT ON COLUMN scopus_sources.source_title
-IS 'Journal name. Example: American Heart Journal';
-
-COMMENT ON COLUMN scopus_sources.issn_electronic
-IS 'The ISSN of a serial publication (electronic). Example: 10976744';
-
-COMMENT ON COLUMN scopus_sources.coden_code
-IS 'The CODEN code that uniquely identifies the source. Example: AHJOA';
-
-COMMENT ON COLUMN scopus_sources.website
-IS 'Example: http://dl.acm.org/citation.cfm?id=111048';
-
-COMMENT ON COLUMN scopus_sources.publisher_name
-IS 'Example: Oxford University Press';
-
-COMMENT ON COLUMN scopus_sources.publisher_e_address
-IS 'Example: acmhelp@acm.org';
--- endregion
-
 -- scopus_source_publication_details
 DROP TABLE IF EXISTS scopus_source_publication_details CASCADE;
 
@@ -232,6 +284,9 @@ CREATE TABLE scopus_source_publication_details (
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT scopus_source_publication_details_pk PRIMARY KEY (scp) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
+
+ALTER TABLE scopus_source_publication_details
+  ADD CONSTRAINT spub_conf_code_conf_name_fk FOREIGN KEY (conf_code, conf_name) REFERENCES scopus_conference_events (conf_code, conf_name) ON DELETE CASCADE;
 
 COMMENT ON TABLE scopus_source_publication_details
 IS 'Details of individual publication in a (journal) source';
@@ -377,60 +432,6 @@ IS 'Example: 17';
 
 COMMENT ON COLUMN scopus_classification_lookup.description
 IS 'Example: Public Health, Social Medicine and Epidemiology';
-
--- scopus_conference_events
-DROP TABLE IF EXISTS scopus_conference_events CASCADE;
-
-CREATE TABLE scopus_conference_events (
-  conf_code TEXT,
-  conf_name TEXT,
-  conf_address TEXT,
-  conf_city TEXT,
-  conf_postal_code TEXT,
-  conf_start_date DATE,
-  conf_end_date DATE,
-  conf_number TEXT,
-  conf_catalog_number TEXT,
-  conf_sponsor TEXT,
-  last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_conference_events_pk PRIMARY KEY (conf_code,conf_name) USING INDEX TABLESPACE index_tbs
-) TABLESPACE scopus_tbs;
-
-ALTER TABLE scopus_source_publication_details
-  ADD CONSTRAINT spub_conf_code_conf_name_fk FOREIGN KEY (conf_code, conf_name) REFERENCES scopus_conference_events (conf_code, conf_name) ON DELETE CASCADE;
-
-COMMENT ON TABLE scopus_conference_events
-IS 'Conference events information';
-
-COMMENT ON COLUMN scopus_conference_events.conf_code
-IS 'Conference code, assigned by Elsevier DB';
-
-COMMENT ON COLUMN scopus_conference_events.conf_name
-IS 'Conference name';
-
-COMMENT ON COLUMN scopus_conference_events.conf_address
-IS 'Conference address';
-
-COMMENT ON COLUMN scopus_conference_events.conf_city
-IS 'City of conference event';
-
-COMMENT ON COLUMN scopus_conference_events.conf_postal_code
-IS 'Postal code of conference event';
-
-COMMENT ON COLUMN scopus_conference_events.conf_start_date
-IS 'Conference start date';
-
-COMMENT ON COLUMN scopus_conference_events.conf_end_date
-IS 'Conference end date';
-
-COMMENT ON COLUMN scopus_conference_events.conf_number
-IS 'Sequencenumber of the conference';
-
-COMMENT ON COLUMN scopus_conference_events.conf_catalog_number
-IS 'Conference catalogue number';
-
-COMMENT ON COLUMN scopus_conference_events.conf_sponsor
-IS 'Conference sponser names';
 
 --scopus_conf_processdings
 DROP TABLE IF EXISTS scopus_conf_proceedings CASCADE;
