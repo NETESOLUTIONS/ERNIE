@@ -77,14 +77,14 @@ fi
 
 declare -i num_zips=$(ls *.zip | wc -l) failed_xml_counter=0 processed_xml_counter=0
 declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
-
+export failed_xml_counter
 parse_xml() {
   local xml="$1"
   echo "Processing $xml ..."
   if psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" 2>> "${ERROR_LOG}"; then
     echo "$xml: DONE."
   else
-    echo "$xml: FAILED." ; (( failed_xml_counter++ ))
+    echo "$xml: FAILED."; ((failed_xml_counter++))
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     full_path=$(realpath ${xml})
     full_path=$(dirname ${full_path})
