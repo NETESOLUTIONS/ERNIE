@@ -159,8 +159,8 @@ for scopus_data_archive in *.zip; do
   ((della_h=delta / 3600)) || :
   printf "\n$(TZ=America/New_York date) Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds\n" ${della_h} \
          ${delta_m} ${delta_s}
-  echo "hello world 3"
   ((elapsed=elapsed + delta))
+  echo "elapsed is $elapsed"
   ((est_total=num_zips * elapsed / i)) || :
   ((eta=process_start_time + est_total))
   echo "hello world 4"
