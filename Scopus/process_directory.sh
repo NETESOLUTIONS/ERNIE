@@ -125,7 +125,6 @@ mkdir tmp
 
 for scopus_data_archive in *.zip; do
   start_time=$(date '+%s')
-
   echo "Processing ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} )..."
   # Reduced verbosity
   # -u extracting files that are newer and files that do not already exist on disk
@@ -139,7 +138,8 @@ for scopus_data_archive in *.zip; do
     # --joblog "${PARALLEL_JOB_LOG}"
     if ! find "${subdir}" -name '2*.xml' | \
         parallel ${PARALLEL_HALT_OPTION} --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"; then
-      [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors
+        ((processed_xml_counter++))
+        [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors
     else
       ((failed_xml_counter++))
     fi
@@ -156,12 +156,12 @@ for scopus_data_archive in *.zip; do
   ((delta_s=delta % 60)) || :
   ((delta_m=(delta / 60) % 60)) || :
   ((della_h=delta / 3600)) || :
-  printf "\n$(TZ=America/New_York date) Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds${resume_mode}\n" ${della_h} \
+  printf "\n$(TZ=America/New_York date) Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds\n" ${della_h} \
          ${delta_m} ${delta_s}
   ((elapsed=elapsed + delta))
   ((est_total=num_zips * elapsed / i)) || :
   ((eta=process_start_time + est_total))
-  echo "Year ETA after ${scopus_data_archive} archive: $(TZ=America/New_York date --date=@${eta})"
+  echo "ETA to complete current year: $(TZ=America/New_York date --date=@${eta})"
   cd ..
 done
 
