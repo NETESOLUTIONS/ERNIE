@@ -79,7 +79,7 @@ declare -i num_zips=$(ls *.zip | wc -l) failed_xml_counter=0 processed_xml_count
 declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
 parse_xml() {
   local xml="$1"
-  echo "Processing $xml ..."
+  #echo "Processing $xml ..."
   if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" 2>> "${ERROR_LOG}"; then
     echo "$xml: SUCCESSFULLY PARSED."
   else
