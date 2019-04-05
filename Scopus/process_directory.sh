@@ -140,7 +140,7 @@ for scopus_data_archive in *.zip; do
         [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors
     fi
     while read -r line;
-      do echo $line | grep -q "1" && ((++failed_xml_counter)) && ((++failed_xml_counter_total)) || ((++processed_xml_counter)) && ((++processed_xml_counter_total))
+      do echo $line | grep -q "1" && (((++failed_xml_counter)) && ((++failed_xml_counter_total))) || (((++processed_xml_counter)) && ((++processed_xml_counter_total)))
     done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
     > "${PARALLEL_LOG}"
     rm -rf "${subdir}"
@@ -157,7 +157,6 @@ for scopus_data_archive in *.zip; do
   ((delta_s=delta % 60)) || :
   ((delta_m=(delta / 60) % 60)) || :
   ((della_h=delta / 3600)) || :
-  echo "hello world 2"
   printf "\n$(TZ=America/New_York date) Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds\n" ${della_h} \
          ${delta_m} ${delta_s}
   echo "hello world 3"
