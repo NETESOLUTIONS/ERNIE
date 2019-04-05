@@ -143,26 +143,23 @@ for scopus_data_archive in *.zip; do
       [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors
     fi
     rm -rf "${subdir}"
-    #TODO: try to introduce a multiline string here, maybe call a function
-    #TODO: reset failed XML counters and maintain a larger global count to track total failed XML per year
-    echo "ZIP LEVEL SUMMARY:"
-    echo "NUMBER OF XML FILES SUCCESSFULLY PARSED: ${processed_xml_counter}"
-    echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter}"
   done
+
+  echo "ZIP LEVEL SUMMARY ${scopus_data_archive}:"
+  echo "NUMBER OF XML FILES SUCCESSFULLY PARSED: ${processed_xml_counter}"
+  echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter}"
+
   stop_time=$(date '+%s')
-
-
   ((delta=stop_time - start_time)) || :
   ((delta_s=delta % 60)) || :
   ((delta_m=(delta / 60) % 60)) || :
   ((della_h=delta / 3600)) || :
-  printf "\n$(TZ=America/New_York date) Done with ${dir} data directory in %dh:%02dm:%02ds${resume_mode}\n" ${della_h} \
+  printf "\n$(TZ=America/New_York date) Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds${resume_mode}\n" ${della_h} \
          ${delta_m} ${delta_s}
   ((elapsed=elapsed + delta))
   ((est_total=num_zips * elapsed / i)) || :
   ((eta=process_start_time + est_total))
-  echo "ETA after ${dir} data directory: $(TZ=America/New_York date --date=@${eta})"
-
+  echo "Year ETA after ${scopus_data_archive} archive: $(TZ=America/New_York date --date=@${eta})"
   cd ..
 done
 
