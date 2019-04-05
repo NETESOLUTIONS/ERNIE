@@ -122,7 +122,7 @@ rm -rf tmp
 mkdir tmp
 
 [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
-
+process_start_time=$(date '+%s')
 for scopus_data_archive in *.zip; do
   start_time=$(date '+%s')
   echo "Processing ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} )..."
