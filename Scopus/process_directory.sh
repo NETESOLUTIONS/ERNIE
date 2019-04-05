@@ -138,7 +138,9 @@ for scopus_data_archive in *.zip; do
         parallel ${PARALLEL_HALT_OPTION} --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"; then
         [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors
     fi
+    echo "hello world"
     ((processed_xml_counter++))
+    echo "hello world"
     rm -rf "${subdir}"
   done
 
