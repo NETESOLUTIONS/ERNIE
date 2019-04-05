@@ -32,7 +32,6 @@ AUTHOR(S)
 
     Written by Dmitriy "DK" Korobskiy.
 HEREDOC
-#-e    stop on the first error
   exit 1
 fi
 
@@ -45,8 +44,9 @@ set -o pipefail
 readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx ERROR_LOG=errors.log
-#readonly PARALLEL_JOB_LOG=parallel_job.log
+declare -rx PARALLEL_LOG=parallel.log
 declare -x FAILED_FILES="False"
+QUIET=false
 
 while (( $# > 0 )); do
   case "$1" in
@@ -68,25 +68,26 @@ cd "$1"
 readonly FAILED_FILES_DIR=${2:-../failed}
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
-#year_dir=$(pwd)
-#mkdir -p ${year_dir}/corrupted
 
 if ! which parallel >/dev/null; then
   echo "Please install GNU Parallel"
   exit 1
 fi
 
+
+declare -i num_zips=$(ls *.zip | wc -l) failed_xml_counter=0 processed_xml_counter=0
+declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
 parse_xml() {
   local xml="$1"
   echo "Processing $xml ..."
   if psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" 2>> "${ERROR_LOG}"; then
-    echo "$xml: DONE."
+    echo "$xml: SUCCESSFULLY PARSED."
   else
-#    echo -e "$xml FAILED\n" | tee -a "${ERROR_LOG}"
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     full_path=$(realpath ${xml})
     full_path=$(dirname ${full_path})
     mv -f $full_path/ "${failed_files_dir}/"
+    echo "$xml: FAILED DURING PARSING."
     return 1
   fi
 }
@@ -101,20 +102,6 @@ Error(s) occurred during processing of ${PWD}.
 HEREDOC
     cat tmp/${ERROR_LOG}
     echo "====="
-
-  # No longer need a separate email notification now.
-  # The build fails at the end if any errors occurred hence we get heads up.
-  #  declare error_contents=$(grep ERROR tmp/${ERROR_LOG} | grep -v NOTICE | head -n 1)
-  #  { cat <<HEREDOC
-  #Error(s) occurred during processing of ${PWD}/
-  #See the failed files in $(cd "${FAILED_FILES_DIR}" && pwd)/
-  #The first error:
-  #---
-  #${error_contents}
-  #---
-  #HEREDOC
-  #  } | mailx -s "Scopus processing errors for ${PWD}/" j1c0b0d0w9w7g7v2@neteteam.slack.com
-
     exit 1
   fi
 }
@@ -132,13 +119,12 @@ fi
 
 rm -rf tmp
 mkdir tmp
-#[[ ! -d processed ]] && mkdir processed
 
 [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
 
 for scopus_data_archive in *.zip; do
-  echo "Processing ${scopus_data_archive} ..."
-
+  start_time=$(date '+%s')
+  echo "Processing ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} )..."
   # Reduced verbosity
   # -u extracting files that are newer and files that do not already exist on disk
   # -q perform operations quietly
@@ -148,31 +134,36 @@ for scopus_data_archive in *.zip; do
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
     # Process Scopus XML files in parallel
     # Reduced verbosity
-#    set +e
-#    set +o pipefail
-    # --joblog "${PARALLEL_JOB_LOG}"
     if ! find "${subdir}" -name '2*.xml' | \
-        parallel ${PARALLEL_HALT_OPTION} --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"; then
-      [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors
+        parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"; then
+        [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors
     fi
-#    set -e
-#    set -o pipefail
-#    failed_files=$(cut -f 7,9 "${PARALLEL_JOB_LOG}" | awk '{if ($1 == "3") print $3;}')
-#    if [[ -n ${failed_files} ]]; then
-#      FAILED_FILES="True"
-#    fi
-#    for i in $(echo $failed_files); do
-#      [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
-#      full_path=$(realpath $i)
-#      full_path=$(dirname $full_path)
-#      mv -f $full_path/ "${failed_files_dir}/"
-#    done
     rm -rf "${subdir}"
   done
-  
-  # mv "${scopus_data_archive}" processed/
+
+  echo "ZIP LEVEL SUMMARY FOR ${scopus_data_archive}:"
+  echo "NUMBER OF XML FILES SUCCESSFULLY PARSED: ${processed_xml_counter}"
+  echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter}"
+
+  stop_time=$(date '+%s')
+  #((delta=stop_time - start_time)) || :
+  #((delta_s=delta % 60)) || :
+  #((delta_m=(delta / 60) % 60)) || :
+  #((della_h=delta / 3600)) || :
+  #printf "\n$(TZ=America/New_York date) Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds\n" ${della_h} \
+  #       ${delta_m} ${delta_s}
+  #((elapsed=elapsed + delta))
+  #((est_total=num_zips * elapsed / i)) || :
+  #((eta=process_start_time + est_total))
+  #echo "ETA to complete current year: $(TZ=America/New_York date --date=@${eta})"
   cd ..
 done
 
-check_errors
+#TODO: try to introduce a multiline string here, maybe call a function
+#TODO: reset failed XML counters and maintain a larger global count to track total failed XML per year
+echo "YEAR LEVEL SUMMARY:"
+echo "NUMBER OF XML FILES SUCCESSFULLY PARSED: ${processed_xml_counter}"
+echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter}"
+
+#check_errors
 exit 0

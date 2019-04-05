@@ -4,23 +4,24 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
+-- NOTE: pub_ref_id parsing removed per suggestion by Jeroen a
 -- This function performs a bulk update by inserting mapped XML data from a staging table which holds (raw) XML from the update files.
 -- On failure it reverts to a debugger version of the function which performs individual inserts of valid instances of the mapped XML data
 CREATE OR REPLACE PROCEDURE update_references(input_xml XML) AS
 $$
   BEGIN
-    INSERT INTO scopus_references(scp,ref_sgr,pub_ref_id,citation_text)
+    INSERT INTO scopus_references(scp,ref_sgr,citation_text)
     SELECT
           xmltable.scp AS scp,
           xmltable.ref_sgr AS ref_sgr,
-          row_number() over (PARTITION BY scp  ORDER BY xmltable.pub_ref_id DESC NULLS LAST, COALESCE(xmltable.ref_fulltext,xmltable.ref_text) ASC ) as pub_ref_id, -- introduced ERNIE team produced pub_ref_id, but be on alert from Elsevier to determine if this is actually fair to do
+          --row_number() over (PARTITION BY scp  ORDER BY xmltable.pub_ref_id DESC NULLS LAST, COALESCE(xmltable.ref_fulltext,xmltable.ref_text) ASC ) as pub_ref_id, -- introduced ERNIE team produced pub_ref_id, but be on alert from Elsevier to determine if this is actually fair to do
           COALESCE(xmltable.ref_fulltext,xmltable.ref_text) AS citation_text
      FROM
      XMLTABLE('//bibrecord/tail/bibliography/reference' PASSING input_xml
               COLUMNS
                 scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
                 ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',
-                pub_ref_id INT PATH'@id',
+                --pub_ref_id INT PATH'@id',
                 ref_fulltext TEXT PATH 'ref-fulltext/text()[1]', -- should work around situations where additional tags are included in the text field (e.g. a <br/> tag). Otherwise, would encounter a "more than one value returned by column XPath expression" error.
                 ref_text TEXT PATH 'ref-info/ref-text/text()[1]'
                 )
@@ -42,20 +43,20 @@ $$
       SELECT
             xmltable.scp AS scp,
             xmltable.ref_sgr AS ref_sgr,
-            row_number() over (PARTITION BY scp  ORDER BY xmltable.pub_ref_id DESC NULLS LAST, COALESCE(xmltable.ref_fulltext,xmltable.ref_text) ASC ) as pub_ref_id, -- introduced ERNIE team produced pub_ref_id, but be on alert from Elsevier to determine if this is actually fair to do
+            --row_number() over (PARTITION BY scp  ORDER BY xmltable.pub_ref_id DESC NULLS LAST, COALESCE(xmltable.ref_fulltext,xmltable.ref_text) ASC ) as pub_ref_id, -- introduced ERNIE team produced pub_ref_id, but be on alert from Elsevier to determine if this is actually fair to do
             COALESCE(xmltable.ref_fulltext,xmltable.ref_text) AS citation_text
        FROM
        XMLTABLE('//bibrecord/tail/bibliography/reference' PASSING input_xml
                 COLUMNS
                   scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()',
                   ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',
-                  pub_ref_id INT PATH'@id',
+                  --pub_ref_id INT PATH'@id',
                   ref_fulltext TEXT PATH 'ref-fulltext/text()[1]', -- should work around situations where additional tags are included in the text field (e.g. a <br/> tag). Otherwise, would encounter a "more than one value returned by column XPath expression" error.
                   ref_text TEXT PATH 'ref-info/ref-text/text()[1]'
                   )
       LOOP
         BEGIN
-          INSERT INTO scopus_references VALUES (row.scp,row.ref_sgr,row.pub_ref_id,row.citation_text) ON CONFLICT DO NOTHING;
+          INSERT INTO scopus_references VALUES (row.scp,row.ref_sgr,row.citation_text) ON CONFLICT DO NOTHING;
         -- Exception commented out so that error bubbles up
         /*EXCEPTION WHEN OTHERS THEN
           RAISE NOTICE 'CANNOT INSERT VALUES (scp=%,ref_sgr=%,pub_ref_id=%)',row.scp,row.ref_sgr,row.pub_ref_id;
