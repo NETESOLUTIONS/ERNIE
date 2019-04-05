@@ -58,6 +58,7 @@ while (( $# > 0 )); do
   shift
 done
 arg_array=( "$@" )
+echo "${arg_array[*]}"
 # Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
 IFS=$'\n' sorted_args=($(sort ${sort_order} <<<"${arg_array[*]}")); unset IFS
 
