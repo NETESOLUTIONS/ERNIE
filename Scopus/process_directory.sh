@@ -166,5 +166,5 @@ echo "YEAR LEVEL SUMMARY:"
 echo "NUMBER OF XML FILES SUCCESSFULLY PARSED: ${processed_xml_counter}"
 echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter}"
 
-check_errors
+#check_errors
 exit 0
