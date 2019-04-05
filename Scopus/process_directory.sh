@@ -76,7 +76,7 @@ fi
 
 # Set counter and ETA variables
 declare -i num_zips=$(ls *.zip | wc -l) failed_xml_counter=0 failed_xml_counter_total=0 processed_xml_counter=0 processed_xml_counter_total=0
-declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
+declare -i process_start_time i=0 start_time stop_time delta=1 delta_s delta_m della_h elapsed=0 est_total eta
 
 parse_xml() {
   local xml="$1"
