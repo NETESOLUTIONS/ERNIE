@@ -141,11 +141,12 @@ for scopus_data_archive in *.zip; do
     if ! find "${subdir}" -name '2*.xml' | \
         parallel ${PARALLEL_HALT_OPTION} --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"; then
       [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors
+      if [[ $? != 0 ]]; then ((failed_xml_counter++)) ; fi
     fi
     rm -rf "${subdir}"
   done
 
-  echo "ZIP LEVEL SUMMARY ${scopus_data_archive}:"
+  echo "ZIP LEVEL SUMMARY FOR ${scopus_data_archive}:"
   echo "NUMBER OF XML FILES SUCCESSFULLY PARSED: ${processed_xml_counter}"
   echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter}"
 
