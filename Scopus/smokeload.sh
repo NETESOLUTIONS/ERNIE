@@ -77,6 +77,7 @@ HEREDOC
   rm -rf /erniedev_data1/Scopus/failed/*
 fi
 
+
 rm -f eta.log
 declare -i process_start_time directories i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
 directories=${#sorted_args[@]}
