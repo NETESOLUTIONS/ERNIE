@@ -563,12 +563,12 @@ CREATE TABLE scopus_references (
   ref_sgr BIGINT,
   -- FK is possible to enable only after the complete data load
   -- CONSTRAINT sr_ref_sgr_fk REFERENCES scopus_publication_groups ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-  pub_ref_id SMALLINT,
+  --pub_ref_id SMALLINT,
   citation_text TEXT,
   CONSTRAINT scopus_references_pk PRIMARY KEY (scp, ref_sgr) USING INDEX TABLESPACE index_tbs
 ) PARTITION BY RANGE (scp) TABLESPACE scopus_tbs;
 
-CREATE UNIQUE INDEX reference_pub_ref_id ON scopus_references (scp, pub_ref_id);
+--CREATE UNIQUE INDEX reference_pub_ref_id ON scopus_references (scp, pub_ref_id);
 
 CREATE TABLE scopus_references_partition_1 PARTITION OF scopus_references
 FOR VALUES FROM (0) TO (12500000000);
@@ -597,8 +597,8 @@ FOR VALUES FROM (87500000001) TO (100000000000);
 COMMENT ON TABLE scopus_references IS 'Elsevier: Scopus - Scopus references table for documents';
 COMMENT ON COLUMN scopus_references.scp IS 'Scopus ID for a document. Example: 25766560';
 COMMENT ON COLUMN scopus_references.ref_sgr IS 'Scopus Group ID for the referenced document. Example: 343442899';
-COMMENT ON COLUMN scopus_references.pub_ref_id IS --
-  'Uniquely (and serially?) identifies a reference in the bibliography. Example: 1';
+--COMMENT ON COLUMN scopus_references.pub_ref_id IS --
+  --'Uniquely (and serially?) identifies a reference in the bibliography. Example: 1';
 COMMENT ON COLUMN scopus_references.citation_text IS --
   'Citation text provided with a reference. Example: "Harker LA, Kadatz RA. Mechanism of action of dipyridamole. Thromb Res 1983;suppl IV:39-46."';
 
