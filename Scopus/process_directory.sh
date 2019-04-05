@@ -172,7 +172,7 @@ done
 #TODO: try to introduce a multiline string here, maybe call a function
 #TODO: reset failed XML counters and maintain a larger global count to track total failed XML per year
 echo "YEAR LEVEL SUMMARY:"
-echo "NUMBER OF XML FILES SUCCESSFULLY PARSED: ${processed_xml_counter_total}"
+echo "NUMBER OF XML FILES WHICH SUCCESSFULLY PARSED: ${processed_xml_counter_total}"
 echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter_total}"
 
 #check_errors
