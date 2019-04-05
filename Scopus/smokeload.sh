@@ -70,6 +70,9 @@ if [[ ${clean_mode} ]]; then
   # language=PostgresPLSQL
   psql -v ON_ERROR_STOP=on --echo-all <<'HEREDOC'
     TRUNCATE scopus_publication_groups CASCADE;
+    TRUNCATE scopus_sources CASCADE;
+    TRUNCATE scopus_conference_events CASCADE;
+    TRUNCATE scopus_classification_lookup CASCADE;
 HEREDOC
   rm -rf /erniedev_data1/Scopus/failed/*
 fi
