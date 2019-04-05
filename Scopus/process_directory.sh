@@ -83,13 +83,12 @@ parse_xml() {
   echo "Processing $xml ..."
   if psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" 2>> "${ERROR_LOG}"; then
     echo "$xml: DONE."
-    ((processed_xml_counter++))
   else
+    echo "$xml: FAILED."
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     full_path=$(realpath ${xml})
     full_path=$(dirname ${full_path})
     mv -f $full_path/ "${failed_files_dir}/"
-    ((failed_xml_counter++))
     return 1
   fi
 }
@@ -141,6 +140,7 @@ for scopus_data_archive in *.zip; do
     if ! find "${subdir}" -name '2*.xml' | \
         parallel ${PARALLEL_HALT_OPTION} --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"; then
       [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors
+      ((failed_xml_counter++))    
     fi
     rm -rf "${subdir}"
   done
