@@ -74,9 +74,10 @@ if ! which parallel >/dev/null; then
   exit 1
 fi
 
-
-declare -i num_zips=$(ls *.zip | wc -l) failed_xml_counter=0 processed_xml_counter=0
+# Set counter and ETA variables
+declare -i num_zips=$(ls *.zip | wc -l) failed_xml_counter=0 failed_xml_counter_total=0 processed_xml_counter=0 processed_xml_counter_total=0
 declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
+
 parse_xml() {
   local xml="$1"
   if ! $LESS_VERBOSE; then echo "Processing $xml ..." ; fi
@@ -139,7 +140,7 @@ for scopus_data_archive in *.zip; do
         [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors
     fi
     while read -r line;
-      do echo $line | grep -q "1" && ((++failed_xml_counter)) || ((++processed_xml_counter))
+      do echo $line | grep -q "1" && ((++failed_xml_counter)) && ((++failed_xml_counter_total)) || ((++processed_xml_counter)) && ((++processed_xml_counter_total))
     done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
     > "${PARALLEL_LOG}"
     rm -rf "${subdir}"
@@ -148,6 +149,8 @@ for scopus_data_archive in *.zip; do
   echo "ZIP LEVEL SUMMARY FOR ${scopus_data_archive}:"
   echo "NUMBER OF XML FILES SUCCESSFULLY PARSED: ${processed_xml_counter}"
   echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter}"
+  failed_xml_counter=0
+  processed_xml_counter=0
 
   stop_time=$(date '+%s')
   #((delta=stop_time - start_time)) || :
