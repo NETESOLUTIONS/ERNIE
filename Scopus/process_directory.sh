@@ -44,7 +44,7 @@ set -o pipefail
 readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx ERROR_LOG=errors.log
-declare -rx PROCESSED_LOG=processed.log
+declare -rx PARALLEL_LOG=parallel.log
 declare -x FAILED_FILES="False"
 QUIET=false
 
@@ -82,7 +82,6 @@ parse_xml() {
   echo "Processing $xml ..."
   if psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" 2>> "${ERROR_LOG}"; then
     echo "$xml: SUCCESSFULLY PARSED."
-    ((++processed_xml_counter))
   else
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     full_path=$(realpath ${xml})
@@ -135,9 +134,8 @@ for scopus_data_archive in *.zip; do
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
     # Process Scopus XML files in parallel
     # Reduced verbosity
-    # --joblog "${PARALLEL_JOB_LOG}"
     if ! find "${subdir}" -name '2*.xml' | \
-        parallel ${PARALLEL_HALT_OPTION} --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"; then
+        parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"; then
         [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors
     fi
     rm -rf "${subdir}"
