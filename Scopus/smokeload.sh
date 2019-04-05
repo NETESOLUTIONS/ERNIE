@@ -70,6 +70,7 @@ if [[ ${clean_mode} ]]; then
   psql -v ON_ERROR_STOP=on --echo-all <<'HEREDOC'
     TRUNCATE scopus_publication_groups CASCADE;
 HEREDOC
+  rm -rf /erniedev_data1/Scopus/failed/*
 fi
 
 rm -f eta.log
