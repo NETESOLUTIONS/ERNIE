@@ -139,7 +139,7 @@ for scopus_data_archive in *.zip; do
         [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors
     fi
     while read -r line;
-      do echo $line | grep "1" && ((++failed_xml_counter)) || ((++processed_xml_counter))
+      do echo $line | grep -q "1" && ((++failed_xml_counter)) || ((++processed_xml_counter))
     done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
     > "${PARALLEL_LOG}"
     rm -rf "${subdir}"
