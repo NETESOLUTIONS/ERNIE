@@ -80,14 +80,14 @@ declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m del
 parse_xml() {
   local xml="$1"
   echo "Processing $xml ..."
-  if psql -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" 2>> "${ERROR_LOG}"; then
-    echo "$xml: SUCCESSFULLY PARSED."
+  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" 2>> "${ERROR_LOG}"; then
+    #echo "$xml: SUCCESSFULLY PARSED."
   else
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     full_path=$(realpath ${xml})
     full_path=$(dirname ${full_path})
     mv -f $full_path/ "${failed_files_dir}/"
-    echo "$xml: FAILED DURING PARSING."
+    #echo "$xml: FAILED DURING PARSING."
     return 1
   fi
 }
@@ -159,7 +159,7 @@ for scopus_data_archive in *.zip; do
   ((elapsed=elapsed + delta))
   ((est_total=num_zips * elapsed / i)) || :
   ((eta=process_start_time + est_total))
-  echo "ETA to complete current year: $(TZ=America/New_York date --date=@${eta})"
+  echo "ETA for completion of current year: $(TZ=America/New_York date --date=@${eta})"
   cd ..
 done
 
