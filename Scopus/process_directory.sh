@@ -154,6 +154,7 @@ for scopus_data_archive in *.zip; do
 
   stop_time=$(date '+%s')
   ((delta=stop_time - start_time)) || :
+  echo "delta is $delta"
   ((delta_s=delta % 60)) || :
   ((delta_m=(delta / 60) % 60)) || :
   ((della_h=delta / 3600)) || :
