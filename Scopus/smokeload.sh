@@ -45,7 +45,7 @@ STOP_FILE=".stop"
 # Get a script directory, same as by $(dirname $0)
 script_dir=${0%/*}
 absolute_script_dir=$(cd "${script_dir}" && pwd)
-
+FAILED_FILES_DIR=/erniedev_data1/Scopus/failed
 while (( $# > 0 )); do
   case "$1" in
     -c)
