@@ -69,14 +69,14 @@ declare -i process_start_time directories i=0 start_time stop_time delta delta_s
 directories=${#sorted_args[@]}
 for DATA_DIR in "${sorted_args[@]}"; do
   start_time=$(date '+%s')
+  echo -e "\n## Directory #$((++i)) out of ${directories} ##"
   if [[ -d "${DATA_DIR}/tmp"  && ! ${clean_mode} ]]; then
     resume_mode=" (resumed)"
     # Don't count partial directory
-    ((directories--))
+    #((directories--))
   else
     unset resume_mode
     process_start_time=${start_time}
-    echo -e "\n## Directory #$((++i)) out of ${directories} ##"
   fi
   echo "Processing${resume_mode} ${DATA_DIR} directory ..."
   # TODO: have option to pass c as option and specify clean mode
