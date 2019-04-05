@@ -81,7 +81,7 @@ parse_xml() {
   local xml="$1"
   echo "Processing $xml ..."
   if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" 2>> "${ERROR_LOG}"; then
-    #echo "$xml: SUCCESSFULLY PARSED."
+    echo "$xml: SUCCESSFULLY PARSED."
   else
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     full_path=$(realpath ${xml})
