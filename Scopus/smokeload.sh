@@ -67,9 +67,9 @@ echo -e "Data directories to process:\n${sorted_args[@]}"
 rm -f eta.log
 declare -i process_start_time directories i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
 directories=${#sorted_args[@]}
-for dir in "${sorted_args[@]}"; do
+for DATA_DIR in "${sorted_args[@]}"; do
   start_time=$(date '+%s')
-  if [[ -d "${dir}/tmp"  && ! ${clean_mode} ]]; then
+  if [[ -d "${DATA_DIR}/tmp"  && ! ${clean_mode} ]]; then
     resume_mode=" (resumed)"
     # Don't count partial directory
     ((directories--))
@@ -78,17 +78,16 @@ for dir in "${sorted_args[@]}"; do
     process_start_time=${start_time}
     echo -e "\n## Directory #$((++i)) out of ${directories} ##"
   fi
-  echo "Processing${resume_mode} ${dir} directory ..."
+  echo "Processing${resume_mode} ${DATA_DIR} directory ..."
   # TODO: have option to pass c as option and specify clean mode
-  #"${absolute_script_dir}/process_directory.sh" ${clean_mode} "${dir}"
-  sleep 2
+  "${absolute_script_dir}/process_directory.sh" "${DATA_DIR}" "${FAILED_FILES_DIR}"
   stop_time=$(date '+%s')
 
   ((delta=stop_time - start_time)) || :
   ((delta_s=delta % 60)) || :
   ((delta_m=(delta / 60) % 60)) || :
   ((della_h=delta / 3600)) || :
-  printf "\n$(TZ=America/New_York date) Done with ${dir} data directory in %dh:%02dm:%02ds${resume_mode}\n" ${della_h} \
+  printf "\n$(TZ=America/New_York date) Done with ${DATA_DIR} data directory in %dh:%02dm:%02ds${resume_mode}\n" ${della_h} \
          ${delta_m} ${delta_s} | tee -a eta.log
   if [[ -f "${STOP_FILE}" ]]; then
     echo "Found the stop signal file. Gracefully stopping..."
@@ -100,6 +99,6 @@ for dir in "${sorted_args[@]}"; do
     ((elapsed=elapsed + delta))
     ((est_total=directories * elapsed / i)) || :
     ((eta=process_start_time + est_total))
-    echo "ETA after ${dir} data directory: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
+    echo "ETA after ${DATA_DIR} data directory: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
   fi
 done
