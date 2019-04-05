@@ -58,32 +58,46 @@ while (( $# > 0 )); do
   shift
 done
 arg_array=( "$@" )
+echo "${arg_array[*]}"
 # Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
 IFS=$'\n' sorted_args=($(sort ${sort_order} <<<"${arg_array[*]}")); unset IFS
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 echo -e "Data directories to process:\n${sorted_args[@]}"
 
+if [[ ${clean_mode} ]]; then
+  echo "In clean mode: truncating all data ..."
+  # language=PostgresPLSQL
+  psql -v ON_ERROR_STOP=on --echo-all <<'HEREDOC'
+    TRUNCATE scopus_publication_groups CASCADE;
+    TRUNCATE scopus_sources CASCADE;
+    TRUNCATE scopus_conference_events CASCADE;
+    TRUNCATE scopus_classification_lookup CASCADE;
+HEREDOC
+  rm -rf /erniedev_data1/Scopus/failed/*
+fi
+
+
 rm -f eta.log
 declare -i process_start_time directories i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
 directories=${#sorted_args[@]}
 for DATA_DIR in "${sorted_args[@]}"; do
   start_time=$(date '+%s')
+  echo -e "\n## Directory #$((++i)) out of ${directories} ##"
   if [[ -d "${DATA_DIR}/tmp"  && ! ${clean_mode} ]]; then
     resume_mode=" (resumed)"
     # Don't count partial directory
-    ((directories--))
+    #((directories--))
   else
     unset resume_mode
     process_start_time=${start_time}
-    echo -e "\n## Directory #$((++i)) out of ${directories} ##"
   fi
   echo "Processing${resume_mode} ${DATA_DIR} directory ..."
   # TODO: have option to pass c as option and specify clean mode
   "${absolute_script_dir}/process_directory.sh" "${DATA_DIR}" "${FAILED_FILES_DIR}"
   stop_time=$(date '+%s')
 
-  ((delta=stop_time - start_time)) || :
+  ((delta=stop_time - start_time + 1)) || :
   ((delta_s=delta % 60)) || :
   ((delta_m=(delta / 60) % 60)) || :
   ((della_h=delta / 3600)) || :
