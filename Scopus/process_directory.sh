@@ -85,6 +85,7 @@ parse_xml() {
     echo "$xml: DONE."
   else
     echo "$xml: FAILED."; ((failed_xml_counter++))
+    echo "current total of failed xml: $failed_xml_counter"
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     full_path=$(realpath ${xml})
     full_path=$(dirname ${full_path})
