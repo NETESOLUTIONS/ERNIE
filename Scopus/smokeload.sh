@@ -37,9 +37,9 @@ HEREDOC
   exit 1
 fi
 
-#set -e
-set -ex
+set -e
 set -o pipefail
+#set -x
 
 STOP_FILE=".stop"
 # Get a script directory, same as by $(dirname $0)
