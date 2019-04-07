@@ -3,7 +3,6 @@
     edges {
       node {
         nctId
-        id
         keyword
       }
     }

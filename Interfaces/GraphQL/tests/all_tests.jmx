@@ -62,7 +62,7 @@
                 <collectionProp name="Arguments.arguments">
                   <elementProp name="" elementType="HTTPArgument">
                     <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                    <stringProp name="Argument.value">{&quot;query&quot;:&quot;{\n  clinicalTrialKeywords(keyword: \&quot;Neuropathic pain\&quot;) {\n    edges {\n      node {        \n        nctId\n        id\n        keyword\n      }\n    }\n  }\n}&quot;,&quot;variables&quot;:null}</stringProp>
+                    <stringProp name="Argument.value">{&quot;query&quot;:&quot;{\n  clinicalTrialKeywords(keyword: \&quot;Neuropathic pain\&quot;) {\n    edges {\n      node {        \n        nctId\n        keyword\n      }\n    }\n  }\n}&quot;,&quot;variables&quot;:null}</stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>
                   </elementProp>
                 </collectionProp>
