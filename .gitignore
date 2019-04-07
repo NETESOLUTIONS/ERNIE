@@ -5,6 +5,7 @@ private*
 [Ii]gnore
 
 ### Build output ###
+build
 report
 
 ### Application logs ###
