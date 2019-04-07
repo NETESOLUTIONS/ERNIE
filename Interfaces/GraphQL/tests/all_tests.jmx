@@ -62,7 +62,7 @@
                 <collectionProp name="Arguments.arguments">
                   <elementProp name="" elementType="HTTPArgument">
                     <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                    <stringProp name="Argument.value">{&quot;query&quot;:&quot;query {\n  clinicalTrialKeywords(keyword: \&quot;Neuropathic pain\&quot;) {\n    edges {\n      node {        \n        nctId\n        id\n        keyword\n      }\n    }\n  }\n}&quot;,&quot;variables&quot;:null}</stringProp>
+                    <stringProp name="Argument.value">{&quot;query&quot;:&quot;{\n  clinicalTrialKeywords(keyword: \&quot;Neuropathic pain\&quot;) {\n    edges {\n      node {        \n        nctId\n        id\n        keyword\n      }\n    }\n  }\n}&quot;,&quot;variables&quot;:null}</stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>
                   </elementProp>
                 </collectionProp>
@@ -88,7 +88,7 @@
                 <collectionProp name="Arguments.arguments">
                   <elementProp name="" elementType="HTTPArgument">
                     <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                    <stringProp name="Argument.value">{&quot;query&quot;:&quot;query {\n  clinicalTrials(overallStatus: \&quot;Not yet recruiting\&quot;) {\n    edges {\n      node {\n        nctId\n        briefTitle\n      }\n    }\n  }\n}&quot;,&quot;variables&quot;:null}</stringProp>
+                    <stringProp name="Argument.value">{&quot;query&quot;:&quot;{\n  clinicalTrials(overallStatus: \&quot;Not yet recruiting\&quot;) {\n    edges {\n      node {\n        nctId\n        briefTitle\n      }\n    }\n  }\n}&quot;,&quot;variables&quot;:null}</stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>
                   </elementProp>
                 </collectionProp>
@@ -154,7 +154,7 @@
                 <collectionProp name="Arguments.arguments">
                   <elementProp name="" elementType="HTTPArgument">
                     <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                    <stringProp name="Argument.value">{&quot;query&quot;:&quot;query {\n  nihProjects(orgDistrict: \&quot;53\&quot;, fy: \&quot;2018\&quot;) {\n    edges {\n      node {        \n        applicationId\n        fy\n        fullProjectNum\n        projectTitle\n      }\n    }\n  }\n}&quot;,&quot;variables&quot;:null}</stringProp>
+                    <stringProp name="Argument.value">{&quot;query&quot;:&quot;{\n  nihProjects(orgDistrict: \&quot;53\&quot;, fy: \&quot;2018\&quot;) {\n    edges {\n      node {        \n        applicationId\n        fy\n        fullProjectNum\n        projectTitle\n      }\n    }\n  }\n}&quot;,&quot;variables&quot;:null}</stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>
                   </elementProp>
                 </collectionProp>
@@ -180,7 +180,7 @@
                 <collectionProp name="Arguments.arguments">
                   <elementProp name="" elementType="HTTPArgument">
                     <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                    <stringProp name="Argument.value">{&quot;query&quot;:&quot;query {\n  nihProjects(orgDistrict: \&quot;53\&quot;) {\n    edges {\n      node {        \n        applicationId\n        fy\n        fullProjectNum\n        projectTitle\n      }\n    }\n  }\n}&quot;,&quot;variables&quot;:null}</stringProp>
+                    <stringProp name="Argument.value">{&quot;query&quot;:&quot;{\n  nihProjects(orgDistrict: \&quot;53\&quot;) {\n    edges {\n      node {        \n        applicationId\n        fy\n        fullProjectNum\n        projectTitle\n      }\n    }\n  }\n}&quot;,&quot;variables&quot;:null}</stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>
                   </elementProp>
                 </collectionProp>
