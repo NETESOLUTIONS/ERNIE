@@ -12,16 +12,29 @@ class ClinicalTrial(SQLAlchemyObjectType):
         interfaces = (relay.Node,)
 
 
-class UsPatent(SQLAlchemyObjectType):
+class ClinicalTrialKeyword(SQLAlchemyObjectType):
     class Meta:
-        model = Base.classes.DerwentPatent
+        model = Base.classes.CtKeyword
         interfaces = (relay.Node,)
+
+
+class NIHProject(SQLAlchemyObjectType):
+    class Meta:
+        model = Base.classes.ExporterProject
+        interfaces = (relay.Node,)
+
+# class UsPatent(SQLAlchemyObjectType):
+#     class Meta:
+#         model = Base.classes.DerwentPatent
+#         interfaces = (relay.Node,)
 
 
 class Query(ObjectType):
     node = relay.Node.Field()
-    usPatents = InstrumentedQuery(UsPatent)
+    # usPatents = InstrumentedQuery(UsPatent)
     clinicalTrials = InstrumentedQuery(ClinicalTrial)
+    clinicalTrialKeywords = InstrumentedQuery(ClinicalTrialKeyword)
+    nihProjects = InstrumentedQuery(NIHProject)
 
 
-schema = Schema(query=Query, types=[UsPatent, ClinicalTrial])
+schema = Schema(query=Query, types=[ClinicalTrial, ClinicalTrialKeyword])

@@ -51,12 +51,12 @@ if environ.get('PGUSER') and environ.get('PGPASSWORD') and environ.get('PGHOST')
 else:
     engine = create_engine('postgresql+psycopg2://@/{}'.format(environ.get('PGDATABASE')), echo=True)
 
-print "Getting metadata for the public schema..."
+print("Getting metadata for the public schema...")
 
 # region Selected tables only
 metadata = MetaData()
 # We can reflect metadata from a database, using options such as 'only' to limit what tables we look at
-metadata.reflect(engine, schema="public", only=['derwent_patents', 'ct_clinical_studies'])
+metadata.reflect(engine, schema="public", only=['ct_clinical_studies', 'ct_keywords', 'exporter_projects'])
 # We can then produce a set of mappings from this MetaData
 Base = automap_base(metadata=metadata)
 # Calling prepare() just sets up mapped classes and relationships
@@ -69,7 +69,7 @@ Base.prepare(classname_for_table=standardize_class_name, name_for_collection_rel
 #              name_for_collection_relationship=standardize_collection_name)
 # endregion
 
-print "Metadata is retrieved..."
+print("Metadata is retrieved...")
 
 # mapped classes are now created with names by default matching that of the table name.
 # DerwentPatent = Base.classes.derwent_patents

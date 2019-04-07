@@ -1,0 +1,7 @@
+SELECT *
+FROM ct_clinical_studies
+WHERE nct_id IN ('NCT00809146', 'NCT00822900', 'NCT01369069');
+
+SELECT *
+FROM ct_references
+WHERE nct_id IN ('NCT00809146', 'NCT00822900', 'NCT01369069');
