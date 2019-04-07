@@ -1,0 +1,11 @@
+{
+  clinicalTrialKeywords(keyword: "Neuropathic pain") {
+    edges {
+      node {
+        nctId
+        id
+        keyword
+      }
+    }
+  }
+}

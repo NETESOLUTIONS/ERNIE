@@ -1,0 +1,10 @@
+{
+  clinicalTrials(overallStatus: "Not yet recruiting") {
+    edges {
+      node {
+        nctId
+        briefTitle
+      }
+    }
+  }
+}

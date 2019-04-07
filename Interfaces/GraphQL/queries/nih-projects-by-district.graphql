@@ -1,0 +1,12 @@
+{
+  nihProjects(orgDistrict: "53") {
+    edges {
+      node {
+        applicationId
+        fy
+        fullProjectNum
+        projectTitle
+      }
+    }
+  }
+}
