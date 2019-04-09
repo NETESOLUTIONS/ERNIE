@@ -39,7 +39,7 @@ CREATE TABLE exporter_projects (
   ORG_COUNTRY character varying(20),
   ORG_DEPT character varying(40),
   ORG_DISTRICT character varying(4),
-  ORG_DUNS character varying(25),
+  ORG_DUNS character varying(35),
   ORG_FIPS character varying(3),
   ORG_NAME character varying(100),
   ORG_STATE character varying(3),
