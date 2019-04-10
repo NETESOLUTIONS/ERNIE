@@ -50,7 +50,7 @@ echo -e "\n## Running under ${USER}@${HOSTNAME} at ${PWD} ##\n"
 
 # Process the data - multiprocessing library used in python along with shared memory objects to allow for creation of SQL upsert strings based on multiple XML files
 echo "Loading files in parallel from work dir: ${work_dir}..."
-/anaconda3/bin/python ${absolute_script_dir}/ct_xml_update_parser.py  <\(find ${work_dir}/nct_files/ | grep "nct_files/NCT.*"\)
+/anaconda3/bin/python ${absolute_script_dir}/ct_xml_update_parser.py  <\(find ${work_dir}/nct_files/ | grep "nct_files/NCT.*\.xml"\)
 
 # Update the log table
 echo "***UPDATING LOG TABLE"
