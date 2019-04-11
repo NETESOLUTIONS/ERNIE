@@ -35,18 +35,18 @@ cd "${work_dir}"
 echo -e "\n## Running under ${USER}@${HOSTNAME} at ${PWD} ##\n"
 
 # Script output is quieted down to reduce the large log size (could be up to 140 M)
-# echo "Removing previous NCT files, directories, and other related files ..."
-# rm -rf ${work_dir}/nct_files
-# mkdir nct_files
-# chmod g+w nct_files
+ echo "Removing previous NCT files, directories, and other related files ..."
+ rm -rf ${work_dir}/nct_files
+ mkdir nct_files
+ chmod g+w nct_files
 
 # # Download and decompress the CT data
-# echo "Collecting CT data ..."
-# cd nct_files
-# ${absolute_script_dir}/download_updates.sh
+ echo "Collecting CT data ..."
+ cd nct_files
+ ${absolute_script_dir}/download_updates.sh
 
 # echo "Unzipping CT data ..."
-# unzip -q CT_all.zip
+ unzip -q CT_all.zip
 
 # Process the data - multiprocessing library used in python along with shared memory objects to allow for creation of SQL upsert strings based on multiple XML files
 echo "Loading files in parallel from work dir: ${work_dir}..."
