@@ -18,7 +18,11 @@ AS $$
       coalesce(conf_name,'') AS conf_name,
       proc_part_no,
       proc_page_range,
-      proc_page_count
+      CASE
+        WHEN proc_page_count LIKE 'var%' THEN NULL
+        WHEN proc_page_count LIKE '%p' THEN RTRIM(proc_page_count, 'p') :: SMALLINT
+        ELSE proc_page_count :: SMALLINT
+      END
     FROM
       xmltable(--
       '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication' PASSING scopus_doc_xml COLUMNS --
@@ -28,7 +32,7 @@ AS $$
       conf_name TEXT PATH 'preceding-sibling::confevent/confname',
       proc_part_no TEXT PATH 'procpartno',
       proc_page_range TEXT PATH 'procpagerange',
-      proc_page_count SMALLINT PATH 'procpagecount'
+      proc_page_count TEXT PATH 'procpagecount'
       )
     WHERE proc_part_no IS NOT NULL OR proc_page_range IS NOT NULL or proc_page_count IS NOT NULL
     ON CONFLICT DO NOTHING;

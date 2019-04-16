@@ -9,12 +9,12 @@ CREATE OR REPLACE PROCEDURE update_scopus_source_classifications(scopus_doc_xml 
 AS $$
   BEGIN
   
-    -- scopus_sources
+     -- scopus_sources
     INSERT INTO scopus_sources(source_id, issn, source_type, source_title,
                                 coden_code, publisher_name,publisher_e_address)
     SELECT DISTINCT
-     coalesce(source_id,'') AS source_id,
-     coalesce(issn,'') AS issn,
+     coalesce(source_id,'') as source_id,
+     coalesce(issn,'') as issn,
      source_type,
      source_title,
      coden_code,
@@ -22,15 +22,15 @@ AS $$
      publisher_e_address
     FROM xmltable(--
       XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
-      '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
+      '//bibrecord/head/source/issn[@type="print"]' PASSING scopus_doc_xml COLUMNS --
       --@formatter:off
-      source_id TEXT PATH '@srcid',
-      issn TEXT PATH 'issn[@type="print"]',
-      source_type TEXT PATH '@type',
-      source_title TEXT PATH 'sourcetitle',
-      coden_code TEXT PATH 'codencode',
-      publisher_name TEXT PATH 'publisher/publishername',
-      publisher_e_address TEXT PATH 'publisher/ce:e-address'
+      source_id TEXT PATH '../@srcid',
+      issn TEXT PATH '.',
+      source_type TEXT PATH '../@type',
+      source_title TEXT PATH '../sourcetitle',
+      coden_code TEXT PATH '../codencode',
+      publisher_name TEXT PATH '../publisher/publishername',
+      publisher_e_address TEXT PATH '../publisher/ce:e-address'
       )
     WHERE source_id != '' OR issn != ''
     ON CONFLICT DO NOTHING;
@@ -43,13 +43,16 @@ AS $$
           coalesce(issn,'') AS issn,
           issn_electronic
          FROM xmltable(--
-         '//bibrecord/head/source/issn[@type="electronic"]' PASSING scopus_doc_xml COLUMNS --
+         '//bibrecord/head/source/issn[@type="print"]' PASSING scopus_doc_xml COLUMNS --
          source_id TEXT PATH '../@srcid',
-         issn TEXT PATH '../issn[@type="print"]',
+         issn TEXT PATH '.'
+          ) as t1,
+              xmltable(--
+         '//bibrecord/head/source/issn[@type="electronic"]' PASSING scopus_doc_xml COLUMNS --
          issn_electronic TEXT PATH '.'
-          )
+          ) as t2
          ) AS sq
-    WHERE ss.source_id=sq.source_id AND ss.issn=sq.issn;
+    WHERE ss.source_id=sq.source_id and ss.issn=sq.issn;
 
     UPDATE scopus_sources ss
     SET website=sq.website
