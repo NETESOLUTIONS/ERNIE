@@ -86,8 +86,8 @@ BEGIN
                 pub_type,
                 process_stage,
                 state,
-                make_date(sort_year, CASE WHEN sort_month = 00 THEN 01 WHEN sort_month = 90 THEN 09 ELSE sort_month END,
-                          sort_day) AS date_sort,
+                make_date(sort_year, CASE WHEN sort_month NOT BETWEEN 1 AND 12 THEN 01 ELSE sort_month END,
+                          CASE WHEN sort_day NOT BETWEEN 1 AND 31 THEN 01 ELSE sort_day END) AS date_sort,
                 source_id,
                 issn
          FROM xmltable(--
