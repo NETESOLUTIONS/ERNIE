@@ -20,7 +20,6 @@ DO $block$
     CALL scopus_parse_publication(scopus_doc_xml);
     CALL update_scopus_source_classifications(scopus_doc_xml);
     CALL update_scopus_author_affiliations(scopus_doc_xml);
-    CALL update_scopus_additional_source(scopus_doc_xml);
     -- scopus_references
     CALL update_references(scopus_doc_xml);
     CALL update_scopus_chemical_groups(scopus_doc_xml);

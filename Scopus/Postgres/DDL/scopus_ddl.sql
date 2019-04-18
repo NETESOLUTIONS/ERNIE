@@ -5,6 +5,5 @@
 \include_relative Procedures/references_parse.sql
 \include_relative Procedures/scopus_parse_publication.sql
 \include_relative Procedures/scopus_sp.sql
-\include_relative Procedures/update_scopus_additional_source.sql
 \include_relative Procedures/update_scopus_author_affiliations.sql
 \include_relative Procedures/update_scopus_source_classifications.sql
