@@ -4,9 +4,9 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
--- region scopus_publication_groups
-DROP TABLE IF EXISTS scopus_publication_groups CASCADE;
+-- Drop existing tables manually before executing
 
+-- region scopus_publication_groups
 CREATE TABLE scopus_publication_groups (
   sgr BIGINT,
   pub_year SMALLINT,
@@ -16,8 +16,6 @@ CREATE TABLE scopus_publication_groups (
 -- endregion
 
 -- region scopus_sources
-DROP TABLE IF EXISTS scopus_sources CASCADE;
-
 CREATE TABLE scopus_sources (
   source_id TEXT,
   issn TEXT,
@@ -64,8 +62,6 @@ IS 'Example: acmhelp@acm.org';
 -- endregion
 
 -- region scopus_conference_events
-DROP TABLE IF EXISTS scopus_conference_events CASCADE;
-
 CREATE TABLE scopus_conference_events (
   conf_code TEXT,
   conf_name TEXT,
@@ -116,8 +112,6 @@ IS 'Conference sponsor names';
 -- endregion
 
 -- region scopus_publications
-DROP TABLE IF EXISTS scopus_publications CASCADE;
-
 CREATE TABLE scopus_publications (
   scp BIGINT
     CONSTRAINT scopus_publications_pk PRIMARY KEY USING INDEX TABLESPACE index_tbs,
@@ -142,8 +136,6 @@ ALTER TABLE scopus_publications
 -- endregion
 
 -- region scopus_authors
-DROP TABLE IF EXISTS scopus_authors CASCADE;
-
 CREATE TABLE scopus_authors (
   scp BIGINT CONSTRAINT sauth_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   author_seq SMALLINT,
@@ -186,8 +178,6 @@ IS 'biyant@psych.stanford.edu';
 -- endregion
 
 -- region scopus_affiliations
-DROP TABLE IF EXISTS scopus_affiliations CASCADE;
-
 CREATE TABLE scopus_affiliations (
   scp BIGINT CONSTRAINT saff_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   affiliation_no SMALLINT,
@@ -238,8 +228,6 @@ IS 'Country name. Example: United Kingdom';
 -- endregion
 
 -- region scopus_author_affiliations
-DROP TABLE IF EXISTS scopus_author_affiliations CASCADE;
-
 CREATE TABLE scopus_author_affiliations (
   scp BIGINT CONSTRAINT saff_mapping_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   author_seq SMALLINT,
@@ -268,8 +256,6 @@ IS 'Affiliation sequence in the document. Example: 1';
 -- endregion
 
 -- scopus_source_publication_details
-DROP TABLE IF EXISTS scopus_source_publication_details CASCADE;
-
 CREATE TABLE scopus_source_publication_details (
   scp BIGINT CONSTRAINT spub_sources_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   issue TEXT,
@@ -322,8 +308,6 @@ COMMENT ON COLUMN scopus_source_publication_details.conf_name
 IS 'Conference name';
 
 -- scopus_isbns
-DROP TABLE IF EXISTS scopus_isbns CASCADE;
-
 CREATE TABLE scopus_isbns (
   scp BIGINT CONSTRAINT ssi_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   isbn TEXT,
@@ -350,8 +334,6 @@ COMMENT ON COLUMN scopus_isbns.isbn_type
 IS 'Example: hardcover, paperback, cloth';
 
 -- scopus_subjects
-DROP TABLE IF EXISTS scopus_subjects CASCADE;
-
 CREATE TABLE scopus_subjects (
   scp BIGINT CONSTRAINT ssubj_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   subj_abbr TEXT,
@@ -369,8 +351,6 @@ COMMENT ON COLUMN scopus_subjects.subj_abbr
 IS 'Example: CHEM';
 
 -- scopus_subject_keywords
-DROP TABLE IF EXISTS scopus_subject_keywords CASCADE;
-
 CREATE TABLE scopus_subject_keywords (
   scp BIGINT CONSTRAINT ssubj_keywords_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   subject TEXT,
@@ -388,8 +368,6 @@ COMMENT ON COLUMN scopus_subject_keywords.subject
 IS 'Example: Health';
 
 -- region scopus_classification_lookup
-DROP TABLE IF EXISTS scopus_classification_lookup CASCADE;
-
 CREATE TABLE scopus_classification_lookup (
   class_type TEXT,
   class_code TEXT,
@@ -412,8 +390,6 @@ IS 'Example: Public Health, Social Medicine and Epidemiology';
 -- endregion
 
 -- scopus_classes
-DROP TABLE IF EXISTS scopus_classes CASCADE;
-
 CREATE TABLE scopus_classes (
   scp BIGINT CONSTRAINT sclass_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   class_type TEXT,
@@ -442,8 +418,6 @@ COMMENT ON COLUMN scopus_classes.class_code
 IS 'Example: 23.2.2';
 
 --scopus_conf_processdings
-DROP TABLE IF EXISTS scopus_conf_proceedings CASCADE;
-
 CREATE TABLE scopus_conf_proceedings (
   source_id TEXT,
   issn TEXT,
@@ -487,8 +461,6 @@ COMMENT ON COLUMN scopus_conf_proceedings.proc_page_count
 IS 'Number of pages in a conference proceeding';
 
 -- scopus_conf_editors
-DROP TABLE IF EXISTS scopus_conf_editors CASCADE;
-
 CREATE TABLE scopus_conf_editors (
   source_id TEXT,
   issn TEXT,
@@ -555,8 +527,7 @@ IS 'The address of the editors';
 COMMENT ON COLUMN scopus_conf_editors.organization
 IS 'The organization of the editors';
 
-DROP TABLE IF EXISTS scopus_references CASCADE;
-
+-- region scopus_references
 CREATE TABLE scopus_references (
   scp BIGINT
     CONSTRAINT sr_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
@@ -601,11 +572,10 @@ COMMENT ON COLUMN scopus_references.ref_sgr IS 'Scopus Group ID for the referenc
   --'Uniquely (and serially?) identifies a reference in the bibliography. Example: 1';
 COMMENT ON COLUMN scopus_references.citation_text IS --
   'Citation text provided with a reference. Example: "Harker LA, Kadatz RA. Mechanism of action of dipyridamole. Thromb Res 1983;suppl IV:39-46."';
+-- endregion
 
 -- Added by Sitaram Devarakonda 03/22/2019
 -- DDL for scopus_publication_identifiers, scopus_abstracts, scopus_titles, scopus_keywords and scopus_chemicalgroups
-
-DROP TABLE IF EXISTS scopus_publication_identifiers CASCADE;
 
 CREATE TABLE IF NOT EXISTS scopus_publication_identifiers (
   scp BIGINT
@@ -624,9 +594,6 @@ COMMENT ON COLUMN scopus_publication_identifiers.scp IS --
 COMMENT ON COLUMN scopus_publication_identifiers.document_id IS 'Document id Ex: S1322769617302901';
 
 COMMENT ON COLUMN scopus_publication_identifiers.document_id_type IS 'Document id type Ex: PUI,SNEMB,DOI,PII etc';
-
-
-DROP TABLE IF EXISTS scopus_abstracts CASCADE;
 
 CREATE TABLE IF NOT EXISTS scopus_abstracts (
   scp BIGINT
@@ -649,8 +616,6 @@ COMMENT ON COLUMN scopus_abstracts.abstract_language IS 'Contains the language o
 COMMENT ON COLUMN scopus_abstracts.abstract_source IS --
   'Contains the value indicating from which part abstract originates ex: introduction,preface';
 
-DROP TABLE IF EXISTS scopus_titles CASCADE;
-
 CREATE TABLE IF NOT EXISTS scopus_titles (
   scp BIGINT
     CONSTRAINT st_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
@@ -669,9 +634,6 @@ COMMENT ON COLUMN scopus_titles.title IS --
 
 COMMENT ON COLUMN scopus_titles.language IS 'Language of the title Ex: eng,esp';
 
-
-DROP TABLE IF EXISTS scopus_keywords CASCADE;
-
 CREATE TABLE IF NOT EXISTS scopus_keywords (
   scp BIGINT
     CONSTRAINT sk_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
@@ -686,8 +648,6 @@ COMMENT ON COLUMN scopus_keywords.scp IS 'Scopus id that uniquely identifies doc
 
 COMMENT ON COLUMN scopus_keywords.keyword IS --
   'Keywords assigned to document by authors Ex: headache, high blood pressure';
-
-DROP TABLE IF EXISTS scopus_chemical_groups CASCADE;
 
 CREATE TABLE IF NOT EXISTS scopus_chemical_groups (
   scp BIGINT
