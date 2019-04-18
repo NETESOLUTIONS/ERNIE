@@ -55,7 +55,7 @@ while (( $# > 0 )); do
       readonly CLEAN_MODE=true
       ;;
     -v)
-      readonly VERBOSE=true
+      declare -rx VERBOSE=true
       ;;
     -e)
       # TODO This is not working currently
@@ -102,12 +102,14 @@ export -f parse_xml
 check_errors() {
   # Errors occurred? Does the error log have a size greater than zero?
   if [[ -s tmp/${ERROR_LOG} ]]; then
-    cat <<HEREDOC
+    if [[ ${VERBOSE} == "true" ]]; then
+      cat <<HEREDOC
 Error(s) occurred during processing of ${PWD}.
 =====
 HEREDOC
-    cat tmp/${ERROR_LOG}
-    echo "====="
+      cat tmp/${ERROR_LOG}
+      echo "====="
+    fi
     exit 1
   fi
 }
@@ -176,5 +178,5 @@ echo "YEAR LEVEL SUMMARY:"
 echo "NUMBER OF XML FILES WHICH SUCCESSFULLY PARSED: ${processed_xml_counter_total}"
 echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter_total}"
 
-#check_errors
+check_errors
 exit 0

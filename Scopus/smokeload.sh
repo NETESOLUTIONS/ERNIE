@@ -94,7 +94,7 @@ for DATA_DIR in "${sorted_args[@]}"; do
   fi
   echo "Processing${resume_mode} ${DATA_DIR} directory ..."
   # TODO: have option to pass c as option and specify clean mode
-  "${absolute_script_dir}/process_directory.sh" "${DATA_DIR}" "${FAILED_FILES_DIR}"
+  "${absolute_script_dir}/process_directory.sh" "${DATA_DIR}" "${FAILED_FILES_DIR}" || :
   stop_time=$(date '+%s')
 
   ((delta=stop_time - start_time + 1)) || :
