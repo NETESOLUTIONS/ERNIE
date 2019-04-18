@@ -7,7 +7,7 @@ NAME
 
 SYNOPSIS
 
-    process_directory.sh [-c] [-e] working_dir [failed_files_dir]
+    process_directory.sh [-c] [-e] [-v] working_dir [failed_files_dir]
     process_directory.sh -h: display this help
 
 DESCRIPTION
@@ -23,6 +23,8 @@ DESCRIPTION
 
     -c    clean load: truncate data and remove previously failed files before processing.
     WARNING: be aware that you'll lose all loaded data!
+
+    -v    verbose output
 
 ENVIRONMENT
 
@@ -46,12 +48,14 @@ declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx ERROR_LOG=errors.log
 declare -rx PARALLEL_LOG=parallel.log
 declare -x FAILED_FILES="False"
-LESS_VERBOSE=true
 
 while (( $# > 0 )); do
   case "$1" in
     -c)
       readonly CLEAN_MODE=true
+      ;;
+    -v)
+      readonly VERBOSE=true
       ;;
     -e)
       # TODO This is not working currently
@@ -80,15 +84,15 @@ declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m del
 
 parse_xml() {
   local xml="$1"
-  if ! $LESS_VERBOSE; then echo "Processing $xml ..." ; fi
+  [[ ${VERBOSE} == "true" ]] && echo "Processing $xml ..."
   if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" 2>> "${ERROR_LOG}"; then
-    if ! $LESS_VERBOSE; then echo "$xml: SUCCESSFULLY PARSED." ; fi
+    [[ ${VERBOSE} == "true" ]] && echo "$xml: SUCCESSFULLY PARSED."
   else
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     full_path=$(realpath ${xml})
     full_path=$(dirname ${full_path})
     mv -f $full_path/ "${failed_files_dir}/"
-    if ! $LESS_VERBOSE; then echo "$xml: FAILED DURING PARSING." ; fi
+    [[ ${VERBOSE} == "true" ]] && echo "$xml: FAILED DURING PARSING."
     return 1
   fi
 }
