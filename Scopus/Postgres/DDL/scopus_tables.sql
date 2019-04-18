@@ -17,8 +17,11 @@ CREATE TABLE scopus_publication_groups (
 
 -- region scopus_sources
 CREATE TABLE scopus_sources (
+  ernie_source_id SERIAL,
   source_id TEXT,
   issn TEXT,
+  isbn_10 TEXT,
+  isbn_13 TEXT,
   source_type TEXT,
   source_title TEXT,
   issn_electronic TEXT,
@@ -27,17 +30,28 @@ CREATE TABLE scopus_sources (
   publisher_name TEXT,
   publisher_e_address TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_sources_pk PRIMARY KEY (source_id, issn) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_sources_pk PRIMARY KEY (ernie_source_id) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
+
+CREATE UNIQUE INDEX scopus_sources_source_id_issn_isbn_uk ON scopus_sources(coalesce(source_id,''),coalesce(issn,''),coalesce(isbn_10,''),coalesce(isbn_13,''));
 
 COMMENT ON TABLE scopus_sources
 IS 'Journal source information table';
+
+COMMENT ON COLUMN scopus_sources.ernie_source_id
+IS 'DB serial source id. Assigned by ernie team';
 
 COMMENT ON COLUMN scopus_sources.source_id
 IS 'Journal source id. Example: 22414';
 
 COMMENT ON COLUMN scopus_sources.issn
 IS 'The ISSN of a serial publication (print). Example: 00028703';
+
+COMMENT ON COLUMN scopus_sources.isbn_10
+IS 'The ISBN of a source (length of 10). Example: 0780388747';
+
+COMMENT ON COLUMN scopus_sources.isbn_13
+IS 'The ISBN of a source (length of 13). Example: 9780780388741';
 
 COMMENT ON COLUMN scopus_sources.source_type
 IS 'Source type. Example: j for journal';
@@ -127,12 +141,11 @@ CREATE TABLE scopus_publications (
   process_stage TEXT,
   state TEXT,
   date_sort DATE,
-  source_id TEXT,
-  issn TEXT
+  ernie_source_id INTEGER
 ) TABLESPACE scopus_tbs;
 
 ALTER TABLE scopus_publications
-  ADD CONSTRAINT spub_source_id_issn_fk FOREIGN KEY (source_id, issn) REFERENCES scopus_sources (source_id, issn) ON DELETE CASCADE;
+  ADD CONSTRAINT spub_source_id_issn_fk FOREIGN KEY (ernie_source_id) REFERENCES scopus_sources (ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE;
 -- endregion
 
 -- region scopus_authors
@@ -307,32 +320,6 @@ IS 'Conference code, assigned by Elsevier DB';
 COMMENT ON COLUMN scopus_source_publication_details.conf_name
 IS 'Conference name';
 
--- scopus_isbns
-CREATE TABLE scopus_isbns (
-  scp BIGINT CONSTRAINT ssi_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-  isbn TEXT,
-  isbn_length SMALLINT,
-  isbn_level TEXT,
-  isbn_type TEXT,
-  last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_isbns_pk PRIMARY KEY (scp,isbn) USING INDEX TABLESPACE index_tbs
-) TABLESPACE scopus_tbs;
-
-COMMENT ON TABLE scopus_isbns
-IS 'Scopus publications isbn information';
-
-COMMENT ON COLUMN scopus_isbns.isbn
-IS 'ISBN number. Example: 0080407749';
-
-COMMENT ON COLUMN scopus_isbns.isbn_length
-IS 'ISBN length. Example: 10 or 13';
-
-COMMENT ON COLUMN scopus_isbns.isbn_level
-IS 'Example: set or volume';
-
-COMMENT ON COLUMN scopus_isbns.isbn_type
-IS 'Example: hardcover, paperback, cloth';
-
 -- scopus_subjects
 CREATE TABLE scopus_subjects (
   scp BIGINT CONSTRAINT ssubj_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
@@ -419,19 +406,15 @@ IS 'Example: 23.2.2';
 
 --scopus_conf_processdings
 CREATE TABLE scopus_conf_proceedings (
-  source_id TEXT,
-  issn TEXT,
+  ernie_source_id INTEGER CONSTRAINT sconf_ernie_source_id_fk REFERENCES scopus_sources(ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED,
   conf_code TEXT,
   conf_name TEXT,
   proc_part_no TEXT,
   proc_page_range TEXT,
   proc_page_count SMALLINT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_conf_proceedings_pk PRIMARY KEY (source_id, issn, conf_code, conf_name) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_conf_proceedings_pk PRIMARY KEY (ernie_source_id,conf_code,conf_name) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
-
-ALTER TABLE scopus_conf_proceedings
-  ADD CONSTRAINT sconf_source_id_issn_fk FOREIGN KEY (source_id, issn) REFERENCES scopus_sources (source_id, issn) ON DELETE CASCADE;
 
 ALTER TABLE scopus_conf_proceedings
   ADD CONSTRAINT sconf_code_name_fk FOREIGN KEY (conf_code, conf_name) REFERENCES scopus_conference_events (conf_code, conf_name) ON DELETE CASCADE;
@@ -439,11 +422,8 @@ ALTER TABLE scopus_conf_proceedings
 COMMENT ON TABLE scopus_conf_proceedings
 IS 'Conference publications information';
 
-COMMENT ON COLUMN scopus_conf_proceedings.source_id
-IS 'Source id';
-
-COMMENT ON COLUMN scopus_conf_proceedings.issn
-IS 'Source issn number, dafault print issn';
+COMMENT ON COLUMN scopus_conf_proceedings.ernie_source_id
+IS 'DB serial source id. Assigned by ernie team';
 
 COMMENT ON COLUMN scopus_conf_proceedings.conf_code
 IS 'Conference code, assigned by Elsevier DB';
@@ -462,8 +442,7 @@ IS 'Number of pages in a conference proceeding';
 
 -- scopus_conf_editors
 CREATE TABLE scopus_conf_editors (
-  source_id TEXT,
-  issn TEXT,
+  ernie_source_id INTEGER CONSTRAINT seditor_ernie_source_id_fk REFERENCES scopus_sources(ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED,
   conf_code TEXT,
   conf_name TEXT,
   indexed_name TEXT,
@@ -476,11 +455,8 @@ CREATE TABLE scopus_conf_editors (
   address TEXT,
   organization TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_conf_editors_pk PRIMARY KEY (source_id, issn, conf_code, conf_name) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_conf_editors_pk PRIMARY KEY (ernie_source_id, conf_code, conf_name) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
-
-ALTER TABLE scopus_conf_editors
-  ADD CONSTRAINT seditor_source_id_issn_fk FOREIGN KEY (source_id, issn) REFERENCES scopus_sources (source_id, issn) ON DELETE CASCADE;
 
 ALTER TABLE scopus_conf_editors
   ADD CONSTRAINT seditor_code_name_fk FOREIGN KEY (conf_code, conf_name) REFERENCES scopus_conference_events (conf_code, conf_name) ON DELETE CASCADE;
@@ -488,11 +464,8 @@ ALTER TABLE scopus_conf_editors
 COMMENT ON TABLE scopus_conf_editors
 IS 'Conference editors information';
 
-COMMENT ON COLUMN scopus_conf_editors.source_id
-IS 'Source id';
-
-COMMENT ON COLUMN scopus_conf_editors.issn
-IS 'Source issn number, default issn print';
+COMMENT ON COLUMN scopus_conf_editors.ernie_source_id
+IS 'DB serial source id. Assigned by ernie team';
 
 COMMENT ON COLUMN scopus_conf_editors.conf_code
 IS 'Conference code';
