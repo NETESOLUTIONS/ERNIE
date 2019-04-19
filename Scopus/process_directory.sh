@@ -46,6 +46,7 @@ set -e
 set -o pipefail
 #set -x
 
+readonly STOP_FILE=".stop"
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
