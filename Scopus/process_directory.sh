@@ -16,8 +16,10 @@ DESCRIPTION
     * Extract *.zip in the working directory one-by-one, updating files: newer and non-existent only.
     * Parsing and other SQL errors don't fail the build unless `-e` is specified.
     * Move XML files failed to be parsed to `failed_files_dir`, relative to the working dir. (../failed/ by default)
-     * Produce an error log in `{working_dir}/tmp/errors.log`.
+    * Produce an error log in `{working_dir}/tmp/errors.log`.
     * Produce output with reduced verbosity to reduce log volume.
+
+    To stop process gracefully after the current ZIP is processed, create a `{working_dir}/.stop` signal file.
 
     The following options are available:
 
@@ -162,6 +164,12 @@ for scopus_data_archive in *.zip; do
   echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter}"
   failed_xml_counter=0
   processed_xml_counter=0
+
+  if [[ -f "${STOP_FILE}" ]]; then
+    echo "Found the stop signal file. Gracefully stopping..."
+    rm -f "${STOP_FILE}"
+    break
+  fi
 
   stop_time=$(date '+%s')
   ((delta=stop_time - start_time + 1)) || :
