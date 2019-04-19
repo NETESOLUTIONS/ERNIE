@@ -96,7 +96,9 @@ parse_xml() {
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     full_path=$(realpath ${xml})
     full_path=$(dirname ${full_path})
+    cd ..
     mv -f $full_path/ "${failed_files_dir}/"
+    cd tmp
     [[ ${VERBOSE} == "true" ]] && echo "$xml: FAILED DURING PARSING."
     return 1
   fi
@@ -143,8 +145,8 @@ for scopus_data_archive in *.zip; do
   # -q perform operations quietly
   unzip -u -q "${scopus_data_archive}" -d tmp
 
+  export failed_files_dir="${FAILED_FILES_DIR}/${scopus_data_archive}"
   cd tmp
-  export failed_files_dir="../${FAILED_FILES_DIR}/${scopus_data_archive}"
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
     # Process Scopus XML files in parallel
     # Reduced verbosity
@@ -196,5 +198,5 @@ check_errors
 # Exits here if errors occurred
 
 cd ..
-rm -rf tmp
+#rm -rf tmp
 exit 0
