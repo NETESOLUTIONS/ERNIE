@@ -455,7 +455,7 @@ CREATE TABLE scopus_conf_editors (
   address TEXT,
   organization TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_conf_editors_pk PRIMARY KEY (ernie_source_id, conf_code, conf_name) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_conf_editors_pk PRIMARY KEY (ernie_source_id, conf_code, conf_name, indexed_name) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
 ALTER TABLE scopus_conf_editors
