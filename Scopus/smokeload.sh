@@ -81,7 +81,7 @@ declare -i directories=${#sorted_args[@]} i=0 start_time dir_start_time dir_stop
     elapsed=0 est_total eta
 for DATA_DIR in "${sorted_args[@]}"; do
   dir_start_time=$(date '+%s')
-  (( i == 0 )) && start_time = ${dir_start_time}
+  (( i == 0 )) && start_time=${dir_start_time}
   echo -e "\n## Directory #$((++i)) out of ${directories} ##"
   echo "Processing ${DATA_DIR} directory ..."
   "${ABSOLUTE_SCRIPT_DIR}/process_directory.sh" "${DATA_DIR}" "${FAILED_FILES_DIR}" || :
