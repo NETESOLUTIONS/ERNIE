@@ -268,7 +268,7 @@ COMMENT ON COLUMN scopus_author_affiliations.affiliation_no
 IS 'Affiliation sequence in the document. Example: 1';
 -- endregion
 
--- scopus_source_publication_details
+-- region scopus_source_publication_details
 CREATE TABLE scopus_source_publication_details (
   scp BIGINT CONSTRAINT spub_sources_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   issue TEXT,
@@ -319,8 +319,9 @@ IS 'Conference code, assigned by Elsevier DB';
 
 COMMENT ON COLUMN scopus_source_publication_details.conf_name
 IS 'Conference name';
+-- endregion
 
--- scopus_subjects
+-- region scopus_subjects
 CREATE TABLE scopus_subjects (
   scp BIGINT CONSTRAINT ssubj_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   subj_abbr TEXT,
@@ -336,8 +337,9 @@ IS 'Scopus id. Example: 37049154082';
 
 COMMENT ON COLUMN scopus_subjects.subj_abbr
 IS 'Example: CHEM';
+-- endregion
 
--- scopus_subject_keywords
+-- region scopus_subject_keywords
 CREATE TABLE scopus_subject_keywords (
   scp BIGINT CONSTRAINT ssubj_keywords_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   subject TEXT,
@@ -353,6 +355,7 @@ IS 'Scopus id. Example: 37049154082';
 
 COMMENT ON COLUMN scopus_subject_keywords.subject
 IS 'Example: Health';
+-- endregion
 
 -- region scopus_classification_lookup
 CREATE TABLE scopus_classification_lookup (
@@ -376,7 +379,7 @@ COMMENT ON COLUMN scopus_classification_lookup.description
 IS 'Example: Public Health, Social Medicine and Epidemiology';
 -- endregion
 
--- scopus_classes
+-- region scopus_classes
 CREATE TABLE scopus_classes (
   scp BIGINT CONSTRAINT sclass_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   class_type TEXT,
@@ -403,8 +406,9 @@ IS 'Example: EMCLASS';
 
 COMMENT ON COLUMN scopus_classes.class_code
 IS 'Example: 23.2.2';
+-- endregion
 
---scopus_conf_processdings
+-- region scopus_conf_proceedings
 CREATE TABLE scopus_conf_proceedings (
   ernie_source_id INTEGER CONSTRAINT sconf_ernie_source_id_fk REFERENCES scopus_sources(ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED,
   conf_code TEXT,
@@ -439,8 +443,9 @@ IS 'Start and end page of a conference proceeding';
 
 COMMENT ON COLUMN scopus_conf_proceedings.proc_page_count
 IS 'Number of pages in a conference proceeding';
+-- endregion
 
--- scopus_conf_editors
+-- region scopus_conf_editors
 CREATE TABLE scopus_conf_editors (
   ernie_source_id INTEGER CONSTRAINT seditor_ernie_source_id_fk REFERENCES scopus_sources(ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED,
   conf_code TEXT,
@@ -499,6 +504,7 @@ IS 'The address of the editors';
 
 COMMENT ON COLUMN scopus_conf_editors.organization
 IS 'The organization of the editors';
+-- endregion
 
 -- region scopus_references
 CREATE TABLE scopus_references (

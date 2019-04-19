@@ -16,13 +16,15 @@ DESCRIPTION
     * Extract *.zip in the working directory one-by-one, updating files: newer and non-existent only.
     * Parsing and other SQL errors don't fail the build unless `-e` is specified.
     * Move XML files failed to be parsed to `failed_files_dir`, relative to the working dir. (../failed/ by default)
-    * Produce a separate error log.
+     * Produce an error log in `{working_dir}/tmp/errors.log`.
     * Produce output with reduced verbosity to reduce log volume.
 
     The following options are available:
 
     -c    clean load: truncate data and remove previously failed files before processing.
     WARNING: be aware that you'll lose all loaded data!
+
+    -e    stop on the first error
 
     -v    verbose output
 
@@ -58,7 +60,6 @@ while (( $# > 0 )); do
       declare -rx VERBOSE=true
       ;;
     -e)
-      # TODO This is not working currently
       readonly STOP_ON_THE_FIRST_ERROR=true
       echo "process_directory.sh should stop on the first error."
       ;;
@@ -101,15 +102,16 @@ export -f parse_xml
 
 check_errors() {
   # Errors occurred? Does the error log have a size greater than zero?
-  if [[ -s tmp/${ERROR_LOG} ]]; then
+  if [[ -s "${ERROR_LOG}" ]]; then
     if [[ ${VERBOSE} == "true" ]]; then
       cat <<HEREDOC
 Error(s) occurred during processing of ${PWD}.
 =====
 HEREDOC
-      cat tmp/${ERROR_LOG}
+      cat "${ERROR_LOG}"
       echo "====="
     fi
+    cd ..
     exit 1
   fi
 }
@@ -137,6 +139,7 @@ for scopus_data_archive in *.zip; do
   # -u extracting files that are newer and files that do not already exist on disk
   # -q perform operations quietly
   unzip -u -q "${scopus_data_archive}" -d tmp
+
   cd tmp
   export failed_files_dir="../${FAILED_FILES_DIR}/${scopus_data_archive}"
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
@@ -144,13 +147,15 @@ for scopus_data_archive in *.zip; do
     # Reduced verbosity
     if ! find "${subdir}" -name '2*.xml' | \
         parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"; then
-        [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors
+
+        [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
     fi
     while read -r line; do
       echo $line | grep -q "1" && { ((++failed_xml_counter)) && ((++failed_xml_counter_total)) ; } ||  { ((++processed_xml_counter)) && ((++processed_xml_counter_total)) ; }
     done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
     rm -rf "${PARALLEL_LOG}" "${subdir}"
   done
+  cd ..
 
   echo "ZIP LEVEL SUMMARY FOR ${scopus_data_archive}:"
   echo "NUMBER OF XML FILES SUCCESSFULLY PARSED: ${processed_xml_counter}"
@@ -169,7 +174,6 @@ for scopus_data_archive in *.zip; do
   ((est_total=num_zips * elapsed / i)) || :
   ((eta=process_start_time + est_total))
   echo "ETA for completion of current year: $(TZ=America/New_York date --date=@${eta})"
-  cd ..
 done
 
 #TODO: try to introduce a multiline string here, maybe call a function
@@ -178,5 +182,10 @@ echo "YEAR LEVEL SUMMARY:"
 echo "NUMBER OF XML FILES WHICH SUCCESSFULLY PARSED: ${processed_xml_counter_total}"
 echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter_total}"
 
+cd tmp
 check_errors
+# Exits here if errors occurred
+
+cd ..
+rm -rf tmp
 exit 0
