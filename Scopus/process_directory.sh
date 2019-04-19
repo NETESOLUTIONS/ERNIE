@@ -158,7 +158,7 @@ for scopus_data_archive in *.zip; do
     while read -r line; do
       echo $line | grep -q "1" && { ((++failed_xml_counter)) && ((++failed_xml_counter_total)) ; } ||  { ((++processed_xml_counter)) && ((++processed_xml_counter_total)) ; }
     done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
-    rm -rf "${PARALLEL_LOG}" "${subdir}"
+    #rm -rf "${PARALLEL_LOG}" "${subdir}"
   done
   cd ..
 
