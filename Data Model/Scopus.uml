@@ -3,26 +3,26 @@
   <ID>DATABASE</ID>
   <OriginalElement>8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_abstracts</OriginalElement>
   <nodes>
-    <node x="184.0" y="732.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_subjects</node>
-    <node x="687.0" y="567.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_classes</node>
-    <node x="0.0" y="1063.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_classification_lookup</node>
-    <node x="360.0" y="756.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_authors</node>
-    <node x="344.0" y="479.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_keywords</node>
-    <node x="740.0" y="848.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_affiliations</node>
-    <node x="0.0" y="145.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_conf_editors</node>
-    <node x="533.0" y="0.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_conf_proceedings</node>
-    <node x="301.0" y="931.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_abstracts</node>
-    <node x="495.0" y="280.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_source_publication_details</node>
-    <node x="46.0" y="469.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_publication_identifiers</node>
-    <node x="247.0" y="12.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_conference_events</node>
-    <node x="441.0" y="617.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_publications</node>
-    <node x="521.0" y="970.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_publication_groups</node>
-    <node x="554.0" y="832.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_titles</node>
-    <node x="898.0" y="620.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_references</node>
-    <node x="645.0" y="678.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_author_affiliations</node>
-    <node x="520.0" y="370.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_chemical_groups</node>
-    <node x="274.0" y="295.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_sources</node>
-    <node x="756.0" y="387.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_subject_keywords</node>
+    <node x="348.0" y="811.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_subjects</node>
+    <node x="510.0" y="531.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_classes</node>
+    <node x="1109.0" y="0.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_classification_lookup</node>
+    <node x="281.0" y="681.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_authors</node>
+    <node x="304.0" y="570.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_keywords</node>
+    <node x="536.0" y="928.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_affiliations</node>
+    <node x="777.0" y="88.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_conf_editors</node>
+    <node x="544.0" y="229.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_conf_proceedings</node>
+    <node x="473.0" y="1070.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_abstracts</node>
+    <node x="242.0" y="331.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_source_publication_details</node>
+    <node x="0.0" y="712.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_publication_identifiers</node>
+    <node x="424.0" y="0.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_conference_events</node>
+    <node x="475.0" y="698.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_publications</node>
+    <node x="491.0" y="442.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_publication_groups</node>
+    <node x="590.0" y="817.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_titles</node>
+    <node x="679.0" y="648.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_references</node>
+    <node x="215.0" y="965.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_author_affiliations</node>
+    <node x="869.0" y="661.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_chemical_groups</node>
+    <node x="737.0" y="449.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_sources</node>
+    <node x="749.0" y="929.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_subject_keywords</node>
   </nodes>
   <notes />
   <edges>
@@ -115,7 +115,7 @@
       <point x="0.0" y="0.0" />
     </edge>
   </edges>
-  <settings layout="Organic" zoom="1.0" x="1256.5" y="696.5" />
+  <settings layout="Organic" zoom="1.0" x="603.5" y="728.5" />
   <SelectedNodes>
     <node>8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_abstracts</node>
   </SelectedNodes>
