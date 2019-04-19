@@ -252,12 +252,11 @@ $$
     -- scopus_conf_editors
     INSERT INTO scopus_conf_editors(ernie_source_id,conf_code,conf_name,indexed_name,role_type,
                                     initials,surname,given_name,degree,suffix)
-
     SELECT
       db_id as ernie_source_id,
       coalesce(conf_code,'') AS conf_code,
       coalesce(conf_name,'') AS conf_name,
-      indexed_name,
+      coalesce(indexed_name,'') AS indexed_name,
       coalesce(edit_role, edit_type) AS role_type,
       initials,
       surname,
