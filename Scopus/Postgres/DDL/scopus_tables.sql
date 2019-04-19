@@ -20,8 +20,7 @@ CREATE TABLE scopus_sources (
   ernie_source_id SERIAL,
   source_id TEXT,
   issn TEXT,
-  isbn_10 TEXT,
-  isbn_13 TEXT,
+  isbn_main TEXT,
   source_type TEXT,
   source_title TEXT,
   issn_electronic TEXT,
@@ -33,7 +32,7 @@ CREATE TABLE scopus_sources (
   CONSTRAINT scopus_sources_pk PRIMARY KEY (ernie_source_id) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
-CREATE UNIQUE INDEX scopus_sources_source_id_issn_isbn_uk ON scopus_sources(coalesce(source_id,''),coalesce(issn,''),coalesce(isbn_10,''),coalesce(isbn_13,''));
+CREATE UNIQUE INDEX scopus_sources_source_id_issn_isbn_uk ON scopus_sources(source_id,issn,isbn_main);
 
 COMMENT ON TABLE scopus_sources
 IS 'Journal source information table';
@@ -47,11 +46,8 @@ IS 'Journal source id. Example: 22414';
 COMMENT ON COLUMN scopus_sources.issn
 IS 'The ISSN of a serial publication (print). Example: 00028703';
 
-COMMENT ON COLUMN scopus_sources.isbn_10
-IS 'The ISBN of a source (length of 10). Example: 0780388747';
-
-COMMENT ON COLUMN scopus_sources.isbn_13
-IS 'The ISBN of a source (length of 13). Example: 9780780388741';
+COMMENT ON COLUMN scopus_sources.isbn_main
+IS 'The ISBN of a source (the first available isbn). Example: 0780388747';
 
 COMMENT ON COLUMN scopus_sources.source_type
 IS 'Source type. Example: j for journal';
@@ -73,6 +69,36 @@ IS 'Example: Oxford University Press';
 
 COMMENT ON COLUMN scopus_sources.publisher_e_address
 IS 'Example: acmhelp@acm.org';
+-- endregion
+
+-- region scopus_isbns
+CREATE TABLE scopus_isbns(
+  ernie_source_id INTEGER CONSTRAINT sconf_ernie_source_id_fk REFERENCES scopus_sources(ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED,
+  isbn TEXT,
+  isbn_length TEXT,
+  isbn_type TEXT,
+  isbn_level TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT scopus_isbns_pk PRIMARY KEY (ernie_source_id, isbn) USING INDEX TABLESPACE index_tbs
+) TABLESPACE scopus_tbs;
+
+COMMENT ON TABLE scopus_isbns
+IS 'Scopus publications isbn information';
+
+COMMENT ON COLUMN scopus_isbns.ernie_source_id
+IS 'DB serial source id assigned by ernie team';
+
+COMMENT ON COLUMN scopus_isbns.isbn
+IS 'ISBN number. Example: 0080407749';
+
+COMMENT ON COLUMN scopus_isbns.isbn_length
+IS 'ISBN length. Example: 10 or 13';
+
+COMMENT ON COLUMN scopus_isbns.isbn_level
+IS 'Example: set or volume';
+
+COMMENT ON COLUMN scopus_isbns.isbn_type
+IS 'Example: print or electronic';
 -- endregion
 
 -- region scopus_conference_events
