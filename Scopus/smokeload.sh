@@ -12,8 +12,6 @@ SYNOPSIS
 
 DESCRIPTION
 
-  This script is largely based on the PARDI DWPI smokeload script.
-
   The script processes specified directories in alphabetical or reverse order.
   The process upserts data and automatically resumes on failures.
 
