@@ -148,6 +148,7 @@ for scopus_data_archive in *.zip; do
 
   export failed_files_dir="${FAILED_FILES_DIR}/${scopus_data_archive}"
   cd tmp
+  rm -f "${ERROR_LOG}"
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
     # Process Scopus XML files in parallel
     # Reduced verbosity
@@ -199,5 +200,5 @@ check_errors
 # Exits here if errors occurred
 
 cd ..
-#rm -rf tmp
+rm -rf tmp
 exit 0
