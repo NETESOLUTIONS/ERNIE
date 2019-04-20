@@ -50,7 +50,7 @@ readonly STOP_FILE=".stop"
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
-declare -rx ERROR_LOG=errors.log
+declare -rx ERROR_LOG=error.log
 declare -rx PARALLEL_LOG=parallel.log
 declare -x FAILED_FILES="False"
 
