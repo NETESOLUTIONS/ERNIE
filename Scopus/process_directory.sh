@@ -94,10 +94,10 @@ parse_xml() {
     [[ ${VERBOSE} == "true" ]] && echo "$xml: SUCCESSFULLY PARSED."
     return 0
   else
-    [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     full_path=$(realpath ${xml})
     full_path=$(dirname ${full_path})
     cd ..
+    [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     mv -f $full_path/ "${failed_files_dir}/"
     cd tmp
     [[ ${VERBOSE} == "true" ]] && echo "$xml: FAILED DURING PARSING."
