@@ -18,7 +18,7 @@ AS $$
       first_page,
       last_page,
       publication_year,
-      make_date(publication_year, pub_month, pub_day) AS publication_date,
+      make_date(pub_year, pub_month, pub_day) AS publication_date,
       coalesce(conf_code,'') AS conf_code,
       coalesce(conf_name,'') AS conf_name
     FROM
@@ -30,6 +30,7 @@ AS $$
       first_page TEXT PATH 'volisspag/pagerange/@first',
       last_page TEXT PATH 'volisspag/pagerange/@last',
       publication_year SMALLINT PATH 'publicationyear/@first',
+      pub_year SMALLINT PATH 'publicationdate/year'
       pub_month SMALLINT PATH 'publicationdate/month',
       pub_day SMALLINT PATH 'publicationdate/day',
       conf_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcode',
