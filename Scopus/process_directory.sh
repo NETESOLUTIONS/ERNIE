@@ -75,7 +75,7 @@ done
 cd "$1"
 readonly FAILED_FILES_DIR=${2:-../failed}
 
-echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
+echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##"
 
 if ! which parallel >/dev/null; then
   echo "Please install GNU Parallel"
@@ -140,7 +140,7 @@ mkdir tmp
 process_start_time=$(date '+%s')
 for scopus_data_archive in *.zip; do
   start_time=$(date '+%s')
-  echo "Processing ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} )..."
+  echo -e "\nProcessing ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} )..."
   # Reduced verbosity
   # -u extracting files that are newer and files that do not already exist on disk
   # -q perform operations quietly
@@ -158,16 +158,26 @@ for scopus_data_archive in *.zip; do
         [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
     fi
     while read -r line; do
-      echo $line | grep -q "1" && { ((++failed_xml_counter)) && ((++failed_xml_counter_total)) ; } ||  { ((++processed_xml_counter)) && ((++processed_xml_counter_total)) ; }
+      if echo $line | grep -q "1"; then
+        ((++failed_xml_counter))
+      else
+        ((++processed_xml_counter))
+      fi
     done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
     rm -rf "${PARALLEL_LOG}" "${subdir}"
   done
   cd ..
 
-  echo "ZIP LEVEL SUMMARY FOR ${scopus_data_archive}:"
+  echo "ZIP-LEVEL SUMMARY FOR ${scopus_data_archive}:"
   echo "NUMBER OF XML FILES SUCCESSFULLY PARSED: ${processed_xml_counter}"
-  echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter}"
+  if ((failed_xml_counter == 0)); then
+    echo "SUCCESS"
+  else
+    echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter}"
+  fi
+  ((failed_xml_counter_total += failed_xml_counter))
   failed_xml_counter=0
+  ((processed_xml_counter_total += failed_xml_counter))
   processed_xml_counter=0
 
   if [[ -f "${STOP_FILE}" ]]; then
@@ -177,23 +187,25 @@ for scopus_data_archive in *.zip; do
   fi
 
   stop_time=$(date '+%s')
-  ((delta=stop_time - start_time + 1)) || :
-  ((delta_s=delta % 60)) || :
-  ((delta_m=(delta / 60) % 60)) || :
-  ((della_h=delta / 3600)) || :
-  printf "\n$(TZ=America/New_York date) :  Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds\n" ${della_h} \
+  ((delta = stop_time - start_time + 1)) || :
+  ((delta_s = delta % 60)) || :
+  ((delta_m = (delta / 60) % 60)) || :
+  ((della_h = delta / 3600)) || :
+  printf "$(TZ=America/New_York date) :  Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds\n" ${della_h} \
          ${delta_m} ${delta_s}
-  ((elapsed=elapsed + delta))
-  ((est_total=num_zips * elapsed / i)) || :
-  ((eta=process_start_time + est_total))
+  ((elapsed = elapsed + delta))
+  ((est_total = num_zips * elapsed / i)) || :
+  ((eta = process_start_time + est_total))
   echo "ETA for completion of current year: $(TZ=America/New_York date --date=@${eta})"
 done
 
-#TODO: try to introduce a multiline string here, maybe call a function
-#TODO: reset failed XML counters and maintain a larger global count to track total failed XML per year
-echo "YEAR LEVEL SUMMARY:"
+echo "YEAR-LEVEL SUMMARY:"
 echo "NUMBER OF XML FILES WHICH SUCCESSFULLY PARSED: ${processed_xml_counter_total}"
-echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter_total}"
+if ((failed_xml_counter_total == 0)); then
+  echo "SUCCESS"
+else
+  echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter_total}"
+fi
 
 cd tmp
 check_errors
