@@ -11,13 +11,12 @@ $$
     db_id INTEGER;
     cur RECORD;
   BEGIN
-    -- scopus_sources
-      INSERT INTO scopus_sources(source_id, issn, isbn_main, source_type, source_title,
+      INSERT INTO scopus_sources(source_id, issn_main, isbn_main, source_type, source_title,
                                    coden_code, publisher_name,publisher_e_address)
       SELECT DISTINCT
-       coalesce(t1.source_id,'') as source_id,
-       coalesce(issn,'') as issn,
-       coalesce(isbn_13_e,isbn_10_e,isbn_13_p,isbn_10_p,isbn_no_attr,isbn_len_13,isbn_len_10,'') as isbn_main,
+       coalesce(source_id,'') as source_id,
+       coalesce(issn,'') as issn_main,
+       coalesce(isbn,'') as isbn_main,
        source_type,
        source_title,
        coden_code,
@@ -28,31 +27,19 @@ $$
         '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
         --@formatter:off
         source_id TEXT PATH '@srcid',
-        isbn_13_e TEXT PATH 'isbn[@length="13" and @type="electronic"]',
-        isbn_10_e TEXT PATH 'isbn[@length="10" and @type="electronic"]',
-        isbn_13_p TEXT PATH 'isbn[@length="13" and @type="print"]',
-        isbn_10_p TEXT PATH 'isbn[@length="10" and @type="print"]',
-        isbn_no_attr TEXT PATH 'isbn[not(@*)]',
-        isbn_len_13 TEXT PATH 'isbn[not(@length) and string-length(text())=13]',
-        isbn_len_10 TEXT PATH 'isbn[not(@length) and string-length(text())=10]',
+        issn TEXT PATH 'issn[1]',
+        isbn TEXT PATH 'isbn[1]',
         source_type TEXT PATH '@type',
         source_title TEXT PATH 'sourcetitle',
         coden_code TEXT PATH 'codencode',
         publisher_name TEXT PATH 'publisher/publishername',
         publisher_e_address TEXT PATH 'publisher/ce:e-address'
-        ) as t1
-      LEFT JOIN
-        xmltable(--
-        '//bibrecord/head/source/issn[@type="print"]' PASSING scopus_doc_xml COLUMNS --
-        source_id TEXT PATH '../@srcid',
-        issn TEXT PATH '.'
-            ) as t2
-      ON t1.source_id = t2.source_id
-      WHERE t1.source_id != '' OR t2.issn !='' OR XMLEXISTS('//bibrecord/head/source/isbn' PASSING scopus_doc_xml)
-      ON CONFLICT (source_id, issn, isbn_main)
+        )
+      WHERE source_id != '' OR issn !='' OR XMLEXISTS('//bibrecord/head/source/isbn' PASSING scopus_doc_xml)
+      ON CONFLICT (source_id, issn_main, isbn_main)
       DO UPDATE
         SET source_id = EXCLUDED.source_id,
-            issn = EXCLUDED.issn,
+            issn_main = EXCLUDED.issn_main,
             isbn_main = EXCLUDED.isbn_main,
             source_type = EXCLUDED.source_type,
             source_title = EXCLUDED.source_title,
@@ -60,20 +47,6 @@ $$
             publisher_name = EXCLUDED.publisher_name,
             publisher_e_address = EXCLUDED.publisher_e_address
       RETURNING ernie_source_id INTO db_id;
-
-      UPDATE scopus_sources ss
-      SET issn_electronic = sq.issn_electronic
-      FROM (
-         SELECT DISTINCT
-          db_id as ernie_source_id,
-          issn_electronic
-         FROM
-         xmltable(--
-         '//bibrecord/head/source/issn[@type="electronic"]' PASSING scopus_doc_xml COLUMNS --
-         issn_electronic TEXT PATH '.'
-          )
-         ) AS sq
-      WHERE ss.ernie_source_id=sq.ernie_source_id;
 
       UPDATE scopus_sources ss
       SET website=sq.website
@@ -107,6 +80,21 @@ $$
         isbn_length SMALLINT PATH '@length',
         isbn_type TEXT PATH '@type',
         isbn_level TEXT PATH'@level'
+        )
+      ON CONFLICT DO NOTHING;
+
+      -- scopus_issns
+      INSERT INTO scopus_issns(ernie_source_id,issn,issn_type)
+
+      SELECT
+        db_id AS ernie_source_id,
+        issn,
+        issn_type
+      FROM
+        xmltable(--
+        '//bibrecord/head/source/issn' PASSING scopus_doc_xml COLUMNS --
+        issn TEXT PATH '.',
+        issn_type TEXT PATH '@type'
         )
       ON CONFLICT DO NOTHING;
 

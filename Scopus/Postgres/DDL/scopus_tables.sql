@@ -19,11 +19,10 @@ CREATE TABLE scopus_publication_groups (
 CREATE TABLE scopus_sources (
   ernie_source_id SERIAL,
   source_id TEXT,
-  issn TEXT,
+  issn_main TEXT,
   isbn_main TEXT,
   source_type TEXT,
   source_title TEXT,
-  issn_electronic TEXT,
   coden_code TEXT,
   website TEXT,
   publisher_name TEXT,
@@ -32,7 +31,7 @@ CREATE TABLE scopus_sources (
   CONSTRAINT scopus_sources_pk PRIMARY KEY (ernie_source_id) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
-CREATE UNIQUE INDEX scopus_sources_source_id_issn_isbn_uk ON scopus_sources(source_id,issn,isbn_main);
+CREATE UNIQUE INDEX scopus_sources_source_id_issn_isbn_uk ON scopus_sources(source_id,issn_main,isbn_main);
 
 COMMENT ON TABLE scopus_sources
 IS 'Journal source information table';
@@ -43,8 +42,8 @@ IS 'DB serial source id. Assigned by ernie team';
 COMMENT ON COLUMN scopus_sources.source_id
 IS 'Journal source id. Example: 22414';
 
-COMMENT ON COLUMN scopus_sources.issn
-IS 'The ISSN of a serial publication (print). Example: 00028703';
+COMMENT ON COLUMN scopus_sources.issn_main
+IS 'The ISSN of a serial publication (print), pick the first one in xml if multiple. Example: 00028703';
 
 COMMENT ON COLUMN scopus_sources.isbn_main
 IS 'The ISBN of a source (the first available isbn). Example: 0780388747';
@@ -99,6 +98,16 @@ IS 'Example: set or volume';
 
 COMMENT ON COLUMN scopus_isbns.isbn_type
 IS 'Example: print or electronic';
+-- endregion
+
+-- region scopus_issns
+CREATE TABLE scopus_issns (
+  ernie_source_id INTEGER CONSTRAINT scopus_issn_scp_fk REFERENCES scopus_sources(ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED,
+  issn TEXT,
+  issn_type TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT scopus_issns_pk PRIMARY KEY (ernie_source_id,issn) USING INDEX TABLESPACE index_tbs
+) TABLESPACE scopus_tbs;
 -- endregion
 
 -- region scopus_conference_events
