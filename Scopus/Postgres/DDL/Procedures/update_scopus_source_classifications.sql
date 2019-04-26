@@ -30,7 +30,7 @@ AS $$
       first_page TEXT PATH 'volisspag/pagerange/@first',
       last_page TEXT PATH 'volisspag/pagerange/@last',
       publication_year SMALLINT PATH 'publicationyear/@first',
-      pub_year SMALLINT PATH 'publicationdate/year'
+      pub_year SMALLINT PATH 'publicationdate/year',
       pub_month SMALLINT PATH 'publicationdate/month',
       pub_day SMALLINT PATH 'publicationdate/day',
       conf_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcode',
