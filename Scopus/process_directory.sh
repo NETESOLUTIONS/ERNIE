@@ -152,10 +152,9 @@ for scopus_data_archive in *.zip; do
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
     # Process Scopus XML files in parallel
     # Reduced verbosity
-    if ! find "${subdir}" -name '2*.xml' | \
-        parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer --tagstring '|job#{#} s#{%}|' parse_xml "{}"; then
-
-        [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
+    if ! find "${subdir}" -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
+        --tagstring '|job#{#} s#{%}|' parse_xml "{}"; then
+      [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
     fi
     while read -r line; do
       if echo $line | grep -q "1"; then
