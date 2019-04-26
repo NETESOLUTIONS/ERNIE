@@ -12,7 +12,7 @@ $$
     cur RECORD;
   BEGIN
       INSERT INTO scopus_sources(source_id, issn_main, isbn_main, source_type, source_title,
-                                   coden_code, publisher_name,publisher_e_address)
+                                   coden_code, publisher_name,publisher_e_address,pub_date)
       SELECT DISTINCT
        coalesce(source_id,'') as source_id,
        coalesce(issn,'') as issn_main,
@@ -21,7 +21,8 @@ $$
        source_title,
        coden_code,
        publisher_name,
-       publisher_e_address
+       publisher_e_address,
+       make_date(pub_year, pub_month, pub_day) AS pub_date
       FROM xmltable(--
         XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
         '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
@@ -33,7 +34,10 @@ $$
         source_title TEXT PATH 'sourcetitle',
         coden_code TEXT PATH 'codencode',
         publisher_name TEXT PATH 'publisher/publishername',
-        publisher_e_address TEXT PATH 'publisher/ce:e-address'
+        publisher_e_address TEXT PATH 'publisher/ce:e-address',
+        pub_year SMALLINT PATH 'publicationdate/year', --
+        pub_month SMALLINT PATH 'publicationdate/month', --
+        pub_day SMALLINT PATH 'publicationdate/day' --
         )
       WHERE source_id != '' OR issn !='' OR XMLEXISTS('//bibrecord/head/source/isbn' PASSING scopus_doc_xml)
       ON CONFLICT (source_id, issn_main, isbn_main)
@@ -45,7 +49,8 @@ $$
             source_title = EXCLUDED.source_title,
             coden_code = EXCLUDED.coden_code,
             publisher_name = EXCLUDED.publisher_name,
-            publisher_e_address = EXCLUDED.publisher_e_address
+            publisher_e_address = EXCLUDED.publisher_e_address,
+            pub_date=EXCLUDED.pub_date
       RETURNING ernie_source_id INTO db_id;
 
       UPDATE scopus_sources ss
@@ -102,7 +107,7 @@ $$
     FOR cur IN (
       SELECT sgr,
              pub_year,
-             make_date(pub_year, pub_month, pub_day) AS pub_date,
+--              make_date(pub_year, pub_month, pub_day) AS pub_date,
              scp,
              correspondence_person_indexed_name,
              correspondence_city,
@@ -115,8 +120,6 @@ $$
                '//bibrecord' PASSING scopus_doc_xml COLUMNS --
                  sgr BIGINT PATH 'item-info/itemidlist/itemid[@idtype="SGR"]', --
                  pub_year SMALLINT PATH 'head/source/publicationyear/@first', --
-                 pub_month SMALLINT PATH 'head/source/publicationdate/month', --
-                 pub_day SMALLINT PATH 'head/source/publicationdate/day', --
                  scp BIGINT PATH 'item-info/itemidlist/itemid[@idtype="SCP"]', --
             -- noramlize-space() converts NULLs to empty strings
                  correspondence_person_indexed_name TEXT PATH 'head/correspondence/person/ce:indexed-name', --
@@ -126,8 +129,8 @@ $$
                  citation_type TEXT PATH 'head/citation-info/citation-type/@code')
     )
       LOOP
-        INSERT INTO scopus_publication_groups(sgr, pub_year, pub_date)
-        VALUES (cur.sgr, cur.pub_year, cur.pub_date)
+        INSERT INTO scopus_publication_groups(sgr, pub_year)
+        VALUES (cur.sgr, cur.pub_year)
         ON CONFLICT DO NOTHING;
 
         INSERT INTO scopus_publications(scp, sgr, correspondence_person_indexed_name, correspondence_city,

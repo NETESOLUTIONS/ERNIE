@@ -10,7 +10,6 @@ SET TIMEZONE = 'US/Eastern';
 CREATE TABLE scopus_publication_groups (
   sgr BIGINT,
   pub_year SMALLINT,
-  pub_date DATE,
   CONSTRAINT scopus_publication_groups_pk PRIMARY KEY (sgr) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 -- endregion
@@ -27,6 +26,7 @@ CREATE TABLE scopus_sources (
   website TEXT,
   publisher_name TEXT,
   publisher_e_address TEXT,
+  pub_date DATE,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT scopus_sources_pk PRIMARY KEY (ernie_source_id) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
