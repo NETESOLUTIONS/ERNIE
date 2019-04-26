@@ -6,7 +6,9 @@
   <component name="ProjectResources">
     <resource url="http://www.elsevier.com/xml/xocs/dtd" location="$PROJECT_DIR$/Scopus/XML_Schemas/xocs-ani513.xsd" />
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="false" project-jdk-name="Anaconda 3" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="false" project-jdk-name="Anaconda 3" project-jdk-type="Python SDK">
+    <output url="file://out" />
+  </component>
   <component name="TaskProjectConfiguration">
     <server type="JIRA" url="http://jira.nete.com" />
   </component>
