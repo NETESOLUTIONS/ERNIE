@@ -54,9 +54,6 @@ IS 'Source type. Example: j for journal';
 COMMENT ON COLUMN scopus_sources.source_title
 IS 'Journal name. Example: American Heart Journal';
 
-COMMENT ON COLUMN scopus_sources.issn_electronic
-IS 'The ISSN of a serial publication (electronic). Example: 10976744';
-
 COMMENT ON COLUMN scopus_sources.coden_code
 IS 'The CODEN code that uniquely identifies the source. Example: AHJOA';
 
