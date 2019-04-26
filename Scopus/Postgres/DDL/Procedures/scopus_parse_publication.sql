@@ -245,6 +245,7 @@ $$
       CASE
         --WHEN proc_page_count LIKE 'var%' THEN NULL
         WHEN proc_page_count LIKE '%p' THEN RTRIM(proc_page_count, 'p') :: SMALLINT
+        WHEN proc_page_count LIKE '%-%' THEN NULL
         ELSE proc_page_count :: SMALLINT
       END
     FROM
