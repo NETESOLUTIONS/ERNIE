@@ -180,7 +180,7 @@ for scopus_data_archive in *.zip; do
   fi
   ((failed_xml_counter_total += failed_xml_counter)) || :
   failed_xml_counter=0
-  ((processed_xml_counter_total += failed_xml_counter)) || :
+  ((processed_xml_counter_total += processed_xml_counter)) || :
   processed_xml_counter=0
 
   if [[ -f "${STOP_FILE}" ]]; then
