@@ -84,7 +84,9 @@ for DATA_DIR in "${sorted_args[@]}"; do
   (( i == 0 )) && start_time=${dir_start_time}
   echo -e "\n## Directory #$((++i)) out of ${directories} ##"
   echo "Processing ${DATA_DIR} directory ..."
-  "${ABSOLUTE_SCRIPT_DIR}/process_directory.sh" "${DATA_DIR}" "${FAILED_FILES_DIR}" || :
+  if ! "${ABSOLUTE_SCRIPT_DIR}/process_directory.sh" "${DATA_DIR}" "${FAILED_FILES_DIR}"; then
+    failures_occurred="true"
+  fi
   dir_stop_time=$(date '+%s')
 
   ((delta=dir_stop_time - dir_start_time + 1)) || :
@@ -105,3 +107,6 @@ for DATA_DIR in "${sorted_args[@]}"; do
   ((eta=start_time + est_total))
   echo "ETA after ${DATA_DIR} data directory: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
 done
+
+[[ "${failures_occurred}" == "true" ]] && exit 1
+exit 0
