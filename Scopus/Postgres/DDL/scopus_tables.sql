@@ -103,7 +103,7 @@ CREATE TABLE scopus_issns (
   issn TEXT,
   issn_type TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_issns_pk PRIMARY KEY (ernie_source_id,issn) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_issns_pk PRIMARY KEY (ernie_source_id,issn,issn_type) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 -- endregion
 
