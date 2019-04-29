@@ -94,7 +94,7 @@ $$
       SELECT
         db_id AS ernie_source_id,
         issn,
-        issn_type
+        coalesce(issn_type,'') as issn_type
       FROM
         xmltable(--
         '//bibrecord/head/source/issn' PASSING scopus_doc_xml COLUMNS --
