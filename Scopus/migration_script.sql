@@ -12,12 +12,12 @@ ALTER TABLE scopus_sources
 -- updating column pub_date of scopus_sources
 
 UPDATE scopus_sources
-SET pub_date=spg.pub_date
-FROM scopus_sources ss
-       INNER JOIN scopus_publications sp
-                  ON sp.ernie_source_id = ss.ernie_source_id
-       INNER JOIN scopus_publication_groups spg
-                  ON spg.sgr = sp.sgr;
+SET pub_date=scopus_temp.pub_date
+FROM (SELECT sp.ernie_source_id, max(spg.pub_date) AS pub_date
+      FROM scopus_publications sp
+             INNER JOIN scopus_publication_groups spg ON sp.sgr = spg.sgr
+      GROUP BY sp.ernie_source_id) scopus_temp
+WHERE scopus_sources.ernie_source_id = scopus_temp.ernie_source_id;
 
 -- It is assumed that table scopus_issns is already created
 
