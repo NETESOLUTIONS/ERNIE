@@ -7,7 +7,7 @@ NAME
 
 SYNOPSIS
 
-    process_directory.sh [-c] [-e] [-v] working_dir [failed_files_dir]
+    process_directory.sh [-c] [-e] [-v] [-v] working_dir [failed_files_dir]
     process_directory.sh -h: display this help
 
 DESCRIPTION
@@ -28,7 +28,9 @@ DESCRIPTION
 
     -e    stop on the first error
 
-    -v    verbose output
+    -v    verbose output: print processed XML files and error details as errors occur
+
+    -v -v extra-verbose output: print all lines (set -x)
 
 ENVIRONMENT
 
@@ -41,10 +43,8 @@ HEREDOC
   exit 1
 fi
 
-
 set -e
 set -o pipefail
-#set -x
 
 readonly STOP_FILE=".stop"
 # Get a script directory, same as by $(dirname $0)
@@ -60,7 +60,12 @@ while (( $# > 0 )); do
       readonly CLEAN_MODE=true
       ;;
     -v)
-      declare -rx VERBOSE=true
+      # Second "-v" = extra verbose?
+      if [[ "$VERBOSE" == "true" ]]; then
+        set -x
+      else
+        declare -rx VERBOSE=true
+      fi
       ;;
     -e)
       readonly STOP_ON_THE_FIRST_ERROR=true
@@ -174,9 +179,9 @@ for scopus_data_archive in *.zip; do
   else
     echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter}"
   fi
-  ((failed_xml_counter_total += failed_xml_counter))
+  ((failed_xml_counter_total += failed_xml_counter)) || :
   failed_xml_counter=0
-  ((processed_xml_counter_total += failed_xml_counter))
+  ((processed_xml_counter_total += failed_xml_counter)) || :
   processed_xml_counter=0
 
   if [[ -f "${STOP_FILE}" ]]; then
@@ -192,13 +197,15 @@ for scopus_data_archive in *.zip; do
   ((della_h = delta / 3600)) || :
   printf "$(TZ=America/New_York date) :  Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds\n" ${della_h} \
          ${delta_m} ${delta_s}
-  ((elapsed = elapsed + delta))
-  ((est_total = num_zips * elapsed / i)) || :
-  ((eta = process_start_time + est_total))
-  echo "ETA for completion of current year: $(TZ=America/New_York date --date=@${eta})"
+  if (( i < num_zips )); then
+    ((elapsed = elapsed + delta))
+    ((est_total = num_zips * elapsed / i)) || :
+    ((eta = process_start_time + est_total))
+    echo "ETA for completion of the current directory: $(TZ=America/New_York date --date=@${eta})"
+  fi
 done
 
-echo "YEAR-LEVEL SUMMARY:"
+echo -e "\nDIRECTORY SUMMARY:"
 echo "NUMBER OF XML FILES WHICH SUCCESSFULLY PARSED: ${processed_xml_counter_total}"
 if ((failed_xml_counter_total == 0)); then
   echo "SUCCESS"
