@@ -16,6 +16,7 @@ DESCRIPTION
     * Extract *.zip in the working directory one-by-one, updating files: newer and non-existent only.
     * Parsing and other SQL errors don't fail the build unless `-e` is specified.
     * Move XML files failed to be parsed to `failed_files_dir`, relative to the working dir. (../failed/ by default)
+    ** WARNING: be aware that `failed_files_dir` is cleaned before processing!
     * Produce an error log in `{working_dir}/tmp/errors.log`.
     * Produce output with reduced verbosity to reduce log volume.
 
@@ -23,8 +24,7 @@ DESCRIPTION
 
     The following options are available:
 
-    -c    clean load: truncate data and remove previously failed files before processing.
-    WARNING: be aware that you'll lose all loaded data!
+    -c    clean load: truncate data. WARNING: be aware that you'll lose all loaded data!
 
     -e    stop on the first error
 
@@ -134,11 +134,9 @@ if [[ "${CLEAN_MODE}" == true ]]; then
   psql -v ON_ERROR_STOP=on --echo-all <<'HEREDOC'
     TRUNCATE scopus_publication_groups CASCADE;
 HEREDOC
-
-  echo "In clean mode: removing previously failed files ..."
-  rm -rf "${FAILED_FILES_DIR}"
 fi
 
+rm -rf "${FAILED_FILES_DIR}"
 rm -rf tmp
 mkdir tmp
 
