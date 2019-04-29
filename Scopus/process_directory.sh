@@ -186,7 +186,7 @@ for scopus_data_archive in *.zip; do
 
   if [[ -f "${STOP_FILE}" ]]; then
     echo "Found the stop signal file. Gracefully stopping..."
-    rm -f "${STOP_FILE}"
+#    rm -f "${STOP_FILE}"
     break
   fi
 
