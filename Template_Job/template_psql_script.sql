@@ -25,5 +25,4 @@ END $block$;
 \copy tmp_template_job TO 'template_job_export.csv' (FORMAT CSV, HEADER ON)
 
 -- Import from a CSV via an upsert (does not require TRUNCATE)
-SELECT upsert_file('tmp_template_job', :'work_dir' || '/template_job_lf.csv', columnList => 'id, col1, col2',
-  alterDeltaTable => 'ALTER COLUMN load_date SET DEFAULT current_date');
+SELECT upsert_file('tmp_template_job', :'work_dir' || '/template_job_lf.csv', columnList => 'id, col1, col2');

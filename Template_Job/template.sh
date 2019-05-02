@@ -43,7 +43,7 @@ fi
 cd "${work_dir}"
 echo -e "\n## Running under ${USER}@${HOSTNAME} at ${PWD} ##\n"
 
-if [[ "${HOSTNAME}" == *ernie1* ]]; then
+if [[ "${HOSTNAME}" == *ernie2* ]]; then
   echo "Executing a Postgres script ..."
   # The script uses `\set ON_ERROR_STOP on` and `\set ECHO all`
   # -h localhost switches from Unix sockets to TCP/IP

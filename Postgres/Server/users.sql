@@ -3,6 +3,20 @@ SELECT *
 FROM pg_authid
 ORDER BY rolname;
 
+-- Users = roles
+SELECT *
+FROM pg_roles
+ORDER BY rolname;
+
+-- Granted roles
+SELECT *
+FROM information_schema.applicable_roles;
+
+-- Grantees per table
+SELECT grantee, privilege_type
+FROM information_schema.role_table_grants
+WHERE table_name = :table;
+
 -- Groups = roles without the login privilege
 SELECT *
 FROM pg_group;

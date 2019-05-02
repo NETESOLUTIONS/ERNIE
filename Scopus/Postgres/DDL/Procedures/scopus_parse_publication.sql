@@ -94,7 +94,7 @@ $$
       SELECT
         db_id AS ernie_source_id,
         issn,
-        issn_type
+        coalesce(issn_type,'') as issn_type
       FROM
         xmltable(--
         '//bibrecord/head/source/issn' PASSING scopus_doc_xml COLUMNS --
@@ -246,8 +246,9 @@ $$
       proc_part_no,
       proc_page_range,
       CASE
-        --WHEN proc_page_count LIKE 'var%' THEN NULL
         WHEN proc_page_count LIKE '%p' THEN RTRIM(proc_page_count, 'p') :: SMALLINT
+        WHEN proc_page_count LIKE '%p.' THEN RTRIM(proc_page_count, 'p.') :: SMALLINT
+        WHEN proc_page_count ~ '[^0-9]' THEN NULL
         ELSE proc_page_count :: SMALLINT
       END
     FROM
@@ -259,7 +260,7 @@ $$
       proc_page_range TEXT PATH 'procpagerange',
       proc_page_count TEXT PATH 'procpagecount'
       )
-    WHERE (proc_part_no IS NOT NULL OR proc_page_range IS NOT NULL or proc_page_count IS NOT NULL) AND (proc_page_count NOT LIKE 'var%')
+    WHERE proc_part_no IS NOT NULL OR proc_page_range IS NOT NULL or proc_page_count IS NOT NULL
     ON CONFLICT DO NOTHING;
 
     -- scopus_conf_editors

@@ -54,9 +54,6 @@ IS 'Source type. Example: j for journal';
 COMMENT ON COLUMN scopus_sources.source_title
 IS 'Journal name. Example: American Heart Journal';
 
-COMMENT ON COLUMN scopus_sources.issn_electronic
-IS 'The ISSN of a serial publication (electronic). Example: 10976744';
-
 COMMENT ON COLUMN scopus_sources.coden_code
 IS 'The CODEN code that uniquely identifies the source. Example: AHJOA';
 
@@ -106,7 +103,7 @@ CREATE TABLE scopus_issns (
   issn TEXT,
   issn_type TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_issns_pk PRIMARY KEY (ernie_source_id,issn) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_issns_pk PRIMARY KEY (ernie_source_id,issn,issn_type) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 -- endregion
 
