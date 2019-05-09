@@ -1,0 +1,335 @@
+Top,Middle,Low,Code
+General,General,General,1000
+Life Sciences,Agricultural and Biological Sciences,Agricultural and Biological Sciences(all),1100
+Life Sciences,Agricultural and Biological Sciences,Agricultural and Biological Sciences (miscellaneous),1101
+Life Sciences,Agricultural and Biological Sciences,Agronomy and Crop Science,1102
+Life Sciences,Agricultural and Biological Sciences,Animal Science and Zoology,1103
+Life Sciences,Agricultural and Biological Sciences,Aquatic Science,1104
+Life Sciences,Agricultural and Biological Sciences,"Ecology, Evolution, Behavior and Systematics",1105
+Life Sciences,Agricultural and Biological Sciences,Food Science,1106
+Life Sciences,Agricultural and Biological Sciences,Forestry,1107
+Life Sciences,Agricultural and Biological Sciences,Horticulture,1108
+Life Sciences,Agricultural and Biological Sciences,Insect Science,1109
+Life Sciences,Agricultural and Biological Sciences,Plant Science,1110
+Life Sciences,Agricultural and Biological Sciences,Soil Science,1111
+Social Sciences,Arts and Humanities,Arts and Humanities(all),1200
+Social Sciences,Arts and Humanities,Arts and Humanities (miscellaneous),1201
+Social Sciences,Arts and Humanities,History,1202
+Social Sciences,Arts and Humanities,Language and Linguistics,1203
+Social Sciences,Arts and Humanities,Archaeology,1204
+Social Sciences,Arts and Humanities,Classics,1205
+Social Sciences,Arts and Humanities,Conservation,1206
+Social Sciences,Arts and Humanities,History and Philosophy of Science,1207
+Social Sciences,Arts and Humanities,Literature and Literary Theory,1208
+Social Sciences,Arts and Humanities,Museology,1209
+Social Sciences,Arts and Humanities,Music,1210
+Social Sciences,Arts and Humanities,Philosophy,1211
+Social Sciences,Arts and Humanities,Religious studies,1212
+Social Sciences,Arts and Humanities,Visual Arts and Performing Arts,1213
+Life Sciences,"Biochemistry, Genetics and Molecular Biology","Biochemistry, Genetics and Molecular Biology(all)",1300
+Life Sciences,"Biochemistry, Genetics and Molecular Biology","Biochemistry, Genetics and Molecular Biology (miscellaneous)",1301
+Life Sciences,"Biochemistry, Genetics and Molecular Biology",Ageing,1302
+Life Sciences,"Biochemistry, Genetics and Molecular Biology",Biochemistry,1303
+Life Sciences,"Biochemistry, Genetics and Molecular Biology",Biophysics,1304
+Life Sciences,"Biochemistry, Genetics and Molecular Biology",Biotechnology,1305
+Life Sciences,"Biochemistry, Genetics and Molecular Biology",Cancer Research,1306
+Life Sciences,"Biochemistry, Genetics and Molecular Biology",Cell Biology,1307
+Life Sciences,"Biochemistry, Genetics and Molecular Biology",Clinical Biochemistry,1308
+Life Sciences,"Biochemistry, Genetics and Molecular Biology",Developmental Biology,1309
+Life Sciences,"Biochemistry, Genetics and Molecular Biology",Endocrinology,1310
+Life Sciences,"Biochemistry, Genetics and Molecular Biology",Genetics,1311
+Life Sciences,"Biochemistry, Genetics and Molecular Biology",Molecular Biology,1312
+Life Sciences,"Biochemistry, Genetics and Molecular Biology",Molecular Medicine,1313
+Life Sciences,"Biochemistry, Genetics and Molecular Biology",Physiology,1314
+Life Sciences,"Biochemistry, Genetics and Molecular Biology",Structural Biology,1315
+Social Sciences,"Business, Management and Accounting","Business, Management and Accounting(all)",1400
+Social Sciences,"Business, Management and Accounting","Business, Management and Accounting (miscellaneous)",1401
+Social Sciences,"Business, Management and Accounting",Accounting,1402
+Social Sciences,"Business, Management and Accounting",Business and International Management,1403
+Social Sciences,"Business, Management and Accounting",Management Information Systems,1404
+Social Sciences,"Business, Management and Accounting",Management of Technology and Innovation,1405
+Social Sciences,"Business, Management and Accounting",Marketing,1406
+Social Sciences,"Business, Management and Accounting",Organizational Behavior and Human Resource Management,1407
+Social Sciences,"Business, Management and Accounting",Strategy and Management,1408
+Social Sciences,"Business, Management and Accounting","Tourism, Leisure and Hospitality Management",1409
+Social Sciences,"Business, Management and Accounting",Industrial relations,1410
+Physical Sciences,Chemical Engineering,Chemical Engineering(all),1500
+Physical Sciences,Chemical Engineering,Chemical Engineering (miscellaneous),1501
+Physical Sciences,Chemical Engineering,Bioengineering,1502
+Physical Sciences,Chemical Engineering,Catalysis,1503
+Physical Sciences,Chemical Engineering,Chemical Health and Safety,1504
+Physical Sciences,Chemical Engineering,Colloid and Surface Chemistry,1505
+Physical Sciences,Chemical Engineering,Filtration and Separation,1506
+Physical Sciences,Chemical Engineering,Fluid Flow and Transfer Processes,1507
+Physical Sciences,Chemical Engineering,Process Chemistry and Technology,1508
+Physical Sciences,Chemistry,Chemistry(all),1600
+Physical Sciences,Chemistry,Chemistry (miscellaneous),1601
+Physical Sciences,Chemistry,Analytical Chemistry,1602
+Physical Sciences,Chemistry,Electrochemistry,1603
+Physical Sciences,Chemistry,Inorganic Chemistry,1604
+Physical Sciences,Chemistry,Organic Chemistry,1605
+Physical Sciences,Chemistry,Physical and Theoretical Chemistry,1606
+Physical Sciences,Chemistry,Spectroscopy,1607
+Physical Sciences,Computer Science,Computer Science(all),1700
+Physical Sciences,Computer Science,Computer Science (miscellaneous),1701
+Physical Sciences,Computer Science,Artificial Intelligence,1702
+Physical Sciences,Computer Science,Computational Theory and Mathematics,1703
+Physical Sciences,Computer Science,Computer Graphics and Computer-Aided Design,1704
+Physical Sciences,Computer Science,Computer Networks and Communications,1705
+Physical Sciences,Computer Science,Computer Science Applications,1706
+Physical Sciences,Computer Science,Computer Vision and Pattern Recognition,1707
+Physical Sciences,Computer Science,Hardware and Architecture,1708
+Physical Sciences,Computer Science,Human-Computer Interaction,1709
+Physical Sciences,Computer Science,Information Systems,1710
+Physical Sciences,Computer Science,Signal Processing,1711
+Physical Sciences,Computer Science,Software,1712
+Social Sciences,Decision Sciences,Decision Sciences(all),1800
+Social Sciences,Decision Sciences,Decision Sciences (miscellaneous),1801
+Social Sciences,Decision Sciences,Information Systems and Management,1802
+Social Sciences,Decision Sciences,Management Science and Operations Research,1803
+Social Sciences,Decision Sciences,"Statistics, Probability and Uncertainty",1804
+Physical Sciences,Earth and Planetary Sciences,Earth and Planetary Sciences(all),1900
+Physical Sciences,Earth and Planetary Sciences,Earth and Planetary Sciences (miscellaneous),1901
+Physical Sciences,Earth and Planetary Sciences,Atmospheric Science,1902
+Physical Sciences,Earth and Planetary Sciences,Computers in Earth Sciences,1903
+Physical Sciences,Earth and Planetary Sciences,Earth-Surface Processes,1904
+Physical Sciences,Earth and Planetary Sciences,Economic Geology,1905
+Physical Sciences,Earth and Planetary Sciences,Geochemistry and Petrology,1906
+Physical Sciences,Earth and Planetary Sciences,Geology,1907
+Physical Sciences,Earth and Planetary Sciences,Geophysics,1908
+Physical Sciences,Earth and Planetary Sciences,Geotechnical Engineering and Engineering Geology,1909
+Physical Sciences,Earth and Planetary Sciences,Oceanography,1910
+Physical Sciences,Earth and Planetary Sciences,Palaeontology,1911
+Physical Sciences,Earth and Planetary Sciences,Space and Planetary Science,1912
+Physical Sciences,Earth and Planetary Sciences,Stratigraphy,1913
+Social Sciences,"Economics, Econometrics and Finance","Economics, Econometrics and Finance(all)",2000
+Social Sciences,"Economics, Econometrics and Finance","Economics, Econometrics and Finance (miscellaneous)",2001
+Social Sciences,"Economics, Econometrics and Finance",Economics and Econometrics,2002
+Social Sciences,"Economics, Econometrics and Finance",Finance,2003
+Physical Sciences,Energy,Energy(all),2100
+Physical Sciences,Energy,Energy (miscellaneous),2101
+Physical Sciences,Energy,Energy Engineering and Power Technology,2102
+Physical Sciences,Energy,Fuel Technology,2103
+Physical Sciences,Energy,Nuclear Energy and Engineering,2104
+Physical Sciences,Energy,"Renewable Energy, Sustainability and the Environment",2105
+Physical Sciences,Engineering,Engineering(all),2200
+Physical Sciences,Engineering,Engineering (miscellaneous),2201
+Physical Sciences,Engineering,Aerospace Engineering,2202
+Physical Sciences,Engineering,Automotive Engineering,2203
+Physical Sciences,Engineering,Biomedical Engineering,2204
+Physical Sciences,Engineering,Civil and Structural Engineering,2205
+Physical Sciences,Engineering,Computational Mechanics,2206
+Physical Sciences,Engineering,Control and Systems Engineering,2207
+Physical Sciences,Engineering,Electrical and Electronic Engineering,2208
+Physical Sciences,Engineering,Industrial and Manufacturing Engineering,2209
+Physical Sciences,Engineering,Mechanical Engineering,2210
+Physical Sciences,Engineering,Mechanics of Materials,2211
+Physical Sciences,Engineering,Ocean Engineering,2212
+Physical Sciences,Engineering,"Safety, Risk, Reliability and Quality",2213
+Physical Sciences,Engineering,Media Technology,2214
+Physical Sciences,Engineering,Building and Construction,2215
+Physical Sciences,Engineering,Architecture ,2216
+Physical Sciences,Environmental Science,Environmental Science(all),2300
+Physical Sciences,Environmental Science,Environmental Science (miscellaneous),2301
+Physical Sciences,Environmental Science,Ecological Modelling,2302
+Physical Sciences,Environmental Science,Ecology,2303
+Physical Sciences,Environmental Science,Environmental Chemistry,2304
+Physical Sciences,Environmental Science,Environmental Engineering,2305
+Physical Sciences,Environmental Science,Global and Planetary Change,2306
+Physical Sciences,Environmental Science,"Health, Toxicology and Mutagenesis",2307
+Physical Sciences,Environmental Science,"Management, Monitoring, Policy and Law",2308
+Physical Sciences,Environmental Science,Nature and Landscape Conservation,2309
+Physical Sciences,Environmental Science,Pollution,2310
+Physical Sciences,Environmental Science,Waste Management and Disposal,2311
+Physical Sciences,Environmental Science,Water Science and Technology,2312
+Life Sciences,Immunology and Microbiology,Immunology and Microbiology(all),2400
+Life Sciences,Immunology and Microbiology,Immunology and Microbiology (miscellaneous) ,2401
+Life Sciences,Immunology and Microbiology,Applied Microbiology and Biotechnology,2402
+Life Sciences,Immunology and Microbiology,Immunology,2403
+Life Sciences,Immunology and Microbiology,Microbiology,2404
+Life Sciences,Immunology and Microbiology,Parasitology,2405
+Life Sciences,Immunology and Microbiology,Virology,2406
+Physical Sciences,Materials Science,Materials Science(all),2500
+Physical Sciences,Materials Science,Materials Science (miscellaneous),2501
+Physical Sciences,Materials Science,Biomaterials,2502
+Physical Sciences,Materials Science,Ceramics and Composites,2503
+Physical Sciences,Materials Science,"Electronic, Optical and Magnetic Materials",2504
+Physical Sciences,Materials Science,Materials Chemistry,2505
+Physical Sciences,Materials Science,Metals and Alloys,2506
+Physical Sciences,Materials Science,Polymers and Plastics,2507
+Physical Sciences,Materials Science,"Surfaces, Coatings and Films",2508
+Physical Sciences,Mathematics,Mathematics(all),2600
+Physical Sciences,Mathematics,Mathematics (miscellaneous),2601
+Physical Sciences,Mathematics,Algebra and Number Theory,2602
+Physical Sciences,Mathematics,Analysis,2603
+Physical Sciences,Mathematics,Applied Mathematics,2604
+Physical Sciences,Mathematics,Computational Mathematics,2605
+Physical Sciences,Mathematics,Control and Optimization,2606
+Physical Sciences,Mathematics,Discrete Mathematics and Combinatorics,2607
+Physical Sciences,Mathematics,Geometry and Topology,2608
+Physical Sciences,Mathematics,Logic,2609
+Physical Sciences,Mathematics,Mathematical Physics,2610
+Physical Sciences,Mathematics,Modelling and Simulation,2611
+Physical Sciences,Mathematics,Numerical Analysis,2612
+Physical Sciences,Mathematics,Statistics and Probability,2613
+Physical Sciences,Mathematics,Theoretical Computer Science,2614
+Health Sciences,Medicine,Medicine(all),2700
+Health Sciences,Medicine,Medicine (miscellaneous),2701
+Health Sciences,Medicine,Anatomy,2702
+Health Sciences,Medicine,Anesthesiology and Pain Medicine,2703
+Health Sciences,Medicine,"Biochemistry, medical",2704
+Health Sciences,Medicine,Cardiology and Cardiovascular Medicine,2705
+Health Sciences,Medicine,Critical Care and Intensive Care Medicine,2706
+Health Sciences,Medicine,Complementary and alternative medicine,2707
+Health Sciences,Medicine,Dermatology,2708
+Health Sciences,Medicine,Drug guides,2709
+Health Sciences,Medicine,Embryology,2710
+Health Sciences,Medicine,Emergency Medicine,2711
+Health Sciences,Medicine,"Endocrinology, Diabetes and Metabolism",2712
+Health Sciences,Medicine,Epidemiology,2713
+Health Sciences,Medicine,Family Practice,2714
+Health Sciences,Medicine,Gastroenterology,2715
+Health Sciences,Medicine,Genetics(clinical),2716
+Health Sciences,Medicine,Geriatrics and Gerontology,2717
+Health Sciences,Medicine,Health Informatics,2718
+Health Sciences,Medicine,Health Policy,2719
+Health Sciences,Medicine,Hematology,2720
+Health Sciences,Medicine,Hepatology,2721
+Health Sciences,Medicine,Histology,2722
+Health Sciences,Medicine,Immunology and Allergy,2723
+Health Sciences,Medicine,Internal Medicine,2724
+Health Sciences,Medicine,Infectious Diseases,2725
+Health Sciences,Medicine,Microbiology (medical),2726
+Health Sciences,Medicine,Nephrology,2727
+Health Sciences,Medicine,Clinical Neurology,2728
+Health Sciences,Medicine,Obstetrics and Gynaecology,2729
+Health Sciences,Medicine,Oncology,2730
+Health Sciences,Medicine,Ophthalmology,2731
+Health Sciences,Medicine,Orthopedics and Sports Medicine,2732
+Health Sciences,Medicine,Otorhinolaryngology,2733
+Health Sciences,Medicine,Pathology and Forensic Medicine,2734
+Health Sciences,Medicine,"Pediatrics, Perinatology, and Child Health",2735
+Health Sciences,Medicine,Pharmacology (medical),2736
+Health Sciences,Medicine,Physiology (medical),2737
+Health Sciences,Medicine,Psychiatry and Mental health,2738
+Health Sciences,Medicine,"Public Health, Environmental and Occupational Health",2739
+Health Sciences,Medicine,Pulmonary and Respiratory Medicine,2740
+Health Sciences,Medicine,Radiology Nuclear Medicine and imaging,2741
+Health Sciences,Medicine,Rehabilitation,2742
+Health Sciences,Medicine,Reproductive Medicine,2743
+Health Sciences,Medicine,"Reviews and References, Medical",2744
+Health Sciences,Medicine,Rheumatology,2745
+Health Sciences,Medicine,Surgery,2746
+Health Sciences,Medicine,Transplantation,2747
+Health Sciences,Medicine,Urology,2748
+Life Sciences,Neuroscience,Neuroscience(all),2800
+Life Sciences,Neuroscience,Neuroscience (miscellaneous),2801
+Life Sciences,Neuroscience,Behavioral Neuroscience,2802
+Life Sciences,Neuroscience,Biological Psychiatry,2803
+Life Sciences,Neuroscience,Cellular and Molecular Neuroscience,2804
+Life Sciences,Neuroscience,Cognitive Neuroscience,2805
+Life Sciences,Neuroscience,Developmental Neuroscience,2806
+Life Sciences,Neuroscience,Endocrine and Autonomic Systems,2807
+Life Sciences,Neuroscience,Neurology,2808
+Life Sciences,Neuroscience,Sensory Systems,2809
+Health Sciences,Nursing,Nursing(all),2900
+Health Sciences,Nursing,Nursing (miscellaneous),2901
+Health Sciences,Nursing,Advanced and Specialised Nursing,2902
+Health Sciences,Nursing,Assessment and Diagnosis,2903
+Health Sciences,Nursing,Care Planning,2904
+Health Sciences,Nursing,Community and Home Care,2905
+Health Sciences,Nursing,Critical Care,2906
+Health Sciences,Nursing,Emergency,2907
+Health Sciences,Nursing,Fundamentals and skills,2908
+Health Sciences,Nursing,Gerontology,2909
+Health Sciences,Nursing,"Issues, ethics and legal aspects",2910
+Health Sciences,Nursing,Leadership and Management,2911
+Health Sciences,Nursing,LPN and LVN,2912
+Health Sciences,Nursing,Maternity and Midwifery,2913
+Health Sciences,Nursing,Medical–Surgical,2914
+Health Sciences,Nursing,Nurse Assisting,2915
+Health Sciences,Nursing,Nutrition and Dietetics,2916
+Health Sciences,Nursing,Oncology(nursing),2917
+Health Sciences,Nursing,Pathophysiology,2918
+Health Sciences,Nursing,Pediatrics,2919
+Health Sciences,Nursing,Pharmacology (nursing),2920
+Health Sciences,Nursing,Phychiatric Mental Health,2921
+Health Sciences,Nursing,Research and Theory,2922
+Health Sciences,Nursing,Review and Exam Preparation,2923
+Life Sciences,"Pharmacology, Toxicology and Pharmaceutics","Pharmacology, Toxicology and Pharmaceutics(all)",3000
+Life Sciences,"Pharmacology, Toxicology and Pharmaceutics","Pharmacology, Toxicology and Pharmaceutics (miscellaneous)",3001
+Life Sciences,"Pharmacology, Toxicology and Pharmaceutics",Drug Discovery,3002
+Life Sciences,"Pharmacology, Toxicology and Pharmaceutics",Pharmaceutical Science,3003
+Life Sciences,"Pharmacology, Toxicology and Pharmaceutics",Pharmacology,3004
+Life Sciences,"Pharmacology, Toxicology and Pharmaceutics",Toxicology,3005
+Physical Sciences,Physics and Astronomy,Physics and Astronomy(all),3100
+Physical Sciences,Physics and Astronomy,Physics and Astronomy (miscellaneous),3101
+Physical Sciences,Physics and Astronomy,Acoustics and Ultrasonics,3102
+Physical Sciences,Physics and Astronomy,Astronomy and Astrophysics,3103
+Physical Sciences,Physics and Astronomy,Condensed Matter Physics,3104
+Physical Sciences,Physics and Astronomy,Instrumentation,3105
+Physical Sciences,Physics and Astronomy,Nuclear and High Energy Physics,3106
+Physical Sciences,Physics and Astronomy,"Atomic and Molecular Physics, and Optics",3107
+Physical Sciences,Physics and Astronomy,Radiation,3108
+Physical Sciences,Physics and Astronomy,Statistical and Nonlinear Physics,3109
+Physical Sciences,Physics and Astronomy,Surfaces and Interfaces,3110
+Social Sciences,Psychology,Psychology(all),3200
+Social Sciences,Psychology,Psychology (miscellaneous),3201
+Social Sciences,Psychology,Applied Psychology,3202
+Social Sciences,Psychology,Clinical Psychology,3203
+Social Sciences,Psychology,Developmental and Educational Psychology,3204
+Social Sciences,Psychology,Experimental and Cognitive Psychology,3205
+Social Sciences,Psychology,Neuropsychology and Physiological Psychology,3206
+Social Sciences,Psychology,Social Psychology,3207
+Social Sciences,Social Sciences,Social Sciences(all),3300
+Social Sciences,Social Sciences,Social Sciences (miscellaneous),3301
+Social Sciences,Social Sciences,Archaeology,3302
+Social Sciences,Social Sciences,Development,3303
+Social Sciences,Social Sciences,Education,3304
+Social Sciences,Social Sciences,"Geography, Planning and Development",3305
+Social Sciences,Social Sciences,Health(social science),3306
+Social Sciences,Social Sciences,Human Factors and Ergonomics,3307
+Social Sciences,Social Sciences,Law,3308
+Social Sciences,Social Sciences,Library and Information Sciences,3309
+Social Sciences,Social Sciences,Linguistics and Language,3310
+Social Sciences,Social Sciences,Safety Research,3311
+Social Sciences,Social Sciences,Sociology and Political Science,3312
+Social Sciences,Social Sciences,Transportation,3313
+Social Sciences,Social Sciences,Anthropology,3314
+Social Sciences,Social Sciences,Communication,3315
+Social Sciences,Social Sciences,Cultural Studies,3316
+Social Sciences,Social Sciences,Demography,3317
+Social Sciences,Social Sciences,Gender Studies,3318
+Social Sciences,Social Sciences,Life-span and Life-course Studies,3319
+Social Sciences,Social Sciences,Political Science and International Relations,3320
+Social Sciences,Social Sciences,Public Administration,3321
+Social Sciences,Social Sciences,Urban Studies,3322
+Health Sciences,veterinary,veterinary(all),3400
+Health Sciences,veterinary,veterinary (miscalleneous),3401
+Health Sciences,veterinary,Equine,3402
+Health Sciences,veterinary,Food Animals,3403
+Health Sciences,veterinary,Small Animals,3404
+Health Sciences,Dentistry,Dentistry(all),3500
+Health Sciences,Dentistry,Dentistry (miscellaneous),3501
+Health Sciences,Dentistry,Dental Assisting,3502
+Health Sciences,Dentistry,Dental Hygiene,3503
+Health Sciences,Dentistry,Oral Surgery,3504
+Health Sciences,Dentistry,Orthodontics,3505
+Health Sciences,Dentistry,Periodontics,3506
+Health Sciences,Health Professions,Health Professions(all),3600
+Health Sciences,Health Professions,Health Professions (miscellaneous),3601
+Health Sciences,Health Professions,Chiropractics,3602
+Health Sciences,Health Professions,Complementary and Manual Therapy,3603
+Health Sciences,Health Professions,Emergency Medical Services,3604
+Health Sciences,Health Professions,Health Information Management,3605
+Health Sciences,Health Professions,Medical Assisting and Transcription,3606
+Health Sciences,Health Professions,Medical Laboratory Technology,3607
+Health Sciences,Health Professions,Medical Terminology,3608
+Health Sciences,Health Professions,Occupational Therapy,3609
+Health Sciences,Health Professions,Optometry,3610
+Health Sciences,Health Professions,Pharmacy,3611
+Health Sciences,Health Professions,"Physical Therapy, Sports Therapy and Rehabilitation",3612
+Health Sciences,Health Professions,Podiatry,3613
+Health Sciences,Health Professions,Radiological and Ultrasound Technology,3614
+Health Sciences,Health Professions,Respiratory Care,3615
+Health Sciences,Health Professions,Speech and Hearing,3616
