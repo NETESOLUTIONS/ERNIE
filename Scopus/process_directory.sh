@@ -68,8 +68,10 @@ declare -rx PARALLEL_LOG=parallel.log
 
 FAILED_FILES_DIR="../failed"
 
+echo "process_directory.sh"
+
 while (( $# > 0 )); do
-  echo "process_directory.sh: using command line option '$1'"
+  echo "Using command line option '$1'"
   case "$1" in
     -c)
       readonly CLEAN_MODE=true
@@ -84,6 +86,7 @@ while (( $# > 0 )); do
       ;;
     -s)
       shift
+      echo "Using command line option '$1'"
       readonly SUBSET_SP=$1
       ;;
     -t)
@@ -214,7 +217,7 @@ for scopus_data_archive in *.zip; do
   processed_xml_counter=0
 
   if [[ -f "${STOP_FILE}" ]]; then
-    echo "Found the stop signal file. Gracefully stopping..."
+    echo -e "\nFound the stop signal file. Gracefully stopping..."
     break
   fi
 

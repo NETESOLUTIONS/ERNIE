@@ -15,8 +15,6 @@ DESCRIPTION
   Process specified directories in alphabetical or reverse order.
   data_directory could be an absolute or relative to the working directory location.
 
-  To stop process gracefully after the data_directory is processed, create a `{data_directory}/.stop` signal file.
-
   The following options are available:
 
     -c    clean data and previous failures before processing
@@ -25,6 +23,10 @@ DESCRIPTION
     -r    reverse order of processing
 
     -s    parse a subset of data via the specified subset parsing Stored Procedure (SP)
+
+  To stop process gracefully after the current ZIP is processed, create a `{working_dir}/.stop` signal file.
+  This file is automatically removed
+
 EXAMPLES
 
   Process all 20XX data directories in a reverse order:
@@ -96,13 +98,12 @@ for DATA_DIR in "${sorted_args[@]}"; do
   ((della_h=delta / 3600)) || :
   printf "\n$(TZ=America/New_York date) Done with ${DATA_DIR} data directory in %dh:%02dm:%02ds\n" ${della_h} \
          ${delta_m} ${delta_s} | tee -a eta.log
-  if [[ -f "${STOP_FILE}" ]]; then
-    echo "Found the stop signal file. Gracefully stopping..."
-#    rm -f "${STOP_FILE}"
+  if [[ -f "${DATA_DIR}/${STOP_FILE}" ]]; then
+    echo "Found the stop signal file. Gracefully stopping the smokeload..."
+    rm -f "${DATA_DIR}/${STOP_FILE}"
     break
   fi
 
-#  echo "elapsed is : ${elapsed} | delta is : ${delta}"
   ((elapsed=elapsed + delta))
   ((est_total=elapsed * directories / i)) || :
   ((eta=start_time + est_total))
