@@ -5,28 +5,24 @@
 SET TIMEZONE = 'US/Eastern';
 
 -- additional source information
-CREATE OR REPLACE PROCEDURE scopus_parse_grants(scopus_doc_xml XML)
-AS $$
-  BEGIN
-    -- scopus_grants
-    INSERT INTO scopus_grants(scp, grant_id, grant_acronym, grant_agency,
-                                 grant_agency_address, grant_agency_id)
-    SELECT
-     scp,
-     coalesce(grant_id,'') as grant_id,
-     grant_acronym,
-     grant_agency,
-     grant_agency_address,
-     grant_agency_id
-    FROM xmltable(--
+CREATE OR REPLACE PROCEDURE scopus_parse_grants(scopus_doc_xml XML) AS $$
+BEGIN
+  -- scopus_grants
+  INSERT
+  INTO scopus_grants(
+    scp, grant_id, grantor_acronym, grantor,
+    grantor_country_code, grantor_funder_registry_id)
+  SELECT scp, coalesce(grant_id, '') AS grant_id, grantor_acronym, grantor, grantor_country_code,
+    grantor_funder_registry_id
+  FROM
+    xmltable(--
       '//bibrecord/head/grantlist/grant' PASSING scopus_doc_xml COLUMNS --
-      --@formatter:off
       scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
       grant_id TEXT PATH 'grant-id',
-      grant_acronym TEXT PATH 'grant-acronym',
-      grant_agency TEXT PATH 'grant-agency',
-      grant_agency_address TEXT PATH 'grant-agency/@iso-code',
-      grant_agency_id TEXT PATH 'grant-agency-id'
+      grantor_acronym TEXT PATH 'grant-acronym',
+      grantor TEXT PATH 'grant-agency',
+      grantor_country_code TEXT PATH 'grant-agency/@iso-code',
+      grantor_funder_registry_id TEXT PATH 'grant-agency-id'
       )
     ON CONFLICT DO NOTHING;
 

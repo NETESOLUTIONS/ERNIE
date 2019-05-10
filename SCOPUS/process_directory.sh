@@ -40,6 +40,18 @@ DESCRIPTION
 ENVIRONMENT
 
     * PGHOST/PGDATABASE/PGUSER  default Postgres connection parameters
+
+
+EXAMPLES
+
+    To run in verbose mode and stop on the first error:
+
+      $ ./process_directory.sh -e -v /erniedev_data3/Scopus-testing
+
+    To run a parser subset and stop on the first error:
+
+      ll ../failed$ ./process_directory.sh -s scopus_parse_grants -e /erniedev_data3/Scopus-testing
+
 HEREDOC
   exit 1
 fi
@@ -125,7 +137,6 @@ parse_xml() {
     cd ..
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     mv -f "${xml_dir}/" "${failed_files_dir}/"
-    chmod -R g+w "${failed_files_dir}/$xml_dir/"
     cd ${tmp}
     [[ ${VERBOSE} == "true" ]] && echo "$xml: FAILED DURING PARSING."
     return 1
@@ -145,6 +156,7 @@ HEREDOC
       echo "====="
     fi
     cd ..
+    chmod -R g+w "${FAILED_FILES_DIR}"
     exit 1
   fi
 }
@@ -169,7 +181,7 @@ for scopus_data_archive in *.zip; do
   unzip -u -q "${scopus_data_archive}" -d $tmp
 
   export failed_files_dir="${FAILED_FILES_DIR}/${scopus_data_archive}"
-  cd $tmp
+  cd ${tmp}
   rm -f "${ERROR_LOG}"
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
     # Process Scopus XML files in parallel
