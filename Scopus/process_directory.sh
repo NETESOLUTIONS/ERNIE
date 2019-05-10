@@ -27,12 +27,12 @@ DESCRIPTION
 
     -v -v extra-verbose output: print all lines (`set -x`)
 
-    -s    parse a subset of data via the specified subset parsing Stored Procedure (SP)
+    -s subset_SP: parse a subset of data via the specified subset parsing Stored Procedure (SP)
 
-    -t    tmp_dir: relative to working_dir, `tmp` or `tmp-{SP_name}` (for subsets) by default
+    -t tmp_dir: relative to working_dir, `tmp` or `tmp-{SP_name}` (for subsets) by default
           WARNING: be aware that tmp_dir is removed before processing and on success
 
-    -f    Move XML files failed to be parsed to failed_files_dir: relative to working_dir, `../failed/` by default
+    -f failed_files_dir: move failed XML files to failed_files_dir: relative to working_dir, `../failed/` by default
           WARNING: be aware that failed_files_dir is cleaned before processing
 
     To stop process gracefully after the current ZIP is processed, create a `{working_dir}/.stop` signal file.

@@ -22,7 +22,7 @@ DESCRIPTION
 
     -r    reverse order of processing
 
-    -s    parse a subset of data via the specified subset parsing Stored Procedure (SP)
+    -s subset_SP: parse a subset of data via the specified subset parsing Stored Procedure (SP)
 
   To stop process gracefully after the current ZIP is processed, create a `{working_dir}/.stop` signal file.
   This file is automatically removed
