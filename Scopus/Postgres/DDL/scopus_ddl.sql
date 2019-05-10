@@ -1,6 +1,7 @@
 \include_relative scopus_enums.sql
 \include_relative scopus_tables.sql
 \include_relative scopus_triggers.sql
+\include_relative scopus_grant_ddl.sql
 
 \include_relative Procedures/references_parse.sql
 \include_relative Procedures/scopus_parse_publication.sql
