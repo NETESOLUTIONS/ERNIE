@@ -15,7 +15,7 @@ parser.add_argument('-d','--postgres_dbname',help='the database to query in the 
 parser.add_argument('-k','--api_key',help='the port hosting the PostgreSQL service on the server', required=True)
 args = parser.parse_args()
 
-fields="title,identifier,eid,fund-sponsor,fund-acr,fund-no"
+fields="title,identifier,eid,doi,fund-sponsor,fund-acr,fund-no"
 final_df=pd.DataFrame(columns=fields.split(','))
 final_df['award_number']=None
 final_df['official_center_name']=None

@@ -49,5 +49,5 @@ FROM (
         FROM citing_cte
       )
     ) AS k
-) sq;
+) sq WHERE sq.j > 0 and sq.k > 0;
 -- 10.8s-34.7s (cold-ish)
