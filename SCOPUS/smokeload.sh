@@ -7,7 +7,7 @@ NAME
 
 SYNOPSIS
 
-  smokeload.sh [-c] [-r] [-s SP_name] data_directory [...]
+  smokeload.sh [-c] [-r] [-s subset_SP] data_directory [...]
   smokeload.sh -h: display this help
 
 DESCRIPTION
