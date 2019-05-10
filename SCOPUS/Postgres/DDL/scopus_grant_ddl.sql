@@ -40,7 +40,7 @@ COMMENT ON COLUMN scopus_grants.grantor_funder_registry_id
 IS 'Funder Registry ID';
 --endregion
 
--- region scopus_grant_acknowledgement
+-- region scopus_grant_acknowledgements
 CREATE TABLE scopus_grant_acknowledgements (
   scp BIGINT CONSTRAINT sga_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   grant_text TEXT,
