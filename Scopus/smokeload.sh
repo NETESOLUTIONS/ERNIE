@@ -54,7 +54,7 @@ while (( $# > 0 )); do
       ;;
     -s)
       shift
-      readonly SUBSET_OPTION=-s $1
+      readonly SUBSET_OPTION="-s $1"
       ;;
     *)
       break

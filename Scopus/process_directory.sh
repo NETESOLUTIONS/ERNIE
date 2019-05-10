@@ -111,7 +111,6 @@ if [[ ! ${tmp} ]]; then
   fi
 fi
 
-
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##"
 
 if ! which parallel >/dev/null; then
