@@ -6,7 +6,11 @@
 SET TIMEZONE = 'US/Eastern';
 
 SET script.xml_file = :'xml_file';
-SET script.sp_name = :'sp_name';
+\if :{?subset_sp}
+  SET script.subset_sp = :'subset_sp';
+\else
+  SET script.subset_sp = '';
+\endif
 
 -- TODO ON CONFLICT DO NOTHING need to be replaced by updates
 
@@ -18,7 +22,7 @@ DO $block$
     SELECT xmlparse(DOCUMENT convert_from(pg_read_binary_file(current_setting('script.xml_file')), 'UTF8'))
       INTO scopus_doc_xml;
 
-    IF current_setting('script.sp_name') IS NULL THEN -- Execute all parsing SPs
+    IF current_setting('script.subset_sp')='' THEN -- Execute all parsing SPs
       CALL scopus_parse_publication_and_group(scopus_doc_xml);
       CALL scopus_parse_source_and_conferences(scopus_doc_xml);
       CALL scopus_parse_pub_details_subjects_and_classes(scopus_doc_xml);
@@ -33,7 +37,7 @@ DO $block$
       -- Make sure that parent records are present
       CALL scopus_parse_publication_and_group(scopus_doc_xml);
 
-      EXECUTE format('CALL %I($1)',current_setting('script.sp_name')) using scopus_doc_xml;
+      EXECUTE format('CALL %I($1)',current_setting('script.subset_sp')) using scopus_doc_xml;
     END IF;
 
   EXCEPTION
