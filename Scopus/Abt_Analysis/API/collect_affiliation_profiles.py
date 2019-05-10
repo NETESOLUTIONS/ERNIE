@@ -7,9 +7,14 @@ collect_affiliation_profiles.py
 '''
 
 import ScopusInterface as si
+import argparse
 import sys
 from time import sleep
-api_key=# INSERT API KEY HERE
+parser = argparse.ArgumentParser(description='''
+ Collect profile information where available for a list of author ids
+''', formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument('-k','--api_key',help='Elsevier provided API key', required=True)
+args = parser.parse_args()
 
 # CSV file set up
 profiles=['affiliations']
@@ -25,7 +30,7 @@ for line in sys.stdin:
     sleep(0.05)
     affiliation_id=line.strip('\n')
     # Collect Affiliation Info
-    aff_profile=si.affiliation_retrieval(affiliation_id,api_key)
+    aff_profile=si.affiliation_retrieval(affiliation_id,args.api_key)
     if aff_profile is None:
         continue
     line=",".join(aff_profile[col] for col in cols['affiliations'])
