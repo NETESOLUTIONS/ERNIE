@@ -6,6 +6,7 @@
 SET TIMEZONE = 'US/Eastern';
 
 SET script.xml_file = :'xml_file';
+SET script.sp_name = :'sp_name';
 
 -- TODO ON CONFLICT DO NOTHING need to be replaced by updates
 
@@ -17,15 +18,21 @@ DO $block$
     SELECT xmlparse(DOCUMENT convert_from(pg_read_binary_file(current_setting('script.xml_file')), 'UTF8'))
       INTO scopus_doc_xml;
 
-    CALL scopus_parse_publication(scopus_doc_xml);
-    CALL update_scopus_source_classifications(scopus_doc_xml);
-    CALL update_scopus_author_affiliations(scopus_doc_xml);
-    -- scopus_references
-    CALL update_references(scopus_doc_xml);
-    CALL update_scopus_chemical_groups(scopus_doc_xml);
-    CALL update_scopus_abstracts_title(scopus_doc_xml);
-    CALL update_scopus_keywords(scopus_doc_xml);
-    CALL update_scopus_publication_identifiers(scopus_doc_xml);
+    IF current_setting('script.sp_name') IS NULL THEN
+      CALL scopus_parse_publication(scopus_doc_xml);
+      CALL update_scopus_source_classifications(scopus_doc_xml);
+      CALL update_scopus_author_affiliations(scopus_doc_xml);
+      -- scopus_references
+      CALL update_references(scopus_doc_xml);
+      CALL update_scopus_chemical_groups(scopus_doc_xml);
+      CALL update_scopus_abstracts_title(scopus_doc_xml);
+      CALL update_scopus_keywords(scopus_doc_xml);
+      CALL update_scopus_publication_identifiers(scopus_doc_xml);
+    ELSE
+      CALL scopus_parse_publication(scopus_doc_xml);
+      EXECUTE format('CALL %I($1)',current_setting('script.sp_name')) using scopus_doc_xml;
+    END IF;
+
   EXCEPTION
     WHEN OTHERS THEN --
       RAISE NOTICE E'Processing of % FAILED', current_setting('script.xml_file');
@@ -54,4 +61,3 @@ FROM xmltable(--
 --@formatter:on
   )
 GROUP BY scp;
-*/

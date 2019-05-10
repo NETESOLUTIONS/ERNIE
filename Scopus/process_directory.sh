@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-if [[ $# -lt 1 || "$1" == "-h" ]]; then
+if [[ $# -lt 2 || "$1" == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
 
@@ -32,7 +32,7 @@ DESCRIPTION
 
     -v -v extra-verbose output: print all lines (set -x)
 
-    -s    check subset SP name
+    -s    parse a subset of data via the update_scopus_grants SP
 ENVIRONMENT
 
     * PGHOST/PGDATABASE/PGUSER  default Postgres connection parameters
@@ -99,6 +99,7 @@ declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m del
 
 parse_xml() {
   local xml="$1"
+  local sp_name="$2"
   [[ ${VERBOSE} == "true" ]] && echo "Processing $xml ..."
   if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" -v "sp_name=$sp_name" 2>> "${ERROR_LOG}"; then
     [[ ${VERBOSE} == "true" ]] && echo "$xml: SUCCESSFULLY PARSED."
@@ -162,7 +163,7 @@ for scopus_data_archive in *.zip; do
     # Process Scopus XML files in parallel
     # Reduced verbosity
     if ! find "${subdir}" -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
-        --tagstring '|job#{#} s#{%}|' parse_xml "{}"; then
+        --tagstring '|job#{#} s#{%}|' parse_xml "{}" "$sp_name"; then
       [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
     fi
     while read -r line; do
