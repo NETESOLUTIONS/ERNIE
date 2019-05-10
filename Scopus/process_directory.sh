@@ -69,6 +69,7 @@ declare -rx PARALLEL_LOG=parallel.log
 FAILED_FILES_DIR="../failed"
 
 while (( $# > 0 )); do
+  echo "process_directory.sh: using command line option '$1'"
   case "$1" in
     -c)
       readonly CLEAN_MODE=true
