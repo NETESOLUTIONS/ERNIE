@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-if [[ $# -lt 1 || "$1" == "-h" ]]; then
+if [[ $# -lt 2 || "$1" == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
 
@@ -7,7 +7,7 @@ NAME
 
 SYNOPSIS
 
-    process_directory.sh [-c] [-e] [-v] [-v] working_dir [failed_files_dir]
+    process_directory.sh [-c] [-e] [-v] [-v] [-s] working_dir tmp_dir [failed_files_dir]
     process_directory.sh -h: display this help
 
 DESCRIPTION
@@ -17,7 +17,7 @@ DESCRIPTION
     * Parsing and other SQL errors don't fail the build unless `-e` is specified.
     * Move XML files failed to be parsed to `failed_files_dir`, relative to the working dir. (../failed/ by default)
     ** WARNING: be aware that `failed_files_dir` is cleaned before processing!
-    * Produce an error log in `{working_dir}/tmp/errors.log`.
+    * Produce an error log in `{working_dir}/$tmp/errors.log`.
     * Produce output with reduced verbosity to reduce log volume.
 
     To stop process gracefully after the current ZIP is processed, create a `{working_dir}/.stop` signal file.
@@ -32,6 +32,7 @@ DESCRIPTION
 
     -v -v extra-verbose output: print all lines (set -x)
 
+    -s    parse a subset of data via the update_scopus_grants SP
 ENVIRONMENT
 
     * PGHOST/PGDATABASE/PGUSER  default Postgres connection parameters
@@ -71,6 +72,9 @@ while (( $# > 0 )); do
       readonly STOP_ON_THE_FIRST_ERROR=true
       echo "process_directory.sh should stop on the first error."
       ;;
+    -s)
+      readonly sp_name=$"update_scopus_grants"
+      ;;
     *)
       break
   esac
@@ -78,7 +82,8 @@ while (( $# > 0 )); do
 done
 
 cd "$1"
-readonly FAILED_FILES_DIR=${2:-../failed}
+tmp="$2"
+readonly FAILED_FILES_DIR=${3:-../failed}
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##"
 
@@ -94,8 +99,9 @@ declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m del
 
 parse_xml() {
   local xml="$1"
+  local sp_name="$2"
   [[ ${VERBOSE} == "true" ]] && echo "Processing $xml ..."
-  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" 2>> "${ERROR_LOG}"; then
+  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" -v "sp_name=$sp_name" 2>> "${ERROR_LOG}"; then
     [[ ${VERBOSE} == "true" ]] && echo "$xml: SUCCESSFULLY PARSED."
     return 0
   else
@@ -105,7 +111,7 @@ parse_xml() {
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     mv -f "${xml_dir}/" "${failed_files_dir}/"
     chmod -R g+w "${failed_files_dir}/$xml_dir/"
-    cd tmp
+    cd $tmp
     [[ ${VERBOSE} == "true" ]] && echo "$xml: FAILED DURING PARSING."
     return 1
   fi
@@ -137,8 +143,8 @@ HEREDOC
 fi
 
 rm -rf "${FAILED_FILES_DIR}"
-rm -rf tmp
-mkdir tmp
+rm -rf $tmp
+mkdir $tmp
 
 [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
 process_start_time=$(date '+%s')
@@ -148,16 +154,16 @@ for scopus_data_archive in *.zip; do
   # Reduced verbosity
   # -u extracting files that are newer and files that do not already exist on disk
   # -q perform operations quietly
-  unzip -u -q "${scopus_data_archive}" -d tmp
+  unzip -u -q "${scopus_data_archive}" -d $tmp
 
   export failed_files_dir="${FAILED_FILES_DIR}/${scopus_data_archive}"
-  cd tmp
+  cd $tmp
   rm -f "${ERROR_LOG}"
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
     # Process Scopus XML files in parallel
     # Reduced verbosity
     if ! find "${subdir}" -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
-        --tagstring '|job#{#} s#{%}|' parse_xml "{}"; then
+        --tagstring '|job#{#} s#{%}|' parse_xml "{}" "$sp_name"; then
       [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
     fi
     while read -r line; do
@@ -212,10 +218,10 @@ else
   echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter_total}"
 fi
 
-cd tmp
+cd $tmp
 check_errors
 # Exits here if errors occurred
 
 cd ..
-rm -rf tmp
+rm -rf $tmp
 exit 0
