@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" attributeFormDefault="unqualified" 
+          targetNamespace="http://www.elsevier.com/xml/xocs/dtd" xmlns:xocs="http://www.elsevier.com/xml/xocs/dtd">
+
+<!-- ********************************************************************************************************** -->
+<!-- * Change History                                                                                         * -->
+<!-- ********************************************************************************************************** -->
+<!-- * April 2007 (version 1.00)  (HvL, Univentio)                                                            * -->
+<!-- *  o  Initial version                                                                                    * -->
+<!-- *                                                                                                        * -->
+<!-- * June 2015 (version 1.01)                                                                               * -->
+<!-- *  This schema imports the xocs-lexisnexis-patent-document_v1-13.xsd                                     * -->
+<!-- *  The xocs-lexisnexis-patent-document_v1-13.xsd was modified based on the original Univentio version to * -->
+<!-- *  add the @language attribute to the abstract,language-of-publication and invention-title               * -->
+<!-- ********************************************************************************************************** -->
+
+	<!-- import Univentios patent schema xocs storage version -->
+	<xs:import schemaLocation="xocs-lexisnexis-patent-document_v1-13.xsd"/>
+
+	<xs:complexType name="dateSortType">
+		<xs:simpleContent>
+			<xs:extension base="xocs:dateType">
+				<xs:attribute name="xfab-added" type="xs:boolean" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="timeStampType">
+		<xs:simpleContent>
+			<xs:extension base="xs:dateTime">
+				<xs:attribute name="yyyymmdd" type="xocs:dateType" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="origLoadDateType">
+		<xs:simpleContent>
+			<xs:extension base="xocs:date2Type">
+				<xs:attribute name="yyyymmdd" type="xocs:dateType" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="indexeddateType">
+		<xs:simpleContent>
+			<xs:extension base="xs:dateTime">
+				<xs:attribute name="epoch" type="xs:integer" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:simpleType name="dateType">
+		<xs:annotation>
+			<xs:documentation>Components of a date. Format: YYYYMMDD  YYYY is 1000 to 2099. MM is 01 to 12.  DD is 01 to 31</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([1][0-9]|[2][0])[0-9]{2}([0][1-9]|[1][0-2])([0][1-9]|[1-2][0-9]|[3][0-1])"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="date2Type">
+		<xs:annotation>
+			<xs:documentation>Components of a date. Format: YYYY-MM-DD  YYYY is 1000 to 2099. MM is 01 to 12.  DD is 01 to 31</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([1][0-9]|[2][0])[0-9]{2}[\-]([0][1-9]|[1][0-2])[\-]([0][1-9]|[1-2][0-9]|[3][0-1])"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="nonEmptyString">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:whiteSpace value="collapse"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="scpeidsType">
+		<xs:sequence>
+			<xs:element name="scpeid" type="xocs:nonEmptyString" minOccurs="1" maxOccurs="unbounded" form="qualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="srctype">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="pat"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="yearType">
+		<xs:annotation>
+			<xs:documentation>Components of a year. 1900 - 2099</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([1][0-9]|[2][0])[0-9]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- the major sections of the document. down here for easy reference right now -->
+	<xs:complexType name="patentDocumentType">
+		<xs:sequence>
+			<xs:element ref="lexisnexis-patent-document"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="metaType">
+		<xs:sequence>
+			<xs:element name="eid" type="xocs:nonEmptyString" form="qualified"/>
+			<xs:element name="timestamp" type="xocs:timeStampType" form="qualified"/>
+			<xs:element name="patnum" type="xocs:nonEmptyString" form="qualified"/>
+			<xs:element name="srctype" type="xocs:srctype" form="qualified"/>
+			<xs:element name="srctitle" type="xocs:nonEmptyString" form="qualified"/>
+			<xs:element name="url" type="xs:string" form="qualified"/>
+			<xs:element name="scpeids" type="xocs:scpeidsType" minOccurs="0" form="qualified"/>
+			<xs:element name="orig-load-date" type="xocs:origLoadDateType" form="qualified"/>
+			<xs:element name="indexeddate" type="xocs:indexeddateType" form="qualified"/>
+			<xs:element name="datesort" type="xocs:dateSortType" form="qualified"/>
+			<xs:element name="pubyr" type="xocs:yearType" form="qualified"/>
+			<xs:element name="absavail" type="xs:integer" form="qualified"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="xocsDocType">
+		<xs:sequence>
+			<xs:element name="meta" type="xocs:metaType" form="qualified"/>
+			<xs:element name="patent-document" type="xocs:patentDocumentType" form="qualified"/>
+		</xs:sequence>
+		<xs:attribute name="content-type" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="Patent"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<!-- Root element "xocs:doc" -->
+	<xs:element name="doc" type="xocs:xocsDocType"/>
+</xs:schema>

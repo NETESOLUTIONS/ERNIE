@@ -41,19 +41,19 @@ IS 'Funder Registry ID';
 --endregion
 
 -- region scopus_grant_acknowledgement
-CREATE TABLE scopus_grant_acknowledgement (
-  scp BIGINT CONSTRAINT sgrant_ack_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+CREATE TABLE scopus_grant_acknowledgements (
+  scp BIGINT CONSTRAINT sga_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   grant_text TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_grant_acknowledgement PRIMARY KEY (scp) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_grant_acknowledgement_pk PRIMARY KEY (scp) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
-COMMENT ON TABLE scopus_grant_acknowledgement
+COMMENT ON TABLE scopus_grant_acknowledgements
 IS 'Grants acknowledgement table of publications';
 
-COMMENT ON COLUMN scopus_grant_acknowledgement.scp
+COMMENT ON COLUMN scopus_grant_acknowledgements.scp
 IS 'Scopus id. Example: 84936047855';
 
-COMMENT ON COLUMN scopus_grant_acknowledgement.grant_text
+COMMENT ON COLUMN scopus_grant_acknowledgements.grant_text
 IS 'The complete text of the Acknowledgement section plus all other text elements from the original source containing funding/grnat information';
 --endregion
