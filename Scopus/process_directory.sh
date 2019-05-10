@@ -68,10 +68,10 @@ declare -rx PARALLEL_LOG=parallel.log
 
 FAILED_FILES_DIR="../failed"
 
-echo "process_directory.sh"
+echo -e "\nprocess_directory.sh ..."
 
 while (( $# > 0 )); do
-  echo "Using command line option '$1'"
+  echo "Using CLI arg '$1'"
   case "$1" in
     -c)
       readonly CLEAN_MODE=true
@@ -82,11 +82,12 @@ while (( $# > 0 )); do
       ;;
     -f)
       shift
+      echo "Using CLI arg '$1'"
       readonly FAILED_FILES_DIR="$1"
       ;;
     -s)
       shift
-      echo "Using command line option '$1'"
+      echo "Using CLI arg '$1'"
       readonly SUBSET_SP=$1
       ;;
     -t)
