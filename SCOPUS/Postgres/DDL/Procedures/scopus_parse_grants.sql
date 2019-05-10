@@ -5,7 +5,7 @@
 SET TIMEZONE = 'US/Eastern';
 
 -- additional source information
-CREATE OR REPLACE PROCEDURE update_scopus_grants(scopus_doc_xml XML)
+CREATE OR REPLACE PROCEDURE scopus_parse_grants(scopus_doc_xml XML)
 AS $$
   BEGIN
     -- scopus_grants
