@@ -151,8 +151,8 @@ WHERE exists(SELECT 1
              FROM temp_delete_wosid b
              WHERE a.source_id = b.source_id);
 
--- Update log table.
-UPDATE update_log_wos
+-- Update log table./*
+/*UPDATE update_log_wos
 SET last_updated = current_timestamp, --
   num_wos = (
     SELECT count(1)
@@ -163,4 +163,4 @@ SET last_updated = current_timestamp, --
     JOIN temp_delete_wosid b USING (source_id))
 WHERE id = (
   SELECT max(id)
-  FROM update_log_wos);
+  FROM update_log_wos);*/
