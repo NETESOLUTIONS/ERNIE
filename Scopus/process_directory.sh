@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-if [[ $# -lt 2 || "$1" == "-h" ]]; then
+if [[ "$1" == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
 
@@ -7,39 +7,51 @@ NAME
 
 SYNOPSIS
 
-    process_directory.sh [-c] [-e] [-v] [-v] [-s] working_dir tmp_dir [failed_files_dir]
+    process_directory.sh [-c] [-e] [-v] [-v] [-s subset_SP] [-t tmp_dir] [-f failed_files_dir] [working_dir]
     process_directory.sh -h: display this help
 
 DESCRIPTION
 
-    * Parse all source Scopus files from the specified `working_dir` and update data in the DB in parallel.
-    * Extract *.zip in the working directory one-by-one, updating files: newer and non-existent only.
-    * Parsing and other SQL errors don't fail the build unless `-e` is specified.
-    * Move XML files failed to be parsed to `failed_files_dir`, relative to the working dir. (../failed/ by default)
-    ** WARNING: be aware that `failed_files_dir` is cleaned before processing!
-    * Produce an error log in `{working_dir}/$tmp/errors.log`.
-    * Produce output with reduced verbosity to reduce log volume.
-
-    To stop process gracefully after the current ZIP is processed, create a `{working_dir}/.stop` signal file.
+    Extract all source Scopus ZIP files from the working_dir (`.` by default) into the tmp_dir.
+    Process extracted ZIPs one-by-one. Parse all XMLs and update data in the DB in parallel.
+    Produce an error log in `{tmp_dir}/errors.log`.
+    Produce output with reduced verbosity to reduce the log volume.
 
     The following options are available:
 
     -c    clean load: truncate data. WARNING: be aware that you'll lose all loaded data!
 
-    -e    stop on the first error
+    -e    stop on the first error. Parsing and other SQL errors don't fail the build unless `-e` is specified.
 
     -v    verbose output: print processed XML files and error details as errors occur
 
-    -v -v extra-verbose output: print all lines (set -x)
+    -v -v extra-verbose output: print all lines (`set -x`)
 
-    -s    parse a subset of data via the update_scopus_grants SP
+    -s subset_SP: parse a subset of data via the specified subset parsing Stored Procedure (SP)
+
+    -t tmp_dir: relative to working_dir, `tmp` or `tmp-{SP_name}` (for subsets) by default
+          WARNING: be aware that tmp_dir is removed before processing and on success
+
+    -f failed_files_dir: move failed XML files to failed_files_dir: relative to working_dir, `../failed/` by default
+          WARNING: be aware that failed_files_dir is cleaned before processing
+
+    To stop process gracefully after the current ZIP is processed, create a `{working_dir}/.stop` signal file.
+
 ENVIRONMENT
 
     * PGHOST/PGDATABASE/PGUSER  default Postgres connection parameters
 
-AUTHOR(S)
 
-    Written by Dmitriy "DK" Korobskiy.
+EXAMPLES
+
+    To run in verbose mode and stop on the first error:
+
+      $ ./process_directory.sh -e -v /erniedev_data3/Scopus-testing
+
+    To run a parser subset and stop on the first error:
+
+      ll ../failed$ ./process_directory.sh -s scopus_parse_grants -e /erniedev_data3/Scopus-testing
+
 HEREDOC
   exit 1
 fi
@@ -53,12 +65,34 @@ readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx ERROR_LOG=error.log
 declare -rx PARALLEL_LOG=parallel.log
-declare -x FAILED_FILES="False"
+
+FAILED_FILES_DIR="../failed"
+
+echo -e "\nprocess_directory.sh ..."
 
 while (( $# > 0 )); do
+  echo "Using CLI arg '$1'"
   case "$1" in
     -c)
       readonly CLEAN_MODE=true
+      ;;
+    -e)
+      readonly STOP_ON_THE_FIRST_ERROR=true
+#      echo "process_directory.sh should stop on the first error."
+      ;;
+    -f)
+      shift
+      echo "Using CLI arg '$1'"
+      readonly FAILED_FILES_DIR="$1"
+      ;;
+    -s)
+      shift
+      echo "Using CLI arg '$1'"
+      readonly SUBSET_SP=$1
+      ;;
+    -t)
+      shift
+      tmp=$1
       ;;
     -v)
       # Second "-v" = extra verbose?
@@ -68,22 +102,19 @@ while (( $# > 0 )); do
         declare -rx VERBOSE=true
       fi
       ;;
-    -e)
-      readonly STOP_ON_THE_FIRST_ERROR=true
-      echo "process_directory.sh should stop on the first error."
-      ;;
-    -s)
-      readonly sp_name=$"update_scopus_grants"
-      ;;
     *)
-      break
+      cd "$1"
   esac
   shift
 done
 
-cd "$1"
-tmp="$2"
-readonly FAILED_FILES_DIR=${3:-../failed}
+if [[ ! ${tmp} ]]; then
+  if [[ ${SUBSET_SP} ]]; then
+    tmp="tmp-${SUBSET_SP}"
+  else
+    tmp="tmp"
+  fi
+fi
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##"
 
@@ -99,9 +130,9 @@ declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m del
 
 parse_xml() {
   local xml="$1"
-  local sp_name="$2"
+  [[ $2 ]] && local subset_option="-v subset_sp=$2"
   [[ ${VERBOSE} == "true" ]] && echo "Processing $xml ..."
-  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" -v "sp_name=$sp_name" 2>> "${ERROR_LOG}"; then
+  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" ${subset_option} 2>>"${ERROR_LOG}"; then
     [[ ${VERBOSE} == "true" ]] && echo "$xml: SUCCESSFULLY PARSED."
     return 0
   else
@@ -110,8 +141,7 @@ parse_xml() {
     cd ..
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     mv -f "${xml_dir}/" "${failed_files_dir}/"
-    chmod -R g+w "${failed_files_dir}/$xml_dir/"
-    cd $tmp
+    cd ${tmp}
     [[ ${VERBOSE} == "true" ]] && echo "$xml: FAILED DURING PARSING."
     return 1
   fi
@@ -130,21 +160,19 @@ HEREDOC
       echo "====="
     fi
     cd ..
+    chmod -R g+w "${FAILED_FILES_DIR}"
     exit 1
   fi
 }
 
 if [[ "${CLEAN_MODE}" == true ]]; then
   echo "In clean mode: truncating all data ..."
-  # language=PostgresPLSQL
-  psql -v ON_ERROR_STOP=on --echo-all <<'HEREDOC'
-    TRUNCATE scopus_publication_groups CASCADE;
-HEREDOC
+  psql -f ${ABSOLUTE_SCRIPT_DIR}/clean_data.sql
 fi
 
 rm -rf "${FAILED_FILES_DIR}"
-rm -rf $tmp
-mkdir $tmp
+rm -rf ${tmp}
+mkdir ${tmp}
 
 [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
 process_start_time=$(date '+%s')
@@ -157,13 +185,13 @@ for scopus_data_archive in *.zip; do
   unzip -u -q "${scopus_data_archive}" -d $tmp
 
   export failed_files_dir="${FAILED_FILES_DIR}/${scopus_data_archive}"
-  cd $tmp
+  cd ${tmp}
   rm -f "${ERROR_LOG}"
   for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
     # Process Scopus XML files in parallel
     # Reduced verbosity
     if ! find "${subdir}" -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
-        --tagstring '|job#{#} s#{%}|' parse_xml "{}" "$sp_name"; then
+        --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}; then
       [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
     fi
     while read -r line; do
@@ -177,12 +205,12 @@ for scopus_data_archive in *.zip; do
   done
   cd ..
 
-  echo "ZIP-LEVEL SUMMARY FOR ${scopus_data_archive}:"
-  echo "NUMBER OF XML FILES SUCCESSFULLY PARSED: ${processed_xml_counter}"
+  echo "SUMMARY FOR ${scopus_data_archive}:"
+  echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"
   if ((failed_xml_counter == 0)); then
-    echo "SUCCESS"
+    echo "ALL IS WELL"
   else
-    echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter}"
+    echo "FAILED PARSING ${failed_xml_counter} XML FILES"
   fi
   ((failed_xml_counter_total += failed_xml_counter)) || :
   failed_xml_counter=0
@@ -190,8 +218,7 @@ for scopus_data_archive in *.zip; do
   processed_xml_counter=0
 
   if [[ -f "${STOP_FILE}" ]]; then
-    echo "Found the stop signal file. Gracefully stopping..."
-#    rm -f "${STOP_FILE}"
+    echo -e "\nFound the stop signal file. Gracefully stopping..."
     break
   fi
 
@@ -211,17 +238,17 @@ for scopus_data_archive in *.zip; do
 done
 
 echo -e "\nDIRECTORY SUMMARY:"
-echo "NUMBER OF XML FILES WHICH SUCCESSFULLY PARSED: ${processed_xml_counter_total}"
+echo "SUCCESSFULLY PARSED ${processed_xml_counter_total} XML FILES"
 if ((failed_xml_counter_total == 0)); then
-  echo "SUCCESS"
+  echo "ALL IS WELL"
 else
-  echo "NUMBER OF XML FILES WHICH FAILED PARSING: ${failed_xml_counter_total}"
+  echo "FAILED PARSING ${failed_xml_counter_total} XML FILES"
 fi
 
-cd $tmp
+cd ${tmp}
 check_errors
 # Exits here if errors occurred
 
 cd ..
-rm -rf $tmp
+rm -rf ${tmp}
 exit 0

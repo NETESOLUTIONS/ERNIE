@@ -5,7 +5,7 @@
 SET TIMEZONE = 'US/Eastern';
 
 -- journal source and classifications
-CREATE OR REPLACE PROCEDURE update_scopus_source_classifications(scopus_doc_xml XML)
+CREATE OR REPLACE PROCEDURE scopus_parse_pub_details_subjects_and_classes(scopus_doc_xml XML)
 AS $$
   BEGIN
     -- scopus_source_publication_details

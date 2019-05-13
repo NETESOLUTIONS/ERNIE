@@ -5,7 +5,7 @@
 SET TIMEZONE = 'US/Eastern';
 
 -- author information
-CREATE OR REPLACE PROCEDURE update_scopus_author_affiliations(scopus_doc_xml XML)
+CREATE OR REPLACE PROCEDURE scopus_parse_authors_and_affiliations(scopus_doc_xml XML)
 AS $$
   BEGIN
     -- scopus_authors
