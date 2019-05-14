@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.dblp_authors</OriginalElement>
+  <nodes>
+    <node x="220.0" y="252.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.dblp_publications</node>
+    <node x="0.0" y="137.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.dblp_references</node>
+    <node x="0.0" y="0.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.dblp_document_identifiers</node>
+    <node x="0.0" y="252.0">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.dblp_authors</node>
+  </nodes>
+  <notes />
+  <edges />
+  <settings layout="Hierarchic Group" zoom="1.0" x="318.0" y="195.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Key columns</Category>
+  </Categories>
+</Diagram>
+
