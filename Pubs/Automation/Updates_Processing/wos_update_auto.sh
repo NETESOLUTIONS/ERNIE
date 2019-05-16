@@ -94,7 +94,9 @@ for core_file in $(ls *.tar.gz | sort -n); do
 
   # Unzip update file to a sub-directory.
   echo "***Unzipping update file: ${core_file}"
-  tar --extract --file=${core_file} --gzip --verbose *.xml*
+  xml_update_dir=${core_file%%.*}
+  mkdir ${xml_update_dir}
+  tar --extract --file=${core_file} --gzip --verbose -C ${xml_update_dir} --strip-components=1
 
   # Extract file name without extension
   xml_update_dir=${core_file%%.*}
