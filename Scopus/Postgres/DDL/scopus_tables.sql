@@ -499,21 +499,21 @@ CREATE TABLE scopus_references (
 ) PARTITION BY RANGE (scp)
 TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_1 PARTITION OF scopus_references FOR VALUES FROM (0) TO (12500000000);
+CREATE TABLE scopus_references_partition_1 PARTITION OF scopus_references FOR VALUES FROM (0) TO (12500000000) TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_2 PARTITION OF scopus_references FOR VALUES FROM (12500000001) TO (25000000000);
+CREATE TABLE scopus_references_partition_2 PARTITION OF scopus_references FOR VALUES FROM (12500000001) TO (25000000000) TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_3 PARTITION OF scopus_references FOR VALUES FROM (25000000001) TO (37500000000);
+CREATE TABLE scopus_references_partition_3 PARTITION OF scopus_references FOR VALUES FROM (25000000001) TO (37500000000) TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_4 PARTITION OF scopus_references FOR VALUES FROM (37500000001) TO (50000000000);
+CREATE TABLE scopus_references_partition_4 PARTITION OF scopus_references FOR VALUES FROM (37500000001) TO (50000000000) TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_5 PARTITION OF scopus_references FOR VALUES FROM (50000000001) TO (62500000000);
+CREATE TABLE scopus_references_partition_5 PARTITION OF scopus_references FOR VALUES FROM (50000000001) TO (62500000000) TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_6 PARTITION OF scopus_references FOR VALUES FROM (62500000001) TO (75000000000);
+CREATE TABLE scopus_references_partition_6 PARTITION OF scopus_references FOR VALUES FROM (62500000001) TO (75000000000) TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_7 PARTITION OF scopus_references FOR VALUES FROM (75000000001) TO (87500000000);
+CREATE TABLE scopus_references_partition_7 PARTITION OF scopus_references FOR VALUES FROM (75000000001) TO (87500000000) TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_8 PARTITION OF scopus_references FOR VALUES FROM (87500000001) TO (100000000000);
+CREATE TABLE scopus_references_partition_8 PARTITION OF scopus_references FOR VALUES FROM (87500000001) TO (100000000000) TABLESPACE scopus_tbs;
 
 CREATE INDEX IF NOT EXISTS sr_ref_sgr_i ON scopus_references(ref_sgr) TABLESPACE index_tbs;
 
