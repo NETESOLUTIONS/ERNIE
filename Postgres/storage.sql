@@ -19,12 +19,10 @@ SELECT
     WHEN 'pg_global' THEN ps.setting || '/global'
     ELSE pg_tablespace_location(pt.oid)
   END AS location,
-  pt.oid AS tablespace_oid --, pd.datname AS using_db, ptd.oid AS using_db_oid
+  pt.oid AS tablespace_oid
 FROM pg_tablespace pt, pg_settings ps
 WHERE ps.name = 'data_directory'
-  -- LEFT JOIN LATERAL pg_tablespace_databases(pt.oid) ptd ON TRUE -- table function (returns setof oid)
-  -- LEFT JOIN pg_database pd ON ptd.oid = pd.oid
-ORDER BY pg_tablespace_size(pt.spcname) DESC/*, pd.datname*/;
+ORDER BY pg_tablespace_size(pt.spcname) DESC;
 
 /*
 Relations (data-containing objects) by a tablespace excluding TOAST tables and their indexes.

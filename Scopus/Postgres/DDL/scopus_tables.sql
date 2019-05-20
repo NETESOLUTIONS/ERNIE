@@ -186,6 +186,8 @@ CREATE TABLE scopus_authors (
 )
 TABLESPACE scopus_tbs;
 
+CREATE INDEX IF NOT EXISTS sa_author_indexed_name_i ON scopus_authors(author_indexed_name) TABLESPACE index_tbs;
+
 COMMENT ON TABLE scopus_authors IS 'Scopus authors information of publications';
 
 COMMENT ON COLUMN scopus_authors.scp IS 'Scopus id. Example: 36849140316';
