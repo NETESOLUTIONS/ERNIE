@@ -9,6 +9,7 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
+SET search_path TO public;
 
 -- Legal Data parsing
 CREATE OR REPLACE PROCEDURE lexis_nexis_parse_legal_data(input_xml XML) AS
@@ -72,7 +73,7 @@ $$
                 sequence_id INT PATH '@sequence',
 
                 --below are sub elements, many with minOccurs=0 per the XML schema.
-                publication_date TEXT PATH 'publication-date/date' NOT NULL,
+                publication_date DATE PATH 'publication-date/date' NOT NULL,
                 event_code_1 TEXT PATH 'event-code-1' NOT NULL,
                 event_code_2 TEXT PATH 'event-code-2',
                 effect TEXT PATH 'effect',
@@ -124,7 +125,7 @@ $$
           xmltable.abstract_date_changed,
           xmltable.abstract_text
      FROM
-     XMLTABLE('//bibliographic-data/publication-reference' PASSING input_xml
+     XMLTABLE('//abstract' PASSING input_xml
               COLUMNS
                 --below come from higher level nodes
                 country_code TEXT PATH '//bibliographic-data/publication-reference/document-id/country' NOT NULL,
@@ -132,10 +133,10 @@ $$
                 kind_code TEXT PATH '//bibliographic-data/publication-reference/document-id/kind' NOT NULL,
 
                 --below are attributes
-                abstract_language TEXT PATH '//abstract/@lang',
-                abstract_date_changed DATE PATH '//abstract/@date-changed',
+                abstract_language TEXT PATH '@lang',
+                abstract_date_changed DATE PATH '@date-changed',
                 --Below are sub elements
-                abstract_text TEXT PATH 'normalize-space(//abstract)' NOT NULL
+                abstract_text TEXT PATH 'normalize-space(text())' NOT NULL
               )
     ON CONFLICT DO NOTHING;
   END;
@@ -153,7 +154,7 @@ $$
                       main_ipc_classification_class,main_ipc_classification_subclass,main_ipc_classification_main_group,
                       main_ipc_classification_subgroup,main_ipc_classification_qualifying_character,main_national_classification_country,
                       main_national_classification_text,main_national_classification_class,main_national_classification_subclass,
-                      number_of_claims,invention_title)
+                      number_of_claims)
     SELECT
           xmltable.country_code,
           xmltable.doc_number,
@@ -174,8 +175,7 @@ $$
           xmltable.main_national_classification_text,
           xmltable.main_national_classification_class,
           xmltable.main_national_classification_subclass,
-          xmltable.number_of_claims,
-          xmltable.invention_title
+          xmltable.number_of_claims
      FROM
      XMLTABLE('//bibliographic-data' PASSING input_xml
               COLUMNS
@@ -188,8 +188,8 @@ $$
                 kind_code TEXT PATH 'publication-reference/document-id/kind' NOT NULL,
                 language_of_filing TEXT PATH 'language-of-filing',
                 language_of_publication TEXT PATH 'language-of-publication',
-                date_of_public_availability_unexamined_printed_wo_grant TEXT PATH 'dates-of-public-availability/unexamined-printed-without-grant/date',
-                date_of_public_availability_printed_w_grant TEXT PATH 'dates-of-public-availability/printed-with-grant/date',
+                date_of_public_availability_unexamined_printed_wo_grant DATE PATH 'dates-of-public-availability/unexamined-printed-without-grant/date',
+                date_of_public_availability_printed_w_grant DATE PATH 'dates-of-public-availability/printed-with-grant/date',
                 main_ipc_classification_text TEXT PATH 'classification-ipc/main-classification/text',
                 main_ipc_classification_edition TEXT PATH 'classification-ipc/main-classification/edition',
                 main_ipc_classification_section TEXT PATH 'classification-ipc/main-classification/section',
@@ -202,8 +202,31 @@ $$
                 main_national_classification_text TEXT PATH 'classification-national/main-classification/text',
                 main_national_classification_class TEXT PATH 'classification-national/main-classification/class',
                 main_national_classification_subclass TEXT PATH 'classification-national/main-classification/subclass',
-                number_of_claims INT PATH 'number-of-claims',
-                invention_title TEXT PATH 'invention-title'
+                number_of_claims INT PATH 'number-of-claims'
+                )
+    ON CONFLICT DO NOTHING;
+
+
+
+    INSERT INTO lexis_nexis_patent_titles(country_code,doc_number,kind_code,invention_title,language)
+    SELECT
+          xmltable.country_code,
+          xmltable.doc_number,
+          xmltable.kind_code,
+          xmltable.invention_title,
+          xmltable.title_language
+     FROM
+     XMLTABLE('//bibliographic-data/invention-title' PASSING input_xml
+              COLUMNS
+                --below are attributes
+                language TEXT PATH '@lang',
+
+                --Below are sub elements
+                country_code TEXT PATH '//bibliographic-data/publication-reference/document-id/country' NOT NULL,
+                doc_number TEXT PATH '//bibliographic-data/publication-reference/document-id/doc-number' NOT NULL,
+                kind_code TEXT PATH '//bibliographic-data/publication-reference/document-id/kind' NOT NULL,
+                invention_title TEXT PATH 'text()' NOT NULL,
+                title_language TEXT PATH '@lang' NOT NULL
                 )
     ON CONFLICT DO NOTHING;
 
