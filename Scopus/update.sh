@@ -9,7 +9,7 @@ NAME
 SYNOPSIS
 
   update.sh [-r] [-s subset_SP] data_directory [...]
-  smokeload.sh -h: display this help
+  update.sh -h: display this help
 
 DESCRIPTION
 
@@ -71,13 +71,12 @@ rm -f eta.log
 declare -i files=${#sorted_args[@]} i=0 start_time file_start_time file_stop_time delta delta_s delta_m della_h \
     elapsed=0 est_total eta
 for ZIP_DATA in "${sorted_args[@]}"; do
-  rm -rf work_dir/*
   file_start_time=$(date '+%s')
   (( i == 0 )) && start_time=${file_start_time}
   echo -e "\n## Zip file #$((++i)) out of ${files} ##"
   echo "Unzipping ${ZIP_DATA} file into a working directory ..."
   DATA_DIR="${ZIP_DATA%.zip}"
-  unzip -u -q "${ZIP_DATA}" -d "work_dir/${DATA_DIR}"
+  unzip -u -q "${ZIP_DATA}" -d "${DATA_DIR}"
 
   #echo "Processing ${DATA_DIR} directory ..."
   #if ! "${ABSOLUTE_SCRIPT_DIR}/process_directory.sh" -f "${FAILED_FILES_DIR}" ${SUBSET_OPTION} "${DATA_DIR}"; then
@@ -92,7 +91,7 @@ for ZIP_DATA in "${sorted_args[@]}"; do
   printf "\n$(TZ=America/New_York date) Done with ${ZIP_DATA} data file in %dh:%02dm:%02ds\n" ${della_h} \
          ${delta_m} ${delta_s} | tee -a eta.log
   if [[ -f "${ZIP_DATA}/${STOP_FILE}" ]]; then
-    echo "Found the stop signal file. Gracefully stopping the smokeload..."
+    echo "Found the stop signal file. Gracefully stopping the update..."
     rm -f "${ZIP_DATA}/${STOP_FILE}"
     break
   fi
