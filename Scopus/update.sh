@@ -78,10 +78,14 @@ for ZIP_DATA in "${sorted_args[@]}"; do
   DATA_DIR="${ZIP_DATA%.zip}"
   unzip -u -q "${ZIP_DATA}" -d "${DATA_DIR}"
 
-  #echo "Processing ${DATA_DIR} directory ..."
-  #if ! "${ABSOLUTE_SCRIPT_DIR}/process_directory.sh" -f "${FAILED_FILES_DIR}" ${SUBSET_OPTION} "${DATA_DIR}"; then
-  #  failures_occurred="true"
-  #fi
+  echo "Processing ${DATA_DIR} directory ..."
+  if ! "${ABSOLUTE_SCRIPT_DIR}/process_directory.sh" -f "${FAILED_FILES_DIR}" ${SUBSET_OPTION} "${DATA_DIR}"; then
+    failures_occurred="true"
+  fi
+
+  #echo "Removing directory ${ZIP_DATA%.zip}"
+  #rm -rf "${ZIP_DATA%.zip}"
+
   file_stop_time=$(date '+%s')
 
   ((delta=file_stop_time - file_start_time + 1)) || :
