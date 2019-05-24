@@ -88,6 +88,7 @@ for ZIP_DATA in "${sorted_args[@]}"; do
     failures_occurred="true"
   fi
 
+  #TODO: uncomment and add this in once we have an automated process set up
   #echo "Removing directory ${ZIP_DATA%.zip}"
   #rm -rf "${ZIP_DATA%.zip}"
 
