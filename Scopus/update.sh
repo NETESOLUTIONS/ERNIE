@@ -14,7 +14,12 @@ SYNOPSIS
 DESCRIPTION
 
   Process specified zip files in alphabetical or reverse order.
-  TODO: automatically skip processing of files based on a finished_filelist.txt file. Copy files from some secondary storing location and then proceed to work on them.
+  data_directory could be an absolute or relative to the working directory location.
+
+  TODO:
+    1) Automatically skip processing of files based on a finished_filelist.txt file.
+    2) Copy files from some secondary storing location and then proceed to work on them.
+
   data_directory could be an absolute or relative to the working directory location.
 
   The following options are available:
