@@ -139,9 +139,11 @@ parse_xml() {
     return 0
   else
     local full_xml_path=$(realpath ${xml})
+    local full_error_log_path=$(realpath ${ERROR_LOG})
     cd ..
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     mv -f $full_xml_path "${failed_files_dir}/"
+    cp $full_error_log_path "${failed_files_dir}/"
     cd ${tmp}
     [[ ${VERBOSE} == "true" ]] && echo "$xml: FAILED DURING PARSING."
     return 1
@@ -200,9 +202,8 @@ for scopus_data_archive in *.zip; do
       ((++processed_xml_counter))
     fi
   done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
-  full_error_log_path=$(realpath ${ERROR_LOG})
-  cp $full_error_log_path "${failed_files_dir}/"
   rm -rf "${PARALLEL_LOG}"
+
   cd ..
 
   echo "SUMMARY FOR ${scopus_data_archive}:"
