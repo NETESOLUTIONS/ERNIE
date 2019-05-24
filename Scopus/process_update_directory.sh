@@ -139,11 +139,12 @@ parse_xml() {
     return 0
   else
     local full_xml_path=$(realpath ${xml})
+    local full_error_log_path=$(realpath ${ERROR_LOG})
     cd ..
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     mv -f $full_xml_path "${failed_files_dir}/"
+    cp $full_error_log_path "${failed_files_dir}/"
     cd ${tmp}
-    cp "${ERROR_LOG}" "${failed_files_dir}/"
     [[ ${VERBOSE} == "true" ]] && echo "$xml: FAILED DURING PARSING."
     return 1
   fi
