@@ -190,7 +190,7 @@ for scopus_data_archive in *.zip; do
   cd ${tmp}
   rm -f "${ERROR_LOG}"
 
-  if ! find -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
+  find -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
       --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}; then
     [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
   fi
