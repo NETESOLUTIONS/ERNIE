@@ -14,7 +14,7 @@ SYNOPSIS
 DESCRIPTION
 
   Process specified zip files in alphabetical or reverse order.
-  TODO: automatically skip processing of files based on a finished_filelist.txt file.
+  TODO: automatically skip processing of files based on a finished_filelist.txt file. Copy files from some secondary storing location and then proceed to work on them.
   data_directory could be an absolute or relative to the working directory location.
 
   The following options are available:
@@ -71,12 +71,13 @@ rm -f eta.log
 declare -i files=${#sorted_args[@]} i=0 start_time file_start_time file_stop_time delta delta_s delta_m della_h \
     elapsed=0 est_total eta
 for ZIP_DATA in "${sorted_args[@]}"; do
+  rm -rf work_dir/*
   file_start_time=$(date '+%s')
   (( i == 0 )) && start_time=${file_start_time}
-  echo -e "\n## Zip #$((++i)) out of ${files} ##"
+  echo -e "\n## Zip file #$((++i)) out of ${files} ##"
   echo "Unzipping ${ZIP_DATA} file into a working directory ..."
   DATA_DIR="${ZIP_DATA%.zip}"
-  unzip -u -q "${ZIP_DATA}" -d "${DATA_DIR}"
+  unzip -u -q "${ZIP_DATA}" -d "work_dir/${DATA_DIR}"
 
   #echo "Processing ${DATA_DIR} directory ..."
   #if ! "${ABSOLUTE_SCRIPT_DIR}/process_directory.sh" -f "${FAILED_FILES_DIR}" ${SUBSET_OPTION} "${DATA_DIR}"; then
