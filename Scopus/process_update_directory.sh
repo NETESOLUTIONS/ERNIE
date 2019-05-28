@@ -67,8 +67,8 @@ readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx ERROR_LOG=error.log
 declare -rx PARALLEL_LOG=parallel.log
-declare -rx PROCESSED_LOG="$(pwd)/processed.log"
 
+PROCESSED_LOG="../processed.log"
 FAILED_FILES_DIR="../failed"
 
 echo -e "\nprocess_update_directory.sh ..."

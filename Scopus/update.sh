@@ -49,6 +49,7 @@ readonly STOP_FILE=".stop"
 readonly SCRIPT_DIR=${0%/*}
 readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 readonly FAILED_FILES_DIR=../failed
+readonly PROCESSED_LOG=/erniedev_data2/Scopus_updates/processed.log
 
 while (( $# > 0 )); do
   case "$1" in
@@ -84,7 +85,7 @@ for ZIP_DATA in "${sorted_args[@]}"; do
   unzip -u -q "${ZIP_DATA}" -d "${DATA_DIR}"
 
   echo "Processing ${DATA_DIR} directory ..."
-  if ! "${ABSOLUTE_SCRIPT_DIR}/process_update_directory.sh" -f "${FAILED_FILES_DIR}" ${SUBSET_OPTION} "${DATA_DIR}" -p "$(pwd)/processed.log"; then
+  if ! "${ABSOLUTE_SCRIPT_DIR}/process_update_directory.sh" -p "${PROCESSED_LOG}" -f "${FAILED_FILES_DIR}" ${SUBSET_OPTION} "${DATA_DIR}"; then
     failures_occurred="true"
   fi
 
