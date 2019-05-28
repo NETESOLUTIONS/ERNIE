@@ -84,7 +84,7 @@ for ZIP_DATA in "${sorted_args[@]}"; do
   unzip -u -q "${ZIP_DATA}" -d "${DATA_DIR}"
 
   echo "Processing ${DATA_DIR} directory ..."
-  if ! "${ABSOLUTE_SCRIPT_DIR}/process_update_directory.sh" -f "${FAILED_FILES_DIR}" ${SUBSET_OPTION} "${DATA_DIR}"; then
+  if ! "${ABSOLUTE_SCRIPT_DIR}/process_update_directory.sh" -f "${FAILED_FILES_DIR}" ${SUBSET_OPTION} "${DATA_DIR}" -p "$(pwd)/processed.log"; then
     failures_occurred="true"
   fi
 

@@ -67,6 +67,7 @@ readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx ERROR_LOG=error.log
 declare -rx PARALLEL_LOG=parallel.log
+declare -rx PROCESSED_LOG="$(pwd)/processed.log"
 
 FAILED_FILES_DIR="../failed"
 
@@ -86,6 +87,11 @@ while (( $# > 0 )); do
       shift
       echo "Using CLI arg '$1'"
       readonly FAILED_FILES_DIR="$1"
+      ;;
+    -p)
+      shift
+      echo "Using CLI arg '$1'"
+      readonly PROCESSED_LOG="$1"
       ;;
     -s)
       shift
@@ -181,60 +187,65 @@ mkdir ${tmp}
 process_start_time=$(date '+%s')
 for scopus_data_archive in *.zip; do
   start_time=$(date '+%s')
-  echo -e "\nProcessing ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} )..."
-  # Reduced verbosity
-  # -u extracting files that are newer and files that do not already exist on disk
-  # -q perform operations quietly
-  unzip -u -q "${scopus_data_archive}" -d $tmp
-
-  export failed_files_dir="${FAILED_FILES_DIR}/${scopus_data_archive}"
-  cd ${tmp}
-  rm -f "${ERROR_LOG}"
-
-  if ! find -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
-      --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}; then
-    [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
-  fi
-  while read -r line; do
-    if echo $line | grep -q "1"; then
-      ((++failed_xml_counter))
-    else
-      ((++processed_xml_counter))
-    fi
-  done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
-  rm -rf "${PARALLEL_LOG}"
-
-  cd ..
-
-  echo "SUMMARY FOR ${scopus_data_archive}:"
-  echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"
-  if ((failed_xml_counter == 0)); then
-    echo "ALL IS WELL"
+  if grep -q "^${scopus_data_archive}$" "${PROCESSED_LOG}"; then
+    echo "Skipping file ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} ). It is already marked as completed."
   else
-    echo "FAILED PARSING ${failed_xml_counter} XML FILES"
-  fi
-  ((failed_xml_counter_total += failed_xml_counter)) || :
-  failed_xml_counter=0
-  ((processed_xml_counter_total += processed_xml_counter)) || :
-  processed_xml_counter=0
+    echo -e "\nProcessing ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} )..."
+    # Reduced verbosity
+    # -u extracting files that are newer and files that do not already exist on disk
+    # -q perform operations quietly
+    unzip -u -q "${scopus_data_archive}" -d $tmp
 
-  if [[ -f "${STOP_FILE}" ]]; then
-    echo -e "\nFound the stop signal file. Gracefully stopping..."
-    break
-  fi
+    export failed_files_dir="${FAILED_FILES_DIR}/${scopus_data_archive}"
+    cd ${tmp}
+    rm -f "${ERROR_LOG}"
 
-  stop_time=$(date '+%s')
-  ((delta = stop_time - start_time + 1)) || :
-  ((delta_s = delta % 60)) || :
-  ((delta_m = (delta / 60) % 60)) || :
-  ((della_h = delta / 3600)) || :
-  printf "$(TZ=America/New_York date) :  Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds\n" ${della_h} \
-         ${delta_m} ${delta_s}
-  if (( i < num_zips )); then
-    ((elapsed = elapsed + delta))
-    ((est_total = num_zips * elapsed / i)) || :
-    ((eta = process_start_time + est_total))
-    echo "ETA for completion of the current directory: $(TZ=America/New_York date --date=@${eta})"
+    if ! find -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
+        --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}; then
+      [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
+    fi
+    while read -r line; do
+      if echo $line | grep -q "1"; then
+        ((++failed_xml_counter))
+      else
+        ((++processed_xml_counter))
+      fi
+    done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
+    rm -rf "${PARALLEL_LOG}"
+
+    cd ..
+
+    echo "SUMMARY FOR ${scopus_data_archive}:"
+    echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"
+    if ((failed_xml_counter == 0)); then
+      echo "ALL IS WELL"
+    else
+      echo "FAILED PARSING ${failed_xml_counter} XML FILES"
+    fi
+    ((failed_xml_counter_total += failed_xml_counter)) || :
+    failed_xml_counter=0
+    ((processed_xml_counter_total += processed_xml_counter)) || :
+    processed_xml_counter=0
+    echo "${scopus_data_archive}" >> "${PROCESSED_LOG}"
+
+    if [[ -f "${STOP_FILE}" ]]; then
+      echo -e "\nFound the stop signal file. Gracefully stopping..."
+      break
+    fi
+
+    stop_time=$(date '+%s')
+    ((delta = stop_time - start_time + 1)) || :
+    ((delta_s = delta % 60)) || :
+    ((delta_m = (delta / 60) % 60)) || :
+    ((della_h = delta / 3600)) || :
+    printf "$(TZ=America/New_York date) :  Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds\n" ${della_h} \
+           ${delta_m} ${delta_s}
+    if (( i < num_zips )); then
+      ((elapsed = elapsed + delta))
+      ((est_total = num_zips * elapsed / i)) || :
+      ((eta = process_start_time + est_total))
+      echo "ETA for completion of the current directory: $(TZ=America/New_York date --date=@${eta})"
+    fi
   fi
 done
 
