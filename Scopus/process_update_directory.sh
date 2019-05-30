@@ -21,8 +21,6 @@ DESCRIPTION
 
     The following options are available:
 
-    -c    clean load: truncate data. WARNING: be aware that you'll lose all loaded data!
-
     -e    stop on the first error. Parsing and other SQL errors don't fail the build unless `-e` is specified.
 
     -v    verbose output: print processed XML files and error details as errors occur
@@ -76,9 +74,6 @@ echo -e "\nprocess_update_directory.sh ..."
 while (( $# > 0 )); do
   echo "Using CLI arg '$1'"
   case "$1" in
-    -c)
-      readonly CLEAN_MODE=true
-      ;;
     -e)
       readonly STOP_ON_THE_FIRST_ERROR=true
 #      echo "process_update_directory.sh should stop on the first error."
@@ -168,20 +163,9 @@ HEREDOC
       cat "${ERROR_LOG}"
       echo "====="
     fi
-    cd ..
-    chmod -R g+w "${FAILED_FILES_DIR}"
     exit 1
   fi
 }
-
-if [[ "${CLEAN_MODE}" == true ]]; then
-  echo "In clean mode: truncating all data ..."
-  psql -f ${ABSOLUTE_SCRIPT_DIR}/clean_data.sql
-fi
-
-rm -rf "${FAILED_FILES_DIR}"
-rm -rf ${tmp}
-mkdir ${tmp}
 
 [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
 process_start_time=$(date '+%s')
@@ -194,7 +178,7 @@ for scopus_data_archive in *.zip; do
     # Reduced verbosity
     # -u extracting files that are newer and files that do not already exist on disk
     # -q perform operations quietly
-    unzip -u -q "${scopus_data_archive}" -d $tmp
+    unzip -u -q "${scopus_data_archive}" -d ${tmp}
 
     export failed_files_dir="${FAILED_FILES_DIR}/${scopus_data_archive}"
     cd ${tmp}
@@ -258,11 +242,10 @@ else
   echo "FAILED PARSING ${failed_xml_counter_total} XML FILES"
 fi
 
-#TODO: reconfigure error handling here.
-#cd ${tmp}
-#check_errors
-# Exits here if errors occurred
+for directory in "${FAILED_FILES_DIR}"; do
+  cd $directory
+  check_errors # Exits here if errors occurred
+  cd
+done
 
-#cd ..
-#rm -rf ${tmp}
 exit 0
