@@ -63,7 +63,7 @@ rm -f eta.log
 declare -i files=$(cd $ZIP_DIR ; ls *ANI-ITEM-full-format-xml.zip| wc -l) i=0 start_time file_start_time file_stop_time delta delta_s delta_m della_h \
     elapsed=0 est_total eta
 
-for ZIP_DATA in "$(ls ${ZIP_DIR}/*ANI-ITEM-full-format-xml.zip)"; do
+for ZIP_DATA in $(ls ${ZIP_DIR}*ANI-ITEM-full-format-xml.zip); do
   file_start_time=$(date '+%s')
   (( i == 0 )) && start_time=${file_start_time}
   echo -e "\n## Update Zip file #$((++i)) out of ${files} update zip files ##"
@@ -102,7 +102,7 @@ done
 
 echo "Main update process completed. Now processing delete files..."
 declare -i num_deletes=$(cd $ZIP_DIR ; ls *ANI-ITEM-delete.zip| wc -l) i=0
-for ZIP_DATA in "$(cd $ZIP_DIR ; ls *ANI-ITEM-delete.zip)"; do
+for ZIP_DATA in $(cd $ZIP_DIR ; ls *ANI-ITEM-delete.zip); do
   if grep -q "^${ZIP_DATA}$" "${PROCESSED_LOG}"; then
     echo "Skipping file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} ). It is already marked as completed."
   else
