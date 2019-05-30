@@ -57,7 +57,7 @@ while (( $# > 0 )); do
 done
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
-echo -e "Zip files to process:\n$(ls ${ZIP_DIR})"
+echo -e "Zip files to process:\n$(ls ${ZIP_DIR}/*.zip)"
 
 rm -f eta.log
 declare -i files=$(cd $ZIP_DIR ; ls *ANI-ITEM-full-format-xml.zip| wc -l) i=0 start_time file_start_time file_stop_time delta delta_s delta_m della_h \
