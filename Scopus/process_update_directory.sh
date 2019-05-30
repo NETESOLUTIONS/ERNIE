@@ -258,10 +258,11 @@ else
   echo "FAILED PARSING ${failed_xml_counter_total} XML FILES"
 fi
 
-cd ${tmp}
-check_errors
+#TODO: reconfigure error handling here.
+#cd ${tmp}
+#check_errors
 # Exits here if errors occurred
 
-cd ..
-rm -rf ${tmp}
+#cd ..
+#rm -rf ${tmp}
 exit 0
