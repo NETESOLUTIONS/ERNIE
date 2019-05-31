@@ -16,7 +16,7 @@ RETURNS TRIGGER AS $update_scp_trigger$
 LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION delete_scp_function()
-RETURNS TRIGGER AS $update_scp_trigger$
+RETURNS TRIGGER AS $delete_scp_trigger$
   BEGIN
     IF (tg_op = 'DELETE') THEN
       INSERT INTO del_scps(scp)

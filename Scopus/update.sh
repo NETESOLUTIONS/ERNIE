@@ -108,7 +108,7 @@ for ZIP_DATA in $(cd $ZIP_DIR ; ls *ANI-ITEM-delete.zip); do
   else
     echo -e "\nProcessing delete file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} )..."
     unzip ${ZIP_DIR}/${ZIP_DATA}
-    #psql -f process_deletes.sql
+    psql -f process_deletes.sql
     rm delete.txt
     echo "${ZIP_DATA}" >> ${PROCESSED_LOG}
     echo "Delete file ${ZIP_DATA} processed."
