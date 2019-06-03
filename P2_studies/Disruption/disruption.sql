@@ -3,6 +3,7 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
+SET search_path to public;
 
 -- Assuming there are no double references
 SELECT :'pub_id' AS focal_paper_id, sq.*, CAST(sq.i - sq.j AS FLOAT) / (sq.i + sq.j + sq.k) AS disruption
