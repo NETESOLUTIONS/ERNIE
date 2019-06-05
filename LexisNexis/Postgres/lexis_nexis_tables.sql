@@ -72,7 +72,7 @@ CREATE TABLE lexis_nexis_patent_titles (
 TABLESPACE lexis_nexis_tbs;
 
 --TODO: flesh out comments
-COMMENT ON TABLE lexis_nexis_patents IS 'Main table for Lexis Nexis patents';
+COMMENT ON TABLE lexis_nexis_patents IS 'Patent titles';
 COMMENT ON COLUMN lexis_nexis_patents_titles.country_code IS '';
 COMMENT ON COLUMN lexis_nexis_patents_titles.doc_number IS '';
 COMMENT ON COLUMN lexis_nexis_patent_titles.kind_code IS '';
@@ -81,8 +81,152 @@ COMMENT ON COLUMN lexis_nexis_patent_titles.language IS '';
 COMMENT ON COLUMN lexis_nexis_patent_titles.last_updated_time IS '';
 -- endregion
 
+-- region lexis_nexis_patent_citations
+DROP TABLE IF EXISTS lexis_nexis_patent_citations;
+CREATE TABLE lexis_nexis_patent_citations (
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_citations_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+--TODO: flesh out comments
+COMMENT ON TABLE lexis_nexis_citations IS 'Patent-patent citations';
+COMMENT ON COLUMN lexis_nexis_nonpatent_literature_citations.last_updated_time IS '';
+-- endregion
+
+-- region lexis_nexis_nonpatent_literature_citations
+DROP TABLE IF EXISTS lexis_nexis_nonpatent_literature_citations;
+CREATE TABLE lexis_nexis_nonpatent_literature_citations (
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_nonpatent_literature_citations_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+--TODO: flesh out comments
+COMMENT ON TABLE lexis_nexis_nonpatent_literature_citations IS 'Patent-NPL citations';
+COMMENT ON COLUMN lexis_nexis_nonpatent_literature_citations.last_updated_time IS '';
+-- endregion
+
+-- region lexis_nexis_patent_priority_claims
+DROP TABLE IF EXISTS lexis_nexis_patent_priority_claims;
+CREATE TABLE lexis_nexis_patent_priority_claims (
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_priority_claims_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+--TODO: flesh out comments
+COMMENT ON TABLE lexis_nexis_patent_priority_claims IS 'Priority claim information for a patent';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.last_updated_time IS '';
+-- endregion
+
+-- region lexis_nexis_patent_priority_claim_ib_info
+DROP TABLE IF EXISTS lexis_nexis_patent_priority_claim_ib_info;
+CREATE TABLE lexis_nexis_patent_priority_claim_ib_info (
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_priority_claim_ib_info_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+--TODO: flesh out comments
+COMMENT ON TABLE lexis_nexis_patent_priority_claim_ib_info IS 'Additional priority claim information by IB';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claim_ib_info.last_updated_time IS '';
+-- endregion
+
+-- region lexis_nexis_patent_related_documents
+DROP TABLE IF EXISTS lexis_nexis_patent_related_documents;
+CREATE TABLE lexis_nexis_patent_related_documents (
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_related_documents_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+--TODO: flesh out comments
+COMMENT ON TABLE lexis_nexis_patent_related_documents IS 'Various relationships between the patent in hand and other patent grants or applications. Contains either an additional application, a divisional application, continuations, reissues, divisional reissues, reexamination, merged reissues reexamination, substitute, or provisional application';
+COMMENT ON COLUMN lexis_nexis_patent_related_documents.last_updated_time IS '';
+-- endregion
+
+-- region lexis_nexis_patent_application_references
+DROP TABLE IF EXISTS lexis_nexis_patent_application_references;
+CREATE TABLE lexis_nexis_patent_application_references (
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_application_references_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+--TODO: flesh out comments
+COMMENT ON TABLE lexis_nexis_patent_application_references IS 'Application reference information: application number, country';
+COMMENT ON COLUMN lexis_nexis_patent_application_references.last_updated_time IS '';
+-- endregion
+
+-- region lexis_nexis_patent_application_references
+DROP TABLE IF EXISTS lexis_nexis_patent_application_references;
+CREATE TABLE lexis_nexis_patent_application_references (
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_application_references_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+--TODO: flesh out comments
+COMMENT ON TABLE lexis_nexis_patent_application_references IS 'Application reference information: application number, country';
+COMMENT ON COLUMN lexis_nexis_patent_application_references.last_updated_time IS '';
+-- endregion
+
+-- region lexis_nexis_applicants
+DROP TABLE IF EXISTS lexis_nexis_applicants;
+CREATE TABLE lexis_nexis_applicants (
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_applicants_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+--TODO: flesh out comments
+COMMENT ON TABLE lexis_nexis_applicants IS 'Applicants information';
+COMMENT ON COLUMN lexis_nexis_applicants.last_updated_time IS '';
+-- endregion
+
+-- region lexis_nexis_inventors
+DROP TABLE IF EXISTS lexis_nexis_inventors;
+CREATE TABLE lexis_nexis_inventors (
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_inventors_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+--TODO: flesh out comments
+COMMENT ON TABLE lexis_nexis_inventors IS 'Inventors information';
+COMMENT ON COLUMN lexis_nexis_inventors.last_updated_time IS '';
+-- endregion
+
+-- region lexis_nexis_agents
+DROP TABLE IF EXISTS lexis_nexis_agents;
+CREATE TABLE lexis_nexis_agents (
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_agents_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+--TODO: flesh out comments
+COMMENT ON TABLE lexis_nexis_agents IS 'Information regarding Agents or common representatives';
+COMMENT ON COLUMN lexis_nexis_agents.last_updated_time IS '';
+-- endregion
 
 
+
+
+
+-- region lexis_nexis_examiners
+DROP TABLE IF EXISTS lexis_nexis_examiners;
+CREATE TABLE lexis_nexis_examiners (
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_examiners_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+--TODO: flesh out comments
+COMMENT ON TABLE lexis_nexis_examiners IS 'Persons acting on the document';
+COMMENT ON COLUMN lexis_nexis_examiners.last_updated_time IS '';
+-- endregion
 
 
 
@@ -171,9 +315,6 @@ COMMENT ON COLUMN lexis_nexis_patent_legal_data.effective_date IS '';
 COMMENT ON COLUMN lexis_nexis_patent_legal_data.withdrawn_date IS '';
 COMMENT ON COLUMN lexis_nexis_patent_legal_data.last_updated_time IS '';
 -- endregion
-
-
-
 
 -- region lexis_nexis_patent_abstracts
 DROP TABLE IF EXISTS lexis_nexis_patent_abstracts;
