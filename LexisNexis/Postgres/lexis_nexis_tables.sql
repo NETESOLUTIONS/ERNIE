@@ -95,8 +95,14 @@ COMMENT ON COLUMN lexis_nexis_nonpatent_literature_citations.last_updated_time I
 -- region lexis_nexis_nonpatent_literature_citations
 DROP TABLE IF EXISTS lexis_nexis_nonpatent_literature_citations;
 CREATE TABLE lexis_nexis_nonpatent_literature_citations (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  language TEXT,
+  citation_text TEXT,
+  scopus_url TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_nonpatent_literature_citations_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_nonpatent_literature_citations_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -131,11 +137,441 @@ COMMENT ON TABLE lexis_nexis_patent_priority_claim_ib_info IS 'Additional priori
 COMMENT ON COLUMN lexis_nexis_patent_priority_claim_ib_info.last_updated_time IS '';
 -- endregion
 
--- region lexis_nexis_patent_related_documents
-DROP TABLE IF EXISTS lexis_nexis_patent_related_documents;
-CREATE TABLE lexis_nexis_patent_related_documents (
+-- region lexis_nexis_patent_related_documents: tables can be modified based on parsing results
+-- region lexis_nexis_patent_related_document_additions
+DROP TABLE IF EXISTS lexis_nexis_patent_related_document_additions;
+CREATE TABLE lexis_nexis_patent_related_document_additions (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  parent_doc_country TEXT,
+  parent_doc_number TEXT,
+  parent_doc_kind TEXT,
+  parent_doc_name TEXT,
+  parent_doc_date TEXT,
+  parent_status TEXT,
+  parent_grant_document_country TEXT,
+  parent_grant_document_number TEXT,
+  parent_grant_document_kind TEXT,
+  parent_grant_document_name TEXT,
+  parent_grant_document_date TEXT,
+  parent_pct_document_country TEXT,
+  parent_pct_document_number TEXT,
+  parent_pct_document_kind TEXT,
+  parent_pct_document_name TEXT,
+  parent_pct_document_date TEXT,
+  child_doc_country TEXT,
+  child_doc_number TEXT,
+  child_doc_kind TEXT,
+  child_doc_name TEXT,
+  child_doc_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_documents_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_document_additions_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_patent_related_document_divisions
+DROP TABLE IF EXISTS lexis_nexis_patent_related_document_divisions;
+CREATE TABLE lexis_nexis_patent_related_document_divisions(
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  parent_doc_country TEXT,
+  parent_doc_number TEXT,
+  parent_doc_kind TEXT,
+  parent_doc_name TEXT,
+  parent_doc_date TEXT,
+  parent_status TEXT,
+  parent_grant_document_country TEXT,
+  parent_grant_document_number TEXT,
+  parent_grant_document_kind TEXT,
+  parent_grant_document_name TEXT,
+  parent_grant_document_date TEXT,
+  parent_pct_document_country TEXT,
+  parent_pct_document_number TEXT,
+  parent_pct_document_kind TEXT,
+  parent_pct_document_name TEXT,
+  parent_pct_document_date TEXT,
+  child_doc_country TEXT,
+  child_doc_number TEXT,
+  child_doc_kind TEXT,
+  child_doc_name TEXT,
+  child_doc_date TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_related_document_divisions_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_patent_related_document_continuations
+DROP TABLE IF EXISTS lexis_nexis_patent_related_document_continuations;
+CREATE TABLE lexis_nexis_patent_related_document_continuations (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  parent_doc_country TEXT,
+  parent_doc_number TEXT,
+  parent_doc_kind TEXT,
+  parent_doc_name TEXT,
+  parent_doc_date TEXT,
+  parent_status TEXT,
+  parent_grant_document_country TEXT,
+  parent_grant_document_number TEXT,
+  parent_grant_document_kind TEXT,
+  parent_grant_document_name TEXT,
+  parent_grant_document_date TEXT,
+  parent_pct_document_country TEXT,
+  parent_pct_document_number TEXT,
+  parent_pct_document_kind TEXT,
+  parent_pct_document_name TEXT,
+  parent_pct_document_date TEXT,
+  child_doc_country TEXT,
+  child_doc_number TEXT,
+  child_doc_kind TEXT,
+  child_doc_name TEXT,
+  child_doc_date TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_related_document_continuations_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_patent_related_document_continuation_in_parts
+DROP TABLE IF EXISTS lexis_nexis_patent_related_document_continuation_in_parts;
+CREATE TABLE lexis_nexis_patent_related_document_continuation_in_parts (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  parent_doc_country TEXT,
+  parent_doc_number TEXT,
+  parent_doc_kind TEXT,
+  parent_doc_name TEXT,
+  parent_doc_date TEXT,
+  parent_status TEXT,
+  parent_grant_document_country TEXT,
+  parent_grant_document_number TEXT,
+  parent_grant_document_kind TEXT,
+  parent_grant_document_name TEXT,
+  parent_grant_document_date TEXT,
+  parent_pct_document_country TEXT,
+  parent_pct_document_number TEXT,
+  parent_pct_document_kind TEXT,
+  parent_pct_document_name TEXT,
+  parent_pct_document_date TEXT,
+  child_doc_country TEXT,
+  child_doc_number TEXT,
+  child_doc_kind TEXT,
+  child_doc_name TEXT,
+  child_doc_date TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_related_document_continuation_in_parts_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_patent_related_document_continuing_reissues
+DROP TABLE IF EXISTS lexis_nexis_patent_related_document_continuing_reissues;
+CREATE TABLE lexis_nexis_patent_related_document_continuing_reissues (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  parent_doc_country TEXT,
+  parent_doc_number TEXT,
+  parent_doc_kind TEXT,
+  parent_doc_name TEXT,
+  parent_doc_date TEXT,
+  parent_status TEXT,
+  parent_grant_document_country TEXT,
+  parent_grant_document_number TEXT,
+  parent_grant_document_kind TEXT,
+  parent_grant_document_name TEXT,
+  parent_grant_document_date TEXT,
+  parent_pct_document_country TEXT,
+  parent_pct_document_number TEXT,
+  parent_pct_document_kind TEXT,
+  parent_pct_document_name TEXT,
+  parent_pct_document_date TEXT,
+  child_doc_country TEXT,
+  child_doc_number TEXT,
+  child_doc_kind TEXT,
+  child_doc_name TEXT,
+  child_doc_date TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_related_document_continuing_reissues_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_patent_related_document_reissues
+DROP TABLE IF EXISTS lexis_nexis_patent_related_document_reissues;
+CREATE TABLE lexis_nexis_patent_related_document_reissues (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  parent_doc_country TEXT,
+  parent_doc_number TEXT,
+  parent_doc_kind TEXT,
+  parent_doc_name TEXT,
+  parent_doc_date TEXT,
+  parent_status TEXT,
+  parent_grant_document_country TEXT,
+  parent_grant_document_number TEXT,
+  parent_grant_document_kind TEXT,
+  parent_grant_document_name TEXT,
+  parent_grant_document_date TEXT,
+  parent_pct_document_country TEXT,
+  parent_pct_document_number TEXT,
+  parent_pct_document_kind TEXT,
+  parent_pct_document_name TEXT,
+  parent_pct_document_date TEXT,
+  child_doc_country TEXT,
+  child_doc_number TEXT,
+  child_doc_kind TEXT,
+  child_doc_name TEXT,
+  child_doc_date TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_related_document_reissues_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_patent_related_document_divisional_reissues
+DROP TABLE IF EXISTS lexis_nexis_patent_related_document_divisional_reissues;
+CREATE TABLE lexis_nexis_patent_related_document_divisional_reissues (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  parent_doc_country TEXT,
+  parent_doc_number TEXT,
+  parent_doc_kind TEXT,
+  parent_doc_name TEXT,
+  parent_doc_date TEXT,
+  parent_status TEXT,
+  parent_grant_document_country TEXT,
+  parent_grant_document_number TEXT,
+  parent_grant_document_kind TEXT,
+  parent_grant_document_name TEXT,
+  parent_grant_document_date TEXT,
+  parent_pct_document_country TEXT,
+  parent_pct_document_number TEXT,
+  parent_pct_document_kind TEXT,
+  parent_pct_document_name TEXT,
+  parent_pct_document_date TEXT,
+  child_doc_country TEXT,
+  child_doc_number TEXT,
+  child_doc_kind TEXT,
+  child_doc_name TEXT,
+  child_doc_date TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_related_document_divisional_reissues_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_patent_related_document_reexaminations
+DROP TABLE IF EXISTS lexis_nexis_patent_related_document_reexaminations;
+CREATE TABLE lexis_nexis_patent_related_document_reexaminations (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  parent_doc_country TEXT,
+  parent_doc_number TEXT,
+  parent_doc_kind TEXT,
+  parent_doc_name TEXT,
+  parent_doc_date TEXT,
+  parent_status TEXT,
+  parent_grant_document_country TEXT,
+  parent_grant_document_number TEXT,
+  parent_grant_document_kind TEXT,
+  parent_grant_document_name TEXT,
+  parent_grant_document_date TEXT,
+  parent_pct_document_country TEXT,
+  parent_pct_document_number TEXT,
+  parent_pct_document_kind TEXT,
+  parent_pct_document_name TEXT,
+  parent_pct_document_date TEXT,
+  child_doc_country TEXT,
+  child_doc_number TEXT,
+  child_doc_kind TEXT,
+  child_doc_name TEXT,
+  child_doc_date TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_related_document_reexaminations_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_patent_related_document_reexamination_reissue_mergers
+DROP TABLE IF EXISTS lexis_nexis_patent_related_document_reexamination_reissue_mergers;
+CREATE TABLE lexis_nexis_patent_related_document_reexamination_reissue_mergers (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  parent_doc_country TEXT,
+  parent_doc_number TEXT,
+  parent_doc_kind TEXT,
+  parent_doc_name TEXT,
+  parent_doc_date TEXT,
+  parent_status TEXT,
+  parent_grant_document_country TEXT,
+  parent_grant_document_number TEXT,
+  parent_grant_document_kind TEXT,
+  parent_grant_document_name TEXT,
+  parent_grant_document_date TEXT,
+  parent_pct_document_country TEXT,
+  parent_pct_document_number TEXT,
+  parent_pct_document_kind TEXT,
+  parent_pct_document_name TEXT,
+  parent_pct_document_date TEXT,
+  child_doc_country TEXT,
+  child_doc_number TEXT,
+  child_doc_kind TEXT,
+  child_doc_name TEXT,
+  child_doc_date TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_related_document_reexamination_reissue_mergers_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_patent_related_document_substitutions
+DROP TABLE IF EXISTS lexis_nexis_patent_related_document_substitutions;
+CREATE TABLE lexis_nexis_patent_related_document_substitutions (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  parent_doc_country TEXT,
+  parent_doc_number TEXT,
+  parent_doc_kind TEXT,
+  parent_doc_name TEXT,
+  parent_doc_date TEXT,
+  parent_status TEXT,
+  parent_grant_document_country TEXT,
+  parent_grant_document_number TEXT,
+  parent_grant_document_kind TEXT,
+  parent_grant_document_name TEXT,
+  parent_grant_document_date TEXT,
+  parent_pct_document_country TEXT,
+  parent_pct_document_number TEXT,
+  parent_pct_document_kind TEXT,
+  parent_pct_document_name TEXT,
+  parent_pct_document_date TEXT,
+  child_doc_country TEXT,
+  child_doc_number TEXT,
+  child_doc_kind TEXT,
+  child_doc_name TEXT,
+  child_doc_date TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_related_document_substitutions_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_patent_related_document_provisional_applications
+DROP TABLE IF EXISTS lexis_nexis_patent_related_document_provisional_applications;
+CREATE TABLE lexis_nexis_patent_related_document_provisional_applications (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  related_doc_country TEXT,
+  related_doc_number TEXT,
+  related_doc_kind TEXT,
+  related_doc_name TEXT,
+  related_doc_date TEXT,
+  provisional_application_status TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_related_document_provisional_applications_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_patent_related_document_utility_model_basis
+DROP TABLE IF EXISTS lexis_nexis_patent_related_document_utility_model_basis;
+CREATE TABLE lexis_nexis_patent_related_document_utility_model_basis (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  parent_doc_country TEXT,
+  parent_doc_number TEXT,
+  parent_doc_kind TEXT,
+  parent_doc_name TEXT,
+  parent_doc_date TEXT,
+  parent_status TEXT,
+  parent_grant_document_country TEXT,
+  parent_grant_document_number TEXT,
+  parent_grant_document_kind TEXT,
+  parent_grant_document_name TEXT,
+  parent_grant_document_date TEXT,
+  parent_pct_document_country TEXT,
+  parent_pct_document_number TEXT,
+  parent_pct_document_kind TEXT,
+  parent_pct_document_name TEXT,
+  parent_pct_document_date TEXT,
+  child_doc_country TEXT,
+  child_doc_number TEXT,
+  child_doc_kind TEXT,
+  child_doc_name TEXT,
+  child_doc_date TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_related_document_utility_model_basis_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_patent_related_corrections
+DROP TABLE IF EXISTS lexis_nexis_patent_related_corrections;
+CREATE TABLE lexis_nexis_patent_related_corrections(
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  corrected_doc_country TEXT,
+  corrected_doc_number TEXT,
+  corrected_doc_kind TEXT,
+  corrected_doc_name TEXT,
+  corrected_doc_date TEXT,
+  correction_type TEXT,
+  gazette_num TEXT,
+  gazette_reference_date TEXT,
+  gazette_text TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_related_corrections_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_patent_related_publications
+DROP TABLE IF EXISTS lexis_nexis_patent_related_publications;
+CREATE TABLE lexis_nexis_patent_related_publications(
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  related_pub_country TEXT,
+  related_pub_number TEXT,
+  related_pub_kind TEXT,
+  related_pub_name TEXT,
+  related_pub_date TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_related_publications_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_patent_related_document_371_international
+DROP TABLE IF EXISTS lexis_nexis_patent_related_document_371_international;
+CREATE TABLE lexis_nexis_patent_related_document_371_international (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  parent_doc_country TEXT,
+  parent_doc_number TEXT,
+  parent_doc_kind TEXT,
+  parent_doc_name TEXT,
+  parent_doc_date TEXT,
+  parent_status TEXT,
+  parent_grant_document_country TEXT,
+  parent_grant_document_number TEXT,
+  parent_grant_document_kind TEXT,
+  parent_grant_document_name TEXT,
+  parent_grant_document_date TEXT,
+  parent_pct_document_country TEXT,
+  parent_pct_document_number TEXT,
+  parent_pct_document_kind TEXT,
+  parent_pct_document_name TEXT,
+  parent_pct_document_date TEXT,
+  child_doc_country TEXT,
+  child_doc_number TEXT,
+  child_doc_kind TEXT,
+  child_doc_name TEXT,
+  child_doc_date TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_patent_related_document_371_international_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -216,8 +652,17 @@ COMMENT ON COLUMN lexis_nexis_agents.last_updated_time IS '';
 -- region lexis_nexis_examiners
 DROP TABLE IF EXISTS lexis_nexis_examiners;
 CREATE TABLE lexis_nexis_examiners (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  primary_last_name TEXT,
+  primary_first_name TEXT,
+  primary_department TEXT,
+  assistant_last_name TEXT,
+  assistant_first_name TEXT,
+  assistant_department TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_examiners_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_examiners_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
