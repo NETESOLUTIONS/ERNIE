@@ -22,13 +22,13 @@ DO $block$
       INTO lexis_nexis_doc_xml;
 
     IF current_setting('script.subset_sp')='' THEN -- Execute all parsing SPs
-      CALL lexis_nexis_parse_bibliographic_data(lexis_nexis_doc_xml);
+      CALL lexis_nexis_parse_patents(lexis_nexis_doc_xml);
       CALL lexis_nexis_parse_patent_titles(lexis_nexis_doc_xml);
       CALL lexis_nexis_parse_legal_data(lexis_nexis_doc_xml);
       CALL lexis_nexis_parse_abstracts(lexis_nexis_doc_xml);
     ELSE -- Execute only the selected SP
       -- Make sure that parent records are present
-      CALL lexis_nexis_parse_bibliographic_data(lexis_nexis_doc_xml);
+      CALL lexis_nexis_parse_patents(lexis_nexis_doc_xml);
       EXECUTE format('CALL %I($1)',current_setting('script.subset_sp')) using lexis_nexis_doc_xml;
     END IF;
 
