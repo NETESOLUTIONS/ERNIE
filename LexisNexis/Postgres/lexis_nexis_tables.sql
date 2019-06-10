@@ -33,13 +33,12 @@ CREATE TABLE lexis_nexis_patents (
 )
 TABLESPACE lexis_nexis_tbs;
 
---TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_patents IS 'Main table for Lexis Nexis patents';
-COMMENT ON COLUMN lexis_nexis_patents.country_code IS '';
-COMMENT ON COLUMN lexis_nexis_patents.doc_number IS '';
-COMMENT ON COLUMN lexis_nexis_patents.kind_code IS '';
-COMMENT ON COLUMN lexis_nexis_patents.language_of_filing IS '';
-COMMENT ON COLUMN lexis_nexis_patents.language_of_publication IS '';
+COMMENT ON COLUMN lexis_nexis_patents.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patents.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patents.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patents.language_of_filing IS 'Filing language, ISO639 language code, e.g, en,de,ja, etc.';
+COMMENT ON COLUMN lexis_nexis_patents.language_of_publication IS 'Publication language, ISO639 language code, e.g, en,de,ja, etc.';
 COMMENT ON COLUMN lexis_nexis_patents.date_of_public_availability_unexamined_printed_wo_grant IS '';
 COMMENT ON COLUMN lexis_nexis_patents.date_of_public_availability_printed_w_grant IS '';
 COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_text IS '';
@@ -54,7 +53,7 @@ COMMENT ON COLUMN lexis_nexis_patents.main_national_classification_country IS ''
 COMMENT ON COLUMN lexis_nexis_patents.main_national_classification_text IS '';
 COMMENT ON COLUMN lexis_nexis_patents.main_national_classification_class IS '';
 COMMENT ON COLUMN lexis_nexis_patents.main_national_classification_subclass IS '';
-COMMENT ON COLUMN lexis_nexis_patents.number_of_claims IS '';
+COMMENT ON COLUMN lexis_nexis_patents.number_of_claims IS 'Number of claims';
 COMMENT ON COLUMN lexis_nexis_patents.last_updated_time IS '';
 -- endregion
 
@@ -71,13 +70,12 @@ CREATE TABLE lexis_nexis_patent_titles (
 )
 TABLESPACE lexis_nexis_tbs;
 
---TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_patents IS 'Patent titles';
-COMMENT ON COLUMN lexis_nexis_patents_titles.country_code IS '';
-COMMENT ON COLUMN lexis_nexis_patents_titles.doc_number IS '';
-COMMENT ON COLUMN lexis_nexis_patent_titles.kind_code IS '';
-COMMENT ON COLUMN lexis_nexis_patent_titles.invention_title IS '';
-COMMENT ON COLUMN lexis_nexis_patent_titles.language IS '';
+COMMENT ON COLUMN lexis_nexis_patents_titles.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patents_titles.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_titles.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_titles.invention_title IS 'Preferably two to seven words when in English or translated into English and precise';
+COMMENT ON COLUMN lexis_nexis_patent_titles.language IS 'Title text language';
 COMMENT ON COLUMN lexis_nexis_patent_titles.last_updated_time IS '';
 -- endregion
 
@@ -275,44 +273,43 @@ CREATE TABLE lexis_nexis_patent_legal_data (
 )
 TABLESPACE lexis_nexis_tbs;
 
---TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_patent_legal_data IS 'Legal status data information table';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.country_code IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.doc_number IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.kind_code IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.sequence_id IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.publication_date IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.event_code_1 IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.event_code_2 IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.effect IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.legal_description IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.status_identifier IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.docdb_publication_number IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.docdb_application_id IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.designated_state_authority IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.designated_state_event_code IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.designated_state_description IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.corresponding_publication_number IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.corresponding_authority IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.corresponding_publication_date IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.corresponding_kind IS '';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.sequence_id IS 'ID within legal event sequence list';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.publication_date IS 'Legal publication date';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.event_code_1 IS 'Legal event code #1';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.event_code_2 IS 'Legal event code #2';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.effect IS 'Legal effect, i.e. + or -';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.legal_description IS 'Legal description';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.status_identifier IS 'Legal status identifier';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.docdb_publication_number IS 'Legal DocDb publication number';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.docdb_application_id IS 'Legal DocDb application unique identifier';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.designated_state_authority IS 'Legal designated state authority';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.designated_state_event_code IS 'Legal designated state event code';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.designated_state_description IS 'Legal designated state description';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.corresponding_publication_number IS 'Legal corresponding publication number';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.corresponding_authority IS 'Legal corresponding authority';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.corresponding_publication_date IS 'Legal corresponding publication date';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.corresponding_kind IS 'Legal corresponding kind';
 COMMENT ON COLUMN lexis_nexis_patent_legal_data.legal_designated_states IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.extension_state_authority IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.new_owner IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.free_text_description IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.spc_number IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.filing_date IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.expiry_date IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.inventor_name IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.ipc IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.representative_name IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.payment_date IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.opponent_name IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.fee_payment_year IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.requester_name IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.countries_concerned IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.effective_date IS '';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.withdrawn_date IS '';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.extension_state_authority IS 'Legal extension state authority';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.new_owner IS 'Legal new owner';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.free_text_description IS 'Legal free text description';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.spc_number IS 'Legal spc number';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.filing_date IS 'Legal filing date';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.expiry_date IS 'Legal expiration date';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.inventor_name IS 'Legal inventor name';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.ipc IS 'Legal ipc';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.representative_name IS 'Legal representative name';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.payment_date IS 'Legal payment date';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.opponent_name IS 'Legal opponent name';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.fee_payment_year IS 'Legal fee payment year';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.requester_name IS 'Legal requester name';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.countries_concerned IS 'Legal countries concerned';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.effective_date IS 'Legal effective date';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.withdrawn_date IS 'Legal withdrawn date';
 COMMENT ON COLUMN lexis_nexis_patent_legal_data.last_updated_time IS '';
 -- endregion
 
@@ -330,13 +327,12 @@ CREATE TABLE lexis_nexis_patent_abstracts (
 )
 TABLESPACE lexis_nexis_tbs;
 
---TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_patent_abstracts IS 'Patent abstract information table';
-COMMENT ON COLUMN lexis_nexis_patent_abstracts.country_code IS '';
-COMMENT ON COLUMN lexis_nexis_patent_abstracts.doc_number IS '';
-COMMENT ON COLUMN lexis_nexis_patent_abstracts.kind_code IS '';
-COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_language IS '';
-COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_date_changed IS '';
-COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_text IS '';
+COMMENT ON COLUMN lexis_nexis_patent_abstracts.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_abstracts.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_abstracts.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_language IS 'Language used in the abstract';
+COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_date_changed IS 'Date the abstract was last changed at the source data end';
+COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_text IS 'Abstract text';
 COMMENT ON COLUMN lexis_nexis_patent_abstracts.last_updated_time IS '';
 -- endregion
