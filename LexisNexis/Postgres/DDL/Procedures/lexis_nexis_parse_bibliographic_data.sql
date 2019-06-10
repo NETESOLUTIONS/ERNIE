@@ -99,7 +99,7 @@ $$
                 country_code TEXT PATH '//bibliographic-data/publication-reference/document-id/country' NOT NULL,
                 doc_number TEXT PATH '//bibliographic-data/publication-reference/document-id/doc-number' NOT NULL,
                 kind_code TEXT PATH '//bibliographic-data/publication-reference/document-id/kind' NOT NULL,
-                invention_title TEXT PATH 'text()' NOT NULL,
+                invention_title TEXT PATH 'normalize-space(.)' NOT NULL,
                 title_language TEXT PATH '@lang' NOT NULL
                 )
     ON CONFLICT (country_code,doc_number,kind_code,language)
