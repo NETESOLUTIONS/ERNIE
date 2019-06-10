@@ -323,7 +323,7 @@ CREATE TABLE lexis_nexis_patent_abstracts (
   abstract_date_changed TEXT,
   abstract_text TEXT NOT NULL,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_abstracts_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_abstracts_pk PRIMARY KEY (country_code,doc_number,kind_code,abstract_language) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 

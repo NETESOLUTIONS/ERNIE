@@ -102,8 +102,8 @@ $$
                 invention_title TEXT PATH 'text()' NOT NULL,
                 title_language TEXT PATH '@lang' NOT NULL
                 )
-    ON CONFLICT DO NOTHING;
-
+    ON CONFLICT (country_code,doc_number,kind_code,language)
+    DO UPDATE SET invention_title=excluded.invention_title, last_updated_time=now();
   END;
 $$
 LANGUAGE plpgsql;

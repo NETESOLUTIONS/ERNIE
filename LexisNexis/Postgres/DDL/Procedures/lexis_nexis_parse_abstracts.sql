@@ -25,7 +25,7 @@ $$
           xmltable.abstract_date_changed,
           xmltable.abstract_text
      FROM
-     XMLTABLE('//abstract' PASSING (SELECT * FROM ln_test_xml_table ORDER BY RANDOM() LIMIT 1)--input_xml
+     XMLTABLE('//abstract' PASSING input_xml
               COLUMNS
                 --below come from higher level nodes
                 country_code TEXT PATH '//bibliographic-data/publication-reference/document-id/country' NOT NULL,
@@ -38,7 +38,9 @@ $$
                 --Below are sub elements
                 abstract_text TEXT PATH 'normalize-space(.)' NOT NULL
               )
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT (country_code,doc_number,kind_code,abstract_language)
+    DO UPDATE SET abstract_text=excluded.abstract_text,abstract_date_changed=excluded.abstract_date_changed,
+     last_updated_time=now();
   END;
 $$
 LANGUAGE plpgsql;
