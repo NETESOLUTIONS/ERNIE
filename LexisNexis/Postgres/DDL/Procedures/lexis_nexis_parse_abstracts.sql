@@ -25,7 +25,7 @@ $$
           xmltable.abstract_date_changed,
           xmltable.abstract_text
      FROM
-     XMLTABLE('//abstract' PASSING input_xml
+     XMLTABLE('//abstract' PASSING (SELECT * FROM ln_test_xml_table ORDER BY RANDOM() LIMIT 1)--input_xml
               COLUMNS
                 --below come from higher level nodes
                 country_code TEXT PATH '//bibliographic-data/publication-reference/document-id/country' NOT NULL,
@@ -36,7 +36,7 @@ $$
                 abstract_language TEXT PATH '@lang',
                 abstract_date_changed DATE PATH '@date-changed',
                 --Below are sub elements
-                abstract_text TEXT PATH 'normalize-space(text())' NOT NULL
+                abstract_text TEXT PATH 'normalize-space(.)' NOT NULL
               )
     ON CONFLICT DO NOTHING;
   END;
