@@ -98,7 +98,6 @@ CREATE TABLE lexis_nexis_nonpatent_literature_citations (
   country_code TEXT,
   doc_number TEXT,
   kind_code TEXT,
-  language TEXT,
   citation_text TEXT,
   scopus_url TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
