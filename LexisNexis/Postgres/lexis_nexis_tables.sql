@@ -110,6 +110,13 @@ COMMENT ON COLUMN lexis_nexis_nonpatent_literature_citations.last_updated_time I
 -- region lexis_nexis_patent_priority_claims
 DROP TABLE IF EXISTS lexis_nexis_patent_priority_claims;
 CREATE TABLE lexis_nexis_patent_priority_claims (
+  doc_number TEXT NOT NULL,
+  country_code TEXT NOT NULL,
+  kind_code TEXT NOT NULL,
+  publication_language TEXT NOT NULL,
+  priority_claim_doc_number TEXT NOT NULL,
+  priority_claim_sequence TEXT NOT NULL,
+  priority_claim__date DATE,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT lexis_nexis_patent_priority_claims_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
 )
@@ -117,6 +124,13 @@ TABLESPACE lexis_nexis_tbs;
 
 --TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_patent_priority_claims IS 'Priority claim information for a patent';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.doc_number IS '';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.country_code IS '';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.kind_code IS '';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.publication_language IS '';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_doc_number IS '';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_sequence IS '';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_date IS '';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claims.last_updated_time IS '';
 -- endregion
 
