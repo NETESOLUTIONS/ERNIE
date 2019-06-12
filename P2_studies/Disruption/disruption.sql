@@ -47,7 +47,7 @@ FROM (
                 WHERE ij_set IN (
                   SELECT k_set
                   FROM cites_cited
-                  WHERE count => 1
+                  WHERE count >= 1
                 )
               ) AS j1,
               (
@@ -56,7 +56,7 @@ FROM (
                 WHERE ij_set IN (
                   SELECT k_set
                   FROM cites_cited
-                  WHERE count => 2
+                  WHERE count >= 2
                 )
               ) AS j2,
               (
@@ -65,7 +65,7 @@ FROM (
                 WHERE ij_set IN (
                   SELECT k_set
                   FROM cites_cited
-                  WHERE count => 3
+                  WHERE count >= 3
                 )
               ) AS j3,
               (
@@ -74,7 +74,7 @@ FROM (
                 WHERE ij_set IN (
                   SELECT k_set
                   FROM cites_cited
-                  WHERE count => 4
+                  WHERE count >= 4
                 )
               ) AS j4,
               (
@@ -83,7 +83,7 @@ FROM (
                 WHERE ij_set IN (
                   SELECT k_set
                   FROM cites_cited
-                  WHERE count => 5
+                  WHERE count >= 5
                 )
               ) AS j5,
               (
@@ -92,7 +92,7 @@ FROM (
                 WHERE ij_set IN (
                   SELECT k_set
                   FROM cites_cited
-                  WHERE count => 10
+                  WHERE count >= 10
                 )
               ) AS j10,
               (
