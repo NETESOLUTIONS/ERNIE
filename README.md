@@ -9,7 +9,7 @@ ERNIE is a data platform with associated workflows that enables the discovery of
 
 Emphasis is placed on the use of Open Source technologies. At present, ERNIE resides in a PostgreSQL 11 database in 
 Centos 7.4 VMs in the Microsoft Azure cloud. The data in ERNIE are drawn through a variety of custom ETL processes from both 
-publicly available and commercial sources. Additional servers provide Solr and Neo4J support and a Spark cluster is provisioned as needed.  Initial server infrastructure has been set up, core data have been scraped, leased, parsed, loaded, and partially curated and illustrative case studies are under way. The project team will add additional data sources as and when they become available. The infrastructure and data model is presently being upgraded even as we add new data sources and prune out less useful ones.
+publicly available and commercial sources. Additional servers provide Solr and Neo4J support and a Spark cluster is provisioned as needed.  Initial server infrastructure has been set up, core data have been scraped, leased, parsed, loaded, and partially curated and illustrative case studies are under way. The project team will add additional data sources as and when they become available. The infrastructure and data model is continuously upgraded as we add new data sources and prune out less useful ones.
 
 An alpha-user study has completed and beta-user studies are beginning. We have recently used a combination of PostgreSQL and Spark to conduct large scale Monte Carlo simulations and results will be posted soon.
 
