@@ -81,15 +81,32 @@ COMMENT ON COLUMN lexis_nexis_patent_titles.last_updated_time IS '';
 
 -- region lexis_nexis_patent_citations
 DROP TABLE IF EXISTS lexis_nexis_patent_citations;
-CREATE TABLE lexis_nexis_patent_citations (
-  last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_citations_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+CREATE TABLE lexis_nexis_patent_citations
+(
+    doc_number           BIGINT NOT NULL,
+    seq_num              INT    NOT NULL,
+    cited_doc_number     BIGINT NOT NULL,
+    cited_country        TEXT,
+    cited_kind           TEXT,
+    cited_authors        TEXT,
+    cited_create_date    DATE,
+    cited_published_date DATE,
+    last_updated_time    TIMESTAMP DEFAULT now(),
+    CONSTRAINT lexis_nexis_patent_citations_pk PRIMARY KEY (doc_number, cited_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
---TODO: flesh out comments
-COMMENT ON TABLE lexis_nexis_citations IS 'Patent-patent citations';
-COMMENT ON COLUMN lexis_nexis_nonpatent_literature_citations.last_updated_time IS '';
+COMMENT ON TABLE lexis_nexis_patent_citations IS 'Citations for Lexis Nexis patents';
+COMMENT ON COLUMN lexis_nexis_patent_citations.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_citations.seq_num IS 'Sequence number of patent in references';
+COMMENT ON COLUMN lexis_nexis_patent_citations.cited_doc_number IS 'Document number of referenced patent';
+COMMENT ON COLUMN lexis_nexis_patent_citations.cited_country IS 'Country code of patent';
+COMMENT ON COLUMN lexis_nexis_patent_citations.cited_kind IS 'patent kind';
+COMMENT ON COLUMN lexis_nexis_patent_citations.cited_authors IS 'patent authors';
+COMMENT ON COLUMN lexis_nexis_patent_citations.cited_create_date IS 'Date patent was filed';
+COMMENT ON COLUMN lexis_nexis_patent_citations.cited_published_date IS 'Date patent was published';
+COMMENT ON COLUMN lexis_nexis_patent_citations.last_updated_time IS 'Timestamp of particular record last updated';
+
 -- endregion
 
 -- region lexis_nexis_nonpatent_literature_citations
