@@ -1,7 +1,7 @@
 # Welcome to ERNIE
 <img align="left" src="ERNIE.png" width="250" height="200" border="120">
 
-** *Netelabs has a position open for a Data Engineer https://shar.es/a0Cfis to work on ERNIE and a related project.*
+** _Netelabs has a position open for a Data Engineer https://shar.es/a0Cfis to work on ERNIE and a related project._
 
 Enhanced Research Network Informatics Environment (ERNIE) originates from a thought experiment (inspired by Williams et al. Cell 163:21-23, 2015) intended to address the research assessment problem as well as prior experience in building a database of linked data for internal use by a federal agency. This idea grew into an effort to create, ERNIE as a knowledge resource for research assessment that would be available to the broader community. ERNIE is designed and developed by NET ESolutions Corporation (NETE). 
 
