@@ -11,7 +11,9 @@ Emphasis is placed on the use of Open Source technologies. At present, ERNIE res
 Centos 7.4 VMs in the Microsoft Azure cloud. The data in ERNIE are drawn through a variety of custom ETL processes from both 
 publicly available and commercial sources. Additional servers provide Solr and Neo4J support and a Spark cluster is provisioned as needed.  Initial server infrastructure has been set up, core data have been scraped, leased, parsed, loaded, and partially curated and illustrative case studies are under way. The project team will add additional data sources as and when they become available. The infrastructure and data model is presently being upgraded even as we add new data sources and prune out less useful ones.
 
-An alpha-user study has completed and results are expected in mid_2019 or earlier. We have recently used a combination of PostgreSQL and Spark to conduct large scale Monte Carlo simulations and results will be posted soon.
+An alpha-user study has completed and beta-user studies are beginning. We have recently used a combination of PostgreSQL and Spark to conduct large scale Monte Carlo simulations and results will be posted soon.
+
+We recently formalized a partnering agreement with Elsevier and are using Scopus, supplemented by Lexis-Nexis IPDD data as the bibliographic backbone of ERNIE.
 
 This project has been funded in part as a Fast Track Small Business Innovative Research award with Federal funds from the National Institute on Drug Abuse, National Institutes of Health, US Department of Health and Human Services. In Feb 2018, Phase I was completed. Phase II has since been awarded and commenced on Sept 30, 2018. Phase II is focused on building a user comunity and 'productionizing' the platform.
  
