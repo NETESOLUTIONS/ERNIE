@@ -13,7 +13,7 @@ publicly available and commercial sources. Additional servers provide Solr and N
 
 An alpha-user study has completed and beta-user studies are beginning. We have recently used a combination of PostgreSQL and Spark to conduct large scale Monte Carlo simulations and results will be posted soon.
 
-We recently formalized a partnering agreement with [Elsevier](https://www.elsevier.com) and are using Scopus, supplemented by Lexis-Nexis IPDD data as the bibliographic backbone of ERNIE.
+We recently formalized a partnering agreement with [Elsevier](https://www.elsevier.com) and are using Scopus, supplemented by IPDD patents information from [LexisNexis](https://www.lexisnexis.com/en-us/gateway.page) as the bibliographic backbone of ERNIE.
 
 This project has been funded in part as a Fast Track Small Business Innovative Research award with Federal funds from the National Institute on Drug Abuse, National Institutes of Health, US Department of Health and Human Services. In Feb 2018, Phase I was completed. Phase II has since been awarded and commenced on Sept 30, 2018. Phase II is focused on building a user comunity and 'productionizing' the platform.
  
