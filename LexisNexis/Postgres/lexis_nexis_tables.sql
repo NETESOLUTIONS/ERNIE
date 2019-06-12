@@ -98,10 +98,11 @@ CREATE TABLE lexis_nexis_nonpatent_literature_citations (
   country_code TEXT,
   doc_number TEXT,
   kind_code TEXT,
+  citation_number TEXT,
   citation_text TEXT,
   scopus_url TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_nonpatent_literature_citations_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_nonpatent_literature_citations_pk PRIMARY KEY (country_code,doc_number,kind_code,citation_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -179,7 +180,7 @@ CREATE TABLE lexis_nexis_patent_related_document_additions (
   child_doc_name TEXT,
   child_doc_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_document_additions_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_document_additions_pk PRIMARY KEY (country_code,doc_number,kind_code,parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -211,7 +212,7 @@ CREATE TABLE lexis_nexis_patent_related_document_divisions(
   child_doc_name TEXT,
   child_doc_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_document_divisions_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_document_divisions_pk PRIMARY KEY (country_code,doc_number,kind_code,parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -243,7 +244,7 @@ CREATE TABLE lexis_nexis_patent_related_document_continuations (
   child_doc_name TEXT,
   child_doc_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_document_continuations_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_document_continuations_pk PRIMARY KEY (country_code,doc_number,kind_code,parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -275,7 +276,7 @@ CREATE TABLE lexis_nexis_patent_related_document_continuation_in_parts (
   child_doc_name TEXT,
   child_doc_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_document_continuation_in_parts_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_document_continuation_in_parts_pk PRIMARY KEY (country_code,doc_number,kind_code,parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -307,7 +308,7 @@ CREATE TABLE lexis_nexis_patent_related_document_continuing_reissues (
   child_doc_name TEXT,
   child_doc_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_document_continuing_reissues_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_document_continuing_reissues_pk PRIMARY KEY (country_code,doc_number,kind_code,parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -339,7 +340,7 @@ CREATE TABLE lexis_nexis_patent_related_document_reissues (
   child_doc_name TEXT,
   child_doc_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_document_reissues_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_document_reissues_pk PRIMARY KEY (country_code,doc_number,kind_code,parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -371,7 +372,7 @@ CREATE TABLE lexis_nexis_patent_related_document_divisional_reissues (
   child_doc_name TEXT,
   child_doc_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_document_divisional_reissues_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_document_divisional_reissues_pk PRIMARY KEY (country_code,doc_number,kind_code,parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -403,7 +404,7 @@ CREATE TABLE lexis_nexis_patent_related_document_reexaminations (
   child_doc_name TEXT,
   child_doc_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_document_reexaminations_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_document_reexaminations_pk PRIMARY KEY (country_code,doc_number,kind_code,parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -435,7 +436,7 @@ CREATE TABLE lexis_nexis_patent_related_document_reexamination_reissue_mergers (
   child_doc_name TEXT,
   child_doc_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_document_reexamination_reissue_mergers_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_document_reexamination_reissue_mergers_pk PRIMARY KEY (country_code,doc_number,kind_code,parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -467,7 +468,7 @@ CREATE TABLE lexis_nexis_patent_related_document_substitutions (
   child_doc_name TEXT,
   child_doc_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_document_substitutions_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_document_substitutions_pk PRIMARY KEY (country_code,doc_number,kind_code,parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -484,7 +485,7 @@ CREATE TABLE lexis_nexis_patent_related_document_provisional_applications (
   related_doc_date TEXT,
   provisional_application_status TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_document_provisional_applications_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_document_provisional_applications_pk PRIMARY KEY (country_code,doc_number,kind_code,related_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -516,7 +517,7 @@ CREATE TABLE lexis_nexis_patent_related_document_utility_model_basis (
   child_doc_name TEXT,
   child_doc_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_document_utility_model_basis_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_document_utility_model_basis_pk PRIMARY KEY (country_code,doc_number,kind_code,parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -536,7 +537,7 @@ CREATE TABLE lexis_nexis_patent_related_corrections(
   gazette_reference_date TEXT,
   gazette_text TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_corrections_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_corrections_pk PRIMARY KEY (country_code,doc_number,kind_code,corrected_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -552,7 +553,7 @@ CREATE TABLE lexis_nexis_patent_related_publications(
   related_pub_name TEXT,
   related_pub_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_publications_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_publications_pk PRIMARY KEY (country_code,doc_number,kind_code,related_pub_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -584,7 +585,7 @@ CREATE TABLE lexis_nexis_patent_related_document_371_international (
   child_doc_name TEXT,
   child_doc_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_document_371_international_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_related_document_371_international_pk PRIMARY KEY (country_code,doc_number,kind_code,parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
