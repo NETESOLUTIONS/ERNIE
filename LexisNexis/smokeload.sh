@@ -207,6 +207,10 @@ for zip in "${sorted_args[@]}" ; do
     # Unzip data into relative tmp directory
     unzip -u -q ${zip} -d ${tmp}
 
+    # Preprocess files in ${tmp} due to BOM present in shared files
+    # NOTE: BOM is visible via $cat -A ${XML_FILE} . Should be three characters that mess up the Postgres parser
+    sed -i '1s/^\xEF\xBB\xBF//' ${tmp}/*.xml
+
     # Process XML files using GNU parallel
     export failed_files_dir="$(realpath "${FAILED_FILES_DIR}")/$(basename ${zip%.zip})"
     cd ${tmp}
