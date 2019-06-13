@@ -208,7 +208,7 @@ for zip in "${sorted_args[@]}" ; do
     unzip -u -q ${zip} -d ${tmp}
 
     # Process XML files using GNU parallel
-    export failed_files_dir="$(realpath "${FAILED_FILES_DIR}")/${zip%.zip}"
+    export failed_files_dir="$(realpath "${FAILED_FILES_DIR}")/$(basename ${zip%.zip})"
     cd ${tmp}
     rm -f "${ERROR_LOG}"
     if ! find -name '*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
