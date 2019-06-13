@@ -209,20 +209,21 @@ for zip in "${sorted_args[@]}" ; do
 
     # Process XML files using GNU parallel
     export failed_files_dir="$(realpath "${FAILED_FILES_DIR}")/${zip%.zip}"
-    #cd $subdir
-    #rm -f "${ERROR_LOG}"
-    #if ! find -name '*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
-    #    --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}; then
-    #  [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
-    #fi
-    #while read -r line; do
-    #  if echo $line | grep -q "1"; then
-    #    ((++failed_xml_counter))
-    #  else
-    #    ((++processed_xml_counter))
-    #  fi
-    #done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
-    #rm -rf "${PARALLEL_LOG}"
+    cd ${tmp}
+    rm -f "${ERROR_LOG}"
+    if ! find -name '*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
+        --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}; then
+      [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
+    fi
+    while read -r line; do
+      if echo $line | grep -q "1"; then
+        ((++failed_xml_counter))
+      else
+        ((++processed_xml_counter))
+      fi
+    done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
+    rm -rf "${PARALLEL_LOG}"
+    cd ../
     rm -rf ${tmp}
 
     # Status report
