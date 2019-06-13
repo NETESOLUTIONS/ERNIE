@@ -134,9 +134,9 @@ CREATE TABLE lexis_nexis_patent_priority_claims (
   doc_number TEXT NOT NULL,
   country_code TEXT NOT NULL,
   kind_code TEXT NOT NULL,
-  publication_language TEXT NOT NULL,
-  priority_claim_doc_number TEXT NOT NULL,
-  priority_claim_sequence TEXT NOT NULL,
+  language TEXT NOT NULL,
+  priority_claim_doc_number,
+  priority_claim_sequence,
   priority_claim__date DATE,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT lexis_nexis_patent_priority_claims_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
@@ -145,14 +145,14 @@ TABLESPACE lexis_nexis_tbs;
 
 --TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_patent_priority_claims IS 'Priority claim information for a patent';
-COMMENT ON COLUMN lexis_nexis_patent_priority_claims.doc_number IS '';
-COMMENT ON COLUMN lexis_nexis_patent_priority_claims.country_code IS '';
-COMMENT ON COLUMN lexis_nexis_patent_priority_claims.kind_code IS '';
-COMMENT ON COLUMN lexis_nexis_patent_priority_claims.publication_language IS '';
-COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_doc_number IS '';
-COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_sequence IS '';
-COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_date IS '';
-COMMENT ON COLUMN lexis_nexis_patent_priority_claims.last_updated_time IS '';
+COMMENT ON COLUMN lexis_nexis_patents_patent_priority_claims.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patents_patent_priority_claims.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patents_patent_priority_claims.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patents_patent_priority_claims.language IS 'Document language';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_doc_number IS 'Number of the priority claim';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_sequence IS 'The element in the list of priority claims';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_date IS 'The date the priority claim was made';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.last_updated_time IS 'The last time the table was updated by NETE';
 -- endregion
 
 -- region lexis_nexis_patent_priority_claim_ib_info
@@ -640,17 +640,17 @@ COMMENT ON COLUMN lexis_nexis_patent_application_references.last_updated_time IS
 -- region lexis_nexis_applicants
 DROP TABLE IF EXISTS lexis_nexis_applicants;
 CREATE TABLE lexis_nexis_applicants (
-  country_code TEXT,
-  doc_number TEXT,
-  kind_code TEXT,
-  language TEXT,
+  country_code TEXT NOT NULL,
+  doc_number TEXT NOT NULL,
+  kind_code TEXT NOT NULL,
+  language TEXT NOT NULL,
   sequence TEXT,
-  applicant_name TEXT,
   organization_name TEXT,
   organizaiton_type TEXT,
   organization_country TEXT,
   organziation_city TEXT,
   organization_address TEXT,
+  registered_number TEXT,
   issuing_office TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT lexis_nexis_applicants_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
@@ -659,24 +659,28 @@ TABLESPACE lexis_nexis_tbs;
 
 --TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_applicants IS 'Applicants information';
-COMMENT ON COLUMN lexis_nexis_applicants.sequence IS '';
-COMMENT ON COLUMN lexis_nexis_applicants.applicant_name IS '';
-COMMENT ON COLUMN lexis_nexis_applicants.organization_name IS '';
-COMMENT ON COLUMN lexis_nexis_applicants.organization_type IS '';
-COMMENT ON COLUMN lexis_nexis_applicants.organization_country IS '';
-COMMENT ON COLUMN lexis_nexis_applicants.organization_city IS '';
-COMMENT ON COLUMN lexis_nexis_applicants.organization_address IS '';
-COMMENT ON COLUMN lexis_nexis_applicants.issuing_office IS '';
+COMMENT ON COLUMN lexis_nexis_applicants.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_applicants.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_applicants.kind_code IS 'Document kind';
+COMMENT ON COLUMN llexis_nexis_applicants.language IS 'Document language';
+COMMENT ON COLUMN lexis_nexis_applicants.sequence IS 'Element in the list of applicants';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_name IS 'The organization that applied for the patent';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_type IS 'The type of organization that applied for the patent';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_country IS 'The country of the organization';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_city IS 'The city of the organization';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_address IS 'The address of the organization';
+COMMENT ON COLUMN lexis_nexis_applicants.registered_number IS 'The registration number for the organization';
+COMMENT ON COLUMN lexis_nexis_applicants.issuing_office IS 'The office that issued the number  ';
 COMMENT ON COLUMN lexis_nexis_applicants.last_updated_time IS '';
 -- endregion
 
 -- region lexis_nexis_inventors
 DROP TABLE IF EXISTS lexis_nexis_inventors;
 CREATE TABLE lexis_nexis_inventors (
-  country_code TEXT,
-  doc_number TEXT,
-  kind_code TEXT,
-  language TEXT,
+  country_code TEXT NOT NULL,
+  doc_number TEXT NOT NULL,
+  kind_code TEXT NOT NULL,
+  language TEXT NOT NULL,
   sequence TEXT,
   inventor_name TEXT,
   inventor_address TEXT,
@@ -689,24 +693,28 @@ TABLESPACE lexis_nexis_tbs;
 
 --TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_inventors IS 'Inventors information';
-COMMENT ON COLUMN lexis_nexis_inventors.sequence IS '';
-COMMENT ON COLUMN lexis_nexis_inventors.inventor_name IS '';
-COMMENT ON COLUMN lexis_nexis_inventors.inventor_address IS '';
-COMMENT ON COLUMN lexis_nexis_inventors.inventor_city IS '';
-COMMENT ON COLUMN lexis_nexis_inventors.inventor_country IS '';
+COMMENT ON COLUMN lexis_nexis_inventors.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_inventors.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_inventors.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_inventors.language IS 'Document language';
+COMMENT ON COLUMN lexis_nexis_inventors.sequence IS 'Element in the list of inventors';
+COMMENT ON COLUMN lexis_nexis_inventors.inventor_name IS 'The name of the inventor';
+COMMENT ON COLUMN lexis_nexis_inventors.inventor_address IS 'The adress of the inventor';
+COMMENT ON COLUMN lexis_nexis_inventors.inventor_city IS 'The city of the inventor';
+COMMENT ON COLUMN lexis_nexis_inventors.inventor_country IS 'The country of the inventor';
 COMMENT ON COLUMN lexis_nexis_inventors.last_updated_time IS '';
 -- endregion
 
 -- region lexis_nexis_agents
 DROP TABLE IF EXISTS lexis_nexis_agents;
 CREATE TABLE lexis_nexis_agents (
-  country_code TEXT,
-  doc_number TEXT,
-  kind_code TEXT,
-  language TEXT,
-  sequence TEXT,
-  agent_name TEXT,
-  agent_type TEXT,
+  country_code TEXT NOT NULL,
+  doc_number TEXT NOT NULL,
+  kind_code TEXT NOT NULL,
+  language TEXT NOT NULL,
+  sequence TEXT NOT NULL,
+  agent_name TEXT NOT NULL,
+  agent_type TEXT NOT NULL,
   agent_registration_num TEXT,
   issuing_office TEXT,
   agent_address TEXT,
@@ -719,14 +727,18 @@ TABLESPACE lexis_nexis_tbs;
 
 --TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_agents IS 'Information regarding Agents or common representatives';
-COMMENT ON COLUMN lexis_nexis_agents.sequence IS '';
-COMMENT ON COLUMN lexis_nexis_agents.agent_name IS '';
-COMMENT ON COLUMN lexis_nexis_agents.agent_type IS '';
-COMMENT ON COLUMN lexis_nexis_agents.agent_registration_num IS '';
-COMMENT ON COLUMN lexis_nexis_agents.issuing_office IS '';
-COMMENT ON COLUMN lexis_nexis_agents.agent_address IS '';
-COMMENT ON COLUMN lexis_nexis_agents.agent_city IS '';
-COMMENT ON COLUMN lexis_nexis_agents.agent_country IS '';
+COMMENT ON COLUMN lexis_nexis_agents.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_agents.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_agents.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_agents.language IS 'Document language';
+COMMENT ON COLUMN lexis_nexis_agents.sequence IS 'Element in the list of agents';
+COMMENT ON COLUMN lexis_nexis_agents.agent_name IS 'The name of the agent';
+COMMENT ON COLUMN lexis_nexis_agents.agent_type IS 'The kind of representative';
+COMMENT ON COLUMN lexis_nexis_agents.agent_registration_num IS 'The registration number of the representative';
+COMMENT ON COLUMN lexis_nexis_agents.issuing_office IS 'The issuing office that gave the number to the representative';
+COMMENT ON COLUMN lexis_nexis_agents.agent_address IS 'The address of the representative';
+COMMENT ON COLUMN lexis_nexis_agents.agent_city IS 'The city of the representative';
+COMMENT ON COLUMN lexis_nexis_agents.agent_country IS 'The country of the representative';
 COMMENT ON COLUMN lexis_nexis_agents.last_updated_time IS '';
 -- endregion
 
