@@ -622,6 +622,18 @@ COMMENT ON COLUMN lexis_nexis_patent_application_references.last_updated_time IS
 -- region lexis_nexis_applicants
 DROP TABLE IF EXISTS lexis_nexis_applicants;
 CREATE TABLE lexis_nexis_applicants (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  language TEXT,
+  sequence TEXT,
+  applicant_name TEXT,
+  organization_name TEXT,
+  organizaiton_type TEXT,
+  organization_country TEXT,
+  organziation_city TEXT,
+  organization_address TEXT,
+  issuing_office TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT lexis_nexis_applicants_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
 )
@@ -629,12 +641,29 @@ TABLESPACE lexis_nexis_tbs;
 
 --TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_applicants IS 'Applicants information';
+COMMENT ON COLUMN lexis_nexis_applicants.sequence IS '';
+COMMENT ON COLUMN lexis_nexis_applicants.applicant_name IS '';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_name IS '';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_type IS '';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_country IS '';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_city IS '';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_address IS '';
+COMMENT ON COLUMN lexis_nexis_applicants.issuing_office IS '';
 COMMENT ON COLUMN lexis_nexis_applicants.last_updated_time IS '';
 -- endregion
 
 -- region lexis_nexis_inventors
 DROP TABLE IF EXISTS lexis_nexis_inventors;
 CREATE TABLE lexis_nexis_inventors (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  language TEXT,
+  sequence TEXT,
+  inventor_name TEXT,
+  inventor_address TEXT,
+  inventor_city TEXT,
+  inventor_country TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT lexis_nexis_inventors_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
 )
@@ -642,12 +671,29 @@ TABLESPACE lexis_nexis_tbs;
 
 --TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_inventors IS 'Inventors information';
+COMMENT ON COLUMN lexis_nexis_inventors.sequence IS '';
+COMMENT ON COLUMN lexis_nexis_inventors.inventor_name IS '';
+COMMENT ON COLUMN lexis_nexis_inventors.inventor_address IS '';
+COMMENT ON COLUMN lexis_nexis_inventors.inventor_city IS '';
+COMMENT ON COLUMN lexis_nexis_inventors.inventor_country IS '';
 COMMENT ON COLUMN lexis_nexis_inventors.last_updated_time IS '';
 -- endregion
 
 -- region lexis_nexis_agents
 DROP TABLE IF EXISTS lexis_nexis_agents;
 CREATE TABLE lexis_nexis_agents (
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  language TEXT,
+  sequence TEXT,
+  agent_name TEXT,
+  agent_type TEXT,
+  agent_registration_num TEXT,
+  issuing_office TEXT,
+  agent_address TEXT,
+  agent_city TEXT,
+  agent_country TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT lexis_nexis_agents_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
 )
@@ -655,6 +701,14 @@ TABLESPACE lexis_nexis_tbs;
 
 --TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_agents IS 'Information regarding Agents or common representatives';
+COMMENT ON COLUMN lexis_nexis_agents.sequence IS '';
+COMMENT ON COLUMN lexis_nexis_agents.agent_name IS '';
+COMMENT ON COLUMN lexis_nexis_agents.agent_type IS '';
+COMMENT ON COLUMN lexis_nexis_agents.agent_registration_num IS '';
+COMMENT ON COLUMN lexis_nexis_agents.issuing_office IS '';
+COMMENT ON COLUMN lexis_nexis_agents.agent_address IS '';
+COMMENT ON COLUMN lexis_nexis_agents.agent_city IS '';
+COMMENT ON COLUMN lexis_nexis_agents.agent_country IS '';
 COMMENT ON COLUMN lexis_nexis_agents.last_updated_time IS '';
 -- endregion
 
