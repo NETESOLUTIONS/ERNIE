@@ -18,7 +18,7 @@ DO $block$
   DECLARE
     lexis_nexis_doc_xml XML;
   BEGIN
-    SELECT xmlparse(DOCUMENT convert_from(pg_read_binary_file(current_setting('script.xml_file')), 'UTF8'))
+    SELECT xmlparse(DOCUMENT pg_read_binary_file(current_setting('script.xml_file')))
       INTO lexis_nexis_doc_xml;
 
     IF current_setting('script.subset_sp')='' THEN -- Execute all parsing SPs
