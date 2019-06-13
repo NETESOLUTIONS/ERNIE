@@ -613,15 +613,25 @@ COMMENT ON COLUMN lexis_nexis_patent_related_documents.last_updated_time IS '';
 
 -- region lexis_nexis_patent_application_references
 DROP TABLE IF EXISTS lexis_nexis_patent_application_references;
-CREATE TABLE lexis_nexis_patent_application_references (
-  last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_application_references_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+CREATE TABLE lexis_nexis_patent_application_reference
+(
+    doc_number          BIGINT NOT NULL,
+    appl_ref_type       TEXT,
+    appl_ref_doc_number BIGINT NOT NULL,
+    appl_ref_country    TEXT,
+    appl_ref_date       date,
+    last_updated_time   TIMESTAMP DEFAULT now(),
+    CONSTRAINT lexis_nexis_patent_application_reference_pk PRIMARY KEY (doc_number, appl_ref_doc_number) USING INDEX TABLESPACE index_tbs
 )
-TABLESPACE lexis_nexis_tbs;
+    TABLESPACE lexis_nexis_tbs;
 
---TODO: flesh out comments
-COMMENT ON TABLE lexis_nexis_patent_application_references IS 'Application reference information: application number, country';
-COMMENT ON COLUMN lexis_nexis_patent_application_references.last_updated_time IS '';
+COMMENT ON TABLE lexis_nexis_patent_application_reference IS 'Application reference information: application number, country';
+COMMENT ON COLUMN lexis_nexis_patent_application_reference.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_application_reference.appl_ref_type IS 'Document number of Application reference';
+COMMENT ON COLUMN lexis_nexis_patent_application_reference.appl_ref_country IS 'Country of Application reference';
+COMMENT ON COLUMN lexis_nexis_patent_application_reference.appl_ref_date IS 'Date of Application reference';
+COMMENT ON COLUMN lexis_nexis_patent_application_reference.last_updated_time IS 'Timestamp of particular record last updated';
+
 -- endregion
 
 -- region lexis_nexis_patent_application_references
