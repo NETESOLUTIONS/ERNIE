@@ -223,7 +223,6 @@ for zip in "${sorted_args[@]}" ; do
     #  fi
     #done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
     #rm -rf "${PARALLEL_LOG}"
-    ls ${tmp}
     rm -rf ${tmp}
 
     # Status report
