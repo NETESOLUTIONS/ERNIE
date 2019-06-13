@@ -83,6 +83,9 @@ while (( $# > 0 )); do
     -e)
       readonly STOP_ON_THE_FIRST_ERROR=true
       ;;
+    -r)
+      readonly SORT_ORDER="--reverse"
+      ;;
     -f)
       shift
       echo "Using CLI arg '$1'"
@@ -119,14 +122,17 @@ while (( $# > 0 )); do
       WORK_DIR=$1
       ;;
     *)
-      TARGET_ZIPS="$1"
+      break
   esac
   shift
 done
 
-cd ${WORK_DIR}
-echo "TARGET ZIPS: ${TARGET_ZIPS}"
+arg_array=( "$@" )
+echo "${arg_array[*]}"
+# Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
+IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<<"${arg_array[*]}")); unset IFS
 
+cd ${WORK_DIR}
 if [[ ! ${tmp} ]]; then
   if [[ ${SUBSET_SP} ]]; then
     tmp="tmp-${SUBSET_SP}"
@@ -187,11 +193,11 @@ if [[ ${CLEAN_MODE} == "true" ]]; then
   mkdir "${FAILED_FILES_DIR}"
 fi
 
-declare -i num_zips=$(ls ${TARGET_ZIPS} | wc -l)
+declare -i num_zips=${#sorted_args[@]}
 declare -i failed_xml_counter=0 failed_xml_counter_total=0 processed_xml_counter=0 processed_xml_counter_total=0
 declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
 
-for zip in ${TARGET_ZIPS} ; do
+for zip in "${sorted_args[@]}" ; do
   start_time=$(date '+%s')
   if grep -q "^${zip}$" "${PROCESSED_LOG}"; then
     echo "Skipping file ${zip} ( zip file #$((++i)) out of ${num_zips} ). It is already marked as completed."
