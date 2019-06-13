@@ -7,21 +7,7 @@
 
 \timing
 
- ---- region lexis_nexis_patent_priority_claims
-DROP TABLE IF EXISTS lexis_nexis_patent_priority_claims;
-CREATE TABLE lexis_nexis_patent_priority_claims (
-  doc_number,
-  country_code,
-  kind_code,
-  publication_language,
-  priority_claim,
-  sequence,
-  number,
-  date,
-  last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_priority_claims_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
-)
-TABLESPACE lexis_nexis_tbs;
+ ---- region lexis_nexis_patent_priority_claims_parser  
 
 CREATE OR REPLACE PROCEDURE lexis_nexis_patent_priority_claims_parser (input_xml XML)
 AS
