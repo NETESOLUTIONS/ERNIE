@@ -65,7 +65,7 @@ process_focal_paper() {
 }
 export -f process_focal_paper
 
-echo "focal_paper_id,disruption_i,disruption_j,disruption_k,disruption" >"${OUTPUT_FILE}"
+echo "focal_paper_id,disruption_i,disruption_j,j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,disruption_k,disruption" >"${OUTPUT_FILE}"
 # Reading input from the script `stdin`
 parallel --halt soon,fail=1 --verbose --line-buffer --tagstring '|job#{#} s#{%}|' process_focal_paper {}
 
