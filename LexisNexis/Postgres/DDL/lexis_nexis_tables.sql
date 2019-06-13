@@ -812,7 +812,7 @@ CREATE TABLE lexis_nexis_patent_legal_data (
   withdrawn_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT lexis_nexis_patent_legal_data_pk PRIMARY KEY (country_code,doc_number,kind_code,sequence_id) USING INDEX TABLESPACE index_tbs,
-  CONSTRAINT lexis_nexis_patent_titles_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
+  CONSTRAINT lexis_nexis_patent_legal_data_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -867,7 +867,7 @@ CREATE TABLE lexis_nexis_patent_abstracts (
   abstract_text TEXT NOT NULL,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT lexis_nexis_patent_abstracts_pk PRIMARY KEY (country_code,doc_number,kind_code,abstract_language) USING INDEX TABLESPACE index_tbs,
-  CONSTRAINT lexis_nexis_patent_titles_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
+  CONSTRAINT lexis_nexis_patent_abstracts_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
