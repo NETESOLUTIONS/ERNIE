@@ -70,9 +70,9 @@ CREATE TABLE lexis_nexis_patent_titles (
 )
 TABLESPACE lexis_nexis_tbs;
 
-COMMENT ON TABLE lexis_nexis_patents IS 'Patent titles';
-COMMENT ON COLUMN lexis_nexis_patents_titles.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
-COMMENT ON COLUMN lexis_nexis_patents_titles.doc_number IS 'Document number';
+COMMENT ON TABLE lexis_nexis_patent_titles IS 'Patent titles';
+COMMENT ON COLUMN lexis_nexis_patent_titles.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_titles.doc_number IS 'Document number';
 COMMENT ON COLUMN lexis_nexis_patent_titles.kind_code IS 'Document kind';
 COMMENT ON COLUMN lexis_nexis_patent_titles.invention_title IS 'Preferably two to seven words when in English or translated into English and precise';
 COMMENT ON COLUMN lexis_nexis_patent_titles.language IS 'Title text language';
@@ -145,10 +145,10 @@ TABLESPACE lexis_nexis_tbs;
 
 --TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_patent_priority_claims IS 'Priority claim information for a patent';
-COMMENT ON COLUMN lexis_nexis_patents_patent_priority_claims.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
-COMMENT ON COLUMN lexis_nexis_patents_patent_priority_claims.doc_number IS 'Document number';
-COMMENT ON COLUMN lexis_nexis_patents_patent_priority_claims.kind_code IS 'Document kind';
-COMMENT ON COLUMN lexis_nexis_patents_patent_priority_claims.language IS 'Document language';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.language IS 'Document language';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_doc_number IS 'Number of the priority claim';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_sequence IS 'The element in the list of priority claims';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_date IS 'The date the priority claim was made';
