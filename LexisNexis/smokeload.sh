@@ -119,12 +119,13 @@ while (( $# > 0 )); do
       WORK_DIR=$1
       ;;
     *)
-      TARGET_ZIPS=$1
+      TARGET_ZIPS="$1"
   esac
   shift
 done
 
 cd ${WORK_DIR}
+echo "TARGET ZIPS: ${TARGET_ZIPS}"
 
 if [[ ! ${tmp} ]]; then
   if [[ ${SUBSET_SP} ]]; then
