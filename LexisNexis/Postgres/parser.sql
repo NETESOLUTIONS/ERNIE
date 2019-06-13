@@ -29,6 +29,9 @@ DO $block$
       CALL lexis_nexis_parse_nonpatent_citations(lexis_nexis_doc_xml);
       CALL lexis_nexis_parse_examiners(lexis_nexis_doc_xml);
       CALL lexis_nexis_parse_related_documents(lexis_nexis_doc_xml);
+      CALL lexis_nexis_patent_citations_data(lexis_nexis_doc_xml);
+      CALL lexis_nexis_patent_application_reference_data(lexis_nexis_doc_xml);
+      
     ELSE -- Execute only the selected SP
       -- Make sure that parent records are present
       CALL lexis_nexis_parse_patents(lexis_nexis_doc_xml);
