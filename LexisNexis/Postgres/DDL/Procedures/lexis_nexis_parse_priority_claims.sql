@@ -36,4 +36,4 @@ $$
     ON CONFLICT DO NOTHING;
 end;
 $$
-LANGUAGE plpsql;
+LANGUAGE plpgsql;

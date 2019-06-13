@@ -18,7 +18,7 @@ DO $block$
   DECLARE
     lexis_nexis_doc_xml XML;
   BEGIN
-    SELECT xmlparse(DOCUMENT convert_from(pg_read_binary_file(current_setting('script.xml_file')), 'UTF8'))
+    SELECT xmlparse(DOCUMENT pg_read_file(current_setting('script.xml_file')))
       INTO lexis_nexis_doc_xml;
 
     IF current_setting('script.subset_sp')='' THEN -- Execute all parsing SPs
@@ -28,10 +28,10 @@ DO $block$
       CALL lexis_nexis_parse_abstracts(lexis_nexis_doc_xml);
       CALL lexis_nexis_parse_nonpatent_citations(lexis_nexis_doc_xml);
       CALL lexis_nexis_parse_examiners(lexis_nexis_doc_xml);
-      CALL lexis_nexis_parse_related_documents(lexis_nexis_doc_xml);
-      CALL lexis_nexis_patent_citations_data(lexis_nexis_doc_xml);
-      CALL lexis_nexis_patent_application_reference_data(lexis_nexis_doc_xml);
-      
+      --CALL lexis_nexis_parse_related_documents(lexis_nexis_doc_xml); * ERROR:  syntax error at or near "/" LINE 479: child_doc_name TEXT PATH 'relation/child-doc...'
+      --CALL lexis_nexis_patent_citations_data(lexis_nexis_doc_xml); * ERROR:  invalid input syntax for integer: "S4719000" -- update parser code to handle doc_number as TEXT
+      --CALL lexis_nexis_patent_application_reference_data(lexis_nexis_doc_xml); * ERROR:  invalid input syntax for integer: "T0873012" -- update parser code to handle doc_number as TEXT
+
     ELSE -- Execute only the selected SP
       -- Make sure that parent records are present
       CALL lexis_nexis_parse_patents(lexis_nexis_doc_xml);

@@ -6,7 +6,7 @@ SET TIMEZONE = 'US/Eastern';
 SET search_path TO public;
 
 -- region lexis_nexis_patents
-DROP TABLE IF EXISTS lexis_nexis_patents;
+DROP TABLE IF EXISTS lexis_nexis_patents CASCADE;
 CREATE TABLE lexis_nexis_patents (
   country_code TEXT NOT NULL,
   doc_number TEXT NOT NULL,
@@ -66,13 +66,14 @@ CREATE TABLE lexis_nexis_patent_titles (
   invention_title TEXT NOT NULL,
   language TEXT NOT NULL,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_titles_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_titles_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_patent_titles_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
-COMMENT ON TABLE lexis_nexis_patents IS 'Patent titles';
-COMMENT ON COLUMN lexis_nexis_patents_titles.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
-COMMENT ON COLUMN lexis_nexis_patents_titles.doc_number IS 'Document number';
+COMMENT ON TABLE lexis_nexis_patent_titles IS 'Patent titles';
+COMMENT ON COLUMN lexis_nexis_patent_titles.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_titles.doc_number IS 'Document number';
 COMMENT ON COLUMN lexis_nexis_patent_titles.kind_code IS 'Document kind';
 COMMENT ON COLUMN lexis_nexis_patent_titles.invention_title IS 'Preferably two to seven words when in English or translated into English and precise';
 COMMENT ON COLUMN lexis_nexis_patent_titles.language IS 'Title text language';
@@ -137,7 +138,7 @@ CREATE TABLE lexis_nexis_patent_priority_claims (
   language TEXT NOT NULL,
   priority_claim_doc_number TEXT,
   priority_claim_sequence TEXT,
-  priority_claim__date DATE,
+  priority_claim_date DATE,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT lexis_nexis_patent_priority_claims_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
 )
@@ -145,17 +146,17 @@ TABLESPACE lexis_nexis_tbs;
 
 --TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_patent_priority_claims IS 'Priority claim information for a patent';
-COMMENT ON COLUMN lexis_nexis_patents_patent_priority_claims.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
-COMMENT ON COLUMN lexis_nexis_patents_patent_priority_claims.doc_number IS 'Document number';
-COMMENT ON COLUMN lexis_nexis_patents_patent_priority_claims.kind_code IS 'Document kind';
-COMMENT ON COLUMN lexis_nexis_patents_patent_priority_claims.language IS 'Document language';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.language IS 'Document language';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_doc_number IS 'Number of the priority claim';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_sequence IS 'The element in the list of priority claims';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_date IS 'The date the priority claim was made';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claims.last_updated_time IS 'The last time the table was updated by NETE';
 -- endregion
 
--- region lexis_nexis_patent_priority_claim_ib_info
+/*-- region lexis_nexis_patent_priority_claim_ib_info
 DROP TABLE IF EXISTS lexis_nexis_patent_priority_claim_ib_info;
 CREATE TABLE lexis_nexis_patent_priority_claim_ib_info (
   last_updated_time TIMESTAMP DEFAULT now(),
@@ -166,7 +167,7 @@ TABLESPACE lexis_nexis_tbs;
 --TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_patent_priority_claim_ib_info IS 'Additional priority claim information by IB';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claim_ib_info.last_updated_time IS '';
--- endregion
+-- endregion*/
 
 -- region lexis_nexis_patent_related_documents: tables can be modified based on parsing results
 -- region lexis_nexis_patent_related_document_additions
@@ -425,6 +426,7 @@ CREATE TABLE lexis_nexis_patent_related_document_reexaminations (
 )
 TABLESPACE lexis_nexis_tbs;
 
+/* Name too long here, need a shorter name to avoid truncation warnings/error on PK creation
 -- region lexis_nexis_patent_related_document_reexamination_reissue_mergers
 DROP TABLE IF EXISTS lexis_nexis_patent_related_document_reexamination_reissue_mergers;
 CREATE TABLE lexis_nexis_patent_related_document_reexamination_reissue_mergers (
@@ -456,6 +458,7 @@ CREATE TABLE lexis_nexis_patent_related_document_reexamination_reissue_mergers (
   CONSTRAINT lexis_nexis_patent_related_document_reexamination_reissue_mergers_pk PRIMARY KEY (country_code,doc_number,kind_code,parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+*/
 
 -- region lexis_nexis_patent_related_document_substitutions
 DROP TABLE IF EXISTS lexis_nexis_patent_related_document_substitutions;
@@ -607,13 +610,13 @@ CREATE TABLE lexis_nexis_patent_related_document_371_international (
 TABLESPACE lexis_nexis_tbs;
 
 --TODO: flesh out comments
-COMMENT ON TABLE lexis_nexis_patent_related_documents IS 'Various relationships between the patent in hand and other patent grants or applications. Contains either an additional application, a divisional application, continuations, reissues, divisional reissues, reexamination, merged reissues reexamination, substitute, or provisional application';
-COMMENT ON COLUMN lexis_nexis_patent_related_documents.last_updated_time IS '';
+--COMMENT ON TABLE lexis_nexis_patent_related_documents IS 'Various relationships between the patent in hand and other patent grants or applications. Contains either an additional application, a divisional application, continuations, reissues, divisional reissues, reexamination, merged reissues reexamination, substitute, or provisional application';
+--COMMENT ON COLUMN lexis_nexis_patent_related_documents.last_updated_time IS '';
 -- endregion
 
 -- region lexis_nexis_patent_application_references
 DROP TABLE IF EXISTS lexis_nexis_patent_application_references;
-CREATE TABLE lexis_nexis_patent_application_reference
+CREATE TABLE lexis_nexis_patent_application_references
 (
     doc_number          BIGINT NOT NULL,
     appl_ref_type       TEXT,
@@ -621,30 +624,17 @@ CREATE TABLE lexis_nexis_patent_application_reference
     appl_ref_country    TEXT,
     appl_ref_date       date,
     last_updated_time   TIMESTAMP DEFAULT now(),
-    CONSTRAINT lexis_nexis_patent_application_reference_pk PRIMARY KEY (doc_number, appl_ref_doc_number) USING INDEX TABLESPACE index_tbs
-)
-    TABLESPACE lexis_nexis_tbs;
-
-COMMENT ON TABLE lexis_nexis_patent_application_reference IS 'Application reference information: application number, country';
-COMMENT ON COLUMN lexis_nexis_patent_application_reference.doc_number IS 'Document number';
-COMMENT ON COLUMN lexis_nexis_patent_application_reference.appl_ref_type IS 'Document number of Application reference';
-COMMENT ON COLUMN lexis_nexis_patent_application_reference.appl_ref_country IS 'Country of Application reference';
-COMMENT ON COLUMN lexis_nexis_patent_application_reference.appl_ref_date IS 'Date of Application reference';
-COMMENT ON COLUMN lexis_nexis_patent_application_reference.last_updated_time IS 'Timestamp of particular record last updated';
-
--- endregion
-
--- region lexis_nexis_patent_application_references
-DROP TABLE IF EXISTS lexis_nexis_patent_application_references;
-CREATE TABLE lexis_nexis_patent_application_references (
-  last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_application_references_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+    CONSTRAINT lexis_nexis_patent_application_references_pk PRIMARY KEY (doc_number, appl_ref_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
---TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_patent_application_references IS 'Application reference information: application number, country';
-COMMENT ON COLUMN lexis_nexis_patent_application_references.last_updated_time IS '';
+COMMENT ON COLUMN lexis_nexis_patent_application_references.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_application_references.appl_ref_type IS 'Document number of Application reference';
+COMMENT ON COLUMN lexis_nexis_patent_application_references.appl_ref_country IS 'Country of Application reference';
+COMMENT ON COLUMN lexis_nexis_patent_application_references.appl_ref_date IS 'Date of Application reference';
+COMMENT ON COLUMN lexis_nexis_patent_application_references.last_updated_time IS 'Timestamp of particular record last updated';
+
 -- endregion
 
 -- region lexis_nexis_applicants
@@ -656,9 +646,9 @@ CREATE TABLE lexis_nexis_applicants (
   language TEXT NOT NULL,
   sequence TEXT,
   organization_name TEXT,
-  organizaiton_type TEXT,
+  organization_type TEXT,
   organization_country TEXT,
-  organziation_city TEXT,
+  organization_city TEXT,
   organization_address TEXT,
   registered_number TEXT,
   issuing_office TEXT,
@@ -672,7 +662,7 @@ COMMENT ON TABLE lexis_nexis_applicants IS 'Applicants information';
 COMMENT ON COLUMN lexis_nexis_applicants.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
 COMMENT ON COLUMN lexis_nexis_applicants.doc_number IS 'Document number';
 COMMENT ON COLUMN lexis_nexis_applicants.kind_code IS 'Document kind';
-COMMENT ON COLUMN llexis_nexis_applicants.language IS 'Document language';
+COMMENT ON COLUMN lexis_nexis_applicants.language IS 'Document language';
 COMMENT ON COLUMN lexis_nexis_applicants.sequence IS 'Element in the list of applicants';
 COMMENT ON COLUMN lexis_nexis_applicants.organization_name IS 'The organization that applied for the patent';
 COMMENT ON COLUMN lexis_nexis_applicants.organization_type IS 'The type of organization that applied for the patent';
@@ -821,7 +811,8 @@ CREATE TABLE lexis_nexis_patent_legal_data (
   effective_date TEXT,
   withdrawn_date TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_legal_data_pk PRIMARY KEY (country_code,doc_number,kind_code,sequence_id) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_legal_data_pk PRIMARY KEY (country_code,doc_number,kind_code,sequence_id) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_patent_legal_data_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -875,7 +866,8 @@ CREATE TABLE lexis_nexis_patent_abstracts (
   abstract_date_changed TEXT,
   abstract_text TEXT NOT NULL,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_abstracts_pk PRIMARY KEY (country_code,doc_number,kind_code,abstract_language) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_abstracts_pk PRIMARY KEY (country_code,doc_number,kind_code,abstract_language) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_patent_abstracts_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
