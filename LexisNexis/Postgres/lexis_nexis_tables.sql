@@ -135,8 +135,8 @@ CREATE TABLE lexis_nexis_patent_priority_claims (
   country_code TEXT NOT NULL,
   kind_code TEXT NOT NULL,
   language TEXT NOT NULL,
-  priority_claim_doc_number,
-  priority_claim_sequence,
+  priority_claim_doc_number TEXT,
+  priority_claim_sequence TEXT,
   priority_claim__date DATE,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT lexis_nexis_patent_priority_claims_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
