@@ -17,9 +17,9 @@ BEGIN
            xmltable.appl_ref_country,
            xmltable.appl_ref_date
     FROM xmltable('//bibliographic-data/application-reference/document-id/doc-number' PASSING input_xml COLUMNS
-        doc_number BIGINT PATH '../../../publication-reference/document-id/doc-number',
+        doc_number TEXT PATH '../../../publication-reference/document-id/doc-number',
         appl_ref_type TEXT PATH '../../@appl-type',
-        appl_ref_doc_number BIGINT PATH '.',
+        appl_ref_doc_number TEXT PATH '.',
         appl_ref_country TEXT PATH '../country',
         appl_ref_date date PATH '../date'
              )
