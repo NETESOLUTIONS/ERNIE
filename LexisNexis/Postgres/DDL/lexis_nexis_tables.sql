@@ -618,9 +618,9 @@ TABLESPACE lexis_nexis_tbs;
 DROP TABLE IF EXISTS lexis_nexis_patent_application_references;
 CREATE TABLE lexis_nexis_patent_application_references
 (
-    doc_number          BIGINT NOT NULL,
+    doc_number          TEXT NOT NULL,
     appl_ref_type       TEXT,
-    appl_ref_doc_number BIGINT NOT NULL,
+    appl_ref_doc_number TEXT NOT NULL,
     appl_ref_country    TEXT,
     appl_ref_date       date,
     last_updated_time   TIMESTAMP DEFAULT now(),
