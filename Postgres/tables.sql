@@ -11,7 +11,7 @@ JOIN pg_namespace pn
   ON pn.oid = pc.relnamespace AND pn.nspname = 'public'
 WHERE pc.relname = :tableName;
 
--- All tables by owner
+-- All tables with owners
 SELECT
   table_pc.relname AS table_name,
   pa.rolname AS owner
