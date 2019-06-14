@@ -17,8 +17,8 @@ melted_x <- melted_x[order(variable)]
 melted_x[variable=='ap_allwos_nete_fc', bg:='ap_WoS']
 melted_x[variable=='ap_allwos_uzzi_fc', bg:='ap_WoS']
 
-melted_x[variable=='ap_nete_fc', bg:='ap']
-melted_x[variable=='ap_uzzi_fc', bg:='ap']
+melted_x[variable=='ap_nete_fc', bg:='ap_local']
+melted_x[variable=='ap_uzzi_fc', bg:='ap_local']
 
 # umsj: Uzzi, Mukherjee, Stringer, Jones
 melted_x[variable=='ap_allwos_uzzi_fc', algorithm:='umsj'] 
@@ -26,7 +26,7 @@ melted_x[variable=='ap_uzzi_fc', algorithm:='umsj']
 
 # repcs: runtime enhanced permuting citation shuffler
 melted_x[is.na(algorithm),algorithm:='repcs'] 
-melted_x[bg=='ap',bg:='appl_physics']
+melted_x[bg=='ap',bg:='ap_local']
 ap_x <- melted_x
 
 ## metab_85 dataset
@@ -51,7 +51,7 @@ melted_x[variable=='metab_uzzi_fc',algorithm:='umsj']
 
 # repcs: runtime enhanced permuting citation shuffler
 melted_x[is.na(algorithm),algorithm:='repcs'] 
-melted_x[bg=='metab',bg:='metabolism']
+melted_x[bg=='metab',bg:='metab_local']
 metab_x <- melted_x
 
 ## imm_85 dataset
@@ -77,12 +77,12 @@ melted_x[variable=='imm_uzzi_fc',algorithm:='umsj']
 # repcs: runtime enhanced permuting citation shuffler
 melted_x[is.na(algorithm),algorithm:='repcs'] 
 
-melted_x[bg=='imm',bg:='immunology']
+melted_x[bg=='imm',bg:='imm_local']
 imm_x <- melted_x
 
 X <- rbind(ap_x,imm_x,metab_x)
 
-X$bg <- factor(X$bg,levels=c('appl_physics','ap_WoS','immunology','imm_WoS','metabolism','metab_WoS'))
+X$bg <- factor(X$bg,levels=c('ap_local','ap_WoS','imm_local','imm_WoS','metab_local','metab_WoS'))
 
 pdf('background-effect.pdf')
 qplot(bg, log(value), data=X, facets=algorithm~. ,geom='boxplot',group=bg,color=bg, ylab=expression(paste((log[2]),' fold change in subject frequency of references')),xlab='network background')  + theme_bw() + theme(strip.text.y = element_text(size = 14)) + theme(legend.position = 'none') 

@@ -1,7 +1,7 @@
 /*
  Author: Djamil Lakhdar-Hamina
 
- lexis-nexis table and parsers
+ lexis-nexis priority_claim parser.
 
  */
 
