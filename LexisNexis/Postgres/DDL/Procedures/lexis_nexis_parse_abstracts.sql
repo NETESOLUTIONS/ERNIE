@@ -1,7 +1,7 @@
 /*
   Author: VJ Davey
-  This script defines several procedures for XMLTABLE based parsing of LexisNexis XML patent files.
-  This section includes bibliographic data, legal data, and abstracts
+  This script is part of a set that defines several procedures for XMLTABLE based parsing of LexisNexis XML patent files.
+  This section covers abstracts data.
 */
 
 \set ON_ERROR_STOP on
