@@ -29,8 +29,8 @@ DO $block$
       CALL lexis_nexis_parse_nonpatent_citations(lexis_nexis_doc_xml);
       CALL lexis_nexis_parse_examiners(lexis_nexis_doc_xml);
       --CALL lexis_nexis_parse_related_documents(lexis_nexis_doc_xml); * ERROR:  syntax error at or near "/" LINE 479: child_doc_name TEXT PATH 'relation/child-doc...'
-      --CALL lexis_nexis_patent_citations_data(lexis_nexis_doc_xml); * ERROR:  invalid input syntax for integer: "S4719000" -- update parser code to handle doc_number as TEXT
-      --CALL lexis_nexis_patent_application_reference_data(lexis_nexis_doc_xml); * ERROR:  invalid input syntax for integer: "T0873012" -- update parser code to handle doc_number as TEXT
+      CALL lexis_nexis_patent_citations_data(lexis_nexis_doc_xml);
+      CALL lexis_nexis_patent_application_reference_data(lexis_nexis_doc_xml);
 
     ELSE -- Execute only the selected SP
       -- Make sure that parent records are present

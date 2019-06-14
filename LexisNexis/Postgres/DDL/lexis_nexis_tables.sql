@@ -84,9 +84,9 @@ COMMENT ON COLUMN lexis_nexis_patent_titles.last_updated_time IS '';
 DROP TABLE IF EXISTS lexis_nexis_patent_citations;
 CREATE TABLE lexis_nexis_patent_citations
 (
-    doc_number           BIGINT NOT NULL,
+    doc_number           TEXT NOT NULL,
     seq_num              INT    NOT NULL,
-    cited_doc_number     BIGINT NOT NULL,
+    cited_doc_number     TEXT NOT NULL,
     cited_country        TEXT,
     cited_kind           TEXT,
     cited_authors        TEXT,
@@ -618,9 +618,9 @@ TABLESPACE lexis_nexis_tbs;
 DROP TABLE IF EXISTS lexis_nexis_patent_application_references;
 CREATE TABLE lexis_nexis_patent_application_references
 (
-    doc_number          BIGINT NOT NULL,
+    doc_number          TEXT NOT NULL,
     appl_ref_type       TEXT,
-    appl_ref_doc_number BIGINT NOT NULL,
+    appl_ref_doc_number TEXT NOT NULL,
     appl_ref_country    TEXT,
     appl_ref_date       date,
     last_updated_time   TIMESTAMP DEFAULT now(),

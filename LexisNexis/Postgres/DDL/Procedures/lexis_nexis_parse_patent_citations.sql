@@ -23,9 +23,9 @@ BEGIN
            xmltable.cited_published_date
     FROM xmltable('//bibliographic-data/references-cited/citation/patcit/document-id/doc-number' PASSING input_xml
                   COLUMNS
-                      doc_number bigint PATH '../../../../../publication-reference/document-id/doc-number',
+                      doc_number TEXT PATH '../../../../../publication-reference/document-id/doc-number',
                       seq_num integer PATH '../../@num',
-                      cited_doc_number bigint PATH '.',
+                      cited_doc_number TEXT PATH '.',
                       cited_country TEXT PATH '../country',
                       cited_kind TEXT PATH '../kind',
                       cited_authors TEXT PATH '../name',
