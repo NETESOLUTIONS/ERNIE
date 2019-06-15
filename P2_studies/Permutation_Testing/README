@@ -66,5 +66,9 @@ the ERNIE PostgreSQL database over to Spark, conducting in-memory calculations, 
 PostgreSQL has been automated (see Spark folder). Comparative performance data has been generated and is available 
 along with other data in the **Cocit_SI.pdf** file in this folder. 
 
+The citation shuffling algorithm referred to as _repcs_ (runtime enhanced permuting citation shuffler) has been 
+implemented in R, Python, and for Spark. Smaller datasets are analyzed using the R and Python versions on CentOS VMs
+with typically 32 Gb RAM but as much as 128 Gb. WoS year slices were analyzed using the Spark implementation.
+
 
 
