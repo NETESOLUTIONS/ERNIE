@@ -17,4 +17,16 @@ We recently formalized a partnering agreement with [Elsevier](https://www.elsevi
 
 This project has been funded in part as a Fast Track Small Business Innovative Research award with Federal funds from the National Institute on Drug Abuse, National Institutes of Health, US Department of Health and Human Services. In Feb 2018, Phase I was completed. Phase II has since been awarded and commenced on Sept 30, 2018. Phase II is focused on building a user comunity and 'productionizing' the platform. We gratefully acknowledge constructive critique and advice from the Program staff at NIDA.
  
-ERNIE has a page including links to related publications on [OMICtools](https://omictools.com/ernie-tool).
+This repo was created in Aug 2017, we wrote up an acccompanying article in 2018 that is sitting on BioRxiv. The citation for the article is 
+```
+@article{keserci_ernie:_2018,
+	title = {{ERNIE}: {A} {Data} {Platform} for {Research} {Assessment}},
+	url = {https://www.biorxiv.org/content/early/2018/07/19/371955},
+	doi = {10.1101/371955},
+	abstract = {},
+	journal = {bioRxiv},
+	author = {Keserci, Samet and Davey, Avon and Pico, Alexander R. and Korobskiy, Dmitriy 
+	and Chacko, George},
+	year = {2018}
+}
+```
