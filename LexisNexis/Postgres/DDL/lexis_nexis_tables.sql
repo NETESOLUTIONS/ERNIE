@@ -146,7 +146,7 @@ CREATE TABLE lexis_nexis_patent_priority_claims (
   priority_claim_sequence TEXT,
   priority_claim_date DATE,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_priority_claims_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_priority_claims_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs,
   CONSTRAINT lexis_nexis_patent_priority_claims_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
@@ -775,7 +775,7 @@ CREATE TABLE lexis_nexis_examiners (
   assistant_first_name TEXT,
   assistant_department TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_examiners_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_examiners_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs,
   CONSTRAINT lexis_nexis_patent_examiners_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
