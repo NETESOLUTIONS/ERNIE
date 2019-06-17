@@ -23,7 +23,7 @@ The citation for ERNIE is
 	title = {{ERNIE}: {A} {Data} {Platform} for {Research} {Assessment}},
 	url = {https://www.biorxiv.org/content/early/2018/07/19/371955},
 	doi = {10.1101/371955},
-	abstract = {Data mining coupled to network analysis has been successfully used to study relationships between basic discovery and translational applications such as drug development; and to document research collaborations and knowledge flows. Assembling relevant data for such studies in a form that supports analysis presents challenges. We have developed Enhanced Research Network Information Environment (ERNIE), an open source, scalable cloud-based platform that (i) integrates data drawn from public and commercial sources (ii) provides users with analytical workflows that incorporate expert input at critical stages. A modular design enables the addition, deletion, or substitution of data sources. To demonstrate the capabilities of ERNIE, we have conducted case studies that span drug development and pharmacogenetics. In these studies, we analyze data from regulatory documents, bibliographic and patent databases, research grant records, and clinical trials, to document collaborations and identify influential research accomplishments.},
+	abstract = {},
 	journal = {bioRxiv},
 	author = {Keserci, Samet and Davey, Avon and Pico, Alexander R. and Korobskiy, Dmitriy and Chacko, George},
 	year = {2018}
