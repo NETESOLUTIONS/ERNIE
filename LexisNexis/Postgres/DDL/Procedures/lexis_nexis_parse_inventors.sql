@@ -72,8 +72,9 @@ $$
                 country TEXT PATH 'addressbook/address/country'
               )
     ON CONFLICT (country_code,doc_number,kind_code,inventor_sequence)
-    DO UPDATE SET abstract_text=excluded.abstract_text,abstract_date_changed=excluded.abstract_date_changed,
-     last_updated_time=now();
+    DO NOTHING;
+    --DO UPDATE SET abstract_text=excluded.abstract_text,abstract_date_changed=excluded.abstract_date_changed,
+     --last_updated_time=now();
   END;
 $$
 LANGUAGE plpgsql;
