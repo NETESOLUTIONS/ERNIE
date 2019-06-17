@@ -25,7 +25,8 @@ This repo was created in Aug 2017, we wrote up an acccompanying article in 2018 
 	doi = {10.1101/371955},
 	abstract = {},
 	journal = {bioRxiv},
-	author = {Keserci, Samet and Davey, Avon and Pico, Alexander R. and Korobskiy, Dmitriy and Chacko, George},
+	author = {Keserci, Samet and Davey, Avon and Pico, Alexander R. and Korobskiy, Dmitriy 
+	and Chacko, George},
 	year = {2018}
 }```
 
