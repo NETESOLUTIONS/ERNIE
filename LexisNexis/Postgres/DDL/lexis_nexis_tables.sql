@@ -693,15 +693,27 @@ CREATE TABLE lexis_nexis_inventors (
   country_code TEXT NOT NULL,
   doc_number TEXT NOT NULL,
   kind_code TEXT NOT NULL,
-  language TEXT NOT NULL,
-  sequence TEXT,
-  inventor_name TEXT,
-  inventor_address TEXT,
-  inventor_city TEXT,
-  inventor_country TEXT,
+  inventor_sequence INT NOT NULL,
+  language TEXT,
+  name TEXT,
+  address_1 TEXT,
+  address_2 TEXT,
+  address_3 TEXT,
+  address_4 TEXT,
+  address_5 TEXT,
+  mailcode TEXT,
+  pobox TEXT,
+  room text,
+  address_floor TEXT,
+  building TEXT,
+  street TEXT,
+  city TEXT,
+  county TEXT,
+  postcode TEXT,
+  country TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_inventors_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs,
-  CONSTRAINT lexis_nexis_patent_application_references_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
+  CONSTRAINT lexis_nexis_inventors_pk PRIMARY KEY (country_code,doc_number,kind_code,inventor_sequence) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_inventors_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -710,12 +722,11 @@ COMMENT ON TABLE lexis_nexis_inventors IS 'Inventors information';
 COMMENT ON COLUMN lexis_nexis_inventors.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
 COMMENT ON COLUMN lexis_nexis_inventors.doc_number IS 'Document number';
 COMMENT ON COLUMN lexis_nexis_inventors.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_inventors.inventor_sequence IS 'Element in the list of inventors';
 COMMENT ON COLUMN lexis_nexis_inventors.language IS 'Document language';
-COMMENT ON COLUMN lexis_nexis_inventors.sequence IS 'Element in the list of inventors';
-COMMENT ON COLUMN lexis_nexis_inventors.inventor_name IS 'The name of the inventor';
-COMMENT ON COLUMN lexis_nexis_inventors.inventor_address IS 'The adress of the inventor';
-COMMENT ON COLUMN lexis_nexis_inventors.inventor_city IS 'The city of the inventor';
-COMMENT ON COLUMN lexis_nexis_inventors.inventor_country IS 'The country of the inventor';
+COMMENT ON COLUMN lexis_nexis_inventors.name IS 'The name of the inventor';
+COMMENT ON COLUMN lexis_nexis_inventors.city IS 'The city of the inventor';
+COMMENT ON COLUMN lexis_nexis_inventors.country IS 'The country of the inventor';
 COMMENT ON COLUMN lexis_nexis_inventors.last_updated_time IS '';
 -- endregion
 
@@ -757,10 +768,6 @@ COMMENT ON COLUMN lexis_nexis_agents.agent_city IS 'The city of the representati
 COMMENT ON COLUMN lexis_nexis_agents.agent_country IS 'The country of the representative';
 COMMENT ON COLUMN lexis_nexis_agents.last_updated_time IS '';
 -- endregion
-
-
-
-
 
 -- region lexis_nexis_examiners
 DROP TABLE IF EXISTS lexis_nexis_examiners;
