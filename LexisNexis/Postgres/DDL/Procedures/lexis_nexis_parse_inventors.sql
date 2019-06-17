@@ -51,7 +51,7 @@ $$
 
                 --below are attributes
                 inventor_sequence INT PATH '@sequence' NOT NULL,
-                language DATE PATH 'addressbook/@lang',
+                language TEXT PATH 'addressbook/@lang',
                 --Below are sub elements
                 name TEXT PATH 'addressbook/name',
                 address_1 TEXT PATH 'addressbook/address/address-1',
