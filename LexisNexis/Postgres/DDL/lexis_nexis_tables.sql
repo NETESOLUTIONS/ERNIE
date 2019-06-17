@@ -731,24 +731,41 @@ COMMENT ON COLUMN lexis_nexis_inventors.last_updated_time IS '';
 -- endregion
 
 -- region lexis_nexis_agents
-DROP TABLE IF EXISTS lexis_nexis_agents;
-CREATE TABLE lexis_nexis_agents (
-  country_code TEXT NOT NULL,
-  doc_number TEXT NOT NULL,
-  kind_code TEXT NOT NULL,
-  language TEXT NOT NULL,
-  sequence TEXT NOT NULL,
-  agent_name TEXT NOT NULL,
-  agent_type TEXT NOT NULL,
+DROP TABLE IF EXISTS lexis_nexis_us_agents;
+CREATE TABLE lexis_nexis_us_agents(
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  sequence SMALLINT,
+  agent_type TEXT,
+  language TEXT,
+  agent_name TEXT,
+  last_name TEXT,
+  first_name TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_us_agents_pk PRIMARY KEY (country_code,doc_number,kind_code,sequence) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_us_agents_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_ep_agents
+DROP TABLE IF EXISTS lexis_nexis_ep_agents;
+CREATE TABLE lexis_nexis_ep_agents(
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  sequence SMALLINT,
+  agent_type TEXT,
+  language TEXT,
+  agent_name TEXT,
   agent_registration_num TEXT,
   issuing_office TEXT,
   agent_address TEXT,
   agent_city TEXT,
   agent_country TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_agents_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs,
-  CONSTRAINT lexis_nexis_patent_application_references_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
-
+  CONSTRAINT lexis_nexis_ep_agents_pk PRIMARY KEY (country_code,doc_number,kind_code,sequence) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_ep_agents_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
