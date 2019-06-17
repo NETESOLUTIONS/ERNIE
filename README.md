@@ -17,4 +17,15 @@ We recently formalized a partnering agreement with [Elsevier](https://www.elsevi
 
 This project has been funded in part as a Fast Track Small Business Innovative Research award with Federal funds from the National Institute on Drug Abuse, National Institutes of Health, US Department of Health and Human Services. In Feb 2018, Phase I was completed. Phase II has since been awarded and commenced on Sept 30, 2018. Phase II is focused on building a user comunity and 'productionizing' the platform. We gratefully acknowledge constructive critique and advice from the Program staff at NIDA.
  
-ERNIE has a page including links to related publications on [OMICtools](https://omictools.com/ernie-tool).
+The citation for ERNIE is 
+```
+@article{keserci_ernie:_2018,
+	title = {{ERNIE}: {A} {Data} {Platform} for {Research} {Assessment}},
+	url = {https://www.biorxiv.org/content/early/2018/07/19/371955},
+	doi = {10.1101/371955},
+	abstract = {Data mining coupled to network analysis has been successfully used to study relationships between basic discovery and translational applications such as drug development; and to document research collaborations and knowledge flows. Assembling relevant data for such studies in a form that supports analysis presents challenges. We have developed Enhanced Research Network Information Environment (ERNIE), an open source, scalable cloud-based platform that (i) integrates data drawn from public and commercial sources (ii) provides users with analytical workflows that incorporate expert input at critical stages. A modular design enables the addition, deletion, or substitution of data sources. To demonstrate the capabilities of ERNIE, we have conducted case studies that span drug development and pharmacogenetics. In these studies, we analyze data from regulatory documents, bibliographic and patent databases, research grant records, and clinical trials, to document collaborations and identify influential research accomplishments.},
+	journal = {bioRxiv},
+	author = {Keserci, Samet and Davey, Avon and Pico, Alexander R. and Korobskiy, Dmitriy and Chacko, George},
+	year = {2018}
+}```
+
