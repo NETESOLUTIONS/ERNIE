@@ -3,7 +3,9 @@
 
 ## _Netelabs has a position open for a Data Engineer https://shar.es/a0Cfis to work on ERNIE._
 
-Enhanced Research Network Informatics Environment (ERNIE) originates from a thought experiment (inspired by Williams et al. Cell 163:21-23, 2015) intended to address the research assessment problem as well as prior experience in building a database of linked data for internal use by a federal agency. This idea grew into an effort to create ERNIE as a knowledge resource for research assessment that would be available to the broader community. ERNIE is designed and developed by NET ESolutions Corporation (NETE). Beyond having exchanged cordial communications, we _are not connected_ with _this_ project https://github.com/thunlp/ERNIE, also named ERNIE, but with a focus on NLP.
+Enhanced Research Network Informatics Environment (ERNIE) originates from a thought experiment (inspired by Williams et al. Cell 163:21-23, 2015) intended to address the research assessment problem as well as prior experience in building a database of linked data for internal use by a federal agency. This idea grew into an effort to create ERNIE as a knowledge resource for research assessment that would be available to the broader community. ERNIE is designed and developed by NET ESolutions Corporation (NETE). 
+
+We _are not connected_ with https://github.com/thunlp/ERNIE, which has a focus on NLP. However, we have exchanegd cordial communications and wish success for both projects.
 
 ERNIE is a data platform with associated workflows that enables the discovery and analysis of collaboration networks in scientific research.  In its first phase of development, ERNIE was [tested](https://doi.org/10.1101/371955) with case studies spanning drug development, medical devices/diagnostics, behavioral interventions, and solutions for drug discovery. The focus of these case studies was substance abuse. 
 
