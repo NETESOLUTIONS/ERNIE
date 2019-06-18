@@ -13,7 +13,6 @@ SET script.xml_file = :'xml_file';
 \endif
 
 SET script.file_name = :'file_name';
-
 -- TODO ON CONFLICT DO NOTHING need to be replaced by updates
 
 DO $block$
