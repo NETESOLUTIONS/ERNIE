@@ -211,12 +211,19 @@ for zip in "${sorted_args[@]}" ; do
     # NOTE: BOM is visible via $cat -A ${XML_FILE} . Should be three characters that mess up the Postgres parser
     sed -i '1s/^\xEF\xBB\xBF//' ${tmp}/*.xml
 
+    #Identify whether it's US file or EP file
+    if [[ ${zip} == *"US"* ]]; then
+      file_name="US"
+    else
+      file_name="EP"
+    fi
+
     # Process XML files using GNU parallel
     export failed_files_dir="$(realpath "${FAILED_FILES_DIR}")/$(basename ${zip%.zip})"
     cd ${tmp}
     rm -f "${ERROR_LOG}"
     if ! find -name '*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
-        --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}; then
+        --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP} ${file_name}; then
       [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
     fi
     while read -r line; do

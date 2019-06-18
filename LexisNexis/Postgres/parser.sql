@@ -12,6 +12,8 @@ SET script.xml_file = :'xml_file';
   SET script.subset_sp = '';
 \endif
 
+SET script.file_name = :'file_name';
+
 -- TODO ON CONFLICT DO NOTHING need to be replaced by updates
 
 DO $block$
@@ -37,6 +39,12 @@ DO $block$
       -- Make sure that parent records are present
       CALL lexis_nexis_parse_patents(lexis_nexis_doc_xml);
       EXECUTE format('CALL %I($1)',current_setting('script.subset_sp')) using lexis_nexis_doc_xml;
+    END IF;
+
+    IF current_setting('script.file_name')='US' THEN
+      CALL lexis_nexis_parse_us_agents(lexis_nexis_doc_xml);
+    ELSE
+      CALL lexis_nexis_parse_ep_agents(lexis_nexis_doc_xml);
     END IF;
 
   EXCEPTION

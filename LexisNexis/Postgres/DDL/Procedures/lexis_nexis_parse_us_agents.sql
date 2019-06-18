@@ -21,7 +21,7 @@ $$
           xmltable.last_name,
           xmltable.first_name
      FROM
-     xmltable('//bibliographic-data/parties/agents/agent' PASSING input_xml --(SELECT * FROM ln_test ORDER BY RANDOM() LIMIT 1)
+     xmltable('//bibliographic-data/parties/agents/agent' PASSING input_xml
               COLUMNS
                 country_code TEXT PATH '../../../publication-reference/document-id/country' NOT NULL,
                 doc_number TEXT PATH '../../../publication-reference/document-id/doc-number' NOT NULL,

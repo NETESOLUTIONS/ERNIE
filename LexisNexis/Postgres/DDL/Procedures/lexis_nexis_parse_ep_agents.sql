@@ -23,9 +23,9 @@ $$
           xmltable.issuing_office,
           xmltable.agent_address,
           xmltable.agent_city,
-          xmltable.agent_country,
+          xmltable.agent_country
      FROM
-     xmltable('//bibliographic-data/parties/agents/agent' PASSING input_xml --(SELECT * FROM ln_test ORDER BY RANDOM() LIMIT 1)
+     xmltable('//bibliographic-data/parties/agents/agent' PASSING input_xml
               COLUMNS
                 country_code TEXT PATH '../../../publication-reference/document-id/country' NOT NULL,
                 doc_number TEXT PATH '../../../publication-reference/document-id/doc-number' NOT NULL,
