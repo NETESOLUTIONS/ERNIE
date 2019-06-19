@@ -150,8 +150,8 @@ fi
 
 parse_xml() {
   local xml="$1"
-  [[ $2 ]] && local subset_option="-v subset_sp=$2"
   local file_identification="-v file_name=$2"
+  [[ $3 ]] && local subset_option="-v subset_sp=$3"
   echo ${file_identification}
   [[ ${VERBOSE} == "true" ]] && echo "Processing $xml ..."
   if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/Postgres/parser.sql -v "xml_file=$PWD/$xml" ${subset_option} ${file_identification} 2>>"${ERROR_LOG}"; then
@@ -225,7 +225,7 @@ for zip in "${sorted_args[@]}" ; do
     cd ${tmp}
     rm -f "${ERROR_LOG}"
     if ! find -name '*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
-        --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP} ${file_name}; then
+        --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${file_name} ${SUBSET_SP}; then
       [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
     fi
     while read -r line; do
