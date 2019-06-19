@@ -42,10 +42,11 @@ for index,row in input_data.iterrows():
     overload_time=time.time()
     print('Searching grant {}'.format(row['grant_number']))
     #search using ROIs and the field name GRNT
-    grant=Entrez.esearch(db="pubmed",term=row['grant_number']+'[GRNT]')
+    
+    grant_data=Entrez.esearch(db="pubmed",term=row['grant_number'][3:]+'[GRNT]')
     
     #parse the returned data which returns a dictionary
-    pmid=Entrez.read(grant)
+    pmid=Entrez.read(grant_data)
 
     #Iterate through IdList which contains all pubmed ids and write to csv
     for id in pmid['IdList']:
