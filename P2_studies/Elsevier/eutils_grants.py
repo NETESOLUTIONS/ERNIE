@@ -3,6 +3,7 @@
 '''Author: Sitaram Devarakonda
 
 This script given an input of grants Ex: R01MH092862 searches in pubmed for all pubmed ids which cite given grant
+Using the biopython package to obtain pubmed ids
 
 Ex: python eutils_grants.py input_filename.csv output_filename.csv email@nete.com'''
 
