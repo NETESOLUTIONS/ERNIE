@@ -153,6 +153,7 @@ CREATE TABLE scopus_publications (
   correspondence_e_address TEXT,
   pub_type TEXT,
   citation_type TEXT,
+  citation_langugage TEXT, 
   process_stage TEXT,
   state TEXT,
   date_sort DATE,
@@ -496,6 +497,7 @@ CREATE TABLE scopus_references (
   -- FK is possible to enable only after the complete data load
   -- CONSTRAINT sr_ref_sgr_fk REFERENCES scopus_publication_groups ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   --pub_ref_id SMALLINT,
+  --citation_language TEXT,
   citation_text TEXT,
   CONSTRAINT scopus_references_pk PRIMARY KEY (scp, ref_sgr) USING INDEX TABLESPACE index_tbs
 ) PARTITION BY RANGE (scp)
@@ -526,6 +528,7 @@ COMMENT ON COLUMN scopus_references.scp IS 'Scopus ID for a document. Example: 2
 COMMENT ON COLUMN scopus_references.ref_sgr IS 'Scopus Group ID for the referenced document. Example: 343442899';
 --COMMENT ON COLUMN scopus_references.pub_ref_id IS --
 --'Uniquely (and serially?) identifies a reference in the bibliography. Example: 1';
+--COMMENT ON COLUMN scopus_references.citation_language IS 'The language of the cited works'
 COMMENT ON COLUMN scopus_references.citation_text IS --
   'Citation text provided with a reference. Example: "Harker LA, Kadatz RA. Mechanism of action of dipyridamole. Thromb Res 1983;suppl IV:39-46."';
 -- endregion
