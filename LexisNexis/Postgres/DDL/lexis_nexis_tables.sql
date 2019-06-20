@@ -650,41 +650,43 @@ COMMENT ON COLUMN lexis_nexis_patent_application_references.last_updated_time IS
 -- endregion
 
 -- region lexis_nexis_applicants
-DROP TABLE IF EXISTS lexis_nexis_applicants;
-CREATE TABLE lexis_nexis_applicants (
-  country_code TEXT NOT NULL,
-  doc_number TEXT NOT NULL,
-  kind_code TEXT NOT NULL,
-  language TEXT NOT NULL,
-  sequence TEXT,
-  organization_name TEXT,
-  organization_type TEXT,
-  organization_country TEXT,
-  organization_city TEXT,
-  organization_address TEXT,
-  registered_number TEXT,
-  issuing_office TEXT,
-  last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_applicants_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs,
-  CONSTRAINT lexis_nexis_patent_application_references_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
-)
-TABLESPACE lexis_nexis_tbs;
+CREATE TABLE lexis_nexis_applicants
+(
+    country_code         TEXT     NOT NULL,
+    doc_number           TEXT     NOT NULL,
+    kind_code            TEXT     NOT NULL,
+    sequence             SMALLINT NOT NULL,
+    language             TEXT,
+    designation          TEXT,
+    organization_name    TEXT,
+    organization_type    TEXT,
+    organization_country TEXT,
+    organization_state   TEXT,
+    organization_city    TEXT,
+    organization_address TEXT,
+    registered_number    TEXT,
+    issuing_office       TEXT,
+    last_updated_time    TIMESTAMP DEFAULT now(),
+    CONSTRAINT lexis_nexis_applicants_pk PRIMARY KEY (country_code, doc_number, kind_code, sequence) USING INDEX TABLESPACE index_tbs,
+    CONSTRAINT lexis_nexis_applicants_fk FOREIGN KEY (country_code, doc_number, kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
+) TABLESPACE lexis_nexis_tbs;
 
---TODO: flesh out comments
-COMMENT ON TABLE lexis_nexis_applicants IS 'Applicants information';
+COMMENT ON TABLE lexis_nexis_applicants IS 'Table for applicants information';
 COMMENT ON COLUMN lexis_nexis_applicants.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
 COMMENT ON COLUMN lexis_nexis_applicants.doc_number IS 'Document number';
 COMMENT ON COLUMN lexis_nexis_applicants.kind_code IS 'Document kind';
-COMMENT ON COLUMN lexis_nexis_applicants.language IS 'Document language';
-COMMENT ON COLUMN lexis_nexis_applicants.sequence IS 'Element in the list of applicants';
-COMMENT ON COLUMN lexis_nexis_applicants.organization_name IS 'The organization that applied for the patent';
-COMMENT ON COLUMN lexis_nexis_applicants.organization_type IS 'The type of organization that applied for the patent';
-COMMENT ON COLUMN lexis_nexis_applicants.organization_country IS 'The country of the organization';
-COMMENT ON COLUMN lexis_nexis_applicants.organization_city IS 'The city of the organization';
-COMMENT ON COLUMN lexis_nexis_applicants.organization_address IS 'The address of the organization';
-COMMENT ON COLUMN lexis_nexis_applicants.registered_number IS 'The registration number for the organization';
-COMMENT ON COLUMN lexis_nexis_applicants.issuing_office IS 'The office that issued the number  ';
-COMMENT ON COLUMN lexis_nexis_applicants.last_updated_time IS '';
+COMMENT ON COLUMN lexis_nexis_applicants.sequence IS 'Sequence number of applicant';
+COMMENT ON COLUMN lexis_nexis_applicants.language IS 'Language Ex: eng';
+COMMENT ON COLUMN lexis_nexis_applicants.designation IS 'Designation of applicant Ex: us-only';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_name IS 'Organization name Ex: Caterpillar Inc';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_type IS 'Organization type Ex: corporate';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_country IS 'Organization country';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_state IS 'Organization state';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_city IS 'Organization city';
+COMMENT ON COLUMN lexis_nexis_applicants.organization_address IS 'Address of the Organization ';
+COMMENT ON COLUMN lexis_nexis_applicants.registered_number IS 'Registered number of the organization';
+COMMENT ON COLUMN lexis_nexis_applicants.issuing_office IS 'Office issuing registered number Ex: European Patent Office';
+COMMENT ON COLUMN lexis_nexis_applicants.last_updated_time IS 'Time record was last updated';
 -- endregion
 
 -- region lexis_nexis_inventors
