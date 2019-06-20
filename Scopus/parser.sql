@@ -28,6 +28,7 @@ DO $block$
       CALL scopus_parse_pub_details_subjects_and_classes(scopus_doc_xml);
       CALL scopus_parse_authors_and_affiliations(scopus_doc_xml);
       CALL scopus_parse_chemical_groups(scopus_doc_xml);
+      CALL scopus_parser_citation_language(scopus_doc_xml);
       CALL scopus_parse_abstracts_and_titles(scopus_doc_xml);
       CALL scopus_parse_keywords(scopus_doc_xml);
       CALL scopus_parse_publication_identifiers(scopus_doc_xml);
