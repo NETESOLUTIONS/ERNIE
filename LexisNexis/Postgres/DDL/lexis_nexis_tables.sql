@@ -84,21 +84,26 @@ COMMENT ON COLUMN lexis_nexis_patent_titles.last_updated_time IS '';
 DROP TABLE IF EXISTS lexis_nexis_patent_citations;
 CREATE TABLE lexis_nexis_patent_citations
 (
-    doc_number           BIGINT NOT NULL,
+    country_code         TEXT NOT NULL,
+    doc_number           TEXT NOT NULL,
+    kind_code            TEXT NOT NULL,
     seq_num              INT    NOT NULL,
-    cited_doc_number     BIGINT NOT NULL,
+    cited_doc_number     TEXT NOT NULL,
     cited_country        TEXT,
     cited_kind           TEXT,
     cited_authors        TEXT,
     cited_create_date    DATE,
     cited_published_date DATE,
     last_updated_time    TIMESTAMP DEFAULT now(),
-    CONSTRAINT lexis_nexis_patent_citations_pk PRIMARY KEY (doc_number, cited_doc_number) USING INDEX TABLESPACE index_tbs
+    CONSTRAINT lexis_nexis_patent_citations_pk PRIMARY KEY (country_code,doc_number,kind_code,cited_doc_number) USING INDEX TABLESPACE index_tbs,
+    CONSTRAINT lexis_nexis_patent_citations_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
 COMMENT ON TABLE lexis_nexis_patent_citations IS 'Citations for Lexis Nexis patents';
+COMMENT ON COLUMN lexis_nexis_patent_citations.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
 COMMENT ON COLUMN lexis_nexis_patent_citations.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_citations.kind_code IS 'Document kind';
 COMMENT ON COLUMN lexis_nexis_patent_citations.seq_num IS 'Sequence number of patent in references';
 COMMENT ON COLUMN lexis_nexis_patent_citations.cited_doc_number IS 'Document number of referenced patent';
 COMMENT ON COLUMN lexis_nexis_patent_citations.cited_country IS 'Country code of patent';
@@ -120,7 +125,8 @@ CREATE TABLE lexis_nexis_nonpatent_literature_citations (
   citation_text TEXT,
   scopus_url TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_nonpatent_literature_citations_pk PRIMARY KEY (country_code,doc_number,kind_code,citation_number) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_nonpatent_literature_citations_pk PRIMARY KEY (country_code,doc_number,kind_code,citation_number) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_nonpatent_literature_citations_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -140,7 +146,8 @@ CREATE TABLE lexis_nexis_patent_priority_claims (
   priority_claim_sequence TEXT,
   priority_claim_date DATE,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_priority_claims_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_patent_priority_claims_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_patent_priority_claims_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -618,18 +625,23 @@ TABLESPACE lexis_nexis_tbs;
 DROP TABLE IF EXISTS lexis_nexis_patent_application_references;
 CREATE TABLE lexis_nexis_patent_application_references
 (
-    doc_number          BIGINT NOT NULL,
+    country_code        TEXT NOT NULL,
+    doc_number          TEXT NOT NULL,
+    kind_code           TEXT NOT NULL,
     appl_ref_type       TEXT,
-    appl_ref_doc_number BIGINT NOT NULL,
+    appl_ref_doc_number TEXT NOT NULL,
     appl_ref_country    TEXT,
     appl_ref_date       date,
     last_updated_time   TIMESTAMP DEFAULT now(),
-    CONSTRAINT lexis_nexis_patent_application_references_pk PRIMARY KEY (doc_number, appl_ref_doc_number) USING INDEX TABLESPACE index_tbs
+    CONSTRAINT lexis_nexis_patent_application_references_pk PRIMARY KEY (country_code,doc_number,kind_code,appl_ref_doc_number) USING INDEX TABLESPACE index_tbs,
+    CONSTRAINT lexis_nexis_patent_application_references_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
 COMMENT ON TABLE lexis_nexis_patent_application_references IS 'Application reference information: application number, country';
+COMMENT ON COLUMN lexis_nexis_patent_application_references.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
 COMMENT ON COLUMN lexis_nexis_patent_application_references.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_application_references.kind_code IS 'Document kind';
 COMMENT ON COLUMN lexis_nexis_patent_application_references.appl_ref_type IS 'Document number of Application reference';
 COMMENT ON COLUMN lexis_nexis_patent_application_references.appl_ref_country IS 'Country of Application reference';
 COMMENT ON COLUMN lexis_nexis_patent_application_references.appl_ref_date IS 'Date of Application reference';
@@ -653,7 +665,8 @@ CREATE TABLE lexis_nexis_applicants (
   registered_number TEXT,
   issuing_office TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_applicants_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_applicants_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_patent_application_references_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -680,14 +693,27 @@ CREATE TABLE lexis_nexis_inventors (
   country_code TEXT NOT NULL,
   doc_number TEXT NOT NULL,
   kind_code TEXT NOT NULL,
-  language TEXT NOT NULL,
-  sequence TEXT,
-  inventor_name TEXT,
-  inventor_address TEXT,
-  inventor_city TEXT,
-  inventor_country TEXT,
+  inventor_sequence INT NOT NULL,
+  language TEXT,
+  name TEXT,
+  address_1 TEXT,
+  address_2 TEXT,
+  address_3 TEXT,
+  address_4 TEXT,
+  address_5 TEXT,
+  mailcode TEXT,
+  pobox TEXT,
+  room text,
+  address_floor TEXT,
+  building TEXT,
+  street TEXT,
+  city TEXT,
+  county TEXT,
+  postcode TEXT,
+  country TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_inventors_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_inventors_pk PRIMARY KEY (country_code,doc_number,kind_code,inventor_sequence) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_inventors_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -696,32 +722,50 @@ COMMENT ON TABLE lexis_nexis_inventors IS 'Inventors information';
 COMMENT ON COLUMN lexis_nexis_inventors.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
 COMMENT ON COLUMN lexis_nexis_inventors.doc_number IS 'Document number';
 COMMENT ON COLUMN lexis_nexis_inventors.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_inventors.inventor_sequence IS 'Element in the list of inventors';
 COMMENT ON COLUMN lexis_nexis_inventors.language IS 'Document language';
-COMMENT ON COLUMN lexis_nexis_inventors.sequence IS 'Element in the list of inventors';
-COMMENT ON COLUMN lexis_nexis_inventors.inventor_name IS 'The name of the inventor';
-COMMENT ON COLUMN lexis_nexis_inventors.inventor_address IS 'The adress of the inventor';
-COMMENT ON COLUMN lexis_nexis_inventors.inventor_city IS 'The city of the inventor';
-COMMENT ON COLUMN lexis_nexis_inventors.inventor_country IS 'The country of the inventor';
+COMMENT ON COLUMN lexis_nexis_inventors.name IS 'The name of the inventor';
+COMMENT ON COLUMN lexis_nexis_inventors.city IS 'The city of the inventor';
+COMMENT ON COLUMN lexis_nexis_inventors.country IS 'The country of the inventor';
 COMMENT ON COLUMN lexis_nexis_inventors.last_updated_time IS '';
 -- endregion
 
 -- region lexis_nexis_agents
-DROP TABLE IF EXISTS lexis_nexis_agents;
-CREATE TABLE lexis_nexis_agents (
-  country_code TEXT NOT NULL,
-  doc_number TEXT NOT NULL,
-  kind_code TEXT NOT NULL,
-  language TEXT NOT NULL,
-  sequence TEXT NOT NULL,
-  agent_name TEXT NOT NULL,
-  agent_type TEXT NOT NULL,
+DROP TABLE IF EXISTS lexis_nexis_us_agents;
+CREATE TABLE lexis_nexis_us_agents(
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  sequence SMALLINT,
+  agent_type TEXT,
+  language TEXT,
+  agent_name TEXT,
+  last_name TEXT,
+  first_name TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT lexis_nexis_us_agents_pk PRIMARY KEY (country_code,doc_number,kind_code,sequence) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_us_agents_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
+)
+TABLESPACE lexis_nexis_tbs;
+
+-- region lexis_nexis_ep_agents
+DROP TABLE IF EXISTS lexis_nexis_ep_agents;
+CREATE TABLE lexis_nexis_ep_agents(
+  country_code TEXT,
+  doc_number TEXT,
+  kind_code TEXT,
+  sequence SMALLINT,
+  agent_type TEXT,
+  language TEXT,
+  agent_name TEXT,
   agent_registration_num TEXT,
   issuing_office TEXT,
   agent_address TEXT,
   agent_city TEXT,
   agent_country TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_agents_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_ep_agents_pk PRIMARY KEY (country_code,doc_number,kind_code,sequence) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_ep_agents_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -742,10 +786,6 @@ COMMENT ON COLUMN lexis_nexis_agents.agent_country IS 'The country of the repres
 COMMENT ON COLUMN lexis_nexis_agents.last_updated_time IS '';
 -- endregion
 
-
-
-
-
 -- region lexis_nexis_examiners
 DROP TABLE IF EXISTS lexis_nexis_examiners;
 CREATE TABLE lexis_nexis_examiners (
@@ -759,7 +799,8 @@ CREATE TABLE lexis_nexis_examiners (
   assistant_first_name TEXT,
   assistant_department TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_examiners_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT lexis_nexis_examiners_pk PRIMARY KEY (country_code,doc_number,kind_code) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_patent_examiners_fk FOREIGN KEY (country_code,doc_number,kind_code) REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
