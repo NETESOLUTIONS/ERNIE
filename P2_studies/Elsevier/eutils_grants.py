@@ -43,7 +43,7 @@ for index,row in input_data.iterrows():
     print('Searching grant {}'.format(row['grant_number']))
     #search using ROIs and the field name GRNT
     
-    grant_data=Entrez.esearch(db="pubmed",term=row['grant_number'][3:]+'[GRNT]')
+    grant_data=Entrez.esearch(db="pubmed",term=row['grant_number'][3:]+'[GRNT]',retmax=1000)
     
     #parse the returned data which returns a dictionary
     pmid=Entrez.read(grant_data)
