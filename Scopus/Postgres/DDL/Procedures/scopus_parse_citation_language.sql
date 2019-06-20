@@ -14,11 +14,11 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-CREATE OR REPLACE PROCEDURE djamil.scopus_parser_citation_language(input_xml XML)
+CREATE OR REPLACE PROCEDURE scopus_parser_citation_language(input_xml XML)
 AS
 $$
 BEGIN
-    INSERT INTO djamil.scopus_reference_test(scp, citation_language)
+    INSERT INTO scopus_publications(scp, citation_language)
     SELECT
        scp,
        citation_language
