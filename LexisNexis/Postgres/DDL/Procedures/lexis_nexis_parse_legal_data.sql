@@ -118,7 +118,7 @@ $$
     free_text_description=excluded.free_text_description,spc_number=excluded.spc_number,filing_date=excluded.filing_date,expiry_date=excluded.expiry_date,
     inventor_name=excluded.inventor_name,ipc=excluded.ipc,representative_name=excluded.representative_name,payment_date=excluded.payment_date,
     opponent_name=excluded.opponent_name,fee_payment_year=excluded.fee_payment_year,requester_name=excluded.requester_name,
-    countries_concerned=excluded.countries_concerned,effective_date=excluded.effective_date,withdrawn_date=excluded.withdrawn_date,last_updated_time=excluded.last_updated_time();
+    countries_concerned=excluded.countries_concerned,effective_date=excluded.effective_date,withdrawn_date=excluded.withdrawn_date,last_updated_time=now();
   END;
 $$
 LANGUAGE plpgsql;
