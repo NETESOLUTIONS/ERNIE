@@ -45,6 +45,7 @@ BEGIN
         organization_address TEXT PATH 'addressbook/address/addresss-1',
         registered_number TEXT PATH 'addressbook/registered-number',
         issuing_office TEXT PATH 'addressbook/issuing-office'
-        );
+        )
+    ON CONFLICT DO NOTHING;
 END;
 $$ LANGUAGE plpgsql;

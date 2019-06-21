@@ -31,6 +31,7 @@ DO $block$
       CALL lexis_nexis_parse_examiners(lexis_nexis_doc_xml);
       CALL lexis_nexis_parse_inventors(lexis_nexis_doc_xml);
       CALL lexis_nexis_applicants_data(lexis_nexis_doc_xml);
+      CALL lexis_nexis_parse_patent_priority_claims(lexis_nexis_doc_xml);
       --CALL lexis_nexis_parse_related_documents(lexis_nexis_doc_xml); * ERROR:  syntax error at or near "/" LINE 479: child_doc_name TEXT PATH 'relation/child-doc...'
       CALL lexis_nexis_patent_citations_data(lexis_nexis_doc_xml);
       CALL lexis_nexis_patent_application_reference_data(lexis_nexis_doc_xml);
