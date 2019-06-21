@@ -9,12 +9,11 @@
  --set search_path to djamil; (for testing)
 \set ON_ERROR_STOP on
 \set ECHO all
-\timing
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-CREATE OR REPLACE PROCEDURE scopus_parser_citation_language(input_xml XML)
+CREATE OR REPLACE PROCEDURE scopus_parse_citation_language(scopus_doc_xml XML)
 AS
 $$
 BEGIN
@@ -22,7 +21,7 @@ BEGIN
     SELECT
        scp,
        citation_language
-    FROM xmltable('//itemidlist' PASSING input_xml COLUMNS
+    FROM xmltable('//itemidlist' PASSING scopus_doc_xml COLUMNS
         scp BIGINT PATH 'itemid[@idtype="SCP"]',
         citation_language TEXT PATH '//citation-language/@language')
     ON CONFLICT (scp) DO UPDATE SET citation_language=excluded.citation_language;
