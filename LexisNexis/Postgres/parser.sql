@@ -6,13 +6,13 @@
 SET TIMEZONE = 'US/Eastern';
 
 SET script.xml_file = :'xml_file';
+SET script.file_name = :'file_name';
 \if :{?subset_sp}
   SET script.subset_sp = :'subset_sp';
 \else
   SET script.subset_sp = '';
 \endif
 
-SET script.file_name = :'file_name';
 -- TODO ON CONFLICT DO NOTHING need to be replaced by updates
 
 DO $block$
