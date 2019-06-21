@@ -153,7 +153,7 @@ CREATE TABLE scopus_publications (
   correspondence_e_address TEXT,
   pub_type TEXT,
   citation_type TEXT,
-  citation_langugage TEXT, 
+  citation_language TEXT, 
   process_stage TEXT,
   state TEXT,
   date_sort DATE,
