@@ -197,6 +197,7 @@ fi
 declare -i num_zips=${#sorted_args[@]}
 declare -i failed_xml_counter=0 failed_xml_counter_total=0 processed_xml_counter=0 processed_xml_counter_total=0
 declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
+process_start_time=$(date '+%s')
 
 for zip in "${sorted_args[@]}" ; do
   start_time=$(date '+%s')

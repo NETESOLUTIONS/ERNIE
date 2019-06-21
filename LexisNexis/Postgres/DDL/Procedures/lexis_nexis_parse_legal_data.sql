@@ -106,7 +106,19 @@ $$
                 effective_date TEXT PATH 'effective-date',
                 withdrawn_date TEXT PATH 'withdrawn-date'
               )
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT (country_code,doc_number,kind_code,sequence_id)
+    DO UPDATE SET country_code=excluded.country_code,doc_number=excluded.doc_number,kind_code=excluded.kind_code,sequence_id=excluded.sequence_id,
+    publication_date=excluded.publication_date,event_code_1=excluded.event_code_1,event_code_2=excluded.event_code_2,effect=excluded.effect,
+    legal_description=excluded.legal_description,status_identifier=excluded.status_identifier,docdb_publication_number=excluded.docdb_publication_number,
+    docdb_application_id=excluded.docdb_application_id,designated_state_authority=excluded.designated_state_authority,
+    designated_state_event_code=excluded.designated_state_event_code,designated_state_description=excluded.designated_state_description,
+    corresponding_publication_number=excluded.corresponding_publication_number,corresponding_authority=excluded.corresponding_authority,
+    corresponding_publication_date=excluded.corresponding_publication_date,corresponding_kind=excluded.corresponding_kind,
+    legal_designated_states=excluded.legal_designated_states,extension_state_authority=excluded.extension_state_authority,new_owner=excluded.new_owner,
+    free_text_description=excluded.free_text_description,spc_number=excluded.spc_number,filing_date=excluded.filing_date,expiry_date=excluded.expiry_date,
+    inventor_name=excluded.inventor_name,ipc=excluded.ipc,representative_name=excluded.representative_name,payment_date=excluded.payment_date,
+    opponent_name=excluded.opponent_name,fee_payment_year=excluded.fee_payment_year,requester_name=excluded.requester_name,
+    countries_concerned=excluded.countries_concerned,effective_date=excluded.effective_date,withdrawn_date=excluded.withdrawn_date,last_updated_time=excluded.last_updated_time();
   END;
 $$
 LANGUAGE plpgsql;

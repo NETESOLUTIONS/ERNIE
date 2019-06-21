@@ -71,8 +71,16 @@ $$
                 main_national_classification_subclass TEXT PATH 'classification-national/main-classification/subclass',
                 number_of_claims INT PATH 'number-of-claims'
                 )
-    ON CONFLICT DO NOTHING;
-
+    ON CONFLICT (country_code,doc_number,kind_code)
+    DO UPDATE SET country_code=excluded.country_code,doc_number=excluded.doc_number,kind_code=excluded.kind_code,language_of_filing=excluded.language_of_filing,
+    language_of_publication=excluded.language_of_publication,date_of_public_availability_unexamined_printed_wo_grant=excluded.date_of_public_availability_unexamined_printed_wo_grant,
+    date_of_public_availability_printed_w_grant=excluded.date_of_public_availability_printed_w_grant,main_ipc_classification_text=excluded.main_ipc_classification_text,
+    main_ipc_classification_edition=excluded.main_ipc_classification_edition,main_ipc_classification_section=excluded.main_ipc_classification_section,
+    main_ipc_classification_class=excluded.main_ipc_classification_class,main_ipc_classification_subclass=excluded.main_ipc_classification_subclass,
+    main_ipc_classification_main_group=excluded.main_ipc_classification_main_group,main_ipc_classification_subgroup=excluded.main_ipc_classification_subgroup,
+    main_ipc_classification_qualifying_character=excluded.main_ipc_classification_qualifying_character,main_national_classification_country=excluded.main_national_classification_country,
+    main_national_classification_text=excluded.main_national_classification_text,main_national_classification_class=excluded.main_national_classification_class,
+    main_national_classification_subclass=excluded.main_national_classification_subclass,number_of_claims=excluded.number_of_claims,last_updated_time=now();
   END;
 $$
 LANGUAGE plpgsql;
