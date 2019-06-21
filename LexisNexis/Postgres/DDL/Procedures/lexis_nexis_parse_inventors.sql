@@ -72,9 +72,10 @@ $$
                 country TEXT PATH 'addressbook/address/country'
               )
     ON CONFLICT (country_code,doc_number,kind_code,inventor_sequence)
-    DO NOTHING;
-    --DO UPDATE SET abstract_text=excluded.abstract_text,abstract_date_changed=excluded.abstract_date_changed,
-     --last_updated_time=now();
+    DO UPDATE SET language=excluded.language,name=excluded.name,address_1=excluded.address_1,address_2=excluded.address_2,address_3=excluded.address_3,
+    address_4=excluded.address_4,address_5=excluded.address_5,mailcode=excluded.mailcode,pobox=excluded.pobox,room=excluded.room,
+    address_floor=excluded.address_floor,building=excluded.building,street=excluded.street,city=excluded.city,county=excluded.county,
+    postcode=excluded.postcode,country=excluded.country,last_updated_time=now();
   END;
 $$
 LANGUAGE plpgsql;
