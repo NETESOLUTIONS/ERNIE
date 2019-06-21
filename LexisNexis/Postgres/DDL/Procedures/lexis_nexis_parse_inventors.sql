@@ -42,7 +42,7 @@ $$
           xmltable.postcode,
           xmltable.country
      FROM
-     XMLTABLE('//bibliographic-data/parties/inventors/inventor' PASSING input_xml
+     XMLTABLE('//bibliographic-data/parties/inventors/inventor[not(@data-format)]' PASSING input_xml
               COLUMNS
                 --below come from higher level nodes
                 country_code TEXT PATH '//bibliographic-data/publication-reference/document-id/country' NOT NULL,
