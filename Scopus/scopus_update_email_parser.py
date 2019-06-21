@@ -61,3 +61,9 @@ def email_parser():
             scopus_update_zip_file.filename = temp[0].split('/')[2] = re.search('nete.*ANI.*zip',links)
     ## Now store them in specified directory
             os.path.join(args.directory, scopus_update_zip_file)
+
+
+
+
+
+            
