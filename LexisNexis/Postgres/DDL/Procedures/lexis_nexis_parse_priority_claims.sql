@@ -26,7 +26,7 @@ $$
             xmltable.country_code,
             xmltable.kind_code,
             xmltable.sequence_id,
-            xmltable.priority_claim_data_format,
+            COALESCE(xmltable.priority_claim_data_format,''),
             to_date(xmltable.priority_claim_date,'YYYYMMDD'),
             xmltable.priority_claim_country,
             xmltable.priority_claim_doc_number,
