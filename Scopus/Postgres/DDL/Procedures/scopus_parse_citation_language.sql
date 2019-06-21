@@ -22,7 +22,7 @@ BEGIN
        scp,
        string_agg(citation_language, ",") as citation_language
     FROM xmltable('//bibrecord/head/citation-info/citation-language' PASSING scopus_doc_xml COLUMNS
-        scp BIGINT PATH '//bibrecord/item-info/itemidlist/itemid[@idtype="SCP"]'
+        scp BIGINT PATH '//bibrecord/item-info/itemidlist/itemid[@idtype="SCP"]',
         citation_language TEXT PATH '@language')
     GROUP BY scp
     ON CONFLICT (scp) DO UPDATE SET citation_language=excluded.citation_language;
