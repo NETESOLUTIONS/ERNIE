@@ -46,3 +46,4 @@ for url_link in msg.walk():
         request = urllib.urlrequest(url)
         scopus_update_zip_file = zipfile.ZipFile(request)
         scopus_update_zip_file.filename = temp[0].split('/')[2] = re.search('nete.*ANI.*zip',links)
+        print(scopus_update_zip_file)
