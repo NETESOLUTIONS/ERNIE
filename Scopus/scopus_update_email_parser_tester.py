@@ -21,6 +21,7 @@ import zipfile
 import os
 from argparse import ArgumentParser
 
+start_time=time.time()
 
 ##Build a function that 1) opens email 2) scans it for urls 3) stores urls and then opens file in them 4) then rename this downloaded file and store in specified directory.
 
@@ -47,3 +48,6 @@ for url_link in msg.walk():
         scopus_update_zip_file = zipfile.ZipFile(request)
         scopus_update_zip_file.filename = temp[0].split('/')[2] = re.search('nete.*ANI.*zip',links)
         print(scopus_update_zip_file)
+
+
+print('Total duration ',time.time()-start_time)

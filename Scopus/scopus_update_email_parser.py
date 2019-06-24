@@ -22,6 +22,7 @@ from email.policy import default
 import os
 from argparse import ArgumentParser
 
+start_time=time.time()
 
 ##Build a function that 1) opens email 2) scans it for urls 3) stores urls and then opens file in them 4) then rename this downloaded file and store in specified directory.
 
@@ -48,11 +49,11 @@ def email_parser():
 
     ## Open email, fortunately the parse function will treat attachments, essentially, as part of (an instance) of the MIME or email data-structure.
 
-    with open(args.pmt_content, 'r') as email_msg:
-        msg = email.parse(email_msg, policy=default)
+    ##with open(args.pmt_content, 'r') as email_msg:
+    ##   msg = email.parse(email_msg, policy=default)
 
     ## Scan emails for url and store the url(s) in a list
-    msg= re.findall('https://\S*', msg)
+    msg= re.findall('https://\S*', msg) 
     for url_link in msg.walk():
         if url_link != re.search('nete.*CITEDBY.zip', url_link):
     ## Go through list of links, rename
@@ -61,3 +62,8 @@ def email_parser():
             scopus_update_zip_file.filename = temp[0].split('/')[2] = re.search('nete.*ANI.*zip',links)
     ## Now store them in specified directory
             os.path.join(args.directory, scopus_update_zip_file)
+
+print('Total duration ',time.time()-start_time)
+
+
+## end of the script
