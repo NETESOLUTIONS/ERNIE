@@ -58,7 +58,7 @@ def email_parser():
     ## Scan emails for url and store the url(s) in a list
     msg= re.findall('https://\S*', msg)
 
-    for url_link in msg.walk():
+    for url_link in msg:
         if url_link != re.search('nete.*CITEDBY.zip', url_link):
     ## Go through list of links, rename
             request = urllib.urlrequest(url_link)

@@ -38,7 +38,7 @@ def email_parser(pmt_content=argv[1]):
     """
 
 msg= re.findall('https://\S*', pmt_content)
-for url_link in msg.walk():
+for url_link in msg:
     if url_link != re.search('nete.*CITEDBY.zip', url_link):
 ## Go through list of links, rename
         request = urllib.urlrequest(url_link)
