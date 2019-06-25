@@ -63,7 +63,7 @@ def email_parser():
     ## Go through list of links, rename
             request = urllib.urlrequest(url_link)
             scopus_update_zip_file = zipfile.ZipFile(request)
-            scopus_update_zip_file.filename = temp[0].split('/')[2] = re.search('nete.*ANI.*zip',links)
+            scopus_update_zip_file.filename = temp[0].split('/')[2] = re.search('nete.*ANI.*zip',scopus_update_zip_file)
 
     ## Now store them in specified directory
             os.path.join(args.directory, scopus_update_zip_file)

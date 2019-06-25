@@ -16,7 +16,7 @@ https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-
 
 """
 import re
-import urllib
+import webbrowser
 import zipfile
 from sys import argv
 
@@ -40,8 +40,7 @@ def email_parser(pmt_content=argv[1]):
 msg= re.findall('https://\S*', pmt_content)
 for url_link in msg:
     if url_link != re.search('nete.*CITEDBY.zip', url_link):
-## Go through list of links, rename
-        request = urllib.urlrequest(url_link)
-        scopus_update_zip_file = zipfile.ZipFile(request)
-        scopus_update_zip_file.filename = temp[0].split('/')[2] = re.search('nete.*ANI.*zip',links)
-        print(scopus_update_zip_file)
+            ## Go through list of links, rename
+            url = webbrowser.open(url_link)
+            scopus_update_zip_file = zipfile.ZipFile(url)
+            scopus_update_zip_file.filename = temp[0].split('/')[2] = re.search('nete.*ANI.*zip',scopus_update_zip_file)
