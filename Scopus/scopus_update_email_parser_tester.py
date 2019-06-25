@@ -21,7 +21,7 @@ import zipfile
 
 ##Build a function that 1) opens email 2) scans it for urls 3) stores urls and then opens file in them 4) then rename this downloaded file and store in specified directory.
 
-def email_parser():
+def email_parser(pmt_content):
     """
     Assumptions:
 
