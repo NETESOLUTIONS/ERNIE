@@ -18,10 +18,11 @@ https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-
 import re
 import urllib
 import zipfile
+from argparse import ArgumentParser
 
 ##Build a function that 1) opens email 2) scans it for urls 3) stores urls and then opens file in them 4) then rename this downloaded file and store in specified directory.
 
-def email_parser(pmt_content):
+def email_parser():
     """
     Assumptions:
 
@@ -35,6 +36,9 @@ def email_parser(pmt_content):
 
     :return:
     """
+
+parser.add_argument('-p', '--pmt_content', required=True,
+                    help="""email message that will get parsed for url-link and zip-file""")
 
 msg= re.findall('https://\S*', pmt_content)
 for url_link in msg.walk():
