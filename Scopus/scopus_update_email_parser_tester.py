@@ -18,8 +18,6 @@ https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-
 import re
 import urllib
 import zipfile
-import os
-from argparse import ArgumentParser
 
 ##Build a function that 1) opens email 2) scans it for urls 3) stores urls and then opens file in them 4) then rename this downloaded file and store in specified directory.
 
@@ -38,7 +36,7 @@ def email_parser():
     :return:
     """
 
-msg= re.findall('https://\S*', args.pmt_content)
+msg= re.findall('https://\S*', pmt_content)
 for url_link in msg.walk():
     if url_link != re.search('nete.*CITEDBY.zip', url_link):
 ## Go through list of links, rename
