@@ -42,9 +42,12 @@ def email_parser():
     """
 
     parser = ArgumentParser
+
     parser.add_argument('-p', '--pmt_content', required=True,
                         help="""email message that will get parsed for url-link and zip-file""")
-    parser.add_argument('-d','--directory', required=True, help="""specified directory for zip-file""")#
+
+    parser.add_argument('-d','--directory', required=True, help="""specified directory for zip-file""")
+
     args = parser.parse_args()
 
     ## Open email, fortunately the parse function will treat attachments, essentially, as part of (an instance) of the MIME or email data-structure.
@@ -53,17 +56,19 @@ def email_parser():
     ##   msg = email.parse(email_msg, policy=default)
 
     ## Scan emails for url and store the url(s) in a list
-    msg= re.findall('https://\S*', msg) 
+    msg= re.findall('https://\S*', msg)
+
     for url_link in msg.walk():
         if url_link != re.search('nete.*CITEDBY.zip', url_link):
     ## Go through list of links, rename
-            request = urllib.urlrequest(url)
+            request = urllib.urlrequest(url_link)
             scopus_update_zip_file = zipfile.ZipFile(request)
             scopus_update_zip_file.filename = temp[0].split('/')[2] = re.search('nete.*ANI.*zip',links)
+
     ## Now store them in specified directory
             os.path.join(args.directory, scopus_update_zip_file)
 
 print('Total duration ',time.time()-start_time)
 
 
-## end of the script
+## End of the script

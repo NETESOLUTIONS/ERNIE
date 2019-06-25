@@ -44,7 +44,7 @@ msg= re.findall('https://\S*', args.pmt_content)
 for url_link in msg.walk():
     if url_link != re.search('nete.*CITEDBY.zip', url_link):
 ## Go through list of links, rename
-        request = urllib.urlrequest(url)
+        request = urllib.urlrequest(url_link)
         scopus_update_zip_file = zipfile.ZipFile(request)
         scopus_update_zip_file.filename = temp[0].split('/')[2] = re.search('nete.*ANI.*zip',links)
         print(scopus_update_zip_file)
