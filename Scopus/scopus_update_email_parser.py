@@ -51,24 +51,23 @@ def email_parser():
     args = parser.parse_args()
 
     ## Open email, fortunately the parse function will treat attachments, essentially, as part of (an instance) of the MIME or email data-structure.
-
+    ## might have to use email module to get the text part of the email
     ##with open(args.pmt_content, 'r') as email_msg:
     ##   msg = email.parse(email_msg, policy=default)
 
     ## Scan emails for url and store the url(s) in a list
-    msg= re.findall('https://\S*', msg)
-
-    for url_link in msg:
-        if url_link != re.search('nete.*CITEDBY.zip', url_link):
-    ## Go through list of links, rename
-            request = urllib.urlrequest(url_link)
-            scopus_update_zip_file = zipfile.ZipFile(request)
-            scopus_update_zip_file.filename = temp[0].split('/')[2] = re.search('nete.*ANI.*zip',scopus_update_zip_file)
-
+    links= re.findall('https://\S*3D', msg)
+    links=links.remove(links[1])
+    for link in links:
+    ## Go through list of links, download url
+        url_request = urllib.urlrequest(link)
+        scopus_update_zip_file = zipfile.ZipFile(url_request)
+    ## Now rename the file, extraneous since the file is already so named 
+        #link_name= re.findall('nete.*ANI.*zip', link)
+        #scopus_update_zip_file.filename = link_name[0].split('/')[2]
     ## Now store them in specified directory
-            os.path.join(args.directory, scopus_update_zip_file)
+        os.path.join(args.directory, scopus_update_zip_file)
 
 print('Total duration ',time.time()-start_time)
-
 
 ## End of the script
