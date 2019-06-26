@@ -19,6 +19,7 @@ import time
 import re
 import zipfile
 import webbrowser
+import os
 from sys import argv
 
 start_time=time.time()
@@ -51,8 +52,8 @@ def email_parser(pmt_content):
     for link in links:
     ## Go through list of links, rename
         url_request = webbrowser.open(link)
-        scopus_update_zip_file = zipfile.ZipFile(url_request)
-        print("Accessed the url!")
+        ##scopus_update_zip_file = zipfile.ZipFile(url_request)
+        print("Accessed the url?", url_reqest)
         # scopus_update_zip_file.filename = link[0].split('/')[2]
         ## Now store them in specified directory
         ## os.path.join(directory, scopus_update_zip_file)

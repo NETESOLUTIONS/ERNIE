@@ -15,8 +15,6 @@ https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-
 
 """
 import time
-from bs4 import BeautifulSoup
-import email
 import re
 import webbrowser
 import zipfile
@@ -65,8 +63,7 @@ def email_parser():
     for link in links:
     ## Go through list of links, download url
         url_request = webbrowser.open(link)
-        scopus_update_zip_file = zipfile.ZipFile(url_request)
-        print("Accessed the url!")
+        print("Url request worked? ", url_request)
     ## Now rename the file, extraneous since the file is already so named
         #link_name= re.findall('nete.*ANI.*zip', link)
         #scopus_update_zip_file.filename = link_name[0].split('/')[2]
@@ -79,5 +76,5 @@ def email_parser():
 ## Run the function with the relevant input
 scopus_zip_files=email_parser(pmt_content, directory)
 print('The revelevant files are:', scopus_zip_files)
-print('Total duration ',time.time()-start_time)
+print('Total duration:',time.time()-start_time)
 ## End of the script
