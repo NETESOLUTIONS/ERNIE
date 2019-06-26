@@ -51,3 +51,5 @@ def email_parser(pmt_content):
         # scopus_update_zip_file.filename = link[0].split('/')[2]
     ## Now store them in specified directory
     ##os.path.join(args.directory, scopus_update_zip_file)
+
+email_parser(pmt_content)
