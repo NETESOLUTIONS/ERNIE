@@ -29,6 +29,8 @@ start_time=time.time()
 pmt_content=argv[1]
 #directory= argv[2]
 
+print(pmt_content)
+
 def email_parser(pmt_content):
     """
     Assumptions:
@@ -47,9 +49,9 @@ def email_parser(pmt_content):
     links= re.findall('https://\S*.3D',pmt_content)
     print("All links in text:", links)
     links=links[0:3]
-    print(links)
-    links.remove(links[1])
-    print("Relevant links in text:", links)
+    return links
+    # links.remove(links[1])
+    # print("Relevant links in text:", links)
     # for link in links:
     # ## Go through list of links, rename
     #     url_request = webbrowser.open(link)
@@ -60,7 +62,7 @@ def email_parser(pmt_content):
     #     ## os.path.join(directory, scopus_update_zip_file)
 
 ## Run the function with the relevant input
-email_parser(pmt_content)
-print("The revelevant zip files are parsed!")
+result=email_parser(pmt_content)
+print("The revelevant zip files are parsed!", result)
 print('Total duration:',time.time()-start_time)
 ## End of the script
