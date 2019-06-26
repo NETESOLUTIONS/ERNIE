@@ -61,6 +61,6 @@ def email_parser(pmt_content):
 
 ## Run the function with the relevant input
 email_parser(pmt_content)
-print("The revelevant zip files parsed!")
+print("The revelevant zip files are parsed!")
 print('Total duration:',time.time()-start_time)
 ## End of the script
