@@ -26,7 +26,7 @@ def fingerprint_postgres_query(input_sql,non_title_abstract_cols,dsn,min_concept
         try:
             group_ids={group_id.lower():input_row[group_id.lower()] for group_id in non_title_abstract_cols}
             title, abstract = input_row['title'],input_row['abstract']
-            print("Document {} - {}: {}".format(idx+1, title))
+            print("Document {}: {}".format(idx+1, title))
             if abstract:
                 fp = client.index(workflow, title, abstract).toFingerprint()
                 if len(fp) >= min_concepts:
