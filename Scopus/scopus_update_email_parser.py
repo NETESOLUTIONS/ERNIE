@@ -15,6 +15,7 @@ https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-
 
 """
 import time
+from bs4 import BeautifulSoup
 import email
 import re
 import webbrowser
@@ -57,6 +58,7 @@ def email_parser():
 
     ## Scan emails for url and store the url(s) in a list
     links= re.findall('https://\S*.3D', args.pmt_content)
+    links=links[0:3]
     links.remove(links[1])
     for link in links:
     ## Go through list of links, download url

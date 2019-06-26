@@ -15,11 +15,11 @@ https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-
 
 
 """
+import time
 import re
 import zipfile
 import webbrowser
 from sys import argv
-import time
 
 start_time=time.time()
 
@@ -44,6 +44,7 @@ def email_parser(pmt_content):
     """
 
     links= re.findall('https://\S*.3D',pmt_content)
+    links=links[0:3]
     links.remove(links[1])
     for link in links:
     ## Go through list of links, rename
