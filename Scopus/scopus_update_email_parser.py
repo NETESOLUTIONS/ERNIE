@@ -14,11 +14,11 @@ https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-
 
 
 """
-import re
-import urllib
+import time
 import email
+import re
+import webbrowser
 import zipfile
-from email.policy import default
 import os
 from argparse import ArgumentParser
 
@@ -60,9 +60,9 @@ def email_parser():
     links=links.remove(links[1])
     for link in links:
     ## Go through list of links, download url
-        url_request = urllib.urlrequest(link)
+        url_request = webbrowser.open(link)
         scopus_update_zip_file = zipfile.ZipFile(url_request)
-    ## Now rename the file, extraneous since the file is already so named 
+    ## Now rename the file, extraneous since the file is already so named
         #link_name= re.findall('nete.*ANI.*zip', link)
         #scopus_update_zip_file.filename = link_name[0].split('/')[2]
     ## Now store them in specified directory
