@@ -42,12 +42,11 @@ def email_parser(pmt_content, directory):
     """
 
     links= re.findall('https://\S*.3D',pmt_content)
-    links=links.remove(links[1])
+    links.remove(links[1])
     for link in links:
     ## Go through list of links, rename
         url_request = webbrowser.open(link)
         scopus_update_zip_file = zipfile.ZipFile(url_request)
-        print(scopus_update_zip_file)
         # scopus_update_zip_file.filename = link[0].split('/')[2]
         ## Now store them in specified directory
         os.path.join(directory, scopus_update_zip_file)
