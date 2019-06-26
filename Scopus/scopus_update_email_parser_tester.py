@@ -44,8 +44,10 @@ def email_parser(pmt_content):
     """
 
     links= re.findall('https://\S*.3D',pmt_content)
+    print("All links in text": links)
     links=links[0:3]
     links.remove(links[1])
+    print("Relevant links in text": links)
     for link in links:
     ## Go through list of links, rename
         url_request = webbrowser.open(link)
