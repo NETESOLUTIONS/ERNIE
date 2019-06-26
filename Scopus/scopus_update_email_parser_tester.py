@@ -41,7 +41,7 @@ def email_parser(pmt_content):
     :return:
     """
 
-    msg= re.findall('https://\S*3D', pmt_content)
+    msg= re.findall('https://\S*.3D', pmt_content)
     for link in msg:
     ## Go through list of links, rename
         url_request = webbrowser.open(link)

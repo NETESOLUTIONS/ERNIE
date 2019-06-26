@@ -56,7 +56,7 @@ def email_parser():
     ##   msg = email.parse(email_msg, policy=default)
 
     ## Scan emails for url and store the url(s) in a list
-    links= re.findall('https://\S*3D', msg)
+    links= re.findall('https://\S*.3D', msg)
     links=links.remove(links[1])
     for link in links:
     ## Go through list of links, download url
