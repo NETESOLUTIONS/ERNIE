@@ -28,7 +28,7 @@ start_time=time.time()
 pmt_content=argv[1]
 #directory= argv[2]
 
-def email_parser(pmt_content, directory):
+def email_parser(pmt_content):
     """
     Assumptions:
 
@@ -51,10 +51,10 @@ def email_parser(pmt_content, directory):
         scopus_update_zip_file = zipfile.ZipFile(url_request)
         # scopus_update_zip_file.filename = link[0].split('/')[2]
         ## Now store them in specified directory
-        os.path.join(directory, scopus_update_zip_file)
+        ## os.path.join(directory, scopus_update_zip_file)
 
 ## Run the function with the relevant input
 scopus_zip_files=email_parser(pmt_content)
-print('The revelevant files are:', scopus_zip_files)
+print('The revelevant zip files are:', scopus_zip_files)
 print('Total duration ',time.time()-start_time)
 ## End of the script
