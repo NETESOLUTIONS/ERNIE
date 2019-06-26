@@ -22,12 +22,11 @@ def fingerprint_postgres_query(input_sql,non_title_abstract_cols,dsn,min_concept
                         ) '''.format(','.join('{} TEXT'.format(group_id) for group_id in non_title_abstract_cols)))
     print(output_cur.statusmessage)
 
-    for input_row in input_cur.fetchall():
-        count=1
+    for idx,input_row in enumerate(input_cur.fetchall()):
         try:
             group_ids={group_id.lower():input_row[group_id.lower()] for group_id in non_title_abstract_cols}
             title, abstract = input_row['title'],input_row['abstract']
-            #print("Row {} - {}: {}".format(count, title))
+            print("Document {} - {}: {}".format(idx+1, title))
             if abstract:
                 fp = client.index(workflow, title, abstract).toFingerprint()
                 if len(fp) >= min_concepts:
@@ -41,11 +40,10 @@ def fingerprint_postgres_query(input_sql,non_title_abstract_cols,dsn,min_concept
                                             sql.Literal(concept.rank),sql.Literal(concept.afreq))
                         output_cur.execute(command)
                         #print(output_cur.statusmessage)
-                #else:  print("Row {} - {}: *** Insufficient Concepts ({})".format(count, doc_id, len(fp)))
-            #else:  print("Row {} - {}: *** No Abstract".format(count))
-        #except ValueError:
-            #print("App {}: *** Invalid Input Line".format(count))
-        finally: count += 1
+                else:  print("Document {} - {}: *** Insufficient concepts created on fingerprint ({})".format(idx+1, doc_id, len(fp)))
+            else:  print("Doc {} : *** No abstract attached".format(idx+1))
+        except ValueError:
+            print("Document {}: *** Invalid Input Line".format(idx+1))
 
     if save_table:
         print("Saving temp table data to table {}".format(save_table))
