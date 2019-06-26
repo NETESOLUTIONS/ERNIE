@@ -56,7 +56,7 @@ def email_parser():
     ##   msg = email.parse(email_msg, policy=default)
 
     ## Scan emails for url and store the url(s) in a list
-    links= re.findall('https://\S*.3D', msg)
+    links= re.findall('https://\S*.3D', args.pmt_content)
     links=links.remove(links[1])
     for link in links:
     ## Go through list of links, download url
@@ -68,6 +68,8 @@ def email_parser():
     ## Now store them in specified directory
         os.path.join(args.directory, scopus_update_zip_file)
 
+## Run the function with the relevenat input
+scopus_zip_files=email_parser(pmt_content)
+print('The revelevant files are:', scopus_update_zip_files)
 print('Total duration ',time.time()-start_time)
-
 ## End of the script
