@@ -68,8 +68,8 @@ def email_parser():
     ## Now store them in specified directory
         os.path.join(args.directory, scopus_update_zip_file)
 
-## Run the function with the relevenat input
-scopus_zip_files=email_parser(pmt_content)
+## Run the function with the relevant input
+scopus_zip_files=email_parser(pmt_content, directory)
 print('The revelevant files are:', scopus_update_zip_files)
 print('Total duration ',time.time()-start_time)
 ## End of the script
