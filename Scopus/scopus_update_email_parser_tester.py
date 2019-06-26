@@ -26,7 +26,7 @@ start_time=time.time()
 ##Build a function that 1) opens email 2) scans it for urls 3) stores urls and then opens file in them 4) then rename this downloaded file and store in specified directory.
 
 pmt_content=argv[1]
-directory= argv[2]
+#directory= argv[2]
 
 def email_parser(pmt_content, directory):
     """
@@ -54,7 +54,7 @@ def email_parser(pmt_content, directory):
         os.path.join(directory, scopus_update_zip_file)
 
 ## Run the function with the relevant input
-scopus_zip_files=email_parser(pmt_content,directory)
+scopus_zip_files=email_parser(pmt_content)
 print('The revelevant files are:', scopus_zip_files)
 print('Total duration ',time.time()-start_time)
 ## End of the script
