@@ -12,6 +12,9 @@ If the file satisfies both conditions then it is deleted.
 
 import time
 import os
+from argparse import ArgumentParser
+
+current_time=time.time()
 
 def delete_function():
 
@@ -33,16 +36,16 @@ def delete_function():
 
     args = parser.parse_args()
 
-    present_time=time.time()
-
     for file in os.walk(args.directory):
         print("Scanning directory...")
         return file
-        if (time - os.path.getmtime(file)) > (5 * 604800) :
+        if (current_time - os.path.getmtime(file)) > (5 * 604800) :
             return file
             os.remove(file)
             print("File is removed")
 
+
 ## Run the function with relevant input
 results= delete_function(args.directory)
-print('The deleted ')
+print('The relevant files are removed! ')
+## End of script
