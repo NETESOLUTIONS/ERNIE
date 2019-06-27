@@ -29,8 +29,6 @@ start_time=time.time()
 pmt_content=argv[1]
 #directory= argv[2]
 
-print(pmt_content)
-
 def email_parser(pmt_content):
     """
     Assumptions:

@@ -58,6 +58,7 @@ def email_parser():
     print("Scanning email now for url...")
     links= re.findall('https://\S*.3D', args.pmt_content)
     links=links[0:3]
+    return links 
     links.remove(links[1])
     print("Relevant urls are in the following links:", links )
     for link in links:
