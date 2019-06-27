@@ -36,9 +36,11 @@ echo "*** CLEANING ANY MISCELLANEOUS DATA : $(date)"
 hdfs dfs -rm -r -f /user/spark/data/*
 
 # Ensure the necessary libraries are installed/updated
-/usr/bin/anaconda/bin/conda install -y --debug psycopg2
-/usr/bin/anaconda/bin/conda update -y --debug numpy
-/usr/bin/anaconda/bin/conda update -y --debug pandas
+wget https://jdbc.postgresql.org/download/postgresql-42.0.0.jar
+sudo cp postgresql-42.0.0.jar /usr/hdp/current/sqoop-client/lib/
+sudo /usr/bin/anaconda/bin/conda install -y --debug psycopg2
+sudo /usr/bin/anaconda/bin/conda update -y --debug numpy
+sudo /usr/bin/anaconda/bin/conda update -y --debug pandas
 
 # Next run PySpark calculations
 $SPARK_HOME/bin/spark-submit --driver-memory 10g --executor-memory 20g --num-executors 18 \
