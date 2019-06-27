@@ -36,7 +36,7 @@ echo "*** CLEANING ANY MISCELLANEOUS DATA : $(date)"
 hdfs dfs -rm -r -f /user/spark/data/*
 
 # Ensure the necessary libraries are installed/updated
-wget https://jdbc.postgresql.org/download/postgresql-42.0.0.jar
+wget https://jdbc.postgresql.org/download/postgresql-42.2.6.jar
 sudo cp postgresql-42.0.0.jar /usr/hdp/current/sqoop-client/lib/
 sudo /usr/bin/anaconda/bin/conda install -y --debug psycopg2
 sudo /usr/bin/anaconda/bin/conda update -y --debug numpy
