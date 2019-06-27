@@ -35,6 +35,11 @@ hdfs dfs -rm -r -f /hive/warehouse/*
 echo "*** CLEANING ANY MISCELLANEOUS DATA : $(date)"
 hdfs dfs -rm -r -f /user/spark/data/*
 
+# Ensure the necessary libraries are installed/updated
+/usr/bin/anaconda/bin/conda install -y --debug psycopg2
+/usr/bin/anaconda/bin/conda update -y --debug numpy
+/usr/bin/anaconda/bin/conda update -y --debug pandas
+
 # Next run PySpark calculations
 $SPARK_HOME/bin/spark-submit --driver-memory 10g --executor-memory 20g --num-executors 18 \
   --driver-class-path $(pwd)/postgresql-42.0.0.jar --jars $(pwd)/postgresql-42.0.0.jar \

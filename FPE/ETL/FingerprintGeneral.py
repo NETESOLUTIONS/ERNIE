@@ -26,7 +26,8 @@ def fingerprint_postgres_query(input_sql,non_title_abstract_cols,dsn,min_concept
         try:
             group_ids={group_id.lower():input_row[group_id.lower()] for group_id in non_title_abstract_cols}
             title, abstract = input_row['title'],input_row['abstract']
-            print("Document {}: {}".format(idx+1, title))
+            # TODO: define doc_id as a combo of N cols
+            print("Document #{}: {}".format(idx+1, title))
             if abstract:
                 fp = client.index(workflow, title, abstract).toFingerprint()
                 if len(fp) >= min_concepts:
@@ -41,9 +42,9 @@ def fingerprint_postgres_query(input_sql,non_title_abstract_cols,dsn,min_concept
                         output_cur.execute(command)
                         #print(output_cur.statusmessage)
                 else:  print("Document {} - {}: *** Insufficient concepts created on fingerprint ({})".format(idx+1, doc_id, len(fp)))
-            else:  print("Doc {} : *** No abstract attached".format(idx+1))
+            else:  print("Document #{} : *** No abstract attached".format(idx+1))
         except ValueError:
-            print("Document {}: *** Invalid Input Line".format(idx+1))
+            print("Document #{}: *** Invalid Input Line".format(idx+1))
 
     if save_table:
         print("Saving temp table data to table {}".format(save_table))
