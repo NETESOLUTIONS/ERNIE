@@ -27,16 +27,16 @@ start_time=time.time()
 ##Build a function that 1) opens email 2) scans it for urls 3) stores urls and then opens file in them 4) then rename this downloaded file and store in specified directory.
 
 pmt_content=argv[1]
-#directory= argv[2]
+directory= argv[2]
 
-def email_parser(pmt_content):
+def email_parser(pmt_content, directory):
     """
     Assumptions:
 
     Given an email, read the email, then scan it for url.
     If url is found, download, rename, and then save to specified directory.
 
-    Arguments: email_message and default directory= /Scopus
+    Arguments: email_message and default directory= /erniedev_data2/Scopus_update
 
     Input: email_message with forwarded emails called pmt_content because that is the property name given by Jenkins when you call as variable to be executed in process
     Output: A group of zip files, renamed, and stored in specified directory called /Scopus
@@ -48,18 +48,18 @@ def email_parser(pmt_content):
     links=links[0:3]
     links.remove(links[1])
     return links
-    ##for link in links:
-    ## Go through list of links, rename
-        ##url_request = webbrowser.open(link)
-        ##scopus_update_zip_file = zipfile.ZipFile(url_request)
-        ##print("Accessed the url?", url_reqest)
-        # scopus_update_zip_file.filename = link[0].split('/')[2]
-        ## Now store them in specified directory
-        ## os.path.join(directory, scopus_update_zip_file)
+    for link in links:
+    # Go through list of links, rename
+        url_request = webbrowser.open(link)
+        scopus_update_zip_file = zipfile.ZipFile(url_request)
+        print("Accessed the url?", url_reqest)
+        #scopus_update_zip_file.filename = link[0].split('/')[2]
+        # Now store them in specified directory
+        os.path.join(directory, directory)
 
 ## Run the function with the relevant input
-## scopus_update_directory="/erniedev_data2/Scopus_update/"
-result=email_parser(pmt_content)
+testing_directory="/erniedev_data2/testing"
+result=email_parser(pmt_content, testing_directory)
 print("The revelevant zip files are parsed!", result)
 print('Total duration:',time.time()-start_time)
 ## End of the script
