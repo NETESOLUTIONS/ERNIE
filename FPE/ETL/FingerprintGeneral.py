@@ -41,7 +41,7 @@ def fingerprint_postgres_query(input_sql,non_title_abstract_cols,dsn,min_concept
                                             sql.Literal(concept.rank),sql.Literal(concept.afreq))
                         output_cur.execute(command)
                         #print(output_cur.statusmessage)
-                else:  print("Document {} - {}: *** Insufficient concepts created on fingerprint ({})".format(idx+1, doc_id, len(fp)))
+                else:  print("Document {} - {}: *** Insufficient concepts created on fingerprint ({})".format(idx+1, title, len(fp)))
             else:  print("Document #{} : *** No abstract attached".format(idx+1))
         except ValueError:
             print("Document #{}: *** Invalid Input Line".format(idx+1))
