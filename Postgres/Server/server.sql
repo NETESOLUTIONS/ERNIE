@@ -21,6 +21,7 @@ CREATE EXTENSION fuzzystrmatch;
 -- endregion
 
 -- region Install third-party extensions
+-- TBD could not install with Postgres 11
 CREATE EXTENSION pg_dropcache;
 -- endregion
 
