@@ -46,18 +46,19 @@ def email_parser(pmt_content):
 
     links= re.findall('https://\S*.3D',pmt_content)
     links=links[0:3]
-    return links
     links.remove(links[1])
-    for link in links:
+    return links
+    ##for link in links:
     ## Go through list of links, rename
-        url_request = webbrowser.open(link)
+        ##url_request = webbrowser.open(link)
         ##scopus_update_zip_file = zipfile.ZipFile(url_request)
-        print("Accessed the url?", url_reqest)
+        ##print("Accessed the url?", url_reqest)
         # scopus_update_zip_file.filename = link[0].split('/')[2]
         ## Now store them in specified directory
         ## os.path.join(directory, scopus_update_zip_file)
 
 ## Run the function with the relevant input
+## scopus_update_directory="/erniedev_data2/Scopus_update/"
 result=email_parser(pmt_content)
 print("The revelevant zip files are parsed!", result)
 print('Total duration:',time.time()-start_time)
