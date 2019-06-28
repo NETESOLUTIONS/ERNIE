@@ -56,6 +56,7 @@ def email_parser(pmt_content, directory):
         #scopus_update_zip_file.filename = link[0].split('/')[2]
         # Now store them in specified directory
         os.path.join(directory, scopus_update_zip_file)
+        print("The zip file should be in the directory!")
 
 ## Run the function with the relevant input
 testing_directory="/erniedev_data2/testing"
