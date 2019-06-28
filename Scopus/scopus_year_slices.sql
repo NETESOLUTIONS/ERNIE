@@ -37,14 +37,14 @@ SELECT source_id,
        reference_document_id_type,
        reference_issn
 FROM (
-         SELECT sp.scp AS source_id,
-                spg.pub_year AS source_year,
-                'issn' AS source_document_id_type,
-                ss.issn_main AS source_issn,
-                sp2.scp AS cited_source_uid,
-                spg2.pub_year AS reference_year,
-                'issn' AS reference_document_id_type,
-                ss2.issn_main AS reference_issn,
+         SELECT sp.scp                              AS source_id,
+                spg.pub_year                        AS source_year,
+                'issn'                              AS source_document_id_type,
+                ss.issn_main                        AS source_issn,
+                sp2.scp                             AS cited_source_uid,
+                spg2.pub_year                       AS reference_year,
+                'issn'                              AS reference_document_id_type,
+                ss2.issn_main                       AS reference_issn,
                 count(1) OVER (PARTITION BY sp.scp) AS ref_count
          FROM scopus_publications sp
                   JOIN scopus_publication_groups spg ON sp.sgr = spg.sgr
@@ -53,11 +53,15 @@ FROM (
                   JOIN scopus_publications sp2 ON sp2.sgr = sr.ref_sgr
                   JOIN scopus_publication_groups spg2 ON spg2.sgr = sp2.sgr AND spg2.pub_year <= :year
                   JOIN scopus_sources ss2 ON sp2.ernie_source_id = ss2.ernie_source_id
-    WHERE spg.pub_year=:year AND sp.citation_type='ar'
+         WHERE spg.pub_year = :year
+           AND sp.citation_type = 'ar'
+           AND ss.issn_main != ''
+           AND ss2.issn_main != ''
      ) sq
 WHERE ref_count > 1;
 
-ALTER TABLE :dataset ADD CONSTRAINT :dataset_pk PRIMARY KEY (source_id, cited_source_uid) --
-  USING INDEX TABLESPACE index_tbs;
+ALTER TABLE :dataset
+    ADD CONSTRAINT :dataset_pk PRIMARY KEY (source_id, cited_source_uid) --
+        USING INDEX TABLESPACE index_tbs;
 
-CREATE INDEX IF NOT EXISTS :dataset_index ON :dataset(reference_year) TABLESPACE index_tbs;
+CREATE INDEX IF NOT EXISTS :dataset_index ON :dataset (reference_year) TABLESPACE index_tbs;
