@@ -14,11 +14,10 @@ https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-
 
 
 """
+import time
 import re
-import urllib
-import email
+import webbrowser
 import zipfile
-from email.policy import default
 import os
 from argparse import ArgumentParser
 
@@ -42,28 +41,41 @@ def email_parser():
     """
 
     parser = ArgumentParser
+
     parser.add_argument('-p', '--pmt_content', required=True,
                         help="""email message that will get parsed for url-link and zip-file""")
-    parser.add_argument('-d','--directory', required=True, help="""specified directory for zip-file""")#
+
+    parser.add_argument('-d','--directory', required=True, help="""specified directory for zip-file""")
+
     args = parser.parse_args()
 
     ## Open email, fortunately the parse function will treat attachments, essentially, as part of (an instance) of the MIME or email data-structure.
-
+    ## might have to use email module to get the text part of the email
     ##with open(args.pmt_content, 'r') as email_msg:
     ##   msg = email.parse(email_msg, policy=default)
 
     ## Scan emails for url and store the url(s) in a list
-    msg= re.findall('https://\S*', msg) 
-    for url_link in msg.walk():
-        if url_link != re.search('nete.*CITEDBY.zip', url_link):
-    ## Go through list of links, rename
-            request = urllib.urlrequest(url)
-            scopus_update_zip_file = zipfile.ZipFile(request)
-            scopus_update_zip_file.filename = temp[0].split('/')[2] = re.search('nete.*ANI.*zip',links)
+    print("Scanning email now for url...")
+    links= re.findall('https://\S*.3D', args.pmt_content)
+    links=links[0:3]
+    return links 
+    links.remove(links[1])
+    print("Relevant urls are in the following links:", links )
+    for link in links:
+    ## Go through list of links, download url
+        url_request = webbrowser.open(link)
+        print("Url request worked? ", url_request)
+    ## Now rename the file, extraneous since the file is already so named
+        #link_name= re.findall('nete.*ANI.*zip', link)
+        #scopus_update_zip_file.filename = link_name[0].split('/')[2]
     ## Now store them in specified directory
-            os.path.join(args.directory, scopus_update_zip_file)
+        print("Storing the url in directory... ")
+        os.path.join(args.directory, scopus_update_zip_file)
+        print("Done parsing")
+        print("Relevant zip_files are:", scopus_update_zip_file)
 
-print('Total duration ',time.time()-start_time)
-
-
-## end of the script
+## Run the function with the relevant input
+email_parser(pmt_content, directory)
+print('The revelevant files are parsed!')
+print('Total duration:',time.time()-start_time)
+## End of the script

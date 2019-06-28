@@ -11,7 +11,6 @@ import datetime
 import numpy as np
 from pyspark.sql.functions import col, udf, lit,struct
 import pyspark.sql.types as sql_type
-import threading as thr
 import psycopg2
 
 
