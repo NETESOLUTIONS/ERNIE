@@ -18,8 +18,8 @@ https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-
 import time
 import re
 import zipfile
-import webbrowser
 import os
+import urllib
 from sys import argv
 
 start_time=time.time()
@@ -27,9 +27,8 @@ start_time=time.time()
 ##Build a function that 1) opens email 2) scans it for urls 3) stores urls and then opens file in them 4) then rename this downloaded file and store in specified directory.
 
 pmt_content=argv[1]
-#directory= argv[2]
 
-def email_parser(pmt_content, directory=testing_directory):
+def email_parser(pmt_content, directory):
     """
     Assumptions:
 
@@ -49,18 +48,18 @@ def email_parser(pmt_content, directory=testing_directory):
     links.remove(links[1])
     return links
     for link in links:
-    # Go through list of links, rename
-        url_request = webbrowser.open(link)
-        scopus_update_zip_file = zipfile.ZipFile(url_request)
-        print("Accessed the url?", url_reqest)
-        #scopus_update_zip_file.filename = link[0].split('/')[2]
-        # Now store them in specified directory
-        os.path.join(testing_directory, scopus_update_zip_file)
+    # Go through list of links, come up with name, rename/store in testing_directory
+        zip_file_name= re.findall('nete.*ANI.*zip', link)
+        zip_file_name = link_name[0].split('/')[2]
+        print("The names of the zip_files are:", zip_file_name)
+        final_destiantion=os.path.join(directory, zip_file_name)
+        url_download= urllib.retrieve(link,final_destiantion)
+        #scopus_update_zip_file = zipfile.ZipFile(url_download)
         print("The zip file should be in the directory!")
 
 ## Run the function with the relevant input
 testing_directory="/erniedev_data2/testing"
-result=email_parser(pmt_content)
+result=email_parser(pmt_content, testing_directory)
 print("The revelevant zip files are parsed!", result)
 print('Total duration:',time.time()-start_time)
 ## End of the script
