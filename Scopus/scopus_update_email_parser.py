@@ -18,7 +18,7 @@ import time
 import re
 import zipfile
 import os
-import urllib 
+import urllib
 from argparse import ArgumentParser
 
 start_time=time.time()
@@ -65,7 +65,7 @@ def email_parser():
     ## Go through list of links, download url
         zip_file_name= re.findall('nete.*ANI.*zip', link)
         zip_file_name = link_name[0].split('/')[2]
-        print(":", zip_file_name)
+        print("The revelevant zip files (names) are:", zip_file_name)
         final_destiantion=os.path.join(args.directory, zip_file_name)
         url_download= urllib.retrieve(link,final_destiantion)
         #scopus_update_zip_file = zipfile.ZipFile(url_download)
