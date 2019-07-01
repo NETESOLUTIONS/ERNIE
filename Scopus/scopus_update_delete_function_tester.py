@@ -38,9 +38,9 @@ def delete_function():
 
     present_time = time.time()
     print("Scanning directory...")
-    for file in os.listdir("/Users/djamillakhdar-hamina/Desktop/"):
+    for file in os.listdir(args.data_directory):
         if os.path.isfile(file) == True:
-            file_mtimeresult = os.stat(os.path.join("/Users/djamillakhdar-hamina/Desktop/", file))
+            file_mtimeresult = os.stat(os.path.join(args.data_directory, file))
             file_mtimeresult = [file, (present_time - time_result.st_mtime)]
             if file_mtimeresult[1] < (840 * 3600):
                 print("This file would be removed:")
@@ -48,7 +48,6 @@ def delete_function():
     #print("File(s) is/(are) removed!")
 
 ## Run the function with relevant input
-
 results= delete_function(d)
-print('The relevant files are removed! ')
+print('The relevant files are removed!' , results')
 ## End of script
