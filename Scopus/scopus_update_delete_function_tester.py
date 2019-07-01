@@ -48,6 +48,7 @@ def delete_function():
     #print("File(s) is/(are) removed!")
 
 ## Run the function with relevant input
-results= delete_function(d)
+data_directory= "/erniedev_data2/Scopus_updates"
+results= delete_function(data_directory)
 print('The relevant files are removed!' , results)
 ## End of script
