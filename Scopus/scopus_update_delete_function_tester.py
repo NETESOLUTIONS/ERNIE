@@ -49,5 +49,5 @@ def delete_function():
 
 ## Run the function with relevant input
 results= delete_function(d)
-print('The relevant files are removed!' , results')
+print('The relevant files are removed!' , results)
 ## End of script
