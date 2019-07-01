@@ -25,7 +25,7 @@ start_time=time.time()
 
 ##Build a function that 1) opens email 2) scans it for urls 3) stores urls and then opens file in them 4) then rename this downloaded file and store in specified directory.
 
-def email_parser():
+def email_parser(data_directory):
     """
     Assumptions:
 
@@ -44,8 +44,6 @@ def email_parser():
 
     parser.add_argument('-p', '--pmt_content', required=True,
                         help="""email message that will get parsed for url-link and zip-file""")
-
-    parser.add_argument('-d','--data_directory', required=True, help="""specified directory for zip-file""")
 
     args = parser.parse_args()
 
@@ -68,7 +66,7 @@ def email_parser():
         print("The request went through:", req.ok)
         print("Now saving zip files to specified directory.")
         zip_file=zipfile.ZipFile(BytesIO(req.content))
-        zip_file.extractall(args.data_directory)
+        zip_file.extractall(data_directory)
         print("The zip files should be present in specified directory!")
         #through list of links, come up with name, rename/store in testing_directory
         print("Renaming files...")
@@ -78,7 +76,8 @@ def email_parser():
         print("The zip files should downloaded in the directory with the correct name!")
 
 ## Run the function with the relevant input, d is a name of data directory
-email_parser(pmt_content, d)
+target_directory="/erniedev_data2/testing"
+email_parser(pmt_content, target_directory)
 print('The revelevant files are parsed!')
 print('Total duration:',time.time()-start_time)
 ## End of the script
