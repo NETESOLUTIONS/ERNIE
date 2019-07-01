@@ -1,5 +1,5 @@
 """
-Title: Scopus_Update Delete Function
+Title: Scopus_Update Delete Function Tester
 Author: Djamil Lakhdar-Hamina
 Date: 06/27/2019
 
@@ -43,10 +43,12 @@ def delete_function():
             file_mtimeresult = os.stat(os.path.join("/Users/djamillakhdar-hamina/Desktop/", file))
             file_mtimeresult = [file, (present_time - time_result.st_mtime)]
             if file_mtimeresult[1] < (840 * 3600):
-                file_mtimeresult.os.remove()
-    print("File(s) is/(are) removed!")
+                print("This file would be removed:")
+                (return link)
+    #print("File(s) is/(are) removed!")
 
 ## Run the function with relevant input
+
 results= delete_function(d)
 print('The relevant files are removed! ')
 ## End of script
