@@ -50,6 +50,6 @@ def delete_function(data_directory):
 
 ## Run the function with relevant input
 test= "/erniedev_data2/Scopus_updates"
-results= delete_function(test)
-print('The relevant files are removed!' , results)
+delete_function(test)
+print('The relevant files are removed!')
 ## End of script
