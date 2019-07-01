@@ -63,15 +63,19 @@ def email_parser():
     print("Relevant urls are in the following links:", links )
     for link in links:
     ## Go through list of links, download url
+        print("Getting url-requests...")
         req=requests.get(link)
-        print(req.ok)
+        print("The request went through:", req.ok)
+        print("Now saving zip files to specified directory.")
         zip_file=zipfile.ZipFile(BytesIO(req.content))
         zip_file.extractall(args.directory)
+        print("The zip files should be present in specified directory!")
         #through list of links, come up with name, rename/store in testing_directory
+        print("Renaming files...")
         zip_file_name= re.findall('nete.*ANI.*zip', link)
         zip_file.filename = zip_file_name[0].split('/')[2]
         #print("The revelevant zip files (names) are:", zip_file_name)
-        print("The zip file should be in the directory!")
+        print("The zip files should downloaded in the directory with the correct name!")
 
 ## Run the function with the relevant input, d is a name of data directory
 email_parser(pmt_content, d)
