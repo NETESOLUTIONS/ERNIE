@@ -52,6 +52,6 @@ def delete_function(data_directory):
     #print("File(s) is/(are) removed!")
 
 ## Run the function with relevant input
-results= delete_function(d)
+results= delete_function(OPTIONS)
 print('The relevant files are removed!' , results)
 ## End of script
