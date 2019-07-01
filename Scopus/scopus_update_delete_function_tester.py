@@ -47,7 +47,7 @@ def delete_function(data_directory):
             file_mtimeresult = [file, (present_time - time_result.st_mtime)]
             if file_mtimeresult[1] < (840 * 3600):
                 print("This file would be removed:")
-    return file_mtimeresult
+                return file_mtimeresult[0]
     #print("File(s) is/(are) removed!")
 
 ## Run the function with relevant input
