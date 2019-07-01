@@ -16,7 +16,7 @@ from argparse import ArgumentParser
 
 current_time=time.time()
 
-def delete_function():
+def delete_function(d):
 
     """
     Assumptions:
