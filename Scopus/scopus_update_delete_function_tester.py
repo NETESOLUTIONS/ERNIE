@@ -30,25 +30,21 @@ def delete_function(data_directory):
 
     """
 
-    # parser = ArgumentParser
-    #
-    # parser.add_argument('-d','--data_directory', required=True, help="""specified directory for zip-file""")
-    #
-    # args = parser.parse_args()
-
     present_time = time.time()
     print("Scanning directory...")
     for file in os.listdir(directory):
-        if os.path.isfile(file) == True:
-            file_mtimeresult = os.stat(os.path.join(directory, file))
-            file_mtimeresult = [file, (present_time - file_mtimeresult.st_mtime)]
-            if file_mtimeresult[1] > (840 * 3600):
-                print("File" " " + str(file_mtimeresult[0]) + " "  "is removed!")
+        file_mtimeresult = os.stat(os.path.join(desktop, file))
+        file_mtimeresult = [file, (present_time - file_mtimeresult.st_mtime)]
+            if file_mtimeresult[1] < (840 * 3600):
+                print("The present files" + " " + str(file_mtimeresult[0]) + " " + "will be removed....")
+                os.remove(os.path.join(directory, file))
+                print("The present files " " " + str(file_mtimeresult[0]) + " "  "is removed!")
+
 
     #print("File(s) is/(are) removed!")
 
 ## Run the function with relevant input
-test= "/erniedev_data2/Scopus_updates"
-delete_function(test)
+testing_directory= ...
+delete_function(testing_directory)
 print('The relevant files are removed!')
 ## End of script
