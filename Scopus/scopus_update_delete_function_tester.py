@@ -42,10 +42,10 @@ def delete_function(data_directory):
         if os.path.isfile(file) == True:
             file_mtimeresult = os.stat(os.path.join(data_directory, file))
             file_mtimeresult = [file, (present_time - file_mtimeresult.st_mtime)]
-            return file_mtimeresult
+            print(file_mtimeresult)
             if file_mtimeresult[1] < (840 * 3600):
-                print("This file would not be removed:")
-                return file_mtimeresult[0]
+                print("This file would not be removed:", file_mtimeresult[0])
+
     #print("File(s) is/(are) removed!")
 
 ## Run the function with relevant input
