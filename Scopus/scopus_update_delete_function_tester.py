@@ -12,11 +12,14 @@ If the file satisfies both conditions then it is deleted.
 
 import time
 import os
-from argparse import ArgumentParser
+#from argparse import ArgumentParser
+from sys import argv
+
+data_directory=argv[1]
 
 current_time=time.time()
 
-def delete_function():
+def delete_function(data_directory):
 
     """
     Assumptions:
@@ -26,21 +29,21 @@ def delete_function():
     Arguments: directory= /Scopus_update
 
     Input: directory
-    Output: remove a file
+    Output: remove file(s)
 
     """
 
-    parser = ArgumentParser
-
-    parser.add_argument('-d','--data_directory', required=True, help="""specified directory for zip-file""")
-
-    args = parser.parse_args()
+    # parser = ArgumentParser
+    #
+    # parser.add_argument('-d','--data_directory', required=True, help="""specified directory for zip-file""")
+    #
+    # args = parser.parse_args()
 
     present_time = time.time()
     print("Scanning directory...")
-    for file in os.listdir(args.data_directory):
+    for file in os.listdir(data_directory):
         if os.path.isfile(file) == True:
-            file_mtimeresult = os.stat(os.path.join(args.data_directory, file))
+            file_mtimeresult = os.stat(os.path.join(data_directory, file))
             file_mtimeresult = [file, (present_time - time_result.st_mtime)]
             if file_mtimeresult[1] < (840 * 3600):
                 print("This file would be removed:")
@@ -48,7 +51,7 @@ def delete_function():
     #print("File(s) is/(are) removed!")
 
 ## Run the function with relevant input
-data_directory= "/erniedev_data2/Scopus_updates"
-results= delete_function(data_directory)
+test= "/erniedev_data2/Scopus_updates"
+results= delete_function(test)
 print('The relevant files are removed!' , results)
 ## End of script
