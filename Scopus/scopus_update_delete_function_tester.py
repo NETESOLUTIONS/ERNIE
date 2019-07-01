@@ -13,9 +13,6 @@ If the file satisfies both conditions then it is deleted.
 import time
 import os
 #from argparse import ArgumentParser
-from sys import argv
-
-data_directory=argv[1]
 
 current_time=time.time()
 
