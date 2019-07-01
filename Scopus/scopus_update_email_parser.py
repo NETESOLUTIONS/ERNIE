@@ -17,8 +17,8 @@ https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-
 import time
 import re
 import zipfile
-import os
 import urllib
+import requests
 from argparse import ArgumentParser
 
 start_time=time.time()
@@ -63,11 +63,14 @@ def email_parser():
     print("Relevant urls are in the following links:", links )
     for link in links:
     ## Go through list of links, download url
-        #zip_file_name= re.findall('nete.*ANI.*zip', link)
-        #zip_file_name = link_name[0].split('/')[2]
+        req=requests.get(link)
+        print(req.ok)
+        zip_file=zipfile.ZipFile(BytesIO(req.content))
+        zip_file.extractall(args.directory)
+        #through list of links, come up with name, rename/store in testing_directory
+        zip_file_name= re.findall('nete.*ANI.*zip', link)
+        zip_file.filename = zip_file_name[0].split('/')[2]
         #print("The revelevant zip files (names) are:", zip_file_name)
-        urllib.retrieve(link,args.data_directory)
-        #scopus_update_zip_file = zipfile.ZipFile(url_download)
         print("The zip file should be in the directory!")
 
 ## Run the function with the relevant input, d is a name of data directory

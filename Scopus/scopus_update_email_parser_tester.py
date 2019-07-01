@@ -48,12 +48,14 @@ def email_parser(pmt_content, directory):
     return links
     for link in links:
     # Go through list of links, come up with name, rename/store in testing_directory
+        req=requests.get(link)
+        print(req.ok)
+        zip_file=zipfile.ZipFile(BytesIO(req.content))
+        zip_file.extractall(args.directory)
+        #through list of links, come up with name, rename/store in testing_directory
         zip_file_name= re.findall('nete.*ANI.*zip', link)
-        zip_file_name = link_name[0].split('/')[2]
-        print("The names of the zip_files are:", zip_file_name)
-        url_download= urllib.retrieve(link,final_destiantion)
-        zip_file.filename = zipfile.ZipFile(url_download)
-
+        zip_file.filename = zip_file_name[0].split('/')[2]
+        #print("The revelevant zip files (names) are:", zip_file_name)
         print("The zip file should be in the directory!")
 
 ## Run the function with the relevant input
