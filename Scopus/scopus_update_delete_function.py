@@ -38,15 +38,16 @@ def delete_function():
 
     present_time = time.time()
     print("Scanning directory...")
-    for file in os.listdir(directory):
+    for file in os.listdir(args.data_directory):
         if os.path.isfile(file) == True:
-            file_mtimeresult = os.stat(os.path.join(directory, file))
-            file_mtimeresult = [file, (present_time - file_mtimeresult.st_mtime)]
-                if file_mtimeresult[1] > (840 * 3600):
-                    removed_file=file_mtimeresult.os.remove()
-                    print("File" " " + str(removed_file) + " "  "is removed!")
-
+            file_mtimeresult = os.stat(os.path.join(desktop, file))
+            file_mtimeresult = [file, (present_time - time_result.st_mtime)]
+            if file_mtimeresult[1] < (840 * 3600):
+                print("The present files" + " " + str(file_mtimeresult[0]) + " " + "will be removed....")
+                os.remove(os.path.join(directory, file))
+                print("The present files " " " + str(file_mtimeresult[0]) + " "  "is removed!")
+                
 ## Run the function with relevant input
-delete_function(d)
+results= delete_function(d)
 print('The relevant files are removed! ')
 ## End of script
