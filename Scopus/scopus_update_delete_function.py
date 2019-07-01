@@ -32,20 +32,21 @@ def delete_function():
 
     parser = ArgumentParser
 
-    parser.add_argument('-d','--directory', required=True, help="""specified directory for zip-file""")
+    parser.add_argument('-d','--data_directory', required=True, help="""specified directory for zip-file""")
 
     args = parser.parse_args()
 
-    for file in os.walk(args.directory):
-        print("Scanning directory...")
-        return file
-        if (current_time - os.path.getmtime(file)) > (5 * 604800) :
-            return file
-            os.remove(file)
-            print("File is removed")
-
+    present_time = time.time()
+    print("Scanning directory...")
+    for file in os.listdir("/Users/djamillakhdar-hamina/Desktop/"):
+        if os.path.isfile(file) == True:
+            file_mtimeresult = os.stat(os.path.join("/Users/djamillakhdar-hamina/Desktop/", file))
+            time_mtimeresult = [file, (present_time - time_result.st_mtime)]
+            if file_mtimeresult[1] < (840 * 3600):
+                file_mtimeresult.os.remove()
+    print("File(s) is/(are) removed!")
 
 ## Run the function with relevant input
-results= delete_function(args.directory)
+results= delete_function(d)
 print('The relevant files are removed! ')
 ## End of script
