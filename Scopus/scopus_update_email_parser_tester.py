@@ -18,7 +18,6 @@ https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-
 import time
 import re
 import zipfile
-import os
 import urllib
 from sys import argv
 
@@ -52,9 +51,9 @@ def email_parser(pmt_content, directory):
         zip_file_name= re.findall('nete.*ANI.*zip', link)
         zip_file_name = link_name[0].split('/')[2]
         print("The names of the zip_files are:", zip_file_name)
-        final_destiantion=os.path.join(directory, zip_file_name)
         url_download= urllib.retrieve(link,final_destiantion)
-        #scopus_update_zip_file = zipfile.ZipFile(url_download)
+        zip_file.filename = zipfile.ZipFile(url_download)
+
         print("The zip file should be in the directory!")
 
 ## Run the function with the relevant input

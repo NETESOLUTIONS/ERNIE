@@ -45,7 +45,7 @@ def email_parser():
     parser.add_argument('-p', '--pmt_content', required=True,
                         help="""email message that will get parsed for url-link and zip-file""")
 
-    parser.add_argument('-d','--directory', required=True, help="""specified directory for zip-file""")
+    parser.add_argument('-d','--data_directory', required=True, help="""specified directory for zip-file""")
 
     args = parser.parse_args()
 
@@ -63,16 +63,15 @@ def email_parser():
     print("Relevant urls are in the following links:", links )
     for link in links:
     ## Go through list of links, download url
-        zip_file_name= re.findall('nete.*ANI.*zip', link)
-        zip_file_name = link_name[0].split('/')[2]
-        print("The revelevant zip files (names) are:", zip_file_name)
-        final_destiantion=os.path.join(args.directory, zip_file_name)
-        url_download= urllib.retrieve(link,final_destiantion)
+        #zip_file_name= re.findall('nete.*ANI.*zip', link)
+        #zip_file_name = link_name[0].split('/')[2]
+        #print("The revelevant zip files (names) are:", zip_file_name)
+        urllib.retrieve(link,args.data_directory)
         #scopus_update_zip_file = zipfile.ZipFile(url_download)
         print("The zip file should be in the directory!")
 
-## Run the function with the relevant input
-email_parser(pmt_content, args.directory)
+## Run the function with the relevant input, d is a name of data directory
+email_parser(pmt_content, d)
 print('The revelevant files are parsed!')
 print('Total duration:',time.time()-start_time)
 ## End of the script
