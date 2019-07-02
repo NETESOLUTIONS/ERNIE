@@ -46,24 +46,18 @@ def email_parser(pmt_content, data_directory):
     links= re.findall('https://\S*.3D',pmt_content)
     links=links[0:3]
     links.remove(links[1])
-    return links
     for link in links:
     # Go through list of links, get request, stream to testing_directory, rename
-        print("Getting url-requests...")
-        req=requests.get(link)
-        print("The request went through:", req.ok)
-        print("Now saving zip files to specified directory...")
+        req=requests.get(link, stream=True)
         zip_file=zipfile.ZipFile(BytesIO(req.content))
         zip_file.extractall(data_directory)
-        print("The zip files should be present in specified directory!")
         #through list of links, come up with name, rename/store in testing_directory
-        print("Renaming files...")
         zip_file_name= re.findall('nete.*ANI.*zip', link)
         zip_file.filename = zip_file_name[0].split('/')[2]
-        #print("The revelevant zip files (names) are:", zip_file_name)
-        print("The zip files should downloaded in the directory with the correct name!")
+        return print ("The relevant files are:", scopus_zip_file)
 
 ## Run the function with the relevant input
+print("Scanning email now for url...")
 testing_directory="/erniedev_data2/testing"
 result=email_parser(pmt_content, testing_directory)
 print("The revelevant zip files are parsed!", result)
