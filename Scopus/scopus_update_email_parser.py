@@ -44,7 +44,7 @@ def email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates"):
     ## Go through list of links, request https, download url with zip
     for link in links:
         req=requests.get(link,stream=True)
-        scopus_zip_file=zipfile.ZipFile(io.BytesIO(req.content))
+        scopus_zip_file=zipfile.ZipFile(BytesIO(req.content))
         scopus_zip_file.extractall(data_directory)
         #through list of links, come up with name, rename/store in testing_directory
         zip_file_name= re.findall('nete.*ANI.*zip', link)
