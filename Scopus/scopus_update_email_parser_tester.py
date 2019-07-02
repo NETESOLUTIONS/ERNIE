@@ -27,7 +27,7 @@ start_time=time.time()
 
 pmt_content=argv[1]
 
-def email_parser(pmt_content, directory):
+def email_parser(pmt_content, data_directory):
     """
     Assumptions:
 
@@ -54,7 +54,7 @@ def email_parser(pmt_content, directory):
         print("The request went through:", req.ok)
         print("Now saving zip files to specified directory...")
         zip_file=zipfile.ZipFile(BytesIO(req.content))
-        zip_file.extractall(args.directory)
+        zip_file.extractall(data_directory)
         print("The zip files should be present in specified directory!")
         #through list of links, come up with name, rename/store in testing_directory
         print("Renaming files...")
