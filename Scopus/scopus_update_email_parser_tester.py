@@ -19,6 +19,7 @@ import time
 import re
 import zipfile
 import urllib
+import shutil
 from sys import argv
 
 start_time=time.time()
@@ -48,13 +49,13 @@ def email_parser(pmt_content, data_directory):
     links.remove(links[1])
     for link in links:
     # Go through list of links, get request, stream to testing_directory, rename
-        req=requests.get(link, stream=True)
-        zip_file=zipfile.ZipFile(BytesIO(req.content))
-        zip_file.extractall(data_directory)
+        scopus_zip_file=urllib2.urlopen(link)
         #through list of links, come up with name, rename/store in testing_directory
         zip_file_name= re.findall('nete.*ANI.*zip', link)
         zip_file.filename = zip_file_name[0].split('/')[2]
-        return print ("The relevant files are:", scopus_zip_file)
+        # move with shutil
+        shutil.copy(scopus_zip_file, os.path.join(data_directory, scopus_zip_file))
+        return print ("The relevant files are in the directory:", scopus_zip_file)
 
 ## Run the function with the relevant input
 print("Scanning email now for url...")
