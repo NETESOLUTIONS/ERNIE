@@ -16,13 +16,15 @@ import requests
 import urllib
 import zipfile
 from io import BytesIO, StringIO
-from argparse import ArgumentParser
+from sys import argv
 
 start_time=time.time()
 
+pmt_content=argv[1]
+
 ##Build a function that 1) opens email 2) scans it for urls 3) stores urls and then opens file in them 4) then rename this downloaded file and store in specified directory.
 
-def email_parser(data_directory="/erniedev_data2/Scopus_updates"):
+def email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates"):
     """
     Assumptions:
 
@@ -35,16 +37,9 @@ def email_parser(data_directory="/erniedev_data2/Scopus_updates"):
     :return:
     """
 
-    parser = ArgumentParser
-
-    parser.add_argument('-p', '--pmt_content', required=True,
-                        help="""email message that will get parsed for url-link and zip-file""")
-
-    args = parser.parse_args()
-
     ## Scan emails for url and store the url(s) in a list
     print("Scanning email now for url...")
-    links= re.findall('https://\S*.3D', args.pmt_content)
+    links= re.findall('https://\S*.3D', pmt_content)
     links=links[0:3]
     return links
     links.remove(links[1])
