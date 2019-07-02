@@ -41,9 +41,8 @@ def email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates"):
     links= re.findall('https://\S*.3D', pmt_content)
     links=links[0:3]
     links.remove(links[1])
-    return links
-    for link in links:
     ## Go through list of links, request https, download url with zip
+    for link in links:
         req=requests.get(link)
         scopus_zip_file=zipfile.ZipFile(BytesIO(req.content))
         scopus_zip_file.extractall(data_directory)
@@ -51,7 +50,6 @@ def email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates"):
         zip_file_name= re.findall('nete.*ANI.*zip', link)
         scopus_zip_file.filename = zip_file_name[0].split('/')[2]
         return print ("The relevant files are:", scopus_zip_file)
-        #print("The revelevant zip files (names) are:", zip_file_name)
 
 ## Run the function with the relevant input, which is already default argument for email_parser
 print("Scanning email now for url...")
