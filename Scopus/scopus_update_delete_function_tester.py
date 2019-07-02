@@ -36,7 +36,7 @@ def delete_function(data_directory):
         file_mtimeresult = os.stat(os.path.join(data_directory, file))
         file_mtimeresult = [file, (present_time - file_mtimeresult.st_mtime)]
         print(file_mtimeresult)
-        if file_mtimeresult[1] < (840 * 3600):
+        if file_mtimeresult[1] > (840 * 3600):
             print("The present files" + " " + str(file_mtimeresult[0]) + " " + "will be removed....")
             #os.remove(os.path.join(directory, file))
             #print("The present files " " " + str(file_mtimeresult[0]) + " "  "is removed!")
