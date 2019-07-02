@@ -12,6 +12,7 @@ If the file satisfies both conditions then it is deleted.
 
 import time
 import os
+import re
 #from argparse import ArgumentParser
 
 current_time=time.time()
@@ -33,7 +34,7 @@ def delete_function(data_directory):
     present_time = time.time()
     print("Scanning directory...")
     for file in os.listdir(data_directory):
-        for re.findall(*.xml, file):
+        if file == re.match("*.xml", file):
             file_mtimeresult = os.stat(os.path.join(data_directory, file))
             file_mtimeresult = [file, (present_time - file_mtimeresult.st_mtime)]
             if file_mtimeresult[1] < (840 * 3600):
@@ -44,7 +45,7 @@ def delete_function(data_directory):
     present_time = time.time()
     print("Scanning directory...")
     for file in os.listdir(data_directory):
-        for re.findall(*.zip, file):
+        if file == re.match("*.zip", file):
             file_mtimeresult = os.stat(os.path.join(data_directory, file))
             file_mtimeresult = [file, (present_time - file_mtimeresult.st_mtime)]
             if file_mtimeresult[1] < (840 * 3600):
