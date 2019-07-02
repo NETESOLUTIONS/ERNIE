@@ -52,7 +52,7 @@ def email_parser(pmt_content, directory):
         print("Getting url-requests...")
         req=requests.get(link)
         print("The request went through:", req.ok)
-        print("Now saving zip files to specified directory.")
+        print("Now saving zip files to specified directory...")
         zip_file=zipfile.ZipFile(BytesIO(req.content))
         zip_file.extractall(args.directory)
         print("The zip files should be present in specified directory!")
