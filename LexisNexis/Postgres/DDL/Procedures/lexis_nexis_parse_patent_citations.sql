@@ -21,20 +21,20 @@ BEGIN
            xmltable.cited_country,
            xmltable.cited_kind,
            xmltable.cited_authors,
-           xmltable.cited_create_date,
-           xmltable.cited_published_date
-    FROM xmltable('//bibliographic-data/references-cited/citation/patcit/document-id/doc-number' PASSING input_xml
+           to_date(xmltable.cited_create_date,'YYYYMMDD'),
+           to_date(xmltable.cited_published_date,'YYYYMMDD')
+    FROM xmltable('//bibliographic-data/references-cited/citation/patcit/document-id/doc-number' PASSING (SELECT * FROM test_xml) --input_xml
                   COLUMNS
                       country_code TEXT PATH '../../../../../publication-reference/document-id/country',
                       doc_number TEXT PATH '../../../../../publication-reference/document-id/doc-number',
                       kind_code TEXT PATH '../../../../../publication-reference/document-id/kind',
-                      seq_num integer PATH '../../@num',
+                      seq_num INTEGER PATH '../../@num',
                       cited_doc_number TEXT PATH '.',
                       cited_country TEXT PATH '../country',
                       cited_kind TEXT PATH '../kind',
                       cited_authors TEXT PATH '../name',
-                      cited_create_date DATE PATH '../../application-date/date',
-                      cited_published_date DATE PATH '../date')
+                      cited_create_date TEXT PATH '../../application-date/date',
+                      cited_published_date TEXT PATH '../date')
     ON CONFLICT DO NOTHING;
 END;
 $$ LANGUAGE plpgsql;
