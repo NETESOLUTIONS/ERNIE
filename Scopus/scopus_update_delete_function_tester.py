@@ -1,5 +1,5 @@
 """
-Title: Scopus_Update Delete Function
+Title: Scopus_Update Delete Function Tester
 Author: Djamil Lakhdar-Hamina
 Date: 06/27/2019
 
@@ -12,7 +12,8 @@ If the file satisfies both conditions then it is deleted.
 
 import time
 import os
-from argparse import ArgumentParser
+import re
+#from argparse import ArgumentParser
 
 current_time=time.time()
 
@@ -26,22 +27,25 @@ def delete_function(data_directory):
     Arguments: directory= /Scopus_update
 
     Input: directory
-    Output: remove a file
+    Output: remove file(s)
 
     """
-
+## xml remover
     present_time = time.time()
     print("Scanning directory...")
     for file in os.listdir(data_directory):
-        file_mtimeresult = os.stat(os.path.join(data_desktop, file))
-        file_mtimeresult = [file, (present_time - file_mtimeresult.st_mtime)]
+            file_mtimeresult = os.stat(os.path.join(data_directory, file))
+            file_mtimeresult = [file, (present_time - file_mtimeresult.st_mtime)]
             if file_mtimeresult[1] > (840 * 3600):
                 print("The present file" + " " + str(file_mtimeresult[0]) + " " + "will be removed....")
-                os.remove(os.path.join(data_desktop, file))
-                print("The present file " " " + str(file_mtimeresult[0]) + " "  "is removed!")
+                #os.remove(os.path.join(directory, file))
+                #print("The present files " " " + str(file_mtimeresult[0]) + " "  "is removed!")
+
+
+    #print("File(s) is/(are) removed!")
 
 ## Run the function with relevant input
-target_data_directory="/erniedev_data2/Scopus_updates"
-results= delete_function(target_data_directory)
+testing_directory="/erniedev_data2/Scopus_updates/"
+delete_function(testing_directory)
 print('The relevant files are removed!')
 ## End of script
