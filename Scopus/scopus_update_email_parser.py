@@ -41,8 +41,8 @@ def email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates"):
     print("Scanning email now for url...")
     links= re.findall('https://\S*.3D', pmt_content)
     links=links[0:3]
-    return links
     links.remove(links[1])
+    return links
     print("Relevant urls are in the following links:", links )
     for link in links:
     ## Go through list of links, request https, download url with zip
