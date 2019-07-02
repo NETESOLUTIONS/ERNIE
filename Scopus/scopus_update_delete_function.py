@@ -33,15 +33,15 @@ def delete_function(data_directory):
     present_time = time.time()
     print("Scanning directory...")
     for file in os.listdir(data_directory):
-        file_mtimeresult = os.stat(os.path.join(desktop, file))
+        file_mtimeresult = os.stat(os.path.join(data_desktop, file))
         file_mtimeresult = [file, (present_time - file_mtimeresult.st_mtime)]
-            if file_mtimeresult[1] < (840 * 3600):
-                print("The present files" + " " + str(file_mtimeresult[0]) + " " + "will be removed....")
-                os.remove(os.path.join(directory, file))
-                print("The present files " " " + str(file_mtimeresult[0]) + " "  "is removed!")
+            if file_mtimeresult[1] > (840 * 3600):
+                print("The present file" + " " + str(file_mtimeresult[0]) + " " + "will be removed....")
+                os.remove(os.path.join(data_desktop, file))
+                print("The present file " " " + str(file_mtimeresult[0]) + " "  "is removed!")
 
 ## Run the function with relevant input
 target_data_directory="/erniedev_data2/Scopus_updates"
 results= delete_function(target_data_directory)
-print('The relevant files are removed! ')
+print('The relevant files are removed!')
 ## End of script
