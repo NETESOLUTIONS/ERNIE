@@ -38,30 +38,24 @@ def email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates"):
     """
 
     ## Scan emails for url and store the url(s) in a list
-    print("Scanning email now for url...")
     links= re.findall('https://\S*.3D', pmt_content)
     links=links[0:3]
     links.remove(links[1])
     return links
-    print("Relevant urls are in the following links:", links )
     for link in links:
     ## Go through list of links, request https, download url with zip
-        print("Getting url-requests...")
         req=requests.get(link)
-        print("The request went through?",req.ok)
-        print("Now saving zip files to specified directory...")
         scopus_zip_file=zipfile.ZipFile(BytesIO(req.content))
         scopus_zip_file.extractall(data_directory)
-        print("The zip files should be present in specified directory!")
         #through list of links, come up with name, rename/store in testing_directory
-        print("Renaming files...")
         zip_file_name= re.findall('nete.*ANI.*zip', link)
         scopus_zip_file.filename = zip_file_name[0].split('/')[2]
+        return print ("The relevant files are:", scopus_zip_file)
         #print("The revelevant zip files (names) are:", zip_file_name)
-        print("The zip files should downloaded in the directory with the correct name!")
 
 ## Run the function with the relevant input, which is already default argument for email_parser
-testing_directory="/erniedev_data2/Scopus_updates"
+print("Scanning email now for url...")
+testing_directory="/erniedev_data2/testing"
 result=email_parser(pmt_content, testing_directory)
 print('The revelevant files are parsed!', result )
 print('Total duration:',time.time()-start_time)
