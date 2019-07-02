@@ -62,7 +62,7 @@ def email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates"):
 
 ## Run the function with the relevant input, which is already default argument for email_parser
 testing_directory="/erniedev_data2/Scopus_updates"
-email_parser(pmt_content, testing_directory)
-print('The revelevant files are parsed!')
+result=email_parser(pmt_content, testing_directory)
+print('The revelevant files are parsed!', result )
 print('Total duration:',time.time()-start_time)
 ## End of the script
