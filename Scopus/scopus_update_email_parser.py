@@ -44,7 +44,7 @@ def email_parser(data_directory="/erniedev_data2/Scopus_updates"):
 
     ## Scan emails for url and store the url(s) in a list
     print("Scanning email now for url...")
-    links= re.findall('https://\S*.3D', pmt_content)
+    links= re.findall('https://\S*.3D', args.pmt_content)
     links=links[0:3]
     return links
     links.remove(links[1])
