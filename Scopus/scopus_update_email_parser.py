@@ -13,9 +13,8 @@ triggered by the reception of an email with a url-link.
 import time
 import re
 import requests
-import urllib
-import zipfile
-from io import BytesIO, StringIO
+import urllib.request
+import os
 from sys import argv
 
 start_time=time.time()
@@ -42,19 +41,15 @@ def email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates"):
     links=links[0:3]
     links.remove(links[1])
     ## Go through list of links, request https, download url with zip
-    for link in links:
-        req=requests.get(link,stream=True)
-        scopus_zip_file=zipfile.ZipFile(BytesIO(req.content))
-        scopus_zip_file.extractall(data_directory)
+    for url in links:
         #through list of links, come up with name, rename/store in testing_directory
-        zip_file_name= re.findall('nete.*ANI.*zip', link)
-        scopus_zip_file.filename = zip_file_name[0].split('/')[2]
-        return print ("The relevant files are:", scopus_zip_file)
+        scopus_zip_file_name= re.findall('nete.*ANI.*zip', url)
+        scopus_zip_file_name= scopus_zip_file_name[0].split('/')[2]
+        urllib.request.urlretrieve(url,os.path.join(data_directory,scopus_zip_file_name))
 
 ## Run the function with the relevant input, which is already default argument for email_parser
 print("Scanning email now for url...")
-testing_directory="/erniedev_data2/testing"
-result=email_parser(pmt_content, testing_directory)
+result=email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates")
 print('The revelevant files are parsed!', result )
 print('Total duration:',time.time()-start_time)
 ## End of the script
