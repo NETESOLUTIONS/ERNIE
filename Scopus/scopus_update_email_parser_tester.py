@@ -49,7 +49,8 @@ def email_parser(pmt_content, data_directory):
     links.remove(links[1])
     for link in links:
     # Go through list of links, get request, stream to testing_directory, rename
-        scopus_zip_file=urllib2.urlopen(link)
+        scopus_zip_file_request=urllib2.urlopen(link)
+        scopus_zip_file= zipfle.ZipFile(scopus_zip_file)
         #through list of links, come up with name, rename/store in testing_directory
         # zip_file_name= re.findall('nete.*ANI.*zip', link)
         # zip_file.filename = zip_file_name[0].split('/')[2]
