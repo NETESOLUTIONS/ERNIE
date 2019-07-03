@@ -10,7 +10,7 @@ SYNOPSIS
   provision.sh -h: display this help
 
 DESCRIPTION
-  A new Solr server is provisioned automatically via this script given input variables
+  A new Spark server is provisioned automatically via this script given input variables
 		and some accompanying parameter files in JSON format.
 
 NOTE

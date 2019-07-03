@@ -43,6 +43,6 @@ sudo /usr/bin/anaconda/bin/conda update -y --debug numpy
 sudo /usr/bin/anaconda/bin/conda update -y --debug pandas
 
 # Next run PySpark calculations
-$SPARK_HOME/bin/spark-submit --driver-memory 10g --executor-memory 20g --num-executors 18 \
+$SPARK_HOME/bin/spark-submit --driver-memory 15g --executor-memory 25G --num-executors 8 --executor-cores 4 \
   --driver-class-path $(pwd)/postgresql-42.2.6.jar --jars $(pwd)/postgresql-42.2.6.jar \
   ./uzzi_count_and_analyze.py -tt ${TARGET_DATASET} -ph ${POSTGRES_HOSTNAME} -pd ${POSTGRES_DATABASE} -U ${POSTGRES_USER} -W "${POSTGRES_PASSWORD}" -i ${NUM_PERMUTATIONS}
