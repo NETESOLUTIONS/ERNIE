@@ -48,9 +48,9 @@ def email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates"):
         scopus_zip_file=zipfile.ZipFile(BytesIO(req.content))
         scopus_zip_file.extractall(data_directory)
         #through list of links, come up with name, rename/store in testing_directory
-        zip_file_name= re.findall('nete.*ANI.*zip', link)
-        scopus_zip_file.filename = zip_file_name[0].split('/')[2]
-        return print ("The relevant files are:", scopus_zip_file)
+        # zip_file_name= re.findall('nete.*ANI.*zip', link)
+        # scopus_zip_file.filename = zip_file_name[0].split('/')[2]
+        # return print ("The relevant files are:", scopus_zip_file)
 
 ## Run the function with the relevant input, which is already default argument for email_parser
 print("Scanning email now for url...")
