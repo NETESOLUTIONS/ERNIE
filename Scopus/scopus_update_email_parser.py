@@ -37,13 +37,13 @@ def email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates"):
     """
 
     ## Scan emails for url and store the url(s) in a list
-    links= re.findall('https://\S*./.zip', pmt_content)
+    links= re.findall('https://\S*.3D', pmt_content)
     links=links[0:3]
     links.remove(links[1])
     ## Go through list of links, request https, download url with zip
     for url in links:
         #through list of links, come up with name, rename/store in testing_directory
-        scopus_zip_file_name= re.findall('nete.*ANI.*zip', links)
+        scopus_zip_file_name= re.findall('nete.*ANI.*zip', url)
         scopus_zip_file_name= scopus_zip_file_name[0].split('/')[2]
         urllib.request.urlretrieve(url,os.join.path(data_directory,scopus_zip_file_name))
 
