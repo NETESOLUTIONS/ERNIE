@@ -44,7 +44,7 @@ def email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates"):
     links.remove(links[1])
     ## Go through list of links, request https, download url with zip
     for link in links:
-        req=requests.get(link,stream=True)
+        req=requests.get(link)
         scopus_zip_file=zipfile.ZipFile(BytesIO(req.content))
         scopus_zip_file.extractall(data_directory)
         #through list of links, come up with name, rename/store in testing_directory
