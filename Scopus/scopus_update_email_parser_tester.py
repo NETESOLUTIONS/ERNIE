@@ -51,11 +51,10 @@ def email_parser(pmt_content, data_directory):
     # Go through list of links, get request, stream to testing_directory, rename
         scopus_zip_file=urllib2.urlopen(link)
         #through list of links, come up with name, rename/store in testing_directory
-        zip_file_name= re.findall('nete.*ANI.*zip', link)
-        zip_file.filename = zip_file_name[0].split('/')[2]
+        # zip_file_name= re.findall('nete.*ANI.*zip', link)
+        # zip_file.filename = zip_file_name[0].split('/')[2]
         # move with shutil
         shutil.copy(scopus_zip_file, os.path.join(data_directory, scopus_zip_file))
-        return print ("The relevant files are in the directory:", scopus_zip_file)
 
 ## Run the function with the relevant input
 print("Scanning email now for url...")

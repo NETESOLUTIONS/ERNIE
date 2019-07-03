@@ -15,6 +15,7 @@ import re
 import requests
 import urllib
 import zipfile
+import shutil
 from io import BytesIO, StringIO
 from sys import argv
 
@@ -38,7 +39,7 @@ def email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates"):
     """
 
     ## Scan emails for url and store the url(s) in a list
-    links= re.findall('https://\S*.3D', pmt_content)
+    links= re.findall('https://\S*./.zip', pmt_content)
     links=links[0:3]
     links.remove(links[1])
     ## Go through list of links, request https, download url with zip
