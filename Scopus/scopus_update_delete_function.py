@@ -3,10 +3,11 @@ Title: Scopus_Update Delete Function
 Author: Djamil Lakhdar-Hamina
 Date: 06/27/2019
 
-
 The point of this delete function is scan a directory. It scans the date when the file was uploaded and whether it was processed.
 If the file satisfies both conditions then it is deleted.
 
+This is part of the code for an automated process which will leverage Jenkins to set off a process when
+triggered by the reception of an email with a url-link.
 
 """
 
@@ -16,7 +17,7 @@ from argparse import ArgumentParser
 
 current_time=time.time()
 
-def delete_function(data_directory):
+def delete_function(data_directory="/erniedev_data2/Scopus_updates"):
 
     """
     Assumptions:
@@ -33,12 +34,12 @@ def delete_function(data_directory):
     present_time = time.time()
     print("Scanning directory...")
     for file in os.listdir(data_directory):
-        file_mtimeresult = os.stat(os.path.join(data_desktop, file))
+        file_mtimeresult = os.stat(os.path.join(data_directory, file))
         file_mtimeresult = [file, (present_time - file_mtimeresult.st_mtime)]
             if file_mtimeresult[1] > (840 * 3600):
                 print("The present file" + " " + str(file_mtimeresult[0]) + " " + "will be removed....")
-                os.remove(os.path.join(data_desktop, file))
-                print("The present file " " " + str(file_mtimeresult[0]) + " "  "is removed!")
+                os.remove(os.path.join(data_directory, file))
+                print("The present file " + " "  + str(file_mtimeresult[0]) + " " + "is removed!")
 
 ## Run the function with relevant input
 target_data_directory="/erniedev_data2/Scopus_updates"

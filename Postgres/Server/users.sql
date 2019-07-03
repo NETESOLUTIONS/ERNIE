@@ -29,13 +29,16 @@ ALTER DEFAULT PRIVILEGES --
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO PUBLIC;
 GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO PUBLIC;
 
--- Set password
-ALTER USER :account WITH PASSWORD :password_in_single_quotes;
+-- Rename
+ALTER USER :old_account RENAME TO :account;
 
 -- region End user creation
 CREATE USER :account WITH PASSWORD :password_in_single_quotes;
 CREATE SCHEMA :account AUTHORIZATION :account;
 -- endregion
+
+-- Set password
+ALTER USER :account WITH PASSWORD :password_in_single_quotes;
 
 -- region User decommissioning
 --@formatter:off
