@@ -18,7 +18,7 @@ RETURNS date AS $$
 DECLARE date_result date default null;
 BEGIN
     BEGIN
-    date_result := make_date(year_arg,coalesce(nullif(month_arg, 0), 1) coalesce(nullif(day_arg, 0), 1));
+    date_result := make_date(year_arg,coalesce(nullif(month_arg, 0), 1), coalesce(nullif(day_arg, 0), 1));
     EXCEPTION WHEN OTHERS THEN
     RETURN NULL;
     END;
