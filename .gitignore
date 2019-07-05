@@ -124,5 +124,3 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
-SCOPUS/Postgres/DDL/scopus_ddl.sql
-Scopus/Postgres/DDL/scopus_enums.sql
