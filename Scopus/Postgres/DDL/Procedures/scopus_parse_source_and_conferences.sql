@@ -104,7 +104,7 @@ BEGIN
                   pub_type,
                   process_stage,
                   state,
-                  make_date(sort_year, CASE WHEN sort_month NOT BETWEEN 1 AND 12 THEN 01 ELSE sort_month END,
+                  make_date(CASE WHEN sort_year='0000' THEN IS NULL , CASE WHEN sort_month NOT BETWEEN 1 AND 12 THEN 01 ELSE sort_month END,
                             CASE WHEN sort_day NOT BETWEEN 1 AND 31 THEN 01 ELSE sort_day END) AS date_sort,
                   db_id as ernie_source_id
            FROM xmltable(--
