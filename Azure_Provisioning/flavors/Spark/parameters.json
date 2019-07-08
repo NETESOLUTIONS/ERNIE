@@ -15,7 +15,7 @@
             "value": "eastus2"
         },
         "clusterVersion": {
-            "value": "3.6"
+            "value": "4.0"
         },
         "clusterHeadNodeCount": {
             "value": null
