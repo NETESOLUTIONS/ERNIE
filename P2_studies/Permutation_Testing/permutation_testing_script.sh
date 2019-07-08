@@ -4,11 +4,11 @@ dir_name=$(dirname $1)
 
 echo "dirname is $dir_name"
 
-folder_name=$(echo $dir_name | cut -d '/' -f 4-10)
+folder_name=$(echo $dir_name | cut -d '/' -f 3-10)
 
 echo "folder name is $folder_name"
 
-working_directory="/erniedev_data10/P2_studies/background_file/working_directory/"$folder_name
+working_directory="/erniedev_data2/extended_uzzi/mcmc_calculations/"$folder_name
 
 echo "working directory is $working_directory"
 
@@ -31,7 +31,7 @@ echo "Filename $file_name"
 
 #observed_frequency.py file calculates the frequency for all journal pairs in input dataset
 
-python3.7 observed_frequency.py $1 $working_directory/${file_name}_observed_frequency.csv
+/anaconda3/bin/python observed_frequency.py $1 $working_directory/${file_name}_observed_frequency.csv
 
 if [ "$?" != 0 ]; then
 	exit 1
@@ -46,7 +46,7 @@ for i in $(ls $dir_name/$2/*_permuted_*.csv)
 do
 	filename=$(basename $i)
 	number=$(echo $filename | tr -dc '0-9')
-	python3.7 background_frequency.py $filename $number $dir_name/$2/ $working_directory/$2/
+	/anaconda3/bin/python background_frequency.py $filename $number $dir_name/$2/ $working_directory/$2/
 	if [ "$?" != 0 ]; then
 		exit 1
 	fi
@@ -55,13 +55,13 @@ do
 done
 
 #Mean, standard deviaiton and z_scores are calculated
-python3.7 journal_count.py $working_directory/$2/ $total $working_directory/${file_name}_observed_frequency.csv
+/anaconda3/bin/python journal_count.py $working_directory/$2/ $total $working_directory/${file_name}_observed_frequency.csv
 if [ "$?" != 0 ]; then
 	exit 1
 fi
 
 #Generates file which contains all the journal_pairs, wos_id's, z_scores and observed frequency
-python3.7 Table_generator.py $1 $working_directory/$2/zscores_file.csv $dir_name/${file_name}_permute.csv
+/anaconda3/bin/python Table_generator.py $1 $working_directory/$2/zscores_file.csv $dir_name/${file_name}_permute.csv
 
 if [ "$?" != 0 ]; then
 	exit 1
