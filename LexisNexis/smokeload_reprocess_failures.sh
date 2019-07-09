@@ -7,7 +7,7 @@ NAME
 
 SYNOPSIS
 
-    lexis_nexis_smokeload_reprocess_failures.sh [-e] [-v] [-v] [-s subset_SP] [-f failed_files_dir] [working_dir]
+    lexis_nexis_smokeload_reprocess_failures.sh [-e] [-v] [-v] [-s subset_SP] [working_dir]
     lexis_nexis_smokeload_reprocess_failures.sh -h: display this help
 
     This script is largely based on the process_directory.sh script from ERNIE Scopus
@@ -53,23 +53,12 @@ readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx ERROR_LOG=reprocessed_error.log
 declare -rx PARALLEL_LOG=parallel.log
-PROCESSED_LOG="reprocessed.log"
 
 while (( $# > 0 )); do
   echo "Using CLI arg '$1'"
   case "$1" in
     -e)
       readonly STOP_ON_THE_FIRST_ERROR=true
-      ;;
-    -f)
-      shift
-      echo "Using CLI arg '$1'"
-      readonly FAILED_FILES_DIR="$1"
-      ;;
-    -p)
-      shift
-      echo "Using CLI arg '$1'"
-      readonly PROCESSED_LOG="$1"
       ;;
     -s)
       shift
@@ -112,12 +101,6 @@ reparse_xml() {
     psql -c "DELETE FROM failed_files_lexis_nexis WHERE xml_filename = $(basename ${xml})"
     return 0
   else
-    local full_xml_path=$(realpath ${xml})
-    local full_error_log_path=$(realpath ${ERROR_LOG})
-    cd ${tmp}
-    [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
-    mv -f $full_xml_path "${failed_files_dir}/"
-    cp $full_error_log_path "${failed_files_dir}/"
     [[ ${VERBOSE} == "true" ]] && echo "$xml: FAILED DURING PARSING."
     return 1
   fi
@@ -164,8 +147,6 @@ for dir in "${sorted_args[@]}" ; do
   failed_xml_counter=0
   ((processed_xml_counter_total += processed_xml_counter)) || :
   processed_xml_counter=0
-  # Add if condition to only add zip to processed log when zero errors occured
-  echo "${dir}" >> "${PROCESSED_LOG}"
 
   if [[ -f "${STOP_FILE}" ]]; then
     echo -e "\nFound the stop signal file. Gracefully stopping..."
