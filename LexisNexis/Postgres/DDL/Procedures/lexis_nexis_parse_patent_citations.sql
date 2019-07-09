@@ -23,7 +23,7 @@ BEGIN
            xmltable.cited_authors,
            to_date(xmltable.cited_create_date,'YYYYMMDD'),
            to_date(xmltable.cited_published_date,'YYYYMMDD')
-    FROM xmltable('//bibliographic-data/references-cited/citation/patcit/document-id/doc-number' PASSING (SELECT * FROM test_xml) --input_xml
+    FROM xmltable('//bibliographic-data/references-cited/citation/patcit/document-id/doc-number' PASSING input_xml
                   COLUMNS
                       country_code TEXT PATH '../../../../../publication-reference/document-id/country',
                       doc_number TEXT PATH '../../../../../publication-reference/document-id/doc-number',
