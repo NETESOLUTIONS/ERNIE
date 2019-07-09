@@ -98,7 +98,7 @@ reparse_xml() {
   [[ ${VERBOSE} == "true" ]] && echo "Processing $xml ..."
   if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/Postgres/parser.sql -v "xml_file=$PWD/$xml" ${subset_option} ${file_identification} 2>>"${ERROR_LOG}"; then
     [[ ${VERBOSE} == "true" ]] && echo "$xml: SUCCESSFULLY PARSED."
-    psql -c "DELETE FROM failed_files_lexis_nexis WHERE xml_filename = $(basename ${xml})"
+    psql -c "DELETE FROM failed_files_lexis_nexis WHERE xml_filename = '$(basename ${xml})'"
     return 0
   else
     [[ ${VERBOSE} == "true" ]] && echo "$xml: FAILED DURING PARSING."

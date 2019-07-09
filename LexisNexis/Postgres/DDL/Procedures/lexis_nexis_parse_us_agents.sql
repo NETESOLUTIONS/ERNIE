@@ -28,10 +28,10 @@ $$
                 kind_code TEXT PATH '../../../publication-reference/document-id/kind' NOT NULL,
                 sequence SMALLINT PATH '@sequence',
                 agent_type TEXT PATH '@rep-type',
-                language TEXT PATH 'addressbook/@lang',
-                agent_name TEXT PATH 'addressbook/name',
-                last_name TEXT PATH 'addressbook/last-name',
-                first_name TEXT PATH 'addressbook/first-name'
+                language TEXT PATH 'addressbook[1]/@lang',
+                agent_name TEXT PATH 'addressbook[1]/name',
+                last_name TEXT PATH 'addressbook[1]/last-name',
+                first_name TEXT PATH 'addressbook[1]/first-name'
                 )
     ON CONFLICT DO NOTHING;
 
