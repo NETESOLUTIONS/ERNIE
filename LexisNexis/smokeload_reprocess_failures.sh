@@ -157,11 +157,9 @@ done
 
 echo -e "\nSMOKELOAD SUMMARY:"
 echo "SUCCESSFULLY PARSED ${processed_xml_counter_total} XML FILES"
-if ((failed_xml_counter_total == 0)); then
-  echo "ALL IS WELL"
-else
+if ((failed_xml_counter_total != 0)); then
   echo "FAILED PARSING ${failed_xml_counter_total} XML FILES"
+  exit 1
 fi
-
-
+echo "ALL IS WELL"
 exit 0
