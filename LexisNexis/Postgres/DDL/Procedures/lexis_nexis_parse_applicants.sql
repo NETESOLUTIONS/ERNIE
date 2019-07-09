@@ -29,22 +29,23 @@ BEGIN
         xmltable.organization_address,
         xmltable.registered_number,
         xmltable.issuing_office
-        FROM xmltable('//bibliographic-data/parties/applicants/applicant[not(@data-format)]' PASSING input_xml COLUMNS
+        FROM xmltable('//bibliographic-data/parties/applicants/applicant[not(@data-format)]' PASSING input_xml
+        COLUMNS
         country_code TEXT PATH '../../../publication-reference/document-id/country',
         doc_number TEXT PATH '../../../publication-reference/document-id/doc-number',
         kind_code TEXT PATH '../../../publication-reference/document-id/kind',
-        language TEXT PATH 'addressbook/@lang',
+        language TEXT PATH 'addressbook[1]/@lang',
         sequence SMALLINT PATH '@sequence',
         designation TEXT PATH '@designation',
-        organization_name TEXT PATH 'addressbook/orgname',
-        organization_type TEXT PATH 'addressbook/orgname-standardized/@type',
-        organization_key INT PATH 'addressbook/orgname-normalized/@key',
-        organization_country TEXT PATH 'addressbook/address/country',
-        organization_state TEXT PATH 'addressbook/address/state',
-        organization_city TEXT PATH 'addressbook/address/city',
-        organization_address TEXT PATH 'addressbook/address/addresss-1',
-        registered_number TEXT PATH 'addressbook/registered-number',
-        issuing_office TEXT PATH 'addressbook/issuing-office'
+        organization_name TEXT PATH 'addressbook[1]/orgname',
+        organization_type TEXT PATH 'addressbook[1]/orgname-standardized/@type',
+        organization_key INT PATH 'addressbook[1]/orgname-normalized/@key',
+        organization_country TEXT PATH 'addressbook[1]/address/country',
+        organization_state TEXT PATH 'addressbook[1]/address/state',
+        organization_city TEXT PATH 'addressbook[1]/address/city',
+        organization_address TEXT PATH 'addressbook[1]/address/addresss-1',
+        registered_number TEXT PATH 'addressbook[1]/registered-number',
+        issuing_office TEXT PATH 'addressbook[1]/issuing-office'
         )
     ON CONFLICT DO NOTHING;
 END;
