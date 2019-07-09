@@ -14,6 +14,18 @@ CREATE TABLE scopus_publication_groups (
 )
 TABLESPACE scopus_tbs;
 
+COMMENT ON TABLE scopus_publication_groups IS --
+  'Scopus group records. If a record from a third party is loaded and it has also been loaded for an Elsevier record,
+then the two records will be delivered separately. Each record will have
+it''s own unique "SCP" id, but the two records will have the same "SGR" id (indicating that both records are in fact
+identical).';
+
+COMMENT ON COLUMN scopus_publication_groups.sgr IS --
+  'Scopus group id. Same as Scopus id, but a little less unique: if a record from a third party is loaded and it has
+also been loaded for an Elsevier record, then the two records will be delivered separately. Each record will have
+it''s own unique "SCP" id, but the two records will have the same "SGR" id (indicating that both records are in fact
+identical).';
+
 CREATE INDEX IF NOT EXISTS spg_pub_year_i ON scopus_publication_groups(pub_year) TABLESPACE index_tbs;
 -- 2m:35s
 -- endregion
@@ -151,9 +163,11 @@ CREATE TABLE scopus_publications (
   correspondence_city TEXT,
   correspondence_country TEXT,
   correspondence_e_address TEXT,
+  -- TODO TEXT type should be refactored to an ENUM
   pub_type TEXT,
+  -- TODO TEXT type should be refactored to scopus_citation_type ENUM
   citation_type TEXT,
-  citation_language TEXT, 
+  citation_language TEXT,
   process_stage TEXT,
   state TEXT,
   date_sort DATE,
@@ -166,9 +180,41 @@ ALTER TABLE scopus_publications
     REFERENCES scopus_sources(ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 CREATE INDEX IF NOT EXISTS sp_sgr_i ON scopus_publications(sgr) TABLESPACE index_tbs;
--- 4m:24s
 
 CREATE INDEX IF NOT EXISTS sp_ernie_source_id_i ON scopus_publications(ernie_source_id) TABLESPACE index_tbs;
+-- 4m:24s
+
+COMMENT ON TABLE scopus_publications IS 'Scopus bibliographic record';
+
+COMMENT ON COLUMN scopus_publications.scp IS 'SCP = Scopus id, that uniquely identifies any core or dummy item.';
+
+COMMENT ON COLUMN scopus_publications.sgr IS --
+  'Scopus group id. Same as Scopus id, but a little less unique: if a record from a third party is loaded and it has
+also been loaded for an Elsevier record, then the two records will be delivered separately. Each record will have
+it''s own unique "SCP" id, but the two records will have the same "SGR" id (indicating that both records are in fact
+identical).';
+
+COMMENT ON COLUMN scopus_publications.correspondence_person_indexed_name IS 'Corresponding author''s full name.';
+
+COMMENT ON COLUMN scopus_publications.correspondence_orgs IS --
+  'Corresponding author''s affiliated organizations, line (\n)-separated.';
+
+COMMENT ON COLUMN scopus_publications.correspondence_city IS 'Corresponding author''s affiliation city.';
+
+COMMENT ON COLUMN scopus_publications.correspondence_country IS 'Corresponding author''s affiliation country.';
+
+COMMENT ON COLUMN scopus_publications.correspondence_e_address IS 'Corresponding author''s e-mail.';
+
+COMMENT ON COLUMN scopus_publications.pub_type IS --
+  '"core" to indicate that the item is a full bibliographic record, or "dummy" to indicate that the item is a
+"dummy item" generated from an unlinked reference.';
+
+COMMENT ON COLUMN scopus_publications.citation_type IS --
+  'The item type of the original document. Most items have exactly one citation-type. But the element is optional
+(because the citation type is unknown for dummy items), and in the future this element will also be repeating (as
+support for material from third party bibliographic databases). Item types of third party bibliographic databases
+are mapped to these citation-types. The original citation-types are also delivered, in the descriptor element.';
+
 -- endregion
 
 -- region scopus_authors
@@ -503,21 +549,29 @@ CREATE TABLE scopus_references (
 ) PARTITION BY RANGE (scp)
 TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_1 PARTITION OF scopus_references FOR VALUES FROM (0) TO (12500000000) TABLESPACE scopus_tbs;
+CREATE TABLE scopus_references_partition_1 PARTITION OF scopus_references FOR VALUES FROM (0) TO (12500000000)
+TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_2 PARTITION OF scopus_references FOR VALUES FROM (12500000001) TO (25000000000) TABLESPACE scopus_tbs;
+CREATE TABLE scopus_references_partition_2 PARTITION OF scopus_references FOR VALUES FROM (12500000001) TO (25000000000)
+TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_3 PARTITION OF scopus_references FOR VALUES FROM (25000000001) TO (37500000000) TABLESPACE scopus_tbs;
+CREATE TABLE scopus_references_partition_3 PARTITION OF scopus_references FOR VALUES FROM (25000000001) TO (37500000000)
+TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_4 PARTITION OF scopus_references FOR VALUES FROM (37500000001) TO (50000000000) TABLESPACE scopus_tbs;
+CREATE TABLE scopus_references_partition_4 PARTITION OF scopus_references FOR VALUES FROM (37500000001) TO (50000000000)
+TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_5 PARTITION OF scopus_references FOR VALUES FROM (50000000001) TO (62500000000) TABLESPACE scopus_tbs;
+CREATE TABLE scopus_references_partition_5 PARTITION OF scopus_references FOR VALUES FROM (50000000001) TO (62500000000)
+TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_6 PARTITION OF scopus_references FOR VALUES FROM (62500000001) TO (75000000000) TABLESPACE scopus_tbs;
+CREATE TABLE scopus_references_partition_6 PARTITION OF scopus_references FOR VALUES FROM (62500000001) TO (75000000000)
+TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_7 PARTITION OF scopus_references FOR VALUES FROM (75000000001) TO (87500000000) TABLESPACE scopus_tbs;
+CREATE TABLE scopus_references_partition_7 PARTITION OF scopus_references FOR VALUES FROM (75000000001) TO (87500000000)
+TABLESPACE scopus_tbs;
 
-CREATE TABLE scopus_references_partition_8 PARTITION OF scopus_references FOR VALUES FROM (87500000001) TO (100000000000) TABLESPACE scopus_tbs;
+CREATE TABLE scopus_references_partition_8 PARTITION OF scopus_references FOR VALUES FROM (87500000001) TO (100000000000)
+TABLESPACE scopus_tbs;
 
 CREATE INDEX IF NOT EXISTS sr_ref_sgr_i ON scopus_references(ref_sgr) TABLESPACE index_tbs;
 

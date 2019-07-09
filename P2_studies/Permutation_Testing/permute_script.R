@@ -1,6 +1,8 @@
 # wrapper script that enables passing command line args to the function perm
 # George Chacko 1/5/2018
 
+# For Scopus data I added an extra step to coerce integers to character so that R doesn't get confused. 7/4/2019
+
 # This script takes three parameters: 
 # (i) input_file: self explanatory but should be in .csv format and be a copy of a datasetxxxx table 
 # from the public schema in ERNIE
@@ -21,7 +23,7 @@ perm <- function(df,output_name_string,n_permute){
 
 library(data.table); library(dplyr)
 # import source file 
-sorted <- fread(df)
+sorted <- fread(df,colClasses=rep('character',8))
 os <- output_name_string
 
 # construct table for backjoining later
