@@ -14,7 +14,7 @@ $$
     FOR cur IN (
       SELECT sgr,
              pub_year,
---              make_date(pub_year, pub_month, pub_day) AS pub_date,
+--              try_parse(pub_year, pub_month, pub_day) AS pub_date,
              scp,
              correspondence_person_indexed_name,
              correspondence_city,

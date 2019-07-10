@@ -18,7 +18,7 @@ AS $$
       first_page,
       last_page,
       publication_year,
-      make_date(pub_year, pub_month, pub_day) AS publication_date,
+      try_parse(pub_year, pub_month, pub_day) AS publication_date,
       coalesce(conf_code,'') AS conf_code,
       coalesce(conf_name,'') AS conf_name
     FROM
@@ -69,7 +69,7 @@ AS $$
     -- scopus_subject_keywords
     INSERT INTO scopus_subject_keywords (scp, subject)
 
-    SELECT 
+    SELECT
       scp,
       subject
     FROM xmltable(--
@@ -78,7 +78,7 @@ AS $$
       subject TEXT PATH '.'
       )
     ON CONFLICT DO NOTHING;
-    
+
     -- scopus_classes
     INSERT INTO scopus_classes(scp,class_type,class_code)
     SELECT scp,
