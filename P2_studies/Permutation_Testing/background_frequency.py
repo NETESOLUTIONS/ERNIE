@@ -16,10 +16,10 @@ import re
 # Arguments passed are filename,instance number,source location,destination location
 filename = sys.argv[1]
 # number = sys.argv[2]
-source_location = sys.argv[2]
-destination_location = sys.argv[3]
+#source_location = sys.argv[2]
+destination_location = sys.argv[2]
 
-number=re.findall(r'\d+',filename)[1]
+number=re.findall(r'\d+',filename)[3]
 print(filename)
 print(source_location)
 print(destination_location)
@@ -63,7 +63,7 @@ def generate_obs_freq(df, slice_num):
 fields = ['source_id', 's_reference_issn']
 
 # Reading input file
-data_set = pd.read_csv(source_location + filename, usecols=fields)
+data_set = pd.read_csv(filename, usecols=fields)
 
 # Sorting the input file by source_id and reference_issn
 # print('sorting by source_id')
