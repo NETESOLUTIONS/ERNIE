@@ -43,7 +43,7 @@ echo "number of background files is $total"
 
 #Using parallel command for background files frequency
 ls $dir_name/$2/*_permuted_*.csv | parallel --halt soon,fail=1 --line-buffer --jobs 2 "set -e
-/anaconda3/bin/python background_frequency.py {} $dir_name/$2/ $working_directory/$2/"
+/anaconda3/bin/python background_frequency.py {} $working_directory/$2/"
 
 
 #For each simulation background file generateed by the permute method journal pairs frequency is calculated 
