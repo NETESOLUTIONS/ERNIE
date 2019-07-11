@@ -22,6 +22,8 @@ destination_location = sys.argv[3]
 number=re.findall(r'\d+',filename)[1]
 print(filename)
 print(source_location)
+print(destination_location)
+print(number)
 
 print('Working on file', filename)
 
