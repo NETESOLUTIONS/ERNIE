@@ -40,7 +40,11 @@ $$
                 agent_city TEXT PATH 'addressbook[1]/address/city',
                 agent_country TEXT PATH 'addressbook[1]/address/country'
                 )
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT (country_code, doc_number, kind_code, sequence)
+    DO UPDATE SET agent_type=excluded.agent_type,language=excluded.language,
+    agent_name=excluded.agent_name,agent_registration_num=excluded.agent_registration_num,
+    issuing_office=excluded.issuing_office,agent_address=excluded.agent_address,
+    agent_city=excluded.agent_city,agent_country=excluded.agent_country,last_updated_time=now();
 
   END;
 $$

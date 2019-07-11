@@ -26,7 +26,8 @@ $$
                 citation_text TEXT PATH 'text',
                 scopus_url TEXT PATH 'scopus-url'
                 )
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT (country_code, doc_number, kind_code, citation_number)
+    DO UPDATE SET citation_text=excluded.citation_text,scopus_url=excluded.scopus_url,last_updated_time=now();
   END;
 $$
 LANGUAGE plpgsql;

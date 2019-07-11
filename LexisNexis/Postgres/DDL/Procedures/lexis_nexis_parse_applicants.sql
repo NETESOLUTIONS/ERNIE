@@ -47,6 +47,11 @@ BEGIN
         registered_number TEXT PATH 'addressbook[1]/registered-number',
         issuing_office TEXT PATH 'addressbook[1]/issuing-office'
         )
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT (country_code, doc_number, kind_code, sequence)
+    DO UPDATE SET language=excluded.language,designation=excluded.designation,organization_name=excluded.organization_name,
+    organization_type=excluded.organization_type,organization_country=excluded.organization_country,
+    organization_state=excluded.organization_state,organization_city=excluded.organization_city,
+    organization_address=excluded.organization_address,registered_number=excluded.registered_number,
+    issuing_office=excluded.issuing_office,last_updated_time=now();
 END;
 $$ LANGUAGE plpgsql;
