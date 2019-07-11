@@ -41,18 +41,23 @@ total=$(ls $dir_name/$2/*_permuted_* | wc -l)
 
 echo "number of background files is $total"
 
+#Using parallel command for background files frequency
+ls $dir_name/$2/*_permuted_*.csv | parallel --halt soon,fail=1 --line-buffer --jobs 2 "set -e
+/anaconda3/bin/python background_frequency.py {} $working_directory/$2/"
+
+
 #For each simulation background file generateed by the permute method journal pairs frequency is calculated 
-for i in $(ls $dir_name/$2/*_permuted_*.csv)
-do
-	filename=$(basename $i)
-	number=$(echo $filename | tr -dc '0-9')
-	/anaconda3/bin/python background_frequency.py $filename $number $dir_name/$2/ $working_directory/$2/
-	if [ "$?" != 0 ]; then
-		exit 1
-	fi
-	#echo "Done file number $number"
-	echo " "
-done
+#for i in $(ls $dir_name/$2/*_permuted_*.csv)
+#do
+#	filename=$(basename $i)
+#	number=$(echo $filename | tr -dc '0-9')
+#	/anaconda3/bin/python background_frequency.py $filename $number $dir_name/$2/ $working_directory/$2/
+#	if [ "$?" != 0 ]; then
+#		exit 1
+#	fi
+#	#echo "Done file number $number"
+#	echo " "
+#done
 
 #Mean, standard deviaiton and z_scores are calculated
 /anaconda3/bin/python journal_count.py $working_directory/$2/ $total $working_directory/${file_name}_observed_frequency.csv

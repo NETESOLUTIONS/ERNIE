@@ -13,7 +13,7 @@ BEGIN
     coden_code, publisher_name, publisher_e_address, pub_date)
   SELECT DISTINCT coalesce(source_id, '') AS source_id, coalesce(issn, '') AS issn_main,
     coalesce(isbn, '') AS isbn_main, source_type, source_title, coden_code, publisher_name, publisher_e_address,
-    make_date(pub_year, pub_month, pub_day) AS pub_date
+    try_parse(pub_year, pub_month, pub_day) AS pub_date
   FROM
     xmltable(--
         XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
@@ -130,8 +130,8 @@ BEGIN
         conf_address,
         conf_city,
         conf_postal_code,
-        make_date(s_year, s_month, s_day) AS conf_start_date,
-        make_date(e_year, e_month, e_day) AS conf_end_date,
+        try_parse(s_year, s_month, s_day) AS conf_start_date,
+        try_parse(e_year, e_month, e_day) AS conf_end_date,
         conf_number,
         conf_catalog_number
     FROM
