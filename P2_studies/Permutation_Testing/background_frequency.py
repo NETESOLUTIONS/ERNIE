@@ -16,8 +16,8 @@ import re
 # Arguments passed are filename,instance number,source location,destination location
 filename = sys.argv[1]
 # number = sys.argv[2]
-source_location = sys.argv[3]
-destination_location = sys.argv[4]
+source_location = sys.argv[2]
+destination_location = sys.argv[3]
 
 number=re.findall(r'\d+',filename)[1]
 
