@@ -206,7 +206,15 @@ $$ LANGUAGE plpgsql;
 --end of script
 
 -- Run functions
-select test_that_all_scopus_tables_exist();
+-- Start transaction and plan the tests.
+BEGIN;
+SELECT plan(4);
+-- Run the tests.
+SELECT pass( 'My test passed, w00t!' );
+-- Finish the tests and clean up.
+SELECT * FROM finish();
+ROLLBACK;
+
 -- select test_that_all_scopus_tables_have_pk()
 -- test_that_all_scopus_tables_are_populated()
 -- test_that_there_is_no_100_percent_NULL_column_in_WoS_tables()
