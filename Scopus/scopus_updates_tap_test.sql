@@ -31,6 +31,7 @@ RETURN NEXT has_table('scopus_publication_groups', 'scopus_publication_groups ex
 RETURN NEXT has_table('scopus_publication_identifiers', 'scopus_publication_identifiers exists');
 RETURN NEXT has_table('scopus_publications', 'scopus_publications exists');
 RETURN NEXT has_table('scopus_references', 'scopus_references exists');
+scopus_source_publication_details
 RETURN NEXT has_table('scopus_sources', 'scopus_sources exists');
 RETURN NEXT has_table('scopus_subject_keywords', 'scopus_subject_keywords exists');
 RETURN NEXT has_table('scopus_subjects', 'scopus_subjects exists');
@@ -63,6 +64,7 @@ $$ language plpgsql;
  RETURN NEXT has_pk('scopus_publication_identifiers', 'scopus_publication_identifiers exists');
  RETURN NEXT has_pk('scopus_publications', 'scopus_publications exists');
  RETURN NEXT has_pk('scopus_references', 'scopus_references exists');
+ scopus_source_publication_details
  RETURN NEXT has_pk('scopus_sources', 'scopus_sources exists');
  RETURN NEXT has_pk('scopus_subject_keywords', 'scopus_subject_keywords exists');
  RETURN NEXT has_pk('scopus_subjects', 'scopus_subjects exists');
@@ -99,7 +101,6 @@ BEGIN
       nrow20 integer;
       nrow21 integer;
       nrow22 integer;
-      nrow23 integer;
   BEGIN
       SELECT COUNT(1) into nrow1 FROM scopus_abstracts;
       SELECT COUNT(1) into nrow2 FROM scopus_affiliations;
@@ -120,41 +121,41 @@ BEGIN
       SELECT COUNT(1) into nrow17 FROM scopus_publication_identifiers;
       SELECT COUNT(1) into nrow18 FROM scopus_publications;
       SELECT COUNT(1) into nrow19 FROM scopus_references;
-      SELECT COUNT(1) into nrow20 FROM scopus_sources;
-      SELECT COUNT(1) into nrow21 FROM scopus_subject_keywords;
-      SELECT COUNT(1) into nrow21 FROM scopus_subject_keywords;
-      SELECT COUNT(1) into nrow22 FROM scopus_subjects;
-      SELECT COUNT(1) into nrow23 FROM scopus_titles;
+      SELECT COUNT(1) into nrow20 FROM scopus_source_publication_details;
+      SELECT COUNT(1) into nrow21 FROM scopus_sources;
+      SELECT COUNT(1) into nrow22 FROM scopus_subject_keywords;
+      SELECT COUNT(1) into nrow23 FROM scopus_subjects;
+      SELECT COUNT(1) into nrow24 FROM scopus_titles;
 
-/*
-      return next ok(nrow1 > 1000000, 'scopus_abstracts is populated');
-      return next ok(nrow2 > 1000000, 'scopus_affiliations is populated');
-      return next ok(nrow3 > 1000000, 'scopus_authors is populated');
-      return next ok(nrow4 > 1000000, 'scopus_author_affiliations is populated');
-      return next ok(nrow5 > 1000000, 'scopus_chemical_groups is populated');
-      return next ok(nrow6 > 1000000, 'scopus_classification_lookup is populated');
-      return next ok(nrow7 > 0, 'scopus_conf_editors is populated');
-      return next ok(nrow8 > 1000000, 'scopus_conference_events is populated');
-      return next ok(nrow9 > 1000000, 'wos_pub_author_addresses is populated');
-      return next ok(nrow10 > 1000000, 'wos_pub_authors is populated');
-      return next ok(nrow11 > 1000000, 'wos_publication_subjects is populated');
-      return next ok(nrow12 > 1000000, 'wos_publications is populated');
-      return next ok(nrow13 > 1000000, 'wos_references_invalid is populated');
-      return next ok(nrow14 > 1000000, 'wos_references_valid is populated');
-      return next ok(nrow15 > 1000000, 'wos_titles is populated');
-      return next ok(nrow16 > 1000, 'wos_grant_acknowledgements is populated');
-      return next ok(nrow17 > 1000, 'wos_journals is populated');
-      return next ok(nrow18 > 1000, 'wos_references_possible is populated');
-      return next ok(nrow19 > 1000, 'wos_references_possible_publications is populated');
-      return next ok(nrow19 > 1000, 'wos_references_possible_publications is populated');
-      return next ok(nrow19 > 1000, 'wos_references_possible_publications is populated');
-      return next ok(nrow19 > 1000, 'wos_references_possible_publications is populated');
-      return next ok(nrow19 > 1000, 'wos_references_possible_publications is populated');
+      return next ok(nrow1 > 10000, 'scopus_abstracts is populated');
+      return next ok(nrow2 > 10000, 'scopus_affiliations is populated');
+      return next ok(nrow3 > 10000, 'scopus_authors is populated');
+      return next ok(nrow4 > 10000, 'scopus_author_affiliations is populated');
+      return next ok(nrow5 > 10000, 'scopus_chemical_groups is populated');
+      return next ok(nrow6 > 10000, 'scopus_classes is populated');
+      return next ok(nrow7 > 10000, 'scopus_classification_lookup is populated');
+      return next ok(nrow8 > 10000, 'scopus_conf_editors is populated');
+      return next ok(nrow9 > 10000, 'scopus_conf_proceedings is populated');
+      return next ok(nrow10 > 10000, 'scopus_conference_events is populated');
+      return next ok(nrow11 > 10000, 'scopus_grant_acknowledgments is populated');
+      return next ok(nrow12 > 10000, 'scopus_grants is populated');
+      return next ok(nrow13 > 10000, 'scopus_isbns is populated');
+      return next ok(nrow14 > 10000, 'scopus_issns is populated');
+      return next ok(nrow15 > 10000, 'scopus_keywords is populated');
+      return next ok(nrow16 > 10000, 'scopus_publication_groups is populated');
+      return next ok(nrow17 > 10000, 'scopus_publication_identifiers is populated');
+      return next ok(nrow18 > 10000, 'scopus_publications is populated');
+      return next ok(nrow19 > 10000, 'scopus_references is populated');
+      return next ok(nrow20 > 10000, 'scopus_publication_references is populated');
+      return next ok(nrow21 > 10000, 'scopus_sources is populated');
+      return next ok(nrow22 > 10000, 'scopus_subject_keywords is populated');
+      return next ok(nrow23 > 10000, 'scopus_subjects is populated');
+      return next ok(nrow24 > 10000, 'scopus_titles is populated');
   END;
 END;
 $$ LANGUAGE plpgsql;
 
-*/
+
 
  -- 4 # Assertion : are any tables completely null for every field  (Y/N?)
 
@@ -175,3 +176,28 @@ $$ LANGUAGE plpgsql;
        where schemaname = 'public' and tablename like 'scopus%' and null_frac = '1', 'No 100% null column');
  END;
  $$ LANGUAGE plpgsql;
+
+/*
+--5 # Assertion : did the number of entries in
+ CREATE OR REPLACE FUNCTION test_that_publication_number_increase_after_weekly_WoS_update()
+RETURNS SETOF TEXT
+AS $$
+DECLARE
+  new_num integer;
+  old_num integer;
+BEGIN
+  SELECT num_wos into new_num FROM update_log_wos
+  WHERE num_wos IS NOT NULL
+  ORDER BY id DESC LIMIT 1;
+
+  SELECT num_wos into old_num FROM update_log_wos
+  WHERE num_wos IS NOT NULL AND id != (SELECT id FROM update_log_wos WHERE num_wos IS NOT NULL ORDER BY id DESC LIMIT 1)
+  ORDER BY id DESC LIMIT 1;
+
+  return next ok(new_num > old_num, 'WoS number has been increased from latest update');
+
+END;
+$$ LANGUAGE plpgsql;
+
+*/
+--end of script 
