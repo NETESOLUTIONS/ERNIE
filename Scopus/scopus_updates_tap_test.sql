@@ -103,6 +103,9 @@ BEGIN
       nrow20 integer;
       nrow21 integer;
       nrow22 integer;
+      nrow23 integer;
+      nrow24 integer;
+
   BEGIN
       SELECT COUNT(1) into nrow1 FROM scopus_abstracts;
       SELECT COUNT(1) into nrow2 FROM scopus_affiliations;
@@ -173,9 +176,7 @@ $$ LANGUAGE plpgsql;
      EXECUTE format('ANALYZE verbose %I;',tab.table_name);
    END LOOP;
 
-   RETURN NEXT is_empty(
-     select distinct tablename, attname from pg_stats
-       where schemaname = 'public' and tablename like 'scopus%' and null_frac = '1', 'No 100% null column');
+   RETURN NEXT is_empty( 'select distinct tablename, attname from pg_stats where schemaname = 'public' and tablename like 'scopus%' and null_frac = '1'', 'No 100% null column');
  END;
  $$ LANGUAGE plpgsql;
 
