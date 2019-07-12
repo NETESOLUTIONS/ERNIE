@@ -209,9 +209,10 @@ $$ LANGUAGE plpgsql;
 -- Start transaction and plan the tests.
 BEGIN;
 SELECT plan(72);
+select test_that_all_scopus_tables_exist();
 select test_that_all_scopus_tables_have_pk();
 select test_that_all_scopus_tables_are_populated();
-select test_that_there_is_no_100_percent_NULL_column_in_WoS_tables();
+-- select test_that_there_is_no_100_percent_NULL_column_in_WoS_tables();
 SELECT pass( 'My test passed, w00t!' );
 select * from finish();
 ROLLBACK;
