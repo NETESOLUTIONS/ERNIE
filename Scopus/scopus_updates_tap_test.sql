@@ -176,7 +176,7 @@ $$ LANGUAGE plpgsql;
      EXECUTE format('ANALYZE verbose %I;',tab.table_name);
    END LOOP;
 
-   RETURN NEXT is_empty( 'select distinct tablename, attname from pg_stats where schemaname = 'public' and tablename like 'scopus%' and null_frac = '1'', 'No 100% null column');
+   RETURN NEXT is_empty( 'select distinct tablename, attname from pg_stats where schemaname = ''public'' and tablename like ''scopus%'' and null_frac = 1', 'No 100% null column');
  END;
  $$ LANGUAGE plpgsql;
 
