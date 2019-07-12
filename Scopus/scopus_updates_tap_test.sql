@@ -11,6 +11,7 @@
  CREATE OR REPLACE FUNCTION test_that_all_scopus_tables_exist()
  RETURNS SETOF TEXT
  AS $$
+ BEGIN
 RETURN NEXT has_table('scopus_abstracts' ,'scopus_abstracts exists');
 RETURN NEXT has_table('scopus_affiliations' ,'scopus_affiliations exists');
 RETURN NEXT has_table('scopus_authors' ,'scopus_authors exists');
@@ -44,6 +45,7 @@ $$ language plpgsql;
  CREATE OR REPLACE FUNCTION test_that_all_scopus_tables_have_pk()
  RETURNS SETOF TEXT
  AS $$
+ BEGIN
  RETURN NEXT has_pk('scopus_abstracts' ,'scopus_abstracts exists');
  RETURN NEXT has_pk('scopus_affiliations' ,'scopus_affiliations exists');
  RETURN NEXT has_pk('scopus_authors' ,'scopus_authors exists');
