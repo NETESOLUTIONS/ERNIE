@@ -1,5 +1,5 @@
 # simple script to calculate article scores per Williams (2015)
-# The file name needs to be replaced of course and should 
+# The file name needs to be replaced of course and the file should 
 # have the four columns of an edgelist. source, stype, target, ttype
 
 rm(list = ls())
