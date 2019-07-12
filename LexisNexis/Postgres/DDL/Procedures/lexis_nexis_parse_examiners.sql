@@ -34,7 +34,11 @@ $$
                 assistant_first_name TEXT PATH 'assistant-examiner/first-name',
                 assistant_department TEXT PATH 'assistant-examiner/department'
                 )
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT (country_code, doc_number, kind_code)
+    DO UPDATE SET primary_last_name=excluded.primary_last_name,primary_first_name=excluded.primary_first_name,
+    primary_department=excluded.primary_department,assistant_last_name=excluded.assistant_last_name,
+    assistant_first_name=excluded.assistant_first_name,assistant_department=excluded.assistant_department,
+    last_updated_time=now();
 
   END;
 $$

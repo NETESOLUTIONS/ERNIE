@@ -33,8 +33,9 @@ $$
                 last_name TEXT PATH 'addressbook[1]/last-name',
                 first_name TEXT PATH 'addressbook[1]/first-name'
                 )
-    ON CONFLICT DO NOTHING;
-
+    ON CONFLICT (country_code, doc_number, kind_code, sequence)
+    DO UPDATE SET agent_type=excluded.agent_type,language=excluded.language,agent_name=excluded.agent_name,
+    last_name=excluded.last_name,first_name=excluded.first_name,last_updated_time=now();
   END;
 $$
 LANGUAGE plpgsql;
