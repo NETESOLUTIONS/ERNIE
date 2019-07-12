@@ -25,5 +25,5 @@ a <- fread('kavli_mdressel_auth_list.csv',colClasses=rep('character',2))
 # merge with z3
 b <- merge(z3,a,by.x='scp',by.y='pub')
 # article scores
-c <- b[,.(art_score=sum(article_score)),by='auid'][order(-art_score)]
+c <- b[,.(auth_score=sum(article_score)),by='auid'][order(-auth_score)]
 
