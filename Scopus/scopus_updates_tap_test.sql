@@ -19,7 +19,6 @@ RETURN NEXT has_table('scopus_author_affiliations' ,'scopus_author_affiliations 
 RETURN NEXT has_table('scopus_chemical_groups' ,'scopus_chemical_groups exists');
 RETURN NEXT has_table('scopus_classes' ,'scopus_classes exists');
 RETURN NEXT has_table('scopus_classification_lookup', 'scopus_classification_lookup exists');
-RETURN NEXT has_table('scopus_classification_lookup', 'scopus_classification_lookup exists');
 RETURN NEXT has_table('scopus_conf_editors', 'scopus_conf_editors exists');
 RETURN NEXT has_table('scopus_conf_proceedings', 'scopus_conf_proceedings exists');
 RETURN NEXT has_table('scopus_conference_events', 'scopus_conference_events exists');
@@ -52,7 +51,6 @@ $$ language plpgsql;
  RETURN NEXT has_pk('scopus_author_affiliations' ,'scopus_author_affiliations pk exists');
  RETURN NEXT has_pk('scopus_chemical_groups' ,'scopus_chemical_groups pk exists');
  RETURN NEXT has_pk('scopus_classes' ,'scopus_classes pk exists');
- RETURN NEXT has_pk('scopus_classification_lookup', 'scopus_classification_lookup pk exists');
  RETURN NEXT has_pk('scopus_classification_lookup', 'scopus_classification_lookup pk exists');
  RETURN NEXT has_pk('scopus_conf_editors', 'scopus_conf_editors pk exists');
  RETURN NEXT has_pk('scopus_conf_proceedings', 'scopus_conf_proceedings pk exists');
@@ -208,7 +206,7 @@ $$ LANGUAGE plpgsql;
 -- Run functions
 -- Start transaction and plan the tests.
 BEGIN;
-SELECT plan(75);
+SELECT plan(72);
 select test_that_all_scopus_tables_exist();
 select test_that_all_scopus_tables_have_pk();
 select test_that_all_scopus_tables_are_populated();
