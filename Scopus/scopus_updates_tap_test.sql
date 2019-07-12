@@ -31,7 +31,7 @@ RETURN NEXT has_table('scopus_publication_groups', 'scopus_publication_groups ex
 RETURN NEXT has_table('scopus_publication_identifiers', 'scopus_publication_identifiers exists');
 RETURN NEXT has_table('scopus_publications', 'scopus_publications exists');
 RETURN NEXT has_table('scopus_references', 'scopus_references exists');
-scopus_source_publication_details
+RETURN NEXT has_table('scopus_publication_details', 'scopus_publication_details exists');
 RETURN NEXT has_table('scopus_sources', 'scopus_sources exists');
 RETURN NEXT has_table('scopus_subject_keywords', 'scopus_subject_keywords exists');
 RETURN NEXT has_table('scopus_subjects', 'scopus_subjects exists');
@@ -64,7 +64,7 @@ $$ language plpgsql;
  RETURN NEXT has_pk('scopus_publication_identifiers', 'scopus_publication_identifiers exists');
  RETURN NEXT has_pk('scopus_publications', 'scopus_publications exists');
  RETURN NEXT has_pk('scopus_references', 'scopus_references exists');
- scopus_source_publication_details
+ RETURN NEXT has_pk('scopus_publication_details', 'scopus_publication_details exists');
  RETURN NEXT has_pk('scopus_sources', 'scopus_sources exists');
  RETURN NEXT has_pk('scopus_subject_keywords', 'scopus_subject_keywords exists');
  RETURN NEXT has_pk('scopus_subjects', 'scopus_subjects exists');
@@ -121,7 +121,7 @@ BEGIN
       SELECT COUNT(1) into nrow17 FROM scopus_publication_identifiers;
       SELECT COUNT(1) into nrow18 FROM scopus_publications;
       SELECT COUNT(1) into nrow19 FROM scopus_references;
-      SELECT COUNT(1) into nrow20 FROM scopus_source_publication_details;
+      SELECT COUNT(1) into nrow20 FROM scopus_publication_details;
       SELECT COUNT(1) into nrow21 FROM scopus_sources;
       SELECT COUNT(1) into nrow22 FROM scopus_subject_keywords;
       SELECT COUNT(1) into nrow23 FROM scopus_subjects;
@@ -146,7 +146,7 @@ BEGIN
       return next ok(nrow17 > 10000, 'scopus_publication_identifiers is populated');
       return next ok(nrow18 > 10000, 'scopus_publications is populated');
       return next ok(nrow19 > 10000, 'scopus_references is populated');
-      return next ok(nrow20 > 10000, 'scopus_publication_references is populated');
+      return next ok(nrow20 > 10000, 'scopus_publication_details is populated');
       return next ok(nrow21 > 10000, 'scopus_sources is populated');
       return next ok(nrow22 > 10000, 'scopus_subject_keywords is populated');
       return next ok(nrow23 > 10000, 'scopus_subjects is populated');
@@ -200,4 +200,4 @@ END;
 $$ LANGUAGE plpgsql;
 
 */
---end of script 
+--end of script
