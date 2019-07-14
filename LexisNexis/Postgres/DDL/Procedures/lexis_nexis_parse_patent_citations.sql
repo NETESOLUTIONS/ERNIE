@@ -13,7 +13,7 @@ $$
 BEGIN
     INSERT INTO lexis_nexis_patent_citations(country_code,doc_number,kind_code,seq_num, cited_doc_number, cited_country, cited_kind,
                                              cited_authors, cited_create_date, cited_published_date)
-    SELECT xmltable.country_code,
+    SELECT DISTINCT xmltable.country_code,
            xmltable.doc_number,
            xmltable.kind_code,
            xmltable.seq_num,
@@ -35,8 +35,8 @@ BEGIN
                       cited_authors TEXT PATH '../name',
                       cited_create_date TEXT PATH '../../application-date/date',
                       cited_published_date TEXT PATH '../date')
-    ON CONFLICT (country_code, doc_number, kind_code, cited_doc_number)
-    DO UPDATE SET cited_country=excluded.cited_country, seq_num=excluded.seq_num, cited_kind=excluded.cited_kind,
+    ON CONFLICT (country_code, doc_number, kind_code, seq_num)
+    DO UPDATE SET cited_country=excluded.cited_country, cited_doc_number=excluded.cited_doc_number, cited_kind=excluded.cited_kind,
     cited_authors=excluded.cited_authors, cited_create_date=excluded.cited_create_date, cited_published_date=excluded.cited_published_date,
     last_updated_time=now();
 END;

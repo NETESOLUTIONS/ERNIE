@@ -27,7 +27,7 @@ BEGIN
         appl_ref_country TEXT PATH '../country',
         appl_ref_date date PATH '../date'
         )
-    ON CONFLICT (country_code, doc_number, kind_code, appl_ref_doc_number)
+    ON CONFLICT (country_code, doc_number, kind_code,appl_ref_country,appl_ref_doc_number)
     DO UPDATE SET appl_ref_type=excluded.appl_ref_type,appl_ref_country=excluded.appl_ref_country,
     appl_ref_date=excluded.appl_ref_date,last_updated_time=now();
 
