@@ -21,13 +21,12 @@ BEGIN
     EXECUTE format('ANALYZE verbose %I;',tab.relname);
   END LOOP;
   RETURN NEXT is_empty( 'select distinct relname from pg_stat_all_tables
-   where schemaname = ''public'' and tablename in (scopus_abstracts,scopus_authors,scopus_grants, scopus_grant_acknowledgments,
-     scopus_keywords,scopus_publications,scopus_publication_groups,scopus_references,scopus_sources,scopus_subjects,scopus_titles) and null_frac = 1', 'No 100% null column');
+   where schemaname = ''public'' and relname like ''scopus%'' and null_frac = 1', 'No 100% null column');
 END;
 $$ LANGUAGE plpgsql;
 
 
-select schemaname, relname, n_live_tup, n_dread_tup, n_tup_upd
+select schemaname, relname, n_live_tup, n_dead_tup, n_tup_upd, n_tup_del
 from pg_stat_all_tables
 where schemaname='public'
 and relname in ('scopus_abstracts','scopus_authors','scopus_grants',
