@@ -179,7 +179,9 @@ CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scop
  AS $$
  BEGIN
    RETURN NEXT is_empty( 'select tablename, attname from pg_stats
-    where schemaname = ''public'' and tablename = ''scopus_abstracts'' and null_frac = 1', 'No 100% null column');
+    where schemaname = ''public'' and tablename in ('scopus_abstracts','scopus_authors','scopus_grants',
+                                              'scopus_grant_acknowledgments','scopus_keywords','scopus_publications',
+                                              'scopus_publication_groups','scopus_references','scopus_sources','scopus_subjects','scopus_titles') and null_frac = 1', 'No 100% null column');
  END;
  $$ LANGUAGE plpgsql;
 
@@ -215,7 +217,7 @@ SELECT plan(50);
 select test_that_all_scopus_tables_exist();
 select test_that_all_scopus_tables_have_pk();
 -- select test_that_all_scopus_tables_are_populated();
-select test_that_there_is_no_100_percent_NULL_column_in_WoS_tables();
+select test_that_there_is_no_100_percent_NULL_column_in_scopus_tables();
 SELECT pass( 'My test passed!');
 select * from finish();
 ROLLBACK;
