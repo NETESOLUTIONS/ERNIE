@@ -3,12 +3,12 @@ if [[ "$1" == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
 
-    lexis_nexis_smokeload.sh -- process a directory of Lexis Nexis XML data
+    smokeload_deltas.sh -- process a directory of Lexis Nexis XML delta data
 
 SYNOPSIS
 
-    lexis_nexis_smokeload.sh [-c] [-e] [-v] [-v] [-s subset_SP] [-t tmp_dir] [-f failed_files_dir] [working_dir]
-    lexis_nexis_smokeload.sh -h: display this help
+    smokeload_deltas.sh [-e] [-v] [-v] [-s subset_SP] [-t tmp_dir] [-f failed_files_dir] [working_dir]
+    smokeload_deltas.sh -h: display this help
 
     This script is largely based on the process_directory.sh script from ERNIE Scopus
 
@@ -20,8 +20,6 @@ DESCRIPTION
     Produce output with reduced verbosity to reduce the log volume.
 
     The following options are available:
-
-    -c    clean load: truncate data. WARNING: be aware that you'll lose all loaded data!
 
     -e    stop on the first error. Parsing and other SQL errors don't fail the build unless `-e` is specified.
 
@@ -48,15 +46,11 @@ EXAMPLES
 
     To run in verbose mode and stop on the first error:
 
-      $ ./lexis_nexis_smokeload.sh -e -v /erniedev_data4/IPDD/LNU5554/??/Xml/*/*.zip
-
-    To run in verbose mode and only parse US 1970 data:
-
-      $ ./lexis_nexis_smokeload.sh -e -v /erniedev_data4/IPDD/LNU5554/US/Xml/197*/*.zip
+      $ ./smokeload_deltas.sh -e -v /erniedev_data4/IPDD/IPDD_deltas/*.zip -w /erniedev_data4/LN_smokeload_deltas
 
     To run a parser subset and stop on the first error:
 
-      ll ../failed$ ./lexis_nexis_smokeload.sh -s LexisNexis_parse_history -e  /pardidata3/LexisNexis/LexisNexis-API-2.0_xml_10_2018.tar.gz
+      ll ../failed$ ./smokeload_deltas.sh -s LexisNexis_parse_history -e /erniedev_data4/IPDD/IPDD_deltas/*.zip
 
 HEREDOC
   exit 1
@@ -77,9 +71,6 @@ FAILED_FILES_DIR="failed"
 while (( $# > 0 )); do
   echo "Using CLI arg '$1'"
   case "$1" in
-    -c)
-      readonly CLEAN_MODE=true
-      ;;
     -e)
       readonly STOP_ON_THE_FIRST_ERROR=true
       ;;
@@ -182,14 +173,6 @@ HEREDOC
   fi
 }
 
-if [[ ${CLEAN_MODE} == "true" ]]; then
-  echo "IN CLEAN MODE. TRUNCATING ALL DATA AND REFRESHING WORKSPACE..."
-  psql -f ${ABSOLUTE_SCRIPT_DIR}/Postgres/clean_data.sql
-  rm -rf "${FAILED_FILES_DIR}"
-  rm -rf ${tmp}
-  mkdir "${FAILED_FILES_DIR}"
-fi
-
 declare -i num_zips=${#sorted_args[@]}
 declare -i failed_xml_counter=0 failed_xml_counter_total=0 processed_xml_counter=0 processed_xml_counter_total=0
 declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
@@ -271,7 +254,7 @@ for zip in "${sorted_args[@]}" ; do
   fi
 done
 
-echo -e "\nSMOKELOAD SUMMARY:"
+echo -e "\nSMOKELOAD DELTAS SUMMARY:"
 echo "SUCCESSFULLY PARSED ${processed_xml_counter_total} XML FILES"
 if ((failed_xml_counter_total == 0)); then
   echo "ALL IS WELL"

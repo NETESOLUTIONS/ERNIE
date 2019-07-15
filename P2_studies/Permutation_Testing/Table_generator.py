@@ -66,7 +66,7 @@ def generate_table(data_set,number):
     df_c=pd.DataFrame([z for x in pairs for z in x],columns=['A','B'])
     df_c['source_id']=pd.Series(source_values)
     df_=pd.DataFrame([z for x in ref_pairs for z in x],columns=['C','D'])
-    df_c['wos_id_pairs']=df_['C']+','+df_['D']
+    df_c['wos_id_pairs']=df_['C'].astype(str)+','+df_['D'].astype(str)
     del(df_)
     df_c['journal_pairs']=df_c['A']+','+df_c['B']
 
@@ -99,6 +99,7 @@ data_set=pd.read_csv(filename,usecols=fields)
 #Sorting the input file by source_id and reference_issn
 data_set.sort_values(by=['source_id','reference_issn','cited_source_uid'],inplace=True)
 data_set.reset_index(inplace=True,drop=True)
+data_set['reference_issn']=data_set['reference_issn'].astype(str)
 
 end_point=3000000
 start_point=0
