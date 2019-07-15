@@ -233,9 +233,10 @@ and relname in ('scopus_abstracts','scopus_authors','scopus_grants',
                                           'scopus_grant_acknowledgments','scopus_keywords','scopus_publications',
                                           'scopus_publication_groups','scopus_references','scopus_sources','scopus_subjects','scopus_titles')
 ORDER BY n_live_tup DESC;
+
 SELECT n_updates, n_deletions
-CASE WHEN n_updates, n_deletions > 0 THEN \echo 'There was an increase!'
-ELSE n_deletions > n_updates THEN \echo 'There was a decrease!'
+CASE WHEN n_updates > n_deletions THEN \echo 'There was an increase!'
+WHEN n_updates < n_deletions THEN \echo 'There was a decrease!'
 ELSE \echo 'Nothing happened'
 END
 FROM test_table_record_number_increased_after_update;
