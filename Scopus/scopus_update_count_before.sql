@@ -38,6 +38,6 @@ ORDER BY n_live_tup DESC;
 BEGIN;
 SELECT plan(11);
 select test_that_there_is_no_100_percent_NULL_column_in_scopus_tables();
-select pass('my test passed! Let us compare the speed.')
+select pass('my test passed! Let us compare the speed.');
 select * from finish();
 ROLLBACK;
