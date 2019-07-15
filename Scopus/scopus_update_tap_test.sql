@@ -5,7 +5,17 @@
  Purpose: Develop a TAP protocol to test if the scopus_update parser is behaving as intended.
  TAP protocol specifies that you determine a set of assertions with binary-semantics. The assertion is evaluated either true or false.
  The evaluation should allow the client or user to understand what the problem is and to serve as a guide for diagnostics.
+
+ The tests are:
+ 1. do all tables exist
+ 2. do all tables have a pk
+ 3.
  */
+
+ \timing
+
+ RAISE NOTICE 'Update process complete!';
+ RAISE NOTICE 'Synthetic testing will begin....';
 
  -- 1 # Assertion : all scopus tables exist (T/F?)
  CREATE OR REPLACE FUNCTION test_that_all_scopus_tables_exist()
@@ -38,7 +48,6 @@ RETURN NEXT has_table('scopus_subjects', 'scopus_subjects exists');
 RETURN NEXT has_table('scopus_titles', 'scopus_titles exists');
 END;
 $$ language plpgsql;
-
 
  -- 2 # Assertion : all scopus tables have a pk (T/F?)
  CREATE OR REPLACE FUNCTION test_that_all_scopus_tables_have_pk()
@@ -158,8 +167,12 @@ $$ language plpgsql;
 -- END;
 -- $$ LANGUAGE plpgsql;
 
+ -- 3 # Assertion :
 
-
+ CREATE OR REPLACE FUNCTION test_that_columns_exist_for_scopus_tables()
+ RETURNS SETOF TEXT
+ AS $$
+RETURN NEXT columns_are('public','scopus%','Tables exist')
  -- 4 # Assertion : are any tables completely null for every field  (Y/N?)
 
  -- Test if there is any 100% null columns
@@ -168,18 +181,20 @@ $$ language plpgsql;
  AS $$
  DECLARE tab record;
  BEGIN
-   FOR tab IN
-   (SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name in ('scopus_abstracts','scopus_authors','scopus_grants', 'scopus_grant_acknowledgments','scopus_keywords','scopus_publications','scopus_publication_groups','scopus_references','scopus_sources','scopus_subjects','scopus_titles')
-  )
-   LOOP
-     EXECUTE format('ANALYZE verbose %I;',tab.table_name);
-   END LOOP;
    RETURN NEXT is_empty( 'select distinct tablename, attname from pg_stats
     where schemaname = ''public'' and tablename like ''scopus%'' and null_frac = 1', 'No 100% null column');
  END;
  $$ LANGUAGE plpgsql;
 
---LIKE ('scopus%')
+-- 5 # Pseudo-Assertion: is there an increase in records ?
+
+select schemaname, relname, n_live_tup, n_dead_tup, n_tup_upd, n_tup_del
+from pg_stat_all_tables
+where schemaname='public'
+and relname in ('scopus_abstracts','scopus_authors','scopus_grants',
+                                          'scopus_grant_acknowledgments','scopus_keywords','scopus_publications',
+                                          'scopus_publication_groups','scopus_references','scopus_sources','scopus_subjects','scopus_titles')
+ORDER BY n_live_tup DESC;
 
 /*
 --5 # Assertion : did the number of entries in
@@ -212,6 +227,7 @@ BEGIN;
 SELECT plan(50);
 select test_that_all_scopus_tables_exist();
 select test_that_all_scopus_tables_have_pk();
+test_that_columns_exist_for_scopus_tables();
 -- select test_that_all_scopus_tables_are_populated();
 select test_that_there_is_no_100_percent_NULL_column_in_WoS_tables();
 SELECT pass( 'My test passed!');
