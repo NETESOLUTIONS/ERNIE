@@ -14,8 +14,8 @@
 
  \timing
 
- RAISE NOTICE 'Update process complete!';
- RAISE NOTICE 'Synthetic testing will begin....';
+\echo 'Update process complete!';
+\echo 'Synthetic testing will begin....';
 
  -- 1 # Assertion : all scopus tables exist (T/F?)
  CREATE OR REPLACE FUNCTION test_that_all_scopus_tables_exist()
@@ -167,13 +167,7 @@ $$ language plpgsql;
 -- END;
 -- $$ LANGUAGE plpgsql;
 
- -- 3 # Assertion :
-
- CREATE OR REPLACE FUNCTION test_that_columns_exist_for_scopus_tables()
- RETURNS SETOF TEXT
- AS $$
-RETURN NEXT columns_are('public','scopus%','Tables exist')
- -- 4 # Assertion : are any tables completely null for every field  (Y/N?)
+ -- 3 # Assertion : are any tables completely null for every field  (Y/N?)
 
  -- Test if there is any 100% null columns
  CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scopus_tables()
@@ -185,16 +179,6 @@ RETURN NEXT columns_are('public','scopus%','Tables exist')
     where schemaname = ''public'' and tablename like ''scopus%'' and null_frac = 1', 'No 100% null column');
  END;
  $$ LANGUAGE plpgsql;
-
--- 5 # Pseudo-Assertion: is there an increase in records ?
-
-select schemaname, relname, n_live_tup, n_dead_tup, n_tup_upd, n_tup_del
-from pg_stat_all_tables
-where schemaname='public'
-and relname in ('scopus_abstracts','scopus_authors','scopus_grants',
-                                          'scopus_grant_acknowledgments','scopus_keywords','scopus_publications',
-                                          'scopus_publication_groups','scopus_references','scopus_sources','scopus_subjects','scopus_titles')
-ORDER BY n_live_tup DESC;
 
 /*
 --5 # Assertion : did the number of entries in
@@ -233,4 +217,32 @@ select test_that_there_is_no_100_percent_NULL_column_in_WoS_tables();
 SELECT pass( 'My test passed!');
 select * from finish();
 ROLLBACK;
+
+-- 4 # Pseudo-Assertion: is there an increase in records ?
+
+CREATE OR REPLACE TABLE test_table_record_number_increased_after_update AS
+select
+schemaname as schema_name,
+relname as table_name,
+n_live_tup as n_live_records,
+n_dead_tup as n_dead_records,
+n_tup_upd as n_updates,
+n_tup_del as n_deletions
+from pg_stat_all_tables
+where schemaname='public'
+and relname in ('scopus_abstracts','scopus_authors','scopus_grants',
+                                          'scopus_grant_acknowledgments','scopus_keywords','scopus_publications',
+                                          'scopus_publication_groups','scopus_references','scopus_sources','scopus_subjects','scopus_titles')
+ORDER BY n_live_tup DESC;
+SELECT n_updates, n_deletions
+CASE WHEN n_updates, n_deletions > 0 THEN \echo 'There was an increase!'
+ELSE n_deletions > n_updates THEN \echo 'There was a decrease!'
+ELSE \echo 'Nothing happened'
+END
+FROM test_table_record_number_increased_after_update;
+
+DROP TABLE test_that_record_number_increased_after_update;
+
+
+\echo 'Synthetic testing is over.'
 -
