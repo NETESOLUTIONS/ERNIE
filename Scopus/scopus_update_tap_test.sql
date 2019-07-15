@@ -178,10 +178,8 @@ $$ language plpgsql;
  AS $$
  BEGIN
    RETURN NEXT is_empty( 'select distinct tablename, attname from pg_stats
-    where schemaname = ''public'' and tablename in ('scopus_abstracts','scopus_authors','scopus_grants',
-                                              'scopus_grant_acknowledgments','scopus_keywords',
-                                              'scopus_publications','scopus_publication_groups','scopus_references',
-                                              'scopus_sources','scopus_subjects','scopus_titles') and null_frac = 1', 'No 100% null column');
+    where schemaname = ''public'' and tablename in ('scopus_abstracts','scopus_authors','scopus_grants','scopus_publications','scopus_references',
+                                              ,'scopus_subjects','scopus_titles') and null_frac = 1', 'No 100% null column');
  END;
  $$ LANGUAGE plpgsql;
 
