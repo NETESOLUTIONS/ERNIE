@@ -239,6 +239,10 @@ and relname in ('scopus_abstracts','scopus_authors','scopus_grants',
                                           'scopus_publication_groups','scopus_references','scopus_sources','scopus_subjects','scopus_titles')
 ORDER BY n_live_tup DESC;
 
+\echo 'Result of the update!'
+
+SELECT * FROM test_table_record_number_increased_after_update;
+
 
 SELECT n_updates, n_deletions,
 CASE WHEN n_updates > n_deletions THEN 'There was an increase!'
