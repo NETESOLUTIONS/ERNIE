@@ -178,7 +178,7 @@ CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scop
  RETURNS SETOF TEXT
  AS $$
  BEGIN
-   RETURN NEXT is_empty( 'select distinct tablename, attname from pg_stats
+   RETURN NEXT is_empty( 'select tablename, attname from pg_stats
     where schemaname = ''public'' and tablename = ''scopus_abstracts'' and null_frac = 1', 'No 100% null column');
  END;
  $$ LANGUAGE plpgsql;
