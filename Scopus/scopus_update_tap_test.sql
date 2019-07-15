@@ -178,8 +178,7 @@ $$ language plpgsql;
  AS $$
  BEGIN
    RETURN NEXT is_empty( 'select distinct tablename, attname from pg_stats
-    where schemaname = ''public'' and tablename in (scopus_abstracts, scopus_authors , scopus_grants, scopus_publications,scopus_references,
-                                              ,scopus_subjects,scopus_titles) and null_frac = 1', 'No 100% null column');
+    where schemaname = ''public'' and tablename like ''scopus_abstracts|scopus_author|scopus_grants|scopus_publications|scopus_references|scopus_subjects'' and null_frac = 1', 'No 100% null column');
  END;
  $$ LANGUAGE plpgsql;
 
@@ -243,7 +242,6 @@ WHEN n_updates < n_deletions THEN \echo 'There was a decrease!'
 ELSE \echo 'Nothing happened'
 END
 FROM test_table_record_number_increased_after_update;
-
 DROP TABLE test_table_record_number_increased_after_update;
 
 \echo 'Synthetic testing is over.'
