@@ -243,6 +243,5 @@ FROM test_table_record_number_increased_after_update;
 
 DROP TABLE test_that_record_number_increased_after_update;
 
-
 \echo 'Synthetic testing is over.'
 -
