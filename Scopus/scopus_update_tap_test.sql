@@ -213,7 +213,7 @@ $$ LANGUAGE plpgsql;
 -- Run functions
 -- Start transaction and plan the tests.
 BEGIN;
-SELECT plan(50);
+SELECT plan(60);
 select test_that_all_scopus_tables_exist();
 select test_that_all_scopus_tables_have_pk();
 -- select test_that_all_scopus_tables_are_populated();
