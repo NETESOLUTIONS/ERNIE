@@ -173,12 +173,13 @@ $$ language plpgsql;
  -- 3 # Assertion : are any tables completely null for every field  (Y/N?)
 
  -- Test if there is any 100% null columns
- CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scopus_tables()
+
+CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scopus_tables()
  RETURNS SETOF TEXT
  AS $$
  BEGIN
    RETURN NEXT is_empty( 'select distinct tablename, attname from pg_stats
-    where schemaname = ''public'' and tablename like ''scopus_abstracts|scopus_author|scopus_grants|scopus_publications|scopus_references|scopus_subjects'' and null_frac = 1', 'No 100% null column');
+    where schemaname = ''public'' and tablename like ''scopus_abstracts'' or tablename ''scopus_authors'' and null_frac = 1', 'No 100% null column');
  END;
  $$ LANGUAGE plpgsql;
 
