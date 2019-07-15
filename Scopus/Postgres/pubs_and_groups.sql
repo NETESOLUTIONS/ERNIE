@@ -7,3 +7,5 @@ JOIN scopus_publications sp ON sp.scp = st.scp AND sp.sgr=20384762;
 
 SELECT count(1) FROM scopus_publications
 WHERE scp <> sgr;
+-- 0
+-- 2m:18s
