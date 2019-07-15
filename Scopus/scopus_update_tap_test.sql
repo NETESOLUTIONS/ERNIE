@@ -163,13 +163,14 @@ $$ language plpgsql;
  -- 4 # Assertion : are any tables completely null for every field  (Y/N?)
 
  -- Test if there is any 100% null columns
- CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_WoS_tables()
+ CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scopus_tables()
  RETURNS SETOF TEXT
  AS $$
  DECLARE tab record;
  BEGIN
    FOR tab IN
-   (SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name LIKE 'scopus%')
+   (SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name in ('scopus_abstracts','scopus_authors','scopus_grants', 'scopus_grant_acknowledgments','scopus_keywords','scopus_publications','scopus_publication_groups','scopus_references','scopus_sources','scopus_subjects','scopus_titles')
+  )
    LOOP
      EXECUTE format('ANALYZE verbose %I;',tab.table_name);
    END LOOP;
@@ -177,6 +178,8 @@ $$ language plpgsql;
     where schemaname = ''public'' and tablename like ''scopus%'' and null_frac = 1', 'No 100% null column');
  END;
  $$ LANGUAGE plpgsql;
+
+--LIKE ('scopus%')
 
 /*
 --5 # Assertion : did the number of entries in
@@ -211,7 +214,7 @@ select test_that_all_scopus_tables_exist();
 select test_that_all_scopus_tables_have_pk();
 -- select test_that_all_scopus_tables_are_populated();
 select test_that_there_is_no_100_percent_NULL_column_in_WoS_tables();
-SELECT pass( 'My test passed, w00t!' );
+SELECT pass( 'My test passed!');
 select * from finish();
 ROLLBACK;
 -
