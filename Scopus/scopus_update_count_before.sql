@@ -13,7 +13,7 @@ RETURNS SETOF TEXT
 AS $$
 DECLARE tab record;
 BEGIN
-  RETURN NEXT is_empty( 'select distinct tablename, att name from pg_stats
+  RETURN NEXT is_empty( 'select distinct tablename, attname from pg_stats
    where schemaname = ''public'' and tablename like ''scopus%'' and null_frac = 1', 'No 100% null column');
 END;
 $$ LANGUAGE plpgsql;
