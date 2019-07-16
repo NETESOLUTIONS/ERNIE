@@ -9,7 +9,8 @@
  The tests are:
  1. do all tables exist
  2. do all tables have a pk
- 3.
+ 3. do any of the tables have columns that are 100% NULL
+ 4. A "psuedo-assertion": for various tables was there an increases ?
  */
 
  \timing
@@ -208,7 +209,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 */
---end of script
 
 -- Run functions
 -- Start transaction and plan the tests.
