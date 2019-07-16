@@ -173,13 +173,15 @@ $$ language plpgsql;
  -- 3 # Assertion : are any tables completely null for every field  (Y/N?)
 
  -- Test if there is any 100% null columns
- CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scopus_tables()
+
+CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scopus_tables()
  RETURNS SETOF TEXT
  AS $$
  BEGIN
-   RETURN NEXT is_empty( 'select distinct tablename, attname from pg_stats
-    where schemaname = ''public'' and tablename in (scopus_abstracts, scopus_authors , scopus_grants, scopus_publications,scopus_references,
-                                              ,scopus_subjects,scopus_titles) and null_frac = 1', 'No 100% null column');
+   RETURN NEXT is_empty( 'select tablename, attname from pg_stats
+    where schemaname = ''public'' and tablename in ('scopus_abstracts','scopus_authors','scopus_grants',
+                                              'scopus_grant_acknowledgments','scopus_keywords','scopus_publications',
+                                              'scopus_publication_groups','scopus_references','scopus_sources','scopus_subjects','scopus_titles') and null_frac = 1', 'No 100% null column');
  END;
  $$ LANGUAGE plpgsql;
 
@@ -211,11 +213,11 @@ $$ LANGUAGE plpgsql;
 -- Run functions
 -- Start transaction and plan the tests.
 BEGIN;
-SELECT plan(50);
+SELECT plan(60);
 select test_that_all_scopus_tables_exist();
 select test_that_all_scopus_tables_have_pk();
 -- select test_that_all_scopus_tables_are_populated();
-select test_that_there_is_no_100_percent_NULL_column_in_WoS_tables();
+select test_that_there_is_no_100_percent_NULL_column_in_scopus_tables();
 SELECT pass( 'My test passed!');
 select * from finish();
 ROLLBACK;
@@ -237,14 +239,20 @@ and relname in ('scopus_abstracts','scopus_authors','scopus_grants',
                                           'scopus_publication_groups','scopus_references','scopus_sources','scopus_subjects','scopus_titles')
 ORDER BY n_live_tup DESC;
 
-SELECT n_updates, n_deletions
-CASE WHEN n_updates > n_deletions THEN \echo 'There was an increase!'
-WHEN n_updates < n_deletions THEN \echo 'There was a decrease!'
-ELSE \echo 'Nothing happened'
-END
-FROM test_table_record_number_increased_after_update;
+\echo 'Result of the update!'
 
+SELECT * FROM test_table_record_number_increased_after_update;
+
+
+SELECT n_updates, n_deletions,
+CASE WHEN n_updates > n_deletions THEN 'There was an increase!'
+WHEN n_updates < n_deletions THEN 'There was a decrease!'
+ELSE 'Nothing happened...'
+END AS Test
+FROM test_table_record_number_increased_after_update;
 DROP TABLE test_table_record_number_increased_after_update;
 
 \echo 'Synthetic testing is over.'
--
+
+
+-- END OF SCRIPT 
