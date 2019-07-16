@@ -47,9 +47,10 @@ def email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates"):
         scopus_zip_file_name= scopus_zip_file_name[0].split('/')[2]
         urllib.request.urlretrieve(url,os.path.join(data_directory,scopus_zip_file_name))
 
+
 ## Run the function with the relevant input, which is already default argument for email_parser
 print("Scanning email now for url...")
 result=email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates")
-print('The revelevant files are parsed!', result )
+print('The revelevant files are parsed!')
 print('Total duration:',time.time()-start_time)
 ## End of the script
