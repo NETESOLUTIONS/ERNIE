@@ -729,7 +729,9 @@ CREATE TABLE lexis_nexis_inventors (
 )
 TABLESPACE lexis_nexis_tbs;
 
+-- 7m:05s
 CREATE INDEX lni_name_i ON lexis_nexis_inventors(name) TABLESPACE index_tbs;
+
 
 --TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_inventors IS 'Inventors information';
