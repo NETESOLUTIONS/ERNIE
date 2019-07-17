@@ -70,7 +70,7 @@ if __name__ == "__main__" :
     args = parser.parse_args()
     datatype = 'Xml'
     # Log on
-    expiration,security_token = log_on(ipdd_service_reference,args.username,args.password)
+    expiration,security_token = log_on(args.ipdd_service_reference,args.username,args.password)
     # For each type of dataset we are interested in...
     for dataset in args.datasets:
         # Check if new/updated publications are available. If so:
@@ -97,4 +97,4 @@ if __name__ == "__main__" :
                 sleep(args.sleep_time)'''
 
     # Logoff
-    log_off(ipdd_service_reference,security_token)
+    log_off(args.ipdd_service_reference,security_token)
