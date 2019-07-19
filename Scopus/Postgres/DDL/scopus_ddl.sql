@@ -3,6 +3,8 @@
 \include_relative scopus_triggers.sql
 \include_relative scopus_grant_ddl.sql
 
+\include_relative ../../../Postgres/DDL/Functions/udf_try_parse.sql
+
 \include_relative Procedures/scopus_parse_abstracts_and_titles.sql
 \include_relative Procedures/scopus_parse_authors_and_affiliations.sql
 \include_relative Procedures/scopus_parse_chemical_groups.sql
