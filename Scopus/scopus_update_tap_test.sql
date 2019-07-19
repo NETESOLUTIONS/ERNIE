@@ -230,6 +230,7 @@ schemaname as schema_name,
 relname as table_name,
 n_live_tup as n_live_records,
 n_dead_tup as n_dead_records,
+n_tup_insert as n_inserts,
 n_tup_upd as n_updates,
 n_tup_del as n_deletions
 from pg_stat_all_tables
@@ -244,11 +245,11 @@ ORDER BY n_live_tup DESC;
 SELECT * FROM test_table_record_number_increased_after_update;
 
 
-SELECT n_updates, n_deletions,
-CASE WHEN n_updates > n_deletions THEN 'There was an increase!'
-WHEN n_updates < n_deletions THEN 'There was a decrease!'
+SELECT n_inserts, n_deletions,
+CASE WHEN n_inserts > n_deletions THEN 'There was an increase!'
+WHEN n_inserts < n_deletions THEN 'There was a decrease!'
 ELSE 'Nothing happened...'
-END AS Test
+END AS increase_test
 FROM test_table_record_number_increased_after_update;
 DROP TABLE test_table_record_number_increased_after_update;
 
