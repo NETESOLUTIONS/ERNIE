@@ -243,11 +243,12 @@ ORDER BY n_live_tup DESC;
 \echo 'Result of the update!'
 
 SELECT * FROM test_table_record_number_increased_after_update;
+
 SELECT n_inserts, n_deletions,
 CASE WHEN n_inserts > n_deletions THEN 'There was an increase!'
 WHEN n_inserts < n_deletions THEN 'There was a decrease!'
 ELSE 'Nothing happened...'
-END AS increase_test;
+END AS increase_test
 FROM test_table_record_number_increased_after_update;
 DROP TABLE test_table_record_number_increased_after_update;
 
