@@ -57,8 +57,7 @@ def pass_to_parser():
 if __name__ == "__main__" :
     # Read in available arguments
     parser = argparse.ArgumentParser(description='''
-     This script interfaces with the AlphaVantage API, collects data, performs the desired transformations,
-      and loads the data into the local PostgreSQL database via a peer connection.
+     This script interfaces with the IPDD API, collects data and passes it to the XMLTABLE parser.
     ''', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-U','--ipdd_username',help='IPDD API username',type=str,required=True)
     parser.add_argument('-W','--ipdd_password',help='IPDD API password',type=str,required=True)
@@ -76,7 +75,7 @@ if __name__ == "__main__" :
         # Check if new/updated publications are available. If so:
         print ("Collecting data for {} patents with datatype {}".format(dataset,datatype))
 
-        '''if retrieve_batch_info(ipdd_service_reference,security_token,dataset,datatype) > 0:
+        if retrieve_batch_info(ipdd_service_reference,security_token,dataset,datatype) > 0:
             # Request the publications
             batch_list = request_batch_sized(ipdd_service_reference,security_token,dataset,datatype,batch_size=args.batch_size)
             batch_id = batch_list.pop(0) #update to refer to id specifically
@@ -94,7 +93,7 @@ if __name__ == "__main__" :
                         print("No new batches left to consider")
                         break
                 # Sleep
-                sleep(args.sleep_time)'''
+                sleep(args.sleep_time)
 
     # Logoff
     log_off(args.ipdd_service_reference,security_token)
