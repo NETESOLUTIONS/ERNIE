@@ -17,17 +17,19 @@ def log_off(ipdd_service_reference,security_token):
     client = Client(ipdd_service_reference)
     return client.service.LogOff(security_token)
 
-# IPDD returns the number of documents in a batch based on entitlement (or access denied)
-# per page 96 of TRG, dataset is the Authority code or custom type used to identify the dataset (e.g. US or EP)
-# Per page 96 of TRG, datatype can be one of ('Xml','Pdf','Clip','Images')
-def retrieve_batch_info(ipdd_service_reference,security_token,dataset,datatype):
+# per page 96 of TRG, DataSet is the Authority code or custom type used to identify the dataset (e.g. US or EP)
+# Per page 96 of TRG, DataType can be one of ('Xml','Pdf','Clip','Images')
+# Per page 96 of TRG, KindGroup can be one of ('All','Application','Grant','Other')
+def create_update_request(ipdd_service_reference,security_token,dataset,datatype,list_format=None,kind_group=None):
     client = Client(ipdd_service_reference)
-    updateRequest = {
-        'SecurityToken':security_token,
-        'DataSet':dataset,
-        'DataType':datatype
-    }
-    return client.service.RetrieveBatchInfo(updateRequest) #TODO: check/parse whats returned here
+    request_factory = client.type_factory('ns1')
+    return request_factory.UpdateRequest(SecurityToken=security_token,DataSet=dataset,DataType=datatype,
+                                          ListFormat=list_format,KindGroup=kind_group)
+
+# IPDD returns the number of documents in a batch based on entitlement (or access denied)
+def retrieve_batch_info(ipdd_service_reference,request_variable):
+    client = Client(ipdd_service_reference)
+    return client.service.RetrieveBatchInfo(request_variable)
 
 # IPDD returns a batchList
 def request_batch_sized(ipdd_service_reference,security_token,dataset,datatype,batch_size=20000):
@@ -74,8 +76,10 @@ if __name__ == "__main__" :
     for dataset in args.datasets:
         # Check if new/updated publications are available. If so:
         print ("Collecting data for {} patents with datatype {}".format(dataset,datatype))
+        # Create updateRequestVariable
+        updateRequestVariable = create_update_request(args.ipdd_service_reference,security_token,dataset,datatype)
 
-        if retrieve_batch_info(ipdd_service_reference,security_token,dataset,datatype) > 0:
+        if retrieve_batch_info(args.ipdd_service_reference,updateRequestVariable)['Count'] > 0:
             # Request the publications
             batch_list = request_batch_sized(ipdd_service_reference,security_token,dataset,datatype,batch_size=args.batch_size)
             batch_id = batch_list.pop(0) #update to refer to id specifically
