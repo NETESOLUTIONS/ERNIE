@@ -178,7 +178,13 @@ $$ language plpgsql;
 CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scopus_tables()
  RETURNS SETOF TEXT
  AS $$
+ DECLARE tab record; 
  BEGIN
+ FOR tab IN
+  (SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name LIKE 'scopus%')
+  LOOP
+    EXECUTE format('ANALYZE verbose %I;',tab.table_name);
+  END LOOP;
    RETURN NEXT is_empty( 'select tablename, attname from pg_stats
     where schemaname = ''public'' and tablename in `LIKE 'scopus%' AND NOT LIKE 'scopus_com%' AND NOT LIKE 'scopus_year%' and null_frac = 1', 'No 100% null column');
  END;
@@ -210,6 +216,7 @@ $$ LANGUAGE plpgsql;
 
 -- Run functions
 -- Start transaction and plan the tests.
+
 BEGIN;
 SELECT plan(50);
 select test_that_all_scopus_tables_exist();
