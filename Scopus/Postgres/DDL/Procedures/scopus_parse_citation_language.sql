@@ -6,7 +6,7 @@
 
  */
 
- --set search_path to djamil; (for testing)
+set search_path to public; 
 \set ON_ERROR_STOP on
 \set ECHO all
 
