@@ -93,7 +93,8 @@ BEGIN
     issn TEXT PATH '.',
     issn_type TEXT PATH '@type'
     )
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT UPDATE SET ernie_source_id=excluded.ernie_source_id,
+    issn=excluded.issn, issn_type=excluded.issn_type;
 
     UPDATE scopus_publications sp
     SET pub_type      = singular.pub_type,
@@ -237,8 +238,8 @@ BEGIN
     WHERE db_id IS NOT NULL
     ON CONFLICT UPDATE SET ernie_source_id=excluded.ernie_source_id,
         conf_code=excluded.conf_code, conf_name=excluded.conf_name,
-        indexed_name=excluded.indexed_name, edit_role=excluded.edit_role,
-        edit_type=excluded.edit_type, initials=excluded.initials, surname=excluded.surname,
+        indexed_name=excluded.indexed_name, role_type=excluded.role_type,
+        initials=excluded.initials, surname=excluded.surname,
         given_name=excluded.given_name, degree=excluded.degree, suffix=excluded.suffix;
 
     UPDATE scopus_conf_editors sed
