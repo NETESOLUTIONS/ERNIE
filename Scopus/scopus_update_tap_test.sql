@@ -178,7 +178,7 @@ $$ language plpgsql;
 CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scopus_tables()
  RETURNS SETOF TEXT
  AS $$
- DECLARE tab record; 
+ DECLARE tab record;
  BEGIN
  FOR tab IN
   (SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name LIKE 'scopus%')
@@ -187,6 +187,28 @@ CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scop
   END LOOP;
    RETURN NEXT is_empty( 'select tablename, attname from pg_stats
     where schemaname = ''public'' and tablename in `LIKE 'scopus%' AND NOT LIKE 'scopus_com%' AND NOT LIKE 'scopus_year%' and null_frac = 1', 'No 100% null column');
+ END;
+ $$ LANGUAGE plpgsql;
+
+ -- 4 # Pseudo-Assertion: is there an increase in records ?
+
+ CREATE OR REPLACE FUNCTION test_that_publication_number_increase_after_weekly_scopus_update()
+ RETURNS SETOF TEXT
+ AS $$
+ DECLARE
+   new_num integer;
+   old_num integer;
+ BEGIN
+   SELECT num_scopus into new_num FROM update_log_scopus
+   WHERE num_scopus IS NOT NULL
+   ORDER BY id DESC LIMIT 1;
+
+   SELECT num_scopus into old_num FROM update_log_scopus
+   WHERE num_scopus IS NOT NULL AND id != (SELECT id FROM update_log_scopus WHERE num_scopus IS NOT NULL ORDER BY id DESC LIMIT 1)
+   ORDER BY id DESC LIMIT 1;
+
+   return next ok(new_num > old_num, 'The number of sopus records has increased from latest update!');
+
  END;
  $$ LANGUAGE plpgsql;
 
@@ -218,36 +240,17 @@ $$ LANGUAGE plpgsql;
 -- Start transaction and plan the tests.
 
 BEGIN;
-SELECT plan(50);
+DECLARE TOTAL_NUM_ASSERTIONS int DEFAULT 50;
+SELECT plan(TOTAL_NUM_ASSERTIONS);
 select test_that_all_scopus_tables_exist();
 select test_that_all_scopus_tables_have_pk();
 -- select test_that_all_scopus_tables_are_populated();
 select test_that_there_is_no_100_percent_NULL_column_in_scopus_tables();
+select test_that_publication_number_increase_after_weekly_scopus_update();
 SELECT pass( 'My test passed!');
 select * from finish();
 ROLLBACK;
 
--- 4 # Pseudo-Assertion: is there an increase in records ?
-
-CREATE OR REPLACE FUNCTION test_that_publication_number_increase_after_weekly_scopus_update()
-RETURNS SETOF TEXT
-AS $$
-DECLARE
-  new_num integer;
-  old_num integer;
-BEGIN
-  SELECT num_scopus into new_num FROM update_log_scopus
-  WHERE num_scopus IS NOT NULL
-  ORDER BY id DESC LIMIT 1;
-
-  SELECT num_scopus into old_num FROM update_log_scopus
-  WHERE num_scopus IS NOT NULL AND id != (SELECT id FROM update_log_scopus WHERE num_scopus IS NOT NULL ORDER BY id DESC LIMIT 1)
-  ORDER BY id DESC LIMIT 1;
-
-  return next ok(new_num > old_num, 'The number of sopus records has increased from latest update!');
-
-END;
-$$ LANGUAGE plpgsql;
 
 \echo 'Testing process is over!'
 
