@@ -4,8 +4,8 @@
 -- assemble all pubs authored by Dresselhaus using her auid
 DROP TABLE IF EXISTS kavli_mdressel_base;
 CREATE TABLE public.kavli_mdressel_base AS
-SELECT scp FROM scopus_authors
-WHERE auid =35416802700;
+SELECT DISTINCT scp FROM scopus_authors
+WHERE auid =35416802700 OR auid=16026240300;
 
 -- assemble pubs cited by Dresselhaus papers
 DROP TABLE IF EXISTS kavli_mdressel_cited;
