@@ -239,8 +239,8 @@ $$ LANGUAGE plpgsql;
 -- Run functions
 -- Start transaction and plan the tests.
 
-BEGIN;
-DECLARE TOTAL_NUM_ASSERTIONS INTEGER DEFAULT 50;
+DO $$DECLARE TOTAL_NUM_ASSERTIONS integer default 50;
+BEGIN
 SELECT plan(TOTAL_NUM_ASSERTIONS);
 select test_that_all_scopus_tables_exist();
 select test_that_all_scopus_tables_have_pk();
@@ -250,6 +250,7 @@ select test_that_publication_number_increase_after_weekly_scopus_update();
 SELECT pass( 'My test passed!');
 select * from finish();
 ROLLBACK;
+END$$;
 
 
 \echo 'Testing process is over!'
