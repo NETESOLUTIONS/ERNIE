@@ -28,7 +28,7 @@ AS $$
         ) )LOOP
         INSERT INTO scopus_chemical_groups(scp, chemicals_source,chemical_name, cas_registry_number)
         VALUES(cur.scp,cur.chemicals_source,cur.chemical_name,cur.cas_registry_number)
-      ON CONFLICT UPDATE SET cur.scp=excluded.scp,
+      ON CONFLICT UPDATE DO cur.scp=excluded.scp,
        cur.chemicals_source=excluded.chemicals_source, cur.chemical_name=excluded.chemical_name,
        cur.cas_registry_number=excluded.cas_registry_number;
     END LOOP;

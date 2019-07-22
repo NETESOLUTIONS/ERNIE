@@ -44,7 +44,7 @@ $$
                                         correspondence_country, correspondence_e_address, citation_type)
         VALUES (cur.scp, cur.sgr, cur.correspondence_person_indexed_name, cur.correspondence_city,
                 cur.correspondence_country, cur.correspondence_e_address, cur.citation_type)
-        ON CONFLICT UPDATE SET cur.scp=excluded.scp, cur.sgr=excluded.sgr,
+        ON CONFLICT UPDATE DO cur.scp=excluded.scp, cur.sgr=excluded.sgr,
         cur.correspondence_person_indexed_name=excluded.correspondence_person_indexed_name,
         cur.correspondence_city=excluded.correspondence_city, cur.correspondence_country=excluded.correspondence_country,
         cur.correspondence_e_address=excluded.correspondence_e_address, cur.citation=excluded.citation_type ;
