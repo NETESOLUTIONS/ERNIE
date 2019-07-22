@@ -180,9 +180,7 @@ CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scop
  AS $$
  BEGIN
    RETURN NEXT is_empty( 'select tablename, attname from pg_stats
-    where schemaname = ''public'' and tablename in ('scopus_abstracts','scopus_authors','scopus_grants',
-                                              'scopus_grant_acknowledgments','scopus_keywords','scopus_publications',
-                                              'scopus_publication_groups','scopus_references','scopus_sources','scopus_subjects','scopus_titles') and null_frac = 1', 'No 100% null column');
+    where schemaname = ''public'' and tablename in `LIKE 'scopus%' AND NOT LIKE 'scopus_com%' AND NOT LIKE 'scopus_year%' and null_frac = 1', 'No 100% null column');
  END;
  $$ LANGUAGE plpgsql;
 
@@ -224,35 +222,26 @@ ROLLBACK;
 
 -- 4 # Pseudo-Assertion: is there an increase in records ?
 
-CREATE TABLE IF NOT EXISTS test_table_record_number_increased_after_update AS
-select
-schemaname as schema_name,
-relname as table_name,
-n_live_tup as n_live_records,
-n_dead_tup as n_dead_records,
-n_tup_ins as n_inserts,
-n_tup_upd as n_updates,
-n_tup_del as n_deletions
-from pg_stat_all_tables
-where schemaname='public'
-and relname in ('scopus_abstracts','scopus_authors','scopus_grants',
-                                          'scopus_grant_acknowledgments','scopus_keywords','scopus_publications',
-                                          'scopus_publication_groups','scopus_references','scopus_sources','scopus_subjects','scopus_titles')
-ORDER BY n_live_tup DESC;
+CREATE OR REPLACE FUNCTION test_that_publication_number_increase_after_weekly_scopus_update()
+RETURNS SETOF TEXT
+AS $$
+DECLARE
+  new_num integer;
+  old_num integer;
+BEGIN
+  SELECT num_scopus into new_num FROM update_log_scopus
+  WHERE num_scopus IS NOT NULL
+  ORDER BY id DESC LIMIT 1;
 
-\echo 'Result of the update!'
+  SELECT num_scopus into old_num FROM update_log_scopus
+  WHERE num_scopus IS NOT NULL AND id != (SELECT id FROM update_log_scopus WHERE num_scopus IS NOT NULL ORDER BY id DESC LIMIT 1)
+  ORDER BY id DESC LIMIT 1;
 
-SELECT * FROM test_table_record_number_increased_after_update;
+  return next ok(new_num > old_num, 'The number of sopus records has increased from latest update!');
 
-SELECT n_inserts, n_deletions,
-CASE WHEN n_inserts > n_deletions THEN 'There was an increase!'
-WHEN n_inserts < n_deletions THEN 'There was a decrease!'
-ELSE 'Nothing happened...'
-END AS increase_test
-FROM test_table_record_number_increased_after_update;
-DROP TABLE test_table_record_number_increased_after_update;
+END;
+$$ LANGUAGE plpgsql;
 
-\echo 'Synthetic testing is over.'
-
+\echo 'Testing process is over!'
 
 -- END OF SCRIPT
