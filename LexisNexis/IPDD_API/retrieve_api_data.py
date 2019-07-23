@@ -1,7 +1,6 @@
 from zeep import Client
+import zipfile
 import argparse
-import json
-import lxml
 from time import sleep
 
 # IPDD returns security token and expiration info
@@ -47,12 +46,6 @@ def retrieve_batch(ipdd_service_reference,security_token,batch_id,position):
     client = Client(ipdd_service_reference)
     return client.service.RetrieveBatch(security_token,batch_id,position)
 
-# TODO: define a multithreaded function for parallel calls to parser.sql
-# TODO: determine if decompression choices available, alternately, decompress on the fly
-# Basically apply the approach available on PP.20 but try to see if we can work with string data directly instead of building/unzipping files
-def pass_to_parser():
-    pass
-
 if __name__ == "__main__" :
     # Read in available arguments
     parser = argparse.ArgumentParser(description='''
@@ -62,9 +55,9 @@ if __name__ == "__main__" :
     parser.add_argument('-W','--ipdd_password',help='IPDD API password',type=str,required=True)
     parser.add_argument('-R','--ipdd_service_reference',help='IPDD service reference address',type=str,required=True)
     parser.add_argument('-b','--batch_size',help='Desired batch size on API retrievals',type=int,default=20000)
-    parser.add_argument('-t','--thread_count',help='Desired number of threads for processing returned data',type=int,default=1)
     parser.add_argument('-s','--sleep_time',help='Amount of ms to sleep in between batch info calls',type=int,default=300000)
     parser.add_argument('-D','--datasets', type=str, nargs='+',help='Space delimited list of target datasets to collect patent data for')
+    parser.add_argument('-d','--download_dir',help='Target directory to download zip data into',type=str,default='API_downloads')
     args = parser.parse_args()
     # Log on
     expiration,security_token = log_on(args.ipdd_service_reference,args.ipdd_username,args.ipdd_password)
@@ -82,6 +75,7 @@ if __name__ == "__main__" :
             cur_batch_id = batch_list.pop(0)['BatchId'] #update to refer to id specifically
             # While loop on batch list
             while len(batch_list.Batch) > 0:
+                # Wait for batch to complete
                 cur_batch_id = batch_list.pop(0)['BatchId']
                 cur_batch_status = retrieve_batch_status(args.ipdd_service_reference,security_token,cur_batch_id)['Status']
                 while cur_batch_status != "Finished":
@@ -91,21 +85,20 @@ if __name__ == "__main__" :
                     sleep(args.sleep_time)
                     cur_batch_status = retrieve_batch_status(args.ipdd_service_reference,security_token,cur_batch_id)['Status']
 
-                retry_count=0;position=0
-                # Process the data in a try catch block inside of a while loop
-                while retry_count < 1000:
+                # Process the data in a try catch block inside of a while loop and write the stream to a zip file
+                retry=True;retry_count=0;position=0
+                while retry_count < 1000 and retry:
                     cur_position=0
                     try:
-                        # Retrieve the batch
+                        # Retrieve the batch and write to file - NOTE: edit to do this in a while loop with a buffer
                         data_stream = retrieve_batch(ipdd_service_reference,security_token,cur_batch_id,position)
-                        # Perform parsing by passing returned text data to SQL script
+                        with open('{}/{}.zip'.format(args.download_dir,cur_batch_id)) as tmp_zip:
+                            tmp_zip.write(data_stream)
+                        data_stream.close()
+                        retry=False
                     except:
                         position+=cur_position
                         print("IOError while downloading {}. Will retry at position {}".format(cur_batch_id,position))
                         retry_count+=1
-
-
-
-
     # Logoff
     log_off(args.ipdd_service_reference,security_token)
