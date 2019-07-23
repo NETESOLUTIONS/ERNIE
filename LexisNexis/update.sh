@@ -75,6 +75,18 @@ while (( $# > 0 )); do
       shift
       WORK_DIR=$1
       ;;
+    -U)
+      shift
+      IPDD_USERNAME=$1
+      ;;
+    -W)
+      shift
+      IPDD_PASSWORD=$1
+      ;;
+    -R)
+      shift
+      IPDD_SERVICE_REFERENCE=$1
+      ;;
     *)
       break
   esac
@@ -140,8 +152,6 @@ HEREDOC
     exit 1
   fi
 }
-
-
 
 # First, use API access scripts to download XMLs into Zip files in a local storage directory
 > "${PROCESSED_LOG}"
