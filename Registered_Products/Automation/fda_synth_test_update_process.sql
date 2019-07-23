@@ -71,27 +71,74 @@ FOR tab IN
 END;
 $$ LANGUAGE plpgsql;
 
--- 5 # Assertion: is there an increase in records ?
+-- 5.1 # Assertion: is there an increase in products ?
 
-CREATE OR REPLACE FUNCTION test_that_publication_number_increase_after_weekly_fda_update()
+CREATE OR REPLACE FUNCTION test_that_product_number_increase_after_weekly_fda_update()
 RETURNS SETOF TEXT
 AS $$
 DECLARE
   new_num integer;
   old_num integer;
 BEGIN
-  SELECT num_nct into new_num FROM update_log_ct
-  WHERE num_nct IS NOT NULL
+  SELECT num_products into new_num FROM update_log_fda
+  WHERE num_products IS NOT NULL
   ORDER BY id DESC LIMIT 1;
 
-  SELECT num_nct into old_num FROM update_log_ct
-  WHERE num_nct IS NOT NULL AND id != (SELECT id FROM update_log_ct WHERE num_nct IS NOT NULL ORDER BY id DESC LIMIT 1)
+  SELECT num_products into old_num FROM update_log_fda
+  WHERE num_products IS NOT NULL AND id != (SELECT id FROM update_log_fda WHERE num_products IS NOT NULL ORDER BY id DESC LIMIT 1)
+  ORDER BY id DESC LIMIT 1;
+
+  return next ok(new_num > old_num, 'The number of products in the orange book has increased from latest update!');
+
+END;
+$$ LANGUAGE plpgsql;
+
+-- 5.2 # Assertion: is there an increase in patents ?
+
+
+CREATE OR REPLACE FUNCTION test_that_patent_number_increase_after_weekly_fda_update()
+RETURNS SETOF TEXT
+AS $$
+DECLARE
+  new_num integer;
+  old_num integer;
+BEGIN
+  SELECT num_patents into new_num FROM update_log_fda
+  WHERE num_patents IS NOT NULL
+  ORDER BY id DESC LIMIT 1;
+
+  SELECT num_patents into old_num FROM update_log_fda
+  WHERE num_patents IS NOT NULL AND id != (SELECT id FROM update_log_fda WHERE num_patents IS NOT NULL ORDER BY id DESC LIMIT 1)
+  ORDER BY id DESC LIMIT 1;
+
+  return next ok(new_num > old_num, 'The number of orange book patents has increased from latest update!');
+
+END;
+$$ LANGUAGE plpgsql;
+
+-- 5.3 # Assertion: is there an increase in fda_exclusivities ?
+
+CREATE OR REPLACE FUNCTION test_that_exclusivity_number_increase_after_weekly_fda_update()
+RETURNS SETOF TEXT
+AS $$
+DECLARE
+  new_num integer;
+  old_num integer;
+BEGIN
+  SELECT num_exclusivity into new_num FROM update_log_fda
+  WHERE num_exclusivity IS NOT NULL
+  ORDER BY id DESC LIMIT 1;
+
+  SELECT num_exclusivity into old_num FROM update_log_fda
+  WHERE num_exclusivity IS NOT NULL AND id != (SELECT id FROM update_log_fda WHERE num_exclusivity IS NOT NULL ORDER BY id DESC LIMIT 1)
   ORDER BY id DESC LIMIT 1;
 
   return next ok(new_num > old_num, 'The number of clinical trial records has increased from latest update!');
 
 END;
 $$ LANGUAGE plpgsql;
+
+
 
 -- Run functions
 -- Start transaction and plan the tests.
@@ -103,7 +150,9 @@ select test_that_all_fda_tables_exist();
 select test_that_all_fda_tables_have_pk();
 select test_that_fda_tablespace_exists();
 select test_that_there_is_no_100_percent_NULL_column_in_fda_tables();
-select test_that_publication_number_increase_after_weekly_fda_update();
+select test_that_products_number_increase_after_weekly_fda_update();
+select test_that_patent_number_increase_after_weekly_fda_update();
+select test_that_exclusivity_number_increase_after_weekly_fda_update();
 SELECT pass( 'My test passed!');
 select * from finish();
 ROLLBACK;
