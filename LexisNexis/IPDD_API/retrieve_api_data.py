@@ -73,11 +73,10 @@ if __name__ == "__main__" :
             print("Update data available for download...")
             # Request the publications
             batch_list = request_batch_sized(args.ipdd_service_reference,updateRequestVariable,batch_size=args.batch_size)
-            cur_batch_id = batch_list.pop(0)['BatchId'] #update to refer to id specifically
             # While loop on batch list
             while len(batch_list.Batch) > 0:
                 # Wait for batch to complete
-                cur_batch_id = batch_list.pop(0)['BatchId']
+                cur_batch_id = batch_list.Batch.pop(0)['BatchId']
                 cur_batch_status = retrieve_batch_status(args.ipdd_service_reference,security_token,cur_batch_id)['Status']
                 while cur_batch_status != "Finished":
                     if cur_batch_status == "Failed":
@@ -87,7 +86,7 @@ if __name__ == "__main__" :
                     print("Batch {} is still generating...".format(cur_batch_id))
                     cur_batch_status = retrieve_batch_status(args.ipdd_service_reference,security_token,cur_batch_id)['Status']
 
-                # Process the data in a try catch block inside of a while loop and write the stream to a zip file
+                # Download the data in a try catch block inside of a while loop and write the stream to a zip file
                 retry=True;retry_count=0;position=0
                 while retry_count < 1000 and retry:
                     cur_position=0
