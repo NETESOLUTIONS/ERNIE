@@ -158,7 +158,7 @@ HEREDOC
 mkdir -p "${FAILED_FILES_DIR}"
 mkdir -p API_downloads
 #download all files into API_downloads
-echo "Starting IPDD API retrieval script..."
+echo "Starting IPDD API data retrieval script..."
 /anaconda3/bin/python ${ABSOLUTE_SCRIPT_DIR}/IPDD_API/retrieve_api_data.py -U ${IPDD_USERNAME} -W ${IPDD_PASSWORD} -R ${IPDD_SERVICE_REFERENCE} -D EP US
 
 declare -i num_zips=$(ls API_downloads/*.zip | wc -l)
