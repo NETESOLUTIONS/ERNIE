@@ -77,6 +77,7 @@ if __name__ == "__main__" :
             while len(batch_list.Batch) > 0:
                 # Wait for batch to complete
                 cur_batch_id = batch_list.Batch.pop(0)['BatchId']
+                print("Monitoring batch {}".format(cur_batch_id))
                 cur_batch_status = retrieve_batch_status(args.ipdd_service_reference,security_token,cur_batch_id)['Status']
                 while cur_batch_status != "Finished":
                     if cur_batch_status == "Failed":
