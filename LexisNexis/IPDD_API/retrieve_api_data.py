@@ -84,6 +84,7 @@ if __name__ == "__main__" :
                         print("Batch {} has failed during creation".format(cur_batch_id))
                         break
                     sleep(args.sleep_time)
+                    print("Batch {} is still generating...".format(cur_batch_id))
                     cur_batch_status = retrieve_batch_status(args.ipdd_service_reference,security_token,cur_batch_id)['Status']
 
                 # Process the data in a try catch block inside of a while loop and write the stream to a zip file
