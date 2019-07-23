@@ -160,7 +160,7 @@ mkdir -p API_downloads
 #download all files into API_downloads
 /anaconda3/bin/python IPDD_API/retrieve_api_data.py -U ${IPDD_USERNAME} -W ${IPDD_PASSWORD} -R ${IPDD_SERVICE_REFERENCE}
 
-declare -i num_zips=${#sorted_args[@]}
+declare -i num_zips=$(ls API_downloads/*.zip | wc -l)
 declare -i failed_xml_counter=0 failed_xml_counter_total=0 processed_xml_counter=0 processed_xml_counter_total=0
 declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
 process_start_time=$(date '+%s')
