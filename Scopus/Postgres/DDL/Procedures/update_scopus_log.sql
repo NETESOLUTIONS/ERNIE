@@ -11,9 +11,10 @@ Runs and creates a update-log. Before update takes tally, after tally, compares 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
+-- create table
 DROP TABLE IF EXISTS update_log_scopus;
 CREATE TABLE public.update_log_scopus (
-  id  SERIAL,
+  id SERIAL,
   last_updated TIMESTAMP,
   num_scopus INTEGER,
   new_num INTEGER,
@@ -27,3 +28,5 @@ CREATE TABLE public.update_log_scopus (
 
 COMMENT ON TABLE update_log_scopus
 IS 'Scopus tables - update log table for scopus';
+
+-- insert data into table
