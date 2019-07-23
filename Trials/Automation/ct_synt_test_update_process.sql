@@ -252,7 +252,7 @@ BEGIN
 SELECT plan(TOTAL_NUM_ASSERTIONS);
 select test_that_all_ct_tables_exist();
 select test_that_all_ct_tables_have_pk();
-select test_that_tablespace_exist();
+select test_that_ct_tablespace_exists();
 select test_that_there_is_no_100_percent_NULL_column_in_ct_tables();
 select test_that_publication_number_increase_after_weekly_ct_update();
 SELECT pass( 'My test passed!');
