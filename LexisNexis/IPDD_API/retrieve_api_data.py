@@ -59,13 +59,13 @@ if __name__ == "__main__" :
     parser.add_argument('-D','--datasets', type=str, nargs='+',help='Space delimited list of target datasets to collect patent data for')
     parser.add_argument('-d','--download_dir',help='Target directory to download zip data into',type=str,default='API_downloads')
     args = parser.parse_args()
-    dataype='Xml'
+    datatype='Xml'
     # Log on
     expiration,security_token = log_on(args.ipdd_service_reference,args.ipdd_username,args.ipdd_password)
     # For each type of dataset we are interested in...
     for dataset in args.datasets:
         # Check if new/updated publications are available. If so:
-        print ("Collecting data for {} patents with datatype {}".format(dataset,datatype))
+        print ("Collecting data for {} patents with datatype format {}".format(dataset,datatype))
         # Create updateRequestVariable
         updateRequestVariable = create_update_request(args.ipdd_service_reference,security_token,dataset)
 
