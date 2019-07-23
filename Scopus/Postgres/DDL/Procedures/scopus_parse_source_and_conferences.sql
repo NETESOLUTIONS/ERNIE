@@ -77,7 +77,9 @@ BEGIN
     isbn_type TEXT PATH '@type',
     isbn_level TEXT PATH'@level'
     )
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT UPDATE DO ernie_source_id=excluded.ernie_source_id,
+    isbn=excluded.isbn, isbn_length=excluded.isbn_length, isbn_type=excluded.isbn_type,
+    isbn_level=excluded.isbn_level;
 
     -- scopus_issns
     INSERT INTO scopus_issns(ernie_source_id,issn,issn_type)
@@ -91,7 +93,8 @@ BEGIN
     issn TEXT PATH '.',
     issn_type TEXT PATH '@type'
     )
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT UPDATE DO ernie_source_id=excluded.ernie_source_id,
+    issn=excluded.issn, issn_type=excluded.issn_type;
 
     UPDATE scopus_publications sp
     SET pub_type      = singular.pub_type,
@@ -151,7 +154,10 @@ BEGIN
             conf_number TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confnumber',
             conf_catalog_number TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcatnumber'
             )
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT UPDATE SET
+  conf_code=excluded.conf_code, conf_name=excluded.conf_name, conf_address=excluded.conf_address, conf_city=excluded.conf_city,
+  conf_postal_code=excluded.conf_postal_code, conf_start_date=excluded.conf_start_date,
+  conf_end_date=excluded.conf_end_date, conf_number=excluded.conf_number, conf_catalog_number=excluded.conf_catalog_number;
 
     UPDATE scopus_conference_events sce
     SET conf_sponsor=sq.conf_sponsor
@@ -195,7 +201,9 @@ BEGIN
             proc_page_count TEXT PATH 'procpagecount'
             )
     WHERE proc_part_no IS NOT NULL OR proc_page_range IS NOT NULL or proc_page_count IS NOT NULL
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT UPDATE DO  ernie_source_id=excluded.ernie_source_id,
+        conf_code=excluded.conf_code, conf_name=excluded.conf_name, proc_part_no=excluded.proc_part_no,
+        proc_page_range=excluded.proc_page_range, proc_page_count=excluded.proc_page_count;
 
     -- scopus_conf_editors
     INSERT INTO scopus_conf_editors(ernie_source_id,conf_code,conf_name,indexed_name,role_type,
@@ -228,7 +236,11 @@ BEGIN
               suffix TEXT PATH 'ce:suffix'
             )
     WHERE db_id IS NOT NULL
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT UPDATE DO ernie_source_id=excluded.ernie_source_id,
+        conf_code=excluded.conf_code, conf_name=excluded.conf_name,
+        indexed_name=excluded.indexed_name, role_type=excluded.role_type,
+        initials=excluded.initials, surname=excluded.surname,
+        given_name=excluded.given_name, degree=excluded.degree, suffix=excluded.suffix;
 
     UPDATE scopus_conf_editors sed
     SET address=sq.address

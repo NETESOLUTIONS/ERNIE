@@ -178,11 +178,37 @@ $$ language plpgsql;
 CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scopus_tables()
  RETURNS SETOF TEXT
  AS $$
+ DECLARE tab record;
  BEGIN
+ FOR tab IN
+  (SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name LIKE 'scopus%')
+  LOOP
+    EXECUTE format('ANALYZE verbose %I;',tab.table_name);
+  END LOOP;
    RETURN NEXT is_empty( 'select tablename, attname from pg_stats
-    where schemaname = ''public'' and tablename in ('scopus_abstracts','scopus_authors','scopus_grants',
-                                              'scopus_grant_acknowledgments','scopus_keywords','scopus_publications',
-                                              'scopus_publication_groups','scopus_references','scopus_sources','scopus_subjects','scopus_titles') and null_frac = 1', 'No 100% null column');
+    where schemaname = ''public'' and tablename in LIKE ''scopus%'' AND NOT LIKE ''scopus_com%'' AND NOT LIKE ''scopus_year%'' and null_frac = 1', 'No 100% null column');
+ END;
+ $$ LANGUAGE plpgsql;
+
+ -- 4 # Pseudo-Assertion: is there an increase in records ?
+
+ CREATE OR REPLACE FUNCTION test_that_publication_number_increase_after_weekly_scopus_update()
+ RETURNS SETOF TEXT
+ AS $$
+ DECLARE
+   new_num integer;
+   old_num integer;
+ BEGIN
+   SELECT num_scopus into new_num FROM update_log_scopus
+   WHERE num_scopus IS NOT NULL
+   ORDER BY id DESC LIMIT 1;
+
+   SELECT num_scopus into old_num FROM update_log_scopus
+   WHERE num_scopus IS NOT NULL AND id != (SELECT id FROM update_log_scopus WHERE num_scopus IS NOT NULL ORDER BY id DESC LIMIT 1)
+   ORDER BY id DESC LIMIT 1;
+
+   return next ok(new_num > old_num, 'The number of sopus records has increased from latest update!');
+
  END;
  $$ LANGUAGE plpgsql;
 
@@ -212,47 +238,21 @@ $$ LANGUAGE plpgsql;
 
 -- Run functions
 -- Start transaction and plan the tests.
-BEGIN;
-SELECT plan(50);
+
+DO $$DECLARE TOTAL_NUM_ASSERTIONS integer default 50;
+BEGIN
+SELECT plan(TOTAL_NUM_ASSERTIONS);
 select test_that_all_scopus_tables_exist();
 select test_that_all_scopus_tables_have_pk();
 -- select test_that_all_scopus_tables_are_populated();
 select test_that_there_is_no_100_percent_NULL_column_in_scopus_tables();
+select test_that_publication_number_increase_after_weekly_scopus_update();
 SELECT pass( 'My test passed!');
 select * from finish();
 ROLLBACK;
+END$$;
 
--- 4 # Pseudo-Assertion: is there an increase in records ?
 
-CREATE TABLE IF NOT EXISTS test_table_record_number_increased_after_update AS
-select
-schemaname as schema_name,
-relname as table_name,
-n_live_tup as n_live_records,
-n_dead_tup as n_dead_records,
-n_tup_ins as n_inserts,
-n_tup_upd as n_updates,
-n_tup_del as n_deletions
-from pg_stat_all_tables
-where schemaname='public'
-and relname in ('scopus_abstracts','scopus_authors','scopus_grants',
-                                          'scopus_grant_acknowledgments','scopus_keywords','scopus_publications',
-                                          'scopus_publication_groups','scopus_references','scopus_sources','scopus_subjects','scopus_titles')
-ORDER BY n_live_tup DESC;
-
-\echo 'Result of the update!'
-
-SELECT * FROM test_table_record_number_increased_after_update;
-
-SELECT n_inserts, n_deletions,
-CASE WHEN n_inserts > n_deletions THEN 'There was an increase!'
-WHEN n_inserts < n_deletions THEN 'There was a decrease!'
-ELSE 'Nothing happened...'
-END AS increase_test
-FROM test_table_record_number_increased_after_update;
-DROP TABLE test_table_record_number_increased_after_update;
-
-\echo 'Synthetic testing is over.'
-
+\echo 'Testing process is over!'
 
 -- END OF SCRIPT

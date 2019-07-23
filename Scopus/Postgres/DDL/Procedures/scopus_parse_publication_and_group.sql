@@ -38,13 +38,16 @@ $$
       LOOP
         INSERT INTO scopus_publication_groups(sgr, pub_year)
         VALUES (cur.sgr, cur.pub_year)
-        ON CONFLICT DO NOTHING;
+        ON CONFLICT UPDATE DO  cur.sgr=excluded.sgr, cur.pub_year=excluded.pub_year;
 
         INSERT INTO scopus_publications(scp, sgr, correspondence_person_indexed_name, correspondence_city,
                                         correspondence_country, correspondence_e_address, citation_type)
         VALUES (cur.scp, cur.sgr, cur.correspondence_person_indexed_name, cur.correspondence_city,
                 cur.correspondence_country, cur.correspondence_e_address, cur.citation_type)
-        ON CONFLICT DO NOTHING;
+        ON CONFLICT UPDATE DO cur.scp=excluded.scp, cur.sgr=excluded.sgr,
+        cur.correspondence_person_indexed_name=excluded.correspondence_person_indexed_name,
+        cur.correspondence_city=excluded.correspondence_city, cur.correspondence_country=excluded.correspondence_country,
+        cur.correspondence_e_address=excluded.correspondence_e_address, cur.citation=excluded.citation_type ;
       END LOOP;
 
     -- scopus_publications: concatenated correspondence organizations

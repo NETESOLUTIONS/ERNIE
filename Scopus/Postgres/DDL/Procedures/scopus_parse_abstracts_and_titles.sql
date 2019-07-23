@@ -21,7 +21,8 @@ AS $$
         abstract_language TEXT PATH '../@xml:lang',
         abstract_source TEXT PATH '../@source'
         )
-      ON CONFLICT DO NOTHING;
+      ON CONFLICT UPDATE DO scp=excluded.scp, abstract_language=excldued.abstract_language
+      , abstract_source=excluded.abstract_source;
 
 
       -- scopus_abstracts: concatenated abstract_text
@@ -55,7 +56,7 @@ AS $$
         title TEXT PATH 'normalize-space()',
         language TEXT PATH '@language'
         )
-      ON CONFLICT DO NOTHING;
+      ON CONFLICT UPDATE DO scp=excluded.scp, title=excluded.title, language=excluded.language;
   END;
   $$
   LANGUAGE plpgsql;

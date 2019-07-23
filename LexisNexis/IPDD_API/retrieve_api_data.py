@@ -17,40 +17,39 @@ def log_off(ipdd_service_reference,security_token):
     client = Client(ipdd_service_reference)
     return client.service.LogOff(security_token)
 
-# IPDD returns the number of documents in a batch based on entitlement (or access denied)
-# per page 96 of TRG, dataset is the Authority code or custom type used to identify the dataset (e.g. US or EP)
-# Per page 96 of TRG, datatype can be one of ('Xml','Pdf','Clip','Images')
-def retrieve_batch_info(ipdd_service_reference,security_token,dataset,datatype):
+# per page 96 of TRG, DataSet is the Authority code or custom type used to identify the dataset (e.g. US or EP)
+# Per page 96 of TRG, DataType can be one of ('Xml','Pdf','Clip','Images')
+# Per page 96 of TRG, KindGroup can be one of ('All','Application','Grant','Other')
+def create_update_request(ipdd_service_reference,security_token,dataset,datatype='Xml',list_format=None,kind_group=None):
     client = Client(ipdd_service_reference)
-    updateRequest = {
-        'SecurityToken':security_token,
-        'DataSet':dataset,
-        'DataType':datatype
-    }
-    return client.service.RetrieveBatchInfo(updateRequest) #TODO: check/parse whats returned here
+    request_factory = client.type_factory('ns1')
+    return request_factory.UpdateRequest(SecurityToken=security_token,DataSet=dataset,DataType=datatype,
+                                          ListFormat=list_format,KindGroup=kind_group)
+
+# IPDD returns the number of documents in a batch based on entitlement (or access denied)
+def retrieve_batch_info(ipdd_service_reference,request_variable):
+    client = Client(ipdd_service_reference)
+    return client.service.RetrieveBatchInfo(request_variable)
 
 # IPDD returns a batchList
-def request_batch_sized(ipdd_service_reference,security_token,dataset,datatype,batch_size=20000):
+# batch_size must be between 20K and 50K
+def request_batch_sized(ipdd_service_reference,request_variable,batch_size=20000):
     client = Client(ipdd_service_reference)
-    updateRequest = {
-        'SecurityToken':security_token,
-        'DataSet':dataset,
-        'DataType':datatype
-    }
-    return client.service.RequestBatchSized(updateRequest,batch_size) #TODO: check/parse whats returned here
+    return client.service.RequestBatchSized(request_variable,batch_size)
 
 # IPDD returns information on batch including Queued, Running, Finished, Failed, Retrieved
 def retrieve_batch_status(ipdd_service_reference,security_token,batch_id):
     client = Client(ipdd_service_reference)
-    return client.service.RetrieveBatchStatus(security_token,batch_id) #TODO: check/parse whats returned here
+    return client.service.RetrieveBatchStatus(security_token,batch_id)
 
 # IPDD returns stream containing the data in a single Zip file
-# TODO: determine if decompression choices available, alternately, decompress on the fly
 def retrieve_batch(ipdd_service_reference,security_token,batch_id,position):
     client = Client(ipdd_service_reference)
-    return client.service.RetrieveBatch(security_token,batch_id,position) #TODO: check/parse whats returned here
+    return client.service.RetrieveBatch(security_token,batch_id,position)
 
 # TODO: define a multithreaded function for parallel calls to parser.sql
+# TODO: determine if decompression choices available, alternately, decompress on the fly
+# Basically apply the approach available on PP.20 but try to see if we can work with string data directly instead of building/unzipping files
 def pass_to_parser():
     pass
 
@@ -67,33 +66,46 @@ if __name__ == "__main__" :
     parser.add_argument('-s','--sleep_time',help='Amount of ms to sleep in between batch info calls',type=int,default=300000)
     parser.add_argument('-D','--datasets', type=str, nargs='+',help='Space delimited list of target datasets to collect patent data for')
     args = parser.parse_args()
-    datatype = 'Xml'
     # Log on
     expiration,security_token = log_on(args.ipdd_service_reference,args.ipdd_username,args.ipdd_password)
     # For each type of dataset we are interested in...
     for dataset in args.datasets:
         # Check if new/updated publications are available. If so:
         print ("Collecting data for {} patents with datatype {}".format(dataset,datatype))
+        # Create updateRequestVariable
+        updateRequestVariable = create_update_request(args.ipdd_service_reference,security_token,dataset)
 
-        if retrieve_batch_info(ipdd_service_reference,security_token,dataset,datatype) > 0:
+        if retrieve_batch_info(args.ipdd_service_reference,updateRequestVariable)['Count'] > 0:
+            print("Update data available for download...")
             # Request the publications
-            batch_list = request_batch_sized(ipdd_service_reference,security_token,dataset,datatype,batch_size=args.batch_size)
-            batch_id = batch_list.pop(0) #update to refer to id specifically
-            # Check for batch status of current batch id in a loop with sleep timer
-            while retrieve_batch_status(ipdd_service_reference,security_token,batch_id) == "some condition":
-                # If a batch is ready
-                if batch is ready:
-                    # Retrieve the batch
-                    retrieve_batch(ipdd_service_reference,security_token,batch_id,position)
-                    # Perform parsing by passing returned text data to SQL script
-                    # try to pop next batch id, else break the loop
-                    try:
-                        batch_id = batch_list.pop(0)
-                    except: #TODO: only go to this exception on a null list. For any other error, throw the error.
-                        print("No new batches left to consider")
+            batch_list = request_batch_sized(args.ipdd_service_reference,updateRequestVariable,batch_size=args.batch_size)
+            cur_batch_id = batch_list.pop(0)['BatchId'] #update to refer to id specifically
+            # While loop on batch list
+            while len(batch_list.Batch) > 0:
+                cur_batch_id = batch_list.pop(0)['BatchId']
+                cur_batch_status = retrieve_batch_status(args.ipdd_service_reference,security_token,cur_batch_id)['Status']
+                while cur_batch_status != "Finished":
+                    if cur_batch_status == "Failed":
+                        print("Batch {} has failed during creation".format(cur_batch_id))
                         break
-                # Sleep
-                sleep(args.sleep_time)
+                    sleep(args.sleep_time)
+                    cur_batch_status = retrieve_batch_status(args.ipdd_service_reference,security_token,cur_batch_id)['Status']
+
+                retry_count=0;position=0
+                # Process the data in a try catch block inside of a while loop
+                while retry_count < 1000:
+                    cur_position=0
+                    try:
+                        # Retrieve the batch
+                        data_stream = retrieve_batch(ipdd_service_reference,security_token,cur_batch_id,position)
+                        # Perform parsing by passing returned text data to SQL script
+                    except:
+                        position+=cur_position
+                        print("IOError while downloading {}. Will retry at position {}".format(cur_batch_id,position))
+                        retry_count+=1
+
+
+
 
     # Logoff
     log_off(args.ipdd_service_reference,security_token)
