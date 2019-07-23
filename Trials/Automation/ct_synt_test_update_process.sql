@@ -174,7 +174,7 @@ $$ language plpgsql;
 -- $$ LANGUAGE plpgsql;
 
 -- #3 Assertion: are tables in lexis_nexis tablespace ?
-CREATE OR REPLACE FUNCTION test_that_tablespace_exists()
+CREATE OR REPLACE FUNCTION test_that_ct_tablespace_exists()
 RETURNS SETOF TEXT
 AS $$
 BEGIN
@@ -183,7 +183,7 @@ END;
 $$ language plpgsql;
 
 -- #4 Assertion : are any tables completely null for every field  (Y/N?)
-CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_lexis_nexis_tables()
+CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_ct_tables()
 RETURNS SETOF TEXT
 AS $$
 DECLARE tab record;
@@ -200,7 +200,7 @@ $$ LANGUAGE plpgsql;
 
 -- 5 # Assertion: is there an increase in records ?
 
-CREATE OR REPLACE FUNCTION test_that_publication_number_increase_after_weekly_lexis_nexis_update()
+CREATE OR REPLACE FUNCTION test_that_publication_number_increase_after_weekly_ct_update()
 RETURNS SETOF TEXT
 AS $$
 DECLARE
@@ -250,11 +250,11 @@ $$ LANGUAGE plpgsql;
 DO $$DECLARE TOTAL_NUM_ASSERTIONS integer default 60;
 BEGIN
 SELECT plan(TOTAL_NUM_ASSERTIONS);
-select test_that_all_scopus_tables_exist();
-select test_that_all_scopus_tables_have_pk();
--- select test_that_all_scopus_tables_are_populated();
-select test_that_there_is_no_100_percent_NULL_column_in_scopus_tables();
-select test_that_publication_number_increase_after_weekly_scopus_update();
+select test_that_all_ct_tables_exist();
+select test_that_all_ct_tables_have_pk();
+select test_that_tablespace_exist();
+select test_that_there_is_no_100_percent_NULL_column_in_ct_tables();
+select test_that_publication_number_increase_after_weekly_ct_update();
 SELECT pass( 'My test passed!');
 select * from finish();
 ROLLBACK;
