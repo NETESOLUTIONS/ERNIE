@@ -67,7 +67,7 @@ AS $$
       scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
       subj_abbr TEXT PATH '.'
       )
-    ON CONFLICT UPDATE SET scp=excluded.scp, subj_abbr=excluded.subj_abbr;
+    ON CONFLICT UPDATE DO scp=excluded.scp, subj_abbr=excluded.subj_abbr;
 
     -- scopus_subject_keywords
     INSERT INTO scopus_subject_keywords (scp, subject)
@@ -80,7 +80,7 @@ AS $$
       scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
       subject TEXT PATH '.'
       )
-    ON CONFLICT UPDATE SET scp=excluded.scp, subject=excluded.subject;
+    ON CONFLICT UPDATE DO scp=excluded.scp, subject=excluded.subject;
 
     -- scopus_classes
     INSERT INTO scopus_classes(scp,class_type,class_code)
@@ -94,7 +94,7 @@ AS $$
       classification_code TEXT PATH 'classification-code',
       classification TEXT PATH '.'
     )
-    ON CONFLICT UPDATE SET scp=excluded.scp, class_type=excluded.class_type, classification_code=excluded.classification_code, classification=excluded.classification;
+    ON CONFLICT UPDATE DO scp=excluded.scp, class_type=excluded.class_type, classification_code=excluded.classification_code, classification=excluded.classification;
 
     -- scopus_classification_lookup
     INSERT INTO scopus_classification_lookup(class_type,class_code,description)
@@ -107,7 +107,7 @@ AS $$
       class_code TEXT PATH '.',
       description TEXT PATH 'following-sibling::classification-description'
     )
-    ON CONFLICT UPDATE SET class_type=excluded.class_type, class_code=excluded.class_code, description=excluded.description;
+    ON CONFLICT UPDATE DO class_type=excluded.class_type, class_code=excluded.class_code, description=excluded.description;
 
   END;
   $$

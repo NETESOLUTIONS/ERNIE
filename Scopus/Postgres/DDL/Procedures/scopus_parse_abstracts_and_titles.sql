@@ -21,7 +21,7 @@ AS $$
         abstract_language TEXT PATH '../@xml:lang',
         abstract_source TEXT PATH '../@source'
         )
-      ON CONFLICT UPDATE SET scp=excluded.scp, abstract_language=excldued.abstract_language
+      ON CONFLICT UPDATE DO scp=excluded.scp, abstract_language=excldued.abstract_language
       , abstract_source=excluded.abstract_source;
 
 
@@ -56,7 +56,7 @@ AS $$
         title TEXT PATH 'normalize-space()',
         language TEXT PATH '@language'
         )
-      ON CONFLICT UPDATE SET scp=excluded.scp, title=excluded.title, language=excluded.language;
+      ON CONFLICT UPDATE DO scp=excluded.scp, title=excluded.title, language=excluded.language;
   END;
   $$
   LANGUAGE plpgsql;
