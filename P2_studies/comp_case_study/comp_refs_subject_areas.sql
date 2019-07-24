@@ -22,9 +22,9 @@ FROM
     FROM :comp_table
 ),
      pubs_subjects AS (
-         SELECT p.source_id, sc.class_code
+         SELECT p.cited_source_uid, sc.class_code
          FROM pubs_year p
-                  JOIN scopus_classes sc ON p.source_id = sc.scp
+                  JOIN scopus_classes sc ON p.cited_source_uid = sc.scp
          WHERE sc.class_type = 'ASJC'
      )
          SELECT minor_subject_area, count(*) AS area_count
