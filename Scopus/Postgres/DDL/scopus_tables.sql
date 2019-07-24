@@ -369,7 +369,7 @@ COMMENT ON COLUMN scopus_source_publication_details.conf_name IS 'Conference nam
 CREATE TABLE scopus_subjects (
   scp BIGINT
     CONSTRAINT ssubj_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-  subj_abbr TEXT,
+  subj_abbr SCOPUS_SUBJECT_ABBRE_TYPE,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT scopus_subjects_pk PRIMARY KEY (scp, subj_abbr) USING INDEX TABLESPACE index_tbs
 )
