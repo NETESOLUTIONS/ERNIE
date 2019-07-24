@@ -142,8 +142,8 @@ $$ LANGUAGE plpgsql;
 -- Run functions
 -- Start transaction and plan the tests.
 
-BEGIN
-SELECT plan(TOTAL_NUM_ASSERTIONS);
+BEGIN;
+SELECT plan(:TOTAL_NUM_ASSERTIONS);
 select test_that_all_exporter_tables_exist();
 select test_that_all_exporter_tables_have_pk();
 select test_that_exporter_tablespace_exists();
