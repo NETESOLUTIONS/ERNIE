@@ -65,7 +65,7 @@ AS $$
     FROM xmltable(--
       '//bibrecord/head/enhancement/classificationgroup/classifications[@type="SUBJABBR"]/classification' PASSING scopus_doc_xml COLUMNS --
       scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
-      subj_abbr TEXT PATH '.'
+      subj_abbr SCOPUS_SUBJECT_ABBRE_TYPE PATH '.'
       )
     ON CONFLICT UPDATE DO scp=excluded.scp, subj_abbr=excluded.subj_abbr;
 

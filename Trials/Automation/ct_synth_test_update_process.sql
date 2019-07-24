@@ -17,6 +17,7 @@
 \timing
 \set ON_ERROR_STOP on
 \set ECHO all
+\set TOTAL_NUM_ASSERTIONS 58 
 
 \echo 'Update process complete!'
 
@@ -131,9 +132,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Run functions
--- Start transaction and plan the tests.
+-- Start transaction and plan the tests
 
-DO $$DECLARE TOTAL_NUM_ASSERTIONS integer default 60;
 BEGIN
 SELECT plan(TOTAL_NUM_ASSERTIONS);
 select test_that_all_ct_tables_exist();

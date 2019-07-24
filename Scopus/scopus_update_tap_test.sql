@@ -16,6 +16,7 @@
  \timing
  \set ON_ERROR_STOP on
  \set ECHO all
+ \set TOTAL_NUM_ASSERTIONS 58
  SET TIMEZONE = 'US/Eastern';
  SET SEARCH_PATH = public;
 
@@ -241,7 +242,6 @@ $$ LANGUAGE plpgsql;
 -- Run functions
 -- Start transaction and plan the tests.
 
-DO $$DECLARE TOTAL_NUM_ASSERTIONS integer default 50;
 BEGIN
 SELECT plan(TOTAL_NUM_ASSERTIONS);
 select test_that_all_scopus_tables_exist();
