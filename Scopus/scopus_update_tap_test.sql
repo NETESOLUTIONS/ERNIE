@@ -10,14 +10,16 @@
  1. do all tables exist
  2. do all tables have a pk
  3. do any of the tables have columns that are 100% NULL
- 4. A "psuedo-assertion": for various tables was there an increases ?
+ 4. For various tables was there an increases ?
  */
 
  \timing
+ \set ON_ERROR_STOP on
+ \set ECHO all
+ SET TIMEZONE = 'US/Eastern';
+ SET SEARCH_PATH = public;
 
 \echo 'Update process complete!'
-
-
 
 \echo 'Synthetic testing will begin....'
 
@@ -190,7 +192,7 @@ CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scop
  END;
  $$ LANGUAGE plpgsql;
 
- -- 4 # Pseudo-Assertion: is there an increase in records ?
+ -- 4 # Assertion: is there an increase in records ?
 
  CREATE OR REPLACE FUNCTION test_that_publication_number_increase_after_weekly_scopus_update()
  RETURNS SETOF TEXT
