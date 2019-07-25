@@ -193,27 +193,27 @@ CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scop
  END;
  $$ LANGUAGE plpgsql;
 
- -- -- 4 # Assertion: is there an increase in records ?
- --
- -- CREATE OR REPLACE FUNCTION test_that_publication_number_increase_after_weekly_scopus_update()
- -- RETURNS SETOF TEXT
- -- AS $$
- -- DECLARE
- --   new_num integer;
- --   old_num integer;
- -- BEGIN
- --   SELECT num_scopus into new_num FROM update_log_scopus
- --   WHERE num_scopus IS NOT NULL
- --   ORDER BY id DESC LIMIT 1;
- --
- --   SELECT num_scopus into old_num FROM update_log_scopus
- --   WHERE num_scopus IS NOT NULL AND id != (SELECT id FROM update_log_scopus WHERE num_scopus IS NOT NULL ORDER BY id DESC LIMIT 1)
- --   ORDER BY id DESC LIMIT 1;
- --
- --   return next ok(new_num > old_num, 'The number of sopus records has increased from latest update!');
- --
- -- END;
- -- $$ LANGUAGE plpgsql;
+ -- 4 # Assertion: is there an increase in records ?
+
+ CREATE OR REPLACE FUNCTION test_that_publication_number_increase_after_weekly_scopus_update()
+ RETURNS SETOF TEXT
+ AS $$
+ DECLARE
+   new_num integer;
+   old_num integer;
+ BEGIN
+   SELECT num_scopus into new_num FROM update_log_scopus
+   WHERE num_scopus IS NOT NULL
+   ORDER BY id DESC LIMIT 1;
+
+   SELECT num_scopus into old_num FROM update_log_scopus
+   WHERE num_scopus IS NOT NULL AND id != (SELECT id FROM update_log_scopus WHERE num_scopus IS NOT NULL ORDER BY id DESC LIMIT 1)
+   ORDER BY id DESC LIMIT 1;
+
+   return next ok(new_num > old_num, 'The number of sopus records has increased from latest update!');
+
+ END;
+ $$ LANGUAGE plpgsql;
 
 /*
 --5 # Assertion : did the number of entries in

@@ -695,8 +695,8 @@ COMMENT ON COLUMN scopus_chemical_groups.cas_registry_number IS 'CAS registry nu
 DROP TABLE IF EXISTS update_log_scopus;
 CREATE TABLE update_log_scopus (
   id           SERIAL,
-  last_update_time TIMESTAMP,
-  num_scopus_pubs INTEGER,
+  update_time TIMESTAMP,
+  num_scopus_pub INTEGER,
   num_delete      INTEGER,
   CONSTRAINT update_log_scopus_pk PRIMARY KEY (id) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
