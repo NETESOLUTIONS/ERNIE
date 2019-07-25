@@ -19,9 +19,9 @@
 \set ECHO all
 \set TOTAL_NUM_ASSERTIONS 58
 
-'Update process complete!'
+\echo 'Update process complete!'
 
-'Synthetic testing will begin....'
+\echo 'Synthetic testing will begin....'
 
 -- 1 # Assertion : all fda tables exist (T/F?)
 CREATE OR REPLACE FUNCTION test_that_all_fda_tables_exist()
@@ -157,6 +157,6 @@ ROLLBACK;
 END$$;
 
 
-'Testing process is over!'
+\echo 'Testing process is over!'
 
 -- END OF SCRIPT
