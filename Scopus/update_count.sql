@@ -7,22 +7,22 @@ SET TIMEZONE = 'US/Eastern';
 UPDATE update_log_scopus
 SET
   last_updated = current_timestamp, --
-  num_scopus =
+  num_scopus_publications =
     (SELECT count(1)
      FROM scopus_publications),
   num_update =
     (SELECT count(1)
-     FROM uhs_scopus_publications a
-     WHERE uhs_updated_time >
-             (SELECT process_start_time
+     FROM update_scps_tmp a
+     WHERE last_update_time >
+             (SELECT last_update_time
               FROM update_log_scopus
               ORDER BY id DESC
               LIMIT 1)),
   num_delete =
     (SELECT count(1)
-     FROM del_scopus_publications b
-     WHERE deleted_time >
-             (SELECT process_start_time
+     FROM del_scps_st b
+     WHERE del_time >
+             (SELECT last_update_time
               FROM update_log_scopus
               ORDER BY id DESC
               LIMIT 1)),
@@ -47,5 +47,4 @@ WHERE id =
 
 SELECT *
 FROM update_log_scopus
-ORDER BY id DESC
-FETCH FIRST 10 ROWS ONLY;
+ORDER BY id DESC;
