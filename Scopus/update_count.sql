@@ -22,13 +22,13 @@ SET
     (SELECT count(1)
      FROM scopus_publications c
      WHERE update_time >
-             (SELECT process_start_time
+             (SELECT update_time
               FROM update_log_scopus
               ORDER BY id DESC
               LIMIT 1) AND source_id NOT IN
              (SELECT DISTINCT source_id
               FROM scopus_publications
-              WHERE uhs_updated_time >
+              WHERE update_time >
                       (SELECT process_start_time
                        FROM update_log_scopus
                        ORDER BY id DESC
