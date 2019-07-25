@@ -19,9 +19,9 @@
 \set ECHO all
 \set TOTAL_NUM_ASSERTIONS 58
 
-\echo 'Update process complete!'
+'Update process complete!'
 
-\echo 'Synthetic testing will begin....'
+'Synthetic testing will begin....'
 
 -- 1 # Assertion : all scopus tables exist (T/F?)
 CREATE OR REPLACE FUNCTION test_that_all_ct_tables_exist()
@@ -147,6 +147,6 @@ ROLLBACK;
 END$$;
 
 
-\echo 'Testing process is over!'
+'Testing process is over!'
 
 -- END OF SCRIPT
