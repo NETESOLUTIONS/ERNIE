@@ -1,14 +1,14 @@
 -- test script to test Monte-Carlo methods for networks
--- this script was specifically developed for the ERNIE project
--- but can be used for benchmarking performance
--- George Chacko 12/8/2018
--- cleaned up bad git merge and replace 'gc_mc' with 'stg_uz_ds' (Uzzi-dataslice)
--- DK added expresions to select most frequently used issns where multiple values exist
--- can pass parametes now
--- e.g., nohup  psql -f /home/chackoge/ERNIE/P2_studies/Uzzi/stg_uz_ds.sql -v year=1980 &
--- George Chacko 12/20/2018
--- Sitaram Devarakonda 06/24/2018
--- Ported code to work on Scopus data
+-- -- this script was specifically developed for the ERNIE project
+-- -- but can be used for benchmarking performance
+-- -- George Chacko 12/8/2018
+-- -- cleaned up bad git merge and replace 'gc_mc' with 'stg_uz_ds' (Uzzi-dataslice)
+-- -- DK added expresions to select most frequently used issns where multiple values exist
+-- -- can pass parametes now
+-- -- e.g., nohup  psql -f /home/chackoge/ERNIE/P2_studies/Uzzi/stg_uz_ds.sql -v year=1980 &
+-- -- George Chacko 12/20/2018
+-- -- Sitaram Devarakonda 06/24/2018
+-- -- Ported code to work on Scopus data
 
 \set ON_ERROR_STOP on
 \set ECHO all
