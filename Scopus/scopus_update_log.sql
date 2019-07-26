@@ -12,7 +12,7 @@ SET
      FROM scopus_publications a),
   num_delete =
     (SELECT count(1)
-     FROM del_scps_stg b)
+     FROM del_scps b)
 WHERE id =
         (SELECT max(id)
          FROM update_log_scopus);
