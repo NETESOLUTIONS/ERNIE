@@ -17,4 +17,4 @@ CREATE TABLE public.del_scps_stg(
 
 DELETE FROM scopus_publications
 WHERE scp IN (SELECT scp
-          FROM del_scps_stg);
+          FROM public.del_scps_stg);
