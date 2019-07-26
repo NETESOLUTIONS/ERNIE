@@ -7,7 +7,7 @@ SET TIMEZONE = 'US/Eastern';
 -- created a delete table which will be counted like scopus_pub
 
 INSERT INTO update_log_scopus (update_time, num_scopus_pub,num_delete)
-SELECT 
+SELECT
   current_timestamp,  --
   count(a.scp),
   count(b.scp)
