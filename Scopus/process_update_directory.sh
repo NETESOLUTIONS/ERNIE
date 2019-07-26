@@ -250,7 +250,7 @@ done
 
 # Update the scopus log table
 echo "***UPDATING LOG TABLE"
-psql -c "INSERT INTO update_scopus_log (last_updated, num_scopus_pub)\
+psql -c "INSERT INTO update_scopus_log (update_time num_scopus_pub)\
   SELECT current_timestamp,count(1)\
   FROM scopus_publications;"
 

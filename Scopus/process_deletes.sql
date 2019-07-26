@@ -15,6 +15,10 @@ CREATE TEMP TABLE del_scps_stg(
 \copy del_scps_stg FROM 'edited_delete.txt'
 \! rm edited_delete.txt
 
+INSERT INTO update_scopus_log (num_delete) 
+  SELECT count(1)
+  FROM del_scps_stg;
+
 DELETE FROM scopus_publications
 WHERE scp IN (SELECT scp
               FROM del_scps_stg);
