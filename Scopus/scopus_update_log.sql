@@ -6,6 +6,7 @@ SET TIMEZONE = 'US/Eastern';
 
 UPDATE update_log_scopus
 SET
+  id= id + 1 
   update_time = current_timestamp, --
   num_scopus_pub =
     (SELECT count(1)
