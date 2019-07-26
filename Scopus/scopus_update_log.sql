@@ -16,7 +16,7 @@ SET
   num_delete =
     (SELECT count(1)
      FROM del_scps_stg b)
-WHERE id= > 1 ;
+WHERE id > 1 ;
 
 SELECT *
 FROM update_log_scopus
