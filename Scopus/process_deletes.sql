@@ -15,6 +15,8 @@ CREATE TABLE public.del_scps_stg(
 \copy del_scps_stg FROM 'edited_delete.txt'
 \! rm edited_delete.txt
 
+select * from del_scps_stg limit 100; 
+
 DELETE FROM scopus_publications
 WHERE scp IN (SELECT scp
           FROM public.del_scps_stg);
