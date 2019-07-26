@@ -13,7 +13,7 @@ SET
      FROM scopus_publications a),
   num_delete =
     (SELECT count(1)
-     FROM del_scps b)
+     FROM del_scps_stg b)
 WHERE id=1 ;
 
 SELECT *
