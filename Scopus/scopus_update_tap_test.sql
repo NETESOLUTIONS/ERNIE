@@ -215,8 +215,6 @@ CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scop
  END;
  $$ LANGUAGE plpgsql;
 
-*/
-
 -- Run functions
 -- Start transaction and plan the tests.
 
