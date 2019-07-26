@@ -6,7 +6,7 @@ SET TIMEZONE = 'US/Eastern';
 
 UPDATE update_log_scopus
 SET
-  id= id + 1 ,
+  id= 1 ,
   update_time = current_timestamp, --
   num_scopus_pub =
     (SELECT count(1)
@@ -14,9 +14,7 @@ SET
   num_delete =
     (SELECT count(1)
      FROM del_scps b)
-WHERE id =
-        (SELECT max(id)
-         FROM update_log_scopus);
+WHERE id=1 ;
 
 SELECT *
 FROM update_log_scopus
