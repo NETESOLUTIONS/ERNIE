@@ -248,10 +248,4 @@ for directory in "${FAILED_FILES_DIR}"; do
   cd
 done
 
-# Update the scopus log table
-echo "***UPDATING LOG TABLE"
-psql -c "INSERT INTO update_scopus_log (update_time , num_scopus_pub)\
-  SELECT current_timestamp,count(1)\
-  FROM scopus_publications;"
-
 exit 0
