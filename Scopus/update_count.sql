@@ -9,30 +9,10 @@ SET
   update_time = current_timestamp, --
   num_scopus_pub =
     (SELECT count(1)
-     FROM scopus_publications),
+     FROM scopus_publications a),
   num_delete =
     (SELECT count(1)
-     FROM del_scps_st b
-     WHERE del_time >
-             (SELECT update_time
-              FROM update_log_scopus
-              ORDER BY id DESC
-              LIMIT 1)),
-  num_new_pub =
-    (SELECT count(1)
-     FROM scopus_publications c
-     WHERE update_time >
-             (SELECT update_time
-              FROM update_log_scopus
-              ORDER BY id DESC
-              LIMIT 1) AND source_id NOT IN
-             (SELECT DISTINCT source_id
-              FROM scopus_publications
-              WHERE update_time >
-                      (SELECT process_start_time
-                       FROM update_log_scopus
-                       ORDER BY id DESC
-                       LIMIT 1)))
+     FROM del_scps_stg b)
 WHERE id =
         (SELECT max(id)
          FROM update_log_scopus);
@@ -40,3 +20,4 @@ WHERE id =
 SELECT *
 FROM update_log_scopus
 ORDER BY id DESC;
+drop table del_scps_stg if exists ;

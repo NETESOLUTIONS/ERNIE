@@ -4,8 +4,8 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
--- Create temp table holding scps
-CREATE TEMP TABLE del_scps_stg(
+-- Create table holding scps then drop at the end
+CREATE TABLE del_scps_stg(
   scp BIGINT NOT NULL
   del_time current_timestamp
 );
@@ -15,17 +15,6 @@ CREATE TEMP TABLE del_scps_stg(
 \copy del_scps_stg FROM 'edited_delete.txt'
 \! rm edited_delete.txt
 
--- count number of deleted 
-
-INSERT INTO update_scopus_log (num_delete)
-  SELECT count(1)
-  FROM del_scps_stg;
-
---Update the scopus log table
-  INSERT INTO update_scopus_log (update_time , num_scopus_pub)
-    SELECT current_timestamp,count(1)\
-    FROM scopus_publications;
-
 DELETE FROM scopus_publications
 WHERE scp IN (SELECT scp
-              FROM del_scps_stg);
+          FROM del_scps_stg);
