@@ -4,7 +4,7 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
--- created a delete table which will be counted like scopus_pub 
+-- created a delete table which will be counted like scopus_pub
 
 UPDATE update_log_scopus
 SET
@@ -16,7 +16,7 @@ SET
   num_delete =
     (SELECT count(1)
      FROM del_scps_stg b)
-WHERE id=1 ;
+WHERE id= > 1 ;
 
 SELECT *
 FROM update_log_scopus

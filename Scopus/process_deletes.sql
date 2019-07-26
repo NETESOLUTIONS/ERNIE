@@ -5,7 +5,7 @@
 SET TIMEZONE = 'US/Eastern';
 
 -- Create table holding scps then drop at the end
-CREATE TABLE del_scps_stg(
+CREATE TABLE public.del_scps_stg(
   scp BIGINT NOT NULL
   del_time current_timestamp
 );
