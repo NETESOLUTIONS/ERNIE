@@ -202,40 +202,18 @@ CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scop
    new_num integer;
    old_num integer;
  BEGIN
-   SELECT num_scopus into new_num FROM update_log_scopus
-   WHERE num_scopus IS NOT NULL
+   SELECT num_scopus_pub into new_num FROM update_log_scopus
+   WHERE num_scopus_pub IS NOT NULL
    ORDER BY id DESC LIMIT 1;
 
-   SELECT num_scopus into old_num FROM update_log_scopus
-   WHERE num_scopus IS NOT NULL AND id != (SELECT id FROM update_log_scopus WHERE num_scopus IS NOT NULL ORDER BY id DESC LIMIT 1)
+   SELECT num_scopus_pub into old_num FROM update_log_scopus
+   WHERE num_scopus_pub IS NOT NULL AND id != (SELECT id FROM update_log_scopus WHERE num_scopus_pub IS NOT NULL ORDER BY id DESC LIMIT 1)
    ORDER BY id DESC LIMIT 1;
 
-   return next ok(new_num > old_num, 'The number of sopus records has increased from latest update!');
+   return next ok(new_num > old_num, 'The number of scopus records has increased from latest update!');
 
  END;
  $$ LANGUAGE plpgsql;
-
-/*
---5 # Assertion : did the number of entries in
- CREATE OR REPLACE FUNCTION test_that_publication_number_increase_after_weekly_WoS_update()
-RETURNS SETOF TEXT
-AS $$
-DECLARE
-  new_num integer;
-  old_num integer;
-BEGIN
-  SELECT num_wos into new_num FROM update_log_wos
-  WHERE num_wos IS NOT NULL
-  ORDER BY id DESC LIMIT 1;
-
-  SELECT num_wos into old_num FROM update_log_wos
-  WHERE num_wos IS NOT NULL AND id != (SELECT id FROM update_log_wos WHERE num_wos IS NOT NULL ORDER BY id DESC LIMIT 1)
-  ORDER BY id DESC LIMIT 1;
-
-  return next ok(new_num > old_num, 'WoS number has been increased from latest update');
-
-END;
-$$ LANGUAGE plpgsql;
 
 */
 
@@ -246,7 +224,6 @@ BEGIN;
 SELECT plan(:TOTAL_NUM_ASSERTIONS);
 select test_that_all_scopus_tables_exist();
 select test_that_all_scopus_tables_have_pk();
--- select test_that_all_scopus_tables_are_populated();
 select test_that_there_is_no_100_percent_NULL_column_in_scopus_tables();
 select test_that_publication_number_increase_after_weekly_scopus_update();
 SELECT pass( 'My test passed!');
