@@ -6,17 +6,12 @@ SET TIMEZONE = 'US/Eastern';
 
 -- created a delete table which will be counted like scopus_pub
 
-UPDATE update_log_scopus
-SET
-  id= id+ 1 ,
-  update_time = current_timestamp, --
-  num_scopus_pub =
-    (SELECT count(1)
-     FROM scopus_publications a),
-  num_delete =
-    (SELECT count(1)
-     FROM del_scps_stg b)
-WHERE id > 1 ;
+INSERT INTO update_log_scopus (update_time, num_scopus_pub,num_delete)
+SELECT 
+  current_timestamp,  --
+  count(a.scp),
+  count(b.scp)
+FROM scopus_publications a, del_scps b;
 
 SELECT *
 FROM update_log_scopus
