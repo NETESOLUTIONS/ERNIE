@@ -21,4 +21,3 @@ WHERE id= > 1 ;
 SELECT *
 FROM update_log_scopus
 ORDER BY id DESC;
-DROP TABLE IF EXISTS del_scps_stg;
