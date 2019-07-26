@@ -10,7 +10,7 @@ CREATE TABLE del_scps_stg(
   del_time current_timestamp
 );
 
---edit the delete file with sed, then perform a client side copy into the temp table
+--edit the delete file with sed, then perform a client side copy into the table
 \! sed "s/DELETE-2-s2.0-//g" delete.txt > edited_delete.txt
 \copy del_scps_stg FROM 'edited_delete.txt'
 \! rm edited_delete.txt
