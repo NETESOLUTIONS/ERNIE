@@ -115,9 +115,9 @@ parse_xml() {
   [[ ${VERBOSE} == "true" ]] && echo "Processing $xml ..."
   #Identify whether it's US file or EP file
   if [[ ${xml} == *"US"* ]]; then
-    file_identification="US"
+    file_identification="-v file_name=US"
   else
-    file_identification="EP"
+    file_identification="-v file_name=EP"
   fi
 
   if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/Postgres/parser.sql -v "xml_file=$PWD/$xml" ${subset_option} ${file_identification} 2>>"${ERROR_LOG}"; then
@@ -154,12 +154,35 @@ HEREDOC
 }
 
 # First, use API access scripts to download XMLs into Zip files in a local storage directory
-> "${PROCESSED_LOG}"
 mkdir -p "${FAILED_FILES_DIR}"
 mkdir -p API_downloads
-#download all files into API_downloads
-echo "Starting IPDD API data retrieval script..."
-/anaconda3/bin/python ${ABSOLUTE_SCRIPT_DIR}/IPDD_API/retrieve_api_data.py -U ${IPDD_USERNAME} -W ${IPDD_PASSWORD} -R ${IPDD_SERVICE_REFERENCE} -D EP US
+# Ping API to produce update files for us
+#echo "Starting IPDD API update script..."
+#/anaconda3/bin/python ${ABSOLUTE_SCRIPT_DIR}/IPDD_API/retrieve_api_data.py -U ${IPDD_USERNAME} -W ${IPDD_PASSWORD} -R ${IPDD_SERVICE_REFERENCE} -D EP US
+
+#TODO: Implement lftp downloads and write files to API downloads since all data is pushed into the FTP server. This is probably a better option than using pure python since it leaves us with a more readable processed log file
+#echo "Checking server for files..."
+#lftp -u ${IPDD_USERNAME},${IPDD_PASSWORD} ftp-ipdatadirect.lexisnexis.com <<HEREDOC
+#nlist >> ftp_filelist.txt
+#quit
+#HEREDOC
+
+# Download files if any new or missed ones are available
+#cat >group_download.sh <<HEREDOC
+#lftp -u ${IPDD_USERNAME},${IPDD_PASSWORD} ftp-ipdatadirect.lexisnexis.com <<SCRIPTEND
+#lcd API_downloads/
+#HEREDOC
+#grep -F -x -v --file=processed.log ftp_filelist.txt | \
+#   sed 's/.*/mirror -v --use-pget -i &/' >>group_download.sh || { echo "Nothing to download" && exit 0; }
+#cat >>group_download.sh <<HEREDOC
+#quit
+#SCRIPTEND
+
+#HEREDOC
+
+#echo "Downloading from IPDD ..."
+#bash -xe group_download.sh
+#echo "Download finished."
 
 declare -i num_zips=$(ls API_downloads/*.zip | wc -l)
 declare -i failed_xml_counter=0 failed_xml_counter_total=0 processed_xml_counter=0 processed_xml_counter_total=0
@@ -243,12 +266,14 @@ else
   echo "FAILED PARSING ${failed_xml_counter_total} XML FILES"
 fi
 
-rm -rf API_downloads
-
 for directory in "${FAILED_FILES_DIR}"; do
   cd $directory
   check_errors # Exits here if errors occurred
   cd
 done
+
+declare -i days_to_keep_zip_files=90
+echo "Removing files older than ${days_to_keep_zip_files} days ..."
+find API_downloads/ -type f -mtime +$((days_to_keep_zip_files - 1)) -print -delete
 
 exit 0

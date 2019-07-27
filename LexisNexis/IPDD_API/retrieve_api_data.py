@@ -25,6 +25,22 @@ def create_update_request(ipdd_service_reference,security_token,dataset,datatype
     return request_factory.UpdateRequest(SecurityToken=security_token,DataSet=dataset,DataType=datatype,
                                           ListFormat=list_format,KindGroup=kind_group)
 
+# This function is used to request a history list in XML format of all the previously requested batches
+def create_history_request(ipdd_service_reference,security_token,dataset,datatype='Xml',list_format=None,kind_group=None,
+                            request_date_from=(datetime.today() - timedelta(days=7)).strftime("%Y-%m-%d"), request_date_to=(datetime.today()).strftime("%Y-%m-%d"),
+                            status='All'):
+    client = Client(ipdd_service_reference)
+    request_factory = client.type_factory('ns1')
+    return request_factory.HistoryRequest(SecurityToken=security_token,DataSet=dataset,DataType=datatype,
+                                          ListFormat=list_format,KindGroup=kind_group,
+                                          RequestDateFrom=request_date_from,RequestDateTo=request_date_to,
+                                          Status=status)
+
+# Request past history
+def request_history(ipdd_service_reference,history_request_variable):
+    client = Client(ipdd_service_reference)
+    return client.service.RequestHistory(history_request_variable)
+
 # IPDD returns the number of documents in a batch based on entitlement (or access denied)
 def retrieve_batch_info(ipdd_service_reference,request_variable):
     client = Client(ipdd_service_reference)
@@ -87,7 +103,9 @@ if __name__ == "__main__" :
                     sleep(args.sleep_time)
                     cur_batch_status = retrieve_batch_status(args.ipdd_service_reference,security_token,cur_batch_id)['Status']
 
-                # Download the data in a try catch block inside of a while loop and write the stream to a zip file
+                # Notify batch completion
+                print("Batch {} has completed and is available at the FTP location".format(cur_batch_id))
+                '''# Download the data in a try catch block inside of a while loop and write the stream to a zip file
                 retry=True;retry_count=0;position=0
                 while retry_count < 1000 and retry:
                     cur_position=0
@@ -101,6 +119,6 @@ if __name__ == "__main__" :
                     except:
                         position+=cur_position
                         print("IOError while downloading {}. Will retry at position {}".format(cur_batch_id,position))
-                        retry_count+=1
+                        retry_count+=1'''
     # Logoff
     log_off(args.ipdd_service_reference,security_token)
