@@ -8,7 +8,19 @@
       <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
       <secret-storage>master_key</secret-storage>
       <user-name>dk</user-name>
-      <introspection-schemas>@:@|ernie:ernie1_public,information_schema,pg_catalog,public</introspection-schemas>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="database" qname="@">
+            <node kind="schema">
+              <name qname="@" />
+              <name qname="ernie1_public" />
+              <name qname="information_schema" />
+              <name qname="pg_catalog" />
+              <name qname="public" />
+            </node>
+          </node>
+        </introspection-scope>
+      </schema-mapping>
     </data-source>
     <data-source name="ERNIE2 (ernie_admin) @ tunnel" uuid="9566f9ea-4fe2-4a6d-96b3-fbbdfec20991">
       <database-info product="PostgreSQL" version="9.6.12" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.2" dbms="POSTGRES" exact-version="9.6.12" exact-driver-version="42.2">
@@ -17,7 +29,15 @@
       <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
       <secret-storage>master_key</secret-storage>
       <user-name>ernie_admin</user-name>
-      <introspection-schemas>@:@,information_schema,pg_catalog</introspection-schemas>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="database" qname="@">
+            <node kind="schema" qname="@" />
+            <node kind="schema" qname="information_schema" />
+            <node kind="schema" qname="pg_catalog" />
+          </node>
+        </introspection-scope>
+      </schema-mapping>
     </data-source>
   </component>
 </project>
