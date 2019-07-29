@@ -1,3 +1,10 @@
+\set ON_ERROR_STOP on
+\set ECHO all
+
+\if :{?schema}
+SET search_path = :schema;
+\endif
+
 \include_relative scopus_enums.sql
 \include_relative scopus_tables.sql
 \include_relative scopus_triggers.sql
