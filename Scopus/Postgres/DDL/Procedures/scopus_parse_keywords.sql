@@ -14,6 +14,6 @@ BEGIN
     xmltable(XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
              '//bibrecord/head/citation-info/author-keywords/author-keyword' PASSING scopus_doc_xml
              COLUMNS scp BIGINT PATH '../../../../item-info/itemidlist/itemid[@idtype="SCP"]', keyword TEXT PATH '.')
-  ON CONFLICT UPDATE DO scp=excluded.scp, keyword=excluded.keyword;
+  ON CONFLICT DO UPDATE SET scp=excluded.scp, keyword=excluded.keyword;
 END; $$
 LANGUAGE plpgsql;

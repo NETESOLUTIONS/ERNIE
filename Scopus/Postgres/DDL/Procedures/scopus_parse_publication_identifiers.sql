@@ -46,7 +46,7 @@ AS $$
         document_id TEXT PATH '.',
         document_id_type TEXT PATH 'name(.)'
         )
-      ON CONFLICT UPDATE DO scp=excluded.scp, document_id=excluded.document_id, document_id_type=excluded.document_id_type;
+      ON CONFLICT DO UPDATE SET scp=excluded.scp, document_id=excluded.document_id, document_id_type=excluded.document_id_type;
   END;
   $$
 LANGUAGE plpgsql;

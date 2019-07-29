@@ -77,7 +77,7 @@ BEGIN
     isbn_type TEXT PATH '@type',
     isbn_level TEXT PATH'@level'
     )
-    ON CONFLICT UPDATE DO ernie_source_id=excluded.ernie_source_id,
+    ON CONFLICT DO UPDATE SET ernie_source_id=excluded.ernie_source_id,
     isbn=excluded.isbn, isbn_length=excluded.isbn_length, isbn_type=excluded.isbn_type,
     isbn_level=excluded.isbn_level;
 
@@ -93,7 +93,7 @@ BEGIN
     issn TEXT PATH '.',
     issn_type TEXT PATH '@type'
     )
-    ON CONFLICT UPDATE DO ernie_source_id=excluded.ernie_source_id,
+    ON CONFLICT DO UPDATE SET ernie_source_id=excluded.ernie_source_id,
     issn=excluded.issn, issn_type=excluded.issn_type;
 
     UPDATE scopus_publications sp
@@ -201,7 +201,7 @@ BEGIN
             proc_page_count TEXT PATH 'procpagecount'
             )
     WHERE proc_part_no IS NOT NULL OR proc_page_range IS NOT NULL or proc_page_count IS NOT NULL
-    ON CONFLICT UPDATE DO  ernie_source_id=excluded.ernie_source_id,
+    ON CONFLICT DO UPDATE SET  ernie_source_id=excluded.ernie_source_id,
         conf_code=excluded.conf_code, conf_name=excluded.conf_name, proc_part_no=excluded.proc_part_no,
         proc_page_range=excluded.proc_page_range, proc_page_count=excluded.proc_page_count;
 
@@ -236,7 +236,7 @@ BEGIN
               suffix TEXT PATH 'ce:suffix'
             )
     WHERE db_id IS NOT NULL
-    ON CONFLICT UPDATE DO ernie_source_id=excluded.ernie_source_id,
+    ON CONFLICT DO UPDATE SET ernie_source_id=excluded.ernie_source_id,
         conf_code=excluded.conf_code, conf_name=excluded.conf_name,
         indexed_name=excluded.indexed_name, role_type=excluded.role_type,
         initials=excluded.initials, surname=excluded.surname,
