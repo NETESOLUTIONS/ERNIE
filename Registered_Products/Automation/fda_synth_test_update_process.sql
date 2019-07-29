@@ -89,7 +89,7 @@ BEGIN
   WHERE num_products IS NOT NULL AND id != (SELECT id FROM update_log_fda WHERE num_products IS NOT NULL ORDER BY id DESC LIMIT 1)
   ORDER BY id DESC LIMIT 1;
 
-  return next ok(new_num > old_num, 'The number of products in the orange book has increased from latest update!');
+  return next ok(new_num > old_num, 'The number of products has increased from latest update!');
 
 END;
 $$ LANGUAGE plpgsql;
@@ -112,7 +112,7 @@ BEGIN
   WHERE num_patents IS NOT NULL AND id != (SELECT id FROM update_log_fda WHERE num_patents IS NOT NULL ORDER BY id DESC LIMIT 1)
   ORDER BY id DESC LIMIT 1;
 
-  return next ok(new_num > old_num, 'The number of orange book patents has increased from latest update!');
+  return next ok(new_num > old_num, 'The number of patents has increased from latest update!');
 
 END;
 $$ LANGUAGE plpgsql;
@@ -134,7 +134,7 @@ BEGIN
   WHERE num_exclusivity IS NOT NULL AND id != (SELECT id FROM update_log_fda WHERE num_exclusivity IS NOT NULL ORDER BY id DESC LIMIT 1)
   ORDER BY id DESC LIMIT 1;
 
-  return next ok(new_num > old_num, 'The number of clinical trial records has increased from latest update!');
+  return next ok(new_num > old_num, 'The number of exclusivities has increased from latest update!');
 
 END;
 $$ LANGUAGE plpgsql;
