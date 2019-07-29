@@ -2,6 +2,7 @@ from zeep import Client
 import zipfile
 import argparse
 from time import sleep
+from datetime import datetime
 
 # IPDD returns security token and expiration info
 def log_on(ipdd_service_reference,username,password):
