@@ -32,7 +32,7 @@ BEGIN
         pub_day SMALLINT PATH 'publicationdate/day' --
     )
     WHERE source_id != '' OR issn !='' OR XMLEXISTS('//bibrecord/head/source/isbn' PASSING scopus_doc_xml)
-    ON CONFLICT (source_id, issn_main, isbn_main)
+    ON CONFLICT (ernie_source_id)
     DO UPDATE
     SET source_id = EXCLUDED.source_id,
         issn_main = EXCLUDED.issn_main,
@@ -77,7 +77,7 @@ BEGIN
     isbn_type TEXT PATH '@type',
     isbn_level TEXT PATH'@level'
     )
-    ON CONFLICT DO UPDATE SET ernie_source_id=excluded.ernie_source_id,
+    ON CONFLICT (ernie_source_id, isbn) DO UPDATE SET ernie_source_id=excluded.ernie_source_id,
     isbn=excluded.isbn, isbn_length=excluded.isbn_length, isbn_type=excluded.isbn_type,
     isbn_level=excluded.isbn_level;
 
@@ -93,7 +93,7 @@ BEGIN
     issn TEXT PATH '.',
     issn_type TEXT PATH '@type'
     )
-    ON CONFLICT DO UPDATE SET ernie_source_id=excluded.ernie_source_id,
+    ON CONFLICT (ernie_source_id, issn, issn_type) DO UPDATE SET ernie_source_id=excluded.ernie_source_id,
     issn=excluded.issn, issn_type=excluded.issn_type;
 
     UPDATE scopus_publications sp
@@ -154,7 +154,7 @@ BEGIN
             conf_number TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confnumber',
             conf_catalog_number TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcatnumber'
             )
-    ON CONFLICT UPDATE SET
+    ON CONFLICT (conf_code, conf_name) DO UPDATE SET
   conf_code=excluded.conf_code, conf_name=excluded.conf_name, conf_address=excluded.conf_address, conf_city=excluded.conf_city,
   conf_postal_code=excluded.conf_postal_code, conf_start_date=excluded.conf_start_date,
   conf_end_date=excluded.conf_end_date, conf_number=excluded.conf_number, conf_catalog_number=excluded.conf_catalog_number;
@@ -201,7 +201,7 @@ BEGIN
             proc_page_count TEXT PATH 'procpagecount'
             )
     WHERE proc_part_no IS NOT NULL OR proc_page_range IS NOT NULL or proc_page_count IS NOT NULL
-    ON CONFLICT DO UPDATE SET  ernie_source_id=excluded.ernie_source_id,
+    ON CONFLICT (ernie_source_id, conf_code, conf_name) DO UPDATE SET  ernie_source_id=excluded.ernie_source_id,
         conf_code=excluded.conf_code, conf_name=excluded.conf_name, proc_part_no=excluded.proc_part_no,
         proc_page_range=excluded.proc_page_range, proc_page_count=excluded.proc_page_count;
 
@@ -236,7 +236,7 @@ BEGIN
               suffix TEXT PATH 'ce:suffix'
             )
     WHERE db_id IS NOT NULL
-    ON CONFLICT DO UPDATE SET ernie_source_id=excluded.ernie_source_id,
+    ON CONFLICT (ernie_source_id, conf_code, conf_name, indexed_name) DO UPDATE SET ernie_source_id=excluded.ernie_source_id,
         conf_code=excluded.conf_code, conf_name=excluded.conf_name,
         indexed_name=excluded.indexed_name, role_type=excluded.role_type,
         initials=excluded.initials, surname=excluded.surname,
