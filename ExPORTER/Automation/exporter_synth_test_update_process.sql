@@ -1,4 +1,4 @@
-exporter/*
+/*
  Title: Scopus-update TAP-test
  Author: Djamil Lakhdar-Hamina
  Date: 07/23/2019
@@ -66,11 +66,11 @@ FOR tab IN
    EXECUTE format('ANALYZE verbose %I;',tab.table_name);
  END LOOP;
   RETURN NEXT is_empty( 'select tablename, attname from pg_stats
-   where schemaname = ''public'' and tablename in LIKE ''exporter%'' and null_frac = 1', 'No 100% null column');
+   where schemaname = ''public'' and tablename LIKE ''exporter%'' and null_frac = 1', 'No 100% null column');
 END;
 $$ LANGUAGE plpgsql;
 
--- 5.1 # Assertion: is there an increase in products ?
+-- 5.1 # Assertion: is there an increase in projects ?
 
 CREATE OR REPLACE FUNCTION test_that_product_number_increase_after_weekly_exporter_update()
 RETURNS SETOF TEXT
@@ -79,64 +79,18 @@ DECLARE
   new_num integer;
   old_num integer;
 BEGIN
-  SELECT num_products into new_num FROM update_log_exporter
-  WHERE num_products IS NOT NULL
+  SELECT num_ex_projects into new_num FROM update_log_exporter
+  WHERE num_ex_projects IS NOT NULL
   ORDER BY id DESC LIMIT 1;
 
-  SELECT num_products into old_num FROM update_log_exporter
-  WHERE num_products IS NOT NULL AND id != (SELECT id FROM update_log_exporter WHERE num_products IS NOT NULL ORDER BY id DESC LIMIT 1)
+  SELECT num_ex_projects into old_num FROM update_log_exporter
+  WHERE num_ex_projects IS NOT NULL AND id != (SELECT id FROM update_log_exporter WHERE num_ex_projects IS NOT NULL ORDER BY id DESC LIMIT 1)
   ORDER BY id DESC LIMIT 1;
 
   return next ok(new_num > old_num, 'The number of products in the orange book has increased from latest update!');
 
 END;
 $$ LANGUAGE plpgsql;
-
--- 5.2 # Assertion: is there an increase in patents ?
-
-
-CREATE OR REPLACE FUNCTION test_that_patent_number_increase_after_weekly_exporter_update()
-RETURNS SETOF TEXT
-AS $$
-DECLARE
-  new_num integer;
-  old_num integer;
-BEGIN
-  SELECT num_patents into new_num FROM update_log_exporter
-  WHERE num_patents IS NOT NULL
-  ORDER BY id DESC LIMIT 1;
-
-  SELECT num_patents into old_num FROM update_log_exporter
-  WHERE num_patents IS NOT NULL AND id != (SELECT id FROM update_log_exporter WHERE num_patents IS NOT NULL ORDER BY id DESC LIMIT 1)
-  ORDER BY id DESC LIMIT 1;
-
-  return next ok(new_num > old_num, 'The number of orange book patents has increased from latest update!');
-
-END;
-$$ LANGUAGE plpgsql;
-
--- 5.3 # Assertion: is there an increase in exporter_exclusivities ?
-
-CREATE OR REPLACE FUNCTION test_that_exclusivity_number_increase_after_weekly_exporter_update()
-RETURNS SETOF TEXT
-AS $$
-DECLARE
-  new_num integer;
-  old_num integer;
-BEGIN
-  SELECT num_exclusivity into new_num FROM update_log_exporter
-  WHERE num_exclusivity IS NOT NULL
-  ORDER BY id DESC LIMIT 1;
-
-  SELECT num_exclusivity into old_num FROM update_log_exporter
-  WHERE num_exclusivity IS NOT NULL AND id != (SELECT id FROM update_log_exporter WHERE num_exclusivity IS NOT NULL ORDER BY id DESC LIMIT 1)
-  ORDER BY id DESC LIMIT 1;
-
-  return next ok(new_num > old_num, 'The number of clinical trial records has increased from latest update!');
-
-END;
-$$ LANGUAGE plpgsql;
-
 
 
 -- Run functions
@@ -152,8 +106,6 @@ select test_that_project_number_increase_after_weekly_exporter_update();
 SELECT pass( 'My test passed!');
 select * from finish();
 ROLLBACK;
-END$$;
-
 
 \echo 'Testing process is over!'
 

@@ -68,7 +68,7 @@ FOR tab IN
    EXECUTE format('ANALYZE verbose %I;',tab.table_name);
  END LOOP;
   RETURN NEXT is_empty( 'select tablename, attname from pg_stats
-   where schemaname = ''public'' and tablename in LIKE ''fda%'' and null_frac = 1', 'No 100% null column');
+   where schemaname = ''public'' and tablename LIKE ''fda%'' and null_frac = 1', 'No 100% null column');
 END;
 $$ LANGUAGE plpgsql;
 
@@ -154,8 +154,6 @@ select test_that_exclusivity_number_increase_after_weekly_fda_update();
 SELECT pass( 'My test passed!');
 select * from finish();
 ROLLBACK;
-END$$;
-
 
 \echo 'Testing process is over!'
 
