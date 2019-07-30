@@ -55,7 +55,7 @@ BEGIN
                      title TEXT PATH 'normalize-space()',
                      language TEXT PATH '@language'
              )
-    ON CONFLICT (scp, language) scp DO UPDATE SET  scp=excluded.scp, title=excluded.title, language =excluded.language;
+    ON CONFLICT (scp, language) DO UPDATE SET  scp=excluded.scp, title=excluded.title, language =excluded.language;
 END;
 $$
     LANGUAGE plpgsql;
