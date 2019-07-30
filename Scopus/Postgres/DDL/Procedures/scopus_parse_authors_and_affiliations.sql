@@ -99,7 +99,8 @@ AS $$
       affiliation_no FOR ORDINALITY
       ) as t2
     WHERE XMLEXISTS('//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml)
-    ON CONFLICT (scp, author_seq, affiliation_no) UPDATE SET t1.scp=excluded.scp, t1.author_seq=excluded.author_seq, t2.affiliation_no=excluded.affiliation_no;
+    ON CONFLICT (scp, author_seq, affiliation_no) DO UPDATE SET t1.scp=excluded.scp, t1.author_seq=excluded.author_seq, t2.affiliation_no=excluded.affiliation_no;
+
 
   END;
   $$

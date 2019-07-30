@@ -38,7 +38,7 @@ $$
       LOOP
         INSERT INTO scopus_publication_groups(sgr, pub_year)
         VALUES (cur.sgr, cur.pub_year)
-        ON CONFLICT DO UPDATE SET  cur.sgr=excluded.sgr, cur.pub_year=excluded.pub_year;
+        ON CONFLICT sgr, pub_year) DO UPDATE SET  cur.sgr=excluded.sgr, cur.pub_year=excluded.pub_year;
 
         INSERT INTO scopus_publications(scp, sgr, correspondence_person_indexed_name, correspondence_city,
                                         correspondence_country, correspondence_e_address, citation_type)
