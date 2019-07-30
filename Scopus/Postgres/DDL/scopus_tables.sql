@@ -692,7 +692,6 @@ COMMENT ON COLUMN scopus_chemical_groups.chemical_name IS 'Name of the chemical 
 
 COMMENT ON COLUMN scopus_chemical_groups.cas_registry_number IS 'CAS registry number associated with chemical name Ex: 15715-08-9';
 
-DROP TABLE IF EXISTS update_log_scopus;
 CREATE TABLE update_log_scopus (
   id           SERIAL,
   update_time TIMESTAMP,
@@ -701,5 +700,5 @@ CREATE TABLE update_log_scopus (
   CONSTRAINT update_log_scopus_pk PRIMARY KEY (id) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
-COMMENT ON TABLE update_log_ct
+COMMENT ON TABLE update_log_scopus
 IS 'Scopus tables - update log table for Scopus';

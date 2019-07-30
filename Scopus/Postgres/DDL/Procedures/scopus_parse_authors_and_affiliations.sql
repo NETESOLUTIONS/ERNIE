@@ -34,7 +34,7 @@ AS $$
       author_e_address TEXT PATH 'ce:e-address'
       --@formatter:on
       )
-    ON CONFLICT UPDATE DO scp=excluded.scp, author_seq=excluded.author_seq, auid=excluded.auid,
+    ON CONFLICT DO UPDATE SET scp=excluded.scp, author_seq=excluded.author_seq, auid=excluded.auid,
     author_indexed_name=excluded.author_indexed_name, author_surname=excluded.author_surname,
     author_given_name=excluded.author_given_name, author_initials=excluded.author_initials,
     author_e_address=excluded.author_e_address;
@@ -65,7 +65,7 @@ AS $$
       country_code TEXT PATH '@country',
       country TEXT PATH 'country'
       )
-    ON CONFLICT UPDATE DO scp=excluded.scp, affiliation_no=excluded.affiliation_no, afid=excluded.afid,
+    ON CONFLICT DO UPDATE SET scp=excluded.scp, affiliation_no=excluded.affiliation_no, afid=excluded.afid,
     dptid=excluded.dptid, city_group=excluded.city_group, state=excluded.state, postal_code=excluded.postal_code,
     city=excluded.city, country_code=excluded.country_code,country=excluded.country;
 
@@ -99,7 +99,7 @@ AS $$
       affiliation_no FOR ORDINALITY
       ) as t2
     WHERE XMLEXISTS('//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml)
-    ON CONFLICT UPDATE DO t1.scp=excluded.scp, t1.author_seq=excluded.author_seq, t2.affiliation_no=excluded.affiliation_no;
+    ON CONFLICT DO UPDATE SET t1.scp=excluded.scp, t1.author_seq=excluded.author_seq, t2.affiliation_no=excluded.affiliation_no;
 
   END;
   $$
