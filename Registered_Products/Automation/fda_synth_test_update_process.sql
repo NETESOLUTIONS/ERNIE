@@ -17,7 +17,7 @@
 \timing
 \set ON_ERROR_STOP on
 \set ECHO all
-\set TOTAL_NUM_ASSERTIONS 58
+\set TOTAL_NUM_ASSERTIONS 14 -- However, Jenkins can run tests without plan,  but serves a good indicator of the number of affirmations
 
 \echo 'Update process complete!'
 
@@ -96,7 +96,6 @@ $$ LANGUAGE plpgsql;
 
 -- 5.2 # Assertion: is there an increase in patents ?
 
-
 CREATE OR REPLACE FUNCTION test_that_patent_number_increase_after_weekly_fda_update()
 RETURNS SETOF TEXT
 AS $$
@@ -104,12 +103,12 @@ DECLARE
   new_num integer;
   old_num integer;
 BEGIN
-  SELECT num_patents into new_num FROM update_log_fda
-  WHERE num_patents IS NOT NULL
+  SELECT num_patent into new_num FROM update_log_fda
+  WHERE num_patent IS NOT NULL
   ORDER BY id DESC LIMIT 1;
 
-  SELECT num_patents into old_num FROM update_log_fda
-  WHERE num_patents IS NOT NULL AND id != (SELECT id FROM update_log_fda WHERE num_patents IS NOT NULL ORDER BY id DESC LIMIT 1)
+  SELECT num_patent into old_num FROM update_log_fda
+  WHERE num_patent IS NOT NULL AND id != (SELECT id FROM update_log_fda WHERE num_patent IS NOT NULL ORDER BY id DESC LIMIT 1)
   ORDER BY id DESC LIMIT 1;
 
   return next ok(new_num > old_num, 'The number of patents has increased from latest update!');

@@ -79,12 +79,12 @@ DECLARE
   new_num integer;
   old_num integer;
 BEGIN
-  SELECT num_ex_projects into new_num FROM update_log_exporter
-  WHERE num_ex_projects IS NOT NULL
+  SELECT num_ex_project into new_num FROM update_log_exporter
+  WHERE num_ex_project IS NOT NULL
   ORDER BY id DESC LIMIT 1;
 
-  SELECT num_ex_projects into old_num FROM update_log_exporter
-  WHERE num_ex_projects IS NOT NULL AND id != (SELECT id FROM update_log_exporter WHERE num_ex_projects IS NOT NULL ORDER BY id DESC LIMIT 1)
+  SELECT num_ex_project into old_num FROM update_log_exporter
+  WHERE num_ex_project IS NOT NULL AND id != (SELECT id FROM update_log_exporter WHERE num_ex_project IS NOT NULL ORDER BY id DESC LIMIT 1)
   ORDER BY id DESC LIMIT 1;
 
   return next ok(new_num > old_num, 'The number of products in the orange book has increased from latest update!');
