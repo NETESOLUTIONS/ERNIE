@@ -12,15 +12,15 @@ def build_IDF(index_table,index_ident_col,dsn):
     IDF={}
     input_postgres_conn=psycopg2.connect(" ".join("{}={}".format(k,postgres_dsn[k]) for k in postgres_dsn))
     input_cur=input_postgres_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    # Collect the total number of documents in the corpus
+    # Collect concept/term frequencies
     input_cur.execute(sql.SQL('''SELECT * FROM {}''').format(sql.Identifier(index_table)))
-    # Collect term frequencies -- can likely just use SQL/Pandas group by on concept ids here
     for record in input_cur.fetchall():
         IDF[record['concept_id']]=IDF.get(record['concept_id'],Decimal(0.0)) + Decimal(1.0)
-    # Collect IDF scores for each concept
+    # Collect count of documents that make up the index
     input_cur.execute(sql.SQL('''SELECT COUNT(DISTINCT {}) FROM {}''').format(sql.Identifier(index_ident_col),
                                                                              sql.Identifier(index_table)))
     num_documents = input_cur.fetchone()[0]
+    # Complete building IDF dict
     for concept_id in IDF:
         IDF[concept_id] = ((num_documents - IDF[concept_id] + Decimal(0.5)) / (IDF[concept_id] + Decimal(0.5))).log10()
     return IDF
@@ -93,10 +93,11 @@ if __name__ == '__main__':
             weighted_cosine_score=calculate_cosine_score(query_vec.mult(idf_vec),index_vec.mult(idf_vec))
             print("{},{}\tUnweighted_Cos:{:.4}\tWeighted_Cos:{:.4}".format(query_vector_identifier,index_vector_identifier,unweighted_cosine_score,weighted_cosine_score))
 
-
-
             # Calculate BM25 score
+
 
             # Calculate Final scores
 
-        # return search results to a TXT file or SQL table
+            # Append all scores to a list of lists
+
+        # Return search results to a TXT file or SQL table, sorted by score results
