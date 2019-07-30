@@ -44,7 +44,8 @@ if __name__ == '__main__':
      This script is used to find matches/similarity scores between FPE fingerprint vector collections stored in the PostgreSQL database
     ''', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-d','--postgres_dbname',help='the database to query in the local PostgreSQL server via peer authentication',default=None)
-    parser.add_argument('-s','--search_sql',help='the sql query that corresponds to search vectors',required=True)
+    parser.add_argument('-q','--query_table',help='the sql table that corresponds to the query vectors',required=True)
+    parser.add_argument('-Q','--query_ident_col',help='the column that corresponds to the identifier of the query vectors',required=True)
     parser.add_argument('-i','--index_table',help='the sql table that corresponds to the index vectors',required=True)
     parser.add_argument('-I','--index_ident_col',help='the column that corresponds to the identifier of the index table',required=True)
     args = parser.parse_args()
@@ -52,10 +53,21 @@ if __name__ == '__main__':
     # Build IDF dictionary
     postgres_dsn={'dbname':args.postgres_dbname}
     IDF = build_IDF(args.index_table,args.index_ident_col,postgres_dsn)
-    print(IDF)
 
-    # For each document,
+    # Collect query vectors
+    input_postgres_conn=psycopg2.connect(" ".join("{}={}".format(k,postgres_dsn[k]) for k in postgres_dsn))
+    input_cur=input_postgres_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    input_cur.execute(sql.SQL('''SELECT {}, string_agg(concept_id::text,',') FROM {} GROUP BY {}''').format(sql.Identifier(args.query_ident_col),sql.Identifier(args.query_table),
+                                                                                        sql.Identifier(args.query_ident_col)))
+    query_vectors=input_cur.fetchall()
+
+    for query in query_vectors:
+        query_identifier=query[0]
+        query_concepts=query[1].split(',')
         # Perform fast searches by using an inverted index (terms -> documents).
+        input_cur.execute(sql.SQL('''SELECT * FROM {} WHERE concept_id IN ({})''').format(sql.Identifier(args.index_table),
+                                                                                          sql.SQL(',').join(sql.Literal(int(i)) for i in query_concepts)))
+        print(input_cur.fetchall())
         # e.g. SELECT DISTINCT application_id FROM fpe_nda_grants WHERE concept_id IN (SELECT distinct concept_id FROM fpe_nda_documents WHERE scp='XXX');
 
         # Among the subset of positive match index vectors, generate cosine scores, BM25 scores, and final scores based on complete vector
