@@ -39,7 +39,7 @@ max_pub_concepts = None
 max_app_concepts = None
 
 # Build the IDF index to search against
-def build_bm25_idf_scores_sql(fingerprint_table,group_id_cols,dsn):
+def build_IDF(fingerprint_table,group_id_cols,dsn):
     IDF={} ;
     input_postgres_conn=psycopg2.connect(" ".join("{}={}".format(k,postgres_dsn[k]) for k in postgres_dsn))
     input_cur=input_postgres_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -61,6 +61,29 @@ def build_bm25_idf_scores_sql(fingerprint_table,group_id_cols,dsn):
         IDF[concept_id] = ((num_documents - IDF[concept_id] + Decimal(0.5)) / (IDF[concept_id] + Decimal(0.5))).log10()
     return IDF
 
+# Return the dot product of two vectors after normalizing
+def generate_cosine_score(vector_1,vector_2):
+    return Decimal(vector_1.normalize().inner(vector_2.normalize()))
+
+# Return BM25 score of two vectors after normalizing. Based on https://en.wikipedia.org/wiki/Okapi_BM25
+def generate_bm25_score(term_vector,idf_vector,doc_len, avg_doc_len, k=2.0,b=0.75):
+    return sum([(idf_vector[i] * term_vector[i] * (k +1)) / (idf_vector[i] + (k * (1 - b + (b * doc_len / avg_doc_len))))
+                    for i in range(len(term_vector))])
+
+# Return a final score aggregate wth optional bias
+def generate_final_score(cosine_score,idf_score,idf_bias=Decimal(0.5)):
+    return (idf_score * idf_bias) + (cosine_score * (1 - idf_bias))
+
+
+if __name__ == '__main__':
+    
+
+
+
+
+
+
+
 # Search the Index using the provided query and receive a BM25 score for each element of the index for the query
 # query fingerprint should be a dictionary of dictionaries {'concept_id': {'Rank':x,'AFreq':x} for i in concepts}
 def match_fingerprints(query_fingerprint,idf_dict,k=Decimal(2.0),b=Decimal(0.75),prec=Decimal('1.0000'),max_concepts=None,
@@ -75,10 +98,10 @@ def match_fingerprints(query_fingerprint,idf_dict,k=Decimal(2.0),b=Decimal(0.75)
     # for concept in query, collect index IDF score, frequency occurence in query
     for concept_id in query_fingerprint:
         concept_idf_score=idf_dict[concept_id]
-        
+
 
     pass
 
 # Optionally aggregate match scores into higher level fingerprints if necessary -- Do this prior to any sorting or cutoffs of results
-def aggregate_matches(group_id,fingerprint_matches):
-    pass
+#def aggregate_matches(group_id,fingerprint_matches):
+#    pass

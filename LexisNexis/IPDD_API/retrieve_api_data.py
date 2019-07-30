@@ -78,6 +78,7 @@ if __name__ == "__main__" :
     args = parser.parse_args()
     datatype='Xml'
     # Log on
+    print("Logging on...")
     expiration,security_token = log_on(args.ipdd_service_reference,args.ipdd_username,args.ipdd_password)
     # For each type of dataset we are interested in...
     for dataset in args.datasets:
@@ -122,4 +123,5 @@ if __name__ == "__main__" :
                         print("IOError while downloading {}. Will retry at position {}".format(cur_batch_id,position))
                         retry_count+=1'''
     # Logoff
+    print("Logging off...")
     log_off(args.ipdd_service_reference,security_token)
