@@ -17,7 +17,8 @@
 \timing
 \set ON_ERROR_STOP on
 \set ECHO all
-\set TOTAL_NUM_ASSERTIONS 58
+\set TOTAL_NUM_ASSERTIONS 11  -- However, Jenkins can run tests without plan,  but serves a good indicator of the number of affirmations
+
 
 \echo 'Update process complete!'
 
