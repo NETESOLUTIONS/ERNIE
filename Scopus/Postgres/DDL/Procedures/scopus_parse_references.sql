@@ -1,3 +1,4 @@
+
 \set ON_ERROR_STOP on
 \set ECHO all
 
@@ -25,7 +26,7 @@ $$
                 ref_fulltext TEXT PATH 'ref-fulltext/text()[1]', -- should work around situations where additional tags are included in the text field (e.g. a <br/> tag). Otherwise, would encounter a "more than one value returned by column XPath expression" error.
                 ref_text TEXT PATH 'ref-info/ref-text/text()[1]'
                 )
-    ON CONFLICT (scp, ref_sgr) DO UPDATE SET scp=excluded.scp, ref_sgr=excluded.ref_sgr, citation_text=excluded.citation_text;
+    ON CONFLICT (scp, ref_sgr) DO UPDATE SET citation_text=excluded.citation_text;
     EXCEPTION WHEN OTHERS THEN
       RAISE NOTICE 'FAILURE OCCURED ON BULK INSERT, SWITCHING TO INDIVIDUAL INSERT+DEBUG FUNCTION';
       CALL scopus_parse_references_one_by_one(input_xml);
@@ -56,8 +57,7 @@ $$
                   )
       LOOP
         BEGIN
-          INSERT INTO scopus_references VALUES (row.scp,row.ref_sgr,row.citation_text) ON CONFLICT (scp, ref_sgr) DO UPDATE SET row.scp=excluded.scp,
-          row.ref_sgr=excluded.ref_sgr, row.citation_text=excluded.citation_text;
+          INSERT INTO scopus_references VALUES (row.scp,row.ref_sgr,row.citation_text) ON CONFLICT (scp, ref_sgr) DO UPDATE SET citation_text=excluded.citation_text;
         -- Exception commented out so that error bubbles up
         /*EXCEPTION WHEN OTHERS THEN
           RAISE NOTICE 'CANNOT INSERT VALUES (scp=%,ref_sgr=%,pub_ref_id=%)',row.scp,row.ref_sgr,row.pub_ref_id;

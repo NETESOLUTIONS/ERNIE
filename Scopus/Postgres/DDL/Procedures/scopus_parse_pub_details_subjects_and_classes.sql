@@ -36,8 +36,8 @@ AS $$
       conf_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcode',
       conf_name TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confname'
       )
-    ON CONFLICT DO UPDATE SET
-    scp=excluded.scp, issue=excluded.issue, volume=excluded.volume, first_page=excluded.first_page,
+    ON CONFLICT (scp) DO UPDATE SET
+    issue=excluded.issue, volume=excluded.volume, first_page=excluded.first_page,
     last_page=excluded.last_page, publication_year=excluded.publication_year,
     publication_date=excluded.publication_date, conf_code=excluded.conf_code, conf_name=excluded.conf_name;
 
@@ -67,7 +67,7 @@ AS $$
       scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
       subj_abbr SCOPUS_SUBJECT_ABBRE_TYPE PATH '.'
       )
-    ON CONFLICT DO UPDATE SET scp=excluded.scp, subj_abbr=excluded.subj_abbr;
+    ON CONFLICT (scp, subj_abbr) DO UPDATE SET subj_abbr=excluded.subj_abbr;
 
     -- scopus_subject_keywords
     INSERT INTO scopus_subject_keywords (scp, subject)
@@ -80,7 +80,7 @@ AS $$
       scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
       subject TEXT PATH '.'
       )
-    ON CONFLICT DO UPDATE SET scp=excluded.scp, subject=excluded.subject;
+    ON CONFLICT (scp, subject) DO UPDATE SET subject=excluded.subject;
 
     -- scopus_classes
     INSERT INTO scopus_classes(scp,class_type,class_code)
@@ -94,7 +94,7 @@ AS $$
       classification_code TEXT PATH 'classification-code',
       classification TEXT PATH '.'
     )
-    ON CONFLICT DO UPDATE SET scp=excluded.scp, class_type=excluded.class_type, classification_code=excluded.classification_code, classification=excluded.classification;
+    ON CONFLICT (scp,class_code) DO UPDATE SET class_type=excluded.class_type, class_code=excluded.class_code;
 
     -- scopus_classification_lookup
     INSERT INTO scopus_classification_lookup(class_type,class_code,description)
@@ -107,7 +107,7 @@ AS $$
       class_code TEXT PATH '.',
       description TEXT PATH 'following-sibling::classification-description'
     )
-    ON CONFLICT DO UPDATE SET class_type=excluded.class_type, class_code=excluded.class_code, description=excluded.description;
+    ON CONFLICT (class_type, class_code) DO UPDATE SET description=excluded.description;
 
   END;
   $$
