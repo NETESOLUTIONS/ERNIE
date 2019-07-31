@@ -15,11 +15,11 @@ def build_IDF(index_table,index_ident_col,dsn):
     # Collect concept/term frequencies
     input_cur.execute(sql.SQL('''SELECT * FROM {}''').format(sql.Identifier(index_table)))
     for record in input_cur.fetchall():
-        IDF[record['concept_id']]=IDF.get(record['concept_id'],Decimal(0.0)) + Decimal(1.0)
+        IDF[str(record['concept_id'])]=IDF.get(record['concept_id'],Decimal(0.0)) + Decimal(1.0)
     # Collect count of documents that make up the index
     input_cur.execute(sql.SQL('''SELECT COUNT(DISTINCT {}) FROM {}''').format(sql.Identifier(index_ident_col),
                                                                              sql.Identifier(index_table)))
-    num_documents = input_cur.fetchone()[0]
+    num_documents = Decimal(input_cur.fetchone()[0])
     # Complete building IDF dict
     for concept_id in IDF:
         IDF[concept_id] = ((num_documents - IDF[concept_id] + Decimal(0.5)) / (IDF[concept_id] + Decimal(0.5))).log10()
@@ -80,19 +80,25 @@ if __name__ == '__main__':
                                                   sql.SQL(',').join(sql.Literal(int(concept_id)) for concept_id in query_fingerprint.keys()),
                                                   sql.Identifier(args.index_ident_col)))
         index_vectors=input_cur.fetchall()
+        query_vec = vec.Vector(list(Decimal(query_fingerprint[concept_id]['Rank']) for concept_id in query_fingerprint.keys()))
+        idf_vec = vec.Vector(list(Decimal(IDF.get(concept_id, 0.0)) for concept_id in query_fingerprint.keys()))
+        scores = []
         for index_vector in index_vectors:
             index_vector_identifier=index_vector[0]
             # Use dict comprehension to rebuild fingerprint locally
             index_fingerprint={ vector.split(',')[0]:{'Rank':vector.split(',')[1],'AFreq':vector.split(',')[2]} for vector in index_vector[1].split(';') }
 
             # Calculate weighted and unweighted cosine scores
-            query_vec = vec.Vector(list(Decimal(query_fingerprint[concept_id]['Rank']) for concept_id in query_fingerprint.keys()))
             index_vec = vec.Vector(list(Decimal(index_fingerprint.get(concept_id, {}).get('Rank', 0.0)) for concept_id in query_fingerprint.keys()))
-            idf_vec = vec.Vector(list(Decimal(IDF.get(concept_id, 0.0)) for concept_id in query_fingerprint.keys()))
             unweighted_cosine_score=calculate_cosine_score(query_vec,index_vec)
             weighted_cosine_score=calculate_cosine_score(query_vec.mult(idf_vec),index_vec.mult(idf_vec))
-            print("{},{}\tUnweighted_Cos:{:.4}\tWeighted_Cos:{:.4}".format(query_vector_identifier,index_vector_identifier,unweighted_cosine_score,weighted_cosine_score))
+            scores.append([index_vector_identifier,unweighted_cosine_score,weighted_cosine_score])
+            #print("{},{}\tUnweighted_Cos:{:.4}\tWeighted_Cos:{:.4}".format(query_vector_identifier,index_vector_identifier,unweighted_cosine_score,weighted_cosine_score))
+        scores.sort(key=lambda x: x[2], reverse=True)
+        print(query_vector_identifier)
+        print(scores[:10])
 
+        #TODO: continue development after regenerating fingerprint tables
             # Calculate BM25 score
 
 
