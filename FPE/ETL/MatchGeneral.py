@@ -63,65 +63,95 @@ if __name__ == '__main__':
                                                                                         sql.Identifier(args.query_ident_col)))
     query_vectors=input_cur.fetchall()
 
-    for query_vector in query_vectors:
-        query_vector_identifier=query_vector[0]
-        # Use dict comprehension to rebuild fingerprint locally
-        query_fingerprint={ vector.split(',')[0]:{'Rank':vector.split(',')[1],'AFreq':vector.split(',')[2]} for vector in query_vector[1].split(';') }
-
-        # Perform fast searches by using an inverted index (terms -> documents). This way, rankings only account for docs with at least one concept match.
-        input_cur.execute(sql.SQL('''SELECT {},string_agg(concept_id::text||','||concept_rank::text||','||concept_afreq::text,';')
-                                     FROM {}
-                                     WHERE {} IN
-                                        ( SELECT DISTINCT {} FROM {} WHERE concept_id IN ({}) )
-                                     GROUP BY {}
-                                     ''').format( sql.Identifier(args.index_ident_col),
-                                                  sql.Identifier(args.index_table),
-                                                  sql.Identifier(args.index_ident_col),
-                                                  sql.Identifier(args.index_ident_col),
-                                                  sql.Identifier(args.index_table),
-                                                  sql.SQL(',').join(sql.Literal(int(concept_id)) for concept_id in query_fingerprint.keys()),
-                                                  sql.Identifier(args.index_ident_col)))
-        index_vectors=input_cur.fetchall()
-        query_vec = vec.Vector(list(Decimal(query_fingerprint[concept_id]['Rank']) for concept_id in query_fingerprint.keys()))
-        idf_vec = vec.Vector(list(Decimal(IDF.get(concept_id, 0.0)) for concept_id in query_fingerprint.keys()))
-
-        # Collect indexed document length Information
-        # NOTE: Doc lengths here correspond to length of what is indexed (meaning length of fingerprint if using fingerprint vectors)
-        input_cur.execute(sql.SQL('''SELECT {}, COUNT(DISTINCT concept_id)
-                                     FROM {}
-                                     GROUP BY {}''').format(sql.Identifier(args.index_ident_col),
-                                                            sql.Identifier(args.index_table),
-                                                            sql.Identifier(args.index_ident_col)))
-        document_len_results=input_cur.fetchall()
-        document_lengths={i[0]:i[1] for i in document_len_results}
-        average_document_length=np.mean([i[1] for i in document_len_results])
-
-        scores = []
-        for index_vector in index_vectors:
-            index_vector_identifier=index_vector[0]
+    with open('/tmp/scores.csv','w') as output_file:
+        output_file.write("{},Result_Rank,{},Unweighted_Cosine,Weighted_Cosine,BM25,Final_Score\n".format(args.query_ident_col,args.index_ident_col))
+        for query_vector in query_vectors:
+            query_vector_identifier=query_vector[0]
             # Use dict comprehension to rebuild fingerprint locally
-            index_fingerprint={ vector.split(',')[0]:{'Rank':vector.split(',')[1],'AFreq':vector.split(',')[2]} for vector in index_vector[1].split(';') }
+            query_fingerprint={ vector.split(',')[0]:{'Rank':vector.split(',')[1],'AFreq':vector.split(',')[2]} for vector in query_vector[1].split(';') }
 
-            # Calculate weighted and unweighted cosine scores
-            index_vec = vec.Vector(list(Decimal(index_fingerprint.get(concept_id, {}).get('Rank', 0.0)) for concept_id in query_fingerprint.keys()))
-            unweighted_cosine_score=calculate_cosine_score(query_vec,index_vec)
-            weighted_cosine_score=calculate_cosine_score(query_vec.mult(idf_vec),index_vec.mult(idf_vec))
+            # Perform fast searches by using an inverted index (terms -> documents). This way, rankings only account for docs with at least one concept match.
+            input_cur.execute(sql.SQL('''SELECT {},string_agg(concept_id::text||','||concept_rank::text||','||concept_afreq::text,';')
+                                         FROM {}
+                                         WHERE {} IN
+                                            ( SELECT DISTINCT {} FROM {} WHERE concept_id IN ({}) )
+                                         GROUP BY {}
+                                         ''').format( sql.Identifier(args.index_ident_col),
+                                                      sql.Identifier(args.index_table),
+                                                      sql.Identifier(args.index_ident_col),
+                                                      sql.Identifier(args.index_ident_col),
+                                                      sql.Identifier(args.index_table),
+                                                      sql.SQL(',').join(sql.Literal(int(concept_id)) for concept_id in query_fingerprint.keys()),
+                                                      sql.Identifier(args.index_ident_col)))
+            index_vectors=input_cur.fetchall()
+            query_vec = vec.Vector(list(Decimal(query_fingerprint[concept_id]['Rank']) for concept_id in query_fingerprint.keys()))
+            idf_vec = vec.Vector(list(Decimal(IDF.get(concept_id, 0.0)) for concept_id in query_fingerprint.keys()))
 
-            # Calculate BM25 score
-            term_vec =  vec.Vector(list(Decimal(index_fingerprint.get(concept_id, {}).get('AFreq', 0.0)) for concept_id in query_fingerprint.keys()))
-            bm25_score= calculate_bm25_score(term_vec.values,idf_vec.values,Decimal(document_lengths[index_vector_identifier]),Decimal(average_document_length))
+            # Collect indexed document length Information
+            # NOTE: Doc lengths here correspond to length of what is indexed (meaning length of fingerprint if using fingerprint vectors)
+            input_cur.execute(sql.SQL('''SELECT {}, COUNT(DISTINCT concept_id)
+                                         FROM {}
+                                         GROUP BY {}''').format(sql.Identifier(args.index_ident_col),
+                                                                sql.Identifier(args.index_table),
+                                                                sql.Identifier(args.index_ident_col)))
+            document_len_results=input_cur.fetchall()
+            document_lengths={i[0]:i[1] for i in document_len_results}
+            average_document_length=np.mean([i[1] for i in document_len_results])
 
-            # Calculate Final scores
+            # Set up miscellaneous variables
+            min_unweighted_cosine = None
+            max_unweighted_cosine = Decimal(0.0)
+            min_weighted_cosine = None
+            max_weighted_cosine = Decimal(0.0)
+            min_bm25 = None
+            max_bm25 = Decimal(0.0)
+            scores = []
 
-            # Append all scores to a list of lists
+            for index_vector in index_vectors:
+                index_vector_identifier=index_vector[0]
+                # Use dict comprehension to rebuild fingerprint locally
+                index_fingerprint={ vector.split(',')[0]:{'Rank':vector.split(',')[1],'AFreq':vector.split(',')[2]} for vector in index_vector[1].split(';') }
 
+                # Calculate weighted and unweighted cosine scores
+                index_vec = vec.Vector(list(Decimal(index_fingerprint.get(concept_id, {}).get('Rank', 0.0)) for concept_id in query_fingerprint.keys()))
+                unweighted_cosine_score=calculate_cosine_score(query_vec,index_vec)
+                weighted_cosine_score=calculate_cosine_score(query_vec.mult(idf_vec),index_vec.mult(idf_vec))
+                min_unweighted_cosine=unweighted_cosine_score if min_unweighted_cosine is None else min(min_unweighted_cosine,unweighted_cosine_score)
+                max_unweighted_cosine=max(max_unweighted_cosine,unweighted_cosine_score)
+                min_weighted_cosine=unweighted_cosine_score if min_weighted_cosine is None else min(min_weighted_cosine,weighted_cosine_score)
+                max_weighted_cosine=max(max_weighted_cosine,weighted_cosine_score)
 
-            scores.append([ index_vector_identifier,                    # Search result ID
-                            unweighted_cosine_score ** args.score_bias, # Search result unweighted cosine score
-                            weighted_cosine_score ** args.score_bias,   # Search result weighted cosine score
-                            bm25_score ** args.score_bias               # Search result weighted cosine score
-                          ])
-        # Return search results to a TXT file or SQL table, sorted by score results
-        scores.sort(key=lambda x: x[2], reverse=True)
-        for i in range(10):
-            print("{},{},{},{:.4},{:.4},{:.4}".format(query_vector_identifier,i+1,scores[i][0],scores[i][1],scores[i][2],scores[i][3]))
+                # Calculate BM25 score
+                term_vec =  vec.Vector(list(Decimal(index_fingerprint.get(concept_id, {}).get('AFreq', 0.0)) for concept_id in query_fingerprint.keys()))
+                bm25_score= calculate_bm25_score(term_vec.values,idf_vec.values,Decimal(document_lengths[index_vector_identifier]),Decimal(average_document_length))
+                min_bm25=bm25_score if min_bm25 is None else min(min_bm25,bm25_score)
+                max_bm25=max(max_bm25,bm25_score)
+
+                # Append all scores to a list of lists
+                scores.append([ index_vector_identifier, # Search result ID
+                                unweighted_cosine_score, # Search result unweighted cosine score
+                                weighted_cosine_score,   # Search result weighted cosine score
+                                bm25_score               # BM25 score
+                              ])
+            # Post process scores for normalization and generate final score
+            # Adjust maximums to compensate for minimums, for normalization
+            max_unweighted_cosine -= min_unweighted_cosine
+            max_weighted_cosine -= min_weighted_cosine
+            max_bm25 -= min_bm25
+            for idx,row in enumerate(scores):
+                scores[idx][1] = ( row[1] - min_unweighted_cosine ) / max_unweighted_cosine
+                scores[idx][2] = ( row[2] - min_weighted_cosine ) / max_weighted_cosine
+                scores[idx][3] = ( row[3] - min_bm25 ) / max_bm25
+                scores[idx].append(calculate_final_score(scores[idx][2],scores[idx][3]))
+
+            # Return search results to a TXT file or SQL table, sorted by score results
+            scores.sort(key=lambda x: x[3], reverse=True)
+            for i in range(10):
+                output_file.write("{},{},{},{:.4},{:.4},{:.4},{:.4}\n".format(query_vector_identifier,
+                                                          i+1,
+                                                          scores[i][0],
+                                                          scores[i][1] ** args.score_bias, # Unweighted cosine
+                                                          scores[i][2] ** args.score_bias, # Weighted cosine
+                                                          scores[i][3] ** args.score_bias,  # BM25
+                                                          scores[i][4] ** args.score_bias   # Final score (split between weighted cosine and BM25)
+                                                          ))
