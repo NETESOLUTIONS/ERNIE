@@ -1,3 +1,4 @@
+
 \set ON_ERROR_STOP on
 \set ECHO all
 
@@ -77,8 +78,7 @@ BEGIN
     isbn_type TEXT PATH '@type',
     isbn_level TEXT PATH'@level'
     )
-    ON CONFLICT (ernie_source_id, isbn) DO UPDATE SET ernie_source_id=excluded.ernie_source_id,
-    isbn=excluded.isbn, isbn_length=excluded.isbn_length, isbn_type=excluded.isbn_type,
+    ON CONFLICT (ernie_source_id, isbn) DO UPDATE SET isbn_length=excluded.isbn_length, isbn_type=excluded.isbn_type,
     isbn_level=excluded.isbn_level;
 
     -- scopus_issns
@@ -93,7 +93,8 @@ BEGIN
     issn TEXT PATH '.',
     issn_type TEXT PATH '@type'
     )
-    ON CONFLICT (ernie_source_id, issn, issn_type) DO UPDATE SET ernie_source_id=excluded.ernie_source_id,
+    ON CONFLICT (ernie_source_id, issn, issn_type) DO UPDATE SET
+
     issn=excluded.issn, issn_type=excluded.issn_type;
 
     UPDATE scopus_publications sp

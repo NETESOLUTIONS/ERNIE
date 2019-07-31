@@ -24,8 +24,8 @@ BEGIN
       grantor_country_code TEXT PATH 'grant-agency/@iso-code',
       grantor_funder_registry_id TEXT PATH 'grant-agency-id'
       )
-    ON CONFLICT DO UPDATE SET scp=excluded.scp,
-     grant_id=excluded.grant_id, grantor_acronym=excluded.grantor_acronym,
+    ON CONFLICT (scp, grant_id) DO UPDATE SET
+     grantor_acronym=excluded.grantor_acronym,
       grantor=excluded.grantor, grantor_country_code=excluded.grantor_country_code,
       grantor_funder_registry_id=excluded.grantor_funder_registry_id ;
 
@@ -41,7 +41,7 @@ BEGIN
       scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
       grant_text TEXT PATH '.'
       )
-    ON CONFLICT DO UPDATE SET scp=excluded.scp, grant_text=excluded.grant_text;
+    ON CONFLICT (scp) DO UPDATE SET grant_text=excluded.grant_text;
   END;
   $$
   LANGUAGE plpgsql;

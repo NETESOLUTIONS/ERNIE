@@ -21,7 +21,7 @@ BEGIN
                      abstract_language TEXT PATH '../@xml:lang',
                      abstract_source TEXT PATH '../@source'
              )
-    ON CONFLICT (scp,abstract_language) DO UPDATE SET scp=excluded.scp, abstract_language=excluded.abstract_language, abstract_source=excluded.abstract_source;
+    ON CONFLICT (scp,abstract_language) DO UPDATE SET abstract_source=excluded.abstract_source;
 
 
     -- scopus_abstracts: concatenated abstract_text
