@@ -49,7 +49,7 @@ RETURN NEXT has_table('scopus_publication_groups', 'scopus_publication_groups ex
 RETURN NEXT has_table('scopus_publication_identifiers', 'scopus_publication_identifiers exists');
 RETURN NEXT has_table('scopus_publications', 'scopus_publications exists');
 RETURN NEXT has_table('scopus_references', 'scopus_references exists');
-RETURN NEXT has_table('scopus_publication_details', 'scopus_publication_details exists');
+RETURN NEXT has_table('scopus_source_publication_details', 'scopus_source_publication_details exists');
 RETURN NEXT has_table('scopus_sources', 'scopus_sources exists');
 RETURN NEXT has_table('scopus_subject_keywords', 'scopus_subject_keywords exists');
 RETURN NEXT has_table('scopus_subjects', 'scopus_subjects exists');

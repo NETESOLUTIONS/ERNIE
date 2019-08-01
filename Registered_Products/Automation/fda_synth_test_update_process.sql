@@ -147,7 +147,7 @@ select test_that_all_fda_tables_exist();
 select test_that_all_fda_tables_have_pk();
 select test_that_fda_tablespace_exists();
 select test_that_there_is_no_100_percent_NULL_column_in_fda_tables();
-select test_that_products_number_increase_after_weekly_fda_update();
+select test_that_product_number_increase_after_weekly_fda_update();
 select test_that_patent_number_increase_after_weekly_fda_update();
 select test_that_exclusivity_number_increase_after_weekly_fda_update();
 SELECT pass( 'My test passed!');
