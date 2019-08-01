@@ -73,7 +73,7 @@ $$ LANGUAGE plpgsql;
 
 -- 5.1 # Assertion: is there an increase in projects ?
 
-CREATE OR REPLACE FUNCTION test_that_product_number_increase_after_weekly_exporter_update()
+CREATE OR REPLACE FUNCTION test_that_project_number_increase_after_weekly_exporter_update()
 RETURNS SETOF TEXT
 AS $$
 DECLARE

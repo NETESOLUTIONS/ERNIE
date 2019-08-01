@@ -31,7 +31,7 @@ BEGIN
 RETURN NEXT has_table('fda_patents' ,'fda_patents exists');
 RETURN NEXT has_table('fda_exclusivities' ,'fda_exclusivities exists');
 RETURN NEXT has_table('fda_products' ,'fda_products exists');
-RETURN NEXT has_table('fda_orange_book' ,'fda_orange_book exists');
+RETURN NEXT has_table('fda_purple_book' ,'fda_purple_book exists');
 END;
 $$ language plpgsql;
 
@@ -43,7 +43,7 @@ BEGIN
 RETURN NEXT has_pk('fda_patents' ,'fda_patents has appl_no, product_no, type as primary key ');
 RETURN NEXT has_pk('fda_exclusivities' ,'fda_exclusivities has appl_no, product_no, type as primary key ');
 RETURN NEXT has_pk('fda_products' ,'fda_products has appl_no, product_no, type as primary key ');
-RETURN NEXT has_pk('fda_orange_book' ,'fda_orange_book has BLAST # as primary key ');
+RETURN NEXT has_pk('fda_purple_book' ,'fda_purple_book has BLAST # as primary key ');
 END;
 $$ language plpgsql;
 
