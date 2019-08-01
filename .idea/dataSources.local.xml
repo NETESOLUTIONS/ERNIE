@@ -11,13 +11,11 @@
       <schema-mapping>
         <introspection-scope>
           <node kind="database" qname="@">
-            <node kind="schema">
-              <name qname="@" />
-              <name qname="ernie1_public" />
-              <name qname="information_schema" />
-              <name qname="pg_catalog" />
-              <name qname="public" />
-            </node>
+            <node kind="schema" qname="@" />
+          </node>
+          <node kind="database" qname="ernie">
+            <node kind="schema" qname="jenkins" />
+            <node kind="schema" qname="public" />
           </node>
         </introspection-scope>
       </schema-mapping>
