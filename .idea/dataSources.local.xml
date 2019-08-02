@@ -11,11 +11,11 @@
       <schema-mapping>
         <introspection-scope>
           <node kind="database" qname="@">
-            <node kind="schema" qname="@" />
-          </node>
-          <node kind="database" qname="ernie">
-            <node kind="schema" qname="jenkins" />
-            <node kind="schema" qname="public" />
+            <node kind="schema">
+              <name qname="@" />
+              <name qname="jenkins" />
+              <name qname="public" />
+            </node>
           </node>
         </introspection-scope>
       </schema-mapping>
