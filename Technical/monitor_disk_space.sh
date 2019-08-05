@@ -41,6 +41,7 @@ set -e
 set -o pipefail
 #set -x
 
+readonly SPACES_15='               '
 declare -ri DEFAULT_PERCENTAGE=85
 declare -ri threshold=${1:-$DEFAULT_PERCENTAGE}
 
@@ -57,11 +58,11 @@ declare -ri threshold=${1:-$DEFAULT_PERCENTAGE}
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
 warnings=false
-echo -e "Filesystem\t\tSize\tUsed\tAvail\tUse%\tMounted on";
+echo -e "Mount           Size\tUsed\tAvail\tUse%\tFilesystem";
 
 # Use process substitution to pipe into the loop in order to preserve warnings variable
 while read -r filesystem size used avail used_percentage mount; do
-  echo -e "$filesystem\t\t$size\t$used\t$avail\t$used_percentage\t$mount";
+  echo -e "$mount${SPACES_15:0:$((15 - ${#mount}))} $size\t$used\t$avail\t$used_percentage\t$filesystem";
   declare -i usage=${used_percentage/\%/}
   if ((usage > threshold)); then
     echo "WARNING: Used disk space exceeds ${threshold}% threshold!"
