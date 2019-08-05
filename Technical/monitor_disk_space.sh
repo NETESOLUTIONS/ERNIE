@@ -3,40 +3,32 @@ if [[ "$1" == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
 
-    monitor_disk_space.sh -- do something
+    monitor_disk_space.sh -- check all local mounts and fail if the disk space use exceeds the threshold
 
 SYNOPSIS
 
-    monitor_disk_space.sh
+    monitor_disk_space.sh [used_threshold_percentage]
     monitor_disk_space.sh -h: display this help
 
 DESCRIPTION
 
-    Do something. Use the specified working_directory ({script_dir}/build/ by default).
+    Check all local mounts and fail if the used % exceeds the threshold %.
+    Prints disk usage in descending perenetage order and warnings for mounts exceeding threshols.
 
     The following options are available:
 
-    -c    clean data before processing and don't resume processing. WARNING: be aware that you'll lose all loaded data!
-    -r    reverse order of processing
-
-ENVIRONMENT
-
-    VAR May be used to specify default options that will be placed at the beginning of the argument list.
-        Backslash-escaping is not supported, unlike the behavior in GNU grep.
+    used_threshold_percentage   threshold percentage: an integer number (defaults to 85)
 
 EXIT STATUS
 
     The monitor_disk_space.sh utility exits with one of the following values:
 
-    0   One or more lines were selected.
-    1   No lines were selected.
-    >1  An error occurred.
+    0   Use on all local mounts <= threshold
+    1   Use on at least one mount > threshold
 
 EXAMPLES
 
-    To find all occurrences of the word `patricia' in a file:
-
-        $ monitor_disk_space.sh 'patricia' myfile
+        $ monitor_disk_space.sh 90
 
 AUTHOR(S)
 
@@ -48,6 +40,9 @@ fi
 set -e
 set -o pipefail
 #set -x
+
+declare -ri DEFAULT_PERCENTAGE=85
+declare -ri threshold=${1:-$DEFAULT_PERCENTAGE}
 
 # Get a script directory, same as by $(dirname $0)
 #readonly SCRIPT_DIR=${0%/*}
@@ -61,7 +56,18 @@ set -o pipefail
 #cd "${WORK_DIR}"
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
-df -Phl | { read -r header; echo "${header}"; sort --key=5 --numeric-sort --reverse; } | \
-  while read -r filesystem size used avail use_percentage mount; do
-    echo -e "$filesystem    \t$size\t$used\t$avail\t$use_percentage\t$mount";
-done
+warnings=false
+echo -e "Filesystem      \tSize\tUsed\tAvail\tUse%\tMounted on";
+
+# Use process substitution to pipe into the loop in order to preserve warnings variable
+while read -r filesystem size used avail used_percentage mount; do
+  echo -e "$filesystem    \t$size\t$used\t$avail\t$used_percentage\t$mount";
+  declare -i usage=${used_percentage/\%/}
+  if ((usage > threshold)); then
+    echo "WARNING: Used disk space exceeds ${threshold}% threshold!"
+    warnings=true
+  fi
+done < <(df -Phl | tail -n +2 | sort --key=5 --numeric-sort --reverse)
+
+[[ $warnings == true ]] && exit 1
+exit 0
