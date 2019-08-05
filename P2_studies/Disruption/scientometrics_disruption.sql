@@ -167,159 +167,160 @@ FROM (
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
+                    AND scp<> :'pub_id'
                 ) AS new_k,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count = 1
+                      AND count = 1 AND scp<> :'pub_id'
                 ) AS new_k1_1,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count = 2
+                      AND count = 2 AND scp<> :'pub_id'
                 ) AS new_k2_1,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count = 3
+                      AND count = 3 AND scp<> :'pub_id'
                 ) AS new_k3_1,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count = 4
+                      AND count = 4 AND scp<> :'pub_id'
                 ) AS new_k4_1,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count = 5
+                      AND count = 5 AND scp<> :'pub_id'
                 ) AS new_k5_1,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count = 6
+                      AND count = 6 AND scp<> :'pub_id'
                 ) AS new_k6_1,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count = 7
+                      AND count = 7 AND scp<> :'pub_id'
                 ) AS new_k7_1,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count = 8
+                      AND count = 8 AND scp<> :'pub_id'
                 ) AS new_k8_1,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count = 9
+                      AND count = 9 AND scp<> :'pub_id'
                 ) AS new_k9_1,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count = 10
+                      AND count = 10 AND scp<> :'pub_id'
                 ) AS new_k10_1,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count = 11
+                      AND count = 11 AND scp<> :'pub_id'
                 ) AS new_k11_1,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count >= 1
+                      AND count >= 1 AND scp<> :'pub_id'
                 ) AS new_k1_2,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count >= 2
+                      AND count >= 2 AND scp<> :'pub_id'
                 ) AS new_k2_2,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count >= 3
+                      AND count >= 3 AND scp<> :'pub_id'
                 ) AS new_k3_2,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count >= 4
+                      AND count >= 4 AND scp<> :'pub_id'
                 ) AS new_k4_2,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count >= 5
+                      AND count >= 5 AND scp<> :'pub_id'
                 ) AS new_k5_2,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count >= 6
+                      AND count >= 6 AND scp<> :'pub_id'
                 ) AS new_k6_2,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count >= 7
+                      AND count >= 7 AND scp<> :'pub_id'
                 ) AS new_k7_2,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count >= 8
+                      AND count >= 8 AND scp<> :'pub_id'
                 ) AS new_k8_2,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count >= 9
+                      AND count >= 9 AND scp<> :'pub_id'
                 ) AS new_k9_2,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count >= 10
+                      AND count >= 10 AND scp<> :'pub_id'
                 ) AS new_k10_2,
                 (
                     SELECT count(1)
                     FROM :table_name
                     WHERE scp NOT IN (SELECT ij_set
                                       FROM citing_cte)
-                      AND count >= 11
+                      AND count >= 11 AND scp<> :'pub_id'
                 ) AS new_k11_2
      ) sq;
