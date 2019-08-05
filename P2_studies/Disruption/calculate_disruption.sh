@@ -56,7 +56,7 @@ process_focal_paper() {
   set -e
   local input=$1
   # Header lines and any invalid ids (not starting with 'WOS:') are skipped
-  if [[ "${input}" == WOS:* ]]; then
+  if [[ -n "${input}" ]]; then
     echo "Processing ${input} ..."
     psql --quiet --tuples-only --no-align --field-separator=, -f "${ABSOLUTE_SCRIPT_DIR}/disruption.sql" \
         -v pub_id="${input}" >>"${OUTPUT_FILE}"
