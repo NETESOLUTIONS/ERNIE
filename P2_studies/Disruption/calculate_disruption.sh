@@ -48,6 +48,7 @@ readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 
 declare -rx OUTPUT_FILE="$1"
+declare -rx INPUT_FILE="$2"
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
@@ -58,7 +59,7 @@ process_focal_paper() {
   # Header lines and any invalid ids (not starting with 'WOS:') are skipped
   if [[ -n "${input}" ]]; then
     echo "Processing ${input} ..."
-    psql --quiet --tuples-only --no-align --field-separator=, -f "${ABSOLUTE_SCRIPT_DIR}/disruption.sql" \
+    psql --quiet --tuples-only --no-align --field-separator=, -f "${ABSOLUTE_SCRIPT_DIR}/${INPUT_FILE}" \
         -v pub_id="${input}" >>"${OUTPUT_FILE}"
     echo "${input}: done."
   fi
