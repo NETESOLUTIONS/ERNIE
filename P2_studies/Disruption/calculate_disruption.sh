@@ -49,6 +49,7 @@ declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 
 declare -rx OUTPUT_FILE="$1"
 declare -rx INPUT_FILE="$2"
+declare -rx TABLE_NAME="$3"
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
@@ -57,10 +58,15 @@ process_focal_paper() {
   set -e
   local input=$1
   # Header lines and any invalid ids (not starting with 'WOS:') are skipped
-  if [[ -n "${input}" ]]; then
+  if [[ "${INPUT_FILE}" == "f1000_disruption.sql" ]]; then
     echo "Processing ${input} ..."
     psql --quiet --tuples-only --no-align --field-separator=, -f "${ABSOLUTE_SCRIPT_DIR}/${INPUT_FILE}" \
         -v pub_id="${input}" >>"${OUTPUT_FILE}"
+    echo "${input}: done."
+  else
+    echo "Processing ${input} ..."
+    psql --quiet --tuples-only --no-align --field-separator=, -f "${ABSOLUTE_SCRIPT_DIR}/${INPUT_FILE}" \
+        -v pub_id="${input}" -v table_name="${TABLE_NAME}" >>"${OUTPUT_FILE}"
     echo "${input}: done."
   fi
 }
