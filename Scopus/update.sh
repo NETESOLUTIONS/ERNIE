@@ -115,8 +115,8 @@ for ZIP_DATA in $(cd $ZIP_DIR ; ls *ANI-ITEM-delete.zip); do
   fi
 done
 
-[[ "${failures_occurred}" == "true" ]] && exit 1
-
 psql -f scopus_update_log.sql
+
+[[ "${failures_occurred}" == "true" ]] && exit 1
 
 exit 0
