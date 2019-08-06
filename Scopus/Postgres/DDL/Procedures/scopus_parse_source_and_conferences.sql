@@ -4,7 +4,6 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
-
 CREATE OR REPLACE PROCEDURE scopus_parse_source_and_conferences(scopus_doc_xml XML) AS $$
 DECLARE db_id INTEGER;
 BEGIN
