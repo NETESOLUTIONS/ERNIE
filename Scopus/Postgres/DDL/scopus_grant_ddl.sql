@@ -11,7 +11,7 @@ CREATE TABLE scopus_grants (
   scp BIGINT CONSTRAINT sg_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   grant_id TEXT,
   grantor_acronym TEXT,
-  grantor TEXT,
+  grantor TEXT NOT NULL,
   grantor_country_code CHAR(3),
   grantor_funder_registry_id TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
