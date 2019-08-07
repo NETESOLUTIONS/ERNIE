@@ -205,6 +205,7 @@ for scopus_data_archive in *.zip; do
     echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"
     if ((failed_xml_counter == 0)); then
       echo "ALL IS WELL"
+      echo "${scopus_data_archive}" >> "${PROCESSED_LOG}"
     else
       echo "FAILED PARSING ${failed_xml_counter} XML FILES"
     fi
@@ -212,7 +213,6 @@ for scopus_data_archive in *.zip; do
     failed_xml_counter=0
     ((processed_xml_counter_total += processed_xml_counter)) || :
     processed_xml_counter=0
-    echo "${scopus_data_archive}" >> "${PROCESSED_LOG}"
     rm -rf ${tmp}
 
     if [[ -f "${STOP_FILE}" ]]; then

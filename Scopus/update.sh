@@ -53,6 +53,7 @@ while (( $# > 0 )); do
       readonly SUBSET_OPTION="-s $1"
       ;;
     -v)
+      # Second "-v" = extra verbose?
       if [[ "$VERBOSE" == "true" ]]; then
         set -x
         VERBOSE_OPTION="-v -v"
@@ -114,6 +115,7 @@ for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
   echo "ETA for updates after ${ZIP_DATA} data file: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
 done
 
+# Do delete files exist?
 if compgen -G "$DATA_DIR/*ANI-ITEM-delete.zip" >/dev/null; then
   echo -e "\nMain update process completed. Processing delete files.\n"
   declare -i num_deletes=$(ls "$DATA_DIR"/*ANI-ITEM-delete.zip | wc -l) i=0
