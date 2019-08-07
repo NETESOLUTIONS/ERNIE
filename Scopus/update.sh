@@ -89,13 +89,13 @@ for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
   echo "Processing ${UPDATE_DIR} directory"
   # shellcheck disable=SC2086
   #   SUBSET_OPTION must be unquoted
-  if ! "${ABSOLUTE_SCRIPT_DIR}/process_update_directory.sh" -p "${PROCESSED_LOG}" -f "${FAILED_FILES_DIR}" \
+  if "${ABSOLUTE_SCRIPT_DIR}/process_update_directory.sh" -p "${PROCESSED_LOG}" -f "${FAILED_FILES_DIR}" \
       ${SUBSET_OPTION} ${VERBOSE_OPTION} "${UPDATE_DIR}"; then
+    echo "Removing directory ${UPDATE_DIR}"
+    rm -rf "${UPDATE_DIR}"
+  else
     failures_occurred="true"
   fi
-
-  echo "Removing directory ${UPDATE_DIR}"
-  rm -rf "${UPDATE_DIR}"
 
   file_stop_time=$(date '+%s')
 
