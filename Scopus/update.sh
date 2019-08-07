@@ -114,20 +114,22 @@ for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
   echo "ETA for updates after ${ZIP_DATA} data file: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
 done
 
-echo "Main update process completed. Processing delete files."
-declare -i num_deletes=$(cd $DATA_DIR ; ls *ANI-ITEM-delete.zip| wc -l) i=0
-for ZIP_DATA in $(cd $DATA_DIR ; ls *ANI-ITEM-delete.zip); do
-  if grep -q "^${ZIP_DATA}$" "${PROCESSED_LOG}"; then
-    echo "Skipping file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} ). It is already marked as completed."
-  else
-    echo -e "\nProcessing delete file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} )..."
-    unzip ${DATA_DIR}/${ZIP_DATA}
-    psql -f process_deletes.sql
-    rm delete.txt
-    echo "${ZIP_DATA}" >> ${PROCESSED_LOG}
-    echo "Delete file ${ZIP_DATA} processed."
-  fi
-done
+if compgen -G "$DATA_DIR/*ANI-ITEM-delete.zip" >/dev/null; then
+  echo -e "\nMain update process completed. Processing delete files.\n"
+  declare -i num_deletes=$(ls "$DATA_DIR"/*ANI-ITEM-delete.zip | wc -l) i=0
+  for ZIP_DATA in $(cd $DATA_DIR ; ls *ANI-ITEM-delete.zip); do
+    if grep -q "^${ZIP_DATA}$" "${PROCESSED_LOG}"; then
+      echo "Skipping file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} ). It is already marked as completed."
+    else
+      echo -e "\nProcessing delete file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} )..."
+      unzip ${DATA_DIR}/${ZIP_DATA}
+      psql -f process_deletes.sql
+      rm delete.txt
+      echo "${ZIP_DATA}" >> ${PROCESSED_LOG}
+      echo "Delete file ${ZIP_DATA} processed."
+    fi
+  done
+fi
 
 psql -f scopus_update_log.sql
 
