@@ -8,7 +8,7 @@ NAME
 
 SYNOPSIS
 
-  update.sh [-s subset_SP] -d data_directory
+  update.sh [-s subset_SP] [-v] [-v] -d data_directory
   update.sh -h: display this help
 
 DESCRIPTION
@@ -22,6 +22,10 @@ DESCRIPTION
 
     -s subset_SP: parse a subset of data via the specified subset parsing Stored Procedure (SP)
 
+    -v    verbose output: print processed XML files and error details as errors occur
+
+    -v -v extra-verbose output: print all lines (`set -x`)
+
   To stop process gracefully after the current ZIP is processed, create a `{working_dir}/.stop` signal file.
   This file is automatically removed
 
@@ -31,7 +35,6 @@ fi
 
 set -e
 set -o pipefail
-#set -x
 
 readonly STOP_FILE=".stop"
 # Get a script directory, same as by $(dirname $0)
@@ -50,6 +53,15 @@ while (( $# > 0 )); do
       shift
       readonly SUBSET_OPTION="-s $1"
       ;;
+    -v)
+      if [[ "$VERBOSE" == "true" ]]; then
+        set -x
+        VERBOSE_OPTION="-v -v"
+      else
+        declare -rx VERBOSE=true
+        VERBOSE_OPTION="-v"
+      fi
+      ;;
     *)
       break
   esac
@@ -60,19 +72,22 @@ echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 echo -e "Zip files to process:\n$(ls ${ZIP_DIR}/*.zip)"
 
 rm -f eta.log
-declare -i files=$(cd $ZIP_DIR ; ls *ANI-ITEM-full-format-xml.zip| wc -l) i=0 start_time file_start_time file_stop_time delta delta_s delta_m della_h \
-    elapsed=0 est_total eta
+declare -i files=$(ls "${ZIP_DIR}"/*ANI-ITEM-full-format-xml.zip | wc -l) i=0
+declare -i start_time file_start_time file_stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
 
 for ZIP_DATA in "${ZIP_DIR}"/*ANI-ITEM-full-format-xml.zip; do
   file_start_time=$(date '+%s')
   (( i == 0 )) && start_time=${file_start_time}
   echo -e "\n## Update Zip file #$((++i)) out of ${files} update zip files ##"
-  echo "Unzipping ${ZIP_DATA} file into a working directory ..."
+  echo "Unzipping ${ZIP_DATA} file into a working directory"
   DATA_DIR="${ZIP_DATA%.zip}"
   unzip -u -q "${ZIP_DATA}" -d "${DATA_DIR}"
 
-  echo "Processing ${DATA_DIR} directory ..."
-  if ! "${ABSOLUTE_SCRIPT_DIR}/process_update_directory.sh" -p "${PROCESSED_LOG}" -f "${FAILED_FILES_DIR}" ${SUBSET_OPTION} "${DATA_DIR}"; then
+  echo "Processing ${DATA_DIR} directory"
+  # shellcheck disable=SC2086
+  #   SUBSET_OPTION must be unquoted
+  if ! "${ABSOLUTE_SCRIPT_DIR}/process_update_directory.sh" -p "${PROCESSED_LOG}" -f "${FAILED_FILES_DIR}" \
+      ${SUBSET_OPTION} ${VERBOSE_OPTION} "${DATA_DIR}"; then
     failures_occurred="true"
   fi
 
@@ -88,7 +103,7 @@ for ZIP_DATA in "${ZIP_DIR}"/*ANI-ITEM-full-format-xml.zip; do
   printf "\n$(TZ=America/New_York date) Done with ${ZIP_DATA} data file in %dh:%02dm:%02ds\n" ${della_h} \
          ${delta_m} ${delta_s} | tee -a eta.log
   if [[ -f "${ZIP_DATA}/${STOP_FILE}" ]]; then
-    echo "Found the stop signal file. Gracefully stopping the update..."
+    echo "Found the stop signal file. Gracefully stopping the update."
     rm -f "${ZIP_DATA}/${STOP_FILE}"
     break
   fi
@@ -99,7 +114,7 @@ for ZIP_DATA in "${ZIP_DIR}"/*ANI-ITEM-full-format-xml.zip; do
   echo "ETA for updates after ${ZIP_DATA} data file: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
 done
 
-echo "Main update process completed. Now processing delete files..."
+echo "Main update process completed. Processing delete files."
 declare -i num_deletes=$(cd $ZIP_DIR ; ls *ANI-ITEM-delete.zip| wc -l) i=0
 for ZIP_DATA in $(cd $ZIP_DIR ; ls *ANI-ITEM-delete.zip); do
   if grep -q "^${ZIP_DATA}$" "${PROCESSED_LOG}"; then
