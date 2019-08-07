@@ -60,7 +60,7 @@ while (( $# > 0 )); do
         set -x
         VERBOSE_OPTION="-v -v"
       else
-        declare -rx VERBOSE=true
+        readonly VERBOSE=true
         VERBOSE_OPTION="-v"
       fi
       ;;
@@ -81,7 +81,7 @@ declare -i start_time file_start_time file_stop_time delta delta_s delta_m della
 for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
   file_start_time=$(date '+%s')
   (( i == 0 )) && start_time=${file_start_time}
-  echo -e "\n## Update Zip file #$((++i)) out of ${files} update zip files ##"
+  echo -e "\n## Update ZIP file #$((++i)) out of ${files} ##"
   echo "Unzipping ${ZIP_DATA} file into a working directory"
   UPDATE_DIR="${ZIP_DATA%.zip}"
   unzip -u -q "${ZIP_DATA}" -d "${UPDATE_DIR}"
