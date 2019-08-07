@@ -5,7 +5,7 @@ BEGIN
 INSERT
 INTO scopus_grants(scp, grant_id, grantor_acronym, grantor,
                    grantor_country_code, grantor_funder_registry_id)
-SELECT DISTINCT  
+SELECT DISTINCT
         scp,
        coalesce(grant_id, '') AS grant_id,
        grantor_acronym,
@@ -21,8 +21,8 @@ FROM xmltable(--
             grantor_country_code TEXT PATH 'grant-agency/@iso-code',
             grantor_funder_registry_id TEXT PATH 'grant-agency-id'
          )
-ON CONFLICT (scp, grant_id) DO UPDATE SET grantor_acronym=excluded.grantor_acronym,
-                                          grantor=excluded.grantor,
+ON CONFLICT (scp, grant_id, grantor) DO UPDATE SET
+                                          grantor_acronym=excluded.grantor_acronym,
                                           grantor_country_code=excluded.grantor_country_code,
                                           grantor_funder_registry_id=excluded.grantor_funder_registry_id;
 
