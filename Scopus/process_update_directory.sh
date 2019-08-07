@@ -214,7 +214,6 @@ for scopus_data_archive in *.zip; do
     failed_xml_counter=0
     ((processed_xml_counter_total += processed_xml_counter)) || :
     processed_xml_counter=0
-    rm -rf ${tmp}
 
     if [[ -f "${STOP_FILE}" ]]; then
       echo -e "\nFound the stop signal file. Gracefully stopping..."
@@ -248,5 +247,6 @@ fi
 cd ${tmp}
 check_errors # Exits here if errors occurred
 cd
+rm -rf ${tmp}
 
 exit 0
