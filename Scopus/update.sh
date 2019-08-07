@@ -35,6 +35,8 @@ fi
 
 set -e
 set -o pipefail
+# Initially off: is turned on by `-v -v`
+set +x
 
 readonly STOP_FILE=".stop"
 # Get a script directory, same as by $(dirname $0)

@@ -41,7 +41,6 @@ ENVIRONMENT
 
     * PGHOST/PGDATABASE/PGUSER  default Postgres connection parameters
 
-
 EXAMPLES
 
     To run in verbose mode and stop on the first error:
@@ -58,6 +57,8 @@ fi
 
 set -e
 set -o pipefail
+# Initially off: is turned on by `-v -v`
+set +x
 
 readonly STOP_FILE=".stop"
 # Get a script directory, same as by $(dirname $0)
