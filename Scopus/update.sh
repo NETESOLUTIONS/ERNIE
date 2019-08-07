@@ -41,13 +41,12 @@ readonly STOP_FILE=".stop"
 readonly SCRIPT_DIR=${0%/*}
 readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 readonly FAILED_FILES_DIR=../failed
-readonly PROCESSED_LOG=/erniedev_data2/Scopus_updates/processed.log
 
 while (( $# > 0 )); do
   case "$1" in
     -d)
       shift
-      readonly ZIP_DIR="$1"
+      readonly DATA_DIR="$1"
       ;;
     -s)
       shift
@@ -67,32 +66,33 @@ while (( $# > 0 )); do
   esac
   shift
 done
+readonly PROCESSED_LOG="${DATA_DIR}/processed.log"
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
-echo -e "Zip files to process:\n$(ls ${ZIP_DIR}/*.zip)"
+echo -e "Zip files to process:\n$(ls ${DATA_DIR}/*.zip)"
 
 rm -f eta.log
-declare -i files=$(ls "${ZIP_DIR}"/*ANI-ITEM-full-format-xml.zip | wc -l) i=0
+declare -i files=$(ls "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip | wc -l) i=0
 declare -i start_time file_start_time file_stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
 
-for ZIP_DATA in "${ZIP_DIR}"/*ANI-ITEM-full-format-xml.zip; do
+for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
   file_start_time=$(date '+%s')
   (( i == 0 )) && start_time=${file_start_time}
   echo -e "\n## Update Zip file #$((++i)) out of ${files} update zip files ##"
   echo "Unzipping ${ZIP_DATA} file into a working directory"
-  DATA_DIR="${ZIP_DATA%.zip}"
-  unzip -u -q "${ZIP_DATA}" -d "${DATA_DIR}"
+  UPDATE_DIR="${ZIP_DATA%.zip}"
+  unzip -u -q "${ZIP_DATA}" -d "${UPDATE_DIR}"
 
-  echo "Processing ${DATA_DIR} directory"
+  echo "Processing ${UPDATE_DIR} directory"
   # shellcheck disable=SC2086
   #   SUBSET_OPTION must be unquoted
   if ! "${ABSOLUTE_SCRIPT_DIR}/process_update_directory.sh" -p "${PROCESSED_LOG}" -f "${FAILED_FILES_DIR}" \
-      ${SUBSET_OPTION} ${VERBOSE_OPTION} "${DATA_DIR}"; then
+      ${SUBSET_OPTION} ${VERBOSE_OPTION} "${UPDATE_DIR}"; then
     failures_occurred="true"
   fi
 
-  echo "Removing directory ${DATA_DIR}"
-  rm -rf "${DATA_DIR}"
+  echo "Removing directory ${UPDATE_DIR}"
+  rm -rf "${UPDATE_DIR}"
 
   file_stop_time=$(date '+%s')
 
@@ -115,13 +115,13 @@ for ZIP_DATA in "${ZIP_DIR}"/*ANI-ITEM-full-format-xml.zip; do
 done
 
 echo "Main update process completed. Processing delete files."
-declare -i num_deletes=$(cd $ZIP_DIR ; ls *ANI-ITEM-delete.zip| wc -l) i=0
-for ZIP_DATA in $(cd $ZIP_DIR ; ls *ANI-ITEM-delete.zip); do
+declare -i num_deletes=$(cd $DATA_DIR ; ls *ANI-ITEM-delete.zip| wc -l) i=0
+for ZIP_DATA in $(cd $DATA_DIR ; ls *ANI-ITEM-delete.zip); do
   if grep -q "^${ZIP_DATA}$" "${PROCESSED_LOG}"; then
     echo "Skipping file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} ). It is already marked as completed."
   else
     echo -e "\nProcessing delete file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} )..."
-    unzip ${ZIP_DIR}/${ZIP_DATA}
+    unzip ${DATA_DIR}/${ZIP_DATA}
     psql -f process_deletes.sql
     rm delete.txt
     echo "${ZIP_DATA}" >> ${PROCESSED_LOG}
