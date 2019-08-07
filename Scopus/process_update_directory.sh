@@ -167,6 +167,8 @@ HEREDOC
   fi
 }
 
+# Create an empty file if it does not exist to simplify check condition below
+touch "${PROCESSED_LOG}"
 [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
 process_start_time=$(date '+%s')
 for scopus_data_archive in *.zip; do
@@ -242,10 +244,8 @@ else
   echo "FAILED PARSING ${failed_xml_counter_total} XML FILES"
 fi
 
-for directory in "${FAILED_FILES_DIR}"; do
-  cd $directory
-  check_errors # Exits here if errors occurred
-  cd
-done
+cd ${tmp}
+check_errors # Exits here if errors occurred
+cd
 
 exit 0

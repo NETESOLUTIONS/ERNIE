@@ -63,7 +63,7 @@ rm -f eta.log
 declare -i files=$(cd $ZIP_DIR ; ls *ANI-ITEM-full-format-xml.zip| wc -l) i=0 start_time file_start_time file_stop_time delta delta_s delta_m della_h \
     elapsed=0 est_total eta
 
-for ZIP_DATA in $(ls ${ZIP_DIR}/*ANI-ITEM-full-format-xml.zip); do
+for ZIP_DATA in ""${ZIP_DIR}/*ANI-ITEM-full-format-xml.zip"; do
   file_start_time=$(date '+%s')
   (( i == 0 )) && start_time=${file_start_time}
   echo -e "\n## Update Zip file #$((++i)) out of ${files} update zip files ##"
@@ -76,9 +76,8 @@ for ZIP_DATA in $(ls ${ZIP_DIR}/*ANI-ITEM-full-format-xml.zip); do
     failures_occurred="true"
   fi
 
-  #TODO: uncomment and add this in once we have an automated process set up
-  #echo "Removing directory ${ZIP_DATA%.zip}"
-  #rm -rf "${ZIP_DATA%.zip}"
+  echo "Removing directory ${DATA_DIR}"
+  rm -rf "${DATA_DIR}"
 
   file_stop_time=$(date '+%s')
 
