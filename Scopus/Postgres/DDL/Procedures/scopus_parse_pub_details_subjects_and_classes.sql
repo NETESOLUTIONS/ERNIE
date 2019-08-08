@@ -19,8 +19,8 @@ AS $$
       last_page,
       publication_year,
       try_parse(pub_year, pub_month, pub_day) AS publication_date,
-      coalesce(conf_code,'') AS conf_code,
-      coalesce(conf_name,'') AS conf_name
+      conf_code AS conf_code,
+      conf_name AS conf_name
     FROM
       xmltable(--
       '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
@@ -39,7 +39,7 @@ AS $$
     ON CONFLICT (scp) DO UPDATE SET
     issue=excluded.issue, volume=excluded.volume, first_page=excluded.first_page,
     last_page=excluded.last_page, publication_year=excluded.publication_year,
-    publication_date=excluded.publication_date, conf_code=excluded.conf_code, conf_name=excluded.conf_name;
+    publication_date=excluded.publication_date;
 
     UPDATE scopus_source_publication_details spd
     SET indexed_terms=sq.indexed_terms

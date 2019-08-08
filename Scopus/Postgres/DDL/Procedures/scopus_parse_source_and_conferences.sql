@@ -206,8 +206,7 @@ EXCEPTION
                     conf_number TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confnumber',
                     conf_catalog_number TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcatnumber'
                  )
-        ON CONFLICT (conf_code, conf_name) DO UPDATE SET conf_code=excluded.conf_code,
-                                                         conf_name=excluded.conf_name,
+        ON CONFLICT (conf_code, conf_name) DO UPDATE SET
                                                          conf_address=excluded.conf_address,
                                                          conf_city=excluded.conf_city,
                                                          conf_postal_code=excluded.conf_postal_code,
@@ -260,9 +259,7 @@ EXCEPTION
         WHERE proc_part_no IS NOT NULL
            OR proc_page_range IS NOT NULL
            OR proc_page_count IS NOT NULL
-        ON CONFLICT (ernie_source_id, conf_code, conf_name) DO UPDATE SET ernie_source_id=excluded.ernie_source_id,
-                                                                          conf_code=excluded.conf_code,
-                                                                          conf_name=excluded.conf_name,
+        ON CONFLICT (ernie_source_id, conf_code, conf_name) DO UPDATE SET 
                                                                           proc_part_no=excluded.proc_part_no,
                                                                           proc_page_range=excluded.proc_page_range,
                                                                           proc_page_count=excluded.proc_page_count;
@@ -296,10 +293,7 @@ EXCEPTION
                          suffix TEXT PATH 'ce:suffix'
                  )
         WHERE db_id IS NOT NULL
-        ON CONFLICT (ernie_source_id, conf_code, conf_name, indexed_name) DO UPDATE SET ernie_source_id=excluded.ernie_source_id,
-                                                                                        conf_code=excluded.conf_code,
-                                                                                        conf_name=excluded.conf_name,
-                                                                                        indexed_name=excluded.indexed_name,
+        ON CONFLICT (ernie_source_id, conf_code, conf_name, indexed_name) DO UPDATE SET
                                                                                         role_type=excluded.role_type,
                                                                                         initials=excluded.initials,
                                                                                         surname=excluded.surname,
