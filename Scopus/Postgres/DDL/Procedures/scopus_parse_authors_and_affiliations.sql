@@ -72,16 +72,15 @@ BEGIN
     UPDATE scopus_affiliations sa
     SET organization=sq.organization
     FROM (
-             SELECT scp, string_agg(organization, ',') AS organization
+             SELECT scp, affiliation_no, RTRIM(organization,',') AS organization
              FROM xmltable(--
-                          '//bibrecord/head/author-group/affiliation/organization' PASSING scopus_doc_xml COLUMNS --
-                         scp BIGINT PATH '../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
-                         organization TEXT PATH 'normalize-space()'
+                          '//bibrecord/head/author-group/affiliation' PASSING (select * from ln_test) COLUMNS --
+                         scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
+                         affiliation_no FOR ORDINALITY,
+                         organization TEXT PATH 'concat(organization[1]/text(), ",",organization[2]/text(), ",",organization[3]/text())'
                       )
-             GROUP BY scp
          ) as sq
-    WHERE sa.scp = sq.scp;
-
+    WHERE sa.scp = sq.scp and sa.affiliation_no = sq.affiliation_no;
 
     -- scopus_author_affiliations
     INSERT INTO scopus_author_affiliations(scp, author_seq, affiliation_no)
