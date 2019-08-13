@@ -46,6 +46,10 @@ ALTER TABLE scopus_sources
 
 -- Updating scopus_sources.issn_main with missing issns from scopus_issns
 -- First step updating with issn_type print, 2nd step with type electronic
+-- Dropping unique index for scopus_sources which will be added later
+DROP INDEX scopus_sources_source_id_issn_isbn_uk;
+
+
 UPDATE scopus_sources ss
 SET issn_main=scopus_temp.issn
 FROM (SELECT * FROM scopus_issns WHERE issn_type = 'print') scopus_temp
