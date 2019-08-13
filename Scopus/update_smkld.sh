@@ -54,6 +54,8 @@ while (( $# > 0 )); do
     -u) shift
       readonly UPDATE_JOB=true
       ;;
+    -k) shift
+      readonly SMOKELOAD_JOB=true
     -c) shift
        readonly CLEAN_MODE=true
       ;;
@@ -96,18 +98,8 @@ if [[ ${CLEAN_MODE} == "true" ]]; then
   rm -rf "${FAILED_FILES_DIR}"
 fi
 
-[[${UPDATE_JOB} == "true"]] && readonly PROCESSED_LOG="${DATA_DIR}/processed.log"
-echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
-echo -e "Zip files to process:\n$(ls ${DATA_DIR}/*.zip)"
-
-rm -f eta.log
-declare -i files=$(ls "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip | wc -l) i=0
-declare -i start_time file_start_time file_stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
-declare -i directories=${#sorted_args[@]} i=0 start_time dir_start_time dir_stop_time delta delta_s delta_m della_h \
-    elapsed=0 est_total eta
-
 ### loop that unzips for smokeload
-for DATA_DIR in "${sorted_args[@]}"; do
+[[${SMOKELOAD_JOB} =="true"}]] && for DATA_DIR in "${sorted_args[@]}"; do
   dir_start_time=$(date '+%s')
   (( i == 0 )) && start_time=${dir_start_time}
   echo -e "\n## Directory #$((++i)) out of ${directories} ##"
@@ -117,9 +109,22 @@ for DATA_DIR in "${sorted_args[@]}"; do
   fi
   dir_stop_time=$(date '+%s')
 
-## loop that unzips
+## variables for update_job
 
-[[${UPDATE_JOB}== "true"]] && for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
+  if [[${UPDATE_JOB} == "true"]] && readonly PROCESSED_LOG="${DATA_DIR}/processed.log" ; then
+  echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
+  echo -e "Zip files to process:\n$(ls ${DATA_DIR}/*.zip)"
+
+  rm -f eta.log
+  declare -i files=$(ls "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip | wc -l) i=0
+  declare -i start_time file_start_time file_stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
+  declare -i directories=${#sorted_args[@]} i=0 start_time dir_start_time dir_stop_time delta delta_s delta_m della_h \
+      elapsed=0 est_total eta
+  fi
+
+## loop that unzips update_job
+
+[[${UPDATE_JOB} == "true"]] && for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
   file_start_time=$(date '+%s')
   (( i == 0 )) && start_time=${file_start_time}
   echo -e "\n## Update ZIP file #$((++i)) out of ${files} ##"

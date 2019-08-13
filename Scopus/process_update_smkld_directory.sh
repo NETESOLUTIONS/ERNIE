@@ -21,6 +21,8 @@ DESCRIPTION
 
     -u    update job: specifies that the job is an update versus smokeload
 
+    -k    smokeload job : specificies that the job is a smokeload versus update
+
     -c    clean load: truncate data. WARNING: be aware that you'll lose all loaded data!
 
     -e    stop on the first error. Parsing and other SQL errors don't fail the build unless `-e` is specified.
@@ -83,6 +85,9 @@ while (( $# > 0 )); do
       shift
       readonly UPDATE_JOB=true
       ;;
+    -k)
+      shift
+      readonly SMOKELOAD_JOB=true 
     -c)
       shift
       readonly CLEAN_MODE=true
@@ -195,11 +200,12 @@ rm -rf ${tmp}
 mkdir ${tmp}
 
 
-[[${UPDATE_JOB}]] && touch "${PROCESSED_LOG}"
+[[${UPDATE_JOB} == "true"]] && touch "${PROCESSED_LOG} "
 [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
 process_start_time=$(date '+%s')
 for scopus_data_archive in *.zip; do
-  start_time=$(date '+%s') && if grep -q "^${scopus_data_archive}$" "${PROCESSED_LOG}"; then
+    start_time=$(date '+%s' && grep -q "^${scopus_data_archive}$" "${PROCESSED_LOG}";
+    then
     echo "Skipping file ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} ). It is already marked as completed."
     else
     echo -e "\nProcessing ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} )..."
@@ -216,7 +222,7 @@ for scopus_data_archive in *.zip; do
     # Reduced verbosity
     if ! find "${subdir}" -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
         --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}; then
-      [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
+    [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
     fi
     while read -r line; do
       if echo $line | grep -q "1"; then
@@ -233,7 +239,7 @@ for scopus_data_archive in *.zip; do
   echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"
   if ((failed_xml_counter == 0)); then
     echo "ALL IS WELL"
-  elif [[${UPDATE_JOB}== "true"]]
+  elif [${UPDATE_JOB}== "true"]
   then
     echo "${scopus_data_archive}" >> "${PROCESSED_LOG}"
   else
