@@ -11,7 +11,7 @@ AS $$
     -- scopus_source_publication_details
     INSERT INTO scopus_source_publication_details(scp,issue,volume,first_page,last_page,publication_year,publication_date,conf_code,conf_name)
 
-    SELECT
+    SELECT DISTINCT 
       scp,
       issue,
       volume,

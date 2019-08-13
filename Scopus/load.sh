@@ -99,7 +99,7 @@ if [[ ${CLEAN_MODE} == "true" ]]; then
 fi
 
 ### loop that unzips for smokeload
-[[${SMOKELOAD_JOB} =="true"}]] && for DATA_DIR in "${sorted_args[@]}"; do
+if [[${SMOKELOAD_JOB} =="true"}]] && for DATA_DIR in "${sorted_args[@]}"; do
   dir_start_time=$(date '+%s')
   (( i == 0 )) && start_time=${dir_start_time}
   echo -e "\n## Directory #$((++i)) out of ${directories} ##"
@@ -124,7 +124,7 @@ fi
 
 ## loop that unzips update_job
 
-[[${UPDATE_JOB} == "true"]] && for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
+[${UPDATE_JOB} == "true"] && for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
   file_start_time=$(date '+%s')
   (( i == 0 )) && start_time=${file_start_time}
   echo -e "\n## Update ZIP file #$((++i)) out of ${files} ##"
