@@ -10,7 +10,7 @@ $$
 BEGIN
     -- scopus_abstracts
     INSERT INTO scopus_abstracts(scp, abstract_language, abstract_source)
-    SELECT scp,
+    SELECT DISTINCT scp,
            abstract_language,
            abstract_source
     FROM xmltable(
