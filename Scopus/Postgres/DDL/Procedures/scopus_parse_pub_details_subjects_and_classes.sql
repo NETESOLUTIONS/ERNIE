@@ -11,7 +11,7 @@ AS $$
     -- scopus_source_publication_details
     INSERT INTO scopus_source_publication_details(scp,issue,volume,first_page,last_page,publication_year,publication_date,conf_code,conf_name)
 
-    SELECT DISTINCT 
+    SELECT DISTINCT
       scp,
       issue,
       volume,
@@ -36,7 +36,7 @@ AS $$
       conf_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcode',
       conf_name TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confname'
       )
-    ON CONFLICT (scp) DO UPDATE SET
+    ON CONFLICT (scp, conf_code, conf_name) DO UPDATE SET
     issue=excluded.issue, volume=excluded.volume, first_page=excluded.first_page,
     last_page=excluded.last_page, publication_year=excluded.publication_year,
     publication_date=excluded.publication_date;
