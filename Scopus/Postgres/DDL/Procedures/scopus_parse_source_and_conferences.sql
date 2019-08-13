@@ -1,4 +1,3 @@
-
 \set ON_ERROR_STOP on
 \set ECHO all
 
@@ -259,7 +258,7 @@ EXCEPTION
         WHERE proc_part_no IS NOT NULL
            OR proc_page_range IS NOT NULL
            OR proc_page_count IS NOT NULL
-        ON CONFLICT (ernie_source_id, conf_code, conf_name) DO UPDATE SET 
+        ON CONFLICT (ernie_source_id, conf_code, conf_name) DO UPDATE SET
                                                                           proc_part_no=excluded.proc_part_no,
                                                                           proc_page_range=excluded.proc_page_range,
                                                                           proc_page_count=excluded.proc_page_count;

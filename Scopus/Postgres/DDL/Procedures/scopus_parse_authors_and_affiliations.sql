@@ -59,8 +59,7 @@ BEGIN
                 country_code TEXT PATH '@country',
                 country TEXT PATH 'country'
              )
-    ON CONFLICT (scp, affiliation_no) DO UPDATE SET scp=excluded.scp,
-                                                    affiliation_no=excluded.affiliation_no,
+    ON CONFLICT (scp, affiliation_no) DO UPDATE SET
                                                     afid=excluded.afid,
                                                     dptid=excluded.dptid,
                                                     city_group=excluded.city_group,
@@ -97,7 +96,7 @@ BEGIN
              affiliation_no FOR ORDINALITY
              ) as t2
     WHERE XMLEXISTS('//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml)
-    ON CONFLICT (scp, author_seq, affiliation_no) DO UPDATE SET author_seq=excluded.author_seq, affiliation_no=excluded.affiliation_no;
+    ON CONFLICT (scp, affiliation_no) DO UPDATE SET author_seq=excluded.author_seq;
 
 END;
 $$
