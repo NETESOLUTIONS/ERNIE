@@ -53,9 +53,9 @@ WHERE ss.ernie_source_id = scopus_temp.ernie_source_id
   AND (ss.issn_main = ''
     OR ss.issn_main = ' ');
 
-UPDATE scopus_sources_updates ss
+UPDATE scopus_sources ss
 SET issn_main=scopus_temp.issn
-FROM (SELECT * FROM scopus_issns_updates WHERE issn_type = 'electronic') scopus_temp
+FROM (SELECT * FROM scopus_issns WHERE issn_type = 'electronic') scopus_temp
 WHERE ss.ernie_source_id = scopus_temp.ernie_source_id
   AND (ss.issn_main = ''
     OR ss.issn_main = ' ');
