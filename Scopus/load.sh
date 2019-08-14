@@ -94,7 +94,7 @@ echo "SMOKELOAD JOB INITIATED ..."
 arg_array=( "$@" )
 echo "${arg_array[*]}"
 IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<<"${arg_array[*]}")); unset IFS
-elif [[ ${UPDATE_JOB} == "true" ]]; then
+elif [[ ${UPDATE_JOB} == "true" ]] then
 echo "UPDATE JOB INITIATED ..."
 else
 echo "NO JOB OPTION SPECIFIED: PLEASE SPECIFY JOB OPTION."
@@ -127,7 +127,7 @@ if [[ ${SMOKELOAD_JOB} == "true" ]];
 
   if [[ ${UPDATE_JOB} == "true" ]];
     then
-        readonly PROCESSED_LOG="${DATA_DIR}/processed.log" 
+        readonly PROCESSED_LOG="${DATA_DIR}/processed.log"
         echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
         echo -e "Zip files to process:\n$(ls ${DATA_DIR}/*.zip)"
         rm -f eta.log
