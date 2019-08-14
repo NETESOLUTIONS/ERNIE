@@ -96,10 +96,11 @@ echo "${arg_array[*]}"
 IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<<"${arg_array[*]}")); unset IFS
 elif [[ ${UPDATE_JOB} == "true" ]] then
 echo "UPDATE JOB INITIATED ..."
-else "NO JOB OPTION SPECIFIED: PLEASE SPECIFY JOB OPTION."
-echo -e
+else
+echo   "NO JOB OPTION SPECIFIED: PLEASE SPECIFY JOB OPTION."
 fi
- # Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
+
+### Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
 
 if [[ ${CLEAN_MODE} == "true" ]]; then
   echo "IN CLEAN MODE. TRUNCATING ALL DATA..."
