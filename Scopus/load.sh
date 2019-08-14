@@ -19,7 +19,9 @@ DESCRIPTION
     1) Copy files from some secondary storing location and then proceed to work on them.
 
   The following options are available:
-    -u update job : trigger the update job option
+    -u update job : set off update job
+
+    -k smokeload job : set off the smokeload job
 
     -c clean mode : truncate pre-existing data in working directory
 
@@ -56,6 +58,7 @@ while (( $# > 0 )); do
       ;;
     -k) shift
       readonly SMOKELOAD_JOB=true
+      ;;
     -c) shift
        readonly CLEAN_MODE=true
       ;;
@@ -85,10 +88,7 @@ while (( $# > 0 )); do
   esac
   shift
 done
-arg_array=( "$@" )
-echo "${arg_array[*]}"
-# Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
-IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<<"${arg_array[*]}")); unset IFS
+[[${SMOKELOAD_JOB} =="true"}]] && arg_array=( "$@" ) && echo "${arg_array[*]}" && IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<<"${arg_array[*]}")); unset IFS # Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
 
 if [[ ${CLEAN_MODE} == "true" ]]; then
   echo "IN CLEAN MODE. TRUNCATING ALL DATA..."
@@ -135,7 +135,7 @@ fi
   echo "Processing ${UPDATE_DIR} directory"
   # shellcheck disable=SC2086
   #   SUBSET_OPTION must be unquoted
-  if "${ABSOLUTE_SCRIPT_DIR}/process_update_directory.sh" -p "${PROCESSED_LOG}" -f "${FAILED_FILES_DIR}" \
+  if "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -p "${PROCESSED_LOG}" -f "${FAILED_FILES_DIR}" \
       ${SUBSET_OPTION} ${VERBOSE_OPTION} "${UPDATE_DIR}"; then
     echo "Removing directory ${UPDATE_DIR}"
     rm -rf "${UPDATE_DIR}"

@@ -88,6 +88,7 @@ while (( $# > 0 )); do
     -k)
       shift
       readonly SMOKELOAD_JOB=true
+      ;;
     -c)
       shift
       readonly CLEAN_MODE=true
