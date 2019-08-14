@@ -201,12 +201,13 @@ if [[ "${UPDATE_JOB}" == "true" ]]; then
 touch "${PROCESSED_LOG} "
 [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
 process_start_time=$(date '+%s')
-for scopus_data_archive in *.zip; do
-    start_time=$(date '+%s' && grep -q "^${scopus_data_archive}$" "${PROCESSED_LOG}";
-    then
-    echo "Skipping file ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} ). It is already marked as completed."
-    else
-    echo -e "\nProcessing ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} )..."
+for scopus_data_archive in *.zip;
+    do
+      start_time=$(date '+%s') && if grep -q "^${scopus_data_archive}$" "${PROCESSED_LOG}";
+      then
+          echo "Skipping file ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} ). It is already marked as completed."
+          else
+          echo -e "\nProcessing ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} )..."
   # Reduced verbosity
   # -u extracting files that are newer and files that do not already exist on disk
   # -q perform operations quietly
