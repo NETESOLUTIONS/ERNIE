@@ -89,7 +89,7 @@ while (( $# > 0 )); do
   shift
 done
 
-if [[ ${SMOKELOAD_JOB} =="true" ]]; then
+if [[ ${SMOKELOAD_JOB} == "true" ]]; then
 echo "SMOKELOAD JOB INITIATED ..."
 arg_array=( "$@" )
 echo "${arg_array[*]}"
@@ -110,7 +110,7 @@ if [[ ${CLEAN_MODE} == "true" ]]; then
 fi
 
 ### loop that unzips for smokeload
-if [[ ${SMOKELOAD_JOB} =="true" ]];
+if [[ ${SMOKELOAD_JOB} == "true" ]];
   then
     for DATA_DIR in "${sorted_args[@]}"; do
       dir_start_time=$(date '+%s')
