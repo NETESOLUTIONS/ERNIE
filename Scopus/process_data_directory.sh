@@ -82,19 +82,15 @@ while (( $# > 0 )); do
   echo "Using CLI arg '$1'"
   case "$1" in
     -u)
-      shift
       readonly UPDATE_JOB=true
       ;;
     -k)
-      shift
       readonly SMOKELOAD_JOB=true
       ;;
     -c)
-      shift
       readonly CLEAN_MODE=true
       ;;
     -e)
-      shift
       readonly STOP_ON_THE_FIRST_ERROR=true
 #      echo "process_directory.sh should stop on the first error."
       ;;

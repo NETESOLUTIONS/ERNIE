@@ -53,16 +53,16 @@ readonly FAILED_FILES_DIR=../failed
 
 while (( $# > 0 )); do
   case "$1" in
-    -u) shift
+    -u)
       readonly UPDATE_JOB=true
       ;;
-    -k) shift
+    -k)
       readonly SMOKELOAD_JOB=true
       ;;
     -c) shift
        readonly CLEAN_MODE=true
       ;;
-    -r) shift
+    -r) shift 
      readonly SORT_ORDER=true
      ;;
     -d)
