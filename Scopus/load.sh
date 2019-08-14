@@ -89,12 +89,12 @@ while (( $# > 0 )); do
   shift
 done
 
-if [[ ${SMOKELOAD_JOB} == "true" ]] ; then
+if [[ "${SMOKELOAD_JOB}" == "true" ]] ; then
 echo "SMOKELOAD JOB INITIATED ..."
 arg_array=( "$@" )
 echo "${arg_array[*]}"
 IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<<"${arg_array[*]}")); unset IFS
-elif [[ ${UPDATE_JOB} == "true" ]] ;
+elif [[ "${UPDATE_JOB}" == "true" ]] ;
 then
 echo "UPDATE JOB INITIATED ... "
 else
@@ -124,8 +124,24 @@ if [[ ${SMOKELOAD_JOB} == "true" ]];
         failures_occurred="true"
         fi
       dir_stop_time=$(date '+%s')
-    done 
-fi
+
+      ((delta=dir_stop_time - dir_start_time + 1)) || :
+      ((delta_s=delta % 60)) || :
+      ((delta_m=(delta / 60) % 60)) || :
+      ((della_h=delta / 3600)) || :
+      printf "\n$(TZ=America/New_York date) Done with ${DATA_DIR} data directory in %dh:%02dm:%02ds\n" ${della_h} \
+             ${delta_m} ${delta_s} | tee -a eta.log
+      if [[ -f "${DATA_DIR}/${STOP_FILE}" ]]; then
+        echo "Found the stop signal file. Gracefully stopping the smokeload..."
+        rm -f "${DATA_DIR}/${STOP_FILE}"
+        break
+      fi
+      ((elapsed=elapsed + delta))
+      ((est_total=elapsed * directories / i)) || :
+      ((eta=start_time + est_total))
+      echo "ETA after ${DATA_DIR} data directory: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
+      done
+
 
 ## variables for update_job
 
