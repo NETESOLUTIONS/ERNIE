@@ -89,40 +89,43 @@ while (( $# > 0 )); do
   shift
 done
 
-if [[ "${SMOKELOAD_JOB}" == "true" ]] ; then
-echo "SMOKELOAD JOB INITIATED ..."
-arg_array=( "$@" )
-echo "${arg_array[*]}"
-IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<<"${arg_array[*]}")); unset IFS
-elif [[ "${UPDATE_JOB}" == "true" ]] ;
-then
-echo "UPDATE JOB INITIATED ... "
+if [[ "${SMOKELOAD_JOB}" == true ]];
+  then
+    echo "SMOKELOAD JOB INITIATED ..."
+    arg_array=( "$@" )
+    echo "${arg_array[*]}"
+    IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<<"${arg_array[*]}")); unset IFS
+elif [[ "${UPDATE_JOB}" == true ]]
+  then
+    echo "UPDATE JOB INITIATED ... "
 else
-echo "NO JOB OPTION SPECIFIED: PLEASE SPECIFY JOB OPTION."
+    echo "NO JOB OPTION SPECIFIED: PLEASE SPECIFY JOB OPTION."
 fi
 
 ### Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
 
-if [[ "${CLEAN_MODE}" == "true" ]]; then
-  echo "IN CLEAN MODE. TRUNCATING ALL DATA..."
-  psql -f ${ABSOLUTE_SCRIPT_DIR}/clean_data.sql
+if [[ "${CLEAN_MODE}" == true ]];
+  then
+    echo "IN CLEAN MODE. TRUNCATING ALL DATA..."
+    psql -f ${ABSOLUTE_SCRIPT_DIR}/clean_data.sql
 
-  cd ${sorted_args[0]}
-  rm -rf "${FAILED_FILES_DIR}"
+    cd ${sorted_args[0]}
+    rm -rf "${FAILED_FILES_DIR}"
 fi
 
 ### loop that unzips for smokeload
-if [[ "${SMOKELOAD_JOB}" == "true" ]];
+if [[ "${SMOKELOAD_JOB}" == true ]];
   then
-    for DATA_DIR in "${sorted_args[@]}"; do
-      dir_start_time=$(date '+%s')
-      (( i == 0 )) && start_time=${dir_start_time}
-      echo -e "\n## Directory #$((++i)) out of ${directories} ##"
-      echo "Processing ${DATA_DIR} directory ..."
-      if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -f "${FAILED_FILES_DIR}" ${SUBSET_OPTION} "${DATA_DIR}";
-       then
-        failures_occurred="true"
-        fi
+    for DATA_DIR in "${sorted_args[@]}";
+      do
+        dir_start_time=$(date '+%s')
+        (( i == 0 )) && start_time=${dir_start_time}
+        echo -e "\n## Directory #$((++i)) out of ${directories} ##"
+        echo "Processing ${DATA_DIR} directory ..."
+          if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -f "${FAILED_FILES_DIR}" ${SUBSET_OPTION} "${DATA_DIR}";
+           then
+            failures_occurred="true"
+            fi
       dir_stop_time=$(date '+%s')
 
       ((delta=dir_stop_time - dir_start_time + 1)) || :
@@ -131,11 +134,11 @@ if [[ "${SMOKELOAD_JOB}" == "true" ]];
       ((della_h=delta / 3600)) || :
       printf "\n$(TZ=America/New_York date) Done with ${DATA_DIR} data directory in %dh:%02dm:%02ds\n" ${della_h} \
              ${delta_m} ${delta_s} | tee -a eta.log
-      if [[ -f "${DATA_DIR}/${STOP_FILE}" ]]; then
-        echo "Found the stop signal file. Gracefully stopping the smokeload..."
-        rm -f "${DATA_DIR}/${STOP_FILE}"
-        break
-      fi
+             if [[ -f "${DATA_DIR}/${STOP_FILE}" ]]; then
+                echo "Found the stop signal file. Gracefully stopping the smokeload..."
+                rm -f "${DATA_DIR}/${STOP_FILE}"
+                break
+            fi
       ((elapsed=elapsed + delta))
       ((est_total=elapsed * directories / i)) || :
       ((eta=start_time + est_total))
@@ -145,7 +148,7 @@ if [[ "${SMOKELOAD_JOB}" == "true" ]];
 
 ## variables for update_job
 
-  if [[ "${UPDATE_JOB}" == "true" ]];
+  if [[ "${UPDATE_JOB}" == true ]];
     then
         readonly PROCESSED_LOG="${DATA_DIR}/processed.log"
         echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
@@ -159,9 +162,9 @@ if [[ "${SMOKELOAD_JOB}" == "true" ]];
 
 ## loop that unzips update_job
 
-if [[ "${UPDATE_JOB}" == "true" ]];
+if [[ "${UPDATE_JOB}" == true ]];
   then
-    for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
+  for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
   file_start_time=$(date '+%s')
   (( i == 0 )) && start_time=${file_start_time}
   echo -e "\n## Update ZIP file #$((++i)) out of ${files} ##"
@@ -199,6 +202,7 @@ if [[ "${UPDATE_JOB}" == "true" ]];
   ((eta=start_time + est_total))
   echo "ETA for updates after ${ZIP_DATA} data file: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
     done
+fi
 
 # Do delete files exist?
 if compgen -G "$DATA_DIR/*ANI-ITEM-delete.zip" >/dev/null; then
@@ -220,6 +224,8 @@ fi
 
 psql -f scopus_update_log.sql
 
-[[ "${failures_occurred}" == "true" ]] && exit 1
+if [[ "${failures_occurred}" == "true" ]]; then
+exit 1
+fi
 
 exit 0
