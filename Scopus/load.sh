@@ -127,7 +127,7 @@ if [[ ${SMOKELOAD_JOB} == "true" ]];
 
   if [[ ${UPDATE_JOB} == "true" ]];
     then
-      readonly PROCESSED_LOG="${DATA_DIR}/processed.log" ; then
+        readonly PROCESSED_LOG="${DATA_DIR}/processed.log" 
         echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
         echo -e "Zip files to process:\n$(ls ${DATA_DIR}/*.zip)"
         rm -f eta.log
