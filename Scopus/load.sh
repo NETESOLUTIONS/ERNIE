@@ -91,11 +91,14 @@ done
 
 if [[${SMOKELOAD_JOB} =="true"]]; then
 echo "SMOKELOAD JOB INITIATED ..."
-arg_array=( "$@" ) && echo "${arg_array[*]}" && IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<<"${arg_array[*]}")); unset IFS
+arg_array=( "$@" )
+echo "${arg_array[*]}"
+IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<<"${arg_array[*]}")); unset IFS
 elif [[${UPDATE_JOB} == "true"]]; then
 echo "UPDATE JOB INITIATED ..."
 else "NO JOB OPTION SPECIFIED: PLEASE SPECIFY JOB OPTION."
 echo -e
+fi 
  # Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
 
 if [[ ${CLEAN_MODE} == "true" ]]; then
