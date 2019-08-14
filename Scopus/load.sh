@@ -89,7 +89,7 @@ while (( $# > 0 )); do
   shift
 done
 
-if [[ "${SMOKELOAD_JOB}" == true ]];
+if [[ "${SMOKELOAD_JOB}" == true ]] ;
   then
     echo "SMOKELOAD JOB INITIATED ..."
     arg_array=( "$@" )
@@ -229,3 +229,4 @@ exit 1
 fi
 
 exit 0
+fi 
