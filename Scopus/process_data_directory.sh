@@ -197,11 +197,12 @@ rm -rf ${tmp}
 mkdir ${tmp}
 
 
-if [[ "${UPDATE_JOB}" == "true" ]]; then
-touch "${PROCESSED_LOG} "
-[[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
-process_start_time=$(date '+%s')
-for scopus_data_archive in *.zip;
+if [[ "${UPDATE_JOB}" == "true" ]];
+  then
+    touch "${PROCESSED_LOG} "
+    [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
+    process_start_time=$(date '+%s')
+    for scopus_data_archive in *.zip;
     do
       start_time=$(date '+%s') && if grep -q "^${scopus_data_archive}$" "${PROCESSED_LOG}";
       then
@@ -211,18 +212,19 @@ for scopus_data_archive in *.zip;
   # Reduced verbosity
   # -u extracting files that are newer and files that do not already exist on disk
   # -q perform operations quietly
-  unzip -u -q "${scopus_data_archive}" -d $tmp
-
-  export failed_files_dir="${FAILED_FILES_DIR}/${scopus_data_archive}"
-  cd ${tmp}
-  rm -f "${ERROR_LOG}"
-  for subdir in $(find . -mindepth 1 -maxdepth 1 -type d); do
+          unzip -u -q "${scopus_data_archive}" -d $tmp
+          export failed_files_dir="${FAILED_FILES_DIR}/${scopus_data_archive}"
+          cd ${tmp}
+          rm -f "${ERROR_LOG}"
+      fi
+  for subdir in $(find . -mindepth 1 -maxdepth 1 -type d);
+    do
     # Process Scopus XML files in parallel
     # Reduced verbosity
-    if ! find "${subdir}" -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
+      if ! find "${subdir}" -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
         --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}; then
-    [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
-    fi
+          [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
+      fi
     while read -r line; do
       if echo $line | grep -q "1"; then
         ((++failed_xml_counter))
@@ -233,7 +235,6 @@ for scopus_data_archive in *.zip;
     rm -rf "${PARALLEL_LOG}" "${subdir}"
   done
   cd ..
-
   echo "SUMMARY FOR ${scopus_data_archive}:"
   echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"
   if ((failed_xml_counter == 0)); then
@@ -268,6 +269,7 @@ for scopus_data_archive in *.zip;
     echo "ETA for completion of the current directory: $(TZ=America/New_York date --date=@${eta})"
   fi
 done
+fi
 
 echo -e "\nDIRECTORY SUMMARY:"
 echo "SUCCESSFULLY PARSED ${processed_xml_counter_total} XML FILES"
