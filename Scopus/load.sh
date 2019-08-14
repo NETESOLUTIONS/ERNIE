@@ -59,10 +59,10 @@ while (( $# > 0 )); do
     -k)
       readonly SMOKELOAD_JOB=true
       ;;
-    -c) shift
+    -c)
        readonly CLEAN_MODE=true
       ;;
-    -r) shift 
+    -r)  
      readonly SORT_ORDER=true
      ;;
     -d)
