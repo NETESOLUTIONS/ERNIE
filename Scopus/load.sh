@@ -104,7 +104,7 @@ fi
   (( i == 0 )) && start_time=${dir_start_time}
   echo -e "\n## Directory #$((++i)) out of ${directories} ##"
   echo "Processing ${DATA_DIR} directory ..."
-  if ! "${ABSOLUTE_SCRIPT_DIR}/process_directory.sh" -f "${FAILED_FILES_DIR}" ${SUBSET_OPTION} "${DATA_DIR}"; then
+  if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -f "${FAILED_FILES_DIR}" ${SUBSET_OPTION} "${DATA_DIR}"; then
     failures_occurred="true"
   fi
   dir_stop_time=$(date '+%s')
