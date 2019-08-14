@@ -106,7 +106,6 @@ if [[ "${CLEAN_MODE}" == true ]];
   then
     echo "IN CLEAN MODE. TRUNCATING ALL DATA..."
     psql -f ${ABSOLUTE_SCRIPT_DIR}/clean_data.sql
-
     cd ${sorted_args[0]}
     rm -rf "${FAILED_FILES_DIR}"
 fi
@@ -142,6 +141,7 @@ if [[ "${SMOKELOAD_JOB}" == true ]];
       ((eta=start_time + est_total))
       echo "ETA after ${DATA_DIR} data directory: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
       done
+fi 
 
 
 ## variables for update_job
@@ -162,44 +162,47 @@ if [[ "${SMOKELOAD_JOB}" == true ]];
 
 if [[ "${UPDATE_JOB}" == true ]];
   then
-  for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
-  file_start_time=$(date '+%s')
-  (( i == 0 )) && start_time=${file_start_time}
-  echo -e "\n## Update ZIP file #$((++i)) out of ${files} ##"
-  echo "Unzipping ${ZIP_DATA} file into a working directory"
-  UPDATE_DIR="${ZIP_DATA%.zip}"
-  unzip -u -q "${ZIP_DATA}" -d "${UPDATE_DIR}"
+  for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip;
+  do
+    file_start_time=$(date '+%s')
+    (( i == 0 )) && start_time=${file_start_time}
+    echo -e "\n## Update ZIP file #$((++i)) out of ${files} ##"
+    echo "Unzipping ${ZIP_DATA} file into a working directory"
+    UPDATE_DIR="${ZIP_DATA%.zip}"
+    unzip -u -q "${ZIP_DATA}" -d "${UPDATE_DIR}"
 
-  echo "Processing ${UPDATE_DIR} directory"
-  # shellcheck disable=SC2086
-  #   SUBSET_OPTION must be unquoted
-  if "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -p "${PROCESSED_LOG}" -f "${FAILED_FILES_DIR}" \
-      ${SUBSET_OPTION} ${VERBOSE_OPTION} "${UPDATE_DIR}"; then
-    echo "Removing directory ${UPDATE_DIR}"
-    rm -rf "${UPDATE_DIR}"
-  else
-    failures_occurred="true"
-  fi
+    echo "Processing ${UPDATE_DIR} directory"
+    # shellcheck disable=SC2086
+    #   SUBSET_OPTION must be unquoted
+    if "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -p "${PROCESSED_LOG}" -f "${FAILED_FILES_DIR}" \
+      ${SUBSET_OPTION} ${VERBOSE_OPTION} "${UPDATE_DIR}";
+      then
+        echo "Removing directory ${UPDATE_DIR}"
+        rm -rf "${UPDATE_DIR}"
+        else
+        failures_occurred="true"
+    fi
+    file_stop_time=$(date '+%s')
 
-  file_stop_time=$(date '+%s')
+    ((delta=file_stop_time - file_start_time + 1)) || :
+    ((delta_s=delta % 60)) || :
+    ((delta_m=(delta / 60) % 60)) || :
+    ((della_h=delta / 3600)) || :
 
-  ((delta=file_stop_time - file_start_time + 1)) || :
-  ((delta_s=delta % 60)) || :
-  ((delta_m=(delta / 60) % 60)) || :
-  ((della_h=delta / 3600)) || :
-  printf "\n$(TZ=America/New_York date) Done with ${ZIP_DATA} data file in %dh:%02dm:%02ds\n" ${della_h} \
-         ${delta_m} ${delta_s} | tee -a eta.log
-  if [[ -f "${ZIP_DATA}/${STOP_FILE}" ]]; then
-    echo "Found the stop signal file. Gracefully stopping the update."
-    rm -f "${ZIP_DATA}/${STOP_FILE}"
-    break
-  fi
+    printf "\n$(TZ=America/New_York date) Done with ${ZIP_DATA} data file in %dh:%02dm:%02ds\n" ${della_h} \ ${delta_m} ${delta_s} | tee -a eta.log
+    if [[ -f "${ZIP_DATA}/${STOP_FILE}" ]];
+      then
+        echo "Found the stop signal file. Gracefully stopping the update."
+        rm -f "${ZIP_DATA}/${STOP_FILE}"
+        break
+    fi
 
   ((elapsed=elapsed + delta))
   ((est_total=elapsed * files / i)) || :
   ((eta=start_time + est_total))
+
   echo "ETA for updates after ${ZIP_DATA} data file: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
-    done
+  done
 fi
 
 # Do delete files exist?
@@ -224,6 +227,7 @@ psql -f scopus_update_log.sql
 
 if [[ "${failures_occurred}" == "true" ]]; then
 exit 1
-else
+fi
+
 exit 0
 fi
