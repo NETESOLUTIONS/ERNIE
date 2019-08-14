@@ -89,16 +89,16 @@ while (( $# > 0 )); do
   shift
 done
 
-if [[${SMOKELOAD_JOB} =="true"]]; then
+if [[ ${SMOKELOAD_JOB} =="true" ]]; then
 echo "SMOKELOAD JOB INITIATED ..."
 arg_array=( "$@" )
 echo "${arg_array[*]}"
 IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<<"${arg_array[*]}")); unset IFS
-elif [[${UPDATE_JOB} == "true"]]; then
+elif [[${UPDATE_JOB} == "true"]] then
 echo "UPDATE JOB INITIATED ..."
 else "NO JOB OPTION SPECIFIED: PLEASE SPECIFY JOB OPTION."
 echo -e
-fi 
+fi
  # Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
 
 if [[ ${CLEAN_MODE} == "true" ]]; then
@@ -110,32 +110,37 @@ if [[ ${CLEAN_MODE} == "true" ]]; then
 fi
 
 ### loop that unzips for smokeload
-[[${SMOKELOAD_JOB} =="true"}]] && for DATA_DIR in "${sorted_args[@]}"; do
-  dir_start_time=$(date '+%s')
-  (( i == 0 )) && start_time=${dir_start_time}
-  echo -e "\n## Directory #$((++i)) out of ${directories} ##"
-  echo "Processing ${DATA_DIR} directory ..."
-  if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -f "${FAILED_FILES_DIR}" ${SUBSET_OPTION} "${DATA_DIR}"; then
-    failures_occurred="true"
-  fi
-  dir_stop_time=$(date '+%s')
+if [[ ${SMOKELOAD_JOB} =="true" ]];
+  then
+    for DATA_DIR in "${sorted_args[@]}"; do
+      dir_start_time=$(date '+%s')
+      (( i == 0 )) && start_time=${dir_start_time}
+      echo -e "\n## Directory #$((++i)) out of ${directories} ##"
+      echo "Processing ${DATA_DIR} directory ..."
+      if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -f "${FAILED_FILES_DIR}" ${SUBSET_OPTION} "${DATA_DIR}"; then
+        failures_occurred="true"
+      fi
+      dir_stop_time=$(date '+%s')
 
 ## variables for update_job
 
-  if [[${UPDATE_JOB} == "true"]] && readonly PROCESSED_LOG="${DATA_DIR}/processed.log" ; then
-  echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
-  echo -e "Zip files to process:\n$(ls ${DATA_DIR}/*.zip)"
-
-  rm -f eta.log
-  declare -i files=$(ls "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip | wc -l) i=0
-  declare -i start_time file_start_time file_stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
-  declare -i directories=${#sorted_args[@]} i=0 start_time dir_start_time dir_stop_time delta delta_s delta_m della_h \
+  if [[ ${UPDATE_JOB} == "true" ]];
+    then
+      readonly PROCESSED_LOG="${DATA_DIR}/processed.log" ; then
+        echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
+        echo -e "Zip files to process:\n$(ls ${DATA_DIR}/*.zip)"
+        rm -f eta.log
+        declare -i files=$(ls "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip | wc -l) i=0
+        declare -i start_time file_start_time file_stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
+        declare -i directories=${#sorted_args[@]} i=0 start_time dir_start_time dir_stop_time delta delta_s delta_m della_h \
       elapsed=0 est_total eta
   fi
 
 ## loop that unzips update_job
 
-[[${UPDATE_JOB} == "true"]] && for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
+if [[ ${UPDATE_JOB} == "true" ]];
+  then
+    for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
   file_start_time=$(date '+%s')
   (( i == 0 )) && start_time=${file_start_time}
   echo -e "\n## Update ZIP file #$((++i)) out of ${files} ##"
@@ -172,7 +177,7 @@ fi
   ((est_total=elapsed * files / i)) || :
   ((eta=start_time + est_total))
   echo "ETA for updates after ${ZIP_DATA} data file: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
-done
+    done
 
 # Do delete files exist?
 if compgen -G "$DATA_DIR/*ANI-ITEM-delete.zip" >/dev/null; then
