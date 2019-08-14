@@ -224,7 +224,6 @@ psql -f scopus_update_log.sql
 
 if [[ "${failures_occurred}" == "true" ]]; then
 exit 1
-fi
-
+else
 exit 0
 fi
