@@ -62,7 +62,7 @@ while (( $# > 0 )); do
     -c)
        readonly CLEAN_MODE=true
       ;;
-    -r)  
+    -r)
      readonly SORT_ORDER=true
      ;;
     -d)
@@ -89,12 +89,12 @@ while (( $# > 0 )); do
   shift
 done
 
-if [[ "${SMOKELOAD_JOB}" == true ]] ; then
+if [[ "${SMOKELOAD_JOB}" == "true" ]] ; then
 echo "SMOKELOAD JOB INITIATED ..."
 arg_array=( "$@" )
 echo "${arg_array[*]}"
 IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<<"${arg_array[*]}")); unset IFS
-elif [[ "${UPDATE_JOB}" == true ]] ;
+elif [[ "${UPDATE_JOB}" == "true" ]] ;
 then
 echo "UPDATE JOB INITIATED ... "
 else
@@ -103,7 +103,7 @@ fi
 
 ### Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
 
-if [[ "${CLEAN_MODE}" == true ]]; then
+if [[ "${CLEAN_MODE}" == "true" ]]; then
   echo "IN CLEAN MODE. TRUNCATING ALL DATA..."
   psql -f ${ABSOLUTE_SCRIPT_DIR}/clean_data.sql
 
@@ -112,7 +112,7 @@ if [[ "${CLEAN_MODE}" == true ]]; then
 fi
 
 ### loop that unzips for smokeload
-if [[ "${SMOKELOAD_JOB}" == true ]];
+if [[ "${SMOKELOAD_JOB}" == "true" ]];
   then
     for DATA_DIR in "${sorted_args[@]}"; do
       dir_start_time=$(date '+%s')
@@ -145,7 +145,7 @@ if [[ "${SMOKELOAD_JOB}" == true ]];
 
 ## variables for update_job
 
-  if [[ "${UPDATE_JOB}" == true ]];
+  if [[ "${UPDATE_JOB}" == "true" ]];
     then
         readonly PROCESSED_LOG="${DATA_DIR}/processed.log"
         echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
@@ -159,7 +159,7 @@ if [[ "${SMOKELOAD_JOB}" == true ]];
 
 ## loop that unzips update_job
 
-if [[ "${UPDATE_JOB}" == true ]];
+if [[ "${UPDATE_JOB}" == "true" ]];
   then
     for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
   file_start_time=$(date '+%s')

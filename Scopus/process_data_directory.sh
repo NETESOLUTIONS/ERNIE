@@ -187,7 +187,7 @@ HEREDOC
   fi
 }
 
-if [[ "${CLEAN_MODE}" == true ]]; then
+if [[ "${CLEAN_MODE}" == "true" ]]; then
   echo "In clean mode: truncating all data ..."
   psql -f ${ABSOLUTE_SCRIPT_DIR}/clean_data.sql
 fi
@@ -197,7 +197,7 @@ rm -rf ${tmp}
 mkdir ${tmp}
 
 
-if [[ "${UPDATE_JOB}" == true ]]; then
+if [[ "${UPDATE_JOB}" == "true" ]]; then
 touch "${PROCESSED_LOG} "
 [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
 process_start_time=$(date '+%s')
