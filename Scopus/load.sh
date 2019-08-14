@@ -98,8 +98,6 @@ if [[ "${SMOKELOAD_JOB}" == true ]];
 elif [[ "${UPDATE_JOB}" == true ]];
   then
     echo "UPDATE JOB INITIATED ... "
-else
-    echo "NO JOB OPTION SPECIFIED: PLEASE SPECIFY JOB OPTION."
 fi
 
 ### Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
@@ -229,3 +227,4 @@ exit 1
 fi
 
 exit 0
+fi
