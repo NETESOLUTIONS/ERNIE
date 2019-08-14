@@ -201,7 +201,7 @@ rm -rf ${tmp}
 mkdir ${tmp}
 
 
-if [[ ${UPDATE_JOB} == "true" ]]; then
+if [[ "${UPDATE_JOB}" == true ]]; then
 touch "${PROCESSED_LOG} "
 [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
 process_start_time=$(date '+%s')
