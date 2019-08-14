@@ -238,7 +238,7 @@ for scopus_data_archive in *.zip;
   echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"
   if ((failed_xml_counter == 0)); then
     echo "ALL IS WELL"
-  elif [[ ${UPDATE_JOB}== "true" ]]
+  elif [[ "${UPDATE_JOB}" == true ]]
   then
     echo "${scopus_data_archive}" >> "${PROCESSED_LOG}"
   else
