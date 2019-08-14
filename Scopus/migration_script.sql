@@ -63,3 +63,11 @@ FROM (SELECT * FROM scopus_issns WHERE issn_type = 'electronic') scopus_temp
 WHERE ss.ernie_source_id = scopus_temp.ernie_source_id
   AND (ss.issn_main = ''
     OR ss.issn_main = ' ');
+    
+-- updating missing isbns in scopus_sources from scopus_isbns
+
+UPDATE public.scopus_sources ss
+SET isbn_main=scopus_temp.isbn
+FROM (SELECT * FROM scopus_isbns WHERE isbn_type ISNULL) scopus_temp
+WHERE ss.ernie_source_id = scopus_temp.ernie_source_id
+  AND (ss.isbn_main = '' OR ss.isbn_main = ' ');
