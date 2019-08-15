@@ -94,11 +94,9 @@ while (( $# > 0 )); do
       readonly PROCESSED_LOG="$1"
       ;;
      -u)
-      shift
       readonly UPDATE_JOB=true
       ;;
      -k)
-      shift
       readonly SMOKELOAD_JOB=true
       ;;
     -f)
@@ -206,7 +204,8 @@ if [[ "${UPDATE_JOB}" == "true" ]];
     process_start_time=$(date '+%s')
     for scopus_data_archive in *.zip;
     do
-      start_time=$(date '+%s') && if grep -q "^${scopus_data_archive}$" "${PROCESSED_LOG}";
+      start_time=$(date '+%s')
+      if grep -q "^${scopus_data_archive}$" "${PROCESSED_LOG}";
       then
           echo "Skipping file ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} ). It is already marked as completed."
           else
