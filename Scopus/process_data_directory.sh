@@ -81,6 +81,12 @@ echo -e "\nprocess_data_directory.sh ..."
 while (( $# > 0 )); do
   echo "Using CLI arg '$1'"
   case "$1" in
+    -u)
+      readonly UPDATE_JOB=true
+      ;;
+    -k)
+      readonly SMOKELOAD_JOB=true
+      ;;
     -c)
       readonly CLEAN_MODE=true
       ;;
@@ -92,12 +98,6 @@ while (( $# > 0 )); do
       shift
       echo "Using CLI arg '$1'"
       readonly PROCESSED_LOG="$1"
-      ;;
-     -u)
-      readonly UPDATE_JOB=true
-      ;;
-     -k)
-      readonly SMOKELOAD_JOB=true
       ;;
     -f)
       shift
@@ -162,7 +162,6 @@ parse_xml() {
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     mv -f "${xml_dir}/" "${failed_files_dir}/"
     cp $full_error_log_path "${failed_files_dir}/"
-
     cd ${tmp}
     [[ ${VERBOSE} == "true" ]] && echo "$xml: FAILED DURING PARSING."
     return 1
@@ -195,7 +194,6 @@ fi
 rm -rf "${FAILED_FILES_DIR}"
 rm -rf ${tmp}
 mkdir ${tmp}
-
 
 
 touch "${PROCESSED_LOG}"
