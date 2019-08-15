@@ -81,14 +81,6 @@ echo -e "\nprocess_data_directory.sh ..."
 while (( $# > 0 )); do
   echo "Using CLI arg '$1'"
   case "$1" in
-    -u)
-      shift
-      readonly UPDATE_JOB=true
-      ;;
-    -k)
-      shift 
-      readonly SMOKELOAD_JOB=true
-      ;;
     -c)
       readonly CLEAN_MODE=true
       ;;
@@ -100,6 +92,14 @@ while (( $# > 0 )); do
       shift
       echo "Using CLI arg '$1'"
       readonly PROCESSED_LOG="$1"
+      ;;
+     -u)
+      shift
+      readonly UPDATE_JOB=true
+      ;;
+     -k)
+      shift
+      readonly SMOKELOAD_JOB=true
       ;;
     -f)
       shift
