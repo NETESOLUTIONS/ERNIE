@@ -52,7 +52,7 @@ readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 readonly FAILED_FILES_DIR=../failed
 
 while (( $# > 0 )); do
-  case "$1" in
+  case "$1" incat proce
     -u)
       readonly UPDATE_JOB=true
       ;;
@@ -173,7 +173,7 @@ if [[ "${UPDATE_JOB}" == true ]];
     echo "Processing ${UPDATE_DIR} directory"
     # shellcheck disable=SC2086
     #   SUBSET_OPTION must be unquoted
-    if "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -p "${PROCESSED_LOG}" -f "${FAILED_FILES_DIR}" \
+    if "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -u "${UPDATE_JOB} "-p "${PROCESSED_LOG}" -f "${FAILED_FILES_DIR}" \
       ${SUBSET_OPTION} ${VERBOSE_OPTION} "${UPDATE_DIR}";
       then
         echo "Removing directory ${UPDATE_DIR}"
