@@ -2,21 +2,23 @@
 <project version="4">
   <component name="dataSourceStorageLocal">
     <data-source name="ERNIE2 @ tunnel" uuid="8b1abe93-b8cd-42cf-8a56-091e4117b79a">
-      <database-info product="PostgreSQL" version="11.2" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.2" dbms="POSTGRES" exact-version="11.2" exact-driver-version="42.2">
+      <database-info product="PostgreSQL" version="11.2" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.5" dbms="POSTGRES" exact-version="11.2" exact-driver-version="42.2">
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>
       <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
       <secret-storage>master_key</secret-storage>
       <user-name>dk</user-name>
-      <introspection-schemas>@:@</introspection-schemas>
-    </data-source>
-    <data-source name="ERNIE2 (ernie_admin) @ tunnel" uuid="9566f9ea-4fe2-4a6d-96b3-fbbdfec20991">
-      <database-info product="PostgreSQL" version="11.2" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.2" dbms="POSTGRES" exact-version="11.2" exact-driver-version="42.2">
-        <identifier-quote-string>&quot;</identifier-quote-string>
-      </database-info>
-      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
-      <secret-storage>master_key</secret-storage>
-      <user-name>ernie_admin</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="database" qname="@">
+            <node kind="schema">
+              <name qname="@" />
+              <name qname="jenkins" />
+              <name qname="public" />
+            </node>
+          </node>
+        </introspection-scope>
+      </schema-mapping>
     </data-source>
   </component>
 </project>
