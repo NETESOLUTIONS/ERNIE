@@ -141,8 +141,7 @@ if [[ "${SMOKELOAD_JOB}" == true ]];
       ((eta=start_time + est_total))
       echo "ETA after ${DATA_DIR} data directory: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
       done
-fi 
-
+fi
 
 ## variables for update_job
 
