@@ -3,29 +3,21 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
-CREATE OR REPLACE PROCEDURE scopus_parse_source_and_conferences(scopus_doc_xml xml)
-    LANGUAGE plpgsql
-AS
-$$
-DECLARE
-    db_id INTEGER;
+CREATE OR REPLACE PROCEDURE scopus_parse_source_and_conferences(scopus_doc_xml XML)
+    LANGUAGE plpgsql AS $$
+DECLARE db_id INTEGER;
 BEGIN
-    INSERT
-    INTO scopus_sources(source_id, issn_main, isbn_main, source_type, source_title,
-                        coden_code, publisher_name, publisher_e_address, pub_date)
-    SELECT DISTINCT coalesce(source_id, '')                 AS source_id,
-                    coalesce(issn, '')                      AS issn_main,
-                    coalesce(isbn, '')                      AS isbn_main,
-                    source_type,
-                    source_title,
-                    coden_code,
-                    publisher_name,
-                    publisher_e_address,
-                    try_parse(pub_year, pub_month, pub_day) AS pub_date
-    FROM xmltable(--
-                 XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
-                 '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
-            --@formatter:off
+    BEGIN
+        INSERT INTO scopus_sources(source_id, issn_main, isbn_main, source_type, source_title,
+                                   coden_code, publisher_name, publisher_e_address, pub_date)
+        SELECT DISTINCT coalesce(source_id, '') AS source_id, coalesce(issn, '') AS issn_main,
+            coalesce(isbn, '') AS isbn_main, source_type, source_title, coden_code, publisher_name, publisher_e_address,
+            try_parse(pub_year, pub_month, pub_day) AS pub_date
+          FROM
+              xmltable(--
+                      XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
+                      '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
+              --@formatter:off
                      source_id TEXT PATH '@srcid',
                      issn TEXT PATH 'issn[1]',
                      isbn TEXT PATH 'isbn[1]',
@@ -41,7 +33,7 @@ BEGIN
     WHERE source_id != ''
        OR issn != ''
        OR XMLEXISTS('//bibrecord/head/source/isbn' PASSING scopus_doc_xml)
-    ON CONFLICT (ernie_source_id)
+    ON CONFLICT (source_id, issn_main, isbn_main)
         DO UPDATE
         SET source_id           = EXCLUDED.source_id,
             issn_main           = EXCLUDED.issn_main,
@@ -53,6 +45,7 @@ BEGIN
             publisher_e_address = EXCLUDED.publisher_e_address,
             pub_date=EXCLUDED.pub_date
             RETURNING ernie_source_id INTO db_id;
+
 
 EXCEPTION
     WHEN unique_violation THEN
@@ -101,7 +94,7 @@ EXCEPTION
                     pub_date=EXCLUDED.pub_date
                     RETURNING ernie_source_id INTO db_id;
         END;
-
+END;
 
         UPDATE scopus_sources ss
         SET website=sq.website
