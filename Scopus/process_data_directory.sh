@@ -3,12 +3,12 @@ if [[ "$1" == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
 
-    update_smkld_process_directory.sh -- process a directory of Scopus data for either update or smokeload job
+    load.sh -- process a directory of Scopus data for either update or smokeload job
 
 SYNOPSIS
 
-    process_directory.sh [-c] [-e] [-v] [-v] [-s subset_SP] [-t tmp_dir] [-f failed_files_dir] [working_dir]
-    process_directory.sh -h: display this help
+    process_data_directory.sh [-c] [-e] [-v] [-v] [-s subset_SP] [-t tmp_dir] [-f failed_files_dir] [working_dir]
+    process_data_directory.sh -h: display this help
 
 DESCRIPTION
 

@@ -173,7 +173,7 @@ if [[ "${UPDATE_JOB}" == true ]];
     echo "Processing ${UPDATE_DIR} directory"
     # shellcheck disable=SC2086
     #   SUBSET_OPTION must be unquoted
-    if "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -u "${UPDATE_JOB}" -p "${PROCESSED_LOG}" -f "${FAILED_FILES_DIR}" \
+    if "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -u -p "${PROCESSED_LOG}" -f "${FAILED_FILES_DIR}" \
     ${UPDATE_JOB} ${SUBSET_OPTION} ${VERBOSE_OPTION} "${UPDATE_DIR}";
       then
         echo "Removing directory ${UPDATE_DIR}"
