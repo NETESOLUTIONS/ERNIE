@@ -199,8 +199,10 @@ mkdir ${tmp}
 
 if [[ "${UPDATE_JOB}" == "true" ]];
   then
-    touch "${PROCESSED_LOG} "
-    [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
+    touch "${PROCESSED_LOG}"
+fi
+
+[[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
     process_start_time=$(date '+%s')
     for scopus_data_archive in *.zip;
     do
@@ -270,7 +272,6 @@ if [[ "${UPDATE_JOB}" == "true" ]];
     echo "ETA for completion of the current directory: $(TZ=America/New_York date --date=@${eta})"
   fi
 done
-fi
 
 echo -e "\nDIRECTORY SUMMARY:"
 echo "SUCCESSFULLY PARSED ${processed_xml_counter_total} XML FILES"
