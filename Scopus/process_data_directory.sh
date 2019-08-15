@@ -94,11 +94,9 @@ while (( $# > 0 )); do
       readonly PROCESSED_LOG="$1"
       ;;
      -u)
-      shift
       readonly UPDATE_JOB=true
       ;;
      -k)
-      shift
       readonly SMOKELOAD_JOB=true
       ;;
     -f)
