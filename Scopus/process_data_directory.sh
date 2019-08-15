@@ -156,11 +156,10 @@ parse_xml() {
     return 0
   else
     local full_xml_path=$(realpath ${xml})
-    local xml_dir=$(dirname ${full_xml_path})
     local full_error_log_path=$(realpath ${ERROR_LOG})
     cd ..
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
-    mv -f "${xml_dir}/" "${failed_files_dir}/"
+    mv -f $full_xml_path "${failed_files_dir}/"
     cp $full_error_log_path "${failed_files_dir}/"
     cd ${tmp}
     [[ ${VERBOSE} == "true" ]] && echo "$xml: FAILED DURING PARSING."
@@ -180,22 +179,11 @@ HEREDOC
       cat "${ERROR_LOG}"
       echo "====="
     fi
-    cd ..
-    chmod -R g+w "${FAILED_FILES_DIR}"
     exit 1
   fi
 }
 
-if [[ "${CLEAN_MODE}" == "true" ]]; then
-  echo "In clean mode: truncating all data ..."
-  psql -f ${ABSOLUTE_SCRIPT_DIR}/clean_data.sql
-fi
-
-rm -rf "${FAILED_FILES_DIR}"
-rm -rf ${tmp}
-mkdir ${tmp}
-
-
+# Create an empty file if it does not exist to simplify check condition below
 touch "${PROCESSED_LOG}"
 [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
 process_start_time=$(date '+%s')
