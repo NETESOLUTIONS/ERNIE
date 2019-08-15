@@ -76,15 +76,17 @@ FAILED_FILES_DIR="../failed"
 PROCESSED_LOG="../processed.log"
 
 
-echo -e "\nprocess_directory.sh ..."
+echo -e "\nprocess_data_directory.sh ..."
 
 while (( $# > 0 )); do
   echo "Using CLI arg '$1'"
   case "$1" in
     -u)
+      shift
       readonly UPDATE_JOB=true
       ;;
     -k)
+      shift 
       readonly SMOKELOAD_JOB=true
       ;;
     -c)
