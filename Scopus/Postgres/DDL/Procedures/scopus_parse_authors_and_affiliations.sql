@@ -96,7 +96,26 @@ BEGIN
              affiliation_no FOR ORDINALITY
              ) as t2
     WHERE XMLEXISTS('//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml)
-    ON CONFLICT (scp, affiliation_no) DO UPDATE SET author_seq=excluded.author_seq;
+    ON CONFLICT (scp) DO UPDATE SET author_seq=excluded.author_seq;
+
+      EXCEPTION
+        WHEN unique_violantion THEN
+        BEGIN
+        INSERT INTO scopus_author_affiliations(scp, author_seq, affiliation_no)
+        SELECT DISTINCT t1.scp,
+               t1.author_seq,
+               t2.affiliation_no
+        FROM xmltable(--
+                     '//bibrecord/head/author-group/author' PASSING scopus_doc_xml COLUMNS --
+                    scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
+                    author_seq SMALLINT PATH '@seq'
+                 ) as t1,
+             xmltable(--
+                     '//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml COLUMNS --
+                 affiliation_no FOR ORDINALITY
+                 ) as t2
+        WHERE XMLEXISTS('//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml)
+        ON CONFLICT (scp, affiliation_no) DO UPDATE SET author_seq=excluded.author_seq;
 
 END;
 $$
