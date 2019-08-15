@@ -1,5 +1,6 @@
-CREATE OR REPLACE PROCEDURE scopus_parse_authors_and_affiliations(scopus_doc_xml XML)
-AS
+CREATE or REPLACE PROCEDURE scopus_parse_authors_and_affiliations(scopus_doc_xml xml)
+    language plpgsql
+as
 $$
 BEGIN
     -- scopus_authors
@@ -96,13 +97,15 @@ BEGIN
              affiliation_no FOR ORDINALITY
              ) as t2
     WHERE XMLEXISTS('//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml)
-    ON CONFLICT (scp) DO UPDATE SET author_seq=excluded.author_seq;
+    ON CONFLICT (scp, author_seq, affiliation_no) DO UPDATE SET author_seq=excluded.author_seq, affiliation_no=excluded.affiliation_no;
 
-      EXCEPTION
-        WHEN unique_violantion THEN
+
+    EXCEPTION
+        WHEN unique_violation THEN
         BEGIN
         INSERT INTO scopus_author_affiliations(scp, author_seq, affiliation_no)
-        SELECT DISTINCT t1.scp,
+        SELECT DISTINCT
+               t1.scp,
                t1.author_seq,
                t2.affiliation_no
         FROM xmltable(--
@@ -115,8 +118,7 @@ BEGIN
                  affiliation_no FOR ORDINALITY
                  ) as t2
         WHERE XMLEXISTS('//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml)
-        ON CONFLICT (scp, affiliation_no) DO UPDATE SET author_seq=excluded.author_seq;
-
+        ON CONFLICT (scp, author_seq, affiliation_no) DO UPDATE SET author_seq=excluded.author_seq, affiliation_no=excluded.affiliation_no;
 END;
-$$
-    LANGUAGE plpgsql;
+END;
+$$;
