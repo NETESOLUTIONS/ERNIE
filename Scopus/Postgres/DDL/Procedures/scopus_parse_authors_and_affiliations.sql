@@ -73,7 +73,7 @@ BEGIN
     FROM (
              SELECT scp, affiliation_no, RTRIM(organization,',') AS organization
              FROM xmltable(--
-                          '//bibrecord/head/author-group/affiliation' PASSING (select * from ln_test) COLUMNS --
+                          '//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml COLUMNS --
                          scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
                          affiliation_no FOR ORDINALITY,
                          organization TEXT PATH 'concat(organization[1]/text(), ",",organization[2]/text(), ",",organization[3]/text())'
