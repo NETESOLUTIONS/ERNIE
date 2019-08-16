@@ -19,7 +19,9 @@ BEGIN
            author_surname,
            author_given_name,
            author_initials,
-           author_e_address
+           author_e_address,
+           ROW_NUMBER() over (PARTITION BY scp ORDER BY author_seq, author_indexed_name)  as gen_author_seq-- this was a solution to a data-problem where tbe author sequence repeats values and we need to reorder it.
+
     FROM xmltable(--
                  XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
                  '//bibrecord/head/author-group/author' PASSING scopus_doc_xml COLUMNS --
