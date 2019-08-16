@@ -1,4 +1,4 @@
-CREATE or REPLACE PROCEDURE scopus_parse_authors_and_affiliations(scopus_doc_xml xml)
+create procedure scopus_parse_authors_and_affiliations(scopus_doc_xml xml)
     language plpgsql
 as
 $$
@@ -60,7 +60,8 @@ BEGIN
                 country_code TEXT PATH '@country',
                 country TEXT PATH 'country'
              )
-    ON CONFLICT (scp, affiliation_no) DO UPDATE SET
+    ON CONFLICT (scp, affiliation_no) DO UPDATE SET scp=excluded.scp,
+                                                    affiliation_no=excluded.affiliation_no,
                                                     afid=excluded.afid,
                                                     dptid=excluded.dptid,
                                                     city_group=excluded.city_group,
@@ -74,7 +75,7 @@ BEGIN
     FROM (
              SELECT scp, affiliation_no, RTRIM(organization,',') AS organization
              FROM xmltable(--
-                          '//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml COLUMNS --
+                          '//bibrecord/head/author-group/affiliation' PASSING (select * from ln_test) COLUMNS --
                          scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
                          affiliation_no FOR ORDINALITY,
                          organization TEXT PATH 'concat(organization[1]/text(), ",",organization[2]/text(), ",",organization[3]/text())'
@@ -99,26 +100,7 @@ BEGIN
     WHERE XMLEXISTS('//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml)
     ON CONFLICT (scp, author_seq, affiliation_no) DO UPDATE SET author_seq=excluded.author_seq, affiliation_no=excluded.affiliation_no;
 
-
-    EXCEPTION
-        WHEN unique_violation THEN
-        BEGIN
-        INSERT INTO scopus_author_affiliations(scp, author_seq, affiliation_no)
-        SELECT DISTINCT
-               t1.scp,
-               t1.author_seq,
-               t2.affiliation_no
-        FROM xmltable(--
-                     '//bibrecord/head/author-group/author' PASSING scopus_doc_xml COLUMNS --
-                    scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
-                    author_seq SMALLINT PATH '@seq'
-                 ) as t1,
-             xmltable(--
-                     '//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml COLUMNS --
-                 affiliation_no FOR ORDINALITY
-                 ) as t2
-        WHERE XMLEXISTS('//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml)
-        ON CONFLICT (scp, author_seq, affiliation_no) DO UPDATE SET author_seq=excluded.author_seq, affiliation_no=excluded.affiliation_no;
-END;
 END;
 $$;
+
+alter procedure scopus_parse_authors_and_affiliations(xml) owner to dk;

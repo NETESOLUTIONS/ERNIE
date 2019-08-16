@@ -1,11 +1,4 @@
-\set ON_ERROR_STOP on
-\set ECHO all
-
--- DataGrip: start execution from here
-SET TIMEZONE = 'US/Eastern';
-
--- journal source and classifications
-create or replace procedure scopus_parse_pub_details_subjects_and_classes(scopus_doc_xml xml)
+create procedure scopus_parse_pub_details_subjects_and_classes(scopus_doc_xml xml)
     language plpgsql
 as
 $$
@@ -42,41 +35,6 @@ BEGIN
     issue=excluded.issue, volume=excluded.volume, first_page=excluded.first_page,
     last_page=excluded.last_page, publication_year=excluded.publication_year,
     publication_date=excluded.publication_date;
-
-EXCEPTION
-    WHEN unique_violation THEN
-        INSERT INTO scopus_source_publication_details(scp,issue,volume,first_page,last_page,publication_year,publication_date,conf_code,conf_name)
-
-    SELECT DISTINCT
-      scp,
-      issue,
-      volume,
-      first_page,
-      last_page,
-      publication_year,
-      try_parse(pub_year, pub_month, pub_day) AS publication_date,
-      conf_code AS conf_code,
-      conf_name AS conf_name
-    FROM
-      xmltable(--
-      '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
-      scp BIGINT PATH '../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
-      issue TEXT PATH 'volisspag/voliss/@issue',
-      volume TEXT PATH 'volisspag/voliss/@volume',
-      first_page TEXT PATH 'volisspag/pagerange/@first',
-      last_page TEXT PATH 'volisspag/pagerange/@last',
-      publication_year SMALLINT PATH 'publicationyear/@first',
-      pub_year SMALLINT PATH 'publicationdate/year',
-      pub_month SMALLINT PATH 'publicationdate/month',
-      pub_day SMALLINT PATH 'publicationdate/day',
-      conf_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcode',
-      conf_name TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confname'
-      )
-    ON CONFLICT (scp, conf_code, conf_name) DO UPDATE SET
-    issue=excluded.issue, volume=excluded.volume, first_page=excluded.first_page,
-    last_page=excluded.last_page, publication_year=excluded.publication_year,
-    publication_date=excluded.publication_date;
-
 
     UPDATE scopus_source_publication_details spd
     SET indexed_terms=sq.indexed_terms
@@ -148,3 +106,5 @@ EXCEPTION
 
   END;
 $$;
+
+alter procedure scopus_parse_pub_details_subjects_and_classes(xml) owner to dk;
