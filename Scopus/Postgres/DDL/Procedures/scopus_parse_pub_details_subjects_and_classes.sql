@@ -1,6 +1,12 @@
-create procedure scopus_parse_pub_details_subjects_and_classes(scopus_doc_xml xml)
+\set ON_ERROR_STOP on
+\set ECHO all
+
+-- DataGrip: start execution from here
+SET TIMEZONE = 'US/Eastern';
+
+CREATE OR REPLACE PROCEDURE scopus_parse_pub_details_subjects_and_classes(scopus_doc_xml xml)
     language plpgsql
-as
+AS
 $$
 BEGIN
     -- scopus_source_publication_details
@@ -106,5 +112,3 @@ BEGIN
 
   END;
 $$;
-
-alter procedure scopus_parse_pub_details_subjects_and_classes(xml) owner to dk;

@@ -1,6 +1,12 @@
-create procedure scopus_parse_authors_and_affiliations(scopus_doc_xml xml)
+\set ON_ERROR_STOP on
+\set ECHO all
+
+-- DataGrip: start execution from here
+SET TIMEZONE = 'US/Eastern';
+
+CREATE OR REPLACE PROCEDURE scopus_parse_authors_and_affiliations(scopus_doc_xml xml)
     language plpgsql
-as
+AS
 $$
 BEGIN
     -- scopus_authors
@@ -102,5 +108,3 @@ BEGIN
 
 END;
 $$;
-
-alter procedure scopus_parse_authors_and_affiliations(xml) owner to dk;
