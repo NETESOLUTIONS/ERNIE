@@ -9,19 +9,18 @@ CREATE OR REPLACE PROCEDURE scopus_parse_authors_and_affiliations(scopus_doc_xml
 AS
 $$
 BEGIN
-    -- scopus_authors
     INSERT INTO scopus_authors(scp, author_seq, auid, author_indexed_name, author_surname, author_given_name,
-                               author_initials, author_e_address)
+                               author_initials, author_e_address, author_rank)    -- scopus_authors
     SELECT DISTINCT scp,
-           author_seq,
-           auid,
-           author_indexed_name,
-           author_surname,
-           author_given_name,
-           author_initials,
-           author_e_address,
-           ROW_NUMBER() over (PARTITION BY scp ORDER BY author_seq, author_indexed_name)  as gen_author_seq-- this was a solution to a data-problem where tbe author sequence repeats values and we need to reorder it.
-
+                    author_seq,
+                    ROW_NUMBER()
+                    over (PARTITION BY scp ORDER BY author_seq, author_indexed_name) as author_rank, --  this was a solution to a data-problem where duplicated author sequence repeats values.
+                    max(auid) as auid,
+                    author_indexed_name,
+                    max(author_surname) as author_surname,
+                    max(author_given_name) as author_given,
+                    max(author_initials) as author_initials,
+                    max(author_e_address) as author_e_address
     FROM xmltable(--
                  XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
                  '//bibrecord/head/author-group/author' PASSING scopus_doc_xml COLUMNS --
@@ -33,14 +32,13 @@ BEGIN
                      author_surname TEXT PATH 'ce:surname',
                      author_given_name TEXT PATH 'ce:given-name',
                      author_initials TEXT PATH 'ce:initials',
-                     author_e_address TEXT PATH 'ce:e-address'
-             --@formatter:on
-             )
-    ON CONFLICT (scp, author_seq) DO UPDATE SET auid=excluded.auid,
-                                                author_surname=excluded.author_surname,
-                                                author_given_name=excluded.author_given_name,
-                                                author_initials=excluded.author_initials,
-                                                author_e_address=excluded.author_e_address;
+                     author_e_address TEXT PATH 'ce:e-address' )
+GROUP BY scp, author_seq, author_indexed_name
+ON CONFLICT (scp, author_seq) DO UPDATE SET auid=excluded.auid,
+                                        author_surname=excluded.author_surname,
+                                        author_given_name=excluded.author_given_name,
+                                        author_initials=excluded.author_initials,
+                                        author_e_address=excluded.author_e_address;
 
     -- scopus_affiliations
     INSERT INTO scopus_affiliations(scp, affiliation_no, afid, dptid, city_group, state, postal_code, country_code,
@@ -81,21 +79,22 @@ BEGIN
     UPDATE scopus_affiliations sa
     SET organization=sq.organization
     FROM (
-             SELECT scp, affiliation_no, RTRIM(organization,',') AS organization
+             SELECT scp, affiliation_no, RTRIM(organization, ',') AS organization
              FROM xmltable(--
-                          '//bibrecord/head/author-group/affiliation' PASSING (select * from ln_test) COLUMNS --
+                          '//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml COLUMNS --
                          scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
                          affiliation_no FOR ORDINALITY,
                          organization TEXT PATH 'concat(organization[1]/text(), ",",organization[2]/text(), ",",organization[3]/text())'
                       )
          ) as sq
-    WHERE sa.scp = sq.scp and sa.affiliation_no = sq.affiliation_no;
+    WHERE sa.scp = sq.scp
+      and sa.affiliation_no = sq.affiliation_no;
 
     -- scopus_author_affiliations
     INSERT INTO scopus_author_affiliations(scp, author_seq, affiliation_no)
     SELECT DISTINCT t1.scp,
-           t1.author_seq,
-           t2.affiliation_no
+                    t1.author_seq,
+                    t2.affiliation_no
     FROM xmltable(--
                  '//bibrecord/head/author-group/author' PASSING scopus_doc_xml COLUMNS --
                 scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
@@ -106,7 +105,8 @@ BEGIN
              affiliation_no FOR ORDINALITY
              ) as t2
     WHERE XMLEXISTS('//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml)
-    ON CONFLICT (scp, author_seq, affiliation_no) DO UPDATE SET author_seq=excluded.author_seq, affiliation_no=excluded.affiliation_no;
+    ON CONFLICT (scp, author_seq, affiliation_no) DO UPDATE SET author_seq=excluded.author_seq,
+                                                                affiliation_no=excluded.affiliation_no;
 
 END;
 $$;

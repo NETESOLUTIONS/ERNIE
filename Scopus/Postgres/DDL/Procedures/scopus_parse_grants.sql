@@ -11,7 +11,7 @@ BEGIN
 INSERT
 INTO scopus_grants(scp, grant_id, grantor_acronym, grantor,
                    grantor_country_code, grantor_funder_registry_id)
-SELECT DISTINCT
+SELECT 
         scp,
        coalesce(grant_id, '') AS grant_id,
        max(grantor_acronym) as grantor_acronym,
