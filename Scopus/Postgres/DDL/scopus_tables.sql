@@ -647,6 +647,8 @@ CREATE TABLE IF NOT EXISTS scopus_titles (
 )
 TABLESPACE scopus_tbs;
 
+CREATE INDEX st_title_fti ON scopus_titles USING GIN (to_tsvector('english', title));
+
 COMMENT ON TABLE scopus_titles IS 'ELSEVIER: Scopus title of publications';
 
 COMMENT ON COLUMN scopus_titles.scp IS 'Scopus id that uniquely identifies document Ex: 85046115382';
