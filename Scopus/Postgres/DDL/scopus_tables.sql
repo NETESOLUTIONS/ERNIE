@@ -83,7 +83,7 @@ CREATE TABLE scopus_isbns (
   isbn_type TEXT,
   isbn_level TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_isbns_pk PRIMARY KEY (ernie_source_id, isbn) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_isbns_pk PRIMARY KEY (ernie_source_id, isbn, isbn_type) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 

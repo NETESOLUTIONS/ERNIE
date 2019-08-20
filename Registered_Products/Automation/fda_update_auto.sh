@@ -66,4 +66,4 @@ psql -f "${absolute_script_dir}/load_fda_data.sql" -v "work_dir=${work_dir}"
 #date
 
 # Query log
-psql -c 'SELECT * FROM update_log_fda ORDER BY id;'
+psql -c 'SELECT * FROM update_log_fda ORDER BY id DESC;'

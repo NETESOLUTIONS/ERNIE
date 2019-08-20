@@ -71,7 +71,7 @@ BEGIN
     SELECT db_id AS ernie_source_id,
            isbn,
            isbn_length,
-           isbn_type,
+           coalesce(isbn_type, '') as isbn_type,
            isbn_level
     FROM xmltable(--
                  '//bibrecord/head/source/isbn' PASSING scopus_doc_xml COLUMNS --
