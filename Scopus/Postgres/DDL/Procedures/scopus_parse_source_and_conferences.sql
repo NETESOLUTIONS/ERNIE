@@ -80,8 +80,7 @@ BEGIN
                 isbn_type TEXT PATH '@type',
                 isbn_level TEXT PATH '@level'
              )
-    ON CONFLICT (ernie_source_id, isbn) DO UPDATE SET isbn_length=excluded.isbn_length,
-                                                      isbn_type=excluded.isbn_type,
+    ON CONFLICT (ernie_source_id, isbn, isbn_type) DO UPDATE SET isbn_length=excluded.isbn_length,
                                                       isbn_level=excluded.isbn_level;
 
     -- scopus_issns

@@ -44,7 +44,7 @@ BEGIN
 
 
     -- scopus_titles
-    INSERT INTO DIscopus_titles(scp, title, language)
+    INSERT INTO scopus_titles(scp, title, language)
     SELECT DISTINCT scp,
            title,
            language
