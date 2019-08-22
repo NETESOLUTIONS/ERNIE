@@ -229,6 +229,7 @@ CREATE TABLE scopus_authors (
   author_given_name TEXT,
   author_initials TEXT,
   author_e_address TEXT,
+  author_rank TEXT, 
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT scopus_authors_pk PRIMARY KEY (scp, author_seq) USING INDEX TABLESPACE index_tbs
 )
