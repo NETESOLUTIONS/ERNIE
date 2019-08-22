@@ -8,7 +8,7 @@ NAME
 
 SYNOPSIS
   load.sh -u|-k [-c] [-r] [-s subset_SP] [-v] [-v] -d data_directory
-  update.sh -h: display this help
+  load.sh -h: display this help
 
 DESCRIPTION
 
