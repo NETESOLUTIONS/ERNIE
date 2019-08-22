@@ -18,9 +18,13 @@ DESCRIPTION
     1) Copy files from some secondary storing location and then proceed to work on them.
 
   The following options are available:
-    -u              set off update job
 
-    -k              set off the smokeload job
+    -u              update mode
+
+    -k              smokeload from scratch
+
+    -e              stop on the first error. stop on the first error.
+                    Parsing and other SQL errors don't stop the script unless `-e` is specified.
 
     -c              clean mode. Truncate pre-existing data in working directory
 
@@ -60,6 +64,9 @@ while (( $# > 0 )); do
       ;;
     -c)
       readonly CLEAN_MODE=true
+      ;;
+    -e)
+      readonly STOP_ON_THE_FIRST_ERROR=true
       ;;
     -r)
      readonly SORT_ORDER=true

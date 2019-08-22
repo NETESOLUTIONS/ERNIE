@@ -25,7 +25,7 @@ DESCRIPTION
 
     -c    clean load: truncate data. WARNING: be aware that you'll lose all loaded data!
 
-    -e    stop on the first error. Parsing and other SQL errors don't fail the build unless `-e` is specified.
+    -e    stop on the first error. Parsing and other SQL errors don't stop the script unless `-e` is specified.
 
     -p    create a process log which is used as part of the update job
 
@@ -75,54 +75,53 @@ declare -rx PARALLEL_LOG=parallel.log
 FAILED_FILES_DIR="../failed"
 PROCESSED_LOG="../processed.log"
 
-
 echo -e "\nprocess_data_directory.sh ..."
 
-while (( $# > 0 )); do
+while (($# > 0)); do
   echo "Using CLI arg '$1'"
   case "$1" in
-    -u)
-      readonly UPDATE_JOB=true
-      ;;
-    -k)
-      readonly SMOKELOAD_JOB=true
-      ;;
-    -c)
-      readonly CLEAN_MODE=true
-      ;;
-    -e)
-      readonly STOP_ON_THE_FIRST_ERROR=true
-#      echo "process_directory.sh should stop on the first error."
-      ;;
-      -p)
-      shift
-      echo "Using CLI arg '$1'"
-      readonly PROCESSED_LOG="$1"
-      ;;
-    -f)
-      shift
-      echo "Using CLI arg '$1'"
-      readonly FAILED_FILES_DIR="$1"
-      ;;
-    -s)
-      shift
-      echo "Using CLI arg '$1'"
-      readonly SUBSET_SP=$1
-      ;;
-    -t)
-      shift
-      tmp=$1
-      ;;
-    -v)
-      # Second "-v" = extra verbose?
-      if [[ "$VERBOSE" == "true" ]]; then
-        set -x
-      else
-        declare -rx VERBOSE=true
-      fi
-      ;;
-    *)
-      cd "$1"
+  -u)
+    readonly UPDATE_JOB=true
+    ;;
+  -k)
+    readonly SMOKELOAD_JOB=true
+    ;;
+  -c)
+    readonly CLEAN_MODE=true
+    ;;
+  -e)
+    readonly STOP_ON_THE_FIRST_ERROR=true
+    ;;
+  -p)
+    shift
+    echo "Using CLI arg '$1'"
+    readonly PROCESSED_LOG="$1"
+    ;;
+  -f)
+    shift
+    echo "Using CLI arg '$1'"
+    readonly FAILED_FILES_DIR="$1"
+    ;;
+  -s)
+    shift
+    echo "Using CLI arg '$1'"
+    readonly SUBSET_SP=$1
+    ;;
+  -t)
+    shift
+    tmp=$1
+    ;;
+  -v)
+    # Second "-v" = extra verbose?
+    if [[ "$VERBOSE" == "true" ]]; then
+      set -x
+    else
+      declare -rx VERBOSE=true
+    fi
+    ;;
+  *)
+    cd "$1"
+    ;;
   esac
   shift
 done
@@ -202,8 +201,10 @@ for scopus_data_archive in *.zip; do
     cd ${tmp}
     rm -f "${ERROR_LOG}"
 
-    if ! find -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
-        --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}; then
+    if
+      ! find -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
+      --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}
+    then
       [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
     fi
     while read -r line; do
@@ -221,7 +222,7 @@ for scopus_data_archive in *.zip; do
     echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"
     if ((failed_xml_counter == 0)); then
       echo "ALL IS WELL"
-      echo "${scopus_data_archive}" >> "${PROCESSED_LOG}"
+      echo "${scopus_data_archive}" >>"${PROCESSED_LOG}"
     else
       echo "FAILED PARSING ${failed_xml_counter} XML FILES"
     fi
@@ -241,8 +242,8 @@ for scopus_data_archive in *.zip; do
     ((delta_m = (delta / 60) % 60)) || :
     ((della_h = delta / 3600)) || :
     printf "$(TZ=America/New_York date) :  Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds\n" ${della_h} \
-           ${delta_m} ${delta_s}
-    if (( i < num_zips )); then
+    ${delta_m} ${delta_s}
+    if ((i < num_zips)); then
       ((elapsed = elapsed + delta))
       ((est_total = num_zips * elapsed / i)) || :
       ((eta = process_start_time + est_total))
