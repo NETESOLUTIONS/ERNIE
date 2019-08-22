@@ -3,12 +3,11 @@ if [[ $1 == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
 
-  update_smkld.sh -- Either update Scopus data in a PostgreSQL database with zipped (*.zip) Scopus XMLs delivered by the provider
+  load.sh -- Either update Scopus data in a PostgreSQL database with zipped (*.zip) Scopus XMLs delivered by the provider
   Note that clean mode is NOT available with this script, OR ,
 
 SYNOPSIS
-  smok
-  update.sh [-s subset_SP] [-v] [-v] -d data_directory
+  load.sh -u|-k [-c] [-r] [-s subset_SP] [-v] [-v] -d data_directory
   update.sh -h: display this help
 
 DESCRIPTION
@@ -19,19 +18,19 @@ DESCRIPTION
     1) Copy files from some secondary storing location and then proceed to work on them.
 
   The following options are available:
-    -u update job : set off update job
+    -u              set off update job
 
-    -k smokeload job : set off the smokeload job
+    -k              set off the smokeload job
 
-    -c clean mode : truncate pre-existing data in working directory
+    -c              clean mode. Truncate pre-existing data in working directory
 
-    -r sort order : reverse order of processing
+    -r              reverse order of processing
 
-    -s subset_SP: parse a subset of data via the specified subset parsing Stored Procedure (SP)
+    -s subset_SP    parse a subset of data via the specified subset parsing Stored Procedure (SP)
 
-    -v    verbose output: print processed XML files and error details as errors occur
+    -v              verbose output: print processed XML files and error details as errors occur
 
-    -v -v extra-verbose output: print all lines (`set -x`)
+    -v -v           extra-verbose output: print all lines (`set -x`)
 
   To stop process gracefully after the current ZIP is processed, create a `{working_dir}/.stop` signal file.
   This file is automatically removed
