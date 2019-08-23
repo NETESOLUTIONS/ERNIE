@@ -14,7 +14,7 @@ BEGIN
     SELECT DISTINCT scp,
                     author_seq,
                     max(auid) as auid,
-                    author_indexed_name,
+                    max(author_indexed_name) as author_indexed_name,
                     author_surname,
                     max(author_given_name) as author_given,
                     max(author_initials) as author_initials,
@@ -33,9 +33,10 @@ BEGIN
                      author_given_name TEXT PATH 'ce:given-name',
                      author_initials TEXT PATH 'ce:initials',
                      author_e_address TEXT PATH 'ce:e-address' )
-GROUP BY scp, author_seq, author_surname, author_indexed_name,
+GROUP BY scp, author_seq, author_surname
 ON CONFLICT (scp, author_seq) DO UPDATE SET auid=excluded.auid,
                                         author_surname=excluded.author_surname,
+                                        author_indexed_name=excluded.author_indexed_name, 
                                         author_given_name=excluded.author_given_name,
                                         author_initials=excluded.author_initials,
                                         author_e_address=excluded.author_e_address,
