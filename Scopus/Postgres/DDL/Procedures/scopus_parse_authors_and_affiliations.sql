@@ -13,14 +13,14 @@ BEGIN
                                author_initials, author_e_address, author_rank)    -- scopus_authors
     SELECT DISTINCT scp,
                     author_seq,
-                    ROW_NUMBER()
-                    over (PARTITION BY scp ORDER BY author_seq, author_indexed_name) as author_rank, --  this was a solution to a data-problem where duplicated author sequence repeats values.
                     max(auid) as auid,
                     author_indexed_name,
                     max(author_surname) as author_surname,
                     max(author_given_name) as author_given,
                     max(author_initials) as author_initials,
-                    max(author_e_address) as author_e_address
+                    max(author_e_address) as author_e_address,
+                    ROW_NUMBER()
+                    over (PARTITION BY scp ORDER BY author_seq, author_indexed_name)  as author_rank
     FROM xmltable(--
                  XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
                  '//bibrecord/head/author-group/author' PASSING scopus_doc_xml COLUMNS --
