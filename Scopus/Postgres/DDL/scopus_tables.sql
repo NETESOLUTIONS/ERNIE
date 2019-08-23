@@ -229,7 +229,7 @@ CREATE TABLE scopus_authors (
   author_given_name TEXT,
   author_initials TEXT,
   author_e_address TEXT,
-  author_rank TEXT, 
+  author_rank TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT scopus_authors_pk PRIMARY KEY (scp, author_seq) USING INDEX TABLESPACE index_tbs
 )
@@ -598,7 +598,7 @@ CREATE TABLE IF NOT EXISTS scopus_publication_identifiers (
     CONSTRAINT spi_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   document_id TEXT NOT NULL,
   document_id_type TEXT NOT NULL,
-  last_update_time TIMESTAMP DEFAULT now(),
+  last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT scopus_publiaction_identifiers_pk PRIMARY KEY (scp, document_id_type, document_id) --
     USING INDEX TABLESPACE index_tbs
 )
