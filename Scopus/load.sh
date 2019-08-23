@@ -122,7 +122,8 @@ if [[ "${SMOKELOAD_JOB}" == true ]]; then
     ((i == 0)) && start_time=${dir_start_time}
     echo -e "\n## Directory #$((++i)) out of ${directories} ##"
     echo "Processing ${DATA_DIR} directory ..."
-    if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -e -f "${FAILED_FILES_DIR}" -k ${SUBSET_OPTION} "${DATA_DIR}"; then
+    if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -k -f "${FAILED_FILES_DIR}" \
+      ${STOP_ON_THE_FIRST_ERROR_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} "${DATA_DIR}"; then
       [[ ${STOP_ON_THE_FIRST_ERROR_OPTION} ]] && exit 1
       failures_occurred="true"
     fi
@@ -173,10 +174,8 @@ if [[ "${UPDATE_JOB}" == true ]]; then
     echo "Processing ${UPDATE_DIR} directory"
     # shellcheck disable=SC2086
     #   SUBSET_OPTION must be unquoted
-    if
-      "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -p "${PROCESSED_LOG}" -u -f "${FAILED_FILES_DIR}" \
-      ${STOP_ON_THE_FIRST_ERROR_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} "${UPDATE_DIR}"
-    then
+    if "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -p "${PROCESSED_LOG}" -u -f "${FAILED_FILES_DIR}" \
+      ${STOP_ON_THE_FIRST_ERROR_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} "${UPDATE_DIR}"; then
       echo "Removing directory ${UPDATE_DIR}"
       rm -rf "${UPDATE_DIR}"
     else
