@@ -15,7 +15,7 @@ CREATE TABLE scopus_grants (
   grantor_country_code CHAR(3),
   grantor_funder_registry_id TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_grants_pk PRIMARY KEY (scp, grant_id) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_grants_pk PRIMARY KEY (scp, grant_id, grantor) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE scopus_tbs;
 
 COMMENT ON TABLE scopus_grants
