@@ -4,14 +4,14 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-CREATE OR REPLACE PROCEDURE public.scopus_parse_grants(scopus_doc_xml XML) AS
+CREATE OR REPLACE PROCEDURE scopus_parse_grants(scopus_doc_xml XML) AS
 $$
 BEGIN
     -- scopus_grants
 INSERT
 INTO scopus_grants(scp, grant_id, grantor_acronym, grantor,
                    grantor_country_code, grantor_funder_registry_id)
-SELECT 
+SELECT
         scp,
        coalesce(grant_id, '') AS grant_id,
        max(grantor_acronym) as grantor_acronym,
