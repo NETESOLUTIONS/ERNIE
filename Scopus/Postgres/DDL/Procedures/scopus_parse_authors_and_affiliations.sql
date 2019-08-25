@@ -38,7 +38,7 @@ BEGIN
              --@formatter:on
              )
     GROUP BY scp, author_seq, author_surname
-    ON CONFLICT (scp, author_seq,) DO UPDATE SET auid=excluded.auid,
+    ON CONFLICT (scp, author_seq) DO UPDATE SET auid=excluded.auid,
                                                 author_surname=excluded.author_surname,
                                                 author_given_name=excluded.author_given_name,
                                                 author_indexed_name=excluded.author_indexed_name,
