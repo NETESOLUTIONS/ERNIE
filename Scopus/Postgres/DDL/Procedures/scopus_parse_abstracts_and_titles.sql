@@ -46,8 +46,8 @@ BEGIN
     -- scopus_titles
     INSERT INTO scopus_titles(scp, title, language)
     SELECT DISTINCT scp,
-           title,
-           language
+           max(title),
+           max(language)
     FROM xmltable(
                  XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
                  '//bibrecord/head/citation-title/titletext' PASSING scopus_doc_xml COLUMNS
@@ -55,6 +55,7 @@ BEGIN
                      title TEXT PATH 'normalize-space()',
                      language TEXT PATH '@language'
              )
-    ON CONFLICT (scp, language) DO UPDATE SET  scp=excluded.scp, title=excluded.title, language =excluded.language;
+    GROUP BY scp 
+    ON CONFLICT (scp, language) DO UPDATE SET title=excluded.title;
 END;
 $$ LANGUAGE plpgsql;
