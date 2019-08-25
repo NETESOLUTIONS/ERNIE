@@ -45,7 +45,7 @@ BEGIN
 
     -- scopus_titles
     INSERT INTO scopus_titles(scp, title, language)
-    SELECT DISTINCT scp,
+    SELECT scp,
            max(title) as title,
            max(language) as language 
     FROM xmltable(
