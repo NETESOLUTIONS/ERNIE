@@ -46,8 +46,8 @@ BEGIN
     -- scopus_titles
     INSERT INTO scopus_titles(scp, title, language)
     SELECT DISTINCT scp,
-           max(title),
-           max(language)
+           max(title) as title,
+           max(language) as language 
     FROM xmltable(
                  XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
                  '//bibrecord/head/citation-title/titletext' PASSING scopus_doc_xml COLUMNS
