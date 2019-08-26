@@ -68,7 +68,7 @@ BEGIN
 
     -- scopus_isbns
     INSERT INTO scopus_isbns(ernie_source_id, isbn, isbn_length, isbn_type, isbn_level)
-    SELECT db_id AS ernie_source_id,
+    SELECT DISTINCT db_id AS ernie_source_id,
            isbn,
            isbn_length,
            coalesce(isbn_type, '') as isbn_type,
