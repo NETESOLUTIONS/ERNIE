@@ -7,7 +7,7 @@ NAME
 
 SYNOPSIS
 
-    process_data_directory.sh [-c] [-e] [-v] [-v] [-s subset_SP] [-t tmp_dir] [-f failed_files_dir] [working_dir]
+    process_data_directory.sh -u|-k [-c] [-e] [-v] [-v] [-s subset_SP] [-t tmp_dir] [-f failed_files_dir] [working_dir]
     process_data_directory.sh -h: display this help
 
 DESCRIPTION

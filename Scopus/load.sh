@@ -63,7 +63,7 @@ while (($# > 0)); do
     readonly SMOKELOAD_JOB=true
     ;;
   -c)
-    readonly CLEAN_MODE=true
+    readonly CLEAN_MODE_OPTION="-c"
     ;;
   -e)
     readonly STOP_ON_THE_FIRST_ERROR_OPTION=-e
@@ -108,7 +108,7 @@ fi
 
 ### Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
 
-if [[ "${CLEAN_MODE}" == true ]]; then
+if [[ "${CLEAN_MODE_OPTION}" ]]; then
   echo "IN CLEAN MODE. TRUNCATING ALL DATA..."
   psql -f ${ABSOLUTE_SCRIPT_DIR}/clean_data.sql
   cd ${sorted_args[0]}
@@ -122,8 +122,8 @@ if [[ "${SMOKELOAD_JOB}" == true ]]; then
     ((i == 0)) && start_time=${dir_start_time}
     echo -e "\n## Directory #$((++i)) out of ${directories} ##"
     echo "Processing ${DATA_DIR} directory ..."
-    if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -k -f "${FAILED_FILES_DIR}" \
-      ${STOP_ON_THE_FIRST_ERROR_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} "${DATA_DIR}"; then
+    if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -k "${CLEAN_MODE_OPTION}" ${STOP_ON_THE_FIRST_ERROR_OPTION}\
+        ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${DATA_DIR}"; then
       [[ ${STOP_ON_THE_FIRST_ERROR_OPTION} ]] && exit 1
       failures_occurred="true"
     fi
@@ -174,8 +174,9 @@ if [[ "${UPDATE_JOB}" == true ]]; then
     echo "Processing ${UPDATE_DIR} directory"
     # shellcheck disable=SC2086
     #   SUBSET_OPTION must be unquoted
-    if "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -p "${PROCESSED_LOG}" -u -f "${FAILED_FILES_DIR}" \
-      ${STOP_ON_THE_FIRST_ERROR_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} "${UPDATE_DIR}"; then
+    if "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -u -p "${PROCESSED_LOG}" "${CLEAN_MODE_OPTION}"  \
+      ${STOP_ON_THE_FIRST_ERROR_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" \
+      "${UPDATE_DIR}"; then
       echo "Removing directory ${UPDATE_DIR}"
       rm -rf "${UPDATE_DIR}"
     else
@@ -217,7 +218,7 @@ if compgen -G "$DATA_DIR/*ANI-ITEM-delete.zip" >/dev/null; then
     else
       echo -e "\nProcessing delete file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} )..."
       unzip ${DATA_DIR}/${ZIP_DATA}
-      psql -f process_deletes.sql
+      psql -f "${ABSOLUTE_SCRIPT_DIR}/process_deletes.sql"
       rm delete.txt
       echo "${ZIP_DATA}" >>${PROCESSED_LOG}
       echo "Delete file ${ZIP_DATA} processed."
@@ -225,7 +226,7 @@ if compgen -G "$DATA_DIR/*ANI-ITEM-delete.zip" >/dev/null; then
   done
 fi
 
-psql -f scopus_update_log.sql
+psql -f "${ABSOLUTE_SCRIPT_DIR}/scopus_update_log.sql"
 
 if [[ "${failures_occurred}" == "true" ]]; then
   exit 1
