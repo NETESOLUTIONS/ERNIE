@@ -16,7 +16,7 @@ $$
           xmltable.scp AS scp,
           xmltable.ref_sgr AS ref_sgr,
           --row_number() over (PARTITION BY scp  ORDER BY xmltable.pub_ref_id DESC NULLS LAST, COALESCE(xmltable.ref_fulltext,xmltable.ref_text) ASC ) as pub_ref_id, -- introduced ERNIE team produced pub_ref_id, but be on alert from Elsevier to determine if this is actually fair to do
-          COALESCE(xmltable.ref_fulltext,xmltable.ref_text) AS citation_text
+          max(COALESCE(xmltable.ref_fulltext,xmltable.ref_text)) AS citation_text
      FROM
      XMLTABLE('//bibrecord/tail/bibliography/reference' PASSING input_xml
               COLUMNS
@@ -26,6 +26,7 @@ $$
                 ref_fulltext TEXT PATH 'ref-fulltext/text()[1]', -- should work around situations where additional tags are included in the text field (e.g. a <br/> tag). Otherwise, would encounter a "more than one value returned by column XPath expression" error.
                 ref_text TEXT PATH 'ref-info/ref-text/text()[1]'
                 )
+    GROUP BY scp, ref_sgr
     ON CONFLICT (scp, ref_sgr) DO UPDATE SET citation_text=excluded.citation_text;
     EXCEPTION WHEN OTHERS THEN
       RAISE NOTICE 'FAILURE OCCURED ON BULK INSERT, SWITCHING TO INDIVIDUAL INSERT+DEBUG FUNCTION';

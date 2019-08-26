@@ -104,7 +104,7 @@ BEGIN
 
     -- scopus_classification_lookup
     INSERT INTO scopus_classification_lookup(class_type, class_code, description)
-    SELECT class_type,
+    SELECT DISTINCT class_type,
            class_code,
            description
     FROM xmltable(--
