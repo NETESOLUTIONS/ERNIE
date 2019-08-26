@@ -712,6 +712,8 @@
       <option name="USE_CHAINED_CALLS_GROUP_INDENTS" value="true" />
     </TypeScriptCodeStyleSettings>
     <XML>
+      <option name="XML_KEEP_LINE_BREAKS" value="false" />
+      <option name="XML_KEEP_LINE_BREAKS_IN_TEXT" value="false" />
       <option name="XML_ALIGN_ATTRIBUTES" value="false" />
       <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
     </XML>

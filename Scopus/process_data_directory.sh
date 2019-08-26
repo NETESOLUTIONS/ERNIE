@@ -3,7 +3,7 @@ if [[ "$1" == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
 
-    load.sh -- process a directory of Scopus data for either update or smokeload job
+    process_data_directory.sh -- process a directory of Scopus data for either update or smokeload job
 
 SYNOPSIS
 
@@ -109,7 +109,7 @@ while (($# > 0)); do
     ;;
   -t)
     shift
-    tmp=$1
+    readonly TMP_DIR=$1
     ;;
   -v)
     # Second "-v" = extra verbose?
@@ -126,11 +126,11 @@ while (($# > 0)); do
   shift
 done
 
-if [[ ! ${tmp} ]]; then
+if [[ ! ${TMP_DIR} ]]; then
   if [[ ${SUBSET_SP} ]]; then
-    tmp="tmp-${SUBSET_SP}"
+    readonly TMP_DIR="tmp-${SUBSET_SP}"
   else
-    tmp="tmp"
+    readonly TMP_DIR="tmp"
   fi
 fi
 
@@ -160,7 +160,7 @@ parse_xml() {
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     mv -f $full_xml_path "${failed_files_dir}/"
     cp $full_error_log_path "${failed_files_dir}/"
-    cd ${tmp}
+    cd "${TMP_DIR}"
     [[ ${VERBOSE} == "true" ]] && echo "$xml: FAILED DURING PARSING."
     return 1
   fi
@@ -195,10 +195,10 @@ for scopus_data_archive in *.zip; do
     # Reduced verbosity
     # -u extracting files that are newer and files that do not already exist on disk
     # -q perform operations quietly
-    unzip -u -q "${scopus_data_archive}" -d ${tmp}
+    unzip -u -q "${scopus_data_archive}" -d "${TMP_DIR}"
 
     export failed_files_dir="${FAILED_FILES_DIR}/${scopus_data_archive}"
-    cd ${tmp}
+    cd "${TMP_DIR}"
     rm -f "${ERROR_LOG}"
 
     if
@@ -260,9 +260,11 @@ else
   echo "FAILED PARSING ${failed_xml_counter_total} XML FILES"
 fi
 
-cd ${tmp}
-check_errors # Exits here if errors occurred
-cd
-rm -rf ${tmp}
+if [[ -d "${TMP_DIR}" ]]; then
+  cd "${TMP_DIR}"
+  check_errors # Exits here if errors occurred
+  cd
+  rm -rf "${TMP_DIR}"
+fi  
 
 exit 0
