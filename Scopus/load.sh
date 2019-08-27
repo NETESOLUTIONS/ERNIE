@@ -23,7 +23,7 @@ DESCRIPTION
 
     -k              smokeload from scratch
 
-    -c              clean mode. Truncate pre-existing data in working directory
+    -c              clean load: truncate data. WARNING: be aware that you'll lose all loaded data!
 
     -e              stop on the first error. stop on the first error.
                     Parsing and other SQL errors don't stop the script unless `-e` is specified.
@@ -122,8 +122,8 @@ if [[ "${SMOKELOAD_JOB}" == true ]]; then
     ((i == 0)) && start_time=${dir_start_time}
     echo -e "\n## Directory #$((++i)) out of ${directories} ##"
     echo "Processing ${DATA_DIR} directory ..."
-    if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -k "${CLEAN_MODE_OPTION}" ${STOP_ON_THE_FIRST_ERROR_OPTION}\
-        ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${DATA_DIR}"; then
+    if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -k ${STOP_ON_THE_FIRST_ERROR_OPTION} ${SUBSET_OPTION} \
+        ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${DATA_DIR}"; then
       [[ ${STOP_ON_THE_FIRST_ERROR_OPTION} ]] && exit 1
       failures_occurred="true"
     fi
@@ -147,10 +147,10 @@ if [[ "${SMOKELOAD_JOB}" == true ]]; then
   done
 fi
 
-## variables for update_job
-
 if [[ "${UPDATE_JOB}" == true ]]; then
   readonly PROCESSED_LOG="${DATA_DIR}/processed.log"
+  [[ "${CLEAN_MODE_OPTION}" ]] && rm -rf "${PROCESSED_LOG}"
+
   echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
   echo -e "Zip files to process:\n$(ls ${DATA_DIR}/*.zip)"
   rm -f eta.log
@@ -158,11 +158,7 @@ if [[ "${UPDATE_JOB}" == true ]]; then
   declare -i start_time file_start_time file_stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
   declare -i directories=${#sorted_args[@]} i=0 start_time dir_start_time dir_stop_time delta delta_s delta_m della_h \
   elapsed=0 est_total eta
-fi
 
-## loop that unzips update_job
-
-if [[ "${UPDATE_JOB}" == true ]]; then
   for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
     file_start_time=$(date '+%s')
     ((i == 0)) && start_time=${file_start_time}
@@ -174,9 +170,8 @@ if [[ "${UPDATE_JOB}" == true ]]; then
     echo "Processing ${UPDATE_DIR} directory"
     # shellcheck disable=SC2086
     #   SUBSET_OPTION must be unquoted
-    if "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -u -p "${PROCESSED_LOG}" "${CLEAN_MODE_OPTION}"  \
-      ${STOP_ON_THE_FIRST_ERROR_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" \
-      "${UPDATE_DIR}"; then
+    if "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -u -p "${PROCESSED_LOG}" ${STOP_ON_THE_FIRST_ERROR_OPTION} \
+        ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${UPDATE_DIR}"; then
       echo "Removing directory ${UPDATE_DIR}"
       rm -rf "${UPDATE_DIR}"
     else
@@ -203,27 +198,27 @@ if [[ "${UPDATE_JOB}" == true ]]; then
 
     echo "ETA for updates after ${ZIP_DATA} data file: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
   done
-fi
 
-# Do delete files exist?
-if compgen -G "$DATA_DIR/*ANI-ITEM-delete.zip" >/dev/null; then
-  echo -e "\nMain update process completed. Processing delete files.\n"
-  declare -i num_deletes=$(ls "$DATA_DIR"/*ANI-ITEM-delete.zip | wc -l) i=0
-  for ZIP_DATA in $(
-    cd $DATA_DIR
-    ls *ANI-ITEM-delete.zip
-  ); do
-    if grep -q "^${ZIP_DATA}$" "${PROCESSED_LOG}"; then
-      echo "Skipping file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} ). It is already marked as completed."
-    else
-      echo -e "\nProcessing delete file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} )..."
-      unzip ${DATA_DIR}/${ZIP_DATA}
-      psql -f "${ABSOLUTE_SCRIPT_DIR}/process_deletes.sql"
-      rm delete.txt
-      echo "${ZIP_DATA}" >>${PROCESSED_LOG}
-      echo "Delete file ${ZIP_DATA} processed."
-    fi
-  done
+  # Do delete files exist?
+  if compgen -G "$DATA_DIR/*ANI-ITEM-delete.zip" >/dev/null; then
+    echo -e "\nMain update process completed. Processing delete files.\n"
+    declare -i num_deletes=$(ls "$DATA_DIR"/*ANI-ITEM-delete.zip | wc -l) i=0
+    for ZIP_DATA in $(
+      cd $DATA_DIR
+      ls *ANI-ITEM-delete.zip
+    ); do
+      if grep -q "^${ZIP_DATA}$" "${PROCESSED_LOG}"; then
+        echo "Skipping file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} ). It is already marked as completed."
+      else
+        echo -e "\nProcessing delete file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} )..."
+        unzip ${DATA_DIR}/${ZIP_DATA}
+        psql -f "${ABSOLUTE_SCRIPT_DIR}/process_deletes.sql"
+        rm delete.txt
+        echo "${ZIP_DATA}" >>${PROCESSED_LOG}
+        echo "Delete file ${ZIP_DATA} processed."
+      fi
+    done
+  fi
 fi
 
 psql -f "${ABSOLUTE_SCRIPT_DIR}/scopus_update_log.sql"

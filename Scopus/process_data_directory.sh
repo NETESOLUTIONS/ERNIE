@@ -7,7 +7,7 @@ NAME
 
 SYNOPSIS
 
-    process_data_directory.sh -u|-k [-c] [-e] [-v] [-v] [-s subset_SP] [-t tmp_dir] [-f failed_files_dir] [working_dir]
+    process_data_directory.sh -u|-k [-e] [-v] [-v] [-s subset_SP] [-t tmp_dir] [-f failed_files_dir] [working_dir]
     process_data_directory.sh -h: display this help
 
 DESCRIPTION
@@ -22,8 +22,6 @@ DESCRIPTION
     -u    update job: specifies that the job is an update versus smokeload
 
     -k    smokeload job : specificies that the job is a smokeload versus update
-
-    -c    clean load: truncate data. WARNING: be aware that you'll lose all loaded data!
 
     -e    stop on the first error. Parsing and other SQL errors don't stop the script unless `-e` is specified.
 
@@ -85,9 +83,6 @@ while (($# > 0)); do
     ;;
   -k)
     readonly SMOKELOAD_JOB=true
-    ;;
-  -c)
-    readonly CLEAN_MODE=true
     ;;
   -e)
     readonly STOP_ON_THE_FIRST_ERROR=true
