@@ -7,7 +7,7 @@ CREATE OR REPLACE PROCEDURE scopus_parse_source_and_conferences(scopus_doc_xml X
     LANGUAGE plpgsql AS $$
 DECLARE db_id INTEGER;
 BEGIN
-    BEGIN
+
         INSERT INTO scopus_sources(source_id, issn_main, isbn_main, source_type, source_title,
                                    coden_code, publisher_name, publisher_e_address, pub_date)
         SELECT DISTINCT coalesce(source_id, '')                 AS source_id,
@@ -35,9 +35,9 @@ BEGIN
                          pub_month SMALLINT PATH 'publicationdate/month', --
                          pub_day SMALLINT PATH 'publicationdate/day' --
                  )
-        WHERE source_id != ''
-           OR issn != ''
-           OR XMLEXISTS('//bibrecord/head/source/isbn' PASSING scopus_doc_xml)
+        WHERE source_id <> ''
+           OR issn <> ''
+           OR isbn <> '' PASSING scopus_doc_xml)
         ON CONFLICT (source_id, issn_main, isbn_main)
             DO UPDATE
             SET source_id           = EXCLUDED.source_id,
@@ -50,7 +50,6 @@ BEGIN
                 publisher_e_address = EXCLUDED.publisher_e_address,
                 pub_date=EXCLUDED.pub_date
                 RETURNING ernie_source_id INTO db_id;
-    END;
 
     UPDATE scopus_sources ss
     SET website=sq.website
