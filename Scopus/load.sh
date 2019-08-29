@@ -76,7 +76,6 @@ while (($# > 0)); do
     ;;
   -j)
     shift
-    echo "Using CLI arg '$1'"
     readonly PARALLEL_PROCESSING="$1"
     ;;
   -d)
