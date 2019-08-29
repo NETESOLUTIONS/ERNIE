@@ -171,7 +171,7 @@ BEGIN
                           PASSING scopus_doc_xml COLUMNS --
                               conf_code TEXT PATH '../../confcode',
                               conf_name TEXT PATH 'normalize-space(../../confname)',
-                              conf_sponsor TEXT PATH '.'
+                              conf_sponsor TEXT PATH 'normalize-space()'
                       )
              GROUP BY conf_code, conf_name
          ) AS sq
