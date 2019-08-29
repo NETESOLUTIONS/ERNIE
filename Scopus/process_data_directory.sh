@@ -23,6 +23,8 @@ DESCRIPTION
 
     -k    smokeload job : specificies that the job is a smokeload versus update
 
+    -j    parralel processing : number of jobs , default is 1 , so serial processing
+
     -e    stop on the first error. Parsing and other SQL errors don't stop the script unless `-e` is specified.
 
     -p    create a process log which is used as part of the update job
@@ -69,6 +71,7 @@ readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx ERROR_LOG=error.log
 declare -rx PARALLEL_LOG=parallel.log
+declare PARALLEL_PROCESSING=1
 
 FAILED_FILES_DIR="../failed"
 PROCESSED_LOG="../processed.log"
@@ -86,6 +89,11 @@ while (($# > 0)); do
     ;;
   -e)
     readonly STOP_ON_THE_FIRST_ERROR=true
+    ;;
+  -j)
+    shift
+    echo "Using CLI arg '$1'"
+    readonly PARALLEL_PROCESSING="$1"
     ;;
   -p)
     shift
@@ -197,7 +205,7 @@ for scopus_data_archive in *.zip; do
     rm -f "${ERROR_LOG}"
 
     if
-      ! find -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
+      ! find -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} -j $j --joblog ${PARALLEL_LOG} --line-buffer \
       --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}
     then
       [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
@@ -260,6 +268,6 @@ if [[ -d "${TMP_DIR}" ]]; then
   check_errors # Exits here if errors occurred
   cd
   rm -rf "${TMP_DIR}"
-fi  
+fi
 
 exit 0
