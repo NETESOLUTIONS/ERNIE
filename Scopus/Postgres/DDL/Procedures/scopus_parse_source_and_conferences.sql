@@ -37,7 +37,7 @@ BEGIN
                  )
         WHERE source_id <> ''
            OR issn <> ''
-           OR isbn <> '' PASSING scopus_doc_xml)
+           OR isbn <> '' 
         ON CONFLICT (source_id, issn_main, isbn_main)
             DO UPDATE
             SET source_id           = EXCLUDED.source_id,
