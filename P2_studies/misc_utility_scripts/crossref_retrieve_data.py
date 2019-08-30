@@ -11,15 +11,20 @@ import json
 import itertools as itert
 import pandas as pd
 
-recomb_df = pd.read_csv("RECOMB_titles.csv")
-recomb_title_list = recomb_df[["title"]]
-sample_recomb_title_list = recomb_title_list[:5]
-
-
 def crossref_retrieve_data(title_list):
     """
-    :param : title_list
-    :return: data_frame one column title, the other doi
+    :param : a sequence of titles to publications
+    :return: a data_frame with title, doi, journal, and pub date
+
+    Example of use:
+
+    1.Turn the csv into pandas dataframe (or series)
+    recomb_df = pd.read_csv("RECOMB_titles.csv")
+
+    2. If it is more than 50 titles simply slice it
+    sample_recomb_df= recomb_df[:50]
+gi
+    result= crossref_retrieve_data(input_list)
     """
 
     url_form = 'https://api.crossref.org/works?query.title='
