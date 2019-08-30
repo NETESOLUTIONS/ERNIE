@@ -32,7 +32,7 @@ def crossref_retrieve_data(title_list, user_email_address='djamil@nete.com'):
     """
 
     url_form = 'https://api.crossref.org/works?query.title='
-    query_paramters = '&select=title,DOI,container-title&mailto=' + user_email_address + '&rows=1000'
+    query_paramters = '&select=title,DOI,container-title,created&mailto=' + user_email_address + '&rows=1000'
 
     ## if the input is a list then join all the elements into one string using ' ' as a separator, check if empty dataframe
     if isinstance(title_list, pd.DataFrame):
