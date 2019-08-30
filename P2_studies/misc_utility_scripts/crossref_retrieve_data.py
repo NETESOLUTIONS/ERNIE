@@ -11,10 +11,12 @@ import json
 import itertools as itert
 import pandas as pd
 
-def crossref_retrieve_data(title_list):
+
+
+def crossref_retrieve_data(title_list, user_email_address='djamil@nete.com'):
     """
-    :param : a sequence of titles to publications
-    :return: a data_frame with title, doi, journal, and pub date
+    :param : title_list
+    :return: data_frame one column title, the other doi
 
     Example of use:
 
@@ -23,23 +25,25 @@ def crossref_retrieve_data(title_list):
 
     2. If it is more than 50 titles simply slice it
     sample_recomb_df= recomb_df[:50]
-gi
+
+    3. Now ake a list , e.g. RECOMB titles. If it is less than 50 titles, simple plug it in the function and the effect of the function to a value
+
     result= crossref_retrieve_data(input_list)
     """
 
     url_form = 'https://api.crossref.org/works?query.title='
-    query_paramters = '&select=title,DOI,container-title&mailto=dl2774@columbia.edu&rows=1000'
+    query_paramters = '&select=title,DOI,container-title&mailto=' + user_email_address + '&rows=1000'
 
     ## if the input is a list then join all the elements into one string using ' ' as a separator, check if empty dataframe
     if isinstance(title_list, pd.DataFrame):
-        title_string = ' '.join(title_list['title'].tolist())
-        title_split_list = title_string.replace(' ', '+')
+        title_string = '  '.join(title_list['title'].tolist())
+        title_split_list = title_string.replace('  ', '+')
     elif isinstance(title_list, pd.Series):
-        title_string = ' '.join(title_list.tolist())
-        title_split_list = title_string.replace(' ', '+')
+        title_string = '  '.join(title_list['title'].tolist())
+        title_split_list = title_string.replace('  ', '+')
     elif isinstance(title_list, list):
-        title_string = ' '.join(title_list)
-        title_split_list = title_string.replace(' ', '+')
+        title_string = '  '.join(title_list['title'].tolist())
+        title_split_list = title_string.replace('  ', '+')
     ## if the input is already a string of all the different publications simply add + in between ' '
 
     else:
