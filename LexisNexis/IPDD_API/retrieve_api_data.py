@@ -72,7 +72,7 @@ if __name__ == "__main__" :
     parser.add_argument('-W','--ipdd_password',help='IPDD API password',type=str,required=True)
     parser.add_argument('-R','--ipdd_service_reference',help='IPDD service reference address',type=str,required=True)
     parser.add_argument('-b','--batch_size',help='Desired batch size on API retrievals',type=int,default=20000)
-    parser.add_argument('-s','--sleep_time',help='Amount of ms to sleep in between batch info calls',type=int,default=300000)
+    parser.add_argument('-s','--sleep_time',help='Amount of ms to sleep in between batch info calls',type=int,default=3000)
     parser.add_argument('-D','--datasets', type=str, nargs='+',help='Space delimited list of target datasets to collect patent data for')
     parser.add_argument('-d','--download_dir',help='Target directory to download zip data into',type=str,default='API_downloads')
     print('Reading arguments')
