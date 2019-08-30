@@ -13,39 +13,39 @@ BEGIN
 
     INSERT INTO scopus_authors(scp, author_seq, auid, author_indexed_name, author_surname, author_given_name,
                                author_initials, author_e_address, author_rank)
-          SELECT
-            scp,
-           author_seq,
-           auid,
-           author_indexed_name,
-           author_surname,
-           max(author_given_name) as author_given_name,
-           max(author_initials) as author_initials,
-           max(author_e_address) as author_e_address,
-           ROW_NUMBER() over (PARTITION BY scp ORDER BY author_seq, author_indexed_name) as author_rank
-    FROM xmltable(--
-                 XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
-                 '//bibrecord/head/author-group/author' PASSING scopus_doc_xml COLUMNS --
-            --@formatter:off
-                     scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
-                     author_seq SMALLINT PATH '@seq',
-                     auid BIGINT PATH '@auid',
-                     author_indexed_name TEXT PATH 'ce:indexed-name',
-                     author_surname TEXT PATH 'ce:surname',
-                     author_given_name TEXT PATH 'ce:given-name',
-                     author_initials TEXT PATH 'ce:initials',
-                     author_e_address TEXT PATH 'ce:e-address'
-             --@formatter:on
-             )
-    GROUP BY scp, author_seq, auid, author_indexed_name 
-    ON CONFLICT (scp, author_seq) DO UPDATE SET auid=excluded.auid,
-                                                author_surname=excluded.author_surname,
-                                                author_given_name=excluded.author_given_name,
-                                                author_indexed_name=excluded.author_indexed_name,
-                                                author_surname=excluded.author_indexed_name,
-                                                author_initials=excluded.author_initials,
-                                                author_e_address=excluded.author_e_address,
-                                                author_rank=excluded.author_rank;
+                SELECT DISTINCT ON (auid)
+                scp,
+                author_seq,
+                auid,
+                author_indexed_name,
+                max(author_surname)    as author_surname,
+                max(author_given_name) as author_given_name,
+                max(author_initials)   as author_initials,
+                max(author_e_address)  as author_e_address,
+                ROW_NUMBER() over (PARTITION BY scp ORDER BY author_seq, author_indexed_name) as author_rank
+                FROM xmltable(--
+                  XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
+                '//bibrecord/head/author-group/author' PASSING scopus_doc_xml COLUMNS --
+                  --@formatter:off
+                  scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
+                  author_seq SMALLINT PATH '@seq',
+                  auid BIGINT PATH '@auid',
+                  author_indexed_name TEXT PATH 'ce:indexed-name',
+                  author_surname TEXT PATH 'ce:surname',
+                  author_given_name TEXT PATH 'ce:given-name',
+                  author_initials TEXT PATH 'ce:initials',
+                  author_e_address TEXT PATH 'ce:e-address'
+                          --@formatter:on
+                          )
+                GROUP BY scp, author_seq, auid, author_indexed_name
+                ON CONFLICT (scp, author_seq) DO UPDATE SET auid=excluded.auid,
+                                                                  author_surname=excluded.author_surname,
+                                                                  author_given_name=excluded.author_given_name,
+                                                                  author_indexed_name=excluded.author_indexed_name, 
+                                                                  author_initials=excluded.author_initials,
+                                                                  author_e_address=excluded.author_e_address,
+                                                                  author_rank=excluded.author_rank;
+
 
     -- scopus_affiliations
     INSERT INTO scopus_affiliations(scp, affiliation_no, afid, dptid, city_group, state, postal_code, country_code,
