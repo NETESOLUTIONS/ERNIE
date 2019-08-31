@@ -15,7 +15,7 @@ import pandas as pd
 
 def crossref_retrieve_data(title_list, user_email_address='djamil@nete.com'):
     """
-    :param : title_list
+    :param : title_list (pandas dataframe, series, or python list), user_email_address (users email as a STRING e.g 'djamillakhdar@email.com) 
     :return: data_frame one column title, the other doi
 
     Example of use:
@@ -32,7 +32,7 @@ def crossref_retrieve_data(title_list, user_email_address='djamil@nete.com'):
     """
 
     url_form = 'https://api.crossref.org/works?query.title='
-    query_paramters = '&select=title,DOI,container-title,created&mailto=' + user_email_address + '&rows=1000'
+    query_paramters = '&select=title,DOI,container-title,created&mailto={}&rows=1000'.format(user_email_address)
 
     ## if the input is a list then join all the elements into one string using ' ' as a separator, check if empty dataframe
     if isinstance(title_list, pd.DataFrame):
@@ -77,7 +77,7 @@ def crossref_retrieve_data(title_list, user_email_address='djamil@nete.com'):
     ## method to generate pandas dataframe with unequal length sequences (list, series, etc.)
     data_df = pd.DataFrame(list(itert.zip_longest(title_array,
                                                   doi_array, journal_array,
-                                                  publication_date_array)), columns=['Title',
-                                                                                     'DOI','Journal','Publication-Date'])
+                                                  publication_date_array)),
+                           columns=['Title','DOI','Journal','Publication-Date'])
 
     return data_df
