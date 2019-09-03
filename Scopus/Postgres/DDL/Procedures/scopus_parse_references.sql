@@ -10,12 +10,12 @@ SET TIMEZONE = 'US/Eastern';
 -- On failure it reverts to a debugger version of the function which performs individual inserts of valid instances of the mapped XML data
 CREATE OR REPLACE PROCEDURE scopus_parse_references(input_xml XML) AS
 $$
-  DECLARE 
-    v_state   TEXT;
-    v_msg     TEXT;
-    v_detail  TEXT;
-    v_hint    TEXT;
-    v_context TEXT;
+--   DECLARE
+--     v_state   TEXT;
+--     v_msg     TEXT;
+--     v_detail  TEXT;
+--     v_hint    TEXT;
+--     v_context TEXT;
   BEGIN
     INSERT INTO scopus_references(scp,ref_sgr,citation_text)
     SELECT
@@ -34,24 +34,24 @@ $$
                 )
     GROUP BY scp, ref_sgr
     ON CONFLICT (scp, ref_sgr) DO UPDATE SET citation_text=excluded.citation_text;
-    EXCEPTION WHEN OTHERS THEN
-
-    get stacked diagnostics
-        v_state   = returned_sqlstate,
-        v_msg     = message_text,
-        v_detail  = pg_exception_detail,
-        v_hint    = pg_exception_hint,
-        v_context = pg_exception_context;
-
-    RAISE NOTICE E'GOT EXCEPTION:
-        STATE  : %
-        MESSAGE: %
-        DETAIL : %
-        HINT   : %
-        CONTEXT: %', v_state, v_msg, v_detail, v_hint, v_context;
-
-    RAISE NOTICE E'GOT EXCEPTION: SQLSTATE: %, SQLERRM: % ', SQLSTATE, SQLERRM;
-      CALL scopus_parse_references_one_by_one(input_xml);
+--     EXCEPTION WHEN OTHERS THEN
+--
+--     get stacked diagnostics
+--         v_state   = returned_sqlstate,
+--         v_msg     = message_text,
+--         v_detail  = pg_exception_detail,
+--         v_hint    = pg_exception_hint,
+--         v_context = pg_exception_context;
+--
+--     RAISE NOTICE E'GOT EXCEPTION:
+--         STATE  : %
+--         MESSAGE: %
+--         DETAIL : %
+--         HINT   : %
+--         CONTEXT: %', v_state, v_msg, v_detail, v_hint, v_context;
+--
+--     RAISE NOTICE E'GOT EXCEPTION: SQLSTATE: %, SQLERRM: % ', SQLSTATE, SQLERRM;
+--       CALL scopus_parse_references_one_by_one(input_xml);
   END;
 $$
 LANGUAGE plpgsql;
@@ -85,6 +85,7 @@ $$
           RAISE NOTICE 'CANNOT INSERT VALUES (scp=%,ref_sgr=%,pub_ref_id=%)',row.scp,row.ref_sgr,row.pub_ref_id;
           CONTINUE;*/
         END;
+        COMMIT;
       END LOOP;
   END;
 $$

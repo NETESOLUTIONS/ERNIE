@@ -40,6 +40,7 @@ BEGIN
             INSERT INTO scopus_publication_groups(sgr, pub_year)
             VALUES (cur.sgr, cur.pub_year)
             ON CONFLICT (sgr) DO UPDATE SET pub_year=excluded.pub_year;
+            COMMIT;
 
             INSERT INTO scopus_publications(scp, sgr, correspondence_person_indexed_name, correspondence_city,
                                             correspondence_country, correspondence_e_address, citation_type)
@@ -52,6 +53,7 @@ BEGIN
                                             correspondence_country=excluded.correspondence_country,
                                             correspondence_e_address=excluded.correspondence_e_address,
                                             citation_type=excluded.citation_type;
+        COMMIT;
         END LOOP;
 
     -- scopus_publications: concatenated correspondence organizations
@@ -71,5 +73,6 @@ BEGIN
     SET correspondence_orgs = cte.correspondence_orgs
     FROM cte
     WHERE sp.scp = cte.scp;
+    COMMIT;
 END;
 $$;

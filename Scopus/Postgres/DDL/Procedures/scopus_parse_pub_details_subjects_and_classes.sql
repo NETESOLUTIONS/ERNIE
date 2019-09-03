@@ -45,6 +45,7 @@ BEGIN
                                     publication_date=excluded.publication_date,
                                     conf_code=excluded.conf_code,
                                     conf_name=excluded.conf_name;
+                                    COMMIT;
 
     UPDATE scopus_source_publication_details spd
     SET indexed_terms=sq.indexed_terms
@@ -60,6 +61,7 @@ BEGIN
              GROUP BY scp
          ) AS sq
     WHERE spd.scp = sq.scp;
+    COMMIT;
 
     -- scopus_subjects
     INSERT INTO scopus_subjects (scp, subj_abbr)
@@ -73,6 +75,7 @@ BEGIN
                      subj_abbr SCOPUS_SUBJECT_ABBRE_TYPE PATH '.'
              )
     ON CONFLICT (scp, subj_abbr) DO UPDATE SET subj_abbr=excluded.subj_abbr;
+    COMMIT;
 
     -- scopus_subject_keywords
     INSERT INTO scopus_subject_keywords (scp, subject)
@@ -86,6 +89,7 @@ BEGIN
                      subject TEXT PATH '.'
              )
     ON CONFLICT (scp, subject) DO UPDATE SET subject=excluded.subject;
+    COMMIT;
 
     -- scopus_classes
     INSERT INTO scopus_classes(scp, class_type, class_code)
@@ -101,6 +105,7 @@ BEGIN
                      classification TEXT PATH '.'
              )
     ON CONFLICT (scp,class_code) DO UPDATE SET class_type=excluded.class_type, class_code=excluded.class_code;
+    COMMIT;
 
     -- scopus_classification_lookup
     INSERT INTO scopus_classification_lookup(class_type, class_code, description)
@@ -115,6 +120,6 @@ BEGIN
                      description TEXT PATH 'following-sibling::classification-description'
              )
     ON CONFLICT (class_type, class_code) DO UPDATE SET description=excluded.description;
-
+    COMMIT;
 END;
 $$;

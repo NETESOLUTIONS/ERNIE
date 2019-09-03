@@ -50,6 +50,7 @@ BEGIN
                 publisher_e_address = EXCLUDED.publisher_e_address,
                 pub_date=EXCLUDED.pub_date
                 RETURNING ernie_source_id INTO db_id;
+                COMMIT;
 
     UPDATE scopus_sources ss
     SET website=sq.website
@@ -64,6 +65,7 @@ BEGIN
              GROUP BY ernie_source_id
          ) AS sq
     WHERE ss.ernie_source_id = sq.ernie_source_id;
+    COMMIT;
 
     -- scopus_isbns
     INSERT INTO scopus_isbns(ernie_source_id, isbn, isbn_length, isbn_type, isbn_level)
@@ -81,6 +83,7 @@ BEGIN
              )
     ON CONFLICT (ernie_source_id, isbn, isbn_type) DO UPDATE SET isbn_length=excluded.isbn_length,
                                                       isbn_level=excluded.isbn_level;
+                                                      COMMIT;
 
     -- scopus_issns
     INSERT INTO scopus_issns(ernie_source_id, issn, issn_type)
@@ -94,7 +97,7 @@ BEGIN
              )
     ON CONFLICT (ernie_source_id, issn, issn_type) DO UPDATE SET issn=excluded.issn,
                                                                  issn_type=excluded.issn_type;
-
+                                                                 COMMIT;
     UPDATE scopus_publications sp
     SET pub_type        = singular.pub_type,
         process_stage   = singular.process_stage,
@@ -121,6 +124,7 @@ BEGIN
                       )
          ) AS singular
     WHERE sp.scp = singular.scp;
+    COMMIT;
 
     -- scopus_conference_events
     INSERT INTO scopus_conference_events(conf_code, conf_name, conf_address, conf_city, conf_postal_code,
@@ -159,7 +163,7 @@ BEGIN
                                                      conf_end_date=excluded.conf_end_date,
                                                      conf_number=excluded.conf_number,
                                                      conf_catalog_number=excluded.conf_catalog_number;
-
+                                                     COMMIT;
     UPDATE scopus_conference_events sce
     SET conf_sponsor=sq.conf_sponsor
     FROM (
@@ -177,7 +181,7 @@ BEGIN
          ) AS sq
     WHERE sce.conf_code = sq.conf_code
       AND sce.conf_name = sq.conf_name;
-
+      COMMIT;
     -- scopus_conf_proceedings
     INSERT INTO scopus_conf_proceedings(ernie_source_id, conf_code, conf_name, proc_part_no, proc_page_range,
                                         proc_page_count)
@@ -207,7 +211,7 @@ BEGIN
     ON CONFLICT (ernie_source_id, conf_code, conf_name) DO UPDATE SET proc_part_no=excluded.proc_part_no,
                                                                       proc_page_range=excluded.proc_page_range,
                                                                       proc_page_count=excluded.proc_page_count;
-
+                                                                      COMMIT;
     -- scopus_conf_editors
     INSERT INTO scopus_conf_editors(ernie_source_id, conf_code, conf_name, indexed_name, role_type,
                                     initials, surname, given_name, degree, suffix)
@@ -243,7 +247,7 @@ BEGIN
                                                                                     given_name=excluded.given_name,
                                                                                     degree=excluded.degree,
                                                                                     suffix=excluded.suffix;
-
+                                                                                    COMMIT;
     UPDATE scopus_conf_editors sed
     SET address=sq.address
     FROM (
@@ -263,6 +267,7 @@ BEGIN
     WHERE sed.ernie_source_id = sq.ernie_source_id
       AND sed.conf_code = sq.conf_code
       AND sed.conf_name = sq.conf_name;
+      COMMIT;
 
     UPDATE scopus_conf_editors sed
     SET organization=sq.organization
@@ -283,5 +288,6 @@ BEGIN
     WHERE sed.ernie_source_id = sq.ernie_source_id
       AND sed.conf_code = sq.conf_code
       AND sed.conf_name = sq.conf_name;
+     COMMIT;
 END;
 $$;

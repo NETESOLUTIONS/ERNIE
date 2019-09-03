@@ -45,7 +45,7 @@ BEGIN
                                                                   author_initials=excluded.author_initials,
                                                                   author_e_address=excluded.author_e_address,
                                                                   author_rank=excluded.author_rank;
-
+                                                                 COMMIT;
 
     -- scopus_affiliations
     INSERT INTO scopus_affiliations(scp, affiliation_no, afid, dptid, city_group, state, postal_code, country_code,
@@ -82,7 +82,7 @@ BEGIN
                                                     postal_code=excluded.postal_code,
                                                     country_code=excluded.country_code,
                                                     country=excluded.country;
-
+                                                    COMMIT;
     UPDATE scopus_affiliations sa
     SET organization=sq.organization
     FROM (
@@ -95,7 +95,7 @@ BEGIN
                       )
          ) as sq
     WHERE sa.scp = sq.scp and sa.affiliation_no = sq.affiliation_no;
-
+    COMMIT;
     -- scopus_author_affiliations
     INSERT INTO scopus_author_affiliations(scp, author_seq, affiliation_no)
     SELECT DISTINCT t1.scp,
@@ -112,6 +112,6 @@ BEGIN
              ) as t2
     WHERE XMLEXISTS('//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml)
     ON CONFLICT (scp, author_seq, affiliation_no) DO UPDATE SET author_seq=excluded.author_seq, affiliation_no=excluded.affiliation_no;
-
+    COMMIT;
 END;
 $$;

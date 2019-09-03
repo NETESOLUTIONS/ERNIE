@@ -32,7 +32,7 @@ ON CONFLICT (scp, grant_id, grantor) DO UPDATE SET
                                           grantor_acronym=excluded.grantor_acronym,
                                           grantor_country_code=excluded.grantor_country_code,
                                           grantor_funder_registry_id=excluded.grantor_funder_registry_id;
-
+                                          COMMIT;
 -- scopus_grant_acknowledgements
 INSERT INTO scopus_grant_acknowledgements(scp, grant_text)
 
@@ -44,6 +44,7 @@ FROM xmltable(--
             grant_text TEXT PATH '.'
          )
 ON CONFLICT (scp) DO UPDATE SET grant_text=excluded.grant_text;
+COMMIT;
 END;
 $$
 LANGUAGE plpgsql;

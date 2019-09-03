@@ -22,6 +22,7 @@ BEGIN
                      abstract_source TEXT PATH '../@source'
              )
     ON CONFLICT (scp,abstract_language) DO UPDATE SET abstract_source=excluded.abstract_source;
+    COMMIT;
 
 
     -- scopus_abstracts: concatenated abstract_text
@@ -41,7 +42,7 @@ BEGIN
     FROM sca
     WHERE sa.scp = sca.scp
       and sa.abstract_language = sca.abstract_language;
-
+    COMMIT;
 
     -- scopus_titles
     INSERT INTO scopus_titles(scp, title, language)
@@ -57,5 +58,6 @@ BEGIN
              )
     GROUP BY scp 
     ON CONFLICT (scp, language) DO UPDATE SET title=excluded.title;
+    COMMIT;
 END;
 $$ LANGUAGE plpgsql;
