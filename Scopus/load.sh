@@ -55,7 +55,7 @@ readonly STOP_FILE=".stop"
 readonly SCRIPT_DIR=${0%/*}
 readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 readonly FAILED_FILES_DIR=../failed
-readonly PARALLEL_PROCESSING=8
+declare PARALLEL_PROCESSING=8
 
 while (($# > 0)); do
   case "$1" in
