@@ -71,7 +71,7 @@ readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx ERROR_LOG=error.log
 declare -rx PARALLEL_LOG=parallel.log
-declare PARALLEL_PROCESSING=1
+declare PARALLEL_PROCESSING=8
 
 FAILED_FILES_DIR="../failed"
 PROCESSED_LOG="../processed.log"
@@ -205,7 +205,7 @@ for scopus_data_archive in *.zip; do
     rm -f "${ERROR_LOG}"
 
     if
-      ! find -name '2*.xml' | parallel -j ${PARALLEL_LOG} ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
+      ! find -name '2*.xml' | parallel -${PARALLEL_PROCESSING} ${PARALLEL_LOG} ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
       --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}
     then
       [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
