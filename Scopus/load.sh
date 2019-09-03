@@ -25,8 +25,6 @@ DESCRIPTION
 
     -c              clean load: truncate data. WARNING: be aware that you'll lose all loaded data!
 
-    -n              max jobs : number of jobs, default is 8, so parallel processing
-
     -e              stop on the first error. stop on the first error.
                     Parsing and other SQL errors don't stop the script unless `-e` is specified.
 
@@ -55,7 +53,6 @@ readonly STOP_FILE=".stop"
 readonly SCRIPT_DIR=${0%/*}
 readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 readonly FAILED_FILES_DIR=../failed
-declare MAX_JOBS=8
 
 while (($# > 0)); do
   case "$1" in
@@ -73,10 +70,6 @@ while (($# > 0)); do
     ;;
   -r)
     readonly SORT_ORDER=true
-    ;;
-  -j)
-    shift
-    MAX_JOBS="$1"
     ;;
   -d)
     shift
