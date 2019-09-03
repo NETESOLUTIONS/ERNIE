@@ -93,7 +93,7 @@ while (($# > 0)); do
   -n)
     shift
     echo "Using CLI arg '$1'"
-    readonly MAX_JOBS="$1"
+    MAX_JOBS="$1"
     ;;
   -p)
     shift

@@ -76,7 +76,7 @@ while (($# > 0)); do
     ;;
   -j)
     shift
-    readonly MAX_JOBS="$1"
+    MAX_JOBS="$1"
     ;;
   -d)
     shift
