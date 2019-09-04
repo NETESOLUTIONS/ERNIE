@@ -149,6 +149,9 @@ parse_xml() {
     [[ ${VERBOSE} == "true" ]] && echo "$xml: SUCCESSFULLY PARSED."
     return 0
   else
+    [[ ${VERBOSE} == "true" ]] && echo "$xml parsing FAILED.\n"
+    echo -e "$xml parsing FAILED.\n" >>"${ERROR_LOG}"
+
     local full_xml_path=$(realpath ${xml})
     local full_error_log_path=$(realpath ${ERROR_LOG})
     cd ..
@@ -156,7 +159,6 @@ parse_xml() {
     mv -f $full_xml_path "${failed_files_dir}/"
     cp $full_error_log_path "${failed_files_dir}/"
     cd "${TMP_DIR}"
-    [[ ${VERBOSE} == "true" ]] && echo "$xml: FAILED DURING PARSING."
     return 1
   fi
 }
