@@ -15,7 +15,7 @@ BEGIN
              '//bibrecord/head/citation-info/author-keywords/author-keyword' PASSING scopus_doc_xml
              COLUMNS scp BIGINT PATH '../../../../item-info/itemidlist/itemid[@idtype="SCP"]', keyword TEXT PATH '.')
   ON CONFLICT (scp, keyword) DO UPDATE SET keyword=excluded.keyword;
+  COMMIT;
 END;
 $$
 LANGUAGE plpgsql;
-COMMIT;

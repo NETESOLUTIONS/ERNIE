@@ -8,15 +8,18 @@ SET TIMEZONE = 'US/Eastern';
 -- NOTE: pub_ref_id parsing removed per suggestion by Jeroen a
 -- This function performs a bulk update by inserting mapped XML data from a staging table which holds (raw) XML from the update files.
 -- On failure it reverts to a debugger version of the function which performs individual inserts of valid instances of the mapped XML data
-CREATE OR REPLACE PROCEDURE scopus_parse_references(input_xml XML) AS
+create procedure scopus_parse_references(input_xml xml)
+    language plpgsql
+as
 $$
-  DECLARE
+DECLARE
     v_state   TEXT;
     v_msg     TEXT;
     v_detail  TEXT;
     v_hint    TEXT;
     v_context TEXT;
   BEGIN
+    BEGIN
     INSERT INTO scopus_references(scp,ref_sgr,citation_text)
     SELECT
           xmltable.scp AS scp,
@@ -52,10 +55,10 @@ $$
 
     RAISE NOTICE E'GOT EXCEPTION: SQLSTATE: %, SQLERRM: % ', SQLSTATE, SQLERRM;
       CALL scopus_parse_references_one_by_one(input_xml);
-  END;
-$$
-LANGUAGE plpgsql;
-COMMIT;
+    COMMIT;
+    END;
+END;
+$$;
 
 -- This function loops through XML records in the staging table and inserts valid instances of mapped data. It's slower than the other function, but safer.
 -- On failure it will raise a notice regarding the invalid XML
@@ -86,6 +89,7 @@ $$
           RAISE NOTICE 'CANNOT INSERT VALUES (scp=%,ref_sgr=%,pub_ref_id=%)',row.scp,row.ref_sgr,row.pub_ref_id;
           CONTINUE;*/
         END;
+        COMMIT;
       END LOOP;
   END;
 $$
