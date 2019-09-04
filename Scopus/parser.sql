@@ -41,9 +41,12 @@ DO $block$
       EXECUTE format('CALL %I($1)',current_setting('script.subset_sp')) using scopus_doc_xml;
     END IF;
 
+  /*
+  EXCEPTION handling is not feasible with COMMITing procedures: causes `[2D000] ERROR: invalid transaction termination`
+
   EXCEPTION
     WHEN OTHERS THEN --
       RAISE NOTICE E'Processing of % FAILED', current_setting('script.xml_file');
       --  RAISE NOTICE E'ERROR during processing of:\n-----\n%\n-----', scopus_doc_xml;
-      RAISE;
+      RAISE;*/
   END $block$;
