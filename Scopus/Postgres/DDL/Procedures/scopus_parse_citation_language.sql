@@ -26,7 +26,7 @@ BEGIN
         citation_language TEXT PATH '@language')
     GROUP BY scp
     ON CONFLICT (scp) DO UPDATE SET citation_language=excluded.citation_language;
-    COMMIT;
 END ;
 $$
 language plpgsql;
+COMMIT;

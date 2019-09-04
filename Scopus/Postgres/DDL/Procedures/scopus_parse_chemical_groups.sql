@@ -31,8 +31,8 @@ AS $$
       ON CONFLICT (scp, chemical_name, cas_registry_number) DO UPDATE SET scp=excluded.scp,
        chemicals_source=excluded.chemicals_source, chemical_name=excluded.chemical_name,
        cas_registry_number=excluded.cas_registry_number;
-        COMMIT;
     END LOOP;
   END;
   $$
   LANGUAGE plpgsql;
+  COMMIT;

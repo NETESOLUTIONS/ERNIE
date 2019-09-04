@@ -53,7 +53,6 @@ BEGIN
                                             correspondence_country=excluded.correspondence_country,
                                             correspondence_e_address=excluded.correspondence_e_address,
                                             citation_type=excluded.citation_type;
-        COMMIT;
         END LOOP;
 
     -- scopus_publications: concatenated correspondence organizations
@@ -73,6 +72,6 @@ BEGIN
     SET correspondence_orgs = cte.correspondence_orgs
     FROM cte
     WHERE sp.scp = cte.scp;
-    COMMIT;
 END;
 $$;
+COMMIT;
