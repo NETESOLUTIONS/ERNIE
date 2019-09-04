@@ -12,8 +12,6 @@ SET script.xml_file = :'xml_file';
   SET script.subset_sp = '';
 \endif
 
--- TODO ON CONFLICT DO NOTHING need to be replaced by updates
-
 DO $block$
   DECLARE
     -- scopus_doc TEXT;
