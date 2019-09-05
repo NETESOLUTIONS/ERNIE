@@ -23,6 +23,8 @@ DESCRIPTION
 
     -k              smokeload from scratch
 
+    -n              number of jobs, n=1 then serial, n > 1 parallel
+
     -c              clean load: truncate data. WARNING: be aware that you'll lose all loaded data!
 
     -e              stop on the first error. stop on the first error.
@@ -53,6 +55,7 @@ readonly STOP_FILE=".stop"
 readonly SCRIPT_DIR=${0%/*}
 readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 readonly FAILED_FILES_DIR=../failed
+declare  NUM_JOBS=8
 
 while (($# > 0)); do
   case "$1" in
@@ -78,6 +81,10 @@ while (($# > 0)); do
   -s)
     shift
     readonly SUBSET_OPTION="-s $1"
+    ;;
+  -n)
+    shift
+    NUM_JOBS="$1"
     ;;
   -v)
     # Second "-v" = extra verbose?
