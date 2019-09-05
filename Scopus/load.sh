@@ -129,7 +129,7 @@ if [[ "${SMOKELOAD_JOB}" == true ]]; then
     ((i == 0)) && start_time=${dir_start_time}
     echo -e "\n## Directory #$((++i)) out of ${directories} ##"
     echo "Processing ${DATA_DIR} directory ..."
-    if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -k ${STOP_ON_THE_FIRST_ERROR_OPTION} ${SUBSET_OPTION} \
+    if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -j ${NUM_JOBS} -k ${STOP_ON_THE_FIRST_ERROR_OPTION} ${SUBSET_OPTION} \
         ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${DATA_DIR}"; then
       [[ ${STOP_ON_THE_FIRST_ERROR_OPTION} ]] && exit 1
       failures_occurred="true"
