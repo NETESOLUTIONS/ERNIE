@@ -13,7 +13,7 @@ BEGIN
 
     INSERT INTO scopus_authors(scp, author_seq, auid, author_indexed_name, author_surname, author_given_name,
                                author_initials, author_e_address, author_rank)
-                SELECT DISTINCT ON (auid)
+                SELECT DISTINCT ON (scp, auid, author_seq)
                 scp,
                 author_seq,
                 auid,
