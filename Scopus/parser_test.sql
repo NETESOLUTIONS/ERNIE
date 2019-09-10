@@ -21,20 +21,19 @@ DO $block$
       INTO scopus_doc_xml;
 
     IF current_setting('script.subset_sp')='' THEN -- Execute all parsing SPs
-      CALL stg_scopus_parse_publication_and_group(scopus_doc_xml);
-      CALL stg_scopus_parse_source_and_conferences(scopus_doc_xml);
-      CALL stg_scopus_parse_pub_details_subjects_and_classes(scopus_doc_xml);
-      CALL stg_scopus_parse_authors_and_affiliations(scopus_doc_xml);
-      CALL stg_scopus_parse_chemical_groups(scopus_doc_xml);
-      CALL stg_scopus_parse_citation_language(scopus_doc_xml);
-      CALL stg_scopus_parse_abstracts_and_titles(scopus_doc_xml);
-      CALL stg_scopus_parse_keywords(scopus_doc_xml);
-      CALL stg_scopus_parse_publication_identifiers(scopus_doc_xml);
-      CALL stg_scopus_parse_grants(scopus_doc_xml);
-      CALL stg_scopus_parse_references(scopus_doc_xml);
+      CALL jenkins.stg_scopus_parse_publication_and_group();
+      CALL jenkins.stg_scopus_parse_source_and_conferences();
+      CALL jenkins.stg_scopus_parse_pub_details_subjects_and_classes();
+      CALL jenkins.stg_scopus_parse_authors_and_affiliations();
+      CALL jenkins.stg_scopus_parse_chemical_groups();
+      CALL jenkins.stg_scopus_parse_abstracts_and_titles();
+      CALL jenkins.stg_scopus_parse_keywords();
+      CALL jenkins.stg_scopus_parse_publication_identifiers();
+      CALL jenkins.stg_scopus_parse_grants();
+      CALL jenkins.stg_scopus_parse_references();
     ELSE -- Execute only the selected SP
       -- Make sure that parent records are present
-      CALL stg_scopus_parse_publication_and_group(scopus_doc_xml);
+      CALL jenkins.stg_scopus_parse_publication_and_group(scopus_doc_xml);
 
       EXECUTE format('CALL %I($1)',current_setting('script.subset_sp')) using scopus_doc_xml;
     END IF;
