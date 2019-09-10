@@ -154,7 +154,7 @@ parse_xml() {
   local xml="$1"
   [[ $2 ]] && local subset_option="-v subset_sp=$2"
   [[ ${VERBOSE} == "true" ]] && echo "Processing $xml ..."
-  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" ${subset_option} 2>>"${ERROR_LOG}"; then
+  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser_test.sql -v "xml_file=$PWD/$xml" ${subset_option} 2>>"${ERROR_LOG}"; then
     [[ ${VERBOSE} == "true" ]] && echo "$xml: SUCCESSFULLY PARSED."
     return 0
   else
