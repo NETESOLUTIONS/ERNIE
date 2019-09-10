@@ -258,6 +258,15 @@ for scopus_data_archive in *.zip; do
   fi
 done
 
+## sql script that inserts from staging table into
+echo -e "\nMERGING STAGING INTO SCOPUS TABLES..."
+psql -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
+echo -e "\nMERGING STAGING INTO SCOPUS TABLES FINISHED"
+echo -e "\nTRUNCATING STAGING TABLES..."
+psql -c "set search_path='jenkins\
+call truncate_stg_table();"
+echo -e "\nTRUNCATING FINISHED"
+
 echo -e "\nDIRECTORY SUMMARY:"
 echo "SUCCESSFULLY PARSED ${processed_xml_counter_total} XML FILES"
 if ((failed_xml_counter_total == 0)); then
