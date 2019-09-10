@@ -22,7 +22,7 @@ INSERT INTO update_log_scopus (update_time, num_scopus_pub, num_delete)
        (
          (SELECT current_timestamp),
          (SELECT count(*) FROM scopus_publications),
-         (SELECT count(*) FROM del_scps)
+         (SELECT count(*) FROM public.del_scps)
        )
 
       )
