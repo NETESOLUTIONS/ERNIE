@@ -1,6 +1,6 @@
 ## Script to combine citation counts, reference counts, and (median, tenth, and first percentiles)
 ## of z_scores of Uzzi-style simulations on all WoS, ap, imm, and metab datasets for the
-## years 1985, 1995, 2005.
+## years 1985, 1995, 2005. George Chacko, Sep 2019
 
 setwd('/ernie1_museum/data_1985')
 rm(list=ls())
