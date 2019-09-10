@@ -5,7 +5,7 @@ library(data.table)
 ### All WoS 1985
 d1000_pubwise_85 <- fread('d1000_85_pubwise_zsc_med.csv')
 refs_85 <- fread('reference_count_1985.csv')
-colnames(refs_1985)[2] <- 'refcount'
+colnames(refs_85)[2] <- 'refcount'
 d1000_pubwise_refs_85 <- merge(d1000_pubwise_85,refs_85,by.x='source_id',by.y='source_id')
 fwrite(d1000_pubwise_refs_85,file='d1000_pubwise_refs_85.csv')
 
@@ -19,20 +19,20 @@ fwrite(ap_pubwise_refs_85,file='ap_pubwise_refs_85.csv')
 refs_85_imm <- refs_85[imm=='t']
 imm_pubwise_85 <- fread('imm85_pubwise_zsc_med.csv')
 imm_pubwise_refs <- merge(imm_pubwise_85,refs_85_imm, by.x='source_id',by.y='source_id')
-fwrite(imm_pubwise_refs,file='imm_pubwise_refs.csv')
+fwrite(imm_pubwise_refs,file='imm_pubwise_refs_85.csv')
 
 # metab_85
 refs_85_metab <- refs_85[metab=='t']
 metab_pubwise_85 <- fread('metab85_pubwise_zsc_med.csv')
 metab_pubwise_refs <- merge(metab_pubwise_85, refs_85_metab,by.x='source_id',by.y='source_id')
-fwrite(metab_pubwise_refs,file='metab_pubwise_refs.csv')
+fwrite(metab_pubwise_refs,file='metab_pubwise_refs_85.csv')
 
 ### All WoS 1995
 setwd('/ernie1_museum/data_1995')
 rm(list=ls())
 d1000_pubwise_95 <- fread('d1000_95_pubwise_zsc_med.csv')
 refs_95 <- fread('reference_count_1995.csv')
-colnames(refs_1995)[2] <- 'refcount'
+colnames(refs_95)[2] <- 'refcount'
 d1000_pubwise_refs_95 <- merge(d1000_pubwise_95,refs_95,by.x='source_id',by.y='source_id')
 fwrite(d1000_pubwise_refs_95,file='d1000_pubwise_refs_95.csv')
 
@@ -46,13 +46,13 @@ fwrite(ap_pubwise_refs_95,file='ap_pubwise_refs_95.csv')
 refs_95_imm <- refs_95[imm=='t']
 imm_pubwise_95 <- fread('imm95_pubwise_zsc_med.csv')
 imm_pubwise_refs <- merge(imm_pubwise_95,refs_95_imm, by.x='source_id',by.y='source_id')
-fwrite(imm_pubwise_refs,file='imm_pubwise_refs.csv')
+fwrite(imm_pubwise_refs,file='imm_pubwise_refs_95.csv')
 
 # metab_95
 refs_95_metab <- refs_95[metab=='t']
 metab_pubwise_95 <- fread('metab95_pubwise_zsc_med.csv')
 metab_pubwise_refs <- merge(metab_pubwise_95, refs_95_metab,by.x='source_id',by.y='source_id')
-fwrite(metab_pubwise_refs,file='metab_pubwise_refs.csv')
+fwrite(metab_pubwise_refs,file='metab_pubwise_refs_95.csv')
 
 ### All WoS 2005
 setwd('/ernie1_museum/data_2005')
@@ -73,10 +73,12 @@ fwrite(ap_pubwise_refs_2005,file='ap_pubwise_refs_2005.csv')
 refs_2005_imm <- refs_2005[imm=='t']
 imm_pubwise_2005 <- fread('imm2005_pubwise_zsc_med.csv')
 imm_pubwise_refs <- merge(imm_pubwise_2005,refs_2005_imm, by.x='source_id',by.y='source_id')
-fwrite(imm_pubwise_refs,file='imm_pubwise_refs.csv')
+fwrite(imm_pubwise_refs,file='imm_pubwise_refs_2005.csv')
 
 # metab_2005
 refs_2005_metab <- refs_2005[metab=='t']
 metab_pubwise_2005 <- fread('metab2005_pubwise_zsc_med.csv')
 metab_pubwise_refs <- merge(metab_pubwise_2005, refs_2005_metab,by.x='source_id',by.y='source_id')
-fwrite(metab_pubwise_refs,file='metab_pubwise_refs.csv')
+fwrite(metab_pubwise_refs,file='metab_pubwise_refs_2005.csv')
+
+rm(list=ls())
