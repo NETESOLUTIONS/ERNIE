@@ -263,7 +263,7 @@ echo -e "\nMERGING STAGING INTO SCOPUS TABLES..."
 psql -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
 echo -e "\nMERGING STAGING INTO SCOPUS TABLES FINISHED"
 echo -e "\nTRUNCATING STAGING TABLES..."
-psql -c "set search_path='jenkins; \
+psql -c "set search_path='jenkins'; \
 call truncate_stg_table();"
 echo -e "\nTRUNCATING FINISHED"
 
