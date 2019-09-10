@@ -4,20 +4,20 @@
 -- SET default_tablespace = dblp_tbs;
 
 CREATE TABLE dblp_publications (
-  begin_page         VARCHAR(50),
+  begin_page         VARCHAR,
   modified_date 	   DATE,
-  document_title     VARCHAR(2000),
-  document_type      VARCHAR(50),
-  end_page           VARCHAR(50),
+  document_title     VARCHAR,
+  document_type      VARCHAR,
+  end_page           VARCHAR,
   id                 SERIAL      NOT NULL,
-  issue              VARCHAR(50),		  
-  publication_year   VARCHAR(4) ,
-  publisher_address  VARCHAR(300),
-  publisher_name     VARCHAR(200),
-  source_id          VARCHAR(100) PRIMARY KEY USING INDEX TABLESPACE index_tbs, 
-  source_title       VARCHAR(300),
-  source_type        VARCHAR(20) NOT NULL, 
-  volume             VARCHAR(50),
+  issue              VARCHAR,
+  publication_year   VARCHAR,
+  publisher_address  VARCHAR,
+  publisher_name     VARCHAR,
+  source_id          VARCHAR PRIMARY KEY USING INDEX TABLESPACE index_tbs,
+  source_title       VARCHAR,
+  source_type        VARCHAR NOT NULL,
+  volume             VARCHAR,
   last_updated_time  TIMESTAMP DEFAULT current_timestamp
 ) TABLESPACE dblp_tbs;
 
@@ -73,9 +73,9 @@ IS ' Example: 202';
 
 CREATE TABLE dblp_document_identifiers (
   id                SERIAL,
-  source_id         VARCHAR(100)  NOT NULL DEFAULT '',
-  document_id       VARCHAR(300) NOT NULL DEFAULT '',
-  document_id_type  VARCHAR(30)  NOT NULL DEFAULT '',
+  source_id         VARCHAR  NOT NULL DEFAULT '',
+  document_id       VARCHAR NOT NULL DEFAULT '',
+  document_id_type  VARCHAR  NOT NULL DEFAULT '',
   last_updated_time TIMESTAMP             DEFAULT current_timestamp,
   CONSTRAINT dblp_document_identifiers_pk PRIMARY KEY (source_id, document_id_type, document_id)
 ) TABLESPACE dblp_tbs;
@@ -100,13 +100,13 @@ IS 'url/ee/isbn/crossref etc.. Example: url';
 
 CREATE TABLE dblp_authors (
   id                SERIAL,
-  source_id         VARCHAR(100) NOT NULL DEFAULT '',
-  full_name         VARCHAR(200),
-  last_name         VARCHAR(200),
-  first_name        VARCHAR(200),
+  source_id         VARCHAR NOT NULL DEFAULT '',
+  full_name         VARCHAR,
+  last_name         VARCHAR,
+  first_name        VARCHAR,
   seq_no            INTEGER     NOT NULL DEFAULT 0,
-  orc_id            VARCHAR(30),
-  editor_name 		VARCHAR(200),
+  orc_id            VARCHAR,
+  editor_name 		VARCHAR,
   last_updated_time TIMESTAMP            DEFAULT current_timestamp,
   CONSTRAINT dblp_authors_pk PRIMARY KEY (source_id, seq_no)
 
@@ -115,8 +115,8 @@ CREATE TABLE dblp_authors (
 
 CREATE TABLE dblp_references (
   dblp_reference_id   SERIAL,
-  source_id          VARCHAR(100) NOT NULL,
-  cited_source_id   VARCHAR(100) NOT NULL, 
+  source_id          VARCHAR NOT NULL,
+  cited_source_id   VARCHAR NOT NULL, 
   last_updated_time  TIMESTAMP DEFAULT current_timestamp
 ) TABLESPACE dblp_tbs;
 

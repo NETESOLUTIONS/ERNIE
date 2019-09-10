@@ -3,14 +3,12 @@ if [[ "$1" == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
 
-    process_update_directory.sh -- process a directory of Scopus data
+    process_data_directory.sh -- process a directory of Scopus data for either update or smokeload job
 
 SYNOPSIS
 
-    process_update_directory.sh [-c] [-e] [-v] [-v] [-s subset_SP] [-t tmp_dir] [-f failed_files_dir] [working_dir]
-    process_update_directory.sh -h: display this help
-
-    This script is based on process_directory.sh. It is modified slightly to deal with the unzipped structure of the weekly data.
+    process_data_directory.sh -u|-k [-e] [-v] [-v] [-s subset_SP] [-t tmp_dir] [-f failed_files_dir] [working_dir]
+    process_data_directory.sh -h: display this help
 
 DESCRIPTION
 
@@ -21,7 +19,15 @@ DESCRIPTION
 
     The following options are available:
 
-    -e    stop on the first error. Parsing and other SQL errors don't fail the build unless `-e` is specified.
+    -u    update job: specifies that the job is an update versus smokeload
+
+    -k    smokeload job : specificies that the job is a smokeload versus update
+
+    -n    number of jobs, n=1 then serial, n > 1 parallel
+
+    -e    stop on the first error. Parsing and other SQL errors don't stop the script unless `-e` is specified.
+
+    -p    create a process log which is used as part of the update job
 
     -v    verbose output: print processed XML files and error details as errors occur
 
@@ -46,11 +52,11 @@ EXAMPLES
 
     To run in verbose mode and stop on the first error:
 
-      $ ./process_update_directory.sh -e -v /erniedev_data3/Scopus-testing
+      $ ./process_directory.sh -e -v /erniedev_data3/Scopus-testing
 
     To run a parser subset and stop on the first error:
 
-      ll ../failed$ ./process_update_directory.sh -s scopus_parse_grants -e /erniedev_data3/Scopus-testing
+      ll ../failed$ ./process_directory.sh -s scopus_parse_grants -e /erniedev_data3/Scopus-testing
 
 HEREDOC
   exit 1
@@ -65,57 +71,70 @@ readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx ERROR_LOG=error.log
 declare -rx PARALLEL_LOG=parallel.log
+declare  NUM_JOBS=8
 
-PROCESSED_LOG="../processed.log"
+
 FAILED_FILES_DIR="../failed"
+PROCESSED_LOG="../processed.log"
 
-echo -e "\nprocess_update_directory.sh ..."
+echo -e "\nprocess_data_directory.sh ..."
 
-while (( $# > 0 )); do
+while (($# > 0)); do
   echo "Using CLI arg '$1'"
   case "$1" in
-    -e)
-      readonly STOP_ON_THE_FIRST_ERROR=true
-#      echo "process_update_directory.sh should stop on the first error."
-      ;;
-    -f)
-      shift
-      echo "Using CLI arg '$1'"
-      readonly FAILED_FILES_DIR="$1"
-      ;;
-    -p)
-      shift
-      echo "Using CLI arg '$1'"
-      readonly PROCESSED_LOG="$1"
-      ;;
-    -s)
-      shift
-      echo "Using CLI arg '$1'"
-      readonly SUBSET_SP=$1
-      ;;
-    -t)
-      shift
-      tmp=$1
-      ;;
-    -v)
-      # Second "-v" = extra verbose?
-      if [[ "$VERBOSE" == "true" ]]; then
-        set -x
-      else
-        declare -rx VERBOSE=true
-      fi
-      ;;
-    *)
-      cd "$1"
+  -u)
+    readonly UPDATE_JOB=true
+    ;;
+  -k)
+    readonly SMOKELOAD_JOB=true
+    ;;
+  -n)
+    shift
+    echo "Using CLI arg '$1'"
+    NUM_JOBS="$1"
+    ;;
+  -e)
+    readonly STOP_ON_THE_FIRST_ERROR=true
+    ;;
+  -p)
+    shift
+    echo "Using CLI arg '$1'"
+    readonly PROCESSED_LOG="$1"
+    ;;
+  -f)
+    shift
+    echo "Using CLI arg '$1'"
+    readonly FAILED_FILES_DIR="$1"
+    ;;
+  -s)
+    shift
+    echo "Using CLI arg '$1'"
+    readonly SUBSET_SP=$1
+    ;;
+  -t)
+    shift
+    readonly TMP_DIR=$1
+    ;;
+  -v)
+    # Second "-v" = extra verbose?
+    if [[ "$VERBOSE" == "true" ]]; then
+      set -x
+    else
+      declare -rx VERBOSE=true
+    fi
+    ;;
+  *)
+    cd "$1"
+    ;;
   esac
   shift
 done
 
-if [[ ! ${tmp} ]]; then
+if [[ ! ${TMP_DIR} ]]; then
   if [[ ${SUBSET_SP} ]]; then
-    tmp="tmp-${SUBSET_SP}"
+    readonly TMP_DIR="tmp-${SUBSET_SP}"
   else
-    tmp="tmp"
+    readonly TMP_DIR="tmp"
   fi
 fi
 
@@ -139,14 +158,16 @@ parse_xml() {
     [[ ${VERBOSE} == "true" ]] && echo "$xml: SUCCESSFULLY PARSED."
     return 0
   else
+    [[ ${VERBOSE} == "true" ]] && echo "$xml parsing FAILED.\n"
+    echo -e "$xml parsing FAILED.\n" >>"${ERROR_LOG}"
+
     local full_xml_path=$(realpath ${xml})
     local full_error_log_path=$(realpath ${ERROR_LOG})
     cd ..
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     mv -f $full_xml_path "${failed_files_dir}/"
     cp $full_error_log_path "${failed_files_dir}/"
-    cd ${tmp}
-    [[ ${VERBOSE} == "true" ]] && echo "$xml: FAILED DURING PARSING."
+    cd "${TMP_DIR}"
     return 1
   fi
 }
@@ -167,6 +188,8 @@ HEREDOC
   fi
 }
 
+# Create an empty file if it does not exist to simplify check condition below
+touch "${PROCESSED_LOG}"
 [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
 process_start_time=$(date '+%s')
 for scopus_data_archive in *.zip; do
@@ -178,14 +201,16 @@ for scopus_data_archive in *.zip; do
     # Reduced verbosity
     # -u extracting files that are newer and files that do not already exist on disk
     # -q perform operations quietly
-    unzip -u -q "${scopus_data_archive}" -d ${tmp}
+    unzip -u -q "${scopus_data_archive}" -d "${TMP_DIR}"
 
     export failed_files_dir="${FAILED_FILES_DIR}/${scopus_data_archive}"
-    cd ${tmp}
+    cd "${TMP_DIR}"
     rm -f "${ERROR_LOG}"
 
-    if ! find -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} --joblog ${PARALLEL_LOG} --line-buffer \
-        --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}; then
+    if
+      ! find -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} -j ${NUM_JOBS}  --joblog ${PARALLEL_LOG} --line-buffer \
+      --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}
+    then
       [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
     fi
     while read -r line; do
@@ -203,6 +228,7 @@ for scopus_data_archive in *.zip; do
     echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"
     if ((failed_xml_counter == 0)); then
       echo "ALL IS WELL"
+      echo "${scopus_data_archive}" >>"${PROCESSED_LOG}"
     else
       echo "FAILED PARSING ${failed_xml_counter} XML FILES"
     fi
@@ -210,8 +236,6 @@ for scopus_data_archive in *.zip; do
     failed_xml_counter=0
     ((processed_xml_counter_total += processed_xml_counter)) || :
     processed_xml_counter=0
-    echo "${scopus_data_archive}" >> "${PROCESSED_LOG}"
-    rm -rf ${tmp}
 
     if [[ -f "${STOP_FILE}" ]]; then
       echo -e "\nFound the stop signal file. Gracefully stopping..."
@@ -224,8 +248,8 @@ for scopus_data_archive in *.zip; do
     ((delta_m = (delta / 60) % 60)) || :
     ((della_h = delta / 3600)) || :
     printf "$(TZ=America/New_York date) :  Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds\n" ${della_h} \
-           ${delta_m} ${delta_s}
-    if (( i < num_zips )); then
+    ${delta_m} ${delta_s}
+    if ((i < num_zips)); then
       ((elapsed = elapsed + delta))
       ((est_total = num_zips * elapsed / i)) || :
       ((eta = process_start_time + est_total))
@@ -242,10 +266,11 @@ else
   echo "FAILED PARSING ${failed_xml_counter_total} XML FILES"
 fi
 
-for directory in "${FAILED_FILES_DIR}"; do
-  cd $directory
+if [[ -d "${TMP_DIR}" ]]; then
+  cd "${TMP_DIR}"
   check_errors # Exits here if errors occurred
   cd
-done
+  rm -rf "${TMP_DIR}"
+fi
 
 exit 0

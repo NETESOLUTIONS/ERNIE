@@ -1,0 +1,4 @@
+The Elsevier Fingerprint Engine (FPE) is a tool that allows us to create fingerprint vectors for documents based on their titles and abstracts. The FPE itself allows for use of several different workflows that correspond to different controlled vocabularies such as MeSH, Embase, and more. Use of these vocabularies allows for the creation of sets of vectors that represent a document, all limited to the concepts/terms provided by that workflow. Information such as concept frequency within the document and concept concept rank within the document is also returned during fingerprinting. The end result is that a these fingerprint vectors can be used to calculate similarity scores between documents, construct indexes, perform information retrieval tasks and more.
+
+In general, the steps are the following:
+1) Isolate a document or set of documents that you are interested in fingerprinting. These can be anything really, from articles to grants.

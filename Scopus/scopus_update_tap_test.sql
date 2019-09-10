@@ -16,7 +16,8 @@
  \timing
  \set ON_ERROR_STOP on
  \set ECHO all
- \set TOTAL_NUM_ASSERTIONS 58
+ \set TOTAL_NUM_ASSERTIONS 58 -- However, Jenkins can run tests without plan,  but serves a good indicator of the number of affirmations
+
  SET TIMEZONE = 'US/Eastern';
  SET SEARCH_PATH = public;
 
@@ -48,7 +49,7 @@ RETURN NEXT has_table('scopus_publication_groups', 'scopus_publication_groups ex
 RETURN NEXT has_table('scopus_publication_identifiers', 'scopus_publication_identifiers exists');
 RETURN NEXT has_table('scopus_publications', 'scopus_publications exists');
 RETURN NEXT has_table('scopus_references', 'scopus_references exists');
-RETURN NEXT has_table('scopus_publication_details', 'scopus_publication_details exists');
+RETURN NEXT has_table('scopus_source_publication_details', 'scopus_source_publication_details exists');
 RETURN NEXT has_table('scopus_sources', 'scopus_sources exists');
 RETURN NEXT has_table('scopus_subject_keywords', 'scopus_subject_keywords exists');
 RETURN NEXT has_table('scopus_subjects', 'scopus_subjects exists');
@@ -174,9 +175,7 @@ $$ language plpgsql;
 -- END;
 -- $$ LANGUAGE plpgsql;
 
- 3 # Assertion : are any tables completely null for every field  (Y/N?)
-
- Test if there is any 100% null columns
+ -- 3 # Assertion : are any tables completely null for every field  (Y/N?)
 
 CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scopus_tables()
  RETURNS SETOF TEXT
@@ -189,7 +188,7 @@ CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scop
     EXECUTE format('ANALYZE verbose %I;',tab.table_name);
   END LOOP;
    RETURN NEXT is_empty( 'select tablename, attname from pg_stats
-    where schemaname = ''public'' and tablename in LIKE ''scopus%'' AND NOT LIKE ''scopus_com%'' AND NOT LIKE ''scopus_year%'' and null_frac = 1', 'No 100% null column');
+    where (schemaname = ''public'') and (tablename LIKE ''scopus%'') AND and null_frac = 1', 'No 100% null column');
  END;
  $$ LANGUAGE plpgsql;
 
@@ -215,8 +214,8 @@ CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scop
  END;
  $$ LANGUAGE plpgsql;
 
-Run functions
-Start transaction and plan the tests.
+-- Run functions
+-- Start transaction and plan the tests.
 
 BEGIN;
 SELECT plan(:TOTAL_NUM_ASSERTIONS);
@@ -227,8 +226,6 @@ select test_that_publication_number_increase_after_weekly_scopus_update();
 SELECT pass( 'My test passed!');
 select * from finish();
 ROLLBACK;
-END$$;
-
 
 \echo 'Testing process is over!'
 

@@ -17,7 +17,7 @@
 \timing
 \set ON_ERROR_STOP on
 \set ECHO all
-\set TOTAL_NUM_ASSERTIONS 58
+\set TOTAL_NUM_ASSERTIONS 14 -- However, Jenkins can run tests without plan,  but serves a good indicator of the number of affirmations
 
 \echo 'Update process complete!'
 
@@ -31,7 +31,7 @@ BEGIN
 RETURN NEXT has_table('fda_patents' ,'fda_patents exists');
 RETURN NEXT has_table('fda_exclusivities' ,'fda_exclusivities exists');
 RETURN NEXT has_table('fda_products' ,'fda_products exists');
-RETURN NEXT has_table('fda_orange_book' ,'fda_orange_book exists');
+RETURN NEXT has_table('fda_purple_book' ,'fda_purple_book exists');
 END;
 $$ language plpgsql;
 
@@ -43,7 +43,7 @@ BEGIN
 RETURN NEXT has_pk('fda_patents' ,'fda_patents has appl_no, product_no, type as primary key ');
 RETURN NEXT has_pk('fda_exclusivities' ,'fda_exclusivities has appl_no, product_no, type as primary key ');
 RETURN NEXT has_pk('fda_products' ,'fda_products has appl_no, product_no, type as primary key ');
-RETURN NEXT has_pk('fda_orange_book' ,'fda_orange_book has BLAST # as primary key ');
+RETURN NEXT has_pk('fda_purple_book' ,'fda_purple_book has BLAST # as primary key ');
 END;
 $$ language plpgsql;
 
@@ -68,7 +68,7 @@ FOR tab IN
    EXECUTE format('ANALYZE verbose %I;',tab.table_name);
  END LOOP;
   RETURN NEXT is_empty( 'select tablename, attname from pg_stats
-   where schemaname = ''public'' and tablename in LIKE ''fda%'' and null_frac = 1', 'No 100% null column');
+   where schemaname = ''public'' and tablename LIKE ''fda%'' and null_frac = 1', 'No 100% null column');
 END;
 $$ LANGUAGE plpgsql;
 
@@ -89,13 +89,12 @@ BEGIN
   WHERE num_products IS NOT NULL AND id != (SELECT id FROM update_log_fda WHERE num_products IS NOT NULL ORDER BY id DESC LIMIT 1)
   ORDER BY id DESC LIMIT 1;
 
-  return next ok(new_num > old_num, 'The number of products in the orange book has increased from latest update!');
+  return next ok(new_num > old_num, 'The number of products has increased from latest update!');
 
 END;
 $$ LANGUAGE plpgsql;
 
 -- 5.2 # Assertion: is there an increase in patents ?
-
 
 CREATE OR REPLACE FUNCTION test_that_patent_number_increase_after_weekly_fda_update()
 RETURNS SETOF TEXT
@@ -104,15 +103,15 @@ DECLARE
   new_num integer;
   old_num integer;
 BEGIN
-  SELECT num_patents into new_num FROM update_log_fda
-  WHERE num_patents IS NOT NULL
+  SELECT num_patent into new_num FROM update_log_fda
+  WHERE num_patent IS NOT NULL
   ORDER BY id DESC LIMIT 1;
 
-  SELECT num_patents into old_num FROM update_log_fda
-  WHERE num_patents IS NOT NULL AND id != (SELECT id FROM update_log_fda WHERE num_patents IS NOT NULL ORDER BY id DESC LIMIT 1)
+  SELECT num_patent into old_num FROM update_log_fda
+  WHERE num_patent IS NOT NULL AND id != (SELECT id FROM update_log_fda WHERE num_patent IS NOT NULL ORDER BY id DESC LIMIT 1)
   ORDER BY id DESC LIMIT 1;
 
-  return next ok(new_num > old_num, 'The number of orange book patents has increased from latest update!');
+  return next ok(new_num > old_num, 'The number of patents has increased from latest update!');
 
 END;
 $$ LANGUAGE plpgsql;
@@ -134,7 +133,7 @@ BEGIN
   WHERE num_exclusivity IS NOT NULL AND id != (SELECT id FROM update_log_fda WHERE num_exclusivity IS NOT NULL ORDER BY id DESC LIMIT 1)
   ORDER BY id DESC LIMIT 1;
 
-  return next ok(new_num > old_num, 'The number of clinical trial records has increased from latest update!');
+  return next ok(new_num > old_num, 'The number of exclusivities has increased from latest update!');
 
 END;
 $$ LANGUAGE plpgsql;
@@ -148,14 +147,12 @@ select test_that_all_fda_tables_exist();
 select test_that_all_fda_tables_have_pk();
 select test_that_fda_tablespace_exists();
 select test_that_there_is_no_100_percent_NULL_column_in_fda_tables();
-select test_that_products_number_increase_after_weekly_fda_update();
+select test_that_product_number_increase_after_weekly_fda_update();
 select test_that_patent_number_increase_after_weekly_fda_update();
 select test_that_exclusivity_number_increase_after_weekly_fda_update();
 SELECT pass( 'My test passed!');
 select * from finish();
 ROLLBACK;
-END$$;
-
 
 \echo 'Testing process is over!'
 

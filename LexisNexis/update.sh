@@ -157,32 +157,31 @@ HEREDOC
 mkdir -p "${FAILED_FILES_DIR}"
 mkdir -p API_downloads
 # Ping API to produce update files for us
-#echo "Starting IPDD API update script..."
-#/anaconda3/bin/python ${ABSOLUTE_SCRIPT_DIR}/IPDD_API/retrieve_api_data.py -U ${IPDD_USERNAME} -W ${IPDD_PASSWORD} -R ${IPDD_SERVICE_REFERENCE} -D EP US
+echo "Starting IPDD API update script..."
+/anaconda3/bin/python ${ABSOLUTE_SCRIPT_DIR}/IPDD_API/retrieve_api_data.py -U ${IPDD_USERNAME} -W ${IPDD_PASSWORD} -R ${IPDD_SERVICE_REFERENCE} -D EP US
 
-#TODO: Implement lftp downloads and write files to API downloads since all data is pushed into the FTP server. This is probably a better option than using pure python since it leaves us with a more readable processed log file
-#echo "Checking server for files..."
-#lftp -u ${IPDD_USERNAME},${IPDD_PASSWORD} ftp-ipdatadirect.lexisnexis.com <<HEREDOC
-#nlist >> ftp_filelist.txt
-#quit
-#HEREDOC
+echo "Checking server for files..."
+lftp -u ${IPDD_USERNAME},${IPDD_PASSWORD} ftp-ipdatadirect.lexisnexis.com <<HEREDOC
+nlist >> ftp_filelist.txt
+quit
+HEREDOC
 
 # Download files if any new or missed ones are available
-#cat >group_download.sh <<HEREDOC
-#lftp -u ${IPDD_USERNAME},${IPDD_PASSWORD} ftp-ipdatadirect.lexisnexis.com <<SCRIPTEND
-#lcd API_downloads/
-#HEREDOC
-#grep -F -x -v --file=processed.log ftp_filelist.txt | \
-#   sed 's/.*/mirror -v --use-pget -i &/' >>group_download.sh || { echo "Nothing to download" && exit 0; }
-#cat >>group_download.sh <<HEREDOC
-#quit
-#SCRIPTEND
+cat >group_download.sh <<HEREDOC
+lftp -u ${IPDD_USERNAME},${IPDD_PASSWORD} ftp-ipdatadirect.lexisnexis.com <<SCRIPTEND
+lcd API_downloads/
+HEREDOC
+grep -F -x -v --file=processed.log ftp_filelist.txt | \
+   sed 's/.*/mirror -v --use-pget -i &/' >>group_download.sh || { echo "Nothing to download" && exit 0; }
+cat >>group_download.sh <<HEREDOC
+quit
+SCRIPTEND
 
-#HEREDOC
+HEREDOC
 
-#echo "Downloading from IPDD ..."
-#bash -xe group_download.sh
-#echo "Download finished."
+echo "Downloading from IPDD ..."
+bash -xe group_download.sh
+echo "Download finished."
 
 declare -i num_zips=$(ls API_downloads/*.zip | wc -l)
 declare -i failed_xml_counter=0 failed_xml_counter_total=0 processed_xml_counter=0 processed_xml_counter_total=0
@@ -274,6 +273,6 @@ done
 
 declare -i days_to_keep_zip_files=90
 echo "Removing files older than ${days_to_keep_zip_files} days ..."
-find API_downloads/ -type f -mtime +$((days_to_keep_zip_files - 1)) -print -delete
+find ${WORK_DIR}/API_downloads/ -type f -mtime +$((days_to_keep_zip_files - 1)) -print -delete
 
 exit 0

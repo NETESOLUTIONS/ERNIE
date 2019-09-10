@@ -32,7 +32,7 @@ def main():
 			with open(input_filename,'r') as f:
 				init_buffer_REC = '<?xml version="1.0" encoding="ISO-8859-1"?>'
 				#init_buffer_REC = init_buffer_REC + '<!DOCTYPE dblp SYSTEM "dblp.dtd" [<!ENTITY ouml  "&#246;" ><!ENTITY uuml    "&#252;" ><!ENTITY aacute  "&#225;" >]>'
-				init_buffer_REC = init_buffer_REC + '<!DOCTYPE dblp SYSTEM "/erniedev_data8/dblp/dblp.dtd">'
+				init_buffer_REC = init_buffer_REC + '<!DOCTYPE dblp SYSTEM "/erniedev_data3/dblp/dblp.dtd">'
 				init_buffer_REC = init_buffer_REC + '<dblp>'
 				buffer_REC = ''
 				counter=0
@@ -52,7 +52,7 @@ def main():
 							buffer_REC=''.join([buffer_REC,'</dblp>'])
 							#print(buffer_REC)
 							
-							if recordNo > 4506000:
+							if recordNo > 0:
 								r_parser=parser.Parser()
 								r_parser.parse(buffer_REC,input_filename,curs)
 								status+=1

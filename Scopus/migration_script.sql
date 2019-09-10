@@ -43,3 +43,31 @@ ALTER TABLE scopus_sources
 -- droping issn_electronic column
 ALTER TABLE scopus_sources
   DROP COLUMN issn_electronic;
+
+-- Updating scopus_sources.issn_main with missing issns from scopus_issns
+-- First step updating with issn_type print, 2nd step with type electronic
+-- Dropping unique index for scopus_sources which will be added later
+DROP INDEX scopus_sources_source_id_issn_isbn_uk;
+
+
+UPDATE scopus_sources ss
+SET issn_main=scopus_temp.issn
+FROM (SELECT * FROM scopus_issns WHERE issn_type = 'print') scopus_temp
+WHERE ss.ernie_source_id = scopus_temp.ernie_source_id
+  AND (ss.issn_main = ''
+    OR ss.issn_main = ' ');
+
+UPDATE scopus_sources ss
+SET issn_main=scopus_temp.issn
+FROM (SELECT * FROM scopus_issns WHERE issn_type = 'electronic') scopus_temp
+WHERE ss.ernie_source_id = scopus_temp.ernie_source_id
+  AND (ss.issn_main = ''
+    OR ss.issn_main = ' ');
+    
+-- updating missing isbns in scopus_sources from scopus_isbns
+
+UPDATE public.scopus_sources ss
+SET isbn_main=scopus_temp.isbn
+FROM (SELECT * FROM scopus_isbns WHERE isbn_type ISNULL) scopus_temp
+WHERE ss.ernie_source_id = scopus_temp.ernie_source_id
+  AND (ss.isbn_main = '' OR ss.isbn_main = ' ');
