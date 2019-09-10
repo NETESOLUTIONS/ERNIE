@@ -230,8 +230,7 @@ for scopus_data_archive in *.zip; do
     echo -e "TRUNCATING STAGING TABLES..."
     psql -c "set search_path='jenkins'; \
     call truncate_stg_table();"
-    echo -e "\nTRUNCATING FINISHED"
-
+    echo -e "TRUNCATING FINISHED"
     echo "SUMMARY FOR ${scopus_data_archive}:"
     echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"
     if ((failed_xml_counter == 0)); then

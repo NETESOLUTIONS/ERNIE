@@ -1,4 +1,10 @@
 set search_path='jenkins';
+\set ON_ERROR_STOP on
+\set ECHO all
+
+-- DataGrip: start execution from here
+SET TIMEZONE = 'US/Eastern';
+
 create or replace procedure stg_scopus_parse_abstracts_and_titles(scopus_doc_xml xml)
     language plpgsql
 as
