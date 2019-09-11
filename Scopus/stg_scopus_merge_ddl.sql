@@ -268,15 +268,16 @@ $$
 BEGIN
 INSERT INTO scopus_sources(ernie_source_id, source_id, issn_main, isbn_main, source_type, source_title,
                            coden_code, publisher_name, publisher_e_address, pub_date)
-SELECT source_id,
+SELECT max(ernie_source_id) as ernie_source_id,
+       source_id,
        issn_main,
        isbn_main,
-          string_agg(source_type, ' ')         as source_type,
+        string_agg(source_type, ' ')         as source_type,
            string_agg(source_title, ' ')        as source_title,
            string_agg(coden_code, ' ')          as coden_code,
            string_agg(publisher_name, ' ')      as publisher_name,
            string_agg(publisher_e_address, ' ') as publisher_e_address,
-           string_agg(pub_date, ' ') as pud_date
+           string_agg(pub_date, ' ') as pub_date
 FROM stg_scopus_sources
 group by source_id, issn_main, isbn_main, pub_date
 ON CONFLICT (source_id, issn_main, isbn_main)
