@@ -266,7 +266,7 @@ create procedure stg_scopus_merge_source_and_conferences()
 as
 $$
 BEGIN
-INSERT INTO scopus_sources(source_id, issn_main, isbn_main, source_type, source_title,
+INSERT INTO scopus_sources(ernie_source_id, source_id, issn_main, isbn_main, source_type, source_title,
                            coden_code, publisher_name, publisher_e_address, pub_date)
 SELECT source_id,
        issn_main,
@@ -276,7 +276,7 @@ SELECT source_id,
            string_agg(coden_code, ' ')          as coden_code,
            string_agg(publisher_name, ' ')      as publisher_name,
            string_agg(publisher_e_address, ' ') as publisher_e_address,
-       pub_date
+           string_agg(pub_date, ' ') as pud_date
 FROM stg_scopus_sources
 group by source_id, issn_main, isbn_main, pub_date
 ON CONFLICT (source_id, issn_main, isbn_main)
@@ -311,7 +311,8 @@ ON CONFLICT (ernie_source_id, issn, issn_type) DO UPDATE SET issn=excluded.issn,
 INSERT INTO scopus_conference_events(conf_code, conf_name, conf_address, conf_city, conf_postal_code,
                                      conf_start_date,
                                      conf_end_date, conf_number, conf_catalog_number)
-select conf_code,
+select distinct
+       conf_code,
        conf_name,
        conf_address,
        conf_city,
