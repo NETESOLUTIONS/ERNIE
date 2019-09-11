@@ -12,7 +12,7 @@ as
 $$
 BEGIN
     INSERT INTO scopus_abstracts(scp, abstract_language, abstract_source)
-    SELECT stg.scp,
+    SELECT DISTINCT stg.scp,
            stg.abstract_language,
            stg.abstract_source
     FROM stg_scopus_abstracts stg

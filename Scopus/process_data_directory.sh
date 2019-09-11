@@ -223,14 +223,15 @@ for scopus_data_archive in *.zip; do
     rm -rf "${PARALLEL_LOG}"
 
     cd ..
-    ## sql script that inserts from staging table into
-    echo -e "Merging staging into SCOPUS TABLES..."
+    ## sql script that inserts from staging table into scopus
+    echo -e "Merging staging into Scopus tables..."
     psql -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
-    echo -e "MERGING STAGING INTO SCOPUS TABLES FINISHED"
-    echo -e "TRUNCATING STAGING TABLES..."
+    echo -e "Merging finished"
+    echo -e "Truncating staging tables..."
+    ## calling a procedure that truncates the staging tables
     psql -c "set search_path='jenkins'; \
     call truncate_stg_table();"
-    echo -e "TRUNCATING FINISHED"
+    echo -e "Truncating finished"
     echo "SUMMARY FOR ${scopus_data_archive}:"
     echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"
     if ((failed_xml_counter == 0)); then
