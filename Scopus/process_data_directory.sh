@@ -225,7 +225,8 @@ for scopus_data_archive in *.zip; do
     cd ..
     ## sql script that inserts from staging table into
     echo -e "MERGING STAGING INTO SCOPUS TABLES..."
-    psql -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
+    psql -c "set search_path='jenkins'\
+    call insert_scopus_table()"
     echo -e "MERGING STAGING INTO SCOPUS TABLES FINISHED"
     echo -e "TRUNCATING STAGING TABLES..."
     psql -c "set search_path='jenkins'; \
