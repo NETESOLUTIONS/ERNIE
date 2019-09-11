@@ -9,7 +9,7 @@ $block$
         call ernie.jenkins.stg_scopus_merge_pub_details_subjects_and_classes();
         call ernie.jenkins.stg_scopus_merge_publication_and_group();
         call ernie.jenkins.stg_scopus_merge_publication_identifiers();
-        call ernie.jenkins.stg_scopus_merge_scopus_references();
+        call ernie.jenkins.stg_scopus_merge_references();
         call ernie.jenkins.stg_scopus_merge_source_and_conferences();
     END
 $block$;

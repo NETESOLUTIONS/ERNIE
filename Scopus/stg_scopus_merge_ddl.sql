@@ -20,9 +20,10 @@ BEGIN
 -----------------------------------------
     INSERT INTO scopus_titles(scp, title, language)
     SELECT stg.scp,
-           stg.title,
-           stg.language
+           max(title) as title,
+           max(language) as language
     FROM stg_scopus_titles stg
+    GROUP BY scp
     ON CONFLICT (scp, language) DO UPDATE SET title=excluded.title;
 END
 $$;
@@ -38,12 +39,14 @@ BEGIN
            author_seq,
            auid,
            author_indexed_name,
-           author_surname,
-           author_given_name,
-           author_initials,
-           author_e_address,
-           author_rank
+           max(author_surname)    as author_surname,
+            max(author_given_name) as author_given_name,
+                max(author_initials)   as author_initials,
+                max(author_e_address)  as author_e_address,
+                ROW_NUMBER() over (PARTITION BY scp ORDER BY author_seq, author_indexed_name) as author_rank
     FROM stg_scopus_authors stg
+        GROUP BY scp, author_seq, auid, author_indexed_name
+
     ON CONFLICT (scp, author_seq) DO UPDATE SET auid=excluded.auid,
                                                 author_surname=excluded.author_surname,
                                                 author_given_name=excluded.author_given_name,
@@ -76,7 +79,7 @@ BEGIN
                                                     country=excluded.country;
 --------------------------------------------
     insert into scopus_author_affiliations(scp, author_seq, affiliation_no)
-    select scp,
+    select distinct scp,
            author_seq,
            affiliation_no
     from stg_scopus_author_affiliations
@@ -85,29 +88,18 @@ BEGIN
 END
 $$;
 
-create procedure stg_scopus_merge_grants()
+create or replace procedure stg_scopus_merge_chemical_groups()
     language plpgsql
 as
 $$
 BEGIN
-insert into scopus_grants(scp, grant_id, grantor_acronym, grantor,
-                          grantor_country_code, grantor_funder_registry_id)
-select scp,
-       grant_id,
-       grantor_acronym,
-       grantor,
-       grantor_country_code,
-       grantor_funder_registry_id
-from stg_scopus_grants
-ON CONFLICT (scp, grant_id, grantor) DO UPDATE SET grantor_acronym=excluded.grantor_acronym,
-                                                   grantor_country_code=excluded.grantor_country_code,
-                                                   grantor_funder_registry_id=excluded.grantor_funder_registry_id;
-
-INSERT INTO scopus_grant_acknowledgements(scp, grant_text)
-select scp,
-       grant_text
-from stg_scopus_grant_acknowledgements
-ON CONFLICT (scp) DO UPDATE SET grant_text=excluded.grant_text;
+    INSERT INTO scopus_chemical_groups(scp, chemicals_source, chemical_name, cas_registry_number)
+    select scp,
+           chemicals_source,
+           chemical_name,
+           cas_registry_number
+    from stg_scopus_chemical_groups
+    ON CONFLICT (scp, chemical_name, cas_registry_number) DO UPDATE SET chemicals_source=excluded.chemicals_source;
 END
 $$;
 
@@ -120,11 +112,12 @@ insert into scopus_grants(scp, grant_id, grantor_acronym, grantor,
                           grantor_country_code, grantor_funder_registry_id)
 select scp,
        grant_id,
-       grantor_acronym,
+        max(grantor_acronym) as grantor_acronym,
        grantor,
-       grantor_country_code,
-       grantor_funder_registry_id
+       max(grantor_country_code) as grantor_country_code,
+       max(grantor_funder_registry_id) as grantor_funder_registry_id
 from stg_scopus_grants
+GROUP BY scp, grant_id, grantor
 ON CONFLICT (scp, grant_id, grantor) DO UPDATE SET grantor_acronym=excluded.grantor_acronym,
                                                    grantor_country_code=excluded.grantor_country_code,
                                                    grantor_funder_registry_id=excluded.grantor_funder_registry_id;
@@ -143,7 +136,7 @@ as
 $$
 BEGIN
 INSERT INTO scopus_keywords(scp, keyword)
-SELECT scp,
+SELECT DISTNCT scp,
        keyword
 FROM stg_scopus_keywords
 ON CONFLICT (scp, keyword) DO UPDATE SET keyword=excluded.keyword;
@@ -278,13 +271,14 @@ INSERT INTO scopus_sources(source_id, issn_main, isbn_main, source_type, source_
 SELECT source_id,
        issn_main,
        isbn_main,
-       source_type,
-       source_title,
-       coden_code,
-       publisher_name,
-       publisher_e_address,
+          string_agg(source_type, ' ')         as source_type,
+           string_agg(source_title, ' ')        as source_title,
+           string_agg(coden_code, ' ')          as coden_code,
+           string_agg(publisher_name, ' ')      as publisher_name,
+           string_agg(publisher_e_address, ' ') as publisher_e_address,
        pub_date
 FROM stg_scopus_sources
+group by source_id, issn_main, isbn_main, pub_date
 ON CONFLICT (source_id, issn_main, isbn_main)
     DO UPDATE SET source_id           = EXCLUDED.source_id,
                   issn_main           = EXCLUDED.issn_main,
@@ -297,7 +291,7 @@ ON CONFLICT (source_id, issn_main, isbn_main)
                   pub_date=EXCLUDED.pub_date;
 
 INSERT INTO scopus_isbns(ernie_source_id, isbn, isbn_length, isbn_type, isbn_level)
-select ernie_source_id,
+select distinct ernie_source_id,
        isbn,
        isbn_length,
        isbn_type,
