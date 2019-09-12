@@ -268,29 +268,27 @@ $$
 BEGIN
 INSERT INTO scopus_sources(ernie_source_id, source_id, issn_main, isbn_main, source_type, source_title,
                            coden_code, publisher_name, publisher_e_address, pub_date)
-SELECT max(ernie_source_id) as ernie_source_id,
-       source_id,
-       issn_main,
-       isbn_main,
-        string_agg(source_type, ' ')         as source_type,
-           string_agg(source_title, ' ')        as source_title,
-           string_agg(coden_code, ' ')          as coden_code,
-           string_agg(publisher_name, ' ')      as publisher_name,
-           string_agg(publisher_e_address, ' ') as publisher_e_address,
-           string_agg(pub_date, ' ') as pub_date
-FROM stg_scopus_sources
-group by source_id, issn_main, isbn_main, pub_date
-ON CONFLICT (source_id, issn_main, isbn_main)
-    DO UPDATE SET source_id           = EXCLUDED.source_id,
-                  issn_main           = EXCLUDED.issn_main,
-                  isbn_main           = EXCLUDED.isbn_main,
-                  source_type         = EXCLUDED.source_type,
-                  source_title        = EXCLUDED.source_title,
-                  coden_code          = EXCLUDED.coden_code,
-                  publisher_name      = EXCLUDED.publisher_name,
-                  publisher_e_address = EXCLUDED.publisher_e_address,
-                  pub_date=EXCLUDED.pub_date;
-
+INSERT INTO scopus_sources(ernie_source_id, source_id, issn_main, isbn_main, source_type, source_title,
+                           coden_code, publisher_name, publisher_e_address, pub_date)
+SELECT DISTINCT ON (source_id, issn_main, isbn_main) max(ernie_source_id)                 as ernie_source_id,
+                                                     source_id,
+                                                     issn_main,
+                                                     isbn_main,
+                                                     string_agg(source_type, ' ')         as source_type,
+                                                     string_agg(source_title, ' ')        as source_title,
+                                                     string_agg(coden_code, ' ')          as coden_code,
+                                                     string_agg(publisher_name, ' ')      as publisher_name,
+                                                     string_agg(publisher_e_address, ' ') as publisher_e_address,
+                                                     max(pub_date)                        as pub_date
+FROM jenkins.stg_scopus_sources
+group by ernie_source_id, source_id, issn_main, isbn_main
+ON CONFLICT (source_id, issn_main, isbn_main) DO UPDATE SET ernie_source_id     = EXCLUDED.ernie_source_id,
+                                                            source_type         = EXCLUDED.source_type,
+                                                            source_title        = EXCLUDED.source_title,
+                                                            coden_code          = EXCLUDED.coden_code,
+                                                            publisher_name      = EXCLUDED.publisher_name,
+                                                            publisher_e_address = EXCLUDED.publisher_e_address,
+                                                            pub_date=EXCLUDED.pub_date;
 INSERT INTO scopus_isbns(ernie_source_id, isbn, isbn_length, isbn_type, isbn_level)
 select distinct ernie_source_id,
        isbn,
