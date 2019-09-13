@@ -233,7 +233,9 @@ for scopus_data_archive in *.zip; do
     ## calling a procedure that truncates the staging tables
     psql -c "set search_path='jenkins'; \
     call truncate_stg_table();"
-    echo -e "nTruncating finished"
+    echo -e "\nTruncating finished"
+    cd ../
+    rm -rf ${tmp}
     cd ..
 
     echo "SUMMARY FOR ${scopus_data_archive}:"
@@ -245,9 +247,9 @@ for scopus_data_archive in *.zip; do
       echo "FAILED PARSING ${failed_xml_counter} XML FILES"
     fi
 
-  ((failed_xml_counter_total += failed_xml_counter)) || :
+    ((failed_xml_counter_total += failed_xml_counter)) || :
     failed_xml_counter=0
-  ((processed_xml_counter_total += processed_xml_counter)) || :
+    ((processed_xml_counter_total += processed_xml_counter)) || :
     processed_xml_counter=0
 
     if [[ -f "${STOP_FILE}" ]]; then
