@@ -226,14 +226,14 @@ for scopus_data_archive in *.zip; do
     rm -rf "${PARALLEL_LOG}"
 
     ## sql script that inserts from staging table into scopus
-  echo -e "\nMerging staging into Scopus tables..."
-  psql -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
-  echo -e "Merging finished"
-  echo -e "Truncating staging tables..."
-  ## calling a procedure that truncates the staging tables
-  psql -c "set search_path='jenkins'; \
-  call truncate_stg_table();"
-  echo -e "\nTruncating finished"
+#  echo -e "\nMerging staging into Scopus tables..."
+#  psql -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
+#  echo -e "Merging finished"
+#  echo -e "Truncating staging tables..."
+#  ## calling a procedure that truncates the staging tables
+#  psql -c "set search_path='jenkins'; \
+#  call truncate_stg_table();"
+#  echo -e "nTruncating finished"
     cd ..
 
     echo "SUMMARY FOR ${scopus_data_archive}:"
@@ -248,6 +248,16 @@ for scopus_data_archive in *.zip; do
     failed_xml_counter=0
     ((processed_xml_counter_total += processed_xml_counter)) || :
     processed_xml_counter=0
+
+    echo -e "\nMerging staging into Scopus tables..."
+    psql -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
+    echo -e "Merging finished"
+    echo -e "Truncating staging tables..."
+    ## calling a procedure that truncates the staging tables
+    psql -c "set search_path='jenkins'; \
+    call truncate_stg_table();"
+    echo -e "nTruncating finished"
+
 
     if [[ -f "${STOP_FILE}" ]]; then
       echo -e "\nFound the stop signal file. Gracefully stopping..."
