@@ -69,10 +69,11 @@ SELECT sspd.conf_name, st.title, sp.*
 -- 1m:32s-2m:29
 
 -- Multiple conference papers with the same title
-SELECT st.title, sp.*, sspd.*, sce.*
+SELECT st.title, sp.*, ss.*, sspd.*, sce.*
   FROM
       scopus_titles st
           JOIN scopus_publications sp ON sp.scp = st.scp
+          JOIN scopus_sources ss ON ss.ernie_source_id = sp.ernie_source_id
           JOIN scopus_source_publication_details sspd ON sspd.scp = sp.scp
           JOIN scopus_conference_events sce ON sce.conf_code = sspd.conf_code AND sce.conf_name = sspd.conf_name
 --  WHERE to_tsvector('english', st.title) @@ plainto_tsquery('An algorithmic framework for predicting side-effects of drugs')
