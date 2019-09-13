@@ -1,7 +1,6 @@
 DO
 $block$
     BEGIN
-
         CALL jenkins.stg_scopus_merge_publication_and_group();
         CALL jenkins.stg_scopus_merge_source_and_conferences();
         CALL jenkins.stg_scopus_merge_pub_details_subjects_and_classes();

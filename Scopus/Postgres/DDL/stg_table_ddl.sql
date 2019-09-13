@@ -14,7 +14,7 @@ create table if not exists jenkins.stg_scopus_publication_groups
 
 create table if not exists jenkins.stg_scopus_sources
 (
-	ernie_source_id serial not null,
+-- 	ernie_source_id serial not null,
 	source_id text,
 	issn_main text,
 	isbn_main text,
@@ -31,7 +31,7 @@ create table if not exists jenkins.stg_scopus_sources
 
 create table if not exists jenkins.stg_scopus_isbns
 (
-	ernie_source_id integer,
+-- 	ernie_source_id integer,
 	isbn text,
 	isbn_length text,
 	isbn_type text,
@@ -42,7 +42,7 @@ create table if not exists jenkins.stg_scopus_isbns
 
 create table if not exists jenkins.stg_scopus_issns
 (
-	ernie_source_id integer,
+-- 	ernie_source_id integer,
 	issn text,
 	issn_type text,
 	last_updated_time timestamp default now()
@@ -80,7 +80,7 @@ create table if not exists jenkins.stg_scopus_publications
 	process_stage text,
 	state text,
 	date_sort date,
-	ernie_source_id integer
+-- 	ernie_source_id integer
 );
 
 create table if not exists jenkins.stg_scopus_authors
@@ -167,7 +167,7 @@ create table if not exists jenkins.stg_scopus_classes
 
 create table if not exists jenkins.stg_scopus_conf_proceedings
 (
-	ernie_source_id integer,
+-- 	ernie_source_id integer,
 	conf_code text,
 	conf_name text,
 	proc_part_no text,
@@ -178,7 +178,7 @@ create table if not exists jenkins.stg_scopus_conf_proceedings
 
 create table if not exists jenkins.stg_scopus_conf_editors
 (
-	ernie_source_id integer,
+-- 	ernie_source_id integer,
 	conf_code text,
 	conf_name text,
 	indexed_name text,
