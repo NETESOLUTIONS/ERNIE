@@ -71,7 +71,7 @@ readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx ERROR_LOG=error.log
 declare -rx PARALLEL_LOG=parallel.log
-declare  NUM_JOBS=8
+declare NUM_JOBS=8
 
 
 FAILED_FILES_DIR="../failed"
@@ -211,7 +211,7 @@ for scopus_data_archive in *.zip; do
     rm -f "${ERROR_LOG}"
 
     if
-      ! find -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} -j ${NUM_JOBS}  --joblog ${PARALLEL_LOG} --line-buffer \
+      ! find -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} -j ${NUM_JOBS} --joblog ${PARALLEL_LOG} --line-buffer \
       --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}
     then
       [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
@@ -223,8 +223,8 @@ for scopus_data_archive in *.zip; do
         ((++processed_xml_counter))
       fi
     done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
-    rm -rf "${PARALLEL_LOG}"
-    cd ../
+#    rm -f "${PARALLEL_LOG}"
+    cd ..
     rm -rf ${TMP_DIR}
 
     # sql script that inserts from staging table into scopus
