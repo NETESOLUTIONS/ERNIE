@@ -224,6 +224,8 @@ for scopus_data_archive in *.zip; do
       fi
     done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
     rm -rf "${PARALLEL_LOG}"
+    cd ../
+    rm -rf ${TMP_DIR}
 
     # sql script that inserts from staging table into scopus
     echo -e "\nMerging staging into Scopus tables..."
@@ -234,9 +236,6 @@ for scopus_data_archive in *.zip; do
     psql -c "set search_path='jenkins'; \
     call truncate_stg_table();"
     echo -e "\nTruncating finished"
-    cd ../
-    rm -rf ${tmp}
-    cd ..
 
     echo "SUMMARY FOR ${scopus_data_archive}:"
     echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"
