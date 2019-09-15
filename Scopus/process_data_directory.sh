@@ -259,7 +259,7 @@ for scopus_data_archive in *.zip; do
     # sql script that inserts from staging table into scopus
     # Using STAGING
     echo "Merging staged data into Scopus tables..."
-    psql -q -f "${ABSOLUTE_SC+RIPT_DIR}/stg_scopus_merge.sql"
+    psql -q -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
     #    echo -e "Merging finished"
     #    rm -f "${PARALLEL_LOG}"
     cd ..
