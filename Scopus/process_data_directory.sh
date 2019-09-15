@@ -165,8 +165,8 @@ parse_xml() {
   [[ ${VERBOSE} == "true" ]] && echo "Processing $xml ..."
   # Always produce minimum output below even when not verbose to get stats via the OUTPUT_PROCESSOR
   # Extra output is discarded in non-verbose mode by the OUTPUT_PROCESSOR
-  #DISABLED STAGING
-  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" ${subset_option} 2>> "${ERROR_LOG}"; then
+  # Using Staging
+  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser_test.sql -v "xml_file=$PWD/$xml" ${subset_option} 2>> "${ERROR_LOG}"; then
     echo "$xml: SUCCESSFULLY PARSED."
     return 0
   else
@@ -223,7 +223,8 @@ for scopus_data_archive in *.zip; do
 
     #    echo -e "Truncating staging tables..."
     ## calling a procedure that truncates the staging tables
-#DISABLED STAGING psql -q -c "CALL truncate_stg_table()"
+    # Using Staging
+    psql -q -c "CALL truncate_stg_table()"
     #    echo -e "\nTruncating finished"
 
     find -name '2*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} --line-buffer\
@@ -256,8 +257,9 @@ for scopus_data_archive in *.zip; do
     ((total_processed_pubs += processed_pubs)) || :
 
     # sql script that inserts from staging table into scopus
-#DISABLED STAGING    echo "Merging staged data into Scopus tables..."
-#DISABLED STAGING    psql -q -f "${ABSOLUTE_SC+RIPT_DIR}/stg_scopus_merge.sql"
+    # Using STAGING
+    echo "Merging staged data into Scopus tables..."
+    psql -q -f "${ABSOLUTE_SC+RIPT_DIR}/stg_scopus_merge.sql"
     #    echo -e "Merging finished"
     #    rm -f "${PARALLEL_LOG}"
     cd ..
