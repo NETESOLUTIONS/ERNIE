@@ -161,13 +161,15 @@ declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m del
 parse_xml() {
   local xml="$1"
   [[ $2 ]] && local subset_option="-v subset_sp=$2"
+
   [[ ${VERBOSE} == "true" ]] && echo "Processing $xml ..."
+  # Always produce minimum output below even when not verbose to get stats via the OUTPUT_PIPE
+  # Extra output is discarded in non-verbose mode by the OUTPUT_PIPE
   if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser_test.sql -v "xml_file=$PWD/$xml" ${subset_option} 2>>"${ERROR_LOG}"; then
-    [[ ${VERBOSE} == "true" ]] && echo "$xml: SUCCESSFULLY PARSED."
+    echo "$xml: SUCCESSFULLY PARSED."
     return 0
   else
-    [[ ${VERBOSE} == "true" ]] && echo "$xml parsing FAILED.\n"
-    echo -e "$xml parsing FAILED.\n" >>"${ERROR_LOG}"
+    echo -e "$xml parsing FAILED.\n" | tee -a "${ERROR_LOG}"
 
     local full_xml_path=$(realpath ${xml})
     local full_error_log_path=$(realpath ${ERROR_LOG})
