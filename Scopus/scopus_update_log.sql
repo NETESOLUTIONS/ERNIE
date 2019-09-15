@@ -6,7 +6,7 @@
  of scopus publications and the number of deletions thus far
  */
 
-\timing
+--\timing
 \set ON_ERROR_STOP on
 \set ECHO all
 
@@ -22,7 +22,7 @@ INSERT INTO update_log_scopus (update_time, num_scopus_pub, num_delete)
        (
          (SELECT current_timestamp),
          (SELECT count(*) FROM scopus_publications),
-         (SELECT count(*) FROM public.del_scps)
+         (SELECT count(*) FROM del_scps_stg)
        )
 
       )
@@ -30,4 +30,5 @@ AS t (update_time, num_scopus_publications, num_deletes);
 
 SELECT *
 FROM update_log_scopus
-ORDER BY id DESC;
+ORDER BY id DESC
+LIMIT 10;

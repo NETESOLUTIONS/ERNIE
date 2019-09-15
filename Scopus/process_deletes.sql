@@ -18,4 +18,4 @@ select * from del_scps_stg limit 100;
 \echo ***DELETING FROM TABLE: scopus_publications
 DELETE FROM scopus_publications
 WHERE scp IN (SELECT scp
-          FROM public.del_scps_stg);
+          FROM del_scps_stg);

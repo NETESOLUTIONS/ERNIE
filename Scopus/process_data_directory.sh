@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 if [[ "$1" == "-h" ]]; then
-  cat <<'HEREDOC'
+  cat << 'HEREDOC'
 NAME
 
     process_data_directory.sh -- process a directory of Scopus data for either update or smokeload job
@@ -148,7 +148,7 @@ fi
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##"
 
-if ! which parallel >/dev/null; then
+if ! which parallel > /dev/null; then
   echo "Please install GNU Parallel"
   exit 1
 fi
@@ -165,7 +165,7 @@ parse_xml() {
   [[ ${VERBOSE} == "true" ]] && echo "Processing $xml ..."
   # Always produce minimum output below even when not verbose to get stats via the OUTPUT_PROCESSOR
   # Extra output is discarded in non-verbose mode by the OUTPUT_PROCESSOR
-  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser_test.sql -v "xml_file=$PWD/$xml" ${subset_option} 2>>"${ERROR_LOG}"; then
+  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser_test.sql -v "xml_file=$PWD/$xml" ${subset_option} 2>> "${ERROR_LOG}"; then
     echo "$xml: SUCCESSFULLY PARSED."
     return 0
   else
@@ -187,7 +187,7 @@ exit_on_errors() {
   # Errors occurred? Does the error log have a size greater than zero?
   if [[ -s "${ERROR_LOG}" ]]; then
     if [[ ${VERBOSE} == "true" ]]; then
-      cat <<HEREDOC
+      cat << HEREDOC
 Error(s) occurred during processing of ${PWD}.
 =====
 HEREDOC
@@ -220,47 +220,47 @@ for scopus_data_archive in *.zip; do
     cd "${TMP_DIR}"
     rm -f "${ERROR_LOG}"
 
+    #    echo -e "Truncating staging tables..."
+    ## calling a procedure that truncates the staging tables
+    psql -q -c "CALL truncate_stg_table()"
+    #    echo -e "\nTruncating finished"
+
     find -name '2*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} --line-buffer\
-        --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_xml "{}" ${SUBSET_SP} | ${OUTPUT_PROCESSOR}
+    --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_xml "{}" ${SUBSET_SP} | ${OUTPUT_PROCESSOR}
     parallel_exit_code=${PIPESTATUS[1]}
     ((total_failures += parallel_exit_code)) || :
     echo "SUMMARY FOR ${scopus_data_archive}:"
     processed_pubs=$(cat ${PARALLEL_LOG})
     echo "Total publications: ${processed_pubs}"
     case $parallel_exit_code in
-    0)
-      echo "ALL IS WELL"
-      echo "${scopus_data_archive}" >>"${PROCESSED_LOG}"
-      ;;
-    1)
-      echo "1 publication FAILED PARSING"
-      ;;
-    [2-9] | [1-9][0-9])
-      echo "$parallel_exit_code publications FAILED PARSING"
-      ;;
-    101)
-      echo "More than 100 publications FAILED PARSING"
-      ;;
-    *)
-      echo "TOTAL FAILURE"
-      exit_on_errors
-      ;;
+      0)
+        echo "ALL IS WELL"
+        echo "${scopus_data_archive}" >> "${PROCESSED_LOG}"
+        ;;
+      1)
+        echo "1 publication FAILED PARSING"
+        ;;
+      [2-9] | [1-9][0-9])
+        echo "$parallel_exit_code publications FAILED PARSING"
+        ;;
+      101)
+        echo "More than 100 publications FAILED PARSING"
+        ;;
+      *)
+        echo "TOTAL FAILURE"
+        exit_on_errors
+        ;;
     esac
     ((total_failures >= MAX_ERRORS)) && exit_on_errors
     ((total_processed_pubs += processed_pubs)) || :
 
+    # sql script that inserts from staging table into scopus
+    echo "Merging staged data into Scopus tables..."
+    psql -q -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
+    #    echo -e "Merging finished"
     #    rm -f "${PARALLEL_LOG}"
     cd ..
     rm -rf ${TMP_DIR}
-
-    # sql script that inserts from staging table into scopus
-    echo -e "\nMerging staging into Scopus tables..."
-    psql -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
-    echo -e "Merging finished"
-    echo -e "Truncating staging tables..."
-    ## calling a procedure that truncates the staging tables
-    psql -c "CALL truncate_stg_table()"
-    echo -e "\nTruncating finished"
 
     if [[ -f "${STOP_FILE}" ]]; then
       echo -e "\nFound the stop signal file. Gracefully stopping..."
