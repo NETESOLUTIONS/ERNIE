@@ -277,7 +277,7 @@ for scopus_data_archive in *.zip; do
 done
 
 echo -e "\nDIRECTORY SUMMARY:"
-echo "SUCCESSFULLY PARSED ${total_processed_pubs} publications"
+echo "Total publications: ${total_processed_pubs}"
 if ((total_failures == 0)); then
   echo "ALL IS WELL"
 else
