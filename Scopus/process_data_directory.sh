@@ -7,7 +7,9 @@ NAME
 
 SYNOPSIS
 
-    process_data_directory.sh -u|-k [-e] [-v] [-v] [-s subset_SP] [-t tmp_dir] [-f failed_files_dir] [working_dir]
+    process_data_directory.sh -u|-k [-n parallel_jobs] [-e max_errors] [-v] [-v] [-s subset_SP] [-t tmp_dir]
+      [-f failed_files_dir] [working_dir]
+
     process_data_directory.sh -h: display this help
 
 DESCRIPTION
@@ -23,9 +25,9 @@ DESCRIPTION
 
     -k    smokeload job : specificies that the job is a smokeload versus update
 
-    -n    number of jobs, n=1 then serial, n > 1 parallel
+    -n    maximum number of jobs to run in parallel, defaults to # of CPU cores
 
-    -e    stop on the first error. Parsing and other SQL errors don't stop the script unless `-e` is specified.
+    -e    stop when the error # reaches the max_errors threshold. Defaults to 101.
 
     -p    create a process log which is used as part of the update job
 
@@ -70,9 +72,8 @@ readonly STOP_FILE=".stop"
 readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx ERROR_LOG=error.log
-declare -rx PARALLEL_LOG=parallel.log
-declare NUM_JOBS=8
-
+declare -rx PARALLEL_LOG=/tmp/ERNIE-Scopus-process_data_directory.out
+declare -i MAX_ERRORS=101
 
 FAILED_FILES_DIR="../failed"
 PROCESSED_LOG="../processed.log"
@@ -90,11 +91,11 @@ while (($# > 0)); do
     ;;
   -n)
     shift
-    echo "Using CLI arg '$1'"
-    NUM_JOBS="$1"
+    PARALLEL_JOBSLOTS_OPTION="-j $1"
     ;;
   -e)
-    readonly STOP_ON_THE_FIRST_ERROR=true
+    shift
+    declare -ri MAX_ERRORS=$1
     ;;
   -p)
     shift
@@ -147,7 +148,7 @@ fi
 
 # Set counter and ETA variables
 declare -i num_zips=$(ls *.zip | wc -l)
-declare -i failed_xml_counter=0 failed_xml_counter_total=0 processed_xml_counter=0 processed_xml_counter_total=0
+declare -i total_failures=0 processed_pubs total_processed_pubs=0
 declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
 
 
@@ -174,7 +175,7 @@ parse_xml() {
 }
 export -f parse_xml
 
-check_errors() {
+exit_on_errors() {
   # Errors occurred? Does the error log have a size greater than zero?
   if [[ -s "${ERROR_LOG}" ]]; then
     if [[ ${VERBOSE} == "true" ]]; then
@@ -198,7 +199,8 @@ process_start_time=$(date '+%s')
 for scopus_data_archive in *.zip; do
   start_time=$(date '+%s')
   if grep -q "^${scopus_data_archive}$" "${PROCESSED_LOG}"; then
-    echo "Skipping file ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} ). It is already marked as completed."
+    echo "Skipping file ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} ).
+    It is already marked as completed."
   else
     echo -e "\nProcessing ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} )..."
     # Reduced verbosity
@@ -210,19 +212,36 @@ for scopus_data_archive in *.zip; do
     cd "${TMP_DIR}"
     rm -f "${ERROR_LOG}"
 
-    if
-      ! find -name '2*.xml' | parallel ${PARALLEL_HALT_OPTION} -j ${NUM_JOBS} --joblog ${PARALLEL_LOG} --line-buffer \
-      --tagstring '|job#{#} s#{%}|' parse_xml "{}" ${SUBSET_SP}
-    then
-      [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && check_errors # Exits here if errors occurred
-    fi
-    while read -r line; do
-      if echo $line | grep -q "1"; then
-        ((++failed_xml_counter))
-      else
-        ((++processed_xml_counter))
-      fi
-    done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
+    find -name '2*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} \
+        --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_xml "{}" ${SUBSET_SP} \
+      | tee >(tail -1 | pcregrep -o1 '/(\d+)' >${PARALLEL_LOG})
+    parallel_exit_code=${PIPESTATUS[1]}
+    (( total_failures += parallel_exit_code )) || :
+    echo "SUMMARY FOR ${scopus_data_archive}:"
+    processed_pubs=$(cat ${PARALLEL_LOG})
+    echo "Total publications: ${processed_pubs}"
+    case $parallel_exit_code in
+      0)
+        echo "ALL IS WELL"
+        echo "${scopus_data_archive}" >>"${PROCESSED_LOG}"
+      ;;
+      1)
+        echo "1 publication FAILED PARSING"
+      ;;
+      [2-9]|[1-9][0-9])
+        echo "$parallel_exit_code publications FAILED PARSING"
+      ;;
+      101)
+        echo "More than 100 publications FAILED PARSING"
+      ;;
+      *)
+        echo "TOTAL FAILURE"
+        exit_on_errors
+      ;;
+    esac
+    (( total_failures >= MAX_ERRORS )) && exit_on_errors
+    (( total_processed_pubs += processed_pubs )) || :
+
 #    rm -f "${PARALLEL_LOG}"
     cd ..
     rm -rf ${TMP_DIR}
@@ -233,23 +252,8 @@ for scopus_data_archive in *.zip; do
     echo -e "Merging finished"
     echo -e "Truncating staging tables..."
     ## calling a procedure that truncates the staging tables
-    psql -c "set search_path='jenkins'; \
-    call truncate_stg_table();"
+    psql -c "CALL truncate_stg_table()"
     echo -e "\nTruncating finished"
-
-    echo "SUMMARY FOR ${scopus_data_archive}:"
-    echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"
-    if ((failed_xml_counter == 0)); then
-      echo "ALL IS WELL"
-      echo "${scopus_data_archive}" >>"${PROCESSED_LOG}"
-    else
-      echo "FAILED PARSING ${failed_xml_counter} XML FILES"
-    fi
-
-    ((failed_xml_counter_total += failed_xml_counter)) || :
-    failed_xml_counter=0
-    ((processed_xml_counter_total += processed_xml_counter)) || :
-    processed_xml_counter=0
 
     if [[ -f "${STOP_FILE}" ]]; then
       echo -e "\nFound the stop signal file. Gracefully stopping..."
@@ -273,18 +277,18 @@ for scopus_data_archive in *.zip; do
 done
 
 echo -e "\nDIRECTORY SUMMARY:"
-echo "SUCCESSFULLY PARSED ${processed_xml_counter_total} XML FILES"
-if ((failed_xml_counter_total == 0)); then
+echo "SUCCESSFULLY PARSED ${total_processed_pubs} publications"
+if ((total_failures == 0)); then
   echo "ALL IS WELL"
 else
-  echo "FAILED PARSING ${failed_xml_counter_total} XML FILES"
+  echo "${total_failures} publications FAILED PARSING"
 fi
 
 #psql -c "scopus_create_indexes();"
 
 if [[ -d "${TMP_DIR}" ]]; then
   cd "${TMP_DIR}"
-  check_errors # Exits here if errors occurred
+  exit_on_errors
   cd
   rm -rf "${TMP_DIR}"
 fi

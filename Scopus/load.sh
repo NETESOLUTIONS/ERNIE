@@ -7,7 +7,7 @@ NAME
   Note that clean mode is NOT available with this script, OR ,
 
 SYNOPSIS
-  load.sh -u|-k [-c] [-r] [-s subset_SP] [-v] [-v] -d data_directory
+  load.sh -u|-k [-c] [-r] [-n parallel_jobs] [-e max_errors_per_dir] [-v] [-v] [-s subset_SP] data_directory [...]
   load.sh -h: display this help
 
 DESCRIPTION
@@ -19,24 +19,23 @@ DESCRIPTION
 
   The following options are available:
 
-    -u              update mode
+    -u            update mode
 
-    -k              smokeload from scratch
+    -k            smokeload from scratch
 
-    -n              number of jobs, n=1 then serial, n > 1 parallel
+    -n            maximum number of jobs to run in parallel, defaults to # of CPU cores
 
-    -c              clean load: truncate data. WARNING: be aware that you'll lose all loaded data!
+    -c            clean load: truncate data. WARNING: be aware that you'll lose all loaded data!
 
-    -e              stop on the first error. stop on the first error.
-                    Parsing and other SQL errors don't stop the script unless `-e` is specified.
+    -e            stop when the error # per a data directory or an update ZIP >= `max_errors_per_dir`. Defaults to 101.
 
-    -r              reverse order of processing
+    -r            reverse order of processing
 
-    -s subset_SP    parse a subset of data via the specified subset parsing Stored Procedure (SP)
+    -s subset_SP  parse a subset of data via the specified subset parsing Stored Procedure (SP)
 
-    -v              verbose output: print processed XML files and error details as errors occur
+    -v            verbose output: print processed XML files and error details as errors occur
 
-    -v -v           extra-verbose output: print all lines (`set -x`)
+    -v -v         extra-verbose output: print all lines (`set -x`)
 
   To stop process gracefully after the current ZIP is processed, create a `{working_dir}/.stop` signal file.
   This file is automatically removed
@@ -69,14 +68,11 @@ while (($# > 0)); do
     readonly CLEAN_MODE_OPTION="-c"
     ;;
   -e)
-    readonly STOP_ON_THE_FIRST_ERROR_OPTION=-e
+    shift
+    readonly MAX_ERRORS_OPTION="-e $1"
     ;;
   -r)
     readonly SORT_ORDER=true
-    ;;
-  -d)
-    shift
-    readonly DATA_DIR="$1"
     ;;
   -s)
     shift
@@ -84,7 +80,7 @@ while (($# > 0)); do
     ;;
   -n)
     shift
-    NUM_JOBS="$1"
+    PARALLEL_JOBSLOTS_OPTION="-n $1"
     ;;
   -v)
     # Second "-v" = extra verbose?
@@ -111,6 +107,7 @@ if [[ "${SMOKELOAD_JOB}" == true ]]; then
   unset IFS
 elif [[ "${UPDATE_JOB}" == true ]]; then
   echo "UPDATE JOB INITIATED ... "
+  readonly DATA_DIR="$1"
 fi
 
 ### Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
@@ -129,8 +126,8 @@ if [[ "${SMOKELOAD_JOB}" == true ]]; then
     ((i == 0)) && start_time=${dir_start_time}
     echo -e "\n## Directory #$((++i)) out of ${directories} ##"
     echo "Processing ${DATA_DIR} directory ..."
-    if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -j ${NUM_JOBS} -k ${STOP_ON_THE_FIRST_ERROR_OPTION} ${SUBSET_OPTION} \
-        ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${DATA_DIR}"; then
+    if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -k ${MAX_ERRORS_OPTION} ${PARALLEL_JOBSLOTS_OPTION} \
+        ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${DATA_DIR}"; then
       [[ ${STOP_ON_THE_FIRST_ERROR_OPTION} ]] && exit 1
       failures_occurred="true"
     fi
@@ -177,8 +174,8 @@ if [[ "${UPDATE_JOB}" == true ]]; then
     echo "Processing ${UPDATE_DIR} directory"
     # shellcheck disable=SC2086
     #   SUBSET_OPTION must be unquoted
-    if "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -u -p "${PROCESSED_LOG}" ${STOP_ON_THE_FIRST_ERROR_OPTION} \
-        ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${UPDATE_DIR}"; then
+    if "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -u -p "${PROCESSED_LOG}" ${MAX_ERRORS_OPTION} \
+        ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${UPDATE_DIR}"; then
       echo "Removing directory ${UPDATE_DIR}"
       rm -rf "${UPDATE_DIR}"
     else
