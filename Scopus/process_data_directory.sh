@@ -151,7 +151,6 @@ declare -i num_zips=$(ls *.zip | wc -l)
 declare -i total_failures=0 processed_pubs total_processed_pubs=0
 declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
 
-
 parse_xml() {
   local xml="$1"
   [[ $2 ]] && local subset_option="-v subset_sp=$2"
@@ -214,7 +213,7 @@ for scopus_data_archive in *.zip; do
 
     find -name '2*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} \
         --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_xml "{}" ${SUBSET_SP} \
-      | tee >(tail -1 | pcregrep -o1 '/(\d+)' >${PARALLEL_LOG})
+      | tee >(tail -1 | pcregrep -o1 'job#\d+/(\d+)' >${PARALLEL_LOG})
     parallel_exit_code=${PIPESTATUS[1]}
     (( total_failures += parallel_exit_code )) || :
     echo "SUMMARY FOR ${scopus_data_archive}:"
