@@ -132,7 +132,8 @@ while (($# > 0)); do
 done
 
 if [[ "$VERBOSE" == "true" ]]; then
-  readonly OUTPUT_PIPE="tee >(tail -1 | pcregrep -o1 'job#\d+/(\d+)' >${PARALLEL_LOG})"
+  # Process susbtitution doesn't work via a var expansion without `eval`
+  readonly OUTPUT_PIPE="eval tee >(tail -1 | pcregrep -o1 'job#\d+/(\d+)' >${PARALLEL_LOG})"
 else
   readonly OUTPUT_PIPE="tail -1 | pcregrep -o1 'job#\d+/(\d+)' >${PARALLEL_LOG}"
 fi
@@ -218,7 +219,7 @@ for scopus_data_archive in *.zip; do
     rm -f "${ERROR_LOG}"
 
     find -name '2*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} \
-    --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_xml "{}" ${SUBSET_SP} | ${OUTPUT_PIPE}
+        --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_xml "{}" ${SUBSET_SP} | ${OUTPUT_PIPE}
     parallel_exit_code=${PIPESTATUS[1]}
     ((total_failures += parallel_exit_code)) || :
     echo "SUMMARY FOR ${scopus_data_archive}:"
