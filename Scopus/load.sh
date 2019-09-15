@@ -202,6 +202,7 @@ if [[ "${UPDATE_JOB}" == true ]]; then
 
     echo "ETA for updates after ${ZIP_DATA} data file: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
   done
+  psql -f "${ABSOLUTE_SCRIPT_DIR}/scopus_update_log.sql"
 
   # Do delete files exist?
   if compgen -G "$DATA_DIR/*ANI-ITEM-delete.zip" >/dev/null; then
@@ -225,7 +226,13 @@ if [[ "${UPDATE_JOB}" == true ]]; then
   fi
 fi
 
-psql -f "${ABSOLUTE_SCRIPT_DIR}/scopus_update_log.sql"
+# language=PostgresPLSQL
+psql -v ON_ERROR_STOP=on --echo-all <<'HEREDOC'
+SELECT *
+FROM update_log_scopus
+ORDER BY id DESC
+LIMIT 10;
+HEREDOC
 
 if [[ "${failures_occurred}" == "true" ]]; then
   exit 1
