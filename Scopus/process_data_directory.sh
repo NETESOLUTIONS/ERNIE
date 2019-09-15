@@ -131,11 +131,11 @@ while (($# > 0)); do
   shift
 done
 
+readonly TOTAL_JOB_PROCESSOR="tail -1 | pcregrep -o1 'job#\d+/(\d+)' >${PARALLEL_LOG}"
 if [[ "$VERBOSE" == "true" ]]; then
-  # Process susbtitution doesn't work via a var expansion without `eval`
-  readonly OUTPUT_PIPE="eval tee >(tail -1 | pcregrep -o1 'job#\d+/(\d+)' >${PARALLEL_LOG})"
+  readonly OUTPUT_PROCESSOR="eval tee >(${TOTAL_JOB_PROCESSOR})"
 else
-  readonly OUTPUT_PIPE="tail -1 | pcregrep -o1 'job#\d+/(\d+)' >${PARALLEL_LOG}"
+  readonly OUTPUT_PROCESSOR="eval ${TOTAL_JOB_PROCESSOR}"
 fi
 
 if [[ ! ${TMP_DIR} ]]; then
@@ -163,8 +163,8 @@ parse_xml() {
   [[ $2 ]] && local subset_option="-v subset_sp=$2"
 
   [[ ${VERBOSE} == "true" ]] && echo "Processing $xml ..."
-  # Always produce minimum output below even when not verbose to get stats via the OUTPUT_PIPE
-  # Extra output is discarded in non-verbose mode by the OUTPUT_PIPE
+  # Always produce minimum output below even when not verbose to get stats via the OUTPUT_PROCESSOR
+  # Extra output is discarded in non-verbose mode by the OUTPUT_PROCESSOR
   if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser_test.sql -v "xml_file=$PWD/$xml" ${subset_option} 2>>"${ERROR_LOG}"; then
     echo "$xml: SUCCESSFULLY PARSED."
     return 0
@@ -220,8 +220,8 @@ for scopus_data_archive in *.zip; do
     cd "${TMP_DIR}"
     rm -f "${ERROR_LOG}"
 
-    find -name '2*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} \
-        --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_xml "{}" ${SUBSET_SP} | ${OUTPUT_PIPE}
+    find -name '2*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} --line-buffer\
+        --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_xml "{}" ${SUBSET_SP} | ${OUTPUT_PROCESSOR}
     parallel_exit_code=${PIPESTATUS[1]}
     ((total_failures += parallel_exit_code)) || :
     echo "SUMMARY FOR ${scopus_data_archive}:"
