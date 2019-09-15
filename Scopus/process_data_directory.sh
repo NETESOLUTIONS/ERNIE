@@ -83,50 +83,50 @@ echo -e "\nprocess_data_directory.sh ..."
 while (($# > 0)); do
   echo "Using CLI arg '$1'"
   case "$1" in
-  -u)
-    readonly UPDATE_JOB=true
-    ;;
-  -k)
-    readonly SMOKELOAD_JOB=true
-    ;;
-  -n)
-    shift
-    PARALLEL_JOBSLOTS_OPTION="-j $1"
-    ;;
-  -e)
-    shift
-    declare -ri MAX_ERRORS=$1
-    ;;
-  -p)
-    shift
-    echo "Using CLI arg '$1'"
-    readonly PROCESSED_LOG="$1"
-    ;;
-  -f)
-    shift
-    echo "Using CLI arg '$1'"
-    readonly FAILED_FILES_DIR="$1"
-    ;;
-  -s)
-    shift
-    echo "Using CLI arg '$1'"
-    readonly SUBSET_SP=$1
-    ;;
-  -t)
-    shift
-    readonly TMP_DIR=$1
-    ;;
-  -v)
-    # Second "-v" = extra verbose?
-    if [[ "$VERBOSE" == "true" ]]; then
-      set -x
-    else
-      declare -rx VERBOSE=true
-    fi
-    ;;
-  *)
-    cd "$1"
-    ;;
+    -u)
+      readonly UPDATE_JOB=true
+      ;;
+    -k)
+      readonly SMOKELOAD_JOB=true
+      ;;
+    -n)
+      shift
+      PARALLEL_JOBSLOTS_OPTION="-j $1"
+      ;;
+    -e)
+      shift
+      declare -ri MAX_ERRORS=$1
+      ;;
+    -p)
+      shift
+      echo "Using CLI arg '$1'"
+      readonly PROCESSED_LOG="$1"
+      ;;
+    -f)
+      shift
+      echo "Using CLI arg '$1'"
+      readonly FAILED_FILES_DIR="$1"
+      ;;
+    -s)
+      shift
+      echo "Using CLI arg '$1'"
+      readonly SUBSET_SP=$1
+      ;;
+    -t)
+      shift
+      readonly TMP_DIR=$1
+      ;;
+    -v)
+      # Second "-v" = extra verbose?
+      if [[ "$VERBOSE" == "true" ]]; then
+        set -x
+      else
+        declare -rx VERBOSE=true
+      fi
+      ;;
+    *)
+      cd "$1"
+      ;;
   esac
   shift
 done
@@ -218,35 +218,35 @@ for scopus_data_archive in *.zip; do
     rm -f "${ERROR_LOG}"
 
     find -name '2*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} \
-        --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_xml "{}" ${SUBSET_SP} | ${OUTPUT_PIPE}
+    --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_xml "{}" ${SUBSET_SP} | ${OUTPUT_PIPE}
     parallel_exit_code=${PIPESTATUS[1]}
-    (( total_failures += parallel_exit_code )) || :
+    ((total_failures += parallel_exit_code)) || :
     echo "SUMMARY FOR ${scopus_data_archive}:"
     processed_pubs=$(cat ${PARALLEL_LOG})
     echo "Total publications: ${processed_pubs}"
     case $parallel_exit_code in
-      0)
-        echo "ALL IS WELL"
-        echo "${scopus_data_archive}" >>"${PROCESSED_LOG}"
+    0)
+      echo "ALL IS WELL"
+      echo "${scopus_data_archive}" >>"${PROCESSED_LOG}"
       ;;
-      1)
-        echo "1 publication FAILED PARSING"
+    1)
+      echo "1 publication FAILED PARSING"
       ;;
-      [2-9]|[1-9][0-9])
-        echo "$parallel_exit_code publications FAILED PARSING"
+    [2-9] | [1-9][0-9])
+      echo "$parallel_exit_code publications FAILED PARSING"
       ;;
-      101)
-        echo "More than 100 publications FAILED PARSING"
+    101)
+      echo "More than 100 publications FAILED PARSING"
       ;;
-      *)
-        echo "TOTAL FAILURE"
-        exit_on_errors
+    *)
+      echo "TOTAL FAILURE"
+      exit_on_errors
       ;;
     esac
-    (( total_failures >= MAX_ERRORS )) && exit_on_errors
-    (( total_processed_pubs += processed_pubs )) || :
+    ((total_failures >= MAX_ERRORS)) && exit_on_errors
+    ((total_processed_pubs += processed_pubs)) || :
 
-#    rm -f "${PARALLEL_LOG}"
+    #    rm -f "${PARALLEL_LOG}"
     cd ..
     rm -rf ${TMP_DIR}
 
