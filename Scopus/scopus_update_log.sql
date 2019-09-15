@@ -14,6 +14,6 @@
 SET TIMEZONE = 'US/Eastern';
 
 INSERT INTO update_log_scopus
-    (update_time, num_scopus_pub)
-SELECT current_timestamp, count(1)
+    (update_time, num_scopus_pub, num_delete)
+SELECT current_timestamp, count(1), 0
   FROM scopus_publications;

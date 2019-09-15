@@ -28,7 +28,7 @@ DO $block$
 
         UPDATE update_log_scopus
         SET num_delete=processed
-        WHERE num_delete IS NULL AND id = (
+        WHERE num_delete = 0 AND id = (
             SELECT max(id)
             FROM update_log_scopus
         );
