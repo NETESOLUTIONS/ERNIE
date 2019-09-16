@@ -18,7 +18,7 @@ BEGIN
         SET pub_year=excluded.pub_year;
 
     INSERT INTO scopus_publications(scp, sgr, correspondence_person_indexed_name, correspondence_city,
-                                    correspondence_country, correspondence_e_address, citation_type)
+                                    correspondence_country, correspondence_e_address, citation_type, citation_language)
 
     SELECT scp,
            max(sgr)                                as sgr,
