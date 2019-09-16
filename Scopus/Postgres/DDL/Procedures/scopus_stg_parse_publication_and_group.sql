@@ -1,4 +1,4 @@
-set search_path = ':';
+set search_path = 'jenkins';
 \set ON_ERROR_STOP on
 \set ECHO all
 
@@ -22,7 +22,8 @@ BEGIN
                correspondence_city,
                correspondence_country,
                correspondence_e_address,
-               citation_type
+               citation_type,
+               citation_language
         FROM xmltable(--
         -- The `xml:` namespace doesn't need to be specified
                 XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
