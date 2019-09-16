@@ -11,11 +11,11 @@
     <node x="1825.705405112643" y="1106.42161446374">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_classes</node>
     <node x="1430.6354626627053" y="90.85320510711404">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_affiliations</node>
     <node x="314.17047395200734" y="1252.166131726358">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_conf_editors</node>
-    <node x="694.2931439856109" y="1530.2069451378663">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_conf_proceedings</node>
-    <node x="1764.1445669721606" y="1726.9998231302484">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_abstracts</node>
     <node x="428.9129588726553" y="1042.1790548788151">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_source_publication_details</node>
+    <node x="694.2931439856109" y="1530.2069451378663">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_conf_proceedings</node>
+    <node x="1833.5278855706674" y="92.10142031804571">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_author_affiliations</node>
+    <node x="1764.1445669721606" y="1726.9998231302484">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_abstracts</node>
     <node x="1547.4120718941895" y="2099.517405076509">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_isbns</node>
-    <node x="1822.6612490869784" y="1535.5361990789481">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_grants</node>
     <node x="0.0" y="113.75966789528411">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_publication_identifiers</node>
     <node x="1833.8934830626276" y="1336.9196444428567">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_grant_acknowledgements</node>
     <node x="321.7709678315998" y="1473.314218471568">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_conference_events</node>
@@ -23,7 +23,7 @@
     <node x="1664.0895988635316" y="1946.4623663504508">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_publication_groups</node>
     <node x="1727.5294692424395" y="781.7507840966048">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_titles</node>
     <node x="294.092064105526" y="87.5494650193059">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_references</node>
-    <node x="1833.5278855706674" y="92.10142031804571">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_author_affiliations</node>
+    <node x="1822.6612490869784" y="1535.5361990789481">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_grants</node>
     <node x="793.6377789931908" y="38.785142033382954">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_chemical_groups</node>
     <node x="859.6416151227402" y="1344.4589983927037">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_sources</node>
     <node x="1019.9445952540859" y="114.20692528173981">8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_subject_keywords</node>
@@ -43,11 +43,11 @@
       <point x="0.0" y="0.0" />
       <point x="0.0" y="0.0" />
     </edge>
-    <edge source="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_conf_proceedings" target="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_sources">
+    <edge source="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_subjects" target="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_publications">
       <point x="0.0" y="0.0" />
       <point x="0.0" y="0.0" />
     </edge>
-    <edge source="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_subjects" target="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_publications">
+    <edge source="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_conf_proceedings" target="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_sources">
       <point x="0.0" y="0.0" />
       <point x="0.0" y="0.0" />
     </edge>
@@ -67,15 +67,11 @@
       <point x="0.0" y="0.0" />
       <point x="0.0" y="0.0" />
     </edge>
-    <edge source="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_references" target="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_publications">
-      <point x="0.0" y="0.0" />
-      <point x="0.0" y="0.0" />
-    </edge>
     <edge source="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_author_affiliations" target="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_affiliations">
       <point x="0.0" y="0.0" />
       <point x="0.0" y="0.0" />
     </edge>
-    <edge source="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_issns" target="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_sources">
+    <edge source="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_references" target="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_publications">
       <point x="0.0" y="0.0" />
       <point x="0.0" y="0.0" />
     </edge>
@@ -83,11 +79,15 @@
       <point x="0.0" y="0.0" />
       <point x="0.0" y="0.0" />
     </edge>
-    <edge source="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_classes" target="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_publications">
+    <edge source="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_issns" target="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_sources">
       <point x="0.0" y="0.0" />
       <point x="0.0" y="0.0" />
     </edge>
     <edge source="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_author_affiliations" target="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_publications">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_classes" target="8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_publications">
       <point x="0.0" y="0.0" />
       <point x="0.0" y="0.0" />
     </edge>
@@ -136,7 +136,7 @@
       <point x="0.0" y="0.0" />
     </edge>
   </edges>
-  <settings layout="Circular" zoom="0.6954136969321351" x="901.2366204714585" y="920.0" />
+  <settings layout="Circular" zoom="0.1974496092143151" x="1174.0" y="1205.5" />
   <SelectedNodes>
     <node>8b1abe93-b8cd-42cf-8a56-091e4117b79a.TABLE:ernie.public.scopus_source_publication_details</node>
   </SelectedNodes>
