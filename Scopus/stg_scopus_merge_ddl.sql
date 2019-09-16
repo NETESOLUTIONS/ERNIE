@@ -136,7 +136,7 @@ as
 $$
 BEGIN
 INSERT INTO scopus_keywords(scp, keyword)
-SELECT DISTNCT scp,
+SELECT DISTINCT scp,
        keyword
 FROM stg_scopus_keywords
 ON CONFLICT (scp, keyword) DO UPDATE SET keyword=excluded.keyword;

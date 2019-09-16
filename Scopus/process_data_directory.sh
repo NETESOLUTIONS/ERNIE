@@ -155,7 +155,7 @@ parse_xml() {
   local xml="$1"
   [[ $2 ]] && local subset_option="-v subset_sp=$2"
   [[ ${VERBOSE} == "true" ]] && echo "Processing $xml ..."
-  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser_test.sql -v "xml_file=$PWD/$xml" ${subset_option} 2>>"${ERROR_LOG}"; then
+  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/scopus_stg_parser.sql -v "xml_file=$PWD/$xml" ${subset_option} 2>>"${ERROR_LOG}"; then
     [[ ${VERBOSE} == "true" ]] && echo "$xml: SUCCESSFULLY PARSED."
     return 0
   else
@@ -227,15 +227,15 @@ for scopus_data_archive in *.zip; do
     cd ../
     rm -rf ${TMP_DIR}
 
-    # sql script that inserts from staging table into scopus
-    echo -e "\nMerging staging into Scopus tables..."
+    # sql script (contains procedures) that inserts from staging table into scopus
+    ## WARNING Double-check the selected schema path. You're about to lose all Scopus data!
+    echo -e "\nMERGING STAGING TABLES INTO SCOPUS TABLES..."
     psql -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
-    echo -e "Merging finished"
-    echo -e "Truncating staging tables..."
-    ## calling a procedure that truncates the staging tables
-    psql -c "set search_path='jenkins'; \
-    call truncate_stg_table();"
-    echo -e "\nTruncating finished"
+    echo -e "MERGING FINISHED"
+    echo -e "TRUNCATING STAGING TABLES..."
+    ## calling a procedure that truncates the staging tables, parameter is search_path
+    psql -c "call truncate_stg_table('jenkins');"
+    echo -e "TRUNCATING COMPLETED"
 
     echo "SUMMARY FOR ${scopus_data_archive}:"
     echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"

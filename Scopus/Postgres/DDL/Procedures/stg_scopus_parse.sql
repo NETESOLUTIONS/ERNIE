@@ -1,4 +1,4 @@
-set search_path='jenkins';
+set search_path=schema'::';
 \set ON_ERROR_STOP on
 \set ECHO all
 

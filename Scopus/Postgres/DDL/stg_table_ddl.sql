@@ -1,20 +1,19 @@
-set search_path='jenkins';
+set search_path=':';
 \set ON_ERROR_STOP on
 \set ECHO all
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-create table if not exists jenkins.stg_scopus_publication_groups
+create table if not exists stg_scopus_publication_groups
 (
 	sgr bigint,
 	pub_year smallint
 );
 
 
-create table if not exists jenkins.stg_scopus_sources
+create table if not exists stg_scopus_sources
 (
--- 	ernie_source_id serial not null,
 	source_id text,
 	issn_main text,
 	isbn_main text,
@@ -29,9 +28,8 @@ create table if not exists jenkins.stg_scopus_sources
 );
 
 
-create table if not exists jenkins.stg_scopus_isbns
+create table if not exists stg_scopus_isbns
 (
--- 	ernie_source_id integer,
 	isbn text,
 	isbn_length text,
 	isbn_type text,
@@ -40,16 +38,15 @@ create table if not exists jenkins.stg_scopus_isbns
 );
 
 
-create table if not exists jenkins.stg_scopus_issns
+create table if not exists stg_scopus_issns
 (
--- 	ernie_source_id integer,
 	issn text,
 	issn_type text,
 	last_updated_time timestamp default now()
 );
 
 
-create table if not exists jenkins.stg_scopus_conference_events
+create table if not exists stg_scopus_conference_events
 (
 	conf_code text,
 	conf_name text,
@@ -65,7 +62,7 @@ create table if not exists jenkins.stg_scopus_conference_events
 );
 
 
-create table if not exists jenkins.stg_scopus_publications
+create table if not exists stg_scopus_publications
 (
 	scp bigint,
 	sgr bigint,
@@ -79,11 +76,9 @@ create table if not exists jenkins.stg_scopus_publications
 	citation_language text,
 	process_stage text,
 	state text,
-	date_sort date,
--- 	ernie_source_id integer
-);
+	date_sort date);
 
-create table if not exists jenkins.stg_scopus_authors
+create table if not exists stg_scopus_authors
 (
 	scp bigint,
 	author_seq smallint,
@@ -97,7 +92,7 @@ create table if not exists jenkins.stg_scopus_authors
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_affiliations
+create table if not exists stg_scopus_affiliations
 (
 	scp bigint,
 	affiliation_no smallint,
@@ -112,7 +107,7 @@ create table if not exists jenkins.stg_scopus_affiliations
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_author_affiliations
+create table if not exists stg_scopus_author_affiliations
 (
 	scp bigint,
 	author_seq smallint,
@@ -120,7 +115,7 @@ create table if not exists jenkins.stg_scopus_author_affiliations
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_source_publication_details
+create table if not exists stg_scopus_source_publication_details
 (
 	scp bigint,
 	issue text,
@@ -135,21 +130,21 @@ create table if not exists jenkins.stg_scopus_source_publication_details
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_subjects
+create table if not exists stg_scopus_subjects
 (
 	scp bigint,
-	subj_abbr jenkins.scopus_subject_abbre_type,
+	subj_abbr scopus_subject_abbre_type,
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_subject_keywords
+create table if not exists stg_scopus_subject_keywords
 (
 	scp bigint,
 	subject text,
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_classification_lookup
+create table if not exists stg_scopus_classification_lookup
 (
 	class_type text,
 	class_code text,
@@ -157,7 +152,7 @@ create table if not exists jenkins.stg_scopus_classification_lookup
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_classes
+create table if not exists stg_scopus_classes
 (
 	scp bigint,
 	class_type text,
@@ -165,9 +160,8 @@ create table if not exists jenkins.stg_scopus_classes
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_conf_proceedings
+create table if not exists stg_scopus_conf_proceedings
 (
--- 	ernie_source_id integer,
 	conf_code text,
 	conf_name text,
 	proc_part_no text,
@@ -176,9 +170,8 @@ create table if not exists jenkins.stg_scopus_conf_proceedings
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_conf_editors
+create table if not exists stg_scopus_conf_editors
 (
--- 	ernie_source_id integer,
 	conf_code text,
 	conf_name text,
 	indexed_name text,
@@ -193,14 +186,14 @@ create table if not exists jenkins.stg_scopus_conf_editors
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_references
+create table if not exists stg_scopus_references
 (
 	scp bigint,
 	ref_sgr bigint,
 	citation_text text
 );
 
-create table if not exists jenkins.stg_scopus_publication_identifiers
+create table if not exists stg_scopus_publication_identifiers
 (
 	scp bigint,
 	document_id text not null,
@@ -208,7 +201,7 @@ create table if not exists jenkins.stg_scopus_publication_identifiers
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_abstracts
+create table if not exists stg_scopus_abstracts
 (
 	scp bigint,
 	abstract_text text,
@@ -217,7 +210,7 @@ create table if not exists jenkins.stg_scopus_abstracts
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_titles
+create table if not exists stg_scopus_titles
 (
 	scp bigint,
 	title text not null,
@@ -225,14 +218,14 @@ create table if not exists jenkins.stg_scopus_titles
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_keywords
+create table if not exists stg_scopus_keywords
 (
 	scp bigint,
 	keyword text not null,
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_chemical_groups
+create table if not exists stg_scopus_chemical_groups
 (
 	scp bigint,
 	chemicals_source text not null,
@@ -241,7 +234,7 @@ create table if not exists jenkins.stg_scopus_chemical_groups
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_grants
+create table if not exists stg_scopus_grants
 (
 	scp bigint,
 	grant_id text,
@@ -252,7 +245,7 @@ create table if not exists jenkins.stg_scopus_grants
 	last_updated_time timestamp default now()
 );
 
-create table if not exists jenkins.stg_scopus_grant_acknowledgements
+create table if not exists stg_scopus_grant_acknowledgements
 (
 	scp bigint,
 	grant_text text,
