@@ -27,7 +27,7 @@ BEGIN
            max(correspondence_country)             as correspondence_country,
            max(correspondence_e_address)           as correspondence_e_address,
            max(citation_type)                      as citation_type,
-           max(citation_language)                  as citation_language
+            max(regexp_replace(citation_language,'([a-z])([A-Z])', '\1,\2','g'))                  as citation_language
     FROM stg_scopus_publications
     group by scp
     ON CONFLICT (scp) DO UPDATE SET scp=excluded.scp,
