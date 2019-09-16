@@ -5,7 +5,7 @@ set search_path = ':';
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-CREATE OR REPLACE PROCEDURE scopus_merge_citation_language()
+CREATE OR REPLACE PROCEDURE stg_scopus_merge_citation_language()
 AS
 $$
 BEGIN
