@@ -572,6 +572,10 @@
       <option name="INDEX_NAME_TEMPLATE" value="{table}_{columns}_{unique?uk:i}" />
       <option name="FOREIGN_KEY_NAME_TEMPLATE" value="{table}_{columns}_fk" />
     </SQLiteCodeStyleSettings>
+    <Shell_Script>
+      <option name="SWITCH_CASES_INDENTED" value="true" />
+      <option name="REDIRECT_FOLLOWED_BY_SPACE" value="true" />
+    </Shell_Script>
     <SqlCodeStyleSettings version="2">
       <option name="ALIAS_CASE" value="4" />
       <option name="KEYWORD_CASE" value="0" />

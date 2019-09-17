@@ -1,4 +1,10 @@
-set search_path='jenkins';
+set search_path=schema'::';
+\set ON_ERROR_STOP on
+\set ECHO all
+
+-- DataGrip: start execution from here
+SET TIMEZONE = 'US/Eastern';
+
 create or replace procedure stg_scopus_parse_abstracts_and_titles(scopus_doc_xml xml)
     language plpgsql
 as
@@ -344,7 +350,7 @@ BEGIN
 END;
 $$;
 
-create or replace procedure scopus_parse_publication_identifiers(scopus_doc_xml xml)
+create or replace procedure stg_scopus_parse_publication_identifiers(scopus_doc_xml xml)
     language plpgsql
 as
 $$
@@ -514,7 +520,8 @@ BEGIN
         WHERE source_id != ''
            OR issn != ''
            OR XMLEXISTS('//bibrecord/head/source/isbn' PASSING scopus_doc_xml)
-        group by source_id, issn_main, isbn_main;
+        group by source_id, issn_main, isbn_main
+        RETURNING ernie_source_id into db_id;
                 COMMIT;
     -- scopus_isbns
     INSERT INTO stg_scopus_isbns(ernie_source_id, isbn, isbn_length, isbn_type, isbn_level)

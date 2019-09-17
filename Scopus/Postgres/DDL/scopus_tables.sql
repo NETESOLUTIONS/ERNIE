@@ -214,7 +214,29 @@ COMMENT ON COLUMN scopus_publications.citation_type IS --
   'The item type of the original document. Most items have exactly one citation-type. But the element is optional
 (because the citation type is unknown for dummy items), and in the future this element will also be repeating (as
 support for material from third party bibliographic databases). Item types of third party bibliographic databases
-are mapped to these citation-types. The original citation-types are also delivered, in the descriptor element.';
+are mapped to these citation-types. The original citation-types are also delivered, in the descriptor element.
+The following values are supported:
+  * "ab" = Abstract Report
+  * "ar" = Article
+  * "bk" = Book
+  * "br" = Book Review
+  * "bz" = Business Article
+  * "ch" = Chapter
+  * "cp" = Conference Paper
+  * "cr" = Conference Review
+  * "di" = Dissertation
+  * "ed" = Editorial
+  * "er" = Erratum
+  * "ip" = Article In Press
+  * "le" = Letter
+  * "no" = Note
+  * "pa" = Patent
+  * "pr" = Press Release
+  * "re" = Review
+  * "rp" = Report
+  * "sh" = Short Survey
+  * "wp" = Working Paper
+';
 
 -- endregion
 
@@ -343,6 +365,9 @@ TABLESPACE scopus_tbs;
 
 ALTER TABLE scopus_source_publication_details
   ADD CONSTRAINT spub_conf_code_conf_name_fk FOREIGN KEY (conf_code, conf_name) REFERENCES scopus_conference_events(conf_code, conf_name) ON DELETE CASCADE;
+
+CREATE INDEX sspd_conf_name_fti ON scopus_source_publication_details USING GIN (to_tsvector('english', conf_name));
+-- 5m:37s
 
 COMMENT ON TABLE scopus_source_publication_details IS 'Details of individual publication in a (journal) source';
 

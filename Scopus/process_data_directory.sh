@@ -150,11 +150,12 @@ declare -i num_zips=$(ls *.zip | wc -l)
 declare -i failed_xml_counter=0 failed_xml_counter_total=0 processed_xml_counter=0 processed_xml_counter_total=0
 declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
 
+
 parse_xml() {
   local xml="$1"
   [[ $2 ]] && local subset_option="-v subset_sp=$2"
   [[ ${VERBOSE} == "true" ]] && echo "Processing $xml ..."
-  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parser.sql -v "xml_file=$PWD/$xml" ${subset_option} 2>>"${ERROR_LOG}"; then
+  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/scopus_stg_parser.sql -v "xml_file=$PWD/$xml" ${subset_option} 2>>"${ERROR_LOG}"; then
     [[ ${VERBOSE} == "true" ]] && echo "$xml: SUCCESSFULLY PARSED."
     return 0
   else
@@ -188,6 +189,8 @@ HEREDOC
   fi
 }
 
+# Drop indexes for staging table method
+#psql -c "call scopus_disable_indexes();"
 # Create an empty file if it does not exist to simplify check condition below
 touch "${PROCESSED_LOG}"
 [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
@@ -221,8 +224,17 @@ for scopus_data_archive in *.zip; do
       fi
     done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
     rm -rf "${PARALLEL_LOG}"
+    cd ../
+    rm -rf ${TMP_DIR}
 
-    cd ..
+    # sql script that inserts from staging table into scopus
+    echo -e "\nMERGING INTO SCOPUS STAGING TABLES..."
+    psql -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
+    echo -e "MERGING FINISHED"
+    echo -e "TRUNCATING STAGING TABLES..."
+    ## calling a procedure that truncates the staging tables
+    psql -c "call truncate_stg_table('jenkins');"
+    echo -e "\nTRUNCATING FINISHED"
 
     echo "SUMMARY FOR ${scopus_data_archive}:"
     echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"
@@ -232,6 +244,7 @@ for scopus_data_archive in *.zip; do
     else
       echo "FAILED PARSING ${failed_xml_counter} XML FILES"
     fi
+
     ((failed_xml_counter_total += failed_xml_counter)) || :
     failed_xml_counter=0
     ((processed_xml_counter_total += processed_xml_counter)) || :
@@ -265,6 +278,8 @@ if ((failed_xml_counter_total == 0)); then
 else
   echo "FAILED PARSING ${failed_xml_counter_total} XML FILES"
 fi
+
+#psql -c "scopus_create_indexes();"
 
 if [[ -d "${TMP_DIR}" ]]; then
   cd "${TMP_DIR}"

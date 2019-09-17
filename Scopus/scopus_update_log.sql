@@ -6,28 +6,14 @@
  of scopus publications and the number of deletions thus far
  */
 
-\timing
+--\timing
 \set ON_ERROR_STOP on
 \set ECHO all
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
--- insert into using a values list
-
-INSERT INTO update_log_scopus (update_time, num_scopus_pub, num_delete)
-     SELECT *
-     FROM
-     (VALUES
-       (
-         (SELECT current_timestamp),
-         (SELECT count(*) FROM scopus_publications),
-         (SELECT count(*) FROM del_scps)
-       )
-
-      )
-AS t (update_time, num_scopus_publications, num_deletes);
-
-SELECT *
-FROM update_log_scopus
-ORDER BY id DESC;
+INSERT INTO update_log_scopus
+    (update_time, num_scopus_pub, num_delete)
+SELECT current_timestamp, count(1), 0
+  FROM scopus_publications;
