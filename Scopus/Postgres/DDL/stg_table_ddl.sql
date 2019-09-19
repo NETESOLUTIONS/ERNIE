@@ -13,7 +13,7 @@ create table if not exists stg_scopus_publication_groups
 
 
 create table if not exists stg_scopus_sources
-(
+(   ernie_source_id int,
 	source_id text,
 	issn_main text,
 	isbn_main text,
@@ -29,7 +29,7 @@ create table if not exists stg_scopus_sources
 
 
 create table if not exists stg_scopus_isbns
-(
+(   ernie_source_id int,
 	isbn text,
 	isbn_length text,
 	isbn_type text,
@@ -39,7 +39,7 @@ create table if not exists stg_scopus_isbns
 
 
 create table if not exists stg_scopus_issns
-(
+(   ernie_source_id int,
 	issn text,
 	issn_type text,
 	last_updated_time timestamp default now()
@@ -63,8 +63,7 @@ create table if not exists stg_scopus_conference_events
 
 
 create table if not exists stg_scopus_publications
-(
-	scp bigint,
+(   scp bigint,
 	sgr bigint,
 	correspondence_person_indexed_name text,
 	correspondence_orgs text,
@@ -76,6 +75,7 @@ create table if not exists stg_scopus_publications
 	citation_language text,
 	process_stage text,
 	state text,
+	ernie_source_id int,
 	date_sort date);
 
 create table if not exists stg_scopus_authors
@@ -161,7 +161,7 @@ create table if not exists stg_scopus_classes
 );
 
 create table if not exists stg_scopus_conf_proceedings
-(
+(   ernie_source_id int,
 	conf_code text,
 	conf_name text,
 	proc_part_no text,
@@ -171,7 +171,7 @@ create table if not exists stg_scopus_conf_proceedings
 );
 
 create table if not exists stg_scopus_conf_editors
-(
+(   ernie_source_id int,
 	conf_code text,
 	conf_name text,
 	indexed_name text,

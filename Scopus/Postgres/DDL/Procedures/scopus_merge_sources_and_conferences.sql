@@ -5,16 +5,16 @@ set search_path=':';
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-create procedure stg_scopus_merge_source_and_conferences()
+create or replace procedure stg_scopus_merge_source_and_conferences()
     language plpgsql
 as
 $$
 DECLARE
-    db_id      int;
     single_row RECORD;
 BEGIN
     FOR single_row IN (
-        SELECT DISTINCT source_id,
+        SELECT DISTINCT ernie_source_id,
+                        source_id,
                         issn_main,
                         isbn_main,
                         source_type,
@@ -25,9 +25,9 @@ BEGIN
                         pub_date
         FROM stg_scopus_sources)
         LOOP
-            INSERT INTO scopus_sources(source_id, issn_main, isbn_main, source_type, source_title,
+            INSERT INTO scopus_sources(ernie_source_id, source_id, issn_main, isbn_main, source_type, source_title,
                                        coden_code, publisher_name, publisher_e_address, pub_date)
-            VALUES (single_row.source_id, single_row.issn_main, single_row.isbn_main, single_row.source_type,
+            VALUES (single_row.ernie_source_id, single_row.source_id, single_row.issn_main, single_row.isbn_main, single_row.source_type,
                     single_row.source_title,
                     single_row.coden_code, single_row.publisher_name, single_row.publisher_e_address,
                     single_row.pub_date)
@@ -36,13 +36,12 @@ BEGIN
                                                                         coden_code          = EXCLUDED.coden_code,
                                                                         publisher_name      = EXCLUDED.publisher_name,
                                                                         publisher_e_address = EXCLUDED.publisher_e_address,
-                                                                        pub_date            = EXCLUDED.pub_date
-            RETURNING ernie_source_id INTO db_id;
+                                                                        pub_date            = EXCLUDED.pub_date;
         END LOOP;
 
 
     INSERT INTO scopus_isbns (ernie_source_id, isbn, isbn_length, isbn_type, isbn_level)
-    select distinct db_id as ernie_source_id,
+    select distinct ernie_source_id,
                     isbn,
                     isbn_length,
                     isbn_type,
@@ -52,7 +51,7 @@ BEGIN
                                                                  isbn_level=excluded.isbn_level;
 
     INSERT INTO scopus_issns(ernie_source_id, issn, issn_type)
-    select distinct db_id as ernie_source_id,
+    select distinct ernie_source_id,
                     issn,
                     issn_type
     from stg_scopus_issns
@@ -83,7 +82,7 @@ BEGIN
 
     INSERT INTO scopus_conf_proceedings(ernie_source_id, conf_code, conf_name, proc_part_no, proc_page_range,
                                         proc_page_count)
-    select distinct db_id as ernie_source_id,
+    select distinct ernie_source_id,
            conf_code,
            conf_name,
            proc_part_no,
@@ -93,12 +92,11 @@ BEGIN
     ON CONFLICT (ernie_source_id, conf_code, conf_name) DO UPDATE SET proc_part_no=excluded.proc_part_no,
                                                                       proc_page_range=excluded.proc_page_range,
                                                                       proc_page_count=excluded.proc_page_count;
-    COMMIT;
 -- scopus_conf_editors
 
     INSERT INTO scopus_conf_editors(ernie_source_id, conf_code, conf_name, indexed_name, role_type,
                                     initials, surname, given_name, degree, suffix)
-    select db_id as ernie_source_id,
+    select ernie_source_id,
            conf_code,
            conf_name,
            indexed_name,
@@ -115,5 +113,5 @@ BEGIN
                                                                                     given_name=excluded.given_name,
                                                                                     degree=excluded.degree,
                                                                                     suffix=excluded.suffix;
-END
+END;
 $$;
