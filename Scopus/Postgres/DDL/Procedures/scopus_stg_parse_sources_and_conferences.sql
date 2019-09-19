@@ -13,7 +13,7 @@ DECLARE
 BEGIN
     INSERT INTO stg_scopus_sources(ernie_source_id, source_id, issn_main, isbn_main, source_type, source_title,
                                    coden_code, publisher_name, publisher_e_address, pub_date)
-    SELECT nextval('public.scopus_sources_ernie_source_id_seq') as ernie_source_id,
+    SELECT nextval('scopus_sources_ernie_source_id_seq') as ernie_source_id,
            coalesce(source_id, '')                              AS source_id,
            coalesce(issn, '')                                   AS issn_main,
            coalesce(isbn, '')                                   AS isbn_main,
