@@ -11,11 +11,11 @@ as
 $$
 BEGIN
     INSERT INTO scopus_chemical_groups(scp, chemicals_source, chemical_name, cas_registry_number)
-    select scp,
+    SELECT scp,
            chemicals_source,
            chemical_name,
            cas_registry_number
-    from stg_scopus_chemical_groups
+    FROM stg_scopus_chemical_groups
     ON CONFLICT (scp, chemical_name, cas_registry_number) DO UPDATE SET chemicals_source=excluded.chemicals_source;
 END
 $$;

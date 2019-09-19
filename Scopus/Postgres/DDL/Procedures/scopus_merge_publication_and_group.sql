@@ -30,7 +30,7 @@ BEGIN
             max(regexp_replace(citation_language,'([a-z])([A-Z])', '\1,\2','g'))                  as citation_language
     FROM stg_scopus_publications
     group by scp
-    ON CONFLICT (scp) DO UPDATE SET scp=excluded.scp,
+    ON CONFLICT (scp) DO UPDATE SET
                                     sgr=excluded.sgr,
                                     correspondence_person_indexed_name=excluded.correspondence_person_indexed_name,
                                     correspondence_city=excluded.correspondence_city,
@@ -38,6 +38,5 @@ BEGIN
                                     correspondence_e_address=excluded.correspondence_e_address,
                                     citation_type=excluded.citation_type,
                                     citation_language=excluded.citation_language;
-
 END
 $$;
