@@ -1,4 +1,3 @@
-set search_path = ':';
 \set ON_ERROR_STOP on
 \set ECHO all
 
@@ -41,7 +40,7 @@ BEGIN
     -- scopus_subjects
     INSERT INTO stg_scopus_subjects (scp, subj_abbr)
 
-    SELECT scp,
+    SELECT DISTINCT scp,
            subj_abbr
     FROM xmltable(--
                  '//bibrecord/head/enhancement/classificationgroup/classifications[@type="SUBJABBR"]/classification'
@@ -53,7 +52,7 @@ BEGIN
     -- scopus_subject_keywords
     INSERT INTO stg_scopus_subject_keywords (scp, subject)
 
-    SELECT scp,
+    SELECT DISTINCT scp,
            subject
     FROM xmltable(--
                  '//bibrecord/head/enhancement/classificationgroup/classifications[@type="SUBJECT"]/classification'

@@ -82,7 +82,7 @@ BEGIN
              )
     ON CONFLICT (ernie_source_id, isbn, isbn_type) DO UPDATE SET isbn_length=excluded.isbn_length,
                                                       isbn_level=excluded.isbn_level;
-                                                      COMMIT;
+
     -- scopus_issns
     INSERT INTO scopus_issns(ernie_source_id, issn, issn_type)
     SELECT db_id                   AS ernie_source_id,
@@ -95,7 +95,6 @@ BEGIN
              )
     ON CONFLICT (ernie_source_id, issn, issn_type) DO UPDATE SET issn=excluded.issn,
                                                                issn_type=excluded.issn_type;
-                                                               COMMIT;
     UPDATE scopus_publications sp
     SET pub_type        = singular.pub_type,
         process_stage   = singular.process_stage,

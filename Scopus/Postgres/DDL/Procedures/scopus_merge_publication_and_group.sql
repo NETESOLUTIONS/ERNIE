@@ -1,4 +1,3 @@
--- set search_path = '':;
 \set ON_ERROR_STOP on
 \set ECHO all
 
@@ -11,7 +10,7 @@ as
 $$
 BEGIN
     INSERT INTO scopus_publication_groups(sgr, pub_year)
-    SELECT DISTINCT on (sgr, pub_year) sgr,
+    SELECT DISTINCT sgr,
                                        pub_year
     FROM stg_scopus_publication_groups
     ON CONFLICT (sgr) DO UPDATE
@@ -21,7 +20,7 @@ BEGIN
                                     correspondence_country, correspondence_e_address, citation_type, citation_language)
 
     SELECT scp,
-           max(sgr)                                as sgr,
+           sgr                             as sgr,
            max(correspondence_person_indexed_name) as correspondence_person_indexed_name,
            max(correspondence_city)                as correspondence_city,
            max(correspondence_country)             as correspondence_country,
@@ -29,7 +28,7 @@ BEGIN
            max(citation_type)                      as citation_type,
             max(regexp_replace(citation_language,'([a-z])([A-Z])', '\1,\2','g'))                  as citation_language
     FROM stg_scopus_publications
-    group by scp
+    group by scp, sgr
     ON CONFLICT (scp) DO UPDATE SET
                                     sgr=excluded.sgr,
                                     correspondence_person_indexed_name=excluded.correspondence_person_indexed_name,

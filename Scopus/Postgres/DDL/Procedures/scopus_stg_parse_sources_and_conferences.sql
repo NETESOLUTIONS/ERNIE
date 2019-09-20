@@ -4,7 +4,7 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-create or replace procedure scopus_parse_source_and_conferences(scopus_doc_xml xml)
+create or replace procedure stg_scopus_parse_source_and_conferences(scopus_doc_xml xml)
     language plpgsql
 as
 $$

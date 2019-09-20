@@ -1,4 +1,3 @@
-set search_path=':';
 \set ON_ERROR_STOP on
 \set ECHO all
 
@@ -33,19 +32,19 @@ ON CONFLICT (scp) DO UPDATE SET issue=excluded.issue,
                                 conf_name=excluded.conf_name;
 
 INSERT INTO scopus_subjects (scp, subj_abbr)
-SELECT scp,
+SELECT DISTINCT scp,
        subj_abbr
 FROM stg_scopus_subjects
 ON CONFLICT (scp, subj_abbr) DO UPDATE SET subj_abbr=excluded.subj_abbr;
 
 INSERT INTO scopus_subject_keywords (scp, subject)
-select scp,
+select DISTINCT scp,
        subject
 from stg_scopus_subject_keywords
 ON CONFLICT (scp, subject) DO UPDATE SET subject=excluded.subject;
 
 INSERT INTO scopus_classes(scp, class_type, class_code)
-SELECT scp,
+SELECT DISTINCT scp,
        class_type,
        class_code
 FROM stg_scopus_classes
@@ -53,7 +52,7 @@ ON CONFLICT (scp, class_code) DO UPDATE
 SET class_type=excluded.class_type, class_code=excluded.class_code;
 
 INSERT INTO scopus_classification_lookup(class_type, class_code, description)
-SELECT class_type,
+SELECT DISTINCT class_type,
        class_code,
        description
 FROM stg_scopus_classification_lookup

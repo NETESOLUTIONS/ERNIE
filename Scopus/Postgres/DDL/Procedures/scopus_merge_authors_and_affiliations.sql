@@ -35,7 +35,7 @@ BEGIN
 ---------------------------------------
     INSERT INTO scopus_affiliations(scp, affiliation_no, afid, dptid, city_group, state, postal_code, country_code,
                                     country)
-    SELECT scp,
+    SELECT DISTINCT scp,
            affiliation_no,
            afid,
            dptid,
