@@ -36,7 +36,7 @@ BEGIN
                     correspondence_country TEXT PATH 'head/correspondence/affiliation/country', --
                     correspondence_e_address TEXT PATH 'head/correspondence/ce:e-address',
                     citation_type TEXT PATH 'head/citation-info/citation-type/@code',
-                     citation_language TEXT PATH 'head/citation-info/citation-language/@language')
+                     citation_language XML PATH 'head/citation-info/citation-language/@language')
     )
         LOOP
             INSERT INTO stg_scopus_publication_groups(sgr, pub_year)

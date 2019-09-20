@@ -11,7 +11,7 @@ $$
 BEGIN
     INSERT INTO scopus_publication_groups(sgr, pub_year)
     SELECT DISTINCT sgr,
-                                       pub_year
+                    pub_year
     FROM stg_scopus_publication_groups
     ON CONFLICT (sgr) DO UPDATE
         SET pub_year=excluded.pub_year;
@@ -20,17 +20,16 @@ BEGIN
                                     correspondence_country, correspondence_e_address, citation_type, citation_language)
 
     SELECT scp,
-           sgr                             as sgr,
-           max(correspondence_person_indexed_name) as correspondence_person_indexed_name,
-           max(correspondence_city)                as correspondence_city,
-           max(correspondence_country)             as correspondence_country,
-           max(correspondence_e_address)           as correspondence_e_address,
-           max(citation_type)                      as citation_type,
-            max(regexp_replace(citation_language,'([a-z])([A-Z])', '\1,\2','g'))                  as citation_language
+           sgr                                                                    as sgr,
+           max(correspondence_person_indexed_name)                                as correspondence_person_indexed_name,
+           max(correspondence_city)                                               as correspondence_city,
+           max(correspondence_country)                                            as correspondence_country,
+           max(correspondence_e_address)                                          as correspondence_e_address,
+           max(citation_type)                                                     as citation_type,
+           max(regexp_replace(citation_language, '([a-z])([A-Z])', '\1,\2', 'g')) as citation_language
     FROM stg_scopus_publications
     group by scp, sgr
-    ON CONFLICT (scp) DO UPDATE SET
-                                    sgr=excluded.sgr,
+    ON CONFLICT (scp) DO UPDATE SET sgr=excluded.sgr,
                                     correspondence_person_indexed_name=excluded.correspondence_person_indexed_name,
                                     correspondence_city=excluded.correspondence_city,
                                     correspondence_country=excluded.correspondence_country,
