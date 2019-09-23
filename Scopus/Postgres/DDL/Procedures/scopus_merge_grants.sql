@@ -24,9 +24,9 @@ ON CONFLICT (scp, grant_id, grantor) DO UPDATE SET grantor_acronym=excluded.gran
                                                    grantor_funder_registry_id=excluded.grantor_funder_registry_id;
 
 INSERT INTO scopus_grant_acknowledgements(scp, grant_text)
-select distinct scopus_publications.scp,
+select distinct scp,
        grant_text
-from stg_scopus_grant_acknowledgements, scopus_publications
+from stg_scopus_grant_acknowledgements
 ON CONFLICT (scp) DO UPDATE SET grant_text=excluded.grant_text;
 END
 $$;

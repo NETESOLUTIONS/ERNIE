@@ -32,9 +32,9 @@ FROM xmltable(--
 GROUP BY scp, grant_id, grantor;
 
     -- scopus_grant_acknowledgements
-INSERT INTO scopus_grant_acknowledgements(scp, grant_text)
+INSERT INTO stg_scopus_grant_acknowledgements(scp, grant_text)
 
-SELECT scp,
+SELECT DISTINCT scp,
        grant_text
 FROM xmltable(--
              '//bibrecord/head/grantlist/grant-text' PASSING scopus_doc_xml COLUMNS --
