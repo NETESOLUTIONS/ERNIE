@@ -10,7 +10,7 @@ as
 $$
 BEGIN
 INSERT INTO scopus_references(scp, ref_sgr, citation_text)
-SELECT scp,
+SELECT DISTINCT scp,
        ref_sgr,
        citation_text
 FROM stg_scopus_references

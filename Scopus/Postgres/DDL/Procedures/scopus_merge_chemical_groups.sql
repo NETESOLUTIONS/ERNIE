@@ -10,7 +10,7 @@ as
 $$
 BEGIN
     INSERT INTO scopus_chemical_groups(scp, chemicals_source, chemical_name, cas_registry_number)
-    SELECT scp,
+    SELECT DISTINCT scp,
            chemicals_source,
            chemical_name,
            cas_registry_number

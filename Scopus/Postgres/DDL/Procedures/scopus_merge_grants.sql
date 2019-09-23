@@ -11,14 +11,14 @@ $$
 BEGIN
 insert into scopus_grants(scp, grant_id, grantor_acronym, grantor,
                           grantor_country_code, grantor_funder_registry_id)
-select distinct pub.scp,
+select  scp,
        grant_id,
         max(grantor_acronym) as grantor_acronym,
        grantor,
        max(grantor_country_code) as grantor_country_code,
        max(grantor_funder_registry_id) as grantor_funder_registry_id
-from stg_scopus_grants grants, scopus_publications pub
-GROUP BY pub.scp, grants.grant_id, grants.grantor
+from stg_scopus_grants
+GROUP BY scp, grant_id, grantor
 ON CONFLICT (scp, grant_id, grantor) DO UPDATE SET grantor_acronym=excluded.grantor_acronym,
                                                    grantor_country_code=excluded.grantor_country_code,
                                                    grantor_funder_registry_id=excluded.grantor_funder_registry_id;

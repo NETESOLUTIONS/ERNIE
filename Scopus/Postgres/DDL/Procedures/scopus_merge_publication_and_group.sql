@@ -20,7 +20,7 @@ BEGIN
                                     correspondence_country, correspondence_e_address, citation_type, citation_language)
 
     SELECT scp,
-           sgr                                                                    as sgr,
+           max(sgr)                                                                   as sgr,
            max(correspondence_person_indexed_name)                                as correspondence_person_indexed_name,
            max(correspondence_city)                                               as correspondence_city,
            max(correspondence_country)                                            as correspondence_country,
@@ -28,7 +28,7 @@ BEGIN
            max(citation_type)                                                     as citation_type,
            max(regexp_replace(citation_language, '([a-z])([A-Z])', '\1,\2', 'g')) as citation_language
     FROM stg_scopus_publications
-    group by scp, sgr
+    group by scp
     ON CONFLICT (scp) DO UPDATE SET sgr=excluded.sgr,
                                     correspondence_person_indexed_name=excluded.correspondence_person_indexed_name,
                                     correspondence_city=excluded.correspondence_city,
