@@ -1,4 +1,3 @@
-set search_path = ':';
 \set ON_ERROR_STOP on
 \set ECHO all
 
