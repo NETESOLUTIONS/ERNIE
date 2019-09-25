@@ -40,8 +40,17 @@ BEGIN
     country
     FROM
       xmltable(--
-          '//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml
-          COLUMNS scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]', affiliation_no FOR ORDINALITY, afid BIGINT PATH '@afid', dptid BIGINT PATH '@dptid', city_group TEXT PATH 'city-group', state TEXT PATH 'state', postal_code TEXT PATH 'postal-code', city TEXT PATH 'city', country_code TEXT PATH '@country', country TEXT PATH 'country');
+          '//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml COLUMNS --
+        scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]', --
+        affiliation_no FOR ORDINALITY, --
+        afid BIGINT PATH '@afid', --
+        dptid BIGINT PATH '@dptid', --
+        city_group TEXT PATH 'city-group', --
+        state TEXT PATH 'state', --
+        postal_code TEXT PATH 'postal-code', --
+        city TEXT PATH 'city', --
+        country_code TEXT PATH '@country', --
+        country TEXT PATH 'country');
 
   -- scopus_author_affiliations
   INSERT INTO stg_scopus_author_affiliations(scp, author_seq, affiliation_no)
