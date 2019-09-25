@@ -8,7 +8,6 @@
 
 --\timing
 \set ON_ERROR_STOP on
-\set ECHO all
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
