@@ -10,11 +10,18 @@
       <user-name>dk</user-name>
       <schema-mapping>
         <introspection-scope>
-          <node kind="database" qname="@">
-            <node kind="schema">
-              <name qname="@" />
-              <name qname="jenkins" />
-              <name qname="public" />
+          <node negative="1">
+            <node kind="database" qname="@">
+              <node kind="schema" qname="@" />
+            </node>
+            <node kind="database" qname="ernie">
+              <node kind="schema">
+                <name qname="ernie1_museum" />
+                <name qname="ernie1_public" />
+                <name qname="information_schema" />
+                <name qname="pg_catalog" />
+                <name qname="public" />
+              </node>
             </node>
           </node>
         </introspection-scope>
