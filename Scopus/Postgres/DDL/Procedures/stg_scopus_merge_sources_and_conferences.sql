@@ -42,20 +42,22 @@ BEGIN
 
 
     INSERT INTO scopus_isbns (ernie_source_id, isbn, isbn_length, isbn_type, isbn_level)
-    select distinct ernie_source_id,
+    select distinct scopus_sources.ernie_source_id,
                     isbn,
                     isbn_length,
                     isbn_type,
                     isbn_level
-    from stg_scopus_isbns
+    from stg_scopus_isbns, scopus_sources
+    where scopus_sources.ernie_source_id=stg_scopus_isbns.ernie_source_id
     ON CONFLICT (ernie_source_id, isbn, isbn_type) DO UPDATE SET isbn_length=excluded.isbn_length,
                                                                  isbn_level=excluded.isbn_level;
 --
     INSERT INTO scopus_issns(ernie_source_id, issn, issn_type)
-    select distinct ernie_source_id,
+    select distinct scopus_sources.ernie_source_id,
                     issn,
                     issn_type
-    from stg_scopus_issns
+    from stg_scopus_issns, scopus_sources
+    where scopus_sources.ernie_source_id=stg_scopus_issns.ernie_source_id
     ON CONFLICT (ernie_source_id, issn, issn_type) DO UPDATE SET issn=excluded.issn,
                                                                  issn_type=excluded.issn_type;
 
@@ -83,13 +85,14 @@ BEGIN
 
     INSERT INTO scopus_conf_proceedings(ernie_source_id, conf_code, conf_name, proc_part_no, proc_page_range,
                                         proc_page_count)
-    select distinct ernie_source_id,
+    select distinct scopus_sources.ernie_source_id,
                     conf_code,
                     conf_name,
                     proc_part_no,
                     proc_page_range,
                     proc_page_count
-    from stg_scopus_conf_proceedings
+    from stg_scopus_conf_proceedings, scopus_sources
+    where scopus_sources.ernie_source_id=stg_scopus_conf_proceedings.ernie_source_id
     ON CONFLICT (ernie_source_id, conf_code, conf_name) DO UPDATE SET proc_part_no=excluded.proc_part_no,
                                                                       proc_page_range=excluded.proc_page_range,
                                                                       proc_page_count=excluded.proc_page_count;
@@ -97,7 +100,7 @@ BEGIN
 
     INSERT INTO scopus_conf_editors(ernie_source_id, conf_code, conf_name, indexed_name, role_type,
                                     initials, surname, given_name, degree, suffix)
-    select ernie_source_id,
+    select scopus_sources.ernie_source_id,
            conf_code,
            conf_name,
            indexed_name,
@@ -107,7 +110,8 @@ BEGIN
            given_name,
            degree,
            suffix
-    from stg_scopus_conf_editors
+    from stg_scopus_conf_editors, scopus_sources
+    where scopus_sources.ernie_source_id=stg_scopus_conf_editors.ernie_source_id
     ON CONFLICT (ernie_source_id, conf_code, conf_name, indexed_name) DO UPDATE SET role_type=excluded.role_type,
                                                                                     initials=excluded.initials,
                                                                                     surname=excluded.surname,

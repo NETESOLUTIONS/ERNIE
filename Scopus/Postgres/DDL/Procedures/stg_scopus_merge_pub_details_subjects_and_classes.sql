@@ -4,7 +4,7 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-create procedure stg_scopus_merge_pub_details_subjects_and_classes()
+create or replace procedure stg_scopus_merge_pub_details_subjects_and_classes()
     language plpgsql
 as
 $$
@@ -12,7 +12,7 @@ BEGIN
 INSERT INTO scopus_source_publication_details(scp, issue, volume, first_page, last_page, publication_year,
                                               publication_date, conf_code, conf_name)
 
-select scp,
+select distinct scp,
        issue,
        volume,
        first_page,
