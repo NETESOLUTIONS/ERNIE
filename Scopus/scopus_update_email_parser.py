@@ -37,7 +37,7 @@ def email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates"):
     """
 
     ## Scan emails for url and store the url(s) in a list
-    links= re.findall('https://\S*.3D', pmt_content)
+    links= re.findall('https://\S[^<]*', pmt_content)
     links=links[0:3]
     links.remove(links[1])
     ## Go through list of links, request https, download url with zip
@@ -46,10 +46,12 @@ def email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates"):
         scopus_zip_file_name= re.findall('nete.*ANI.*zip', url)
         scopus_zip_file_name= scopus_zip_file_name[0].split('/')[2]
         urllib.request.urlretrieve(url,os.path.join(data_directory,scopus_zip_file_name))
+        print(scopus_zip_file_name)
+
 
 ## Run the function with the relevant input, which is already default argument for email_parser
 print("Scanning email now for url...")
 result=email_parser(pmt_content, data_directory="/erniedev_data2/Scopus_updates")
-print('The revelevant files are parsed!', result )
-print('Total duration:',time.time()-start_time)
+print('The revelevant items are zip files:', result)
+print('The total duration for the whole process:',time.time()-start_time)
 ## End of the script

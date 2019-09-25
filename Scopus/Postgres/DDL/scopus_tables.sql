@@ -21,6 +21,7 @@ it''s own unique "SCP" id, but the two records will have the same "SGR" id (indi
 identical).';
 
 COMMENT ON COLUMN scopus_publication_groups.sgr IS --
+
   'Scopus group id. Same as Scopus id, but a little less unique: if a record from a third party is loaded and it has
 also been loaded for an Elsevier record, then the two records will be delivered separately. Each record will have
 it''s own unique "SCP" id, but the two records will have the same "SGR" id (indicating that both records are in fact
@@ -82,7 +83,7 @@ CREATE TABLE scopus_isbns (
   isbn_type TEXT,
   isbn_level TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_isbns_pk PRIMARY KEY (ernie_source_id, isbn) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_isbns_pk PRIMARY KEY (ernie_source_id, isbn, isbn_type) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -213,7 +214,29 @@ COMMENT ON COLUMN scopus_publications.citation_type IS --
   'The item type of the original document. Most items have exactly one citation-type. But the element is optional
 (because the citation type is unknown for dummy items), and in the future this element will also be repeating (as
 support for material from third party bibliographic databases). Item types of third party bibliographic databases
-are mapped to these citation-types. The original citation-types are also delivered, in the descriptor element.';
+are mapped to these citation-types. The original citation-types are also delivered, in the descriptor element.
+The following values are supported:
+  * "ab" = Abstract Report
+  * "ar" = Article
+  * "bk" = Book
+  * "br" = Book Review
+  * "bz" = Business Article
+  * "ch" = Chapter
+  * "cp" = Conference Paper
+  * "cr" = Conference Review
+  * "di" = Dissertation
+  * "ed" = Editorial
+  * "er" = Erratum
+  * "ip" = Article In Press
+  * "le" = Letter
+  * "no" = Note
+  * "pa" = Patent
+  * "pr" = Press Release
+  * "re" = Review
+  * "rp" = Report
+  * "sh" = Short Survey
+  * "wp" = Working Paper
+';
 
 -- endregion
 
@@ -228,6 +251,7 @@ CREATE TABLE scopus_authors (
   author_given_name TEXT,
   author_initials TEXT,
   author_e_address TEXT,
+  author_rank TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT scopus_authors_pk PRIMARY KEY (scp, author_seq) USING INDEX TABLESPACE index_tbs
 )
@@ -342,6 +366,9 @@ TABLESPACE scopus_tbs;
 ALTER TABLE scopus_source_publication_details
   ADD CONSTRAINT spub_conf_code_conf_name_fk FOREIGN KEY (conf_code, conf_name) REFERENCES scopus_conference_events(conf_code, conf_name) ON DELETE CASCADE;
 
+CREATE INDEX sspd_conf_name_fti ON scopus_source_publication_details USING GIN (to_tsvector('english', conf_name));
+-- 5m:37s
+
 COMMENT ON TABLE scopus_source_publication_details IS 'Details of individual publication in a (journal) source';
 
 COMMENT ON COLUMN scopus_source_publication_details.scp IS 'Scopus id. Example: 50349106526';
@@ -369,7 +396,7 @@ COMMENT ON COLUMN scopus_source_publication_details.conf_name IS 'Conference nam
 CREATE TABLE scopus_subjects (
   scp BIGINT
     CONSTRAINT ssubj_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-  subj_abbr TEXT,
+  subj_abbr SCOPUS_SUBJECT_ABBRE_TYPE,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT scopus_subjects_pk PRIMARY KEY (scp, subj_abbr) USING INDEX TABLESPACE index_tbs
 )
@@ -596,6 +623,7 @@ CREATE TABLE IF NOT EXISTS scopus_publication_identifiers (
     CONSTRAINT spi_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   document_id TEXT NOT NULL,
   document_id_type TEXT NOT NULL,
+  last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT scopus_publiaction_identifiers_pk PRIMARY KEY (scp, document_id_type, document_id) --
     USING INDEX TABLESPACE index_tbs
 )
@@ -630,10 +658,10 @@ COMMENT ON COLUMN scopus_abstracts.scp IS 'Scopus id that uniquely identifies do
 COMMENT ON COLUMN scopus_abstracts.abstract_text IS 'Contains an abstract of the document';
 
 COMMENT ON COLUMN scopus_abstracts.abstract_language IS 'Contains the language of the abstract';
--- endregion
 
 COMMENT ON COLUMN scopus_abstracts.abstract_source IS --
   'Contains the value indicating from which part abstract originates ex: introduction,preface';
+-- endregion
 
 CREATE TABLE IF NOT EXISTS scopus_titles (
   scp BIGINT
@@ -644,6 +672,8 @@ CREATE TABLE IF NOT EXISTS scopus_titles (
   CONSTRAINT scopus_titles_pk PRIMARY KEY (scp, language) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
+
+CREATE INDEX st_title_fti ON scopus_titles USING GIN (to_tsvector('english', title));
 
 COMMENT ON TABLE scopus_titles IS 'ELSEVIER: Scopus title of publications';
 
@@ -670,6 +700,7 @@ COMMENT ON COLUMN scopus_keywords.scp IS 'Scopus id that uniquely identifies doc
 COMMENT ON COLUMN scopus_keywords.keyword IS --
   'Keywords assigned to document by authors Ex: headache, high blood pressure';
 
+-- region scopus_chemical_group table
 CREATE TABLE IF NOT EXISTS scopus_chemical_groups (
   scp BIGINT
     CONSTRAINT sc_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
@@ -691,3 +722,66 @@ COMMENT ON COLUMN scopus_chemical_groups.chemicals_source IS 'Source of the chem
 COMMENT ON COLUMN scopus_chemical_groups.chemical_name IS 'Name of the chemical substance Ex: iodine';
 
 COMMENT ON COLUMN scopus_chemical_groups.cas_registry_number IS 'CAS registry number associated with chemical name Ex: 15715-08-9';
+-- endregion
+
+CREATE TABLE scopus_grants (
+  scp BIGINT CONSTRAINT sg_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+  grant_id TEXT,
+  grantor_acronym TEXT,
+  grantor TEXT NOT NULL,
+  grantor_country_code CHAR(3),
+  grantor_funder_registry_id TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT scopus_grants_pk PRIMARY KEY (scp, grant_id, grantor) USING INDEX TABLESPACE index_tbs
+) TABLESPACE scopus_tbs;
+
+COMMENT ON TABLE scopus_grants
+IS 'Grants information table of publications';
+
+COMMENT ON COLUMN scopus_grants.scp
+IS 'Scopus id. Example: 84936047855';
+
+COMMENT ON COLUMN scopus_grants.grant_id
+IS 'Identification number of the grant assigned by grant agency';
+
+COMMENT ON COLUMN scopus_grants.grantor_acronym
+IS 'Acronym of an organization that has awarded the grant';
+
+COMMENT ON COLUMN scopus_grants.grantor
+IS 'Agency name that has awarded the grant';
+
+COMMENT ON COLUMN scopus_grants.grantor_country_code
+IS 'Agency country 3-letter iso code';
+
+COMMENT ON COLUMN scopus_grants.grantor_funder_registry_id
+IS 'Funder Registry ID';
+
+-- region scopus_grant_acknowledgements
+CREATE TABLE scopus_grant_acknowledgements (
+  scp BIGINT CONSTRAINT sga_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+  grant_text TEXT,
+  last_updated_time TIMESTAMP DEFAULT now(),
+  CONSTRAINT scopus_grant_acknowledgement_pk PRIMARY KEY (scp) USING INDEX TABLESPACE index_tbs
+) TABLESPACE scopus_tbs;
+
+COMMENT ON TABLE scopus_grant_acknowledgements
+IS 'Grants acknowledgement table of publications';
+
+COMMENT ON COLUMN scopus_grant_acknowledgements.scp
+IS 'Scopus id. Example: 84936047855';
+
+COMMENT ON COLUMN scopus_grant_acknowledgements.grant_text
+IS 'The complete text of the Acknowledgement section plus all other text elements from the original source containing funding/grnat information';
+
+CREATE TABLE update_log_scopus (
+  id           SERIAL,
+  update_time TIMESTAMP,
+  num_scopus_pub INTEGER,
+  num_delete      INTEGER,
+  CONSTRAINT update_log_scopus_pk PRIMARY KEY (id) USING INDEX TABLESPACE index_tbs
+) TABLESPACE scopus_tbs;
+
+COMMENT ON TABLE update_log_scopus
+IS 'Scopus tables - update log table for Scopus';
+
+--endregion

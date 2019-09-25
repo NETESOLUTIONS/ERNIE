@@ -51,25 +51,25 @@ $$
 
                 --below are attributes
                 inventor_sequence INT PATH '@sequence' NOT NULL,
-                language TEXT PATH 'addressbook/@lang',
+                language TEXT PATH 'addressbook[1]/@lang',
                 --Below are sub elements
-                name TEXT PATH 'addressbook/name',
-                address_1 TEXT PATH 'addressbook/address/address-1',
-                address_2 TEXT PATH 'addressbook/address/address-2',
-                address_3 TEXT PATH 'addressbook/address/address-3',
-                address_4 TEXT PATH 'addressbook/address/address-4',
-                address_5 TEXT PATH 'addressbook/address/address-5',
-                mailcode TEXT PATH 'addressbook/address/mailcode',
-                pobox TEXT PATH 'addressbook/address/pobox',
-                room TEXT PATH 'addressbook/address/room',
-                address_floor TEXT PATH 'addressbook/address/address-floor',
-                building TEXT PATH 'addressbook/address/building',
-                street TEXT PATH 'addressbook/address/street',
-                city TEXT PATH 'addressbook/address/city',
-                county TEXT PATH 'addressbook/address/county',
-                state TEXT PATH 'addressbook/address/state',
-                postcode TEXT PATH 'addressbook/address/postcode',
-                country TEXT PATH 'addressbook/address/country'
+                name TEXT PATH 'addressbook[1]/name',
+                address_1 TEXT PATH 'addressbook[1]/address/address-1',
+                address_2 TEXT PATH 'addressbook[1]/address/address-2',
+                address_3 TEXT PATH 'addressbook[1]/address/address-3',
+                address_4 TEXT PATH 'addressbook[1]/address/address-4',
+                address_5 TEXT PATH 'addressbook[1]/address/address-5',
+                mailcode TEXT PATH 'addressbook[1]/address/mailcode',
+                pobox TEXT PATH 'addressbook[1]/address/pobox',
+                room TEXT PATH 'addressbook[1]/address/room',
+                address_floor TEXT PATH 'addressbook[1]/address/address-floor',
+                building TEXT PATH 'addressbook[1]/address/building',
+                street TEXT PATH 'addressbook[1]/address/street',
+                city TEXT PATH 'addressbook[1]/address/city',
+                county TEXT PATH 'addressbook[1]/address/county',
+                state TEXT PATH 'addressbook[1]/address/state',
+                postcode TEXT PATH 'addressbook[1]/address/postcode',
+                country TEXT PATH 'addressbook[1]/address/country'
               )
     ON CONFLICT (country_code,doc_number,kind_code,inventor_sequence)
     DO UPDATE SET language=excluded.language,name=excluded.name,address_1=excluded.address_1,address_2=excluded.address_2,address_3=excluded.address_3,

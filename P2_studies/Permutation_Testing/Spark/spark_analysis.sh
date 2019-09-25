@@ -38,10 +38,14 @@ hdfs dfs -rm -r -f /user/spark/data/*
 # Ensure the necessary libraries are installed/updated
 wget https://jdbc.postgresql.org/download/postgresql-42.2.6.jar
 sudo cp postgresql-42.2.6.jar /usr/hdp/current/sqoop-client/lib/
-sudo /usr/bin/anaconda/bin/conda install -y --debug psycopg2
-sudo /usr/bin/anaconda/bin/conda update -y --debug numpy
-sudo /usr/bin/anaconda/bin/conda update -y --debug pandas
+sudo /usr/bin/anaconda/envs/py35/bin/conda install --name py35 -y  psycopg2
+sudo /usr/bin/anaconda/envs/py35/bin/conda update --name py35 -y  numpy
+sudo /usr/bin/anaconda/envs/py35/bin/conda update --name py35 -y  pandas
+#sudo /usr/bin/anaconda/bin/conda install -y --debug psycopg2
+#sudo /usr/bin/anaconda/bin/conda update -y --debug numpy
+#sudo /usr/bin/anaconda/bin/conda update -y --debug pandas
 
+#PYSPARK_PYTHON=/usr/bin/anaconda/envs/py35/bin/python
 # Next run PySpark calculations
 $SPARK_HOME/bin/spark-submit --driver-memory 15g --executor-memory 25G --num-executors 8 --executor-cores 4 \
   --driver-class-path $(pwd)/postgresql-42.2.6.jar --jars $(pwd)/postgresql-42.2.6.jar \

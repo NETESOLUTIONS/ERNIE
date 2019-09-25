@@ -113,10 +113,6 @@ while (( $# > 0 )); do
         declare -rx VERBOSE=true
       fi
       ;;
-    -z)
-      shift
-      tmp=$1
-      ;;
     -w)
       shift
       WORK_DIR=$1

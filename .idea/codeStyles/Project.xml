@@ -9,6 +9,7 @@
     </option>
     <option name="FORMATTER_TAGS_ENABLED" value="true" />
     <DB2CodeStyleSettings version="2">
+      <option name="USE_GENERIC_STYLE" value="true" />
       <option name="ALIAS_CASE" value="4" />
       <option name="KEYWORD_CASE" value="0" />
       <option name="TYPE_CASE" value="3" />
@@ -71,6 +72,7 @@
       <option name="FOREIGN_KEY_NAME_TEMPLATE" value="{table}_{columns}_fk" />
     </DB2CodeStyleSettings>
     <DerbyCodeStyleSettings version="2">
+      <option name="USE_GENERIC_STYLE" value="true" />
       <option name="ALIAS_CASE" value="4" />
       <option name="KEYWORD_CASE" value="0" />
       <option name="TYPE_CASE" value="3" />
@@ -133,6 +135,7 @@
       <option name="FOREIGN_KEY_NAME_TEMPLATE" value="{table}_{columns}_fk" />
     </DerbyCodeStyleSettings>
     <H2CodeStyleSettings version="2">
+      <option name="USE_GENERIC_STYLE" value="true" />
       <option name="ALIAS_CASE" value="4" />
       <option name="KEYWORD_CASE" value="0" />
       <option name="TYPE_CASE" value="3" />
@@ -188,6 +191,7 @@
       <option name="FOREIGN_KEY_NAME_TEMPLATE" value="{table}_{columns}_fk" />
     </H2CodeStyleSettings>
     <HSQLCodeStyleSettings version="2">
+      <option name="USE_GENERIC_STYLE" value="true" />
       <option name="ALIAS_CASE" value="4" />
       <option name="KEYWORD_CASE" value="0" />
       <option name="TYPE_CASE" value="3" />
@@ -268,6 +272,7 @@
       <option name="JD_KEEP_EMPTY_RETURN" value="false" />
     </JavaCodeStyleSettings>
     <MSSQLCodeStyleSettings version="2">
+      <option name="USE_GENERIC_STYLE" value="true" />
       <option name="ALIAS_CASE" value="4" />
       <option name="KEYWORD_CASE" value="0" />
       <option name="TYPE_CASE" value="3" />
@@ -329,6 +334,7 @@
       <option name="FOREIGN_KEY_NAME_TEMPLATE" value="{table}_{columns}_fk" />
     </MSSQLCodeStyleSettings>
     <MySQLCodeStyleSettings version="2">
+      <option name="USE_GENERIC_STYLE" value="true" />
       <option name="ALIAS_CASE" value="4" />
       <option name="KEYWORD_CASE" value="0" />
       <option name="TYPE_CASE" value="3" />
@@ -384,6 +390,7 @@
       <option name="FOREIGN_KEY_NAME_TEMPLATE" value="{table}_{columns}_fk" />
     </MySQLCodeStyleSettings>
     <OracleCodeStyleSettings version="2">
+      <option name="USE_GENERIC_STYLE" value="true" />
       <option name="ALIAS_CASE" value="4" />
       <option name="KEYWORD_CASE" value="0" />
       <option name="TYPE_CASE" value="3" />
@@ -445,6 +452,7 @@
       <option name="FOREIGN_KEY_NAME_TEMPLATE" value="{table}_{columns}_fk" />
     </OracleCodeStyleSettings>
     <PostgresCodeStyleSettings version="2">
+      <option name="USE_GENERIC_STYLE" value="true" />
       <option name="ALIAS_CASE" value="4" />
       <option name="KEYWORD_CASE" value="0" />
       <option name="TYPE_CASE" value="3" />
@@ -509,6 +517,7 @@
       <option name="FOREIGN_KEY_NAME_TEMPLATE" value="{table}_{columns}_fk" />
     </PostgresCodeStyleSettings>
     <SQLiteCodeStyleSettings version="2">
+      <option name="USE_GENERIC_STYLE" value="true" />
       <option name="ALIAS_CASE" value="4" />
       <option name="KEYWORD_CASE" value="0" />
       <option name="TYPE_CASE" value="3" />
@@ -563,24 +572,28 @@
       <option name="INDEX_NAME_TEMPLATE" value="{table}_{columns}_{unique?uk:i}" />
       <option name="FOREIGN_KEY_NAME_TEMPLATE" value="{table}_{columns}_fk" />
     </SQLiteCodeStyleSettings>
+    <Shell_Script>
+      <option name="SWITCH_CASES_INDENTED" value="true" />
+      <option name="REDIRECT_FOLLOWED_BY_SPACE" value="true" />
+    </Shell_Script>
     <SqlCodeStyleSettings version="2">
       <option name="ALIAS_CASE" value="4" />
       <option name="KEYWORD_CASE" value="0" />
       <option name="TYPE_CASE" value="3" />
       <option name="IDENTIFIER_CASE" value="1" />
       <option name="QUOTE_IDENTIFIER" value="1" />
+      <option name="QUERY_SECTION_1ST_WORD_ALIGN" value="8" />
       <option name="QUERY_EL_COMMA" value="2" />
-      <option name="QUERY_IN_ONE_STRING" value="1" />
       <option name="QUERY_TRUE_INDENT" value="false" />
       <option name="QUERY_ALIGN_ELEMENTS" value="false" />
       <option name="QUERY_ALIGN_LINE_COMMENTS" value="false" />
       <option name="SUBQUERY_OPENING" value="1" />
       <option name="SUBQUERY_CONTENT" value="2" />
       <option name="SUBQUERY_CLOSING" value="2" />
-      <option name="INSERT_INTO_NL" value="1" />
-      <option name="INSERT_CONTENT" value="2" />
+      <option name="SUBQUERY_PAR_SPACE_INSIDE" value="true" />
+      <option name="INSERT_INTO_NL" value="2" />
+      <option name="INSERT_OPENING" value="4" />
       <option name="INSERT_TABLE_EL_LINE" value="1" />
-      <option name="INSERT_COLLAPSE_MULTI_ROW_VALUES" value="true" />
       <option name="SET_EL_LINE" value="1" />
       <option name="SET_EL_WRAP" value="2" />
       <option name="SET_EL_COMMA" value="0" />
@@ -637,6 +650,7 @@
       <option name="NEW_LINE_AFTER_SELECT_ITEM" value="false" />
     </SqlCodeStyleSettings>
     <SybaseCodeStyleSettings version="2">
+      <option name="USE_GENERIC_STYLE" value="true" />
       <option name="ALIAS_CASE" value="4" />
       <option name="KEYWORD_CASE" value="0" />
       <option name="TYPE_CASE" value="3" />
@@ -702,6 +716,8 @@
       <option name="USE_CHAINED_CALLS_GROUP_INDENTS" value="true" />
     </TypeScriptCodeStyleSettings>
     <XML>
+      <option name="XML_KEEP_LINE_BREAKS" value="false" />
+      <option name="XML_KEEP_LINE_BREAKS_IN_TEXT" value="false" />
       <option name="XML_ALIGN_ATTRIBUTES" value="false" />
       <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
     </XML>
@@ -843,11 +859,6 @@
     </codeStyleSettings>
     <codeStyleSettings language="SQL">
       <option name="KEEP_LINE_BREAKS" value="false" />
-      <indentOptions>
-        <option name="INDENT_SIZE" value="2" />
-        <option name="CONTINUATION_INDENT_SIZE" value="4" />
-        <option name="TAB_SIZE" value="2" />
-      </indentOptions>
     </codeStyleSettings>
     <codeStyleSettings language="SQLite">
       <option name="KEEP_LINE_BREAKS" value="false" />

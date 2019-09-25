@@ -52,7 +52,10 @@ $$
                 --priority_linkage_type TEXT PATH 'priority-linkage-type', not appearing in data at the moment, will need to examine further for presence
                 --Similar issues to line above with office-of-filing data
               )
-      ON CONFLICT DO NOTHING;
+      ON CONFLICT (country_code, doc_number, kind_code, sequence_id, priority_claim_data_format)
+      DO UPDATE SET priority_claim_date=excluded.priority_claim_date,priority_claim_country=excluded.priority_claim_country,
+      priority_claim_doc_number=excluded.priority_claim_doc_number,priority_claim_kind=excluded.priority_claim_kind,
+      priority_active_indicator=excluded.priority_active_indicator,last_updated_time=now();
 END;
 $$
 LANGUAGE plpgsql;

@@ -28,13 +28,14 @@ $$
                 kind_code TEXT PATH '../../../publication-reference/document-id/kind' NOT NULL,
                 sequence SMALLINT PATH '@sequence',
                 agent_type TEXT PATH '@rep-type',
-                language TEXT PATH 'addressbook/@lang',
-                agent_name TEXT PATH 'addressbook/name',
-                last_name TEXT PATH 'addressbook/last-name',
-                first_name TEXT PATH 'addressbook/first-name'
+                language TEXT PATH 'addressbook[1]/@lang',
+                agent_name TEXT PATH 'addressbook[1]/name',
+                last_name TEXT PATH 'addressbook[1]/last-name',
+                first_name TEXT PATH 'addressbook[1]/first-name'
                 )
-    ON CONFLICT DO NOTHING;
-
+    ON CONFLICT (country_code, doc_number, kind_code, sequence)
+    DO UPDATE SET agent_type=excluded.agent_type,language=excluded.language,agent_name=excluded.agent_name,
+    last_name=excluded.last_name,first_name=excluded.first_name,last_updated_time=now();
   END;
 $$
 LANGUAGE plpgsql;
