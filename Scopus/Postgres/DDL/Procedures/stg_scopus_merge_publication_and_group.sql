@@ -16,6 +16,9 @@ BEGIN
     ON CONFLICT (sgr) DO UPDATE
         SET pub_year=excluded.pub_year;
 
+    DELETE FROM scopus_publications scp USING stg_scopus_publications stg where scp.scp = stg.scp;
+
+
     INSERT INTO scopus_publications(scp, sgr, correspondence_person_indexed_name, correspondence_city,
                                     correspondence_country, correspondence_e_address, citation_type, citation_language)
     SELECT scp,
@@ -35,7 +38,5 @@ BEGIN
                                     correspondence_e_address=excluded.correspondence_e_address,
                                     citation_type=excluded.citation_type,
                                     citation_language=excluded.citation_language;
-
-    DELETE FROM scopus_publications scp USING stg_scopus_publications stg where scp.scp = stg.scp;
 END
 $$;

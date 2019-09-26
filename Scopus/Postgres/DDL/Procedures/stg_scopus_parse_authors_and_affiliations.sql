@@ -65,7 +65,7 @@ BEGIN
             country TEXT PATH 'country');
 
     -- scopus_author_affiliations
-    INSERT INTO stg_scopus_author_affiliations(scp, author_seq, affiliation_no)
+    INSERT INTO stg_scopus_author_affiliations(scp, affiliation_no, author_seq)
     SELECT DISTINCT t1.scp, t1.affiliation_no, t2.author_seq
 FROM
      xmltable(--
