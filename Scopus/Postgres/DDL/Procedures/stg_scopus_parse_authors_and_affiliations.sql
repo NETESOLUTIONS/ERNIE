@@ -3,6 +3,7 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
+
 CREATE OR REPLACE PROCEDURE stg_scopus_parse_authors_and_affiliations(scopus_doc_xml XML)
     LANGUAGE plpgsql AS
 $$

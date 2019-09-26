@@ -4,29 +4,23 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-create or replace procedure stg_scopus_parse_source_and_conferences(scopus_doc_xml xml)
-    language plpgsql
-as
-$$
-DECLARE
-    db_id int;
+CREATE OR REPLACE PROCEDURE stg_scopus_parse_source_and_conferences(scopus_doc_xml XML)
+  LANGUAGE plpgsql AS $$
+DECLARE db_id INT;
 BEGIN
-    INSERT INTO stg_scopus_sources(ernie_source_id, source_id, issn_main, isbn_main, source_type, source_title,
-                                   coden_code, publisher_name, publisher_e_address, pub_date)
-    SELECT nextval('scopus_sources_ernie_source_id_seq') as ernie_source_id,
-           coalesce(source_id, '')                              AS source_id,
-           coalesce(issn, '')                                   AS issn_main,
-           coalesce(isbn, '')                                   AS isbn_main,
-           string_agg(source_type, ' ')                         as source_type,
-           string_agg(source_title, ' ')                        as source_title,
-           string_agg(coden_code, ' ')                          as coden_code,
-           string_agg(publisher_name, ' ')                      as publisher_name,
-           string_agg(publisher_e_address, ' ')                 as publisher_e_address,
-           max(try_parse(pub_year, pub_month, pub_day))         AS pub_date
-    FROM xmltable(--
-            XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
-            '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
-            --@formatter:off
+     INSERT INTO stg_scopus_sources(ernie_source_id, source_id, issn_main, isbn_main, source_type, source_title,
+                                    coden_code, publisher_name, publisher_e_address, pub_date)
+     SELECT
+       nextval('scopus_sources_ernie_source_id_seq') AS ernie_source_id, coalesce(source_id, '') AS source_id,
+       coalesce(issn, '') AS issn_main, coalesce(isbn, '') AS isbn_main, string_agg(source_type, ' ') AS source_type,
+       string_agg(source_title, ' ') AS source_title, string_agg(coden_code, ' ') AS coden_code,
+       string_agg(publisher_name, ' ') AS publisher_name, string_agg(publisher_e_address, ' ') AS publisher_e_address,
+       max(try_parse(pub_year, pub_month, pub_day)) AS pub_date
+       FROM
+         xmltable(--
+             XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
+             '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
+         --@formatter:off
                 source_id TEXT PATH '@srcid',
                 issn TEXT PATH 'issn[1]',
                 isbn TEXT PATH 'isbn[1]',
