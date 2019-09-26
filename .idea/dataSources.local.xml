@@ -17,10 +17,11 @@
             <node kind="database" qname="ernie">
               <node kind="schema">
                 <name qname="ernie1_museum" />
-                <name qname="ernie1_public" />
                 <name qname="information_schema" />
+                <name qname="jenkins" />
                 <name qname="pg_catalog" />
                 <name qname="public" />
+                <name qname="ernie1_public" />
               </node>
             </node>
           </node>

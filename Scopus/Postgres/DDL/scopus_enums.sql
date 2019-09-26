@@ -1,3 +1,4 @@
+DROP TYPE IF EXISTS SCOPUS_CITATION_TYPE;
 CREATE TYPE SCOPUS_CITATION_TYPE AS --
   ENUM ('ab','ar','bk','br','ch','cp', 'cr','di','ed','er','ip','le','no','pa','pr','re','rp','sh','wp');
 
@@ -23,6 +24,7 @@ COMMENT ON TYPE SCOPUS_CITATION_TYPE IS --
   "sh" = Short Survey
   "wp" = Working Paper';
 
+DROP TYPE IF EXISTS SCOPUS_SUBJECT_ABBRE_TYPE;
 CREATE TYPE SCOPUS_SUBJECT_ABBRE_TYPE AS ENUM ('AGRI', 'ARTS', 'BIOC', 'BUSI', 'CENG', 'CHEM', 'COMP', 'DECI', 'DENT',--
   'EART', 'ECON', 'ENER', 'ENGI', 'ENVI', 'HEAL', 'IMMU', 'MATE', 'MATH', 'MEDI', 'NEUR', 'NURS', 'PHAR', 'PHYS',--
   'PSYC','SOCI', 'VETE','MULT');

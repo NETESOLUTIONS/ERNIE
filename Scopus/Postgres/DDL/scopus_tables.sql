@@ -617,7 +617,7 @@ COMMENT ON COLUMN scopus_references.citation_text IS --
 -- Added by Sitaram Devarakonda 03/22/2019
 -- DDL for scopus_publication_identifiers, scopus_abstracts, scopus_titles, scopus_keywords and scopus_chemicalgroups
 
-CREATE TABLE IF NOT EXISTS if NOT EXISTS scopus_publication_identifiers (
+CREATE TABLE IF NOT EXISTS scopus_publication_identifiers (
     scp
     BIGINT
     CONSTRAINT
@@ -662,7 +662,7 @@ COMMENT ON COLUMN scopus_publication_identifiers.document_id_type IS 'Document i
 -- endregion
 
 -- region scopus_abstracts
-CREATE TABLE IF NOT EXISTS if NOT EXISTS scopus_abstracts (
+CREATE TABLE IF NOT EXISTS scopus_abstracts (
     scp
     BIGINT
     CONSTRAINT
@@ -707,7 +707,8 @@ COMMENT ON COLUMN scopus_abstracts.abstract_source IS --
     'Contains the value indicating from which part abstract originates ex: introduction,preface';
 -- endregion
 
-CREATE TABLE IF NOT EXISTS if NOT EXISTS scopus_titles (
+-- region scopus_titles
+CREATE TABLE IF NOT EXISTS scopus_titles (
     scp
     BIGINT
     CONSTRAINT
@@ -750,8 +751,10 @@ COMMENT ON COLUMN scopus_titles.title IS --
     'Contains the original or translated title of the document. Ex: The genus Tragus';
 
 COMMENT ON COLUMN scopus_titles.language IS 'Language of the title Ex: eng,esp';
+-- endregion
 
-CREATE TABLE IF NOT EXISTS if NOT EXISTS scopus_keywords (
+-- region scopus_keywords
+CREATE TABLE IF NOT EXISTS scopus_keywords (
     scp
     BIGINT
     CONSTRAINT
@@ -786,9 +789,10 @@ COMMENT ON COLUMN scopus_keywords.scp IS 'Scopus id that uniquely identifies doc
 
 COMMENT ON COLUMN scopus_keywords.keyword IS --
     'Keywords assigned to document by authors Ex: headache, high blood pressure';
+-- endregion
 
--- region scopus_chemical_group table
-CREATE TABLE IF NOT EXISTS if NOT EXISTS scopus_chemical_groups (
+-- region scopus_chemical_groups
+CREATE TABLE IF NOT EXISTS scopus_chemical_groups (
     scp
     BIGINT
     CONSTRAINT
@@ -839,6 +843,7 @@ COMMENT ON COLUMN scopus_chemical_groups.chemical_name IS 'Name of the chemical 
 COMMENT ON COLUMN scopus_chemical_groups.cas_registry_number IS 'CAS registry number associated with chemical name Ex: 15715-08-9';
 -- endregion
 
+-- region scopus_grants
 CREATE TABLE IF NOT EXISTS scopus_grants (
     scp BIGINT
         CONSTRAINT sg_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
@@ -865,6 +870,7 @@ COMMENT ON COLUMN scopus_grants.grantor IS 'Agency name that has awarded the gra
 COMMENT ON COLUMN scopus_grants.grantor_country_code IS 'Agency country 3-letter iso code';
 
 COMMENT ON COLUMN scopus_grants.grantor_funder_registry_id IS 'Funder Registry ID';
+-- endregion
 
 -- region scopus_grant_acknowledgements
 CREATE TABLE IF NOT EXISTS scopus_grant_acknowledgements (
