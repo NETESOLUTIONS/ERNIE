@@ -67,17 +67,17 @@ BEGIN
     -- scopus_author_affiliations
     INSERT INTO stg_scopus_author_affiliations(scp, affiliation_no, author_seq)
     SELECT DISTINCT t1.scp, t1.affiliation_no, t2.author_seq
-FROM
-     xmltable(--
-             '//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml COLUMNS --
-         scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
-         affiliation_no FOR ORDINALITY ,
-         afid BIGINT PATH '@afid') AS t1,
+    FROM xmltable(--
+                 '//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml COLUMNS --
+                scp BIGINT PATH '../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
+                affiliation_no FOR ORDINALITY ,
+                afid BIGINT PATH '@afid') AS t1,
 
-     xmltable(--
-             '//bibrecord/head/author-group/author' PASSING scopus_doc_xml COLUMNS --
-         author_seq SMALLINT PATH '@seq',
-         afid BIGINT PATH '../affiliation/@afid') AS t2
-    WHERE XMLEXISTS('//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml) AND t1.afid = t2.afid;
+         xmltable(--
+                 '//bibrecord/head/author-group/author' PASSING scopus_doc_xml COLUMNS --
+             author_seq SMALLINT PATH '@seq',
+             afid BIGINT PATH '../affiliation/@afid') AS t2
+    WHERE XMLEXISTS('//bibrecord/head/author-group/affiliation' PASSING scopus_doc_xml)
+      AND t1.afid = t2.afid;
 END;
 $$;
