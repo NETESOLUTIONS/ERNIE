@@ -189,8 +189,6 @@ HEREDOC
   fi
 }
 
-# Drop indexes for staging table method
-#psql -c "call scopus_disable_indexes();"
 # Create an empty file if it does not exist to simplify check condition below
 touch "${PROCESSED_LOG}"
 [[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
@@ -278,8 +276,6 @@ if ((failed_xml_counter_total == 0)); then
 else
   echo "FAILED PARSING ${failed_xml_counter_total} XML FILES"
 fi
-
-#psql -c "scopus_create_indexes();"
 
 if [[ -d "${TMP_DIR}" ]]; then
   cd "${TMP_DIR}"

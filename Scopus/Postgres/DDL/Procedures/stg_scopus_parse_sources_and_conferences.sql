@@ -1,9 +1,7 @@
 \set ON_ERROR_STOP on
 \set ECHO all
-
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
-
 CREATE OR REPLACE PROCEDURE stg_scopus_parse_source_and_conferences(scopus_doc_xml XML)
     LANGUAGE plpgsql AS
 $$
@@ -22,35 +20,48 @@ BEGIN
            string_agg(publisher_name, ' ')               AS publisher_name,
            string_agg(publisher_e_address, ' ')          AS publisher_e_address,
            max(try_parse(pub_year, pub_month, pub_day))  AS pub_date
-    FROM
-        xmltable(--
-                XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
-                '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
-        --@formatter:off
-                    source_id TEXT PATH '@srcid',
-                    issn TEXT PATH 'issn[1]',
-                    isbn TEXT PATH 'isbn[1]',
-                    source_type TEXT PATH '@type',
-                    source_title TEXT PATH 'sourcetitle',
-                    coden_code TEXT PATH 'codencode',
-                    publisher_name TEXT PATH 'publisher/publishername',
-                    publisher_e_address TEXT PATH 'publisher/ce:e-address',
-                    pub_year SMALLINT PATH 'publicationdate/year', --
-                    pub_month SMALLINT PATH 'publicationdate/month', --
-                    pub_day SMALLINT PATH 'publicationdate/day' --
-            )
+    FROM xmltable(--
+            XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
+            '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
+            --@formatter:off
+                source_id TEXT PATH '@srcid',
+                issn TEXT PATH 'issn[1]',
+                isbn TEXT PATH 'isbn[1]',
+                source_type TEXT PATH '@type',
+                source_title TEXT PATH 'sourcetitle',
+                coden_code TEXT PATH 'codencode',
+                publisher_name TEXT PATH 'publisher/publishername',
+                publisher_e_address TEXT PATH 'publisher/ce:e-address',
+                pub_year SMALLINT PATH 'publicationdate/year', --
+                pub_month SMALLINT PATH 'publicationdate/month', --
+                pub_day SMALLINT PATH 'publicationdate/day' --
+        )
     WHERE source_id != ''
        OR issn != ''
        OR XMLEXISTS('//bibrecord/head/source/isbn' PASSING scopus_doc_xml)
-    group by source_id, issn_main, isbn_main
-    RETURNING ernie_source_id into db_id;
+    GROUP BY source_id, issn_main, isbn_main
+    RETURNING ernie_source_id INTO db_id;
+
+    UPDATE stg_scopus_sources ss
+    SET website=sq.website
+    FROM (
+             SELECT db_id                    AS ernie_source_id,
+                    string_agg(website, ',') AS website
+             FROM xmltable(--
+                     XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
+                     '//bibrecord/head/source/website/ce:e-address' PASSING scopus_doc_xml COLUMNS --
+                         website TEXT PATH 'normalize-space()'
+                 )
+             GROUP BY ernie_source_id
+         ) AS sq
+    WHERE ss.ernie_source_id = sq.ernie_source_id;
 
     -- scopus_isbns
     INSERT INTO stg_scopus_isbns(ernie_source_id, isbn, isbn_length, isbn_type, isbn_level)
-    SELECT DISTINCT db_id                   as ernie_source_id,
+    SELECT DISTINCT db_id                   AS ernie_source_id,
                     isbn,
                     isbn_length,
-                    coalesce(isbn_type, '') as isbn_type,
+                    coalesce(isbn_type, '') AS isbn_type,
                     isbn_level
     FROM xmltable(--
             '//bibrecord/head/source/isbn' PASSING scopus_doc_xml COLUMNS --
@@ -59,10 +70,9 @@ BEGIN
                 isbn_type TEXT PATH '@type',
                 isbn_level TEXT PATH '@level'
         );
-
     -- scopus_issns
     INSERT INTO stg_scopus_issns(ernie_source_id, issn, issn_type)
-    SELECT db_id                   as ernie_source_id,
+    SELECT db_id                   AS ernie_source_id,
            issn,
            coalesce(issn_type, '') AS issn_type
     FROM xmltable(--
@@ -72,11 +82,37 @@ BEGIN
         );
 
 
+    UPDATE stg_scopus_publications sp
+    SET pub_type        = singular.pub_type,
+        process_stage   = singular.process_stage,
+        state           = singular.state,
+        date_sort       = singular.date_sort,
+        ernie_source_id = singular.ernie_source_id
+    FROM (
+             SELECT scp,
+                    pub_type,
+                    process_stage,
+                    state,
+                    try_parse(sort_year, sort_month, sort_day) AS date_sort,
+                    db_id                                      AS ernie_source_id
+             FROM xmltable(--
+                     XMLNAMESPACES ('http://www.elsevier.com/xml/ani/ait' AS ait), --
+                     '//ait:process-info' PASSING scopus_doc_xml COLUMNS --
+                         scp BIGINT PATH '//bibrecord/item-info/itemidlist/itemid[@idtype="SCP"]',
+                         pub_type TEXT PATH 'ait:status/@type',
+                         process_stage TEXT PATH 'ait:status/@stage',
+                         state TEXT PATH 'ait:status/@state',
+                         sort_year SMALLINT PATH 'ait:date-sort/@year',
+                         sort_month SMALLINT PATH 'ait:date-sort/@month',
+                         sort_day SMALLINT PATH 'ait:date-sort/@day'
+                 )
+         ) AS singular
+    WHERE sp.scp = singular.scp;
+
     -- scopus_conference_events
     INSERT INTO stg_scopus_conference_events(conf_code, conf_name, conf_address, conf_city, conf_postal_code,
                                              conf_start_date,
                                              conf_end_date, conf_number, conf_catalog_number)
-
     SELECT coalesce(conf_code, '')           AS conf_code,
            coalesce(conf_name, '')           AS conf_name,
            conf_address,
@@ -103,10 +139,28 @@ BEGIN
                 conf_catalog_number TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcatnumber'
         );
 
+    UPDATE stg_scopus_conference_events sce
+    SET conf_sponsor=sq.conf_sponsor
+    FROM (
+             SELECT coalesce(conf_code, '')       AS conf_code,
+                    coalesce(conf_name, '')       AS conf_name,
+                    string_agg(conf_sponsor, ',') AS conf_sponsor
+             FROM xmltable(--
+                     '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confevent/confsponsors/confsponsor' --
+                     PASSING scopus_doc_xml COLUMNS --
+                         conf_code TEXT PATH '../../confcode',
+                         conf_name TEXT PATH '../../confname',
+                         conf_sponsor TEXT PATH 'normalize-space()'
+                 )
+             GROUP BY conf_code, conf_name
+         ) AS sq
+    WHERE sce.conf_code = sq.conf_code
+      AND sce.conf_name = sq.conf_name;
+
     -- scopus_conf_proceedings
     INSERT INTO stg_scopus_conf_proceedings(ernie_source_id, conf_code, conf_name, proc_part_no, proc_page_range,
                                             proc_page_count)
-    SELECT db_id                   as ernie_source_id,
+    SELECT db_id                   AS ernie_source_id,
            coalesce(conf_code, '') AS conf_code,
            coalesce(conf_name, '') AS conf_name,
            proc_part_no,
@@ -129,11 +183,10 @@ BEGIN
     WHERE proc_part_no IS NOT NULL
        OR proc_page_range IS NOT NULL
        OR proc_page_count IS NOT NULL;
-
     -- scopus_conf_editors
     INSERT INTO stg_scopus_conf_editors(ernie_source_id, conf_code, conf_name, indexed_name, role_type,
                                         initials, surname, given_name, degree, suffix)
-    SELECT db_id                          as ernie_source_id,
+    SELECT db_id                          AS ernie_source_id,
            coalesce(conf_code, '')        AS conf_code,
            coalesce(conf_name, '')        AS conf_name,
            coalesce(indexed_name, '')     AS indexed_name,
@@ -158,5 +211,49 @@ BEGIN
                 degree TEXT PATH 'ce:degrees',
                 suffix TEXT PATH 'ce:suffix'
         );
+
+    UPDATE stg_scopus_conf_editors sed
+    SET address=sq.address
+    FROM (
+             SELECT db_id                    AS ernie_source_id,
+                    coalesce(conf_code, '')  AS conf_code,
+                    coalesce(conf_name, '')  AS conf_name,
+                    string_agg(address, ',') AS address
+             FROM xmltable(--
+                     '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication/confeditors/editoraddress' --
+                     PASSING scopus_doc_xml COLUMNS --
+                         conf_code TEXT PATH '../../preceding-sibling::confevent/confcode',
+                         conf_name TEXT PATH '../../preceding-sibling::confevent/confname',
+                         address TEXT PATH 'normalize-space()'
+                 )
+             GROUP BY db_id, conf_code, conf_name
+         ) AS sq
+    WHERE sed.ernie_source_id = sq.ernie_source_id
+      AND sed.conf_code = sq.conf_code
+      AND sed.conf_name = sq.conf_name;
+
+    UPDATE stg_scopus_conf_editors sed
+    SET organization=sq.organization
+    FROM (
+             SELECT db_id                         AS ernie_source_id,
+                    coalesce(conf_code, '')       AS conf_code,
+                    coalesce(conf_name, '')       AS conf_name,
+                    string_agg(organization, ',') AS organization
+             FROM xmltable(--
+                     '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication/confeditors/editororganization'
+                     PASSING scopus_doc_xml COLUMNS --
+                         conf_code TEXT PATH '../../preceding-sibling::confevent/confcode',
+                         conf_name TEXT PATH '../../preceding-sibling::confevent/confname',
+                         organization TEXT PATH 'normalize-space()'
+                 )
+             GROUP BY db_id, conf_code, conf_name
+         ) AS sq
+    WHERE sed.ernie_source_id = sq.ernie_source_id
+      AND sed.conf_code = sq.conf_code
+      AND sed.conf_name = sq.conf_name;
 END ;
 $$;
+
+
+
+

@@ -50,5 +50,23 @@ BEGIN
         END LOOP;
 
     -- scopus_publications: concatenated correspondence organizations
+
+    WITH cte AS (
+        SELECT scp, string_agg(organization, chr(10)) AS correspondence_orgs
+        FROM xmltable(--
+                XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
+                '//bibrecord/head/correspondence/affiliation/organization' PASSING scopus_doc_xml COLUMNS --
+                --@formatter:off
+                    scp BIGINT PATH '../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
+                    organization TEXT PATH 'normalize-space()'
+            --@formatter:on
+            )
+        GROUP BY scp
+    )
+    UPDATE stg_scopus_publications sp
+    SET correspondence_orgs = cte.correspondence_orgs
+    FROM cte
+    WHERE sp.scp = cte.scp;
+
 END;
 $$;
