@@ -18,7 +18,7 @@ BEGIN
     INSERT INTO scopus_publications(scp, sgr, correspondence_person_indexed_name, correspondence_city,
                                     correspondence_country, correspondence_e_address, pub_type, citation_type,
                                     citation_language, process_stage, state, date_sort, ernie_source_id)
-    SELECT scp,
+    SELECT stg_scopus_publications.scp,
            max(sgr)                                                               AS sgr,
            max(correspondence_person_indexed_name)                                AS correspondence_person_indexed_name,
            max(correspondence_city)                                               AS correspondence_city,
@@ -30,12 +30,10 @@ BEGIN
            max(process_stage)                                                     as process_stage,
            max(state)                                                             as state,
            max(date_sort)                                                         as date_sort,
-           scopus_sources.ernie_source_id                                         as ernie_source_id
-    FROM stg_scopus_publications,
-         scopus_sources
-    WHERE stg_scopus_publications.ernie_source_id = scopus_sources.ernie_source_id
-    GROUP BY scp, scopus_sources.ernie_source_id
-
+           max(scopus_sources.ernie_source_id)
+    FROM stg_scopus_publications
+    FULL OUTER JOIN scopus_sources ON scopus_sources.ernie_source_id=stg_scopus_publications.ernie_source_id
+    GROUP BY scp
     ON CONFLICT (scp) DO UPDATE SET sgr=excluded.sgr,
                                     correspondence_person_indexed_name=excluded.correspondence_person_indexed_name,
                                     correspondence_city=excluded.correspondence_city,
