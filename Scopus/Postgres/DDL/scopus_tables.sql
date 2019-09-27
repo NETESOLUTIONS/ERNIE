@@ -899,4 +899,12 @@ TABLESPACE scopus_tbs;
 
 COMMENT ON TABLE update_log_scopus IS 'Scopus tables - update log table for Scopus';
 
+create table if not exists del_scps
+(
+	scp bigint not null
+		constraint del_scps_pk
+			primary key,
+	last_updated_time timestamp default now()
+);
+
 --endregion
