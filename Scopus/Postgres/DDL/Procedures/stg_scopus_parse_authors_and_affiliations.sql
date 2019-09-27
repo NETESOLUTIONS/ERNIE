@@ -65,6 +65,19 @@ BEGIN
             country_code TEXT PATH '@country', --
             country TEXT PATH 'country');
 
+    UPDATE stg_scopus_affiliations sa
+    SET organization=sq.organization
+    FROM (
+             SELECT scp, string_agg(organization, ',') AS organization
+             FROM xmltable(--
+                     '//bibrecord/head/author-group/affiliation/organization' PASSING scopus_doc_xml COLUMNS --
+                         scp BIGINT PATH '../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
+                         organization TEXT PATH 'normalize-space()'
+                 )
+             GROUP BY scp
+         ) as sq
+    WHERE sa.scp = sq.scp;
+
     -- scopus_author_affiliations
     INSERT INTO stg_scopus_author_affiliations(scp, affiliation_no, author_seq)
     SELECT DISTINCT t1.scp, t1.affiliation_no, t2.author_seq

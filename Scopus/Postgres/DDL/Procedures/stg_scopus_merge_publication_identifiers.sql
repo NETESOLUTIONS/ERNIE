@@ -9,8 +9,9 @@ CREATE OR REPLACE PROCEDURE stg_scopus_merge_publication_identifiers()
 $$
 BEGIN
     INSERT INTO scopus_publication_identifiers(scp, document_id, document_id_type)
-    SELECT DISTINCT scp, document_id, document_id_type
-    FROM stg_scopus_publication_identifiers
+    SELECT DISTINCT scopus_publications.scp, document_id, document_id_type
+    FROM stg_scopus_publication_identifiers, scopus_publications
+    WHERE stg_scopus_publication_identifiers.scp=scopus_publications.scp
     ON CONFLICT (scp, document_id, document_id_type) DO UPDATE SET document_id=excluded.document_id,
                                                                    document_id_type=excluded.document_id_type;
 END
