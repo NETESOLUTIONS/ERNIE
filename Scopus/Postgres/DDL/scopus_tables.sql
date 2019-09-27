@@ -628,6 +628,7 @@ CREATE TABLE IF NOT EXISTS scopus_publication_identifiers (
 )
 TABLESPACE scopus_tbs;
 
+-- 42m:51s
 CREATE INDEX IF NOT EXISTS spi_document_id_type_document_id_i --
   ON scopus_publication_identifiers(document_id_type, document_id) TABLESPACE index_tbs;
 

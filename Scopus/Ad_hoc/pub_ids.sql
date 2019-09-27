@@ -1,6 +1,6 @@
 -- Extracted duplicate DOIs
 SELECT *
-FROM tmp_duplicate_dois
+FROM duplicate_scp_doi
 ORDER BY count DESC;
 
 -- Duplicate DOIs
