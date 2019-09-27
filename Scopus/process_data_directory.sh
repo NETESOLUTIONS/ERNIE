@@ -231,7 +231,7 @@ for scopus_data_archive in *.zip; do
     echo -e "MERGING FINISHED"
     echo -e "TRUNCATING STAGING TABLES..."
     ## calling a procedure that truncates the staging tables
-    psql -c "${ABSOLUTE_SCRIPT_DIR}/truncate_stage_table.sql"
+    psql -f "${ABSOLUTE_SCRIPT_DIR}/truncate_stage_table.sql"
     echo -e "\nTRUNCATING FINISHED"
 
     echo "SUMMARY FOR ${scopus_data_archive}:"
