@@ -30,9 +30,9 @@ BEGIN
            max(process_stage)                                                     as process_stage,
            max(state)                                                             as state,
            max(date_sort)                                                         as date_sort,
-           max(scopus_sources.ernie_source_id)
+          max(scopus_sources.ernie_source_id)
     FROM stg_scopus_publications
-    FULL OUTER JOIN scopus_sources ON scopus_sources.ernie_source_id=stg_scopus_publications.ernie_source_id
+    LEFT OUTER JOIN scopus_sources ON scopus_sources.ernie_source_id=stg_scopus_publications.ernie_source_id
     GROUP BY scp
     ON CONFLICT (scp) DO UPDATE SET sgr=excluded.sgr,
                                     correspondence_person_indexed_name=excluded.correspondence_person_indexed_name,
