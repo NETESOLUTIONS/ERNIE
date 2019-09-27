@@ -9,15 +9,32 @@ CREATE OR REPLACE PROCEDURE stg_scopus_parse_abstracts_and_titles(scopus_doc_xml
 $$
 BEGIN
     -- scopus_abstracts
-    INSERT INTO stg_scopus_abstracts(scp, abstract_text, abstract_language, abstract_source)
-    SELECT DISTINCT scp, abstract_text, abstract_language, abstract_source
+    INSERT INTO stg_scopus_abstracts(scp, abstract_language, abstract_source)
+    SELECT DISTINCT scp, abstract_language, abstract_source
     FROM
         xmltable(XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
                  '//bibrecord/head/abstracts/abstract/ce:para' PASSING scopus_doc_xml
                  COLUMNS scp BIGINT PATH '../../../../item-info/itemidlist/itemid[@idtype="SCP"]',
-                     abstract_text TEXT PATH 'normalize-space()',
                      abstract_language TEXT PATH '../@xml:lang', --
                      abstract_source TEXT PATH '../@source');
+
+    WITH sca AS (
+        SELECT scp, abstract_language, string_agg(abstract_text, chr(10)) as abstract_text
+        FROM xmltable(
+                XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
+                '//bibrecord/head/abstracts/abstract/ce:para' PASSING scopus_doc_xml COLUMNS
+                    scp BIGINT PATH '../../../../item-info/itemidlist/itemid[@idtype="SCP"]',
+                    abstract_text TEXT PATH 'normalize-space()',
+                    abstract_language TEXT PATH '../@xml:lang'
+            )
+        GROUP BY scp, abstract_language
+    )
+    UPDATE stg_scopus_abstracts sa
+    SET abstract_text=sca.abstract_text
+    FROM sca
+    WHERE sa.scp = sca.scp
+      and sa.abstract_language = sca.abstract_language;
+
 
     -- scopus_titles
     INSERT INTO stg_scopus_titles(scp, title, language)

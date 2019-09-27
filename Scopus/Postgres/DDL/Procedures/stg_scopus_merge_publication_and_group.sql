@@ -30,9 +30,12 @@ BEGIN
            max(process_stage)                                                     as process_stage,
            max(state)                                                             as state,
            max(date_sort)                                                         as date_sort,
-           max(ernie_source_id)                                                   as ernie_source_id
-    FROM stg_scopus_publications
-    GROUP BY scp
+           scopus_sources.ernie_source_id                                         as ernie_source_id
+    FROM stg_scopus_publications,
+         scopus_sources
+    WHERE stg_scopus_publications.ernie_source_id = scopus_sources.ernie_source_id
+    GROUP BY scp, scopus_sources.ernie_source_id
+
     ON CONFLICT (scp) DO UPDATE SET sgr=excluded.sgr,
                                     correspondence_person_indexed_name=excluded.correspondence_person_indexed_name,
                                     correspondence_city=excluded.correspondence_city,
@@ -40,6 +43,7 @@ BEGIN
                                     correspondence_e_address=excluded.correspondence_e_address,
                                     pub_type= excluded.pub_type,
                                     citation_type=excluded.citation_type,
-                                    citation_language=excluded.citation_language;
+                                    citation_language=excluded.citation_language,
+                                    ernie_source_id=excluded.ernie_source_id;
 END;
 $$;

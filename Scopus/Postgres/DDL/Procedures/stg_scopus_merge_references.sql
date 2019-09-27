@@ -9,8 +9,9 @@ CREATE OR REPLACE PROCEDURE stg_scopus_merge_references()
 $$
 BEGIN
     INSERT INTO scopus_references(scp, ref_sgr, citation_text)
-    SELECT DISTINCT scp, ref_sgr, citation_text
-    FROM stg_scopus_references
+    SELECT DISTINCT scopus_publications.scp, ref_sgr, citation_text
+    FROM stg_scopus_references, scopus_publications
+    WHERE stg_scopus_references.scp=scopus_publications.scp
     ON CONFLICT (scp, ref_sgr) DO UPDATE SET citation_text=excluded.citation_text;
 END
 $$;
