@@ -10,8 +10,9 @@ $$
 BEGIN
     INSERT INTO scopus_keywords(scp, keyword)
     SELECT DISTINCT scopus_publications.scp, keyword
-    FROM stg_scopus_keywords, scopus_publications
-    where stg_scopus_keywords.scp=scopus_publications.scp
+    FROM stg_scopus_keywords,
+         scopus_publications
+    where stg_scopus_keywords.scp = scopus_publications.scp
     ON CONFLICT (scp, keyword) DO UPDATE SET keyword=excluded.keyword;
 END
 $$;

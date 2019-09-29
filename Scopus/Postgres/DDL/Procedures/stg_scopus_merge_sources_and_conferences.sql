@@ -87,19 +87,6 @@ BEGIN
                                                                       proc_page_count=excluded.proc_page_count;
     -- scopus_conf_editors
 
-    INSERT INTO scopus_publications(ernie_source_id, pub_type, process_stage, state, date_sort)
-    SELECT scopus_sources.ernie_source_id,
-           pub_type,
-           process_stage,
-           state,
-           date_sort
-    FROM stg_scopus_publications,
-         scopus_sources
-    where stg_scopus_publications.ernie_source_id = scopus_sources.ernie_source_id
-    ON CONFLICT (scp) DO UPDATE SET pub_type=excluded.pub_type,
-                                    process_stage=excluded.process_stage,
-                                    state=excluded.state,
-                                    date_sort=excluded.date_sort;
 
     INSERT INTO scopus_conf_editors(ernie_source_id, conf_code, conf_name, indexed_name, role_type,
                                     initials, surname, given_name, degree, suffix)
