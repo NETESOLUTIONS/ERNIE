@@ -4,7 +4,7 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-CREATE PROCEDURE stg_scopus_parse_references(input_xml XML)
+CREATE OR REPLACE PROCEDURE stg_scopus_parse_references(input_xml XML)
     LANGUAGE plpgsql AS
 $$
 BEGIN

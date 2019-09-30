@@ -16,7 +16,6 @@
             </node>
             <node kind="database" qname="ernie">
               <node kind="schema">
-                <name qname="ernie1_museum" />
                 <name qname="information_schema" />
                 <name qname="jenkins" />
                 <name qname="pg_catalog" />
