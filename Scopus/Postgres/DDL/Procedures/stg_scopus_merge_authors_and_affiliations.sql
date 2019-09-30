@@ -14,12 +14,12 @@ BEGIN
            author_seq,
            auid,
            author_indexed_name,
-           max(author_surname)                                                                               AS author_surname,
-           max(author_given_name)                                                                            AS author_given_name,
-           max(author_initials)                                                                              AS author_initials,
-           max(author_e_address)                                                                             AS author_e_address,
+           max(author_surname)                                                                  AS author_surname,
+           max(author_given_name)                                                               AS author_given_name,
+           max(author_initials)                                                                 AS author_initials,
+           max(author_e_address)                                                                AS author_e_address,
            ROW_NUMBER()
-           OVER (PARTITION BY scopus_publications.scp ORDER BY author_seq, author_indexed_name)              AS author_rank
+           OVER (PARTITION BY scopus_publications.scp ORDER BY author_seq, author_indexed_name) AS author_rank
     FROM stg_scopus_authors stg,
          scopus_publications
     WHERE stg.scp = scopus_publications.scp

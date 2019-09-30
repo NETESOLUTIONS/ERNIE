@@ -114,32 +114,30 @@ BEGIN
                 conf_catalog_number TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcatnumber'
         );
 
-     UPDATE stg_scopus_publications
-        set pub_type=subquery.pub_type,
-            process_stage=subquery.process_stage,
-            state=subquery.state,
-            date_sort=subquery.date_sort,
-            ernie_source_id=subquery.ernie_source_id
-    FROM
-        (SELECT
-            db_id as ernie_source_id,
-            scp,
-            pub_type,
-            process_stage,
-            state,
-            try_parse(sort_year, sort_month, sort_day) as date_sort
-     from  xmltable( XMLNAMESPACES ('http://www.elsevier.com/xml/ani/ait' as ait),
-         '//item' PASSING scopus_doc_xml COLUMNS
-                    scp BIGINT PATH '//bibrecord/item-info/itemidlist/itemid[@idtype="SCP"]',
-                    pub_type TEXT PATH 'ait:process-info/ait:status/@type',
-                    process_stage TEXT PATH 'ait:process-info/ait:status/@stage',
-                    state TEXT PATH 'ait:process-info/ait:status/@state',
-                    sort_year SMALLINT PATH 'ait:process-info/ait:date-sort/@year',
-                    sort_month SMALLINT PATH 'ait:process-info/ait:date-sort/@month',
-                    sort_day SMALLINT PATH 'ait:process-info/ait:date-sort/@day')
-            ) as subquery
-     where stg_scopus_publications.scp= subquery.scp ;
-   --indexed terms
+    UPDATE stg_scopus_publications
+    set pub_type=subquery.pub_type,
+        process_stage=subquery.process_stage,
+        state=subquery.state,
+        date_sort=subquery.date_sort,
+        ernie_source_id=subquery.ernie_source_id
+    FROM (SELECT db_id                                      as ernie_source_id,
+                 scp,
+                 pub_type,
+                 process_stage,
+                 state,
+                 try_parse(sort_year, sort_month, sort_day) as date_sort
+          from xmltable(XMLNAMESPACES ('http://www.elsevier.com/xml/ani/ait' as ait),
+                        '//item' PASSING scopus_doc_xml COLUMNS
+                            scp BIGINT PATH '//bibrecord/item-info/itemidlist/itemid[@idtype="SCP"]',
+                            pub_type TEXT PATH 'ait:process-info/ait:status/@type',
+                            process_stage TEXT PATH 'ait:process-info/ait:status/@stage',
+                            state TEXT PATH 'ait:process-info/ait:status/@state',
+                            sort_year SMALLINT PATH 'ait:process-info/ait:date-sort/@year',
+                            sort_month SMALLINT PATH 'ait:process-info/ait:date-sort/@month',
+                            sort_day SMALLINT PATH 'ait:process-info/ait:date-sort/@day')
+         ) as subquery
+    where stg_scopus_publications.scp = subquery.scp;
+    --indexed terms
 
 
     UPDATE stg_scopus_conference_events sce

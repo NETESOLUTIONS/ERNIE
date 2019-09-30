@@ -35,7 +35,7 @@ BEGIN
                     correspondence_e_address TEXT PATH 'bibrecord/head/correspondence/ce:e-address', --
                     citation_type TEXT PATH 'bibrecord/head/citation-info/citation-type/@code', --
                     citation_language XML PATH 'bibrecord/head/citation-info/citation-language/@language'
-                    )
+            )
     )
         LOOP
             INSERT INTO stg_scopus_publication_groups(sgr, pub_year)
@@ -46,7 +46,7 @@ BEGIN
                                                 citation_type,
                                                 citation_language)
             VALUES (cur.scp, cur.sgr, cur.correspondence_person_indexed_name, cur.correspondence_city,
-                    cur.correspondence_country, cur.correspondence_e_address,  cur.citation_type,
+                    cur.correspondence_country, cur.correspondence_e_address, cur.citation_type,
                     cur.citation_language);
         END LOOP;
 END ;

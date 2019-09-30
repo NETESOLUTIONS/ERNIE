@@ -31,7 +31,8 @@ BEGIN
             VALUES (single_row.ernie_source_id, single_row.source_id, single_row.issn_main,
                     single_row.isbn_main, single_row.source_type,
                     single_row.source_title,
-                    single_row.coden_code, single_row.website, single_row.publisher_name, single_row.publisher_e_address,
+                    single_row.coden_code, single_row.website, single_row.publisher_name,
+                    single_row.publisher_e_address,
                     single_row.pub_date)
             ON CONFLICT (source_id, issn_main, isbn_main) DO UPDATE SET source_type         = excluded.source_type,
                                                                         source_title        = excluded.source_title,

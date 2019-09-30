@@ -21,37 +21,35 @@ BEGIN
                     try_parse(pub_year, pub_month, pub_day) AS publication_date,
                     conf_code                               AS conf_code,
                     conf_name                               AS conf_name
-    FROM
-        xmltable(--
-                '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
-            scp BIGINT PATH '../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]', --
-            issue TEXT PATH 'volisspag/voliss/@issue', --
-            volume TEXT PATH 'volisspag/voliss/@volume', --
-            first_page TEXT PATH 'volisspag/pagerange/@first', --
-            last_page TEXT PATH 'volisspag/pagerange/@last', --
-            publication_year SMALLINT PATH 'publicationyear/@first', --
-            pub_year SMALLINT PATH 'publicationdate/year', --
-            pub_month SMALLINT PATH 'publicationdate/month', --
-            pub_day SMALLINT PATH 'publicationdate/day', --
-            conf_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcode', --
-            conf_name TEXT PATH 'normalize-space(additional-srcinfo/conferenceinfo/confevent/confname)')
-    xmltable ;
+    FROM xmltable(--
+                 '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
+                scp BIGINT PATH '../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]', --
+                issue TEXT PATH 'volisspag/voliss/@issue', --
+                volume TEXT PATH 'volisspag/voliss/@volume', --
+                first_page TEXT PATH 'volisspag/pagerange/@first', --
+                last_page TEXT PATH 'volisspag/pagerange/@last', --
+                publication_year SMALLINT PATH 'publicationyear/@first', --
+                pub_year SMALLINT PATH 'publicationdate/year', --
+                pub_month SMALLINT PATH 'publicationdate/month', --
+                pub_day SMALLINT PATH 'publicationdate/day', --
+                conf_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcode', --
+                conf_name TEXT PATH 'normalize-space(additional-srcinfo/conferenceinfo/confevent/confname)') xmltable;
 
 
     UPDATE stg_scopus_source_publication_details spd
     SET indexed_terms=sq.indexed_terms
     FROM (
-         SELECT
-          scp,
-          string_agg(descriptors, ',') AS indexed_terms
-         FROM xmltable(--
-         '//bibrecord/head/enhancement/descriptorgroup/descriptors/descriptor/mainterm' PASSING scopus_doc_xml COLUMNS --
-         scp BIGINT PATH '../../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
-         descriptors TEXT PATH 'normalize-space()'
-         )
-         GROUP BY scp
+             SELECT scp,
+                    string_agg(descriptors, ',') AS indexed_terms
+             FROM xmltable(--
+                     '//bibrecord/head/enhancement/descriptorgroup/descriptors/descriptor/mainterm' PASSING
+                     scopus_doc_xml COLUMNS --
+                         scp BIGINT PATH '../../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
+                         descriptors TEXT PATH 'normalize-space()'
+                 )
+             GROUP BY scp
          ) as sq
-    WHERE spd.scp=sq.scp;
+    WHERE spd.scp = sq.scp;
 
     --- organization terms
 

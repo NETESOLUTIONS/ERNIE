@@ -19,7 +19,7 @@ BEGIN
                                     correspondence_country, correspondence_e_address, pub_type, citation_type,
                                     citation_language, process_stage, state, date_sort, ernie_source_id)
 
- SELECT stg_scopus_publications.scp,
+    SELECT stg_scopus_publications.scp,
            max(sgr)                                                               AS sgr,
            max(correspondence_person_indexed_name)                                AS correspondence_person_indexed_name,
            max(correspondence_city)                                               AS correspondence_city,
@@ -33,7 +33,7 @@ BEGIN
            max(date_sort)                                                         as date_sort,
            scopus_sources.ernie_source_id
     FROM stg_scopus_publications
-           LEFT JOIN  scopus_sources ON scopus_sources.ernie_source_id=stg_scopus_publications.ernie_source_id
+             LEFT JOIN scopus_sources ON scopus_sources.ernie_source_id = stg_scopus_publications.ernie_source_id
     GROUP BY scp, scopus_sources.ernie_source_id
     ON CONFLICT (scp) DO UPDATE SET sgr=excluded.sgr,
                                     correspondence_person_indexed_name=excluded.correspondence_person_indexed_name,
