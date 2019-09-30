@@ -16,8 +16,9 @@ BEGIN
            grantor,
            max(grantor_country_code)       AS grantor_country_code,
            max(grantor_funder_registry_id) AS grantor_funder_registry_id
-    FROM stg_scopus_grants, scopus_publications
-    Where stg_scopus_grants.scp=scopus_publications.scp
+    FROM stg_scopus_grants,
+         scopus_publications
+    Where stg_scopus_grants.scp = scopus_publications.scp
     GROUP BY scopus_publications.scp, grant_id, grantor
     ON CONFLICT (scp, grant_id, grantor) DO UPDATE SET grantor_acronym=excluded.grantor_acronym,
                                                        grantor_country_code=excluded.grantor_country_code,
@@ -25,8 +26,9 @@ BEGIN
 
     INSERT INTO scopus_grant_acknowledgements(scp, grant_text)
     SELECT DISTINCT scopus_publications.scp, grant_text
-    FROM stg_scopus_grant_acknowledgements,scopus_publications
-    WHERE stg_scopus_grant_acknowledgements.scp=scopus_publications.scp
+    FROM stg_scopus_grant_acknowledgements,
+         scopus_publications
+    WHERE stg_scopus_grant_acknowledgements.scp = scopus_publications.scp
     ON CONFLICT (scp) DO UPDATE SET grant_text=excluded.grant_text;
 END
 $$;
