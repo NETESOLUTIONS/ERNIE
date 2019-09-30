@@ -34,8 +34,11 @@ BEGIN
             pub_month SMALLINT PATH 'publicationdate/month', --
             pub_day SMALLINT PATH 'publicationdate/day', --
             conf_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcode', --
-            conf_name TEXT PATH 'normalize-space(additional-srcinfo/conferenceinfo/confevent/confname)');
+            conf_name TEXT PATH 'normalize-space(additional-srcinfo/conferenceinfo/confevent/confname)')
+    xmltable ;
 
+
+   --indexed terms
 
     UPDATE stg_scopus_source_publication_details spd
     SET indexed_terms=sq.indexed_terms
@@ -43,14 +46,33 @@ BEGIN
          SELECT
           scp,
           string_agg(descriptors, ',') AS indexed_terms
-         FROM xml_pub_detail, xmltable(--
-         '//bibrecord/head/enhancement/descriptorgroup/descriptors/descriptor/mainterm' PASSING data COLUMNS --
+         FROM xmltable(--
+         '//bibrecord/head/enhancement/descriptorgroup/descriptors/descriptor/mainterm' PASSING scopus_doc_xml COLUMNS --
          scp BIGINT PATH '../../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
          descriptors TEXT PATH 'normalize-space()'
          )
          GROUP BY scp
          ) as sq
     WHERE spd.scp=sq.scp;
+
+    --- organization terms
+
+    WITH cte AS (
+        SELECT scp, string_agg(organization, chr(10)) AS correspondence_orgs
+        FROM xmltable(--
+                XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
+                '//bibrecord/head/correspondence/affiliation/organization' PASSING scopus_doc_xml COLUMNS --
+                --@formatter:off
+                    scp BIGINT PATH '../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
+                    organization TEXT PATH 'normalize-space()'
+            --@formatter:on
+            )
+        GROUP BY scp
+    )
+    UPDATE stg_scopus_publications sp
+    SET correspondence_orgs = cte.correspondence_orgs
+    FROM cte
+    WHERE sp.scp = cte.scp;
 
     -- scopus_subjects
     INSERT INTO stg_scopus_subjects

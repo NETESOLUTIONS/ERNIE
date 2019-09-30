@@ -14,59 +14,50 @@ BEGIN
     FOR cur IN (
         SELECT sgr,
                pub_year,
-               --              try_parse(pub_year, pub_month, pub_day) AS pub_date,
+               try_parse(sort_year, sort_month, sort_day) AS date_sort,
                scp,
                correspondence_person_indexed_name,
                correspondence_city,
                correspondence_country,
                correspondence_e_address,
                citation_type,
-               citation_language
-        FROM
-            xmltable(--
-            -- The `xml:` namespace doesn't need to be specified
-                    XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
-                    '//bibrecord' PASSING scopus_doc_xml COLUMNS --
-                        sgr BIGINT PATH 'item-info/itemidlist/itemid[@idtype="SGR"]', --
-                        pub_year SMALLINT PATH 'head/source/publicationyear/@first', --
-                        scp BIGINT PATH 'item-info/itemidlist/itemid[@idtype="SCP"]', --
-                -- noramlize-space() converts NULLs to empty strings
-                        correspondence_person_indexed_name TEXT PATH 'head/correspondence/person/ce:indexed-name', --
-                        correspondence_city TEXT PATH 'head/correspondence/affiliation/city', --
-                        correspondence_country TEXT PATH 'head/correspondence/affiliation/country', --
-                        correspondence_e_address TEXT PATH 'head/correspondence/ce:e-address', --
-                        citation_type TEXT PATH 'head/citation-info/citation-type/@code', --
-                        citation_language XML PATH 'head/citation-info/citation-language/@language')
+               pub_type,
+               citation_language,
+               process_stage,
+               state
+
+        FROM xmltable(--
+-- The `xml:` namespace doesn't need to be specified
+                XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce, 'http://www.elsevier.com/xml/ani/ait' as ait), --
+                '//item' PASSING scopus_doc_xml COLUMNS --
+                    sgr BIGINT PATH 'bibrecord/item-info/itemidlist/itemid[@idtype="SGR"]', --
+                    pub_year SMALLINT PATH 'bibrecord/head/source/publicationyear/@first', --
+                    scp BIGINT PATH 'bibrecord/item-info/itemidlist/itemid[@idtype="SCP"]', --
+                    -- noramlize-space() converts NULLs to empty strings
+                    correspondence_person_indexed_name TEXT PATH 'bibrecord/head/correspondence/person/ce:indexed-name', --
+                    correspondence_city TEXT PATH 'bibrecord/head/correspondence/affiliation/city', --
+                    correspondence_country TEXT PATH 'bibrecord/head/correspondence/affiliation/country', --
+                    correspondence_e_address TEXT PATH 'bibrecord/head/correspondence/ce:e-address', --
+                    citation_type TEXT PATH 'bibrecord/head/citation-info/citation-type/@code', --
+                    citation_language XML PATH 'bibrecord/head/citation-info/citation-language/@language',
+                    pub_type TEXT PATH 'ait:process-info/ait:status/@type',
+                    process_stage TEXT PATH 'ait:process-info/ait:status/@stage',
+                    state TEXT PATH 'ait:process-info/ait:status/@state',
+                    sort_year SMALLINT PATH 'ait:process-info/ait:date-sort/@year',
+                    sort_month SMALLINT PATH 'ait:process-info/ait:date-sort/@month',
+                    sort_day SMALLINT PATH 'ait:process-info/ait:date-sort/@day')
     )
         LOOP
             INSERT INTO stg_scopus_publication_groups(sgr, pub_year)
             VALUES (cur.sgr, cur.pub_year);
 
             INSERT INTO stg_scopus_publications(scp, sgr, correspondence_person_indexed_name, correspondence_city,
-                                                correspondence_country, correspondence_e_address, citation_type,
-                                                citation_language)
+                                                correspondence_country, correspondence_e_address, pub_type,
+                                                citation_type,
+                                                citation_language, process_stage, state, date_sort)
             VALUES (cur.scp, cur.sgr, cur.correspondence_person_indexed_name, cur.correspondence_city,
-                    cur.correspondence_country, cur.correspondence_e_address, cur.citation_type, cur.citation_language);
+                    cur.correspondence_country, cur.correspondence_e_address, cur.pub_type, cur.citation_type,
+                    cur.citation_language, cur.process_stage, cur.state, cur.date_sort);
         END LOOP;
-
-    -- scopus_publications: concatenated correspondence organizations
-
-    WITH cte AS (
-        SELECT scp, string_agg(organization, chr(10)) AS correspondence_orgs
-        FROM xmltable(--
-                XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
-                '//bibrecord/head/correspondence/affiliation/organization' PASSING scopus_doc_xml COLUMNS --
-                --@formatter:off
-                    scp BIGINT PATH '../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
-                    organization TEXT PATH 'normalize-space()'
-            --@formatter:on
-            )
-        GROUP BY scp
-    )
-    UPDATE stg_scopus_publications sp
-    SET correspondence_orgs = cte.correspondence_orgs
-    FROM cte
-    WHERE sp.scp = cte.scp;
-
-END;
+END ;
 $$;

@@ -7,6 +7,7 @@ CREATE OR REPLACE PROCEDURE stg_scopus_parse_source_and_conferences(scopus_doc_x
 $$
 DECLARE
     db_id INT;
+    cur   RECORD;
 BEGIN
     INSERT INTO stg_scopus_sources(ernie_source_id, source_id, issn_main, isbn_main, source_type, source_title,
                                    coden_code, publisher_name, publisher_e_address, pub_date)
@@ -42,19 +43,18 @@ BEGIN
     GROUP BY source_id, issn_main, isbn_main
     RETURNING ernie_source_id INTO db_id;
 
-    UPDATE stg_scopus_sources ss
-    SET website=sq.website
-    FROM (
-             SELECT db_id                    AS ernie_source_id,
-                    string_agg(website, ',') AS website
-             FROM xmltable(--
-                     XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
-                     '//bibrecord/head/source/website/ce:e-address' PASSING scopus_doc_xml COLUMNS --
-                         website TEXT PATH 'normalize-space()'
-                 )
-             GROUP BY ernie_source_id
-         ) AS sq
-    WHERE ss.ernie_source_id = sq.ernie_source_id;
+    UPDATE stg_scopus_sources
+    SET website=sub.website
+    FROM (select source_id,
+                 string_agg(website, ',') AS website
+          FROM xmltable(--
+                  XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
+                  '//bibrecord/head/source/website/ce:e-address' PASSING scopus_doc_xml COLUMNS --
+                      source_id TEXT PATH '//bibrecord/head/source/@srcid',
+                      website TEXT PATH 'normalize-space()')
+          group by source_id)
+             as sub
+    WHERE stg_scopus_sources.source_id = sub.source_id;
 
     -- scopus_isbns
     INSERT INTO stg_scopus_isbns(ernie_source_id, isbn, isbn_length, isbn_type, isbn_level)
@@ -81,33 +81,6 @@ BEGIN
                 issn_type TEXT PATH '@type'
         );
 
-
-    UPDATE stg_scopus_publications sp
-    SET pub_type        = singular.pub_type,
-        process_stage   = singular.process_stage,
-        state           = singular.state,
-        date_sort       = singular.date_sort,
-        ernie_source_id = singular.ernie_source_id
-    FROM (
-             SELECT scp,
-                    pub_type,
-                    process_stage,
-                    state,
-                    try_parse(sort_year, sort_month, sort_day) AS date_sort,
-                    db_id                                      AS ernie_source_id
-             FROM xmltable(--
-                     XMLNAMESPACES ('http://www.elsevier.com/xml/ani/ait' AS ait), --
-                     '//ait:process-info' PASSING scopus_doc_xml COLUMNS --
-                         scp BIGINT PATH '//bibrecord/item-info/itemidlist/itemid[@idtype="SCP"]',
-                         pub_type TEXT PATH 'ait:status/@type',
-                         process_stage TEXT PATH 'ait:status/@stage',
-                         state TEXT PATH 'ait:status/@state',
-                         sort_year SMALLINT PATH 'ait:date-sort/@year',
-                         sort_month SMALLINT PATH 'ait:date-sort/@month',
-                         sort_day SMALLINT PATH 'ait:date-sort/@day'
-                 )
-         ) AS singular
-    WHERE sp.scp = singular.scp;
 
     -- scopus_conference_events
     INSERT INTO stg_scopus_conference_events(conf_code, conf_name, conf_address, conf_city, conf_postal_code,
@@ -139,6 +112,7 @@ BEGIN
                 conf_catalog_number TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcatnumber'
         );
 
+        --TODO:
     UPDATE stg_scopus_conference_events sce
     SET conf_sponsor=sq.conf_sponsor
     FROM (
@@ -183,6 +157,7 @@ BEGIN
     WHERE proc_part_no IS NOT NULL
        OR proc_page_range IS NOT NULL
        OR proc_page_count IS NOT NULL;
+
     -- scopus_conf_editors
     INSERT INTO stg_scopus_conf_editors(ernie_source_id, conf_code, conf_name, indexed_name, role_type,
                                         initials, surname, given_name, degree, suffix)
@@ -251,8 +226,59 @@ BEGIN
     WHERE sed.ernie_source_id = sq.ernie_source_id
       AND sed.conf_code = sq.conf_code
       AND sed.conf_name = sq.conf_name;
+
+      FOR cur IN (
+        SELECT sgr,
+               pub_year,
+               try_parse(sort_year, sort_month, sort_day) AS date_sort,
+               scp,
+               correspondence_person_indexed_name,
+               correspondence_city,
+               correspondence_country,
+               correspondence_e_address,
+               citation_type,
+               pub_type,
+               citation_language,
+               process_stage,
+               state,
+               db_id as ernie_source_id
+
+        FROM xmltable(--
+-- The `xml:` namespace doesn't need to be specified
+                XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce, 'http://www.elsevier.com/xml/ani/ait' as ait), --
+                '//item' PASSING scopus_doc_xml COLUMNS --
+                    sgr BIGINT PATH 'bibrecord/item-info/itemidlist/itemid[@idtype="SGR"]', --
+                    pub_year SMALLINT PATH 'bibrecord/head/source/publicationyear/@first', --
+                    scp BIGINT PATH 'bibrecord/item-info/itemidlist/itemid[@idtype="SCP"]', --
+                    -- noramlize-space() converts NULLs to empty strings
+                    correspondence_person_indexed_name TEXT PATH 'bibrecord/head/correspondence/person/ce:indexed-name', --
+                    correspondence_city TEXT PATH 'bibrecord/head/correspondence/affiliation/city', --
+                    correspondence_country TEXT PATH 'bibrecord/head/correspondence/affiliation/country', --
+                    correspondence_e_address TEXT PATH 'bibrecord/head/correspondence/ce:e-address', --
+                    citation_type TEXT PATH 'bibrecord/head/citation-info/citation-type/@code', --
+                    citation_language XML PATH 'bibrecord/head/citation-info/citation-language/@language',
+                    pub_type TEXT PATH 'ait:process-info/ait:status/@type',
+                    process_stage TEXT PATH 'ait:process-info/ait:status/@stage',
+                    state TEXT PATH 'ait:process-info/ait:status/@state',
+                    sort_year SMALLINT PATH 'ait:process-info/ait:date-sort/@year',
+                    sort_month SMALLINT PATH 'ait:process-info/ait:date-sort/@month',
+                    sort_day SMALLINT PATH 'ait:process-info/ait:date-sort/@day')
+    )
+        LOOP
+            INSERT INTO stg_scopus_publication_groups(sgr, pub_year)
+            VALUES (cur.sgr, cur.pub_year);
+
+            INSERT INTO stg_scopus_publications(scp, sgr, correspondence_person_indexed_name, correspondence_city,
+                                                correspondence_country, correspondence_e_address, pub_type,
+                                                citation_type,
+                                                citation_language, process_stage, state, date_sort, ernie_source_id)
+            VALUES (cur.scp, cur.sgr, cur.correspondence_person_indexed_name, cur.correspondence_city,
+                    cur.correspondence_country, cur.correspondence_e_address, cur.pub_type, cur.citation_type,
+                    cur.citation_language, cur.process_stage, cur.state, cur.date_sort, cur.ernie_source_id);
+        END LOOP;
 END ;
 $$;
+
 
 
 
