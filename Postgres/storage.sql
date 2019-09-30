@@ -27,7 +27,7 @@ SELECT
 
 /*
 Relations (data-containing objects) by a tablespace excluding TOAST tables and their indexes.
-Does not support default DB tablespace
+Does not support `pg_default`
 */
 SELECT
   pc.relname, pg_size_pretty(pg_relation_size(pc.oid)),
@@ -61,6 +61,7 @@ SELECT
  ORDER BY pg_total_relation_size(pc.oid) DESC;
 
 -- Default tablespace parameter
+-- An empty string = the default tablespace of the current database
 SHOW default_tablespace;
 
 -- Current DB's default tablespace
@@ -142,7 +143,7 @@ SELECT
       LEFT JOIN pg_tablespace obj_pt ON obj_pt.oid = pc.reltablespace
       JOIN pg_database pd ON pd.datname = current_catalog
       JOIN pg_tablespace db_pt ON db_pt.oid = pd.dattablespace
- WHERE pc.relname LIKE :name_pattern
+ WHERE pc.relname LIKE :'name_pattern'
  ORDER BY pg_total_relation_size(pc.oid) DESC;
 
 -- Size and tablespace of relation(s) (data-containing objects) by schema
@@ -285,6 +286,9 @@ DROP TABLESPACE :tbs;
 
 -- region Move objects to a tablespace
 ALTER TABLE ALL IN TABLESPACE user_tbs SET TABLESPACE pg_default;
+ALTER MATERIALIZED VIEW ALL IN TABLESPACE user_tbs SET TABLESPACE pg_default;
+ALTER SEQUENCE ALL IN TABLESPACE user_tbs SET TABLESPACE pg_default;
+
 ALTER INDEX ALL IN TABLESPACE user_tbs SET TABLESPACE index_tbs;
 
 -- 1.7 GB

@@ -1,3 +1,8 @@
+/* Existing tables: current schema. */
+SELECT *
+  FROM information_schema.tables
+ WHERE table_schema = current_schema();
+
 /* Existing tables: only those tables and views are shown that the current user has access to
 (by way of being the owner or having some privilege). */
 SELECT *
