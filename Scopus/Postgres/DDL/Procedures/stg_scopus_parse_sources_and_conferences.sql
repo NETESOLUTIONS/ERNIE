@@ -43,6 +43,8 @@ BEGIN
     GROUP BY source_id, issn_main, isbn_main
     RETURNING ernie_source_id INTO db_id;
 
+    --ernie source id
+
     UPDATE stg_scopus_sources
     SET website=sub.website
     FROM (select source_id,
@@ -112,7 +114,34 @@ BEGIN
                 conf_catalog_number TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcatnumber'
         );
 
-        --TODO:
+     UPDATE stg_scopus_publications
+        set pub_type=subquery.pub_type,
+            process_stage=subquery.process_stage,
+            state=subquery.state,
+            date_sort=subquery.date_sort,
+            ernie_source_id=subquery.ernie_source_id
+    FROM
+        (SELECT
+            db_id as ernie_source_id,
+            scp,
+            pub_type,
+            process_stage,
+            state,
+            try_parse(sort_year, sort_month, sort_day) as date_sort
+     from  xmltable( XMLNAMESPACES ('http://www.elsevier.com/xml/ani/ait' as ait),
+         '//item' PASSING scopus_doc_xml COLUMNS
+                    scp BIGINT PATH '//bibrecord/item-info/itemidlist/itemid[@idtype="SCP"]',
+                    pub_type TEXT PATH 'ait:process-info/ait:status/@type',
+                    process_stage TEXT PATH 'ait:process-info/ait:status/@stage',
+                    state TEXT PATH 'ait:process-info/ait:status/@state',
+                    sort_year SMALLINT PATH 'ait:process-info/ait:date-sort/@year',
+                    sort_month SMALLINT PATH 'ait:process-info/ait:date-sort/@month',
+                    sort_day SMALLINT PATH 'ait:process-info/ait:date-sort/@day')
+            ) as subquery
+     where stg_scopus_publications.scp= subquery.scp ;
+   --indexed terms
+
+
     UPDATE stg_scopus_conference_events sce
     SET conf_sponsor=sq.conf_sponsor
     FROM (
@@ -226,56 +255,6 @@ BEGIN
     WHERE sed.ernie_source_id = sq.ernie_source_id
       AND sed.conf_code = sq.conf_code
       AND sed.conf_name = sq.conf_name;
-
-      FOR cur IN (
-        SELECT sgr,
-               pub_year,
-               try_parse(sort_year, sort_month, sort_day) AS date_sort,
-               scp,
-               correspondence_person_indexed_name,
-               correspondence_city,
-               correspondence_country,
-               correspondence_e_address,
-               citation_type,
-               pub_type,
-               citation_language,
-               process_stage,
-               state,
-               db_id as ernie_source_id
-
-        FROM xmltable(--
--- The `xml:` namespace doesn't need to be specified
-                XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce, 'http://www.elsevier.com/xml/ani/ait' as ait), --
-                '//item' PASSING scopus_doc_xml COLUMNS --
-                    sgr BIGINT PATH 'bibrecord/item-info/itemidlist/itemid[@idtype="SGR"]', --
-                    pub_year SMALLINT PATH 'bibrecord/head/source/publicationyear/@first', --
-                    scp BIGINT PATH 'bibrecord/item-info/itemidlist/itemid[@idtype="SCP"]', --
-                    -- noramlize-space() converts NULLs to empty strings
-                    correspondence_person_indexed_name TEXT PATH 'bibrecord/head/correspondence/person/ce:indexed-name', --
-                    correspondence_city TEXT PATH 'bibrecord/head/correspondence/affiliation/city', --
-                    correspondence_country TEXT PATH 'bibrecord/head/correspondence/affiliation/country', --
-                    correspondence_e_address TEXT PATH 'bibrecord/head/correspondence/ce:e-address', --
-                    citation_type TEXT PATH 'bibrecord/head/citation-info/citation-type/@code', --
-                    citation_language XML PATH 'bibrecord/head/citation-info/citation-language/@language',
-                    pub_type TEXT PATH 'ait:process-info/ait:status/@type',
-                    process_stage TEXT PATH 'ait:process-info/ait:status/@stage',
-                    state TEXT PATH 'ait:process-info/ait:status/@state',
-                    sort_year SMALLINT PATH 'ait:process-info/ait:date-sort/@year',
-                    sort_month SMALLINT PATH 'ait:process-info/ait:date-sort/@month',
-                    sort_day SMALLINT PATH 'ait:process-info/ait:date-sort/@day')
-    )
-        LOOP
-            INSERT INTO stg_scopus_publication_groups(sgr, pub_year)
-            VALUES (cur.sgr, cur.pub_year);
-
-            INSERT INTO stg_scopus_publications(scp, sgr, correspondence_person_indexed_name, correspondence_city,
-                                                correspondence_country, correspondence_e_address, pub_type,
-                                                citation_type,
-                                                citation_language, process_stage, state, date_sort, ernie_source_id)
-            VALUES (cur.scp, cur.sgr, cur.correspondence_person_indexed_name, cur.correspondence_city,
-                    cur.correspondence_country, cur.correspondence_e_address, cur.pub_type, cur.citation_type,
-                    cur.citation_language, cur.process_stage, cur.state, cur.date_sort, cur.ernie_source_id);
-        END LOOP;
 END ;
 $$;
 

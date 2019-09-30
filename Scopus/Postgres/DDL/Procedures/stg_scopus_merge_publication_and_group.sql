@@ -32,7 +32,7 @@ BEGIN
            max(date_sort)                                                         as date_sort,
            stg_scopus_publications.ernie_source_id
     FROM stg_scopus_publications
-           INNER JOIN  scopus_sources ON scopus_sources.ernie_source_id = stg_scopus_publications.ernie_source_id
+           LEFT JOIN  scopus_sources ON stg_scopus_publications.ernie_source_id=scopus_sources.ernie_source_id
     GROUP BY scp, stg_scopus_publications.ernie_source_id
     ON CONFLICT (scp) DO UPDATE SET sgr=excluded.sgr,
                                     correspondence_person_indexed_name=excluded.correspondence_person_indexed_name,

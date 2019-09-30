@@ -38,8 +38,6 @@ BEGIN
     xmltable ;
 
 
-   --indexed terms
-
     UPDATE stg_scopus_source_publication_details spd
     SET indexed_terms=sq.indexed_terms
     FROM (

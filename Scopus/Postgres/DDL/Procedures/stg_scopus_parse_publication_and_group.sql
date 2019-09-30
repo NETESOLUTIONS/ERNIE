@@ -14,18 +14,13 @@ BEGIN
     FOR cur IN (
         SELECT sgr,
                pub_year,
-               try_parse(sort_year, sort_month, sort_day) AS date_sort,
                scp,
                correspondence_person_indexed_name,
                correspondence_city,
                correspondence_country,
                correspondence_e_address,
                citation_type,
-               pub_type,
-               citation_language,
-               process_stage,
-               state
-
+               citation_language
         FROM xmltable(--
 -- The `xml:` namespace doesn't need to be specified
                 XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce, 'http://www.elsevier.com/xml/ani/ait' as ait), --
@@ -39,25 +34,20 @@ BEGIN
                     correspondence_country TEXT PATH 'bibrecord/head/correspondence/affiliation/country', --
                     correspondence_e_address TEXT PATH 'bibrecord/head/correspondence/ce:e-address', --
                     citation_type TEXT PATH 'bibrecord/head/citation-info/citation-type/@code', --
-                    citation_language XML PATH 'bibrecord/head/citation-info/citation-language/@language',
-                    pub_type TEXT PATH 'ait:process-info/ait:status/@type',
-                    process_stage TEXT PATH 'ait:process-info/ait:status/@stage',
-                    state TEXT PATH 'ait:process-info/ait:status/@state',
-                    sort_year SMALLINT PATH 'ait:process-info/ait:date-sort/@year',
-                    sort_month SMALLINT PATH 'ait:process-info/ait:date-sort/@month',
-                    sort_day SMALLINT PATH 'ait:process-info/ait:date-sort/@day')
+                    citation_language XML PATH 'bibrecord/head/citation-info/citation-language/@language'
+                    )
     )
         LOOP
             INSERT INTO stg_scopus_publication_groups(sgr, pub_year)
             VALUES (cur.sgr, cur.pub_year);
 
             INSERT INTO stg_scopus_publications(scp, sgr, correspondence_person_indexed_name, correspondence_city,
-                                                correspondence_country, correspondence_e_address, pub_type,
+                                                correspondence_country, correspondence_e_address,
                                                 citation_type,
-                                                citation_language, process_stage, state, date_sort)
+                                                citation_language)
             VALUES (cur.scp, cur.sgr, cur.correspondence_person_indexed_name, cur.correspondence_city,
-                    cur.correspondence_country, cur.correspondence_e_address, cur.pub_type, cur.citation_type,
-                    cur.citation_language, cur.process_stage, cur.state, cur.date_sort);
+                    cur.correspondence_country, cur.correspondence_e_address,  cur.citation_type,
+                    cur.citation_language);
         END LOOP;
 END ;
 $$;
