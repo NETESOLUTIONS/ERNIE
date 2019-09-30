@@ -18,6 +18,7 @@ BEGIN
                         source_type,
                         source_title,
                         coden_code,
+                        website,
                         publisher_name,
                         publisher_e_address,
                         pub_date
@@ -26,15 +27,16 @@ BEGIN
         LOOP
             INSERT INTO scopus_sources(ernie_source_id, source_id, issn_main, isbn_main, source_type,
                                        source_title,
-                                       coden_code, publisher_name, publisher_e_address, pub_date)
+                                       coden_code, website, publisher_name, publisher_e_address, pub_date)
             VALUES (single_row.ernie_source_id, single_row.source_id, single_row.issn_main,
                     single_row.isbn_main, single_row.source_type,
                     single_row.source_title,
-                    single_row.coden_code, single_row.publisher_name, single_row.publisher_e_address,
+                    single_row.coden_code, single_row.website, single_row.publisher_name, single_row.publisher_e_address,
                     single_row.pub_date)
             ON CONFLICT (source_id, issn_main, isbn_main) DO UPDATE SET source_type         = excluded.source_type,
                                                                         source_title        = excluded.source_title,
                                                                         coden_code          = excluded.coden_code,
+                                                                        website             =excluded.website,
                                                                         publisher_name      = excluded.publisher_name,
                                                                         publisher_e_address = excluded.publisher_e_address,
                                                                         pub_date            = excluded.pub_date;
