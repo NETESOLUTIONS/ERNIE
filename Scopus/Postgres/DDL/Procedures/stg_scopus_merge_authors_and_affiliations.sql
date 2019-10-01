@@ -33,12 +33,13 @@ BEGIN
                                                 author_rank=excluded.author_rank;
     -- scopus_affiliations
     ---------------------------------------
-    INSERT INTO scopus_affiliations(scp, affiliation_no, afid, dptid, city_group, state, postal_code, country_code,
+    INSERT INTO scopus_affiliations(scp, affiliation_no, afid, dptid, organization, city_group, state, postal_code, country_code,
                                     country)
     SELECT DISTINCT scopus_publications.scp,
                     affiliation_no,
                     afid,
                     dptid,
+                    organization,
                     city_group,
                     stg_scopus_affiliations.state,
                     postal_code,
@@ -50,6 +51,7 @@ BEGIN
     ON CONFLICT (scp, affiliation_no) DO UPDATE SET afid=excluded.afid,
                                                     dptid=excluded.dptid,
                                                     city_group=excluded.city_group,
+                                                    organization=excluded.organization,
                                                     state=excluded.state,
                                                     postal_code=excluded.postal_code,
                                                     country_code=excluded.country_code,

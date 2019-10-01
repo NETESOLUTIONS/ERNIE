@@ -15,13 +15,15 @@ BEGIN
 
     DELETE FROM scopus_publications scp USING stg_scopus_publications stg WHERE scp.scp = stg.scp;
 
-    INSERT INTO scopus_publications(scp, sgr, correspondence_person_indexed_name, correspondence_city,
+    INSERT INTO scopus_publications(scp, sgr, correspondence_person_indexed_name, correspondence_orgs,
+                                    correspondence_city,
                                     correspondence_country, correspondence_e_address, pub_type, citation_type,
                                     citation_language, process_stage, state, date_sort, ernie_source_id)
 
     SELECT stg_scopus_publications.scp,
            max(sgr)                                                               AS sgr,
            max(correspondence_person_indexed_name)                                AS correspondence_person_indexed_name,
+           max(correspondence_orgs)                                               AS correspondence_orgs,
            max(correspondence_city)                                               AS correspondence_city,
            max(correspondence_country)                                            AS correspondence_country,
            max(correspondence_e_address)                                          AS correspondence_e_address,
@@ -37,6 +39,7 @@ BEGIN
     GROUP BY scp, scopus_sources.ernie_source_id
     ON CONFLICT (scp) DO UPDATE SET sgr=excluded.sgr,
                                     correspondence_person_indexed_name=excluded.correspondence_person_indexed_name,
+                                    correspondence_orgs=excluded.correspondence_orgs,
                                     correspondence_city=excluded.correspondence_city,
                                     correspondence_country=excluded.correspondence_country,
                                     correspondence_e_address=excluded.correspondence_e_address,
@@ -44,5 +47,5 @@ BEGIN
                                     citation_type=excluded.citation_type,
                                     citation_language=excluded.citation_language,
                                     ernie_source_id=excluded.ernie_source_id;
-END;
+END ;
 $$;
