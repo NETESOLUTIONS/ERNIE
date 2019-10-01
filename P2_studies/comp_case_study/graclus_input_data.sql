@@ -11,6 +11,7 @@
 
 SET SEARCH_PATH TO public;
 
+DROP TABLE IF EXISTS :dataset_graclus_data
 CREATE TABLE :dataset_graclus_data TABLESPACE p2_studies_tbs AS
     WITH combined_data AS (
         SELECT source_id, cited_source_uid
@@ -35,6 +36,7 @@ CREATE TABLE :dataset_graclus_data TABLESPACE p2_studies_tbs AS
     GROUP BY s_id
     ORDER BY s_id;
 
+DROP TABLE IF EXISTS :dataset_graclus_coded
 CREATE TABLE :dataset_graclus_coded TABLESPACE p2_studies_tbs AS
     WITH combined_data AS (
         SELECT source_id, cited_source_uid
@@ -47,7 +49,7 @@ CREATE TABLE :dataset_graclus_coded TABLESPACE p2_studies_tbs AS
         WHERE source_id != cited_source_uid
     )
     SELECT source_id,
-           dense_rank() OVER (ORDER BY source_id)        AS s_id,
+           dense_rank() OVER (ORDER BY source_id)        AS s_id
 --            dense_rank() OVER (ORDER BY cited_source_uid) AS csi_id
     FROM combined_data
     ORDER BY source_id;
