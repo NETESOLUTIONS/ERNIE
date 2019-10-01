@@ -186,7 +186,7 @@ BEGIN
     EXECUTE format('ANALYZE VERBOSE %I;', tab.table_name);
   END LOOP;
   RETURN NEXT is_empty($$
-  SELECT tablename, attname
+  SELECT tablename || '.' || attname AS empty_column
     FROM pg_stats
   WHERE (schemaname = current_schema) AND (tablename LIKE 'scopus%') AND null_frac = 1$$,
                        'No 100% empty (NULL) column');
