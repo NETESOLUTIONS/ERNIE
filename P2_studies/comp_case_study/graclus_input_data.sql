@@ -11,7 +11,7 @@
 
 SET SEARCH_PATH TO public;
 
-DROP TABLE IF EXISTS :dataset_graclus_data
+DROP TABLE IF EXISTS :dataset_graclus_data;
 CREATE TABLE :dataset_graclus_data TABLESPACE p2_studies_tbs AS
     WITH combined_data AS (
         SELECT source_id, cited_source_uid
@@ -36,7 +36,7 @@ CREATE TABLE :dataset_graclus_data TABLESPACE p2_studies_tbs AS
     GROUP BY s_id
     ORDER BY s_id;
 
-DROP TABLE IF EXISTS :dataset_graclus_coded
+DROP TABLE IF EXISTS :dataset_graclus_coded;
 CREATE TABLE :dataset_graclus_coded TABLESPACE p2_studies_tbs AS
     WITH combined_data AS (
         SELECT source_id, cited_source_uid
