@@ -7,7 +7,6 @@ CREATE OR REPLACE PROCEDURE stg_scopus_parse_source_and_conferences(scopus_doc_x
 $$
 DECLARE
     db_id INT;
-    cur   RECORD;
 BEGIN
     INSERT INTO stg_scopus_sources(ernie_source_id, source_id, issn_main, isbn_main, source_type, source_title,
                                    coden_code, publisher_name, publisher_e_address, pub_date)
@@ -42,6 +41,32 @@ BEGIN
        OR XMLEXISTS('//bibrecord/head/source/isbn' PASSING scopus_doc_xml)
     GROUP BY source_id, issn_main, isbn_main
     RETURNING ernie_source_id INTO db_id;
+
+    UPDATE stg_scopus_publications
+    set pub_type=subquery.pub_type,
+        process_stage=subquery.process_stage,
+        state=subquery.state,
+        date_sort=subquery.date_sort,
+        ernie_source_id=subquery.ernie_source_id
+    FROM (SELECT db_id                                      as ernie_source_id,
+                 scp,
+                 pub_type,
+                 process_stage,
+                 state,
+                 try_parse(sort_year, sort_month, sort_day) as date_sort
+          from xmltable(XMLNAMESPACES ('http://www.elsevier.com/xml/ani/ait' as ait),
+                        '//item' PASSING scopus_doc_xml COLUMNS
+                            scp BIGINT PATH '//bibrecord/item-info/itemidlist/itemid[@idtype="SCP"]',
+                            pub_type TEXT PATH 'ait:process-info/ait:status/@type',
+                            process_stage TEXT PATH 'ait:process-info/ait:status/@stage',
+                            state TEXT PATH 'ait:process-info/ait:status/@state',
+                            sort_year SMALLINT PATH 'ait:process-info/ait:date-sort/@year',
+                            sort_month SMALLINT PATH 'ait:process-info/ait:date-sort/@month',
+                            sort_day SMALLINT PATH 'ait:process-info/ait:date-sort/@day')
+         ) as subquery
+    where stg_scopus_publications.scp = subquery.scp;
+    --indexed terms
+
 
     --ernie source id
 
@@ -101,8 +126,8 @@ BEGIN
             '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
                 conf_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcode',
                 conf_name TEXT PATH 'normalize-space(additional-srcinfo/conferenceinfo/confevent/confname)',
-                conf_address TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/conflocation/address-part',
-                conf_city TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/conflocation/city-group',
+                conf_address TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/conflocation/address',
+                conf_city TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/conflocation/city',
                 conf_postal_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/conflocation/postal-code',
                 s_year SMALLINT PATH 'additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@year',
                 s_month SMALLINT PATH 'additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@month',
@@ -114,32 +139,6 @@ BEGIN
                 conf_catalog_number TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcatnumber'
         );
 
-    UPDATE stg_scopus_publications
-    set pub_type=subquery.pub_type,
-        process_stage=subquery.process_stage,
-        state=subquery.state,
-        date_sort=subquery.date_sort,
-        ernie_source_id=subquery.ernie_source_id
-    FROM (SELECT db_id                                      as ernie_source_id,
-                 scp,
-                 pub_type,
-                 process_stage,
-                 state,
-                 try_parse(sort_year, sort_month, sort_day) as date_sort
-          from xmltable(XMLNAMESPACES ('http://www.elsevier.com/xml/ani/ait' as ait),
-                        '//item' PASSING scopus_doc_xml COLUMNS
-                            scp BIGINT PATH '//bibrecord/item-info/itemidlist/itemid[@idtype="SCP"]',
-                            pub_type TEXT PATH 'ait:process-info/ait:status/@type',
-                            process_stage TEXT PATH 'ait:process-info/ait:status/@stage',
-                            state TEXT PATH 'ait:process-info/ait:status/@state',
-                            sort_year SMALLINT PATH 'ait:process-info/ait:date-sort/@year',
-                            sort_month SMALLINT PATH 'ait:process-info/ait:date-sort/@month',
-                            sort_day SMALLINT PATH 'ait:process-info/ait:date-sort/@day')
-         ) as subquery
-    where stg_scopus_publications.scp = subquery.scp;
-    --indexed terms
-
-
     UPDATE stg_scopus_conference_events sce
     SET conf_sponsor=sq.conf_sponsor
     FROM (
@@ -147,11 +146,11 @@ BEGIN
                     coalesce(conf_name, '')       AS conf_name,
                     string_agg(conf_sponsor, ',') AS conf_sponsor
              FROM xmltable(--
-                     '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confevent/confsponsors/confsponsor' --
+                     '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confevent' --
                      PASSING scopus_doc_xml COLUMNS --
-                         conf_code TEXT PATH '../../confcode',
-                         conf_name TEXT PATH '../../confname',
-                         conf_sponsor TEXT PATH 'normalize-space()'
+                         conf_code TEXT PATH 'confcode',
+                         conf_name TEXT PATH 'confname',
+                         conf_sponsor TEXT PATH 'normalize-space(confsponsors/confsponsor)'
                  )
              GROUP BY conf_code, conf_name
          ) AS sq

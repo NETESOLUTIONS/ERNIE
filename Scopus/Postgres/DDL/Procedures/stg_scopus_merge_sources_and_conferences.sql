@@ -60,7 +60,7 @@ BEGIN
 
     INSERT INTO scopus_conference_events(conf_code, conf_name, conf_address, conf_city, conf_postal_code,
                                          conf_start_date,
-                                         conf_end_date, conf_number, conf_catalog_number)
+                                         conf_end_date, conf_number, conf_catalog_number, conf_sponsor)
     SELECT DISTINCT conf_code,
                     conf_name,
                     conf_address,
@@ -69,7 +69,8 @@ BEGIN
                     conf_start_date,
                     conf_end_date,
                     conf_number,
-                    conf_catalog_number
+                    conf_catalog_number,
+                    conf_sponsor
     FROM stg_scopus_conference_events
     ON CONFLICT (conf_code, conf_name) DO UPDATE SET conf_address=excluded.conf_address,
                                                      conf_city=excluded.conf_city,
@@ -77,7 +78,8 @@ BEGIN
                                                      conf_start_date=excluded.conf_start_date,
                                                      conf_end_date=excluded.conf_end_date,
                                                      conf_number=excluded.conf_number,
-                                                     conf_catalog_number=excluded.conf_catalog_number;
+                                                     conf_catalog_number=excluded.conf_catalog_number,
+                                                     conf_sponsor=excluded.conf_sponsor;
 
     INSERT INTO scopus_conf_proceedings(ernie_source_id, conf_code, conf_name, proc_part_no, proc_page_range,
                                         proc_page_count)
