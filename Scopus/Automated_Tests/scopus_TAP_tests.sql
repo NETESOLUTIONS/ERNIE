@@ -28,64 +28,6 @@ SET search_path = :schema,public;
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
--- 1 # Assertion : all scopus tables exist (T/F?)
-CREATE OR REPLACE FUNCTION test_that_all_scopus_tables_exist() RETURNS SETOF TEXT AS $$
-BEGIN
-  RETURN NEXT has_table('scopus_abstracts');
-  RETURN NEXT has_table('scopus_affiliations');
-  RETURN NEXT has_table('scopus_authors');
-  RETURN NEXT has_table('scopus_author_affiliations');
-  RETURN NEXT has_table('scopus_chemical_groups');
-  RETURN NEXT has_table('scopus_classes');
-  RETURN NEXT has_table('scopus_classification_lookup');
-  RETURN NEXT has_table('scopus_conf_editors');
-  RETURN NEXT has_table('scopus_conf_proceedings');
-  RETURN NEXT has_table('scopus_conference_events');
-  RETURN NEXT has_table('scopus_grant_acknowledgments');
-  RETURN NEXT has_table('scopus_grants');
-  RETURN NEXT has_table('scopus_isbns');
-  RETURN NEXT has_table('scopus_issns');
-  RETURN NEXT has_table('scopus_keywords');
-  RETURN NEXT has_table('scopus_publication_groups');
-  RETURN NEXT has_table('scopus_publication_identifiers');
-  RETURN NEXT has_table('scopus_publications');
-  RETURN NEXT has_table('scopus_references');
-  RETURN NEXT has_table('scopus_source_publication_details');
-  RETURN NEXT has_table('scopus_sources');
-  RETURN NEXT has_table('scopus_subject_keywords');
-  RETURN NEXT has_table('scopus_subjects');
-  RETURN NEXT has_table('scopus_titles');
-END; $$ LANGUAGE plpgsql;
-
--- 2 # Assertion : all scopus tables have a pk (T/F?)
-CREATE OR REPLACE FUNCTION test_that_all_scopus_tables_have_pk() RETURNS SETOF TEXT AS $$
-BEGIN
-  RETURN NEXT has_pk('scopus_abstracts', 'scopus_abstracts pk exists');
-  RETURN NEXT has_pk('scopus_affiliations', 'scopus_affiliations pk exists');
-  RETURN NEXT has_pk('scopus_authors', 'scopus_authors pk exists');
-  RETURN NEXT has_pk('scopus_author_affiliations', 'scopus_author_affiliations pk exists');
-  RETURN NEXT has_pk('scopus_chemical_groups', 'scopus_chemical_groups pk exists');
-  RETURN NEXT has_pk('scopus_classes', 'scopus_classes pk exists');
-  RETURN NEXT has_pk('scopus_classification_lookup', 'scopus_classification_lookup pk exists');
-  RETURN NEXT has_pk('scopus_conf_editors', 'scopus_conf_editors pk exists');
-  RETURN NEXT has_pk('scopus_conf_proceedings', 'scopus_conf_proceedings pk exists');
-  RETURN NEXT has_pk('scopus_conference_events', 'scopus_conference_events pk exists');
-  RETURN NEXT has_pk('scopus_grant_acknowledgments', 'scopus_grant_acknowledgments pk exists');
-  RETURN NEXT has_pk('scopus_grants', 'scopus_grants pk exists');
-  RETURN NEXT has_pk('scopus_isbns', 'scopus_isbns pk exists');
-  RETURN NEXT has_pk('scopus_issns', 'scopus_issns pk exists');
-  RETURN NEXT has_pk('scopus_keywords', 'scopus_keywords pk exists');
-  RETURN NEXT has_pk('scopus_publication_groups', 'scopus_publication_groups pk exists');
-  RETURN NEXT has_pk('scopus_publication_identifiers', 'scopus_publication_identifiers pk exists');
-  RETURN NEXT has_pk('scopus_publications', 'scopus_publications pk exists');
-  RETURN NEXT has_pk('scopus_references', 'scopus_references pk exists');
-  RETURN NEXT has_pk('scopus_publication_details', 'scopus_publication_details pk exists');
-  RETURN NEXT has_pk('scopus_sources', 'scopus_sources pk exists');
-  RETURN NEXT has_pk('scopus_subject_keywords', 'scopus_subject_keywords exists');
-  RETURN NEXT has_pk('scopus_subjects', 'scopus_subjects exists');
-  RETURN NEXT has_pk('scopus_titles', 'scopus_titles exists');
-END; $$ LANGUAGE plpgsql;
-
 -- 3 # Assertion: are main tables populated (Y/N?)
 
 /*CREATE OR REPLACE FUNCTION test_that_all_scopus_tables_are_populated()
@@ -172,23 +114,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;*/
 
--- 3 # Assertion : are any tables completely null for every field  (Y/N?)
-
-CREATE OR REPLACE FUNCTION test_that_there_is_no_100_percent_NULL_column_in_scopus_tables() RETURNS SETOF TEXT AS $block$
-DECLARE tab RECORD;
-BEGIN
-  FOR tab IN (
-    SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema AND table_name LIKE 'scopus%'
-  ) LOOP
-    EXECUTE format('ANALYZE VERBOSE %I;', tab.table_name);
-  END LOOP;
-  RETURN NEXT is_empty($$
-  SELECT tablename || '.' || attname AS empty_column
-    FROM pg_stats
-  WHERE (schemaname = current_schema) AND (tablename LIKE 'scopus%') AND null_frac = 1$$,
-                       'All columns should be populated in some rows');
-END; $block$ LANGUAGE plpgsql;
-
 -- 4 # Assertion: is there an increase in records ?
 
 CREATE OR REPLACE FUNCTION test_that_publication_number_increase_after_weekly_scopus_update() RETURNS SETOF TEXT AS $$
@@ -205,22 +130,78 @@ BEGIN
    ORDER BY id DESC
    LIMIT 1;
 
-  RETURN NEXT ok(new_num >= old_num,
-    'The number of scopus records should not decrease with an update');
+  RETURN NEXT ok(new_num >= old_num, 'The number of scopus records should not decrease with an update');
 
 END; $$ LANGUAGE plpgsql;
 
 -- Run functions
 -- Start transaction and plan the tests.
 
+DO $block$
+  DECLARE tab RECORD;
+  BEGIN
+    -- Analyze tables
+    FOR tab IN (
+      SELECT table_name FROM information_schema.tables --
+      WHERE table_schema = current_schema AND table_name LIKE 'scopus%'
+    ) LOOP
+      EXECUTE format('ANALYZE VERBOSE %I;', tab.table_name);
+    END LOOP;
+  END $block$;
+
 BEGIN;
-SELECT * FROM no_plan();
-SELECT test_that_all_scopus_tables_exist();
-SELECT test_that_all_scopus_tables_have_pk();
-SELECT test_that_there_is_no_100_percent_NULL_column_in_scopus_tables();
+SELECT *
+  FROM no_plan();
+
+-- region all scopus tables exist (T/F?)
+SELECT has_table('scopus_abstracts');
+SELECT has_table('scopus_affiliations');
+SELECT has_table('scopus_authors');
+SELECT has_table('scopus_author_affiliations');
+SELECT has_table('scopus_chemical_groups');
+SELECT has_table('scopus_classes');
+SELECT has_table('scopus_classification_lookup');
+SELECT has_table('scopus_conf_editors');
+SELECT has_table('scopus_conf_proceedings');
+SELECT has_table('scopus_conference_events');
+SELECT has_table('scopus_grant_acknowledgments');
+SELECT has_table('scopus_grants');
+SELECT has_table('scopus_isbns');
+SELECT has_table('scopus_issns');
+SELECT has_table('scopus_keywords');
+SELECT has_table('scopus_publication_groups');
+SELECT has_table('scopus_publication_identifiers');
+SELECT has_table('scopus_publications');
+SELECT has_table('scopus_references');
+SELECT has_table('scopus_source_publication_details');
+SELECT has_table('scopus_sources');
+SELECT has_table('scopus_subject_keywords');
+SELECT has_table('scopus_subjects');
+SELECT has_table('scopus_titles');
+-- endregion
+
+-- region all tables should have a PK
+SELECT is_empty($$
+ SELECT current_schema || '.' || table_name
+  FROM information_schema.tables t
+ WHERE table_schema = current_schema AND table_name LIKE 'scopus%'
+   AND NOT EXISTS(SELECT 1
+                    FROM information_schema.table_constraints tc
+                   WHERE tc.table_schema = current_schema
+                     AND tc.table_name = t.table_name
+                     AND tc.constraint_type = 'PRIMARY KEY')$$);
+-- endregion
+
+-- region are any tables completely null for every field (Y/N?)
+SELECT is_empty($$
+  SELECT current_schema || '.' || tablename || '.' || attname AS not_populated_column
+    FROM pg_stats
+  WHERE schemaname = current_schema AND tablename LIKE 'scopus%' AND null_frac = 1$$,
+                       'All columns should be populated (not 100% NULL)');
+-- endregion
+
 SELECT test_that_publication_number_increase_after_weekly_scopus_update();
+
 SELECT *
   FROM finish();
 ROLLBACK;
-
--- END OF SCRIPT
