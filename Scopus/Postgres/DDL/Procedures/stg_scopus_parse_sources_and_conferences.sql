@@ -126,7 +126,7 @@ BEGIN
             '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
                 conf_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcode',
                 conf_name TEXT PATH 'normalize-space(additional-srcinfo/conferenceinfo/confevent/confname)',
-                conf_address TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/conflocation/address',
+                conf_address TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/conflocation/address-part',
                 conf_city TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/conflocation/city',
                 conf_postal_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/conflocation/postal-code',
                 s_year SMALLINT PATH 'additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@year',
