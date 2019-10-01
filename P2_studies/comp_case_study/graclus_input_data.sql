@@ -1,3 +1,8 @@
+-- Generate input dataset for graclus software
+-- dataset_graclus_data is the input file
+-- dataset_graclus_coded contains the coded values
+
+
 \set ON_ERROR_STOP on
 \set ECHO all
 
