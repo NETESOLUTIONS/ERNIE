@@ -18,14 +18,11 @@
 \set ECHO all
 
 \if :{?schema}
-SET search_path = :schema;
+-- public has to be used in search_path to find pgTAP routines
+SET search_path = :schema,public;
 \endif
 
 -- However, Jenkins can run tests without plan,  but serves a good indicator of the number of affirmations
-\set TOTAL_NUM_ASSERTIONS 58
-
-\echo 'Update process complete!'
-
 \echo 'Synthetic testing will begin....'
 
 -- DataGrip: start execution from here
@@ -91,7 +88,7 @@ END; $$ LANGUAGE plpgsql;
 
 -- 3 # Assertion: are main tables populated (Y/N?)
 
-CREATE OR REPLACE FUNCTION test_that_all_scopus_tables_are_populated()
+/*CREATE OR REPLACE FUNCTION test_that_all_scopus_tables_are_populated()
 RETURNS SETOF TEXT
 AS $$
 BEGIN
@@ -173,7 +170,7 @@ BEGIN
       return next ok(nrow24 > 10000, 'scopus_titles is populated');
   END;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;*/
 
 -- 3 # Assertion : are any tables completely null for every field  (Y/N?)
 
@@ -217,16 +214,13 @@ END; $$ LANGUAGE plpgsql;
 -- Start transaction and plan the tests.
 
 BEGIN;
-SELECT plan(:TOTAL_NUM_ASSERTIONS);
+SELECT * FROM no_plan();
 SELECT test_that_all_scopus_tables_exist();
 SELECT test_that_all_scopus_tables_have_pk();
 SELECT test_that_there_is_no_100_percent_NULL_column_in_scopus_tables();
 SELECT test_that_publication_number_increase_after_weekly_scopus_update();
-SELECT pass('My test passed!');
 SELECT *
   FROM finish();
 ROLLBACK;
-
-\echo 'Testing process is over!'
 
 -- END OF SCRIPT
