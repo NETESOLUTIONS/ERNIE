@@ -7,7 +7,7 @@
 \set ECHO all
 
 \set dataset_graclus_data 'graclus_':dataset
-\set dataset_graclus_coded 'graclus_coded':dataset
+\set dataset_graclus_coded 'graclus_coded_':dataset
 
 SET SEARCH_PATH TO public;
 
