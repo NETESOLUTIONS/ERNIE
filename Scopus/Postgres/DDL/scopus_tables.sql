@@ -760,8 +760,8 @@ COMMENT ON COLUMN scopus_grants.grantor_country_code IS 'Agency country 3-letter
 COMMENT ON COLUMN scopus_grants.grantor_funder_registry_id IS 'Funder Registry ID';
 -- endregion
 
--- region scopus_grant_acknowledgements
-CREATE TABLE IF NOT EXISTS scopus_grant_acknowledgements (
+-- region scopus_grant_acknowledgments
+CREATE TABLE IF NOT EXISTS scopus_grant_acknowledgments (
   scp BIGINT
     CONSTRAINT sga_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   grant_text TEXT,
@@ -770,12 +770,14 @@ CREATE TABLE IF NOT EXISTS scopus_grant_acknowledgements (
 )
 TABLESPACE scopus_tbs;
 
-COMMENT ON TABLE scopus_grant_acknowledgements IS 'Grants acknowledgement table of publications';
+COMMENT ON TABLE scopus_grant_acknowledgments IS 'Grants acknowledgement table of publications';
 
-COMMENT ON COLUMN scopus_grant_acknowledgements.scp IS 'Scopus id. Example: 84936047855';
+COMMENT ON COLUMN scopus_grant_acknowledgments.scp IS 'Scopus id. Example: 84936047855';
 
-COMMENT ON COLUMN scopus_grant_acknowledgements.grant_text IS 'The complete text of the Acknowledgement section plus all other text elements from the original source containing funding/grnat information';
+COMMENT ON COLUMN scopus_grant_acknowledgments.grant_text IS 'The complete text of the Acknowledgement section plus all other text elements from the original source containing funding/grnat information';
+--endregion
 
+-- region update_log_scopus
 CREATE TABLE IF NOT EXISTS update_log_scopus (
   id SERIAL,
   update_time TIMESTAMP,
@@ -785,14 +787,12 @@ CREATE TABLE IF NOT EXISTS update_log_scopus (
 )
 TABLESPACE scopus_tbs;
 
-COMMENT ON TABLE update_log_scopus IS 'Scopus tables - update log table for Scopus';
+COMMENT ON TABLE update_log_scopus IS 'Update log table for Scopus';
+--endregion
 
-create table if not exists del_scps
-(
-	scp bigint not null
-		constraint del_scps_pk
-			primary key,
-	last_updated_time timestamp default now()
+CREATE TABLE IF NOT EXISTS del_scps (
+  scp BIGINT NOT NULL
+    CONSTRAINT del_scps_pk PRIMARY KEY,
+  last_updated_time TIMESTAMP DEFAULT now()
 );
 
---endregion
