@@ -23,11 +23,6 @@
 SET search_path = :schema,public;
 \endif
 
-\if :{?schema}
--- public has to be used in search_path to find pgTAP routines
-SET search_path = :schema,public;
-\endif
-
 -- This could be schema-dependent
 \set MIN_NUM_OF_RECORDS 5
 
