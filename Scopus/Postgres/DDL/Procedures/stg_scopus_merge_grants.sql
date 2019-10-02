@@ -24,7 +24,7 @@ BEGIN
                                                        grantor_country_code=excluded.grantor_country_code,
                                                        grantor_funder_registry_id=excluded.grantor_funder_registry_id;
 
-    INSERT INTO scopus_grant_acknowledgments(scp, grant_text)
+    INSERT INTO scopus_grant_acknowledgements(scp, grant_text)
     SELECT DISTINCT scopus_publications.scp, grant_text
     FROM stg_scopus_grant_acknowledgements,
          scopus_publications
