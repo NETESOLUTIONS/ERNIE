@@ -28,7 +28,7 @@ BEGIN
     GROUP BY scp, grant_id, grantor;
 
     -- scopus_grant_acknowledgements
-    INSERT INTO stg_scopus_grant_acknowledgements(scp, grant_text)
+    INSERT INTO stg_scopus_grant_acknowledgments(scp, grant_text)
     SELECT DISTINCT scp, grant_text
     FROM
         xmltable(--

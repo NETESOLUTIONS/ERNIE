@@ -61,7 +61,7 @@ SELECT has_table('scopus_classification_lookup');
 SELECT has_table('scopus_conf_editors');
 SELECT has_table('scopus_conf_proceedings');
 SELECT has_table('scopus_conference_events');
-SELECT has_table('scopus_grant_acknowledgements');
+SELECT has_table('scopus_grant_acknowledgments');
 SELECT has_table('scopus_grants');
 SELECT has_table('scopus_isbns');
 SELECT has_table('scopus_issns');

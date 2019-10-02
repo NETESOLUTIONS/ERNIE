@@ -249,7 +249,7 @@ CREATE TABLE IF NOT EXISTS stg_scopus_grants
 
 );
 
-CREATE TABLE IF NOT EXISTS stg_scopus_grant_acknowledgements
+CREATE TABLE IF NOT EXISTS stg_scopus_grant_acknowledgments
 (
     scp        BIGINT,
     grant_text TEXT
