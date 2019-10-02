@@ -51,11 +51,11 @@ BEGIN
     ON CONFLICT (scp, subject) DO UPDATE SET subject=excluded.subject;
 
     INSERT INTO scopus_classes(scp, class_type, class_code)
-    SELECT DISTINCT scopus_publications.scp, class_type, class_code
+    SELECT DISTINCT scopus_publications.scp, class_type,  class_code
     FROM stg_scopus_classes,
          scopus_publications
     where stg_scopus_classes.scp = scopus_publications.scp
-    ON CONFLICT (scp, class_code) DO UPDATE SET class_type=excluded.class_type, class_code=excluded.class_code;
+    ON CONFLICT (scp, class_type, class_code) DO UPDATE SET class_type=excluded.class_type, class_code=excluded.class_code;
 
     INSERT INTO scopus_classification_lookup(class_type, class_code, description)
     SELECT DISTINCT class_type, class_code, description

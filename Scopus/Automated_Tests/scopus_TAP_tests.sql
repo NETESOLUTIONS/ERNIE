@@ -24,7 +24,7 @@ SET search_path = :schema,public;
 \endif
 
 -- This could be schema-dependent
-\set MIN_NUM_OF_RECORDS 5
+\set MIN_NUM_OF_RECORDS 1
 
 -- However, Jenkins can run tests without plan,  but serves a good indicator of the number of affirmations
 \echo 'Synthetic testing will begin....'

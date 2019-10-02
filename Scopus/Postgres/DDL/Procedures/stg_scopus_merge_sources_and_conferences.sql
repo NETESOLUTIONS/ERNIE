@@ -61,17 +61,18 @@ BEGIN
     INSERT INTO scopus_conference_events(conf_code, conf_name, conf_address, conf_city, conf_postal_code,
                                          conf_start_date,
                                          conf_end_date, conf_number, conf_catalog_number, conf_sponsor)
-    SELECT DISTINCT conf_code,
+   SELECT  conf_code,
                     conf_name,
-                    conf_address,
-                    conf_city,
-                    conf_postal_code,
-                    conf_start_date,
-                    conf_end_date,
-                    conf_number,
-                    conf_catalog_number,
-                    conf_sponsor
+                    max(conf_address) as conf_address,
+                    string_agg(distinct conf_city, ',') as conf_city,
+                    max(conf_postal_code) as conf_postal_code,
+                    max(conf_start_date) as conf_start_date,
+                    max(conf_end_date) as conf_start_date,
+                    max(conf_number) as conf_number,
+                    max(conf_catalog_number) as conf_catalog_number,
+                    max(conf_sponsor) as conf_sponsor
     FROM stg_scopus_conference_events
+    group by conf_code, conf_name
     ON CONFLICT (conf_code, conf_name) DO UPDATE SET conf_address=excluded.conf_address,
                                                      conf_city=excluded.conf_city,
                                                      conf_postal_code=excluded.conf_postal_code,
