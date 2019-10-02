@@ -92,7 +92,7 @@ SELECT
                     FROM information_schema.table_constraints tc
                    WHERE tc.table_schema = current_schema
                      AND tc.table_name = t.table_name
-                     AND tc.constraint_type = 'PRIMARY KEY')$$, 'All SCOPUS tables should have a PK');
+                     AND tc.constraint_type = 'PRIMARY KEY')$$, 'All Scopus tables should have a PK');
 -- endregion
 
 -- region Are any tables completely null for every field (Y/N?)
