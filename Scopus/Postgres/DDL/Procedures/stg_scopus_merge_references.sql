@@ -12,7 +12,7 @@ BEGIN
     SELECT DISTINCT scopus_publications.scp, ref_sgr, string_agg(citation_text, ', ') as citation_text
     FROM stg_scopus_references, scopus_publications
     WHERE stg_scopus_references.scp = scopus_publications.scp
-    GROUP BY scp, ref_sgr
+    GROUP BY stg_scopus_references.scp, ref_sgr
     ON CONFLICT (scp, ref_sgr) DO UPDATE SET citation_text=excluded.citation_text;
 END
 $$;
