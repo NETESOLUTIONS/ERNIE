@@ -26,9 +26,9 @@ BEGIN
 
     INSERT INTO scopus_grant_acknowledgments(scp, grant_text)
     SELECT DISTINCT scopus_publications.scp, grant_text
-    FROM stg_scopus_grant_acknowledgements,
+    FROM stg_scopus_grant_acknowledgments,
          scopus_publications
-    WHERE stg_scopus_grant_acknowledgements.scp = scopus_publications.scp
+    WHERE stg_scopus_grant_acknowledgments.scp = scopus_publications.scp
     ON CONFLICT (scp) DO UPDATE SET grant_text=excluded.grant_text;
 END
 $$;

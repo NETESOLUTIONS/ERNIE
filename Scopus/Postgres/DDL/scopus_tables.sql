@@ -451,7 +451,7 @@ CREATE TABLE IF NOT EXISTS scopus_classes (
   class_type TEXT,
   class_code TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_classes_pk PRIMARY KEY (scp, class_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_classes_pk PRIMARY KEY (scp, class_type, class_code) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 

@@ -123,7 +123,7 @@ BEGIN
     INSERT INTO stg_scopus_conference_events(conf_code, conf_name, conf_address, conf_city, conf_postal_code,
                                              conf_start_date,
                                              conf_end_date, conf_number, conf_catalog_number)
-    SELECT coalesce(conf_code, '')           AS conf_code,
+    SELECT DISTINCT coalesce(conf_code, '')           AS conf_code,
            coalesce(conf_name, '')           AS conf_name,
            conf_address,
            conf_city,

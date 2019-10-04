@@ -1,4 +1,4 @@
--- script to match minor ASJC codes within Computer Science
+\-- script to match minor ASJC codes within Computer Science
 -- to Graclus clusters constructed by Sitaram Devarakonda.
 -- Only pubs are accounted for in this script see 'AND publication IS TRUE'
 -- George Chacko 10/2/2019
@@ -260,6 +260,24 @@ FROM xxx
 WHERE dblp_graclus_2000_2015_counts.cluster_20 = xxx.cluster_20;
 
 -- end loop of sorts
+
+DROP TABLE IF EXISTS public.dblp_graclus_2000_2015_counts_subjects
+CREATE TABLE dblp_graclus_2000_2015_counts_subjects AS
+SELECT DISTINCT a.cluster_20, b.class_code,
+    c.subject_area,c.major_subject_area,c.minor_subject_area,count(a.source_id)
+FROM dblp_graclus a
+INNER JOIN scopus_classes b on a.source_id=b.scp
+INNER JOIN scopus_asjc_codes c on b.class_code::int=c.code
+where a.publication is TRUE AND
+b.class_type='ASJC' AND
+length(b.class_code)=4 AND
+a.pub_year >=2000
+AND a.pub_year <= 2015
+GROUP BY a.cluster_20,b.class_code,
+    c.subject_area,c.major_subject_area,c.minor_subject_area
+HAVING count(a.source_id) >= 100
+ORDER BY cluster_20,count(a.source_id) DESC
+
 
 
 
