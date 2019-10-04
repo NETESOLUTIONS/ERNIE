@@ -540,17 +540,9 @@ COMMENT ON COLUMN scopus_conf_editors.conf_name IS 'Conference name';
 
 COMMENT ON COLUMN scopus_conf_editors.indexed_name IS 'A sortable variant of the editor surname and initials';
 
-COMMENT ON COLUMN scopus_conf_editors.role_type IS 'Special role such as "chief editor" or institution as "inst"';
-
-COMMENT ON COLUMN scopus_conf_editors.initials IS 'Initials of the editor';
-
 COMMENT ON COLUMN scopus_conf_editors.surname IS 'Surname of the editor';
 
-COMMENT ON COLUMN scopus_conf_editors.given_name IS 'Given name of the editor';
-
 COMMENT ON COLUMN scopus_conf_editors.degree IS 'Degress of the editor';
-
-COMMENT ON COLUMN scopus_conf_editors.suffix IS 'Suffix of the editor';
 
 COMMENT ON COLUMN scopus_conf_editors.address IS 'The address of the editors';
 
@@ -657,8 +649,6 @@ COMMENT ON COLUMN scopus_abstracts.abstract_text IS 'Contains an abstract of the
 
 COMMENT ON COLUMN scopus_abstracts.abstract_language IS 'Contains the language of the abstract';
 
-COMMENT ON COLUMN scopus_abstracts.abstract_source IS --
-  'Contains the value indicating from which part abstract originates ex: introduction,preface';
 -- endregion
 
 -- region scopus_titles
