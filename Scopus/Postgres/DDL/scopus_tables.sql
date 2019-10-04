@@ -449,7 +449,7 @@ CREATE TABLE IF NOT EXISTS scopus_classes (
   scp BIGINT
     CONSTRAINT sclass_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   class_type TEXT,
-  class_code CHAR(4),
+  class_code TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT scopus_classes_pk PRIMARY KEY (scp, class_type, class_code) USING INDEX TABLESPACE index_tbs
 )

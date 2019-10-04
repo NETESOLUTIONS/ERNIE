@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS stg_scopus_classes
 (
     scp        BIGINT,
     class_type TEXT,
-    class_code CHAR(4)
+    class_code TEXT
 
 );
 
