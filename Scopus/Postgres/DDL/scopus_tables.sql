@@ -514,12 +514,8 @@ CREATE TABLE IF NOT EXISTS scopus_conf_editors (
   conf_code TEXT,
   conf_name TEXT,
   indexed_name TEXT,
-  role_type TEXT,
-  initials TEXT,
   surname TEXT,
-  given_name TEXT,
   degree TEXT,
-  suffix TEXT,
   address TEXT,
   organization TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
@@ -648,7 +644,6 @@ CREATE TABLE IF NOT EXISTS scopus_abstracts (
     CONSTRAINT sa_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   abstract_text TEXT,
   abstract_language TEXT NOT NULL,
-  abstract_source TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT scopus_abstracts_pk PRIMARY KEY (scp, abstract_language) USING INDEX TABLESPACE index_tbs
 )

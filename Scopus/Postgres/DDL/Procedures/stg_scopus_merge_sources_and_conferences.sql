@@ -61,18 +61,18 @@ BEGIN
     INSERT INTO scopus_conference_events(conf_code, conf_name, conf_address, conf_city, conf_postal_code,
                                          conf_start_date,
                                          conf_end_date, conf_number, conf_catalog_number, conf_sponsor)
-   SELECT  conf_code,
-                    conf_name,
-                    max(conf_address) as conf_address,
-                    string_agg(distinct conf_city, ',') as conf_city,
-                    max(conf_postal_code) as conf_postal_code,
-                    max(conf_start_date) as conf_start_date,
-                    max(conf_end_date) as conf_start_date,
-                    max(conf_number) as conf_number,
-                    max(conf_catalog_number) as conf_catalog_number,
-                    max(conf_sponsor) as conf_sponsor
+    SELECT conf_code,
+           conf_name,
+           max(conf_address)                   AS conf_address,
+           string_agg(DISTINCT conf_city, ',') AS conf_city,
+           max(conf_postal_code)               AS conf_postal_code,
+           max(conf_start_date)                AS conf_start_date,
+           max(conf_end_date)                  AS conf_start_date,
+           max(conf_number)                    AS conf_number,
+           max(conf_catalog_number)            AS conf_catalog_number,
+           max(conf_sponsor)                   AS conf_sponsor
     FROM stg_scopus_conference_events
-    group by conf_code, conf_name
+    GROUP BY conf_code, conf_name
     ON CONFLICT (conf_code, conf_name) DO UPDATE SET conf_address=excluded.conf_address,
                                                      conf_city=excluded.conf_city,
                                                      conf_postal_code=excluded.conf_postal_code,
@@ -84,37 +84,37 @@ BEGIN
 
     INSERT INTO scopus_conf_proceedings(ernie_source_id, conf_code, conf_name, proc_part_no, proc_page_range,
                                         proc_page_count)
-    SELECT DISTINCT scopus_sources.ernie_source_id, conf_code, conf_name, proc_part_no, proc_page_range, proc_page_count
+    SELECT DISTINCT scopus_sources.ernie_source_id,
+                    conf_code,
+                    conf_name,
+                    string_agg(proc_part_no, ','),
+                    max(proc_page_range),
+                    max(proc_page_count)
     FROM stg_scopus_conf_proceedings,
          scopus_sources
     WHERE scopus_sources.ernie_source_id = stg_scopus_conf_proceedings.ernie_source_id
+    GROUP BY scopus_sources.ernie_source_id, conf_code, conf_name
     ON CONFLICT (ernie_source_id, conf_code, conf_name) DO UPDATE SET proc_part_no=excluded.proc_part_no,
                                                                       proc_page_range=excluded.proc_page_range,
                                                                       proc_page_count=excluded.proc_page_count;
     -- scopus_conf_editors
 
 
-    INSERT INTO scopus_conf_editors(ernie_source_id, conf_code, conf_name, indexed_name, role_type,
-                                    initials, surname, given_name, degree, suffix)
-    SELECT scopus_sources.ernie_source_id,
-           conf_code,
-           conf_name,
-           indexed_name,
-           role_type,
-           initials,
-           surname,
-           given_name,
-           degree,
-           suffix
+    INSERT INTO scopus_conf_editors(ernie_source_id, conf_code, conf_name, indexed_name,
+                                    surname, degree)
+    SELECT DISTINCT scopus_sources.ernie_source_id,
+                    conf_code,
+                    conf_name,
+                    indexed_name,
+                    surname,
+                    degree
     FROM stg_scopus_conf_editors,
          scopus_sources
     WHERE scopus_sources.ernie_source_id = stg_scopus_conf_editors.ernie_source_id
-    ON CONFLICT (ernie_source_id, conf_code, conf_name, indexed_name) DO UPDATE SET role_type=excluded.role_type,
-                                                                                    initials=excluded.initials,
-                                                                                    surname=excluded.surname,
-                                                                                    given_name=excluded.given_name,
-                                                                                    degree=excluded.degree,
-                                                                                    suffix=excluded.suffix;
+    ON CONFLICT (ernie_source_id, conf_code, conf_name, indexed_name) DO UPDATE SET surname=excluded.surname,
+
+                                                                                    degree=excluded.degree;
+
 
 END ;
 $$;

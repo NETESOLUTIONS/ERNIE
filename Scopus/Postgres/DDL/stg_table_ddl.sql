@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS stg_scopus_sources
     CONSTRAINT stg_scopus_sources_pk PRIMARY KEY (ernie_source_id) USING INDEX TABLESPACE index_tbs
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS stg_scopus_sources_source_id_issn_isbn_uk ON scopus_sources (source_id, issn_main, isbn_main);
+CREATE UNIQUE INDEX IF NOT EXISTS stg_scopus_sources_source_id_issn_isbn_uk ON stg_scopus_sources (source_id, issn_main, isbn_main);
 
 CREATE TABLE IF NOT EXISTS stg_scopus_isbns
 (
@@ -180,12 +180,8 @@ CREATE TABLE IF NOT EXISTS stg_scopus_conf_editors
     conf_code       TEXT,
     conf_name       TEXT,
     indexed_name    TEXT,
-    role_type       TEXT,
-    initials        TEXT,
     surname         TEXT,
-    given_name      TEXT,
     degree          TEXT,
-    suffix          TEXT,
     address         TEXT,
     organization    TEXT
 
@@ -210,9 +206,7 @@ CREATE TABLE IF NOT EXISTS stg_scopus_abstracts
 (
     scp               BIGINT,
     abstract_text     TEXT,
-    abstract_language TEXT NOT NULL,
-    abstract_source   TEXT
-
+    abstract_language TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS stg_scopus_titles

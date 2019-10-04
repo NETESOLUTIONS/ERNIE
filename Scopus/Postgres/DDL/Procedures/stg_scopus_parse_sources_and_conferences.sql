@@ -53,21 +53,22 @@ BEGIN
            OR issn != ''
            OR XMLEXISTS('//bibrecord/head/source/isbn' PASSING scopus_doc_xml)
         GROUP BY source_id, issn_main, isbn_main
-                 RETURNING ernie_source_id INTO db_id;
-    END IF;
+        ON CONFLICT DO NOTHING
+            RETURNING ernie_source_id INTO db_id;
 
-    UPDATE stg_scopus_sources
-    SET website=sub.website
-    FROM (SELECT source_id,
-                 string_agg(website, ',') AS website
-          FROM xmltable(--
-                       XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
-                       '//bibrecord/head/source/website/ce:e-address' PASSING scopus_doc_xml COLUMNS --
-                           source_id TEXT PATH '//bibrecord/head/source/@srcid',
-                           website TEXT PATH 'normalize-space()')
-          GROUP BY source_id)
-             AS sub
-    WHERE stg_scopus_sources.source_id = sub.source_id;
+        UPDATE stg_scopus_sources
+        SET website=sub.website
+        FROM (SELECT source_id,
+                     string_agg(website, ',') AS website
+              FROM xmltable(--
+                           XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
+                           '//bibrecord/head/source/website/ce:e-address' PASSING scopus_doc_xml COLUMNS --
+                               source_id TEXT PATH '//bibrecord/head/source/@srcid',
+                               website TEXT PATH 'normalize-space()')
+              GROUP BY source_id)
+                 AS sub
+        WHERE stg_scopus_sources.source_id = sub.source_id;
+    END IF;
 
     -- scopus_isbns
     INSERT INTO stg_scopus_isbns(ernie_source_id, isbn, isbn_length, isbn_type, isbn_level)
@@ -124,14 +125,14 @@ BEGIN
                                              conf_start_date,
                                              conf_end_date, conf_number, conf_catalog_number)
     SELECT DISTINCT coalesce(conf_code, '')           AS conf_code,
-           coalesce(conf_name, '')           AS conf_name,
-           conf_address,
-           conf_city,
-           conf_postal_code,
-           try_parse(s_year, s_month, s_day) AS conf_start_date,
-           try_parse(e_year, e_month, e_day) AS conf_end_date,
-           conf_number,
-           conf_catalog_number
+                    coalesce(conf_name, '')           AS conf_name,
+                    conf_address,
+                    conf_city,
+                    conf_postal_code,
+                    try_parse(s_year, s_month, s_day) AS conf_start_date,
+                    try_parse(e_year, e_month, e_day) AS conf_end_date,
+                    conf_number,
+                    conf_catalog_number
     FROM xmltable(--
                  '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
                 conf_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcode',
@@ -195,18 +196,14 @@ BEGIN
        OR proc_page_count IS NOT NULL;
 
     -- scopus_conf_editors
-    INSERT INTO stg_scopus_conf_editors(ernie_source_id, conf_code, conf_name, indexed_name, role_type,
-                                        initials, surname, given_name, degree, suffix)
-    SELECT db_id                          AS ernie_source_id,
-           coalesce(conf_code, '')        AS conf_code,
-           coalesce(conf_name, '')        AS conf_name,
-           coalesce(indexed_name, '')     AS indexed_name,
-           coalesce(edit_role, edit_type) AS role_type,
-           initials,
+    INSERT INTO stg_scopus_conf_editors(ernie_source_id, conf_code, conf_name, indexed_name,
+                                        surname, degree)
+    SELECT db_id                      AS ernie_source_id,
+           coalesce(conf_code, '')    AS conf_code,
+           coalesce(conf_name, '')    AS conf_name,
+           coalesce(indexed_name, '') AS indexed_name,
            surname,
-           given_name,
-           degree,
-           suffix
+           degree
     FROM xmltable(--
                  XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
                  '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication/confeditors/editors/editor' --
@@ -214,13 +211,9 @@ BEGIN
                      conf_code TEXT PATH '../../../preceding-sibling::confevent/confcode',
                      conf_name TEXT PATH 'normalize-space(../../../preceding-sibling::confevent/confname)',
                      indexed_name TEXT PATH 'ce:indexed-name',
-                     edit_role TEXT PATH '@role',
-                     edit_type TEXT PATH '@type',
-                     initials TEXT PATH 'initials',
                      surname TEXT PATH 'ce:surname',
                      given_name TEXT PATH 'ce:given-name',
-                     degree TEXT PATH 'ce:degrees',
-                     suffix TEXT PATH 'ce:suffix'
+                     degree TEXT PATH 'ce:degrees'
              );
 
     UPDATE stg_scopus_conf_editors sed
