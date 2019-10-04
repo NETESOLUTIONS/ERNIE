@@ -95,6 +95,7 @@ BEGIN
                     subject TEXT PATH '.');
 
     -- scopus_classes
+
     INSERT INTO stg_scopus_classes(scp, class_type, class_code)
     SELECT DISTINCT scp, class_type, coalesce(classification_code, classification) AS class_code
     FROM
@@ -104,6 +105,18 @@ BEGIN
                     scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]', --
                     class_type TEXT PATH '../@type', classification_code TEXT PATH 'classification-code', --
                     classification TEXT PATH '.');
+
+    -- clean up classes
+
+    UPDATE stg_scopus_classes
+    SET class_code =
+            CASE
+                when stg_scopus_classes.class_code ~ '([0-9];)' then substring(class_code, 1, 4)
+                when length(stg_scopus_classes.class_code) >= 5 and stg_scopus_classes.class_code ~ '([0-9a-zA-Z])' then null
+                else class_code END
+    FROM stg_scopus_classes
+    WHERE class_type = 'ASJC';
+
 
     -- scopus_classification_lookup
     INSERT INTO stg_scopus_classification_lookup(class_type, class_code, description)
