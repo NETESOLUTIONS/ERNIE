@@ -22,10 +22,11 @@ CREATE TABLE IF NOT EXISTS stg_scopus_sources
     website             TEXT,
     publisher_name      TEXT,
     publisher_e_address TEXT,
-    pub_date            DATE
-
+    pub_date            DATE,
+    CONSTRAINT stg_scopus_sources_pk PRIMARY KEY (ernie_source_id) USING INDEX TABLESPACE index_tbs
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS stg_scopus_sources_source_id_issn_isbn_uk ON scopus_sources (source_id, issn_main, isbn_main);
 
 CREATE TABLE IF NOT EXISTS stg_scopus_isbns
 (
