@@ -229,10 +229,10 @@ for scopus_data_archive in *.zip; do
     echo -e "\nMERGING INTO SCOPUS STAGING TABLES..."
     psql -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
     echo -e "MERGING FINISHED"
-    #echo -e "TRUNCATING STAGING TABLES..."
+    echo -e "TRUNCATING STAGING TABLES..."
     # calling a procedure that truncates the staging tables
-    #psql -f "${ABSOLUTE_SCRIPT_DIR}/truncate_stg_table.sql"
-    #echo -e "\nTRUNCATING FINISHED"
+    psql -f "${ABSOLUTE_SCRIPT_DIR}/truncate_stg_table.sql"
+    echo -e "\nTRUNCATING FINISHED"
 
     echo "SUMMARY FOR ${scopus_data_archive}:"
     echo "SUCCESSFULLY PARSED ${processed_xml_counter} XML FILES"
