@@ -112,9 +112,8 @@ BEGIN
     SET class_code =
             CASE
                 WHEN stg_scopus_classes.class_code ~ '([0-9];)' THEN substring(class_code, 1, 4)
-                WHEN length(stg_scopus_classes.class_code) >= 5 AND
-                     stg_scopus_classes.class_code ~ '([0-9a-zA-Z])' THEN NULL
-                ELSE class_code END
+                WHEN length(stg_scopus_classes.class_code)= 4 and stg_scopus_classes.class_code ~ '([0-9])' THEN class_code
+                ELSE NULL END
     FROM stg_scopus_classes
     WHERE class_type = 'ASJC';
 
