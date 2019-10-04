@@ -111,9 +111,10 @@ BEGIN
     UPDATE stg_scopus_classes
     SET class_code =
             CASE
-                when stg_scopus_classes.class_code ~ '([0-9];)' then substring(class_code, 1, 4)
-                when length(stg_scopus_classes.class_code) >= 5 and stg_scopus_classes.class_code ~ '([0-9a-zA-Z])' then null
-                else class_code END
+                WHEN stg_scopus_classes.class_code ~ '([0-9];)' THEN substring(class_code, 1, 4)
+                WHEN length(stg_scopus_classes.class_code) >= 5 AND
+                     stg_scopus_classes.class_code ~ '([0-9a-zA-Z])' THEN NULL
+                ELSE class_code END
     FROM stg_scopus_classes
     WHERE class_type = 'ASJC';
 
