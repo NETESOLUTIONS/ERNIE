@@ -53,21 +53,32 @@ BEGIN
            OR issn != ''
            OR XMLEXISTS('//bibrecord/head/source/isbn' PASSING scopus_doc_xml)
         GROUP BY source_id, issn_main, isbn_main
-        ON CONFLICT DO NOTHING
-            RETURNING ernie_source_id INTO db_id;
+        ON CONFLICT (source_id, issn_main, isbn_main)
+            DO UPDATE
+            SET source_id           = EXCLUDED.source_id,
+                issn_main           = EXCLUDED.issn_main,
+                isbn_main           = EXCLUDED.isbn_main,
+                source_type         = EXCLUDED.source_type,
+                source_title        = EXCLUDED.source_title,
+                coden_code          = EXCLUDED.coden_code,
+                publisher_name      = EXCLUDED.publisher_name,
+                publisher_e_address = EXCLUDED.publisher_e_address,
+                pub_date=EXCLUDED.pub_date
+                RETURNING ernie_source_id INTO db_id;
 
-        UPDATE stg_scopus_sources
-        SET website=sub.website
-        FROM (SELECT source_id,
-                     string_agg(website, ',') AS website
-              FROM xmltable(--
-                           XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
-                           '//bibrecord/head/source/website/ce:e-address' PASSING scopus_doc_xml COLUMNS --
-                               source_id TEXT PATH '//bibrecord/head/source/@srcid',
-                               website TEXT PATH 'normalize-space()')
-              GROUP BY source_id)
-                 AS sub
-        WHERE stg_scopus_sources.source_id = sub.source_id;
+        UPDATE stg_scopus_sources ss
+        SET website=sq.website
+        FROM (
+                 SELECT db_id                    AS ernie_source_id,
+                        string_agg(website, ',') AS website
+                 FROM xmltable(--
+                              XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
+                              '//bibrecord/head/source/website/ce:e-address' PASSING scopus_doc_xml COLUMNS --
+                                  website TEXT PATH 'normalize-space()'
+                          )
+                 GROUP BY ernie_source_id
+             ) AS sq
+        WHERE ss.ernie_source_id = sq.ernie_source_id;
     END IF;
 
     -- scopus_isbns

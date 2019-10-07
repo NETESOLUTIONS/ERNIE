@@ -45,10 +45,11 @@ BEGIN
 
     INSERT INTO scopus_isbns
         (ernie_source_id, isbn, isbn_length, isbn_type, isbn_level)
-    SELECT DISTINCT scopus_sources.ernie_source_id, isbn, isbn_length, isbn_type, isbn_level
+    SELECT DISTINCT scopus_sources.ernie_source_id, isbn, max(isbn_length), isbn_type, max(isbn_level)
     FROM stg_scopus_isbns,
          scopus_sources
     WHERE scopus_sources.ernie_source_id = stg_scopus_isbns.ernie_source_id
+    GROUP BY scopus_sources.ernie_source_id, isbn, isbn_type
     ON CONFLICT (ernie_source_id, isbn, isbn_type) DO UPDATE SET isbn_length=excluded.isbn_length, isbn_level=excluded.isbn_level;
     --
     INSERT INTO scopus_issns(ernie_source_id, issn, issn_type)
@@ -101,20 +102,22 @@ BEGIN
 
 
     INSERT INTO scopus_conf_editors(ernie_source_id, conf_code, conf_name, indexed_name,
-                                    surname, degree)
+                                    surname, degree,address,organization)
     SELECT DISTINCT scopus_sources.ernie_source_id,
                     conf_code,
                     conf_name,
                     indexed_name,
                     surname,
-                    degree
+                    degree,
+                    address,
+                    organization
     FROM stg_scopus_conf_editors,
          scopus_sources
     WHERE scopus_sources.ernie_source_id = stg_scopus_conf_editors.ernie_source_id
     ON CONFLICT (ernie_source_id, conf_code, conf_name, indexed_name) DO UPDATE SET surname=excluded.surname,
-
-                                                                                    degree=excluded.degree;
-
+                                                                                    degree=excluded.degree,
+                                                                                    address=excluded.address,
+                                                                                    organization=excluded.organization;
 
 END ;
 $$;
