@@ -106,18 +106,18 @@ BEGIN
                     class_type TEXT PATH '../@type', classification_code TEXT PATH 'classification-code', --
                     classification TEXT PATH '.');
 
-    -- clean up classes
+    -- Clean up class_code for class_type='ASJC' i.e. it is supposed to be a 4-digit integer string so incorrect
+    -- data valeus such as '100' or '100.23fr1' must be nulled
 
     UPDATE stg_scopus_classes
     SET class_code =
             CASE
-                WHEN stg_scopus_classes.class_code ~ '([0-9];)' THEN substring(class_code, 1, 4)
-                WHEN length(stg_scopus_classes.class_code) >= 5 AND
-                     stg_scopus_classes.class_code ~ '([0-9a-zA-Z])' THEN NULL
+                WHEN stg_scopus_classes.class_code ~ '([0-9];)' THEN substring(class_code, 1, 4) -- special case e.g. 1004; removal of ; preserves code
+                WHEN length(stg_scopus_classes.class_code) != 4 AND -- any value which is not a 4-digit integer and an alphanumeric must be nulled
+                    stg_scopus_classes.class_code ~ '([0-9a-zA-Z])' THEN NULL
                 ELSE class_code END
     FROM stg_scopus_classes
     WHERE class_type = 'ASJC';
-
 
     -- scopus_classification_lookup
     INSERT INTO stg_scopus_classification_lookup(class_type, class_code, description)
