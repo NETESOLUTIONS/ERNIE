@@ -116,7 +116,6 @@ BEGIN
                 WHEN length(stg_scopus_classes.class_code) != 4 AND -- any value which is not a 4-digit integer and an alphanumeric must be nulled
                     stg_scopus_classes.class_code ~ '([0-9a-zA-Z])' THEN NULL
                 ELSE class_code END
-    FROM stg_scopus_classes
     WHERE class_type = 'ASJC';
 
     -- scopus_classification_lookup
