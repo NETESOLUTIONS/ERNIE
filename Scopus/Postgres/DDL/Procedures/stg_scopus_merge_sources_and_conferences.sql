@@ -88,7 +88,7 @@ BEGIN
     SELECT DISTINCT scopus_sources.ernie_source_id,
                     conf_code,
                     conf_name,
-                    string_agg(proc_part_no, ','),
+                    string_agg(distinct proc_part_no, ','),
                     max(proc_page_range),
                     max(proc_page_count)
     FROM stg_scopus_conf_proceedings,
