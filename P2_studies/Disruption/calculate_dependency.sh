@@ -59,7 +59,7 @@ process_focal_paper() {
 
   echo "Processing ${input} ..."
   psql --quiet --tuples-only --no-align --field-separator=, -f "${ABSOLUTE_SCRIPT_DIR}/dependency.sql" \
-        -v pub_id="${input}" >>"${OUTPUT_FILE}"
+        -v source_id="${input}" >>"${OUTPUT_FILE}"
   echo "${input}: done."
 }
 export -f process_focal_paper
