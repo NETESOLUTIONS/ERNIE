@@ -49,6 +49,13 @@ ENVIRONMENT
 
     * PGHOST/PGDATABASE/PGUSER  default Postgres connection parameters
 
+EXIT STATUS
+
+    Exits with one of the following values:
+
+    0   Success
+    1   Error occurred
+    2   Maximum number of errors reached
 
 EXAMPLES
 
@@ -61,7 +68,7 @@ EXAMPLES
       ll ../failed$ ./process_directory.sh -s scopus_parse_grants -e /erniedev_data3/Scopus-testing
 
 HEREDOC
-  exit 1
+  exit 0
 fi
 
 set -e
@@ -91,11 +98,11 @@ while (($# > 0)); do
     ;;
   -n)
     shift
-      PARALLEL_JOBSLOTS_OPTION="-j $1"
+    PARALLEL_JOBSLOTS_OPTION="-j $1"
     ;;
   -e)
-      shift
-      declare -ri MAX_ERRORS=$1
+    shift
+    declare -ri MAX_ERRORS=$1
     ;;
   -p)
     shift
@@ -186,6 +193,7 @@ parse_xml() {
 export -f parse_xml
 
 exit_on_errors() {
+  # $1 exit code
   # Errors occurred? Does the error log have a size greater than zero?
   if [[ -s "${ERROR_LOG}" ]]; then
     if [[ ${VERBOSE} == "true" ]]; then
@@ -196,13 +204,13 @@ HEREDOC
       cat "${ERROR_LOG}"
       echo "====="
     fi
-    exit 1
+    exit ${1:-1}
   fi
 }
 
 # Create an empty file if it does not exist to simplify check condition below
 touch "${PROCESSED_LOG}"
-[[ ${STOP_ON_THE_FIRST_ERROR} == "true" ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=1"
+[[ ${MAX_ERRORS} ]] && readonly PARALLEL_HALT_OPTION="--halt soon,fail=${MAX_ERRORS}"
 process_start_time=$(date '+%s')
 for scopus_data_archive in *.zip; do
   start_time=$(date '+%s')
@@ -247,10 +255,10 @@ for scopus_data_archive in *.zip; do
         ;;
       *)
         echo "TOTAL FAILURE"
-        exit_on_errors
+        exit_on_errors 2
         ;;
     esac
-    ((total_failures >= MAX_ERRORS)) && exit_on_errors
+    ((total_failures >= MAX_ERRORS)) && exit_on_errors 2
     ((total_processed_pubs += processed_pubs)) || :
 
     # sql script that inserts from staging table into scopus

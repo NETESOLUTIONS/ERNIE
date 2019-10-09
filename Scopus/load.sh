@@ -40,6 +40,18 @@ DESCRIPTION
   To stop process gracefully after the current ZIP is processed, create a `{working_dir}/.stop` signal file.
   This file is automatically removed
 
+ENVIRONMENT
+
+    * PGHOST/PGDATABASE/PGUSER  default Postgres connection parameters
+
+EXIT STATUS
+
+    Exits with one of the following values:
+
+    0   Success
+    1   Error occurred
+    2   Maximum number of errors reached
+
 HEREDOC
   exit 1
 fi
@@ -128,7 +140,7 @@ if [[ "${SMOKELOAD_JOB}" == true ]]; then
     echo "Processing ${DATA_DIR} directory ..."
     if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -k ${MAX_ERRORS_OPTION} ${PARALLEL_JOBSLOTS_OPTION} \
         ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${DATA_DIR}"; then
-      [[ ${STOP_ON_THE_FIRST_ERROR_OPTION} ]] && exit 1
+      [[ $? == 2 ]] && exit 2
       failures_occurred="true"
     fi
     dir_stop_time=$(date '+%s')
@@ -179,7 +191,7 @@ if [[ "${UPDATE_JOB}" == true ]]; then
       echo "Removing directory ${UPDATE_DIR}"
       rm -rf "${UPDATE_DIR}"
     else
-      [[ ${STOP_ON_THE_FIRST_ERROR_OPTION} ]] && exit 1
+      [[ $? == 2 ]] && exit 2
       failures_occurred="true"
     fi
     file_stop_time=$(date '+%s')
