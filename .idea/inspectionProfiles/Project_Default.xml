@@ -3,6 +3,6 @@
     <option name="myName" value="Project Default" />
     <inspection_tool class="BashGloballyRegisteredVariable" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
     <inspection_tool class="LatexLineBreak" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="TodoComment" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="SqlInsertValuesInspection" enabled="false" level="WARNING" enabled_by_default="false" />
   </profile>
 </component>

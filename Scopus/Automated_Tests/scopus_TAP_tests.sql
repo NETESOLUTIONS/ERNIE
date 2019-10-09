@@ -26,9 +26,6 @@ SET search_path = :schema,public;
 -- This could be schema-dependent
 \set MIN_NUM_OF_RECORDS 1
 
--- However, Jenkins can run tests without plan,  but serves a good indicator of the number of affirmations
-\echo 'Synthetic testing will begin....'
-
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
@@ -111,8 +108,9 @@ SELECT
      GROUP BY parent_pc.oid, parent_pc.relname
   )
 SELECT
-  cmp_ok(cte.total_rows::BIGINT, '>=', :MIN_NUM_OF_RECORDS::BIGINT,
-         format('%s.%s table should have at least %s records', current_schema, cte.relname, :MIN_NUM_OF_RECORDS))
+  cmp_ok(CAST(cte.total_rows AS BIGINT), '>=', CAST(:MIN_NUM_OF_RECORDS AS BIGINT),
+         format('%s.%s table should have at least %s record%s', current_schema, cte.relname, :MIN_NUM_OF_RECORDS,
+                CASE WHEN :MIN_NUM_OF_RECORDS > 1 THEN 's' ELSE '' END))
   FROM cte;
 -- endregion
 

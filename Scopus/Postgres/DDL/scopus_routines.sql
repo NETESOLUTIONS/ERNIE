@@ -1,0 +1,23 @@
+\include_relative ../../../Postgres/DDL/Functions/udf_try_parse.sql
+
+\include_relative Procedures/stg_scopus_parse_abstracts_and_titles.sql
+\include_relative Procedures/stg_scopus_parse_authors_and_affiliations.sql
+\include_relative Procedures/stg_scopus_parse_chemical_groups.sql
+\include_relative Procedures/stg_scopus_parse_grants.sql
+\include_relative Procedures/stg_scopus_parse_keywords.sql
+\include_relative Procedures/stg_scopus_parse_pub_details_subjects_and_classes.sql
+\include_relative Procedures/stg_scopus_parse_publication_and_group.sql
+\include_relative Procedures/stg_scopus_parse_publication_identifiers.sql
+\include_relative Procedures/stg_scopus_parse_references.sql
+\include_relative Procedures/stg_scopus_parse_sources_and_conferences.sql
+
+\include_relative Procedures/stg_scopus_merge_abstracts_and_titles.sql
+\include_relative Procedures/stg_scopus_merge_authors_and_affiliations.sql
+\include_relative Procedures/stg_scopus_merge_chemical_groups.sql
+\include_relative Procedures/stg_scopus_merge_grants.sql
+\include_relative Procedures/stg_scopus_merge_keywords.sql
+\include_relative Procedures/stg_scopus_merge_pub_details_subjects_and_classes.sql
+\include_relative Procedures/stg_scopus_merge_publication_and_group.sql
+\include_relative Procedures/stg_scopus_merge_publication_identifiers.sql
+\include_relative Procedures/stg_scopus_merge_references.sql
+\include_relative Procedures/stg_scopus_merge_sources_and_conferences.sql
