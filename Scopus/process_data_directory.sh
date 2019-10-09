@@ -85,10 +85,9 @@ declare -i MAX_ERRORS=101
 FAILED_FILES_DIR="../failed"
 PROCESSED_LOG="../processed.log"
 
-echo -e "\nprocess_data_directory.sh ..."
+echo -e "\nRunning process_data_directory.sh $*"
 
 while (($# > 0)); do
-  echo "Using CLI arg '$1'"
   case "$1" in
   -u)
     readonly UPDATE_JOB=true
