@@ -221,9 +221,7 @@ for scopus_data_archive in *.zip; do
     rm -f "${ERROR_LOG}"
 
     #    echo -e "Truncating staging tables..."
-    ## calling a procedure that truncates the staging tables
-    # Using Staging
-    psql -q -c "CALL truncate_stg_table()"
+    psql -f "${ABSOLUTE_SCRIPT_DIR}/truncate_stg_table.sql"
     #    echo -e "\nTruncating finished"
 
     find -name '2*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} --line-buffer\
