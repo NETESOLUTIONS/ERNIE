@@ -33,7 +33,7 @@ DESCRIPTION
 
     -s subset_SP  parse a subset of data via the specified subset parsing Stored Procedure (SP)
 
-    -v            verbose output: print processed XML files and error details as errors occur
+    -v            verbose output: print processed XML files
 
     -v -v         extra-verbose output: print all lines (`set -x`)
 

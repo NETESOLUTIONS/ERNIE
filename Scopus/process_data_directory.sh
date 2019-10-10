@@ -31,7 +31,7 @@ DESCRIPTION
 
     -p    create a process log which is used as part of the update job
 
-    -v    verbose output: print processed XML files and error details as errors occur
+    -v    verbose output: print processed XML files
 
     -v -v extra-verbose output: print all lines (`set -x`)
 
@@ -187,18 +187,17 @@ parse_xml() {
 }
 export -f parse_xml
 
-exit_on_errors() {
+terminate_on_errors() {
   # $1 exit code
   # Errors occurred? Does the error log have a size greater than zero?
   if [[ -s "${ERROR_LOG}" ]]; then
-    if [[ ${VERBOSE} == "true" ]]; then
-      cat << HEREDOC
+    cat << HEREDOC
 Error(s) occurred during processing of ${PWD}.
 =====
 HEREDOC
-      cat "${ERROR_LOG}"
-      echo "====="
-    fi
+    head "${ERROR_LOG}"
+    echo "====="
+
     exit ${1:-1}
   fi
 }
@@ -253,10 +252,10 @@ for scopus_data_archive in *.zip; do
         ;;
       *)
         echo "TOTAL FAILURE"
-        exit_on_errors 2
+        terminate_on_errors 2
         ;;
     esac
-    ((total_failures >= MAX_ERRORS)) && exit_on_errors 2
+    ((total_failures >= MAX_ERRORS)) && terminate_on_errors 2
     ((total_processed_pubs += processed_pubs)) || :
 
     # sql script that inserts from staging table into scopus
@@ -299,7 +298,7 @@ fi
 
 if [[ -d "${TMP_DIR}" ]]; then
   cd "${TMP_DIR}"
-  exit_on_errors
+  terminate_on_errors
   cd
   rm -rf "${TMP_DIR}"
 fi
