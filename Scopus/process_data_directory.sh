@@ -176,11 +176,9 @@ parse_xml() {
     echo -e "$xml parsing FAILED.\n" | tee -a "${ERROR_LOG}"
 
     local full_xml_path=$(realpath ${xml})
-    local full_error_log_path=$(realpath ${ERROR_LOG})
     cd ..
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     mv -f $full_xml_path "${failed_files_dir}/"
-    cp -f $full_error_log_path "${failed_files_dir}/"
     cd "${TMP_DIR}"
     return 1
   fi
@@ -236,6 +234,8 @@ for scopus_data_archive in *.zip; do
     echo "SUMMARY FOR ${scopus_data_archive}:"
     processed_pubs=$(cat ${PARALLEL_LOG})
     echo "Total publications: ${processed_pubs}"
+
+    (( parallel_exit_code > 0 )) && cp -f "${ERROR_LOG}" "${failed_files_dir}/"
     case $parallel_exit_code in
       0)
         echo "ALL IS WELL"
@@ -262,8 +262,8 @@ for scopus_data_archive in *.zip; do
     # Using STAGING
     echo "Merging staged data into Scopus tables..."
     psql -q -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
-    #    echo -e "Merging finished"
-    #    rm -f "${PARALLEL_LOG}"
+
+    rm -f "${PARALLEL_LOG}"
     cd ..
     rm -rf ${TMP_DIR}
 
