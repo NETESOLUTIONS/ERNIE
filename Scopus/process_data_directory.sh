@@ -228,7 +228,7 @@ for scopus_data_archive in *.zip; do
 
     #@formatter:off
     find -name '2*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} --line-buffer\
-    --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_xml "{}" ${SUBSET_SP} | ${OUTPUT_PROCESSOR}
+        --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_xml "{}" ${SUBSET_SP} | ${OUTPUT_PROCESSOR}
     #@formatter:on
 
     parallel_exit_code=${PIPESTATUS[1]}
@@ -277,8 +277,12 @@ for scopus_data_archive in *.zip; do
     ((delta_s = delta % 60)) || :
     ((delta_m = (delta / 60) % 60)) || :
     ((della_h = delta / 3600)) || :
-    printf "$(TZ=America/New_York date) :  Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds\n" ${della_h} \
-    ${delta_m} ${delta_s}
+
+    #@formatter:off
+    printf "Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds at %d pubs/min.\n" ${della_h} ${delta_m} \
+        ${delta_s} $(( processed_pubs/(delta/60) ))
+    #@formatter:on
+
     if ((i < num_zips)); then
       ((elapsed = elapsed + delta))
       ((est_total = num_zips * elapsed / i)) || :
