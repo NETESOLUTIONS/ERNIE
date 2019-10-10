@@ -138,9 +138,13 @@ if [[ "${SMOKELOAD_JOB}" == true ]]; then
     ((i == 0)) && start_time=${dir_start_time}
     echo -e "\n## Directory #$((++i)) out of ${directories} ##"
     echo "Processing ${DATA_DIR} directory ..."
-    if ! "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -k ${MAX_ERRORS_OPTION} ${PARALLEL_JOBSLOTS_OPTION} \
-        ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${DATA_DIR}"; then
-      [[ $? == 2 ]] && exit 2
+    "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -k ${MAX_ERRORS_OPTION} ${PARALLEL_JOBSLOTS_OPTION} \
+        ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${DATA_DIR}"
+    declare -i result_code=$?
+    if (( result_code > 0 )); then
+      # Faial errors occurred?
+      (( result_code == 2 )) && exit 2
+
       failures_occurred="true"
     fi
     dir_stop_time=$(date '+%s')
@@ -186,12 +190,16 @@ if [[ "${UPDATE_JOB}" == true ]]; then
     echo "Processing ${UPDATE_DIR} directory"
     # shellcheck disable=SC2086
     #   SUBSET_OPTION must be unquoted
-    if "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -u -p "${PROCESSED_LOG}" ${MAX_ERRORS_OPTION} \
-        ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${UPDATE_DIR}"; then
+    "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -u -p "${PROCESSED_LOG}" ${MAX_ERRORS_OPTION} \
+        ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${UPDATE_DIR}"
+    declare -i result_code=$?
+    if (( result_code == 0 )); then
       echo "Removing directory ${UPDATE_DIR}"
       rm -rf "${UPDATE_DIR}"
     else
-      [[ $? == 2 ]] && exit 2
+      # Faial errors occurred?
+      (( result_code == 2 )) && exit 2
+
       failures_occurred="true"
     fi
     file_stop_time=$(date '+%s')

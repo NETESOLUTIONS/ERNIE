@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 if [[ "$1" == "-h" ]]; then
-  cat <<'HEREDOC'
+  cat << 'HEREDOC'
 NAME
 
     process_data_directory.sh -- process a directory of Scopus data for either update or smokeload job
@@ -89,50 +89,47 @@ echo -e "\nRunning process_data_directory.sh $*"
 
 while (($# > 0)); do
   case "$1" in
-  -u)
-    readonly UPDATE_JOB=true
-    ;;
-  -k)
-    readonly SMOKELOAD_JOB=true
-    ;;
-  -n)
-    shift
-    PARALLEL_JOBSLOTS_OPTION="-j $1"
-    ;;
-  -e)
-    shift
-    declare -ri MAX_ERRORS=$1
-    ;;
-  -p)
-    shift
-    echo "Using CLI arg '$1'"
-    readonly PROCESSED_LOG="$1"
-    ;;
-  -f)
-    shift
-    echo "Using CLI arg '$1'"
-    readonly FAILED_FILES_DIR="$1"
-    ;;
-  -s)
-    shift
-    echo "Using CLI arg '$1'"
-    readonly SUBSET_SP=$1
-    ;;
-  -t)
-    shift
-    readonly TMP_DIR=$1
-    ;;
-  -v)
-    # Second "-v" = extra verbose?
-    if [[ "$VERBOSE" == "true" ]]; then
-      set -x
-    else
-      declare -rx VERBOSE=true
-    fi
-    ;;
-  *)
-    cd "$1"
-    ;;
+    -u)
+      readonly UPDATE_JOB=true
+      ;;
+    -k)
+      readonly SMOKELOAD_JOB=true
+      ;;
+    -n)
+      shift
+      PARALLEL_JOBSLOTS_OPTION="-j $1"
+      ;;
+    -e)
+      shift
+      declare -ri MAX_ERRORS=$1
+      ;;
+    -p)
+      shift
+      readonly PROCESSED_LOG="$1"
+      ;;
+    -f)
+      shift
+      readonly FAILED_FILES_DIR="$1"
+      ;;
+    -s)
+      shift
+      readonly SUBSET_SP=$1
+      ;;
+    -t)
+      shift
+      readonly TMP_DIR=$1
+      ;;
+    -v)
+      # Second "-v" = extra verbose?
+      if [[ "$VERBOSE" == "true" ]]; then
+        set -x
+      else
+        declare -rx VERBOSE=true
+      fi
+      ;;
+    *)
+      cd "$1"
+      ;;
   esac
   shift
 done
@@ -154,7 +151,7 @@ fi
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##"
 
-if ! which parallel >/dev/null; then
+if ! which parallel > /dev/null; then
   echo "Please install GNU Parallel"
   exit 1
 fi
@@ -163,7 +160,6 @@ fi
 declare -i num_zips=$(ls *.zip | wc -l)
 declare -i total_failures=0 processed_pubs total_processed_pubs=0
 declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
-
 
 parse_xml() {
   local xml="$1"
@@ -184,7 +180,7 @@ parse_xml() {
     cd ..
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     mv -f $full_xml_path "${failed_files_dir}/"
-    cp $full_error_log_path "${failed_files_dir}/"
+    cp -f $full_error_log_path "${failed_files_dir}/"
     cd "${TMP_DIR}"
     return 1
   fi
@@ -196,7 +192,7 @@ exit_on_errors() {
   # Errors occurred? Does the error log have a size greater than zero?
   if [[ -s "${ERROR_LOG}" ]]; then
     if [[ ${VERBOSE} == "true" ]]; then
-      cat <<HEREDOC
+      cat << HEREDOC
 Error(s) occurred during processing of ${PWD}.
 =====
 HEREDOC
@@ -231,8 +227,11 @@ for scopus_data_archive in *.zip; do
     psql -f "${ABSOLUTE_SCRIPT_DIR}/truncate_stg_table.sql"
     #    echo -e "\nTruncating finished"
 
+    #@formatter:off
     find -name '2*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} --line-buffer\
     --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_xml "{}" ${SUBSET_SP} | ${OUTPUT_PROCESSOR}
+    #@formatter:on
+
     parallel_exit_code=${PIPESTATUS[1]}
     ((total_failures += parallel_exit_code)) || :
     echo "SUMMARY FOR ${scopus_data_archive}:"
@@ -240,8 +239,8 @@ for scopus_data_archive in *.zip; do
     echo "Total publications: ${processed_pubs}"
     case $parallel_exit_code in
       0)
-      echo "ALL IS WELL"
-      echo "${scopus_data_archive}" >>"${PROCESSED_LOG}"
+        echo "ALL IS WELL"
+        echo "${scopus_data_archive}" >> "${PROCESSED_LOG}"
         ;;
       1)
         echo "1 publication FAILED PARSING"
