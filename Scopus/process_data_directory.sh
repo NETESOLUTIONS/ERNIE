@@ -193,8 +193,11 @@ terminate_on_errors() {
 Error(s) occurred during processing of ${PWD}.
 =====
 HEREDOC
-    head "${ERROR_LOG}"
-    echo "====="
+    head -100 "${ERROR_LOG}"
+    cat << HEREDOC
+[skipped ?]
+=====
+HEREDOC
 
     exit ${1:-1}
   fi
@@ -220,21 +223,20 @@ for scopus_data_archive in *.zip; do
     cd "${TMP_DIR}"
     rm -f "${ERROR_LOG}"
 
-    #    echo -e "Truncating staging tables..."
     psql -f "${ABSOLUTE_SCRIPT_DIR}/truncate_stg_table.sql"
-    #    echo -e "\nTruncating finished"
 
     #@formatter:off
+    set +e
     find -name '2*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} --line-buffer\
         --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_xml "{}" ${SUBSET_SP} | ${OUTPUT_PROCESSOR}
+    parallel_exit_code=${PIPESTATUS[1]}
+    set -e
     #@formatter:on
 
-    parallel_exit_code=${PIPESTATUS[1]}
     ((total_failures += parallel_exit_code)) || :
     echo "SUMMARY FOR ${scopus_data_archive}:"
     processed_pubs=$(cat ${PARALLEL_LOG})
     echo "Total publications: ${processed_pubs}"
-
     (( parallel_exit_code > 0 )) && cp -f "${ERROR_LOG}" "${failed_files_dir}/"
     case $parallel_exit_code in
       0)
