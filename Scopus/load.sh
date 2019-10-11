@@ -181,8 +181,8 @@ if [[ "${UPDATE_JOB}" == true ]]; then
   for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
     file_start_time=$(date '+%s')
     ((i == 0)) && start_time=${file_start_time}
-    echo -e "\n## Update ZIP file #$((++i)) out of ${files} ##"
-    echo "Unzipping ${ZIP_DATA} file into a working directory"
+    echo -e "\n## Update package #$((++i)) out of ${files} ##"
+    echo "Extracting ${ZIP_DATA} ..."
     UPDATE_DIR="${ZIP_DATA%.zip}"
     unzip -u -q "${ZIP_DATA}" -d "${UPDATE_DIR}"
 
@@ -210,7 +210,7 @@ if [[ "${UPDATE_JOB}" == true ]]; then
     ((delta_m = (delta / 60) % 60)) || :
     ((della_h = delta / 3600)) || :
 
-    printf "\n$(TZ=America/New_York date) Done with ${ZIP_DATA} data file in %dh:%02dm:%02ds\n" ${della_h} \ ${delta_m} ${delta_s} | tee -a eta.log
+    printf "\n$(TZ=America/New_York date) Done with ${ZIP_DATA} package in %dh:%02dm:%02ds\n" ${della_h} \ ${delta_m} ${delta_s} | tee -a eta.log
     if [[ -f "${ZIP_DATA}/${STOP_FILE}" ]]; then
       echo "Found the stop signal file. Gracefully stopping the update."
       rm -f "${ZIP_DATA}/${STOP_FILE}"
@@ -221,7 +221,7 @@ if [[ "${UPDATE_JOB}" == true ]]; then
     ((est_total = elapsed * files / i)) || :
     ((eta = start_time + est_total))
 
-    echo "ETA for updates after ${ZIP_DATA} data file: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
+    echo "ETA for updates after ${ZIP_DATA} package: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
   done
   psql -f "${ABSOLUTE_SCRIPT_DIR}/scopus_update_log.sql"
 
