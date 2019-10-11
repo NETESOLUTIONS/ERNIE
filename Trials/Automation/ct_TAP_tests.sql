@@ -14,12 +14,12 @@
  5. For various tables was there an increase?
 */
 
-\timing
 \set ON_ERROR_STOP on
 \set ECHO all
 \set MIN_NUM_RECORDS 2
 
-SET search_path = :schema,public;
+-- public has to be used in search_path to find pgTAP routines
+SET search_path = public;
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';

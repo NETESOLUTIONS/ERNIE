@@ -14,11 +14,11 @@
  5. For various tables was there an increase?
 */
 
-\timing
 \set ON_ERROR_STOP on
 \set ECHO all
 
-SET search_path = :schema,public;
+-- public has to be used in search_path to find pgTAP routines
+SET search_path = public;
 
 -- This could be schema-dependent
 \set MIN_NUM_OF_RECORDS 1
