@@ -135,6 +135,8 @@ while (($# > 0)); do
   shift
 done
 
+declare -rx WORKING_DIR="${PWD}"
+
 readonly TOTAL_JOB_PROCESSOR="tail -1 | pcregrep -o1 'job#\d+/(\d+)' >${PARALLEL_LOG}"
 if [[ "$VERBOSE" == "true" ]]; then
   readonly OUTPUT_PROCESSOR="eval tee >(${TOTAL_JOB_PROCESSOR})"
@@ -149,6 +151,7 @@ if [[ ! ${TMP_DIR} ]]; then
     readonly TMP_DIR="tmp"
   fi
 fi
+export TMP_DIR
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##"
 
@@ -177,7 +180,7 @@ parse_xml() {
     echo -e "$xml parsing FAILED.\n" | tee -a "${ERROR_LOG}"
 
     local full_xml_path=$(realpath ${xml})
-    cd -
+    cd ${WORKING_DIR}
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     mv -f $full_xml_path "${failed_files_dir}/"
     cd "${TMP_DIR}"
@@ -238,7 +241,7 @@ for scopus_data_archive in *.zip; do
     echo "SUMMARY FOR ${scopus_data_archive}:"
     processed_pubs=$(cat ${PARALLEL_LOG})
     echo "Total publications: ${processed_pubs}"
-    cd -
+    cd ${WORKING_DIR}
     (( parallel_exit_code > 0 )) && cp -fv "${TMP_DIR}/${ERROR_LOG}" "${failed_files_dir}/"
     case $parallel_exit_code in
       0)
@@ -306,7 +309,7 @@ fi
 if [[ -d "${TMP_DIR}" ]]; then
   cd "${TMP_DIR}"
   terminate_on_errors
-  cd -
+  cd ${WORKING_DIR}
   rm -rf "${TMP_DIR}"
 fi
 
