@@ -1,10 +1,12 @@
 -- De-duplication
+-- 14h:40m
 DELETE
   FROM scopus_sources t1
  WHERE EXISTS(SELECT 1
                 FROM scopus_sources t2
-               WHERE (t2.source_id, t2.issn_main, t2.isbn_main)
-                   IS NOT DISTINCT FROM (t1.source_id, t1.issn_main, t1.isbn_main) AND t2.ctid > t1.ctid);
+               WHERE (coalesce(t2.source_id, ''), coalesce(t2.issn_main, ''), coalesce(t2.isbn_main, ''))
+                   = (coalesce(t1.source_id, ''), coalesce(t1.issn_main, ''), coalesce(t1.isbn_main, ''))
+                 AND t2.ctid > t1.ctid);
 
 SELECT max(ernie_source_id)
   FROM scopus_sources;
