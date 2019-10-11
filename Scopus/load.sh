@@ -115,14 +115,13 @@ if [[ "${SMOKELOAD_JOB}" == true ]]; then
   echo "SMOKELOAD JOB INITIATED ..."
   arg_array=("$@")
   echo "${arg_array[*]}"
+  # Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
   IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<<"${arg_array[*]}"))
   unset IFS
 elif [[ "${UPDATE_JOB}" == true ]]; then
   echo "UPDATE JOB INITIATED ... "
   readonly DATA_DIR="$1"
 fi
-
-### Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
 
 if [[ "${CLEAN_MODE_OPTION}" ]]; then
   echo "IN CLEAN MODE. TRUNCATING ALL DATA..."

@@ -194,7 +194,7 @@ terminate_on_errors() {
   # Errors occurred? Does the error log have a size greater than zero?
   if [[ -s "${ERROR_LOG}" ]]; then
     cat << HEREDOC
-Error(s) occurred during processing of ${PWD}.
+Error(s) occurred during processing of ${WORKING_DIR}.
 =====
 HEREDOC
     head -100 "${ERROR_LOG}"
