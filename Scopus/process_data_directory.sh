@@ -241,8 +241,11 @@ for scopus_data_archive in *.zip; do
     echo "SUMMARY FOR ${scopus_data_archive}:"
     processed_pubs=$(cat ${PARALLEL_LOG})
     echo "Total publications: ${processed_pubs}"
-    cd ${WORKING_DIR}
-    (( parallel_exit_code > 0 )) && cp -fv "${TMP_DIR}/${ERROR_LOG}" "${failed_files_dir}/"
+    if (( parallel_exit_code > 0 )); then
+      cd ${WORKING_DIR}
+      cp -fv "${TMP_DIR}/${ERROR_LOG}" "${failed_files_dir}/"
+      cd "${TMP_DIR}"
+    fi
     case $parallel_exit_code in
       0)
         echo "ALL IS WELL"
@@ -264,6 +267,7 @@ for scopus_data_archive in *.zip; do
     esac
     ((total_failures >= MAX_ERRORS)) && terminate_on_errors 2
     ((total_processed_pubs += processed_pubs)) || :
+    cd ${WORKING_DIR}
 
     # sql script that inserts from staging table into scopus
     # Using STAGING
