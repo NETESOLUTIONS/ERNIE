@@ -16,7 +16,7 @@
 
 \set ON_ERROR_STOP on
 \set ECHO all
-\set MIN_NUM_RECORDS 2
+\set MIN_NUM_OF_RECORDS 2
 
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;
@@ -41,9 +41,6 @@ $block$
     END
 $block$;
 
-BEGIN;
-SELECT *
-FROM no_plan();
 
 -- region all ct_ tables exist
 SELECT has_table('ct_clinical_studies');
@@ -66,6 +63,9 @@ SELECT has_table('ct_overall_contacts');
 SELECT has_table('ct_overall_officials');
 SELECT has_table('ct_publications');
 SELECT has_table('ct_references');
+BEGIN;
+SELECT *
+FROM no_plan();
 SELECT has_table('ct_secondary_ids');
 SELECT has_table('ct_study_design_info');-- endregion
 
