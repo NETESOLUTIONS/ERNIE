@@ -52,7 +52,10 @@ CREATE TABLE IF NOT EXISTS scopus_sources (
 )
 TABLESPACE scopus_tbs;
 
-CREATE UNIQUE INDEX IF NOT EXISTS scopus_sources_source_id_issn_isbn_uk ON scopus_sources(source_id, issn_main, isbn_main);
+--@formatter:off
+CREATE UNIQUE INDEX IF NOT EXISTS scopus_sources_source_id_issn_isbn_uk
+  ON scopus_sources(source_id, issn_main, isbn_main) TABLESPACE index_tbs;
+--@formatter:on
 
 COMMENT ON TABLE scopus_sources IS 'Journal source information table';
 
@@ -369,7 +372,10 @@ TABLESPACE scopus_tbs;
 ALTER TABLE scopus_source_publication_details
   ADD CONSTRAINT spub_conf_code_conf_name_fk FOREIGN KEY (conf_code, conf_name) REFERENCES scopus_conference_events(conf_code, conf_name) ON DELETE CASCADE;
 
-CREATE INDEX IF NOT EXISTS sspd_conf_name_fti ON scopus_source_publication_details USING gin(to_tsvector('english', conf_name));
+--@formatter:off
+CREATE INDEX IF NOT EXISTS sspd_conf_name_fti
+  ON scopus_source_publication_details USING gin(to_tsvector('english', conf_name)) TABLESPACE index_tbs;
+--@formatter:on
 -- 5m:37s
 
 COMMENT ON TABLE scopus_source_publication_details IS 'Details of individual publication in a (journal) source';
@@ -666,7 +672,8 @@ CREATE TABLE IF NOT EXISTS scopus_titles (
 )
 TABLESPACE scopus_tbs;
 
-CREATE INDEX IF NOT EXISTS st_title_fti ON scopus_titles USING gin(to_tsvector('english', title));
+CREATE INDEX IF NOT EXISTS st_title_fti ON scopus_titles USING gin(to_tsvector('english', title))
+  TABLESPACE index_tbs;
 
 COMMENT ON TABLE scopus_titles IS 'ELSEVIER: Scopus title of publications';
 
@@ -779,9 +786,11 @@ TABLESPACE scopus_tbs;
 COMMENT ON TABLE update_log_scopus IS 'Update log table for Scopus';
 --endregion
 
+-- region del_scps
 CREATE TABLE IF NOT EXISTS del_scps (
   scp BIGINT NOT NULL
     CONSTRAINT del_scps_pk PRIMARY KEY,
   last_updated_time TIMESTAMP DEFAULT now()
 );
+-- endregion
 
