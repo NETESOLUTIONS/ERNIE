@@ -18,7 +18,10 @@
 \set ON_ERROR_STOP on
 \set MIN_NUM_OF_RECORDS 3
 
+\if :{?schema}
+-- public has to be used in search_path to find pgTAP routines
 SET search_path = :schema,public;
+\endif
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';

@@ -19,7 +19,10 @@
 \set ECHO all
 \set MIN_NUM_RECORDS 2
 
+\if :{?schema}
+-- public has to be used in search_path to find pgTAP routines
 SET search_path = :schema,public;
+\endif
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
