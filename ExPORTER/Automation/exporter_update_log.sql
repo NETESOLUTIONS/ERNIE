@@ -6,7 +6,7 @@
  of exporter projects updated
  */
 
-\timing
+-- \timing
 \set ON_ERROR_STOP on
 \set ECHO all
 
@@ -21,12 +21,11 @@ INSERT INTO update_log_scopus (update_time, num_ex_project)
      (VALUES
        (
          (SELECT current_timestamp),
-         (SELECT count(*) FROM scopus_publications),
-         (SELECT count(*) FROM del_scps)
+         (SELECT count(*) FROM exporter_projects)
        )
 
       )
-AS t (update_time, num_scopus_publications, num_deletes);
+AS t (update_time, num_ex_project);
 
 SELECT *
 FROM update_log_scopus

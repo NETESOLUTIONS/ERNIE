@@ -483,7 +483,8 @@ CREATE TABLE ct_references (
   id       INTEGER,
   nct_id   TEXT NOT NULL,
   citation TEXT NOT NULL,
-  pmid     INTEGER
+  pmid     INTEGER,
+  CONSTRAINT ct_references_pk PRIMARY KEY (id, nct_id) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE ct_tbs;
 
 DROP INDEX IF EXISTS ct_references_uk;
