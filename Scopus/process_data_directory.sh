@@ -266,7 +266,7 @@ for scopus_data_archive in *.zip; do
         ;;
       *)
         echo "TOTAL FAILURE"
-        terminate_on_errors 2
+        terminate_on_errors $FATAL_FAILURE_CODE
         ;;
     esac
     ((total_failures >= MAX_ERRORS)) && terminate_on_errors $FATAL_FAILURE_CODE
