@@ -1,6 +1,10 @@
 \set ON_ERROR_STOP on
 \set ECHO all
 
+\if :{?schema}
+SET search_path = :schema;
+\endif
+
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 

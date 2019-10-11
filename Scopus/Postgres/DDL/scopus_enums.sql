@@ -1,3 +1,13 @@
+\set ON_ERROR_STOP on
+\set ECHO all
+
+\if :{?schema}
+SET search_path = :schema;
+\endif
+
+-- DataGrip: start execution from here
+SET TIMEZONE = 'US/Eastern';
+
 DROP TYPE IF EXISTS SCOPUS_CITATION_TYPE;
 CREATE TYPE SCOPUS_CITATION_TYPE AS --
   ENUM ('ab','ar','bk','br','ch','cp', 'cr','di','ed','er','ip','le','no','pa','pr','re','rp','sh','wp');

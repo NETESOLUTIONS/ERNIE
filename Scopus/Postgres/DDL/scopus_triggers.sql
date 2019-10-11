@@ -1,8 +1,11 @@
 \set ECHO all
 \set ON_ERROR_STOP on
 
--- triggers for scopus updates
+\if :{?schema}
+SET search_path = :schema;
+\endif
 
+-- triggers for scopus updates
 
 CREATE OR REPLACE FUNCTION update_scp_function()
 RETURNS TRIGGER AS $update_scp_trigger$
