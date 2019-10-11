@@ -14,7 +14,6 @@
  5. For various tables was there an increase?
 */
 
-\timing
 \set ON_ERROR_STOP on
 \set ECHO all
 
