@@ -21,27 +21,28 @@ DESCRIPTION
 
     The following options are available:
 
-    -u    update job: specifies that the job is an update versus smokeload
+    -u            update job: specifies that the job is an update versus smokeload
 
-    -k    smokeload job : specificies that the job is a smokeload versus update
+    -k            smokeload job : specificies that the job is a smokeload versus update
 
-    -n    maximum number of jobs to run in parallel, defaults to # of CPU cores
+    -n            maximum number of jobs to run in parallel, defaults to # of CPU cores
 
-    -e    stop when the error # reaches the max_errors threshold. Defaults to 101.
+    -e            stop when the error # reaches the max_errors threshold. Defaults to 101.
 
-    -p    create a process log which is used as part of the update job
+    -p            create a process log which is used as part of the update job
 
-    -v    verbose output: print processed XML files
+    -v            verbose output: print processed XML files
 
-    -v -v extra-verbose output: print all lines (`set -x`)
+    -v -v         extra-verbose output: print all lines (`set -x`)
 
     -s subset_SP: parse a subset of data via the specified subset parsing Stored Procedure (SP)
 
-    -t tmp_dir: relative to working_dir, `tmp` or `tmp-{SP_name}` (for subsets) by default
-          WARNING: be aware that tmp_dir is removed before processing and on success
+    -t tmp_dir:   absolute or relative to working_dir, `tmp` or `tmp-{SP_name}` (for subsets) by default
+                  WARNING: be aware that tmp_dir is removed before processing and on success.
 
-    -f failed_files_dir: move failed XML files to failed_files_dir: relative to working_dir, `../failed/` by default
-          WARNING: be aware that failed_files_dir is cleaned before processing
+    -f failed_files_dir:  move failed XML files to failed_files_dir
+                          Absolute or relative to working_dir, `../failed/` by default.
+                          WARNING: be aware that failed_files_dir is cleaned before processing.
 
     To stop process gracefully after the current ZIP is processed, create a `{working_dir}/.stop` signal file.
 
@@ -176,7 +177,7 @@ parse_xml() {
     echo -e "$xml parsing FAILED.\n" | tee -a "${ERROR_LOG}"
 
     local full_xml_path=$(realpath ${xml})
-    cd ..
+    cd -
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     mv -f $full_xml_path "${failed_files_dir}/"
     cd "${TMP_DIR}"
@@ -237,7 +238,8 @@ for scopus_data_archive in *.zip; do
     echo "SUMMARY FOR ${scopus_data_archive}:"
     processed_pubs=$(cat ${PARALLEL_LOG})
     echo "Total publications: ${processed_pubs}"
-    (( parallel_exit_code > 0 )) && cp -f "${ERROR_LOG}" "${failed_files_dir}/"
+    cd -
+    (( parallel_exit_code > 0 )) && cp -fv "${TMP_DIR}/${ERROR_LOG}" "${failed_files_dir}/"
     case $parallel_exit_code in
       0)
         echo "ALL IS WELL"
@@ -266,7 +268,6 @@ for scopus_data_archive in *.zip; do
     psql -q -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
 
     rm -f "${PARALLEL_LOG}"
-    cd ..
     rm -rf ${TMP_DIR}
 
     if [[ -f "${STOP_FILE}" ]]; then
@@ -305,7 +306,7 @@ fi
 if [[ -d "${TMP_DIR}" ]]; then
   cd "${TMP_DIR}"
   terminate_on_errors
-  cd
+  cd -
   rm -rf "${TMP_DIR}"
 fi
 
