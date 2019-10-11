@@ -1,12 +1,22 @@
+-- De-duplication
+DELETE
+  FROM scopus_sources t1
+ WHERE EXISTS(SELECT 1
+                FROM scopus_sources t2
+               WHERE (t2.source_id, t2.issn_main, t2.isbn_main)
+                   IS NOT DISTINCT FROM (t1.source_id, t1.issn_main, t1.isbn_main) AND t2.ctid > t1.ctid);
+
 SELECT max(ernie_source_id)
-FROM scopus_sources;
+  FROM scopus_sources;
 -- 81552478
 
+/*
 CREATE SEQUENCE scopus_sources_ernie_source_id_seq AS INTEGER START 81552479
 OWNED BY scopus_sources.ernie_source_id;
+*/
 
 ALTER TABLE scopus_sources
-    ALTER COLUMN ernie_source_id SET DEFAULT nextval('scopus_sources_ernie_source_id_seq');
+  ALTER COLUMN ernie_source_id SET DEFAULT nextval('scopus_sources_ernie_source_id_seq');
 
 SELECT *
   FROM scopus_sources_ernie_source_id_seq;
