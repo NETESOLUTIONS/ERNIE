@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+declare -ri FATAL_FAILURE_CODE=255
 if [[ $1 == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
@@ -48,12 +49,12 @@ EXIT STATUS
 
     Exits with one of the following values:
 
-    0   Success
-    1   Error occurred
-    2   Maximum number of errors reached
+    0    Success
+    1    An error occurred
+    255  Maximum number of errors reached / fatal failure
 
 HEREDOC
-  exit 1
+  exit $FATAL_FAILURE_CODE
 fi
 
 set -e
@@ -141,8 +142,8 @@ if [[ "${SMOKELOAD_JOB}" == true ]]; then
         ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${DATA_DIR}"
     declare -i result_code=$?
     if (( result_code > 0 )); then
-      # Faial errors occurred?
-      (( result_code == 2 )) && exit 2
+      # Faial error?
+      (( result_code == FATAL_FAILURE_CODE )) && exit $FATAL_FAILURE_CODE
 
       failures_occurred="true"
     fi
@@ -198,8 +199,8 @@ if [[ "${UPDATE_JOB}" == true ]]; then
       echo "Removing directory ${UPDATE_DIR}"
       rm -rf "${UPDATE_DIR}"
     else
-      # Faial errors occurred?
-      (( result_code == 2 )) && exit 2
+      # Faial error?
+      (( result_code == FATAL_FAILURE_CODE )) && exit $FATAL_FAILURE_CODE
 
       failures_occurred="true"
     fi

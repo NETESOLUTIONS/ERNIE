@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+readonly FATAL_FAILURE_CODE=255
+
 if [[ "$1" == "-h" ]]; then
   cat << 'HEREDOC'
 NAME
@@ -54,9 +56,9 @@ EXIT STATUS
 
     Exits with one of the following values:
 
-    0   Success
-    1   Error occurred
-    2   Maximum number of errors reached
+    0    Success
+    1    Error occurred
+    255  Maximum number of errors reached / fatal failure
 
 EXAMPLES
 
@@ -69,7 +71,7 @@ EXAMPLES
       ll ../failed$ ./process_directory.sh -s scopus_parse_grants -e /erniedev_data3/Scopus-testing
 
 HEREDOC
-  exit 0
+  exit $FATAL_FAILURE_CODE
 fi
 
 set -e
@@ -157,7 +159,7 @@ echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##"
 
 if ! which parallel > /dev/null; then
   echo "Please install GNU Parallel"
-  exit 1
+  exit $FATAL_FAILURE_CODE
 fi
 
 # Set counter and ETA variables
@@ -227,7 +229,9 @@ for scopus_data_archive in *.zip; do
     cd "${TMP_DIR}"
     rm -f "${ERROR_LOG}"
 
-    psql -f "${ABSOLUTE_SCRIPT_DIR}/truncate_stg_table.sql"
+    if ! psql -f "${ABSOLUTE_SCRIPT_DIR}/truncate_stg_table.sql"; then
+      exit $FATAL_FAILURE_CODE
+    fi
 
     #@formatter:off
     set +e
@@ -265,14 +269,16 @@ for scopus_data_archive in *.zip; do
         terminate_on_errors 2
         ;;
     esac
-    ((total_failures >= MAX_ERRORS)) && terminate_on_errors 2
+    ((total_failures >= MAX_ERRORS)) && terminate_on_errors $FATAL_FAILURE_CODE
     ((total_processed_pubs += processed_pubs)) || :
     cd ${WORKING_DIR}
 
     # sql script that inserts from staging table into scopus
     # Using STAGING
     echo "Merging staged data into Scopus tables..."
-    psql -q -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"
+    if ! psql -q -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"; then
+      exit $FATAL_FAILURE_CODE
+    fi
 
     rm -f "${PARALLEL_LOG}"
     rm -rf ${TMP_DIR}
