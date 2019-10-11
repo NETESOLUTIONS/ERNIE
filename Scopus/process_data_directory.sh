@@ -253,7 +253,6 @@ for scopus_data_archive in *.zip; do
     case $parallel_exit_code in
       0)
         echo "ALL IS WELL"
-        echo "${scopus_data_archive}" >> "${PROCESSED_LOG}"
         ;;
       1)
         echo "1 publication FAILED PARSING"
@@ -278,6 +277,10 @@ for scopus_data_archive in *.zip; do
     echo "Merging staged data into Scopus tables..."
     if ! psql -q -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"; then
       exit $FATAL_FAILURE_CODE
+    fi
+
+    if (( parallel_exit_code == 0 )); then
+      echo "${scopus_data_archive}" >> "${PROCESSED_LOG}"
     fi
 
     rm -f "${PARALLEL_LOG}"
