@@ -5,9 +5,29 @@ SELECT *
 
 /* Existing tables: only those tables and views are shown that the current user has access to
 (by way of being the owner or having some privilege). */
-SELECT *
-  FROM information_schema.tables
- WHERE table_schema = 'public' AND table_name LIKE :tablePattern;
+SELECT
+  table_catalog, table_schema, table_name, table_type, self_referencing_column_name, reference_generation,
+  user_defined_type_catalog, user_defined_type_schema, user_defined_type_name, is_insertable_into, is_typed,
+  commit_action
+  FROM information_schema.tables t
+ WHERE table_catalog = current_catalog AND table_name LIKE :'tablePattern'
+ ORDER BY table_catalog, table_schema, table_name;
+
+-- Default tables: the first on the current search path
+SELECT pc.oid, pn.nspname, pc.relname, pc.relkind
+  FROM
+    pg_catalog.pg_class pc
+      LEFT JOIN pg_catalog.pg_namespace pn ON pn.oid = pc.relnamespace
+ WHERE pc.relkind IN ('r', 'p') AND pc.relname LIKE :'tablePattern' AND pg_catalog.pg_table_is_visible(pc.oid)
+ ORDER BY nspname, relname;
+
+-- Tables visible on the search path (by a regex pattern)
+SELECT c.oid, n.nspname, c.relname
+  FROM
+    pg_catalog.pg_class c
+      LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+ WHERE c.relname ~ ('^(' || :table_pattern || ')$') AND pg_catalog.pg_table_is_visible(c.oid)
+ ORDER BY 2, 3;
 
 -- Table class data
 SELECT
@@ -114,22 +134,6 @@ SELECT
       -- pi.indexrelid: The OID of the pg_class entry for this index
       JOIN pg_class index_pc ON index_pc.oid = pi.indexrelid
  WHERE table_pc.relname = :tableName;
-
--- Is it visible on the search path?
-SELECT c.oid, n.nspname, c.relname
-  FROM
-    pg_catalog.pg_class c
-      LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
- WHERE c.relname = :table_name AND pg_catalog.pg_table_is_visible(c.oid)
- ORDER BY 2, 3;
-
--- Is it visible on the search path (by a regex pattern)?
-SELECT c.oid, n.nspname, c.relname
-  FROM
-    pg_catalog.pg_class c
-      LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
- WHERE c.relname ~ ('^(' || :table_pattern || ')$') AND pg_catalog.pg_table_is_visible(c.oid)
- ORDER BY 2, 3;
 
 -- DDL
 SELECT create_table_ddl(:tablename);

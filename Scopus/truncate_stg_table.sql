@@ -10,11 +10,16 @@ SET search_path = :schema;
 SET TIMEZONE = 'US/Eastern';
 
 DO $$
-  DECLARE statements CURSOR FOR SELECT tablename
-                                  FROM pg_tables
-                                 WHERE tablename LIKE 'stg_scopus%' AND schemaname = current_schema;
+  DECLARE staging_table_record RECORD;
   BEGIN
-    FOR statement IN statements LOOP
-      EXECUTE 'TRUNCATE TABLE ' || quote_ident(statement.tablename) || ' CASCADE';
+    -- Truncate all default Scopus staging tables: the first on the current search path
+    FOR staging_table_record IN (
+      SELECT pn.nspname, pc.relname
+        FROM
+          pg_catalog.pg_class pc
+            LEFT JOIN pg_catalog.pg_namespace pn ON pn.oid = pc.relnamespace
+       WHERE pc.relkind IN ('r', 'p') AND pc.relname LIKE 'stg_scopus%' AND pg_catalog.pg_table_is_visible(pc.oid)
+    ) LOOP
+      EXECUTE format('TRUNCATE TABLE %I.%I CASCADE', staging_table_record.nspname, staging_table_record.relname);
     END LOOP;
   END ; $$;

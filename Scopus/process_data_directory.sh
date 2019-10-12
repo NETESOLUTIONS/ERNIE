@@ -229,6 +229,7 @@ for scopus_data_archive in *.zip; do
     cd "${TMP_DIR}"
     rm -f "${ERROR_LOG}"
 
+    echo "Truncating staged data"
     if ! psql -q -f "${ABSOLUTE_SCRIPT_DIR}/truncate_stg_table.sql"; then
       exit $FATAL_FAILURE_CODE
     fi
@@ -274,7 +275,7 @@ for scopus_data_archive in *.zip; do
 
     # sql script that inserts from staging table into scopus
     # Using STAGING
-    echo "Merging staged data into Scopus tables..."
+    echo "Merging staged data into Scopus tables"
     if ! psql -q -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"; then
       exit $FATAL_FAILURE_CODE
     fi
