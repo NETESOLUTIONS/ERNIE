@@ -1,3 +1,14 @@
+\set ON_ERROR_STOP on
+-- Reduce verbosity
+-- \set ECHO all
+
+\if :{?schema}
+SET search_path = :schema;
+\endif
+
+-- JetBrains IDEs: start execution from here
+SET TIMEZONE = 'US/Eastern';
+
 DO $$
   DECLARE statements CURSOR FOR SELECT tablename
                                   FROM pg_tables

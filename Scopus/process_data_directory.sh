@@ -229,7 +229,7 @@ for scopus_data_archive in *.zip; do
     cd "${TMP_DIR}"
     rm -f "${ERROR_LOG}"
 
-    if ! psql -f "${ABSOLUTE_SCRIPT_DIR}/truncate_stg_table.sql"; then
+    if ! psql -q -f "${ABSOLUTE_SCRIPT_DIR}/truncate_stg_table.sql"; then
       exit $FATAL_FAILURE_CODE
     fi
 

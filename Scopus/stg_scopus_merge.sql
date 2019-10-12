@@ -1,6 +1,7 @@
 \set ON_ERROR_STOP on
-
+-- Reduce verbosity
 -- \set ECHO all
+
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
