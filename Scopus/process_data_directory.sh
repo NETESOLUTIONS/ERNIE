@@ -216,10 +216,10 @@ process_start_time=$(date '+%s')
 for scopus_data_archive in *.zip; do
   start_time=$(date '+%s')
   if grep -q "^${scopus_data_archive}$" "${PROCESSED_LOG}"; then
-    echo "Skipping file ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} ).
+    echo "Skipping publication ZIP ${scopus_data_archive} (#$((++i)) out of ${num_zips}).
     It is already marked as completed."
   else
-    echo -e "\nProcessing ${scopus_data_archive} ( .zip file #$((++i)) out of ${num_zips} )..."
+    echo -e "\nProcessing ${scopus_data_archive} (publication ZIP #$((++i)) out of ${num_zips})"
     # Reduced verbosity
     # -u extracting files that are newer and files that do not already exist on disk
     # -q perform operations quietly
@@ -298,7 +298,7 @@ for scopus_data_archive in *.zip; do
     ((della_h = delta / 3600)) || :
 
     #@formatter:off
-    printf "Done with ${scopus_data_archive} archive in %dh:%02dm:%02ds at %d pubs/min.\n" ${della_h} ${delta_m} \
+    printf "Done with ${scopus_data_archive} publication ZIP in %dh:%02dm:%02ds at %d pubs/min.\n" ${della_h} ${delta_m} \
         ${delta_s} $(( processed_pubs/(delta/60) ))
     #@formatter:on
 
