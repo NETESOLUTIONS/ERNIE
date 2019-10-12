@@ -242,7 +242,7 @@ for scopus_data_archive in *.zip; do
     #@formatter:on
 
     ((total_failures += parallel_exit_code)) || :
-    echo "SUMMARY FOR ${scopus_data_archive}:"
+    echo "Parsed."
     processed_pubs=$(cat ${PARALLEL_LOG})
     echo "Total publications: ${processed_pubs}"
     if (( parallel_exit_code > 0 )); then
