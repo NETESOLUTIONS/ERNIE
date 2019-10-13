@@ -232,7 +232,10 @@ for scopus_data_archive in *.zip; do
 
     declare -i processed_pubs=$(cat ${TMP_OUT})
     echo "Parsed ${processed_pubs} publications"
-    (( processed_pubs == 0)) && exit $FATAL_FAILURE_CODE
+    if (( processed_pubs == 0)); then
+      echo "Unexpected PROBLEM"
+      exit $FATAL_FAILURE_CODE
+    fi
     ((total_processed_pubs += processed_pubs)) || :
     ((total_failures += parallel_exit_code)) || :
     if (( parallel_exit_code > 0 )); then
