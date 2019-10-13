@@ -44,9 +44,10 @@ SELECT ernie_source_id, isbn, max(isbn_length), isbn_type, max(isbn_level)
     ON CONFLICT (ernie_source_id, isbn, isbn_type) DO UPDATE SET isbn_length=excluded.isbn_length, isbn_level=excluded.isbn_level;
 --
 INSERT INTO scopus_issns(ernie_source_id, issn, issn_type)
-SELECT ernie_source_id, issn, issn_type
+SELECT DISTINCT ernie_source_id, issn, issn_type
   FROM stg_scopus_issns
-    ON CONFLICT (ernie_source_id, issn, issn_type) DO UPDATE SET issn=excluded.issn, issn_type=excluded.issn_type;
+    ON CONFLICT (ernie_source_id, issn, issn_type) DO UPDATE SET --
+        issn=excluded.issn, issn_type=excluded.issn_type;
 
 INSERT INTO scopus_conference_events(conf_code, conf_name, conf_address, conf_city, conf_postal_code,
                                      conf_start_date,
