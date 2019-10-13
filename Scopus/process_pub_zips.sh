@@ -40,7 +40,7 @@ DESCRIPTION
     -n parallel_jobs  maximum number of jobs to run in parallel, # of CPU cores by default
 
     -t tmp_dir        `tmp` or `tmp-{SP_name}` (for subsets) by default
-                      WARNING: be aware that `{tmp_dir}` is removed on success.
+                      WARNING: be aware that `{tmp_dir}` is removed before processing and on success.
 
     -f failed_pub_dir move failed publication XML files to `{failed_pub_dir}/{pub_ZIP_name}/`, `../failed` by default
                       WARNING: be aware that `failed_pub_dir` is cleaned before processing.
@@ -150,6 +150,7 @@ if [[ ! ${TMP_DIR} ]]; then
   fi
 fi
 export TMP_DIR
+rm -rf ${TMP_DIR}
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##"
 
