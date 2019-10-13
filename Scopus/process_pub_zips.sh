@@ -81,7 +81,7 @@ readonly STOP_FILE=".stop"
 readonly SCRIPT_DIR=${0%/*}
 declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx ERROR_LOG=error.log
-declare -rx PARALLEL_LOG=/tmp/ERNIE-Scopus-process_data_directory.out
+declare -rx TMP_OUT=/tmp/ERNIE-Scopus-process_pub_zips.out
 declare -i MAX_ERRORS=101
 
 FAILED_FILES_DIR="../failed"
@@ -135,7 +135,7 @@ done
 
 declare -rx WORKING_DIR="${PWD}"
 
-readonly TOTAL_JOB_PROCESSOR="tail -1 | pcregrep -o1 'job#\d+/(\d+)' >${PARALLEL_LOG}"
+readonly TOTAL_JOB_PROCESSOR="tail -1 | pcregrep -o1 'job#\d+/(\d+)' >${TMP_OUT}"
 if [[ "$VERBOSE" == "true" ]]; then
   readonly OUTPUT_PROCESSOR="eval tee >(${TOTAL_JOB_PROCESSOR})"
 else
@@ -214,7 +214,9 @@ for scopus_data_archive in *.zip; do
     rm -f "${ERROR_LOG}"
 
     echo "Truncating staged data"
-    if ! psql -q -f "${ABSOLUTE_SCRIPT_DIR}/truncate_staged_data.sql"; then
+    if ! psql -f "${ABSOLUTE_SCRIPT_DIR}/truncate_staged_data.sql" >"${TMP_OUT}"; then
+      cat "${TMP_OUT}"
+      rm -f "${TMP_OUT}"
       exit $FATAL_FAILURE_CODE
     fi
     echo "Truncated."
@@ -228,7 +230,7 @@ for scopus_data_archive in *.zip; do
     set -e
     #@formatter:on
 
-    declare -i processed_pubs=$(cat ${PARALLEL_LOG})
+    declare -i processed_pubs=$(cat ${TMP_OUT})
     echo "Parsed ${processed_pubs} publications"
     (( processed_pubs == 0)) && exit $FATAL_FAILURE_CODE
     ((total_processed_pubs += processed_pubs)) || :
@@ -280,7 +282,9 @@ HEREDOC
     # sql script that inserts from staging table into scopus
     # Using STAGING
     echo "Merging staged data into Scopus tables"
-    if ! psql -q -f "${ABSOLUTE_SCRIPT_DIR}/merge_staged_data.sql"; then
+    if ! psql -f "${ABSOLUTE_SCRIPT_DIR}/merge_staged_data.sql" >"${TMP_OUT}"; then
+      cat "${TMP_OUT}"
+      rm -f "${TMP_OUT}"
       exit $FATAL_FAILURE_CODE
     fi
 
@@ -288,7 +292,7 @@ HEREDOC
       echo "${scopus_data_archive}" >> "${PROCESSED_LOG}"
     fi
 
-    rm -f "${PARALLEL_LOG}"
+    rm -f "${TMP_OUT}"
     rm -rf ${TMP_DIR}
 
     if [[ -f "${STOP_FILE}" ]]; then
@@ -303,8 +307,8 @@ HEREDOC
     ((della_h = delta / 3600)) || :
 
     #@formatter:off
-    printf "Done with ${scopus_data_archive} publication ZIP in %dh:%02dm:%02ds at %d pubs/min.\n" ${della_h} ${delta_m} \
-        ${delta_s} $(( processed_pubs/(delta/60) ))
+    printf "Done with ${scopus_data_archive} publication ZIP in %dh:%02dm:%02ds at %.1f pubs/min.\n" ${della_h} ${delta_m} \
+        ${delta_s} "$((10**9 * processed_pubs*60/delta ))e-9"
     #@formatter:on
 
     if ((i < num_zips)); then

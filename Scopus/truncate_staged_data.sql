@@ -1,6 +1,5 @@
 \set ON_ERROR_STOP on
--- Reduce verbosity
--- \set ECHO all
+\set ECHO all
 
 \if :{?schema}
   SET search_path = :schema;
