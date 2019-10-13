@@ -1,42 +1,48 @@
 #!/usr/bin/env bash
 declare -ri FATAL_FAILURE_CODE=255
 if [[ $1 == "-h" ]]; then
-  cat <<'HEREDOC'
+  cat << 'HEREDOC'
 NAME
 
-  load.sh -- Either update Scopus data in a PostgreSQL database with zipped (*.zip) Scopus XMLs delivered by the provider
-  Note that clean mode is NOT available with this script, OR ,
+  load.sh -- Smokeload or update Scopus data
 
 SYNOPSIS
-  load.sh -u|-k [-c] [-r] [-n parallel_jobs] [-e max_errors_per_dir] [-v] [-v] [-s subset_SP] data_directory [...]
+  load.sh -k [common_option] ... data_directory [...]
+  load.sh -u [-rep] [common_option] ... data_directory [...]
   load.sh -h: display this help
 
 DESCRIPTION
 
-  Process specified zip files in the target directory
+  The following processing modes are available:
 
-  TODO:
-    1) Copy files from some secondary storing location and then proceed to work on them.
+    -k                smokeload using Scopus publication ZIPs in all specified data directories
 
-  The following options are available:
+    -u                update using Scopus update packages (super-ZIPs) in all specified data directories
 
-    -u            update mode
+      -rep            reprocess previously successfully completed publication ZIPs
 
-    -k            smokeload from scratch
+  Common options:
 
-    -n            maximum number of jobs to run in parallel, defaults to # of CPU cores
+    -r                reverse order of processing
 
-    -c            clean load: truncate data. WARNING: be aware that you'll lose all loaded data!
+    -c                clean load: truncate data. WARNING: be aware that you'll lose all loaded data!
 
-    -e            stop when the error # per a data directory or an update ZIP >= `max_errors_per_dir`. Defaults to 101.
+    -s subset_SP      parse a subset of data via the specified parsing Stored Procedure (SP)
 
-    -r            reverse order of processing
+    -e max_errors     stop when the error number per a directory or an update super-ZIP reaches this threshold
+                      101 by default.
 
-    -s subset_SP  parse a subset of data via the specified subset parsing Stored Procedure (SP)
+    -v                verbose output: print processed XML files
 
-    -v            verbose output: print processed XML files
+    -v -v             extra-verbose output: print all lines (`set -x`)
 
-    -v -v         extra-verbose output: print all lines (`set -x`)
+    -n parallel_jobs  maximum number of jobs to run in parallel, # of CPU cores by default
+
+    -t tmp_dir        `tmp` or `tmp-{SP_name}` (for subsets) by default
+                      WARNING: be aware that `{tmp_dir}` is removed on success.
+
+    -f failed_pub_dir move failed publication XML files to `{failed_pub_dir}/{pub_ZIP_name}/`, `../failed` by default
+                      WARNING: be aware that `failed_pub_dir` is cleaned before processing.
 
   To stop process gracefully after the current ZIP is processed, create a `{working_dir}/.stop` signal file.
   This file is automatically removed
@@ -67,62 +73,53 @@ readonly STOP_FILE=".stop"
 readonly SCRIPT_DIR=${0%/*}
 readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 readonly FAILED_FILES_DIR=../failed
-declare  NUM_JOBS=8
+declare NUM_JOBS=8
 
 while (($# > 0)); do
   case "$1" in
-  -u)
-    readonly UPDATE_JOB=true
-    ;;
-  -k)
-    readonly SMOKELOAD_JOB=true
-    ;;
-  -c)
-    readonly CLEAN_MODE_OPTION="-c"
-    ;;
-  -e)
-    shift
-    readonly MAX_ERRORS_OPTION="-e $1"
-    ;;
-  -r)
-    readonly SORT_ORDER=true
-    ;;
-  -s)
-    shift
-    readonly SUBSET_OPTION="-s $1"
-    ;;
-  -n)
-    shift
-    PARALLEL_JOBSLOTS_OPTION="-n $1"
-    ;;
-  -v)
-    # Second "-v" = extra verbose?
-    if [[ "$VERBOSE" == "true" ]]; then
-      set -x
-      VERBOSE_OPTION="-v -v"
-    else
-      readonly VERBOSE=true
-      VERBOSE_OPTION="-v"
-    fi
-    ;;
-  *)
-    break
-    ;;
+    -k)
+      readonly MODE="SMOKELOAD"
+      ;;
+    -u)
+      readonly MODE="UPDATE"
+      ;;
+    -rep)
+      readonly REPROCESS_OPTION=$1
+      ;;
+    -r)
+      readonly SORT_ORDER=true
+      ;;
+    -c)
+      readonly CLEAN_MODE_OPTION=$1
+      ;;
+    -s)
+      readonly SUBSET_OPTION="$1 $2"
+      shift
+      ;;
+    -e)
+      readonly MAX_ERRORS_OPTION="$1 $2"
+      shift
+      ;;
+    -v)
+      # Second "-v" = extra verbose?
+      if [[ "$VERBOSE" == "true" ]]; then
+        set -x
+        VERBOSE_OPTION="-v -v"
+      else
+        readonly VERBOSE=true
+        VERBOSE_OPTION="-v"
+      fi
+      ;;
+    -n)
+      PARALLEL_JOBSLOTS_OPTION="$1 $2"
+      shift
+      ;;
+    *)
+      break
+      ;;
   esac
   shift
 done
-
-if [[ "${SMOKELOAD_JOB}" == true ]]; then
-  echo "SMOKELOAD JOB INITIATED ..."
-  arg_array=("$@")
-  echo "${arg_array[*]}"
-  # Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
-  IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<<"${arg_array[*]}"))
-  unset IFS
-elif [[ "${UPDATE_JOB}" == true ]]; then
-  echo "UPDATE JOB INITIATED ... "
-  readonly DATA_DIR="$1"
-fi
 
 if [[ "${CLEAN_MODE_OPTION}" ]]; then
   echo "IN CLEAN MODE. TRUNCATING ALL DATA..."
@@ -131,19 +128,25 @@ if [[ "${CLEAN_MODE_OPTION}" ]]; then
   rm -rf "${FAILED_FILES_DIR}"
 fi
 
-### loop that unzips for smokeload
-if [[ "${SMOKELOAD_JOB}" == true ]]; then
-  for DATA_DIR in "${sorted_args[@]}"; do
+arg_array=("$@")
+echo "${arg_array[*]}"
+# Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
+IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<< "${arg_array[*]}"))
+unset IFS
+echo "${MODE} JOB INITIATED ..."
+
+for DATA_DIR in "${sorted_args[@]}"; do
+  if [[ "${MODE}" == "smokeload" ]]; then
     dir_start_time=$(date '+%s')
     ((i == 0)) && start_time=${dir_start_time}
     echo -e "\n## Directory #$((++i)) out of ${directories} ##"
     echo "Processing ${DATA_DIR} directory ..."
-    "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -k ${MAX_ERRORS_OPTION} ${PARALLEL_JOBSLOTS_OPTION} \
-        ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${DATA_DIR}"
+    "${ABSOLUTE_SCRIPT_DIR}/process_pub_zips.sh" ${MAX_ERRORS_OPTION} \
+        ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${DATA_DIR}"
     declare -i result_code=$?
-    if (( result_code > 0 )); then
+    if ((result_code > 0)); then
       # Faial error?
-      (( result_code == FATAL_FAILURE_CODE )) && exit $FATAL_FAILURE_CODE
+      ((result_code == FATAL_FAILURE_CODE)) && exit $FATAL_FAILURE_CODE
 
       failures_occurred="true"
     fi
@@ -164,92 +167,90 @@ if [[ "${SMOKELOAD_JOB}" == true ]]; then
     ((est_total = elapsed * directories / i)) || :
     ((eta = start_time + est_total))
     echo "ETA after ${DATA_DIR} data directory: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
-  done
-fi
+  else
+    readonly PROCESSED_LOG="${DATA_DIR}/processed.log"
+    [[ "${CLEAN_MODE_OPTION}" ]] && rm -rf "${PROCESSED_LOG}"
 
-if [[ "${UPDATE_JOB}" == true ]]; then
-  readonly PROCESSED_LOG="${DATA_DIR}/processed.log"
-  [[ "${CLEAN_MODE_OPTION}" ]] && rm -rf "${PROCESSED_LOG}"
+    echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
+    echo -e "Update packages to process:\n$(ls ${DATA_DIR}/*.zip)"
+    rm -f eta.log
+    declare -i files=$(ls "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip | wc -l) i=0
+    declare -i start_time file_start_time file_stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
+    declare -i directories=${#sorted_args[@]} i=0 start_time dir_start_time dir_stop_time delta delta_s delta_m della_h \
+    elapsed=0 est_total eta
 
-  echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
-  echo -e "Zip files to process:\n$(ls ${DATA_DIR}/*.zip)"
-  rm -f eta.log
-  declare -i files=$(ls "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip | wc -l) i=0
-  declare -i start_time file_start_time file_stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
-  declare -i directories=${#sorted_args[@]} i=0 start_time dir_start_time dir_stop_time delta delta_s delta_m della_h \
-  elapsed=0 est_total eta
+    for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
+      file_start_time=$(date '+%s')
+      ((i == 0)) && start_time=${file_start_time}
+      echo -e "\n## Update package #$((++i)) out of ${files} ##"
+      echo "Extracting ${ZIP_DATA} ..."
+      UPDATE_DIR="${ZIP_DATA%.zip}"
+      unzip -u -q "${ZIP_DATA}" -d "${UPDATE_DIR}"
 
-  for ZIP_DATA in "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip; do
-    file_start_time=$(date '+%s')
-    ((i == 0)) && start_time=${file_start_time}
-    echo -e "\n## Update package #$((++i)) out of ${files} ##"
-    echo "Extracting ${ZIP_DATA} ..."
-    UPDATE_DIR="${ZIP_DATA%.zip}"
-    unzip -u -q "${ZIP_DATA}" -d "${UPDATE_DIR}"
-
-    echo "Processing ${UPDATE_DIR} directory"
-    # shellcheck disable=SC2086
-    #   SUBSET_OPTION must be unquoted
-    set +e
-    "${ABSOLUTE_SCRIPT_DIR}/process_data_directory.sh" -u -p "${PROCESSED_LOG}" ${MAX_ERRORS_OPTION} \
-        ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${UPDATE_DIR}"
-    declare -i result_code=$?
-    set -e
-    if (( result_code == 0 )); then
-      echo "Removing directory ${UPDATE_DIR}"
-      rm -rf "${UPDATE_DIR}"
-    else
-      # Faial error?
-      (( result_code == FATAL_FAILURE_CODE )) && exit $FATAL_FAILURE_CODE
-
-      failures_occurred="true"
-    fi
-    file_stop_time=$(date '+%s')
-
-    ((delta = file_stop_time - file_start_time + 1)) || :
-    ((delta_s = delta % 60)) || :
-    ((delta_m = (delta / 60) % 60)) || :
-    ((della_h = delta / 3600)) || :
-
-    printf "\n$(TZ=America/New_York date) Done with ${ZIP_DATA} package in %dh:%02dm:%02ds\n" ${della_h} \ ${delta_m} ${delta_s} | tee -a eta.log
-    if [[ -f "${ZIP_DATA}/${STOP_FILE}" ]]; then
-      echo "Found the stop signal file. Gracefully stopping the update."
-      rm -f "${ZIP_DATA}/${STOP_FILE}"
-      break
-    fi
-
-    ((elapsed = elapsed + delta))
-    ((est_total = elapsed * files / i)) || :
-    ((eta = start_time + est_total))
-
-    echo "ETA for updates after ${ZIP_DATA} package: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
-  done
-  psql -f "${ABSOLUTE_SCRIPT_DIR}/scopus_update_log.sql"
-
-  # Do delete files exist?
-  if compgen -G "$DATA_DIR/*ANI-ITEM-delete.zip" >/dev/null; then
-    echo -e "\nMain update process completed. Processing delete files.\n"
-    declare -i num_deletes=$(ls "$DATA_DIR"/*ANI-ITEM-delete.zip | wc -l) i=0
-    for ZIP_DATA in $(
-      cd $DATA_DIR
-      ls *ANI-ITEM-delete.zip
-    ); do
-      if grep -q "^${ZIP_DATA}$" "${PROCESSED_LOG}"; then
-        echo "Skipping file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} ). It is already marked as completed."
+      echo "Processing ${UPDATE_DIR} directory"
+      # shellcheck disable=SC2086
+      #   SUBSET_OPTION must be unquoted
+      set +e
+      "${ABSOLUTE_SCRIPT_DIR}/process_pub_zips.sh" -l "${PROCESSED_LOG}" ${MAX_ERRORS_OPTION} \
+          ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${UPDATE_DIR}"
+      declare -i result_code=$?
+      set -e
+      if ((result_code == 0)); then
+        echo "Removing directory ${UPDATE_DIR}"
+        rm -rf "${UPDATE_DIR}"
       else
-        echo -e "\nProcessing delete file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} )..."
-        unzip ${DATA_DIR}/${ZIP_DATA}
-        psql -f "${ABSOLUTE_SCRIPT_DIR}/process_deletes.sql"
-        rm delete.txt
-        echo "${ZIP_DATA}" >>${PROCESSED_LOG}
-        echo "Delete file ${ZIP_DATA} processed."
+        # Faial error?
+        ((result_code == FATAL_FAILURE_CODE)) && exit $FATAL_FAILURE_CODE
+
+        failures_occurred="true"
       fi
+      file_stop_time=$(date '+%s')
+
+      ((delta = file_stop_time - file_start_time + 1)) || :
+      ((delta_s = delta % 60)) || :
+      ((delta_m = (delta / 60) % 60)) || :
+      ((della_h = delta / 3600)) || :
+
+      printf "\n$(TZ=America/New_York date) Done with ${ZIP_DATA} package in %dh:%02dm:%02ds\n" ${della_h} \ ${delta_m} ${delta_s} | tee -a eta.log
+      if [[ -f "${ZIP_DATA}/${STOP_FILE}" ]]; then
+        echo "Found the stop signal file. Gracefully stopping the update."
+        rm -f "${ZIP_DATA}/${STOP_FILE}"
+        break
+      fi
+
+      ((elapsed = elapsed + delta))
+      ((est_total = elapsed * files / i)) || :
+      ((eta = start_time + est_total))
+
+      echo "ETA for updates after ${ZIP_DATA} package: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
     done
+    psql -f "${ABSOLUTE_SCRIPT_DIR}/scopus_update_log.sql"
+
+    # Do delete files exist?
+    if compgen -G "$DATA_DIR/*ANI-ITEM-delete.zip" > /dev/null; then
+      echo -e "\nMain update process completed. Processing delete files.\n"
+      declare -i num_deletes=$(ls "$DATA_DIR"/*ANI-ITEM-delete.zip | wc -l) i=0
+      for ZIP_DATA in $(
+        cd $DATA_DIR
+        ls *ANI-ITEM-delete.zip
+      ); do
+        if grep -q "^${ZIP_DATA}$" "${PROCESSED_LOG}"; then
+          echo "Skipping file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} ). It is already marked as completed."
+        else
+          echo -e "\nProcessing delete file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} )..."
+          unzip ${DATA_DIR}/${ZIP_DATA}
+          psql -f "${ABSOLUTE_SCRIPT_DIR}/process_deletes.sql"
+          rm delete.txt
+          echo "${ZIP_DATA}" >> ${PROCESSED_LOG}
+          echo "Delete file ${ZIP_DATA} processed."
+        fi
+      done
+    fi
   fi
-fi
+done
 
 # language=PostgresPLSQL
-psql -v ON_ERROR_STOP=on --echo-all <<'HEREDOC'
+psql -v ON_ERROR_STOP=on --echo-all << 'HEREDOC'
 SELECT *
 FROM update_log_scopus
 ORDER BY id DESC
