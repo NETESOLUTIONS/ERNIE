@@ -3,7 +3,7 @@
 -- \set ECHO all
 
 \if :{?schema}
-SET search_path = :schema;
+  SET search_path = :schema;
 \endif
 
 -- JetBrains IDEs: start execution from here

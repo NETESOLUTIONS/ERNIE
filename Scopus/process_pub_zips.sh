@@ -222,7 +222,7 @@ for scopus_data_archive in *.zip; do
     echo "Parsing ..."
     #@formatter:off
     set +e
-    find -name '2*.pub_xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} --line-buffer\
+    find -name '*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} --line-buffer\
         --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_pub "{}" ${SUBSET_SP} | ${OUTPUT_PROCESSOR}
     parallel_exit_code=${PIPESTATUS[1]}
     set -e
