@@ -241,7 +241,7 @@ for scopus_data_archive in *.zip; do
     fi
     case $parallel_exit_code in
       0)
-        echo "ALL IS WELL"
+        echo "OK"
         ;;
       1)
         echo "1 publication FAILED PARSING"
