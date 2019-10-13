@@ -163,21 +163,21 @@ declare -i num_zips=$(ls *.zip | wc -l)
 declare -i total_failures=0 processed_pubs total_processed_pubs=0
 declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
 
-parse_xml() {
-  local xml="$1"
+parse_pub() {
+  local pub_xml="$1"
   [[ $2 ]] && local subset_option="-v subset_sp=$2"
 
-  [[ ${VERBOSE} == "true" ]] && echo "Processing $xml ..."
+  [[ ${VERBOSE} == "true" ]] && echo "Parsing $pub_xml"
   # Always produce minimum output below even when not verbose to get stats via the OUTPUT_PROCESSOR
   # Extra output is discarded in non-verbose mode by the OUTPUT_PROCESSOR
   # Using Staging
-  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/scopus_stg_parser.sql -v "xml_file=$PWD/$xml" ${subset_option} 2>> "${ERROR_LOG}"; then
-    echo "$xml: SUCCESSFULLY PARSED."
+  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parse_and_stage.sql -v "xml_file=$PWD/$pub_xml" ${subset_option} 2>> "${ERROR_LOG}"; then
+    echo "$pub_xml: SUCCESSFULLY PARSED."
     return 0
   else
-    echo -e "$xml parsing FAILED.\n" | tee -a "${ERROR_LOG}"
+    echo -e "$pub_xml parsing FAILED.\n" | tee -a "${ERROR_LOG}"
 
-    local full_xml_path=$(realpath ${xml})
+    local full_xml_path=$(realpath ${pub_xml})
     cd ${WORKING_DIR}
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     mv -f $full_xml_path "${failed_files_dir}/"
@@ -185,7 +185,7 @@ parse_xml() {
     return 1
   fi
 }
-export -f parse_xml
+export -f parse_pub
 
 # Create an empty file if it does not exist to simplify check condition below
 touch "${PROCESSED_LOG}"
@@ -214,7 +214,7 @@ for scopus_data_archive in *.zip; do
     rm -f "${ERROR_LOG}"
 
     echo "Truncating staged data"
-    if ! psql -q -f "${ABSOLUTE_SCRIPT_DIR}/truncate_stg_table.sql"; then
+    if ! psql -q -f "${ABSOLUTE_SCRIPT_DIR}/truncate_staged_data.sql"; then
       exit $FATAL_FAILURE_CODE
     fi
     echo "Truncated."
@@ -222,8 +222,8 @@ for scopus_data_archive in *.zip; do
     echo "Parsing ..."
     #@formatter:off
     set +e
-    find -name '2*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} --line-buffer\
-        --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_xml "{}" ${SUBSET_SP} | ${OUTPUT_PROCESSOR}
+    find -name '2*.pub_xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} --line-buffer\
+        --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_pub "{}" ${SUBSET_SP} | ${OUTPUT_PROCESSOR}
     parallel_exit_code=${PIPESTATUS[1]}
     set -e
     #@formatter:on
@@ -279,7 +279,7 @@ HEREDOC
     # sql script that inserts from staging table into scopus
     # Using STAGING
     echo "Merging staged data into Scopus tables"
-    if ! psql -q -f "${ABSOLUTE_SCRIPT_DIR}/stg_scopus_merge.sql"; then
+    if ! psql -q -f "${ABSOLUTE_SCRIPT_DIR}/merge_staged_data.sql"; then
       exit $FATAL_FAILURE_CODE
     fi
 

@@ -83,7 +83,7 @@ SELECT
 
 INSERT INTO scopus_conf_editors(ernie_source_id, conf_code, conf_name, indexed_name,
                                 surname, degree, address, organization)
-SELECT ernie_source_id, conf_code, conf_name, indexed_name, surname, degree, address, organization
+SELECT DISTINCT ernie_source_id, conf_code, conf_name, indexed_name, surname, degree, address, organization
   FROM stg_scopus_conf_editors
     ON CONFLICT (ernie_source_id, conf_code, conf_name, indexed_name) DO UPDATE SET --
       surname=excluded.surname,
