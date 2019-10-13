@@ -217,7 +217,9 @@ for scopus_data_archive in *.zip; do
     if ! psql -q -f "${ABSOLUTE_SCRIPT_DIR}/truncate_stg_table.sql"; then
       exit $FATAL_FAILURE_CODE
     fi
+    echo "Truncated."
 
+    echo "Parsing ..."
     #@formatter:off
     set +e
     find -name '2*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} --line-buffer\
