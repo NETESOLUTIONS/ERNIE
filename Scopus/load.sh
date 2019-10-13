@@ -133,7 +133,8 @@ echo "${arg_array[*]}"
 # Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
 IFS=$'\n' sorted_args=($(sort ${SORT_ORDER} <<< "${arg_array[*]}"))
 unset IFS
-echo "${MODE} JOB INITIATED ..."
+
+echo "${MODE} JOB"
 
 for DATA_DIR in "${sorted_args[@]}"; do
   if [[ "${MODE}" == "smokeload" ]]; then
@@ -191,7 +192,7 @@ for DATA_DIR in "${sorted_args[@]}"; do
       # shellcheck disable=SC2086
       #   SUBSET_OPTION must be unquoted
       set +e
-      "${ABSOLUTE_SCRIPT_DIR}/process_pub_zips.sh" -l "${PROCESSED_LOG}" ${MAX_ERRORS_OPTION} \
+      "${ABSOLUTE_SCRIPT_DIR}/process_pub_zips.sh" -l "${PROCESSED_LOG}" ${REPROCESS_OPTION} ${MAX_ERRORS_OPTION} \
           ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${UPDATE_DIR}"
       declare -i result_code=$?
       set -e
