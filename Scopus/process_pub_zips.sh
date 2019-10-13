@@ -228,9 +228,9 @@ for scopus_data_archive in *.zip; do
     set -e
     #@formatter:on
 
-    echo "Parsed."
-    processed_pubs=$(cat ${PARALLEL_LOG})
-    echo "Total publications: ${processed_pubs}"
+    declare -i processed_pubs=$(cat ${PARALLEL_LOG})
+    echo "Parsed ${processed_pubs} publications"
+    (( processed_pubs == 0)) && exit $FATAL_FAILURE_CODE
     ((total_processed_pubs += processed_pubs)) || :
     ((total_failures += parallel_exit_code)) || :
     if (( parallel_exit_code > 0 )); then
@@ -254,7 +254,8 @@ for scopus_data_archive in *.zip; do
         ;;
       *)
         echo "TOTAL FAILURE"
-        terminate_on_errors $FATAL_FAILURE_CODE
+        # Terminate
+        ((total_failures = MAX_ERRORS+1))
         ;;
     esac
 
