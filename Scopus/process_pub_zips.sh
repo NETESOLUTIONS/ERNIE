@@ -230,7 +230,7 @@ for scopus_data_archive in *.zip; do
     set -e
     #@formatter:on
 
-    declare -i processed_pubs=$(cat ${TMP_OUT})
+    processed_pubs=$(cat ${TMP_OUT})
     echo "Parsed ${processed_pubs} publications"
     if (( processed_pubs == 0)); then
       echo "Unexpected PROBLEM"
