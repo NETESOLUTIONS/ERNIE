@@ -123,7 +123,7 @@ BEGIN
                           sort_day SMALLINT PATH 'ait:process-info/ait:date-sort/@day')
        ) AS subquery
   WHERE stg_scopus_publications.scp = subquery.scp;
-  --indexed terms
+
 
   -- scopus_conference_events
   INSERT INTO stg_scopus_conference_events(conf_code, conf_name, conf_address, conf_city, conf_postal_code,
@@ -154,6 +154,7 @@ BEGIN
               conf_number TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confnumber',
               conf_catalog_number TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcatnumber'
            );
+  COMMIT;
 
   UPDATE stg_scopus_conference_events sce
   SET conf_sponsor=sq.conf_sponsor
