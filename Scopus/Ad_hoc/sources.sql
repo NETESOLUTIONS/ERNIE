@@ -12,6 +12,18 @@ SELECT max(ernie_source_id)
   FROM scopus_sources;
 -- 81552478
 
+SELECT *
+  FROM stg_scopus_sources
+WHERE ernie_source_id = :ernie_source_id;
+
+SELECT *
+  FROM scopus_sources
+ WHERE ernie_source_id = :ernie_source_id;
+
+SELECT *
+  FROM scopus_sources
+ WHERE (source_id = '' OR source_id IS NULL) AND issn_main = '01906011' AND (isbn_main = '' OR isbn_main IS NULL);
+
 /*
 CREATE SEQUENCE scopus_sources_ernie_source_id_seq AS INTEGER START 81552479
 OWNED BY scopus_sources.ernie_source_id;

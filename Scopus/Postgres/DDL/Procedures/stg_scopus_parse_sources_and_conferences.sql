@@ -5,19 +5,22 @@ SET TIMEZONE = 'US/Eastern';
 
 CREATE OR REPLACE PROCEDURE stg_scopus_parse_source_and_conferences(scopus_doc_xml XML)
   LANGUAGE plpgsql AS $$
-DECLARE db_id INT;
+DECLARE ernieSourceId INT;
 BEGIN
   SELECT ss.ernie_source_id
     FROM
       xmltable(--
           XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
           '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
-            source_id TEXT PATH '@srcid', issn TEXT PATH 'issn[1]', isbn TEXT PATH 'isbn[1]')
-        JOIN scopus_sources ss ON xmltable.source_id = ss.source_id AND coalesce(xmltable.issn, '') = ss.issn_main
-          AND coalesce(xmltable.isbn, '') = ss.isbn_main
-    INTO db_id;
+            source_id TEXT PATH '@srcid', --
+            issn TEXT PATH 'issn[1]', --
+            isbn TEXT PATH 'isbn[1]') x
+        JOIN scopus_sources ss ON coalesce(x.source_id, '') = ss.source_id --
+          AND coalesce(x.issn, '') = ss.issn_main --
+          AND coalesce(x.isbn, '') = ss.isbn_main
+    INTO ernieSourceId;
 
-  IF db_id IS NULL THEN
+  IF ernieSourceId IS NULL THEN -- Generate a new source
        INSERT INTO stg_scopus_sources(ernie_source_id, source_id, issn_main, isbn_main, source_type, source_title,
                                       coden_code, publisher_name, publisher_e_address, pub_date)
        SELECT
@@ -58,12 +61,12 @@ BEGIN
               publisher_name      = EXCLUDED.publisher_name,
               publisher_e_address = EXCLUDED.publisher_e_address,
               pub_date=EXCLUDED.pub_date
-              RETURNING ernie_source_id INTO db_id;
+        RETURNING ernie_source_id INTO ernieSourceId;
 
       UPDATE stg_scopus_sources ss
       SET website=sq.website
       FROM (
-               SELECT db_id                    AS ernie_source_id,
+               SELECT ernieSourceId                    AS ernie_source_id,
                       string_agg(website, ',') AS website
                FROM xmltable(--
                             XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
@@ -77,7 +80,7 @@ BEGIN
 
   -- scopus_isbns
   INSERT INTO stg_scopus_isbns(ernie_source_id, isbn, isbn_length, isbn_type, isbn_level)
-  SELECT DISTINCT db_id                   AS ernie_source_id,
+  SELECT DISTINCT ernieSourceId                   AS ernie_source_id,
                   isbn,
                   isbn_length,
                   coalesce(isbn_type, '') AS isbn_type,
@@ -91,7 +94,7 @@ BEGIN
            );
   -- scopus_issns
   INSERT INTO stg_scopus_issns(ernie_source_id, issn, issn_type)
-  SELECT db_id                   AS ernie_source_id,
+  SELECT ernieSourceId                   AS ernie_source_id,
          issn,
          coalesce(issn_type, '') AS issn_type
   FROM xmltable(--
@@ -106,7 +109,7 @@ BEGIN
       state=subquery.state,
       date_sort=subquery.date_sort,
       ernie_source_id=subquery.ernie_source_id
-  FROM (SELECT db_id                                      AS ernie_source_id,
+  FROM (SELECT ernieSourceId                                      AS ernie_source_id,
                scp,
                pub_type,
                process_stage,
@@ -177,7 +180,7 @@ BEGIN
   -- scopus_conf_proceedings
   INSERT INTO stg_scopus_conf_proceedings(ernie_source_id, conf_code, conf_name, proc_part_no, proc_page_range,
                                           proc_page_count)
-  SELECT db_id                   AS ernie_source_id,
+  SELECT ernieSourceId                   AS ernie_source_id,
          coalesce(conf_code, '') AS conf_code,
          coalesce(conf_name, '') AS conf_name,
          proc_part_no,
@@ -204,7 +207,7 @@ BEGIN
   -- scopus_conf_editors
   INSERT INTO stg_scopus_conf_editors(ernie_source_id, conf_code, conf_name, indexed_name,
                                       surname, degree)
-  SELECT db_id                      AS ernie_source_id,
+  SELECT ernieSourceId                      AS ernie_source_id,
          coalesce(conf_code, '')    AS conf_code,
          coalesce(conf_name, '')    AS conf_name,
          coalesce(indexed_name, '') AS indexed_name,
@@ -225,7 +228,7 @@ BEGIN
   UPDATE stg_scopus_conf_editors sed
   SET address=sq.address
   FROM (
-           SELECT db_id                    AS ernie_source_id,
+           SELECT ernieSourceId                    AS ernie_source_id,
                   coalesce(conf_code, '')  AS conf_code,
                   coalesce(conf_name, '')  AS conf_name,
                   string_agg(address, ',') AS address
@@ -236,7 +239,7 @@ BEGIN
                             conf_name TEXT PATH '../../preceding-sibling::confevent/confname',
                             address TEXT PATH 'normalize-space()'
                     )
-           GROUP BY db_id, conf_code, conf_name
+           GROUP BY ernieSourceId, conf_code, conf_name
        ) AS sq
   WHERE sed.ernie_source_id = sq.ernie_source_id
     AND sed.conf_code = sq.conf_code
@@ -245,7 +248,7 @@ BEGIN
   UPDATE stg_scopus_conf_editors sed
   SET organization=sq.organization
   FROM (
-           SELECT db_id                         AS ernie_source_id,
+           SELECT ernieSourceId                         AS ernie_source_id,
                   coalesce(conf_code, '')       AS conf_code,
                   coalesce(conf_name, '')       AS conf_name,
                   string_agg(organization, ',') AS organization
@@ -256,7 +259,7 @@ BEGIN
                             conf_name TEXT PATH '../../preceding-sibling::confevent/confname',
                             organization TEXT PATH 'normalize-space()'
                     )
-           GROUP BY db_id, conf_code, conf_name
+           GROUP BY ernieSourceId, conf_code, conf_name
        ) AS sq
   WHERE sed.ernie_source_id = sq.ernie_source_id
     AND sed.conf_code = sq.conf_code

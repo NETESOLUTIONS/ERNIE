@@ -216,7 +216,9 @@ for scopus_data_archive in *.zip; do
 
     echo "Truncating staged data"
     if ! psql -f "${ABSOLUTE_SCRIPT_DIR}/truncate_staged_data.sql" >"${TMP_OUT}"; then
+      echo "=== psql output ==="
       cat "${TMP_OUT}"
+      echo "==================="
       rm -f "${TMP_OUT}"
       exit $FATAL_FAILURE_CODE
     fi
@@ -287,7 +289,9 @@ HEREDOC
     # Using STAGING
     echo "Merging staged data into Scopus tables"
     if ! psql -f "${ABSOLUTE_SCRIPT_DIR}/merge_staged_data.sql" >"${TMP_OUT}"; then
+      echo "=== psql output ==="
       cat "${TMP_OUT}"
+      echo "==================="
       rm -f "${TMP_OUT}"
       exit $FATAL_FAILURE_CODE
     fi
