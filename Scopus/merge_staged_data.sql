@@ -22,13 +22,11 @@ SELECT ernie_source_id, isbn, max(isbn_length), isbn_type, max(isbn_level)
     ON CONFLICT (ernie_source_id, isbn, isbn_type) DO UPDATE SET --
       isbn_length = excluded.isbn_length, --
       isbn_level = excluded.isbn_level;
---
+
 INSERT INTO scopus_issns(ernie_source_id, issn, issn_type)
-SELECT DISTINCT ernie_source_id, issn, issn_type
+SELECT ernie_source_id, issn, issn_type
   FROM stg_scopus_issns
-    ON CONFLICT (ernie_source_id, issn, issn_type) DO UPDATE SET --
-      issn = excluded.issn, --
-      issn_type = excluded.issn_type;
+    ON CONFLICT (ernie_source_id, issn, issn_type) DO NOTHING;
 
 INSERT INTO scopus_conference_events(conf_code, conf_name, conf_address, conf_city, conf_postal_code,
                                      conf_start_date,
@@ -133,22 +131,18 @@ INSERT INTO scopus_subjects
   (scp, subj_abbr)
 SELECT scp, subj_abbr
   FROM stg_scopus_subjects
-    ON CONFLICT (scp, subj_abbr) DO UPDATE SET --
-      subj_abbr = excluded.subj_abbr;
+    ON CONFLICT (scp, subj_abbr) DO NOTHING;
 
 INSERT INTO scopus_subject_keywords
   (scp, subject)
 SELECT scp, subject
   FROM stg_scopus_subject_keywords
-    ON CONFLICT (scp, subject) DO UPDATE SET --
-      subject = excluded.subject;
+    ON CONFLICT (scp, subject) DO NOTHING;
 
 INSERT INTO scopus_classes(scp, class_type, class_code)
 SELECT scp, class_type, class_code
   FROM stg_scopus_classes
-    ON CONFLICT (scp, class_type, class_code) DO UPDATE SET --
-      class_type = excluded.class_type,
-      class_code = excluded.class_code;
+    ON CONFLICT (scp, class_type, class_code) DO NOTHING;
 
 INSERT INTO scopus_classification_lookup(class_type, class_code, description)
 SELECT DISTINCT class_type, class_code, description
@@ -194,9 +188,7 @@ SELECT scp, affiliation_no, afid, dptid, organization, city_group, state, postal
 INSERT INTO scopus_author_affiliations(scp, author_seq, affiliation_no)
 SELECT scp, stg_scopus_author_affiliations.author_seq, stg_scopus_author_affiliations.affiliation_no
   FROM stg_scopus_author_affiliations
-    ON CONFLICT (scp, author_seq, affiliation_no) DO UPDATE SET --
-      author_seq = excluded.author_seq,
-      affiliation_no = excluded.affiliation_no;
+    ON CONFLICT (scp, author_seq, affiliation_no) DO NOTHING;
 -- endregion
 
 -- region chemical groups
@@ -228,17 +220,14 @@ SELECT scp, language, title AS title
 INSERT INTO scopus_keywords(scp, keyword)
 SELECT scp, keyword
   FROM stg_scopus_keywords
-    ON CONFLICT (scp, keyword) DO UPDATE SET --
-      keyword = excluded.keyword;
+    ON CONFLICT (scp, keyword) DO NOTHING;
 -- endregion
 
 -- region publication identifiers
 INSERT INTO scopus_publication_identifiers(scp, document_id, document_id_type)
-SELECT DISTINCT scp, document_id, document_id_type
+SELECT scp, document_id, document_id_type
   FROM stg_scopus_publication_identifiers
-    ON CONFLICT (scp, document_id, document_id_type) DO UPDATE SET --
-      document_id = excluded.document_id,
-      document_id_type = excluded.document_id_type;
+    ON CONFLICT (scp, document_id, document_id_type) DO NOTHING;
 -- endregion
 
 -- region grants

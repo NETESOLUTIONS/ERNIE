@@ -21,6 +21,10 @@ SELECT *
  WHERE (source_id = '' OR source_id IS NULL) AND issn_main = :'issn' AND (isbn_main = '' OR isbn_main IS NULL);
 
 SELECT *
+  FROM stg_scopus_issns
+ WHERE ernie_source_id = :ernie_source_id;;
+
+SELECT *
   FROM scopus_sources
  WHERE ernie_source_id = :ernie_source_id;
 
