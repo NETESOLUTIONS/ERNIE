@@ -14,7 +14,11 @@ SELECT max(ernie_source_id)
 
 SELECT *
   FROM stg_scopus_sources
-WHERE ernie_source_id = :ernie_source_id;
+ WHERE ernie_source_id = :ernie_source_id;
+
+SELECT *
+  FROM stg_scopus_sources
+ WHERE (source_id = '' OR source_id IS NULL) AND issn_main = :'issn' AND (isbn_main = '' OR isbn_main IS NULL);
 
 SELECT *
   FROM scopus_sources
@@ -22,7 +26,17 @@ SELECT *
 
 SELECT *
   FROM scopus_sources
- WHERE (source_id = '' OR source_id IS NULL) AND issn_main = '01906011' AND (isbn_main = '' OR isbn_main IS NULL);
+ WHERE (source_id = '' OR source_id IS NULL) AND issn_main = :'issn' AND (isbn_main = '' OR isbn_main IS NULL);
+
+SELECT ss.ernie_source_id
+  FROM
+    (
+      VALUES
+        (NULL, '01906011', NULL)
+    ) AS x(source_id, issn, isbn)
+      JOIN scopus_sources ss ON coalesce(x.source_id, '') = ss.source_id --
+        AND coalesce(x.issn, '') = ss.issn_main --
+        AND coalesce(x.isbn, '') = ss.isbn_main;
 
 /*
 CREATE SEQUENCE scopus_sources_ernie_source_id_seq AS INTEGER START 81552479

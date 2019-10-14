@@ -4,7 +4,7 @@
 SET TIMEZONE = 'US/Eastern';
 
 CREATE OR REPLACE PROCEDURE stg_scopus_parse_source_and_conferences(scopus_doc_xml XML)
-  LANGUAGE plpgsql AS $$
+  LANGUAGE plpgsql AS $block$
 DECLARE ernieSourceId INT;
 BEGIN
   SELECT ss.ernie_source_id
@@ -21,61 +21,57 @@ BEGIN
     INTO ernieSourceId;
 
   IF ernieSourceId IS NULL THEN -- Generate a new source
-       INSERT INTO stg_scopus_sources(ernie_source_id, source_id, issn_main, isbn_main, source_type, source_title,
-                                      coden_code, publisher_name, publisher_e_address, pub_date)
-       SELECT
-         nextval('scopus_sources_ernie_source_id_seq') AS ernie_source_id, coalesce(source_id, '') AS source_id,
-         coalesce(issn, '') AS issn_main, coalesce(isbn, '') AS isbn_main, string_agg(source_type, ' ') AS source_type,
-         string_agg(source_title, ' ') AS source_title, string_agg(coden_code, ' ') AS coden_code,
-         string_agg(publisher_name, ' ') AS publisher_name, string_agg(publisher_e_address, ' ') AS publisher_e_address,
-         max(try_parse(pub_year, pub_month, pub_day)) AS pub_date
-         FROM
-           xmltable(--
-               XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
-               '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
-           --@formatter:off
-                 source_id TEXT PATH '@srcid',
-                 issn TEXT PATH 'issn[1]',
-                 isbn TEXT PATH 'isbn[1]',
-                 source_type TEXT PATH '@type',
-                 source_title TEXT PATH 'sourcetitle',
-                 coden_code TEXT PATH 'codencode',
-                 publisher_name TEXT PATH 'publisher/publishername',
-                 publisher_e_address TEXT PATH 'publisher/ce:e-address',
-                 pub_year SMALLINT PATH 'publicationdate/year', --
-                 pub_month SMALLINT PATH 'publicationdate/month', --
-                 pub_day SMALLINT PATH 'publicationdate/day' --
-         )
-        WHERE source_id != ''
-         OR issn != ''
-         OR XMLEXISTS('//bibrecord/head/source/isbn' PASSING scopus_doc_xml)
-        GROUP BY source_id, issn_main, isbn_main
-        ON CONFLICT (source_id, issn_main, isbn_main)
-          DO UPDATE
-          SET source_id           = EXCLUDED.source_id,
-              issn_main           = EXCLUDED.issn_main,
-              isbn_main           = EXCLUDED.isbn_main,
-              source_type         = EXCLUDED.source_type,
-              source_title        = EXCLUDED.source_title,
-              coden_code          = EXCLUDED.coden_code,
-              publisher_name      = EXCLUDED.publisher_name,
-              publisher_e_address = EXCLUDED.publisher_e_address,
-              pub_date=EXCLUDED.pub_date
-        RETURNING ernie_source_id INTO ernieSourceId;
+     INSERT INTO stg_scopus_sources(ernie_source_id, source_id, issn_main, isbn_main, source_type, source_title,
+                                    coden_code, publisher_name, publisher_e_address, pub_date)
+     SELECT
+       nextval('scopus_sources_ernie_source_id_seq') AS ernie_source_id, coalesce(source_id, '') AS source_id,
+       coalesce(issn, '') AS issn_main, coalesce(isbn, '') AS isbn_main, string_agg(source_type, ' ') AS source_type,
+       string_agg(source_title, ' ') AS source_title, string_agg(coden_code, ' ') AS coden_code,
+       string_agg(publisher_name, ' ') AS publisher_name, string_agg(publisher_e_address, ' ') AS publisher_e_address,
+       max(try_parse(pub_year, pub_month, pub_day)) AS pub_date
+       FROM
+         xmltable(--
+             XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
+             '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
+               source_id TEXT PATH '@srcid',
+               issn TEXT PATH 'issn[1]',
+               isbn TEXT PATH 'isbn[1]',
+               source_type TEXT PATH '@type',
+               source_title TEXT PATH 'sourcetitle',
+               coden_code TEXT PATH 'codencode',
+               publisher_name TEXT PATH 'publisher/publishername',
+               publisher_e_address TEXT PATH 'publisher/ce:e-address',
+               pub_year SMALLINT PATH 'publicationdate/year', --
+               pub_month SMALLINT PATH 'publicationdate/month', --
+               pub_day SMALLINT PATH 'publicationdate/day' --
+       )
+      WHERE source_id != ''
+       OR issn != ''
+       OR XMLEXISTS('//bibrecord/head/source/isbn' PASSING scopus_doc_xml)
+      GROUP BY source_id, issn_main, isbn_main
+      ON CONFLICT (source_id, issn_main, isbn_main)
+        DO UPDATE
+        SET source_type = EXCLUDED.source_type,
+            source_title = EXCLUDED.source_title,
+            coden_code = EXCLUDED.coden_code,
+            publisher_name = EXCLUDED.publisher_name,
+            publisher_e_address = EXCLUDED.publisher_e_address,
+            pub_date = EXCLUDED.pub_date
+      RETURNING ernie_source_id INTO ernieSourceId;
 
-      UPDATE stg_scopus_sources ss
-      SET website=sq.website
-      FROM (
-               SELECT ernieSourceId                    AS ernie_source_id,
-                      string_agg(website, ',') AS website
-               FROM xmltable(--
-                            XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
-                            '//bibrecord/head/source/website/ce:e-address' PASSING scopus_doc_xml COLUMNS --
-                                website TEXT PATH 'normalize-space()'
-                        )
-               GROUP BY ernie_source_id
-           ) AS sq
-      WHERE ss.ernie_source_id = sq.ernie_source_id;
+    UPDATE stg_scopus_sources ss
+    SET website=sq.website
+    FROM (
+             SELECT ernieSourceId                    AS ernie_source_id,
+                    string_agg(website, ',') AS website
+             FROM xmltable(--
+                          XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
+                          '//bibrecord/head/source/website/ce:e-address' PASSING scopus_doc_xml COLUMNS --
+                              website TEXT PATH 'normalize-space()'
+                      )
+             GROUP BY ernie_source_id
+         ) AS sq
+    WHERE ss.ernie_source_id = sq.ernie_source_id;
   END IF;
 
   -- scopus_isbns
@@ -264,4 +260,4 @@ BEGIN
   WHERE sed.ernie_source_id = sq.ernie_source_id
     AND sed.conf_code = sq.conf_code
     AND sed.conf_name = sq.conf_name;
-END; $$
+END; $block$

@@ -173,7 +173,7 @@ for DATA_DIR in "${sorted_args[@]}"; do
     [[ "${CLEAN_MODE_OPTION}" ]] && rm -rf "${PROCESSED_LOG}"
 
     echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
-    echo -e "Update packages to process:\n$(ls ${DATA_DIR}/*.zip)"
+    echo -e "Update and delete packages to process:\n$(ls ${DATA_DIR}/*.zip)"
     rm -f eta.log
     declare -i files=$(ls "${DATA_DIR}"/*ANI-ITEM-full-format-xml.zip | wc -l) i=0
     declare -i start_time file_start_time file_stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
@@ -229,7 +229,7 @@ for DATA_DIR in "${sorted_args[@]}"; do
 
     # Do delete files exist?
     if compgen -G "$DATA_DIR/*ANI-ITEM-delete.zip" > /dev/null; then
-      echo -e "\nMain update process completed. Processing delete files.\n"
+      echo -e "\nMain update process completed. Processing delete packages.\n"
       declare -i num_deletes=$(ls "$DATA_DIR"/*ANI-ITEM-delete.zip | wc -l) i=0
       for ZIP_DATA in $(
         cd $DATA_DIR
