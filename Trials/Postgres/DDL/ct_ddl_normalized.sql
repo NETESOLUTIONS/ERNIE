@@ -458,6 +458,9 @@ CREATE TABLE ct_references (
   CONSTRAINT ct_references_pk PRIMARY KEY (nct_id, pmid) USING INDEX TABLESPACE index_tbs -- PMID corresponds to the citation
 ) TABLESPACE ct_tbs;
 
+CREATE UNIQUE INDEX ct_references_uk
+    on ct_references (nct_id, md5(citation));
+
 COMMENT ON TABLE ct_references IS $$Table of reference detail of clinical trails$$;
 COMMENT ON COLUMN ct_references.id IS $$Internal(PARDI) number.Example: 1$$;
 COMMENT ON COLUMN ct_references.nct_id IS $$Example: NCT00000418$$;

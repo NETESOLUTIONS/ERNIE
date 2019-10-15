@@ -43,8 +43,6 @@ $block$;
 
 SELECT *
 FROM no_plan();
-SELECT has_table('ct_secondary_ids');
-SELECT has_table('ct_study_design_info');
 
 -- region all ct_ tables exist
 SELECT has_table('ct_clinical_studies');
@@ -67,6 +65,8 @@ SELECT has_table('ct_overall_contacts');
 SELECT has_table('ct_overall_officials');
 SELECT has_table('ct_publications');
 SELECT has_table('ct_references');
+SELECT has_table('ct_secondary_ids');
+SELECT has_table('ct_study_design_info');
 BEGIN;
 -- endregion
 
