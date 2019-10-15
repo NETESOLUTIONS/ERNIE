@@ -454,7 +454,7 @@ CREATE TABLE ct_references (
   id       INTEGER, -- may not be necessary
   nct_id   REFERENCES ct_clinical_studies(nct_id) ON DELETE CASCADE,
   citation TEXT NOT NULL,
-  pmid     INTEGER,
+  pmid     TEXT NOT NULL DEFAULT ' ',
   CONSTRAINT ct_references_pk PRIMARY KEY (nct_id, pmid) USING INDEX TABLESPACE index_tbs -- PMID corresponds to the citation
 ) TABLESPACE ct_tbs;
 
@@ -469,8 +469,8 @@ CREATE TABLE ct_publications (
   id       INTEGER, -- may not be necessary
   nct_id   REFERENCES ct_clinical_studies(nct_id) ON DELETE CASCADE,
   citation TEXT NOT NULL,
-  pmid     INTEGER,
-  CONSTRAINT ct_publications_pk PRIMARY KEY (nct_id, pmid) USING INDEX TABLESPACE index_tbs -- PMID corresponds to the citation
+  pmid     TEXT ,
+  CONSTRAINT ct_publications_pk PRIMARY KEY (nct_id, citation) USING INDEX TABLESPACE index_tbs -- PMID corresponds to the citation
 ) TABLESPACE ct_tbs;
 
 COMMENT ON TABLE ct_publications IS $$Table of publication info of clinical trails$$; -- WHAT DOES THIS MEAN COMPARED TO REFERENCES?

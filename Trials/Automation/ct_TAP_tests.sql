@@ -41,6 +41,10 @@ $block$
     END
 $block$;
 
+SELECT *
+FROM no_plan();
+SELECT has_table('ct_secondary_ids');
+SELECT has_table('ct_study_design_info');
 
 -- region all ct_ tables exist
 SELECT has_table('ct_clinical_studies');
@@ -64,21 +68,18 @@ SELECT has_table('ct_overall_officials');
 SELECT has_table('ct_publications');
 SELECT has_table('ct_references');
 BEGIN;
-SELECT *
-FROM no_plan();
-SELECT has_table('ct_secondary_ids');
-SELECT has_table('ct_study_design_info');-- endregion
+-- endregion
 
--- region all scopus tables have a PK
+--region all scopus tables have at least a unique index
 SELECT is_empty($$
- SELECT current_schema || '.' || table_name
-  FROM information_schema.tables t
- WHERE table_schema = current_schema AND table_name LIKE 'ct_%'
-   AND NOT EXISTS(SELECT 1
-                    FROM information_schema.table_constraints tc
-                   WHERE tc.table_schema = current_schema
-                     AND tc.table_name = t.table_name
-                     AND tc.constraint_type = 'PRIMARY KEY')$$, 'All CT tables should have a PK');
+ SELECT current_schema || '.' || tablename
+  FROM pg_catalog.pg_tables tbls
+ WHERE schemaname= current_schema AND tablename LIKE 'ct_%'
+   AND NOT EXISTS(SELECT *
+                    FROM pg_indexes idx
+                   WHERE idx.schemaname = current_schema
+                     AND idx.tablename = tbls.tablename
+                     and idx.indexdef like 'CREATE UNIQUE INDEX%')$$, 'All CT tables should have a PK');
 -- endregion
 
 -- region Are any tables completely null for every field
@@ -90,7 +91,7 @@ SELECT is_empty($$
 -- endregion
 
 
--- region Are all tables populated?
+-- region are all tables populated
 WITH cte AS (
     SELECT parent_pc.relname, sum(coalesce(partition_pc.reltuples, parent_pc.reltuples)) AS total_rows
     FROM pg_class parent_pc

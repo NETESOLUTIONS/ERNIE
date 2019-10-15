@@ -482,9 +482,9 @@ DROP TABLE IF EXISTS ct_references;
 CREATE TABLE ct_references (
   id       INTEGER,
   nct_id   TEXT NOT NULL,
-  citation TEXT NOT NULL,
-  pmid     INTEGER,
-  CONSTRAINT ct_references_pk PRIMARY KEY (id, nct_id) USING INDEX TABLESPACE index_tbs
+  citation TEXT NOT NULL DEFAULT '',
+  pmid
+  CONSTRAINT ct_references_pk PRIMARY KEY (nct_id) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE ct_tbs;
 
 DROP INDEX IF EXISTS ct_references_uk;
