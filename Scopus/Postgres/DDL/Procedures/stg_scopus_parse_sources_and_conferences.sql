@@ -139,9 +139,9 @@ BEGIN
           string_agg(conf_sponsor, ',') AS conf_sponsor
           FROM
             xmltable(--
-                '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confevent' --
+                '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confevent/confsponsors/confsponsor' --
                 PASSING scopus_doc_xml COLUMNS --
-                  conf_code TEXT PATH 'confcode', conf_name TEXT PATH 'confname', conf_sponsor TEXT PATH 'normalize-space(confsponsors/confsponsor)')
+                  conf_code TEXT PATH '../../confcode', conf_name TEXT PATH 'normalize-space(../../confname)', conf_sponsor TEXT PATH 'normalize-space(.)')
          GROUP BY conf_code, conf_name
       ) AS sq
    WHERE sce.conf_code = sq.conf_code AND sce.conf_name = sq.conf_name;
