@@ -61,6 +61,7 @@ BEGIN
          publisher_e_address = excluded.publisher_e_address,
          pub_date = excluded.pub_date
     RETURNING ernie_source_id INTO pub_ernie_source_id;
+    COMMIT;
 --@formatter:on
 
     UPDATE stg_scopus_sources ss
@@ -76,6 +77,7 @@ BEGIN
            GROUP BY pub_ernie_source_id
         ) AS sq
      WHERE ss.ernie_source_id = sq.ernie_source_id;
+    COMMIT;
   END IF;
 
   -- scopus_isbns
@@ -86,6 +88,7 @@ BEGIN
       xmltable(--
           '//bibrecord/head/source/isbn' PASSING scopus_doc_xml COLUMNS --
         isbn TEXT PATH '.', isbn_length SMALLINT PATH '@length', isbn_type TEXT PATH '@type', isbn_level TEXT PATH '@level');
+  COMMIT;
   -- scopus_issns
   INSERT INTO stg_scopus_issns(ernie_source_id, issn, issn_type)
   SELECT pub_ernie_source_id AS ernie_source_id, issn, coalesce(issn_type, '') AS issn_type
@@ -93,6 +96,7 @@ BEGIN
       xmltable(--
           '//bibrecord/head/source/issn' PASSING scopus_doc_xml COLUMNS --
         issn TEXT PATH '.', issn_type TEXT PATH '@type');
+  COMMIT;
 
   UPDATE stg_scopus_publications
      SET pub_type=subquery.pub_type,
@@ -110,6 +114,7 @@ BEGIN
                      COLUMNS scp BIGINT PATH '//bibrecord/item-info/itemidlist/itemid[@idtype="SCP"]', pub_type TEXT PATH 'ait:process-info/ait:status/@type', process_stage TEXT PATH 'ait:process-info/ait:status/@stage', state TEXT PATH 'ait:process-info/ait:status/@state', sort_year SMALLINT PATH 'ait:process-info/ait:date-sort/@year', sort_month SMALLINT PATH 'ait:process-info/ait:date-sort/@month', sort_day SMALLINT PATH 'ait:process-info/ait:date-sort/@day')
       ) AS subquery
    WHERE stg_scopus_publications.scp = subquery.scp;
+  COMMIT;
 
   -- scopus_conference_events
   INSERT INTO stg_scopus_conference_events(conf_code, conf_name, conf_address, conf_city, conf_postal_code,
@@ -140,6 +145,7 @@ BEGIN
          GROUP BY conf_code, conf_name
       ) AS sq
    WHERE sce.conf_code = sq.conf_code AND sce.conf_name = sq.conf_name;
+  COMMIT;
 
   -- scopus_conf_proceedings
   INSERT INTO stg_scopus_conf_proceedings(ernie_source_id, conf_code, conf_name, proc_part_no, proc_page_range,
@@ -161,6 +167,7 @@ BEGIN
           '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication' PASSING scopus_doc_xml COLUMNS --
         conf_code TEXT PATH 'preceding-sibling::confevent/confcode', conf_name TEXT PATH 'normalize-space(preceding-sibling::confevent/confname)', proc_part_no TEXT PATH 'procpartno', proc_page_range TEXT PATH 'procpagerange', proc_page_count TEXT PATH 'procpagecount')
    WHERE proc_part_no IS NOT NULL OR proc_page_range IS NOT NULL OR proc_page_count IS NOT NULL;
+  COMMIT;
 
   -- scopus_conf_editors
   INSERT INTO stg_scopus_conf_editors(ernie_source_id, conf_code, conf_name, indexed_name,
@@ -174,6 +181,7 @@ BEGIN
           '//bibrecord/head/source/additional-srcinfo/conferenceinfo/confpublication/confeditors/editors/editor' --
           PASSING scopus_doc_xml COLUMNS --
             conf_code TEXT PATH '../../../preceding-sibling::confevent/confcode', conf_name TEXT PATH 'normalize-space(../../../preceding-sibling::confevent/confname)', indexed_name TEXT PATH 'ce:indexed-name', surname TEXT PATH 'ce:surname', given_name TEXT PATH 'ce:given-name', degree TEXT PATH 'ce:degrees');
+  COMMIT;
 
   UPDATE stg_scopus_conf_editors sed
      SET address=sq.address
@@ -190,6 +198,7 @@ BEGIN
          GROUP BY pub_ernie_source_id, conf_code, conf_name
       ) AS sq
    WHERE sed.ernie_source_id = sq.ernie_source_id AND sed.conf_code = sq.conf_code AND sed.conf_name = sq.conf_name;
+  COMMIT;
 
   UPDATE stg_scopus_conf_editors sed
      SET organization=sq.organization
@@ -206,4 +215,5 @@ BEGIN
          GROUP BY pub_ernie_source_id, conf_code, conf_name
       ) AS sq
    WHERE sed.ernie_source_id = sq.ernie_source_id AND sed.conf_code = sq.conf_code AND sed.conf_name = sq.conf_name;
+  COMMIT;
 END; $block$
