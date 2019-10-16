@@ -454,7 +454,7 @@ CREATE TABLE ct_references (
   id       INTEGER, -- may not be necessary
   nct_id   REFERENCES ct_clinical_studies(nct_id) ON DELETE CASCADE,
   citation TEXT NOT NULL,
-  pmid     TEXT NOT NULL DEFAULT ' ',
+  pmid     INTEGER,
   CONSTRAINT ct_references_pk PRIMARY KEY (nct_id, pmid) USING INDEX TABLESPACE index_tbs -- PMID corresponds to the citation
 ) TABLESPACE ct_tbs;
 

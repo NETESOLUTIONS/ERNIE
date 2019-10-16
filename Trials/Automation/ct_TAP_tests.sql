@@ -79,7 +79,7 @@ SELECT is_empty($$
                     FROM pg_indexes idx
                    WHERE idx.schemaname = current_schema
                      AND idx.tablename = tbls.tablename
-                     and idx.indexdef like 'CREATE UNIQUE INDEX%')$$, 'All CT tables should have a PK');
+                     and idx.indexdef like 'CREATE UNIQUE INDEX%')$$, 'All CT tables should have a unique index');
 -- endregion
 
 -- region Are any tables completely null for every field

@@ -5,123 +5,131 @@
 SET TIMEZONE = 'US/Eastern';
 
 CREATE OR REPLACE PROCEDURE stg_scopus_parse_pub_details_subjects_and_classes(scopus_doc_xml XML)
-  LANGUAGE plpgsql AS $$
+    LANGUAGE plpgsql AS
+$$
 BEGIN
-  -- scopus_source_publication_details
-  INSERT INTO stg_scopus_source_publication_details(scp, issue, volume, first_page, last_page, publication_year,
-                                                    publication_date, conf_code, conf_name)
+    -- scopus_source_publication_details
+    INSERT INTO stg_scopus_source_publication_details(scp, issue, volume, first_page, last_page, publication_year,
+                                                      publication_date, conf_code, conf_name)
 
-  SELECT DISTINCT
-    scp, issue, volume, first_page, last_page, publication_year,
-    try_parse(pub_year, pub_month, pub_day) AS publication_date, conf_code AS conf_code, conf_name AS conf_name
-    FROM
-      xmltable(--
-          '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
-        scp BIGINT PATH '../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]', --
-        issue TEXT PATH 'volisspag/voliss/@issue', --
-        volume TEXT PATH 'volisspag/voliss/@volume', --
-        first_page TEXT PATH 'volisspag/pagerange/@first', --
-        last_page TEXT PATH 'volisspag/pagerange/@last', --
-        publication_year SMALLINT PATH 'publicationyear/@first', --
-        pub_year SMALLINT PATH 'publicationdate/year', --
-        pub_month SMALLINT PATH 'publicationdate/month', --
-        pub_day SMALLINT PATH 'publicationdate/day', --
-        conf_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcode', --
-        conf_name TEXT PATH 'normalize-space(additional-srcinfo/conferenceinfo/confevent/confname)') xmltable;
+    SELECT DISTINCT scp,
+                    issue,
+                    volume,
+                    first_page,
+                    last_page,
+                    publication_year,
+                    try_parse(pub_year, pub_month, pub_day) AS publication_date,
+                    conf_code                               AS conf_code,
+                    conf_name                               AS conf_name
+    FROM xmltable(--
+                 '//bibrecord/head/source' PASSING scopus_doc_xml COLUMNS --
+                scp BIGINT PATH '../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]', --
+                issue TEXT PATH 'volisspag/voliss/@issue', --
+                volume TEXT PATH 'volisspag/voliss/@volume', --
+                first_page TEXT PATH 'volisspag/pagerange/@first', --
+                last_page TEXT PATH 'volisspag/pagerange/@last', --
+                publication_year SMALLINT PATH 'publicationyear/@first', --
+                pub_year SMALLINT PATH 'publicationdate/year', --
+                pub_month SMALLINT PATH 'publicationdate/month', --
+                pub_day SMALLINT PATH 'publicationdate/day', --
+                conf_code TEXT PATH 'additional-srcinfo/conferenceinfo/confevent/confcode', --
+                conf_name TEXT PATH 'normalize-space(additional-srcinfo/conferenceinfo/confevent/confname)') xmltable;
 
-  UPDATE stg_scopus_source_publication_details spd
-     SET indexed_terms=sq.indexed_terms
-    FROM
-      (
-        SELECT scp, string_agg(descriptors, ',') AS indexed_terms
-          FROM
+    UPDATE stg_scopus_source_publication_details spd
+    SET indexed_terms=sq.indexed_terms
+    FROM (
+             SELECT scp, string_agg(descriptors, ',') AS indexed_terms
+             FROM
+                 xmltable(--
+                         '//bibrecord/head/enhancement/descriptorgroup/descriptors/descriptor/mainterm' PASSING
+                         scopus_doc_xml
+                         COLUMNS --
+                             scp BIGINT PATH '../../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]', descriptors TEXT PATH 'normalize-space()')
+             GROUP BY scp
+         ) AS sq
+    WHERE spd.scp = sq.scp;
+
+    --- organization terms
+
+    WITH cte AS (
+        SELECT scp, string_agg(organization, chr(10)) AS correspondence_orgs
+        FROM
             xmltable(--
-                '//bibrecord/head/enhancement/descriptorgroup/descriptors/descriptor/mainterm' PASSING scopus_doc_xml
-                COLUMNS --
-                  scp BIGINT PATH '../../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]', descriptors TEXT PATH 'normalize-space()')
-         GROUP BY scp
-      ) AS sq
-   WHERE spd.scp = sq.scp;
-
-  --- organization terms
-
-    WITH cte AS (
-      SELECT scp, string_agg(organization, chr(10)) AS correspondence_orgs
-        FROM
-          xmltable(--
-              XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
-              '//bibrecord/head/correspondence/affiliation/organization' PASSING scopus_doc_xml COLUMNS --
-          --@formatter:off
-                    scp BIGINT PATH '../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
-                    organization TEXT PATH 'normalize-space()'
-            --@formatter:on
-            )
-       GROUP BY scp
+                    XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce), --
+                    '//bibrecord/head/correspondence/affiliation/organization' PASSING scopus_doc_xml COLUMNS --
+            --@formatter:off
+                        scp BIGINT PATH '../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]',
+                        organization TEXT PATH 'normalize-space()'
+                --@formatter:on
+                )
+        GROUP BY scp
     )
-  UPDATE stg_scopus_publications sp
-     SET correspondence_orgs = cte.correspondence_orgs
+    UPDATE stg_scopus_publications sp
+    SET correspondence_orgs = cte.correspondence_orgs
     FROM cte
-   WHERE sp.scp = cte.scp;
+    WHERE sp.scp = cte.scp;
 
-  -- scopus_subjects
-  INSERT INTO stg_scopus_subjects
-    (scp, subj_abbr)
-  SELECT DISTINCT scp, subj_abbr
+    -- scopus_subjects
+    INSERT INTO stg_scopus_subjects
+        (scp, subj_abbr)
+    SELECT DISTINCT scp, subj_abbr
     FROM
-      xmltable(--
-          '//bibrecord/head/enhancement/classificationgroup/classifications[@type="SUBJABBR"]/classification' PASSING
-          scopus_doc_xml COLUMNS --
-            scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]', --
-            subj_abbr SCOPUS_SUBJECT_ABBRE_TYPE PATH '.');
+        xmltable(--
+                '//bibrecord/head/enhancement/classificationgroup/classifications[@type="SUBJABBR"]/classification'
+                PASSING
+                scopus_doc_xml COLUMNS --
+                    scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]', --
+                    subj_abbr SCOPUS_SUBJECT_ABBRE_TYPE PATH '.');
 
-  -- scopus_subject_keywords
-  INSERT INTO stg_scopus_subject_keywords
-    (scp, subject)
-  SELECT DISTINCT scp, subject
+    -- scopus_subject_keywords
+    INSERT INTO stg_scopus_subject_keywords
+        (scp, subject)
+    SELECT DISTINCT scp, subject
     FROM
-      xmltable(--
-          '//bibrecord/head/enhancement/classificationgroup/classifications[@type="SUBJECT"]/classification' PASSING
-          scopus_doc_xml COLUMNS --
-            scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]', --
-            subject TEXT PATH '.');
+        xmltable(--
+                '//bibrecord/head/enhancement/classificationgroup/classifications[@type="SUBJECT"]/classification'
+                PASSING
+                scopus_doc_xml COLUMNS --
+                    scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]', --
+                    subject TEXT PATH '.');
 
-  -- scopus_classes
+    -- scopus_classes
 
     WITH cte AS (
-      SELECT DISTINCT scp, class_type, coalesce(classification_code, classification) AS class_code
+        SELECT DISTINCT scp, class_type, coalesce(classification_code, classification) AS class_code
         FROM
-          xmltable(--
-              '//bibrecord/head/enhancement/classificationgroup/classifications[not(@type="SUBJABBR" or @type="SUBJECT")]/classification'
-              PASSING scopus_doc_xml COLUMNS --
-                scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]', --
-                class_type TEXT PATH '../@type', classification_code TEXT PATH 'classification-code', --
-                classification TEXT PATH '.')
+            xmltable(--
+                    '//bibrecord/head/enhancement/classificationgroup/classifications[not(@type="SUBJABBR" or @type="SUBJECT")]/classification'
+                    PASSING scopus_doc_xml COLUMNS --
+                        scp BIGINT PATH '../../../../preceding-sibling::item-info/itemidlist/itemid[@idtype="SCP"]', --
+                        class_type TEXT PATH '../@type', classification_code TEXT PATH 'classification-code', --
+                        classification TEXT PATH '.')
     )
-  INSERT
+    INSERT
     INTO stg_scopus_classes(scp, class_type, class_code)
-  SELECT
-    scp, class_type,
-    CASE
-      WHEN class_type = 'ASJC' AND class_code ~ '([0-9];)'
-        THEN substring(class_code, 1, 4) -- special case e.g. 1004; removal of ; preserves code
-      WHEN class_type = 'ASJC' AND length(class_code) != 4
-          AND -- any value which is not a 4-digit integer and is an alphanumeric must be nulled
-        class_code ~ '([0-9a-zA-Z])'
-        THEN NULL
-      ELSE class_code
-    END AS class_code
+    SELECT scp,
+           class_type,
+           CASE
+               WHEN class_type = 'ASJC' AND class_code ~ '([0-9];)'
+                   THEN substring(class_code, 1, 4) -- special case e.g. 1004; removal of ; preserves code
+               WHEN class_type = 'ASJC' AND length(class_code) != 4 AND
+                    class_code ~ '([0-9a-zA-Z\.\,\;\:\/])' -- any value which is not a 4-digit integer and is an alphanumeric and/or has special characters must be nulled
+                   THEN NULL
+               ELSE class_code
+               END AS class_code
     FROM cte;
 
-  -- Clean up class_code for class_type='ASJC' i.e. it is supposed to be a 4-digit integer string so incorrect
-  -- data valeus such as '100' or '100.23fr1' must be nulled
+    -- Clean up class_code for class_type='ASJC' i.e. it is supposed to be a 4-digit integer string so incorrect
+    -- data values such as '100' or '100.23fr1' must be nulled
 
-  -- scopus_classification_lookup
-  INSERT INTO stg_scopus_classification_lookup(class_type, class_code, description)
-  SELECT DISTINCT class_type, class_code, description
+    -- scopus_classification_lookup
+    INSERT INTO stg_scopus_classification_lookup(class_type, class_code, description)
+    SELECT DISTINCT class_type, class_code, description
     FROM
-      xmltable(--
-          '//bibrecord/head/enhancement/classificationgroup/classifications[not(@type="ASJC" or @type="SUBJABBR" or @type="SUBJECT")]/classification/classification-code'
-          PASSING scopus_doc_xml COLUMNS --
-            class_type TEXT PATH '../../@type', --
-            class_code TEXT PATH '.', description TEXT PATH 'following-sibling::classification-description');
-END; $$
+        xmltable(--
+                '//bibrecord/head/enhancement/classificationgroup/classifications[not(@type="ASJC" or @type="SUBJABBR" or @type="SUBJECT")]/classification/classification-code'
+                PASSING scopus_doc_xml COLUMNS --
+                    class_type TEXT PATH '../../@type', --
+                    class_code TEXT PATH '.', description TEXT PATH 'following-sibling::classification-description');
+END;
+$$

@@ -71,3 +71,25 @@ SET isbn_main=scopus_temp.isbn
 FROM (SELECT * FROM scopus_isbns WHERE isbn_type ISNULL) scopus_temp
 WHERE ss.ernie_source_id = scopus_temp.ernie_source_id
   AND (ss.isbn_main = '' OR ss.isbn_main = ' ');
+
+--fix the class_type asjc code where not 4 digit integer but e.g. 100 or 100.445df//dd
+
+
+create table temp_class_code as
+select *, CASE
+      WHEN class_type = 'ASJC' AND class_code ~ '([0-9];)'
+        THEN substring(class_code, 1, 4) -- special case e.g. 1004; removal of ; preserves code
+      WHEN class_type = 'ASJC' AND length(class_code) != 4
+          AND -- any value which is not a 4-digit integer and is an alphanumeric must be nulled
+        class_code ~ '([0-9a-zA-Z\.\,\;\:\/])'
+        THEN '' END as modified_class_code
+from scopus_classes
+where class_type='ASJC' and length(class_code) != 4 ; -- 3
+
+
+update scopus_classes scp_classes
+set class_code= temp.modified_class_code
+     from temp_class_code temp
+where scp_classes.scp=temp.scp and
+      scp_classes.class_type=temp.class_type and
+      scp_classes.class_code=temp.class_code;
