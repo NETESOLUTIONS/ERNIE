@@ -56,7 +56,7 @@ SELECT has_table('exporter_projects');
 SELECT has_table('exporter_publink');
 -- endregion
 
--- region All tables should have a PK
+-- region All tables should have at least a UNIQUE INDEX
 SELECT is_empty($$
  SELECT current_schema || '.' || tablename
   FROM pg_catalog.pg_tables tbls
@@ -65,7 +65,7 @@ SELECT is_empty($$
                     FROM pg_indexes idx
                    WHERE idx.schemaname = current_schema
                      AND idx.tablename = tbls.tablename
-                     and idx.indexdef like 'CREATE UNIQUE INDEX%')$$, 'All ExPORTER tables should have a unique index');
+                     and idx.indexdef like 'CREATE UNIQUE INDEX%')$$, 'All ExPORTER tables should have at least a unique index');
 -- endregion
 
 -- region Are any tables completely null for every field (Y/N?)

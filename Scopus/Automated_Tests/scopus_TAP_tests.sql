@@ -74,7 +74,7 @@ SELECT has_table('scopus_subjects');
 SELECT has_table('scopus_titles');
 -- endregion
 
--- region All tables should have a PK
+-- region all tables should have at least a UNIQUE INDEX
 SELECT is_empty($$
  SELECT current_schema || '.' || tablename
   FROM pg_catalog.pg_tables tbls
@@ -83,7 +83,7 @@ SELECT is_empty($$
                     FROM pg_indexes idx
                    WHERE idx.schemaname = current_schema
                      AND idx.tablename = tbls.tablename
-                     and idx.indexdef like 'CREATE UNIQUE INDEX%')$$, 'All Scopus tables should have a unique index');
+                     and idx.indexdef like 'CREATE UNIQUE INDEX%')$$, 'All Scopus tables should have at least a UNIQUE INDEX');
 -- endregion
 
 -- region Are any tables completely null for every field (Y/N?)
