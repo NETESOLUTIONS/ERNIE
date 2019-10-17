@@ -7,11 +7,11 @@
  TAP protocol specifies that you determine a set of assertions with binary-semantics. The assertion is evaluated either true or false.
  The evaluation should allow the client or user to understand what the problem is and to serve as a guide for diagnostics.
 
- The tests are:
- 1. do all tables exist
- 2. do all tables have a pk
+ The assertions to test are:
+ 1. do expected tables exist
+ 2. do all tables have at least a uk
  3. do any of the tables have columns that are 100% NULL
- 4. For various tables was there an increases ?
+ 4. for various tables was there an increase
  */
 
 -- \timing
@@ -24,7 +24,7 @@ SET search_path = :schema,public;
 \endif
 
 -- This could be schema-dependent
-\set MIN_NUM_OF_RECORDS 1
+\set MIN_NUM_OF_RECORDS 5
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
@@ -47,7 +47,7 @@ BEGIN;
 SELECT *
   FROM no_plan();
 
--- region All scopus tables exist (T/F?)
+-- region all scopus tables exist
 SELECT has_table('scopus_abstracts');
 SELECT has_table('scopus_affiliations');
 SELECT has_table('scopus_authors');

@@ -7,16 +7,15 @@
  The evaluation should allow the client or user to understand what the problem is and to serve as a guide for diagnostics.
 
  The assertions to test are:
- 1. do all tables exist
- 2. do all tables have a pk
- 3. do all the tables have a lexis_tblspc
- 4. do any of the tables have columns that are 100% NULL
- 5. For various tables was there an increase?
+ 1. do expected tables exist
+ 2. do all tables have at least a uk
+ 3. do any of the tables have columns that are 100% NULL
+ 4. for various tables was there an increase
 */
 
 \set ON_ERROR_STOP on
 \set ECHO all
-\set MIN_NUM_OF_RECORDS 2
+\set MIN_NUM_OF_RECORDS 3
 
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;

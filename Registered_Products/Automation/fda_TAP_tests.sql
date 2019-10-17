@@ -7,21 +7,16 @@
  The evaluation should allow the client or user to understand what the problem is and to serve as a guide for diagnostics.
 
  The assertions to test are:
- 1. do all tables exist
- 2. do all tables have a pk
- 3. do all the tables have a fda_tblspc
- 4. do any of the tables have columns that are 100% NULL
- 5. For various tables was there an increase?
+ 1. do expected tables exist
+ 2. do all tables have at least a uk
+ 3. do any of the tables have columns that are 100% NULL
+ 4. for various tables was there an increase
 */
 
 -- \timing
 \set ON_ERROR_STOP on
 \set MIN_NUM_OF_RECORDS 3
 \set ECHO all
-
-\pset format unaligned
-\pset tuples_only true
-\pset pager off
 
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;
@@ -40,7 +35,7 @@ $block$
             SELECT table_name
             FROM information_schema.tables --
             WHERE table_schema = current_schema
-              AND table_name LIKE 'fda_%'
+              AND table_name LIKE (:table_namespace || '%')
         )
             LOOP
                 EXECUTE format('ANALYZE VERBOSE %I;', tab.table_name);
@@ -71,7 +66,7 @@ SELECT is_empty($$
                      and idx.indexdef like 'CREATE UNIQUE INDEX%')$$, 'All FDA tables should have at least a UNIQUE INDEX');
 -- endregion
 
--- region Are any tables completely null for every field
+-- region are any tables completely null for every field
 SELECT is_empty($$
   SELECT current_schema || '.' || tablename || '.' || attname AS not_populated_column
     FROM pg_stats

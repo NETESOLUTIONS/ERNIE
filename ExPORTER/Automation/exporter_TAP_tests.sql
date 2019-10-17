@@ -7,11 +7,10 @@
  The evaluation should allow the client or user to understand what the problem is and to serve as a guide for diagnostics.
 
  The assertions to test are:
- 1. do all tables exist
- 2. do all tables have a pk
- 3. do all the tables have a exporter_tblspc
- 4. do any of the tables have columns that are 100% NULL
- 5. For various tables was there an increase?
+ 1. do expected tables exist
+ 2. do all tables have at least a uk
+ 3. do any of the tables have columns that are 100% NULL
+ 4. for various tables was there an increase
 */
 
 \set ON_ERROR_STOP on
@@ -21,7 +20,7 @@
 SET search_path = public;
 
 -- This could be schema-dependent
-\set MIN_NUM_OF_RECORDS 1
+\set MIN_NUM_OF_RECORDS 3
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
@@ -56,7 +55,7 @@ SELECT has_table('exporter_projects');
 SELECT has_table('exporter_publink');
 -- endregion
 
--- region All tables should have at least a UNIQUE INDEX
+-- region all tables should have at least a UNIQUE INDEX
 SELECT is_empty($$
  SELECT current_schema || '.' || tablename
   FROM pg_catalog.pg_tables tbls
@@ -68,7 +67,7 @@ SELECT is_empty($$
                      and idx.indexdef like 'CREATE UNIQUE INDEX%')$$, 'All ExPORTER tables should have at least a unique index');
 -- endregion
 
--- region Are any tables completely null for every field (Y/N?)
+-- region are any tables completely null for every field
 SELECT
   is_empty($$
   SELECT current_schema || '.' || tablename || '.' || attname AS not_populated_column
@@ -77,7 +76,7 @@ SELECT
            'All exporter table columns should be populated (not 100% NULL)');
 -- endregion
 
--- region Are all tables populated?
+-- region are all tables populated
   WITH cte AS (
     SELECT parent_pc.relname, sum(coalesce(partition_pc.reltuples, parent_pc.reltuples)) AS total_rows
       FROM
@@ -95,7 +94,7 @@ SELECT
   FROM cte;
 -- endregion
 
--- region Is there a decrease in records ?
+-- region is there a decrease in records
   WITH cte AS (
     SELECT num_ex_project, lead(num_ex_project, 1, 0) OVER (ORDER BY id DESC) AS prev_num_exporter_project
       FROM update_log_exporter
