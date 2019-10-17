@@ -21,6 +21,11 @@
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;
 
+\if :{?table_namespace}
+-- public has to be used in search_path to find pgTAP routines
+SET table_namespace = :table_namespace;
+\endif
+
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
@@ -35,7 +40,7 @@ $block$
             SELECT table_name
             FROM information_schema.tables --
             WHERE table_schema = current_schema
-              AND table_name LIKE (:table_namespace || '%')
+              AND table_name LIKE (?{:table_namespace} || '%')
         )
             LOOP
                 EXECUTE format('ANALYZE VERBOSE %I;', tab.table_name);
