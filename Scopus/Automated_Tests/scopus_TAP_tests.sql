@@ -75,16 +75,15 @@ SELECT has_table('scopus_titles');
 -- endregion
 
 -- region All tables should have a PK
-SELECT
-  is_empty($$
- SELECT current_schema || '.' || table_name
-  FROM information_schema.tables t
- WHERE table_schema = current_schema AND table_name LIKE 'scopus%'
-   AND NOT EXISTS(SELECT 1
-                    FROM information_schema.table_constraints tc
-                   WHERE tc.table_schema = current_schema
-                     AND tc.table_name = t.table_name
-                     AND tc.constraint_type = 'PRIMARY KEY')$$, 'All Scopus tables should have a PK');
+SELECT is_empty($$
+ SELECT current_schema || '.' || tablename
+  FROM pg_catalog.pg_tables tbls
+ WHERE schemaname= current_schema AND tablename LIKE 'scopus_%'
+   AND NOT EXISTS(SELECT *
+                    FROM pg_indexes idx
+                   WHERE idx.schemaname = current_schema
+                     AND idx.tablename = tbls.tablename
+                     and idx.indexdef like 'CREATE UNIQUE INDEX%')$$, 'All Scopus tables should have a unique index');
 -- endregion
 
 -- region Are any tables completely null for every field (Y/N?)
