@@ -19,6 +19,10 @@
 \set MIN_NUM_OF_RECORDS 3
 \set ECHO all
 
+\pset format unaligned
+\pset tuples_only true
+\pset pager off
+
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;
 
