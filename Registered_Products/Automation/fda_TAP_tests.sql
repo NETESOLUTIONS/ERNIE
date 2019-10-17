@@ -35,7 +35,7 @@ $block$
             SELECT table_name
             FROM information_schema.tables --
             WHERE table_schema = current_schema
-              AND table_name LIKE (:table_namespace || '%')
+              AND table_name LIKE (:'table_namespace' || '%')
         )
             LOOP
                 EXECUTE format('ANALYZE VERBOSE %I;', tab.table_name);
