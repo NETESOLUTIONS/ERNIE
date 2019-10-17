@@ -1,5 +1,8 @@
+--
+--
+
 DROP TABLE IF EXISTS rigoutsos_doi_scp_1;
-CREATE TABLE rigoutsos_doi_scp_1 AS SELECT scp AS citing_1 ,ref_sgr AS cited_1
+CREATE TABLE rigoutsos_doi_scp_1 AS SELECT scp AS citing_1, ref_sgr AS cited_1
 FROM scopus_references WHERE ref_sgr IN (SELECT DISTINCT scp FROM rigoutsos_doi_scp_0);
 
 DROP TABLE IF EXISTS rigoutsos_doi_scp_2;
@@ -65,6 +68,7 @@ FROM scopus_references WHERE ref_sgr IN (SELECT DISTINCT citing_13 FROM rigoutso
 CREATE INDEX rigoutsos_doi_scp_14_idx ON rigoutsos_doi_scp_14(citing_14, cited_14) tablespace index_tbs;
 
 DROP TABLE IF EXISTS rigoutsos_doi_scp_15;
-CREATE TABLE rigoutsos_doi_scp_14 tablespace p2_studies_tbs AS SELECT scp AS citing_15, ref_sgr AS cited_15
+CREATE TABLE rigoutsos_doi_scp_15 tablespace p2_studies_tbs AS SELECT scp AS citing_15, ref_sgr AS cited_15
 FROM scopus_references WHERE ref_sgr IN (SELECT DISTINCT citing_14 FROM rigoutsos_doi_scp_14);
 CREATE INDEX rigoutsos_doi_scp_15_idx ON rigoutsos_doi_scp_15(citing_15A, cited_15) tablespace index_tbs;
+
