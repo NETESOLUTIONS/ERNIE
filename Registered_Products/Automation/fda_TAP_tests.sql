@@ -122,7 +122,7 @@ FROM cte;
 
 --region is there increase year by year in products
 with cte as (SELECT extract('year' FROM time_series)::int                                   AS approval_year,
-                    count(appl_no) - lag(count(appl_no)) over (order by min(approval_date)) as difference
+                    count(appl_no) - lag(count(appl_no)) over (order by extract('year' FROM time_series)::int) as difference
              FROM fda_products,
                   generate_series(
                           date_trunc('year', to_date(regexp_replace(approval_date, 'Approved Prior to ', '', 'g'),

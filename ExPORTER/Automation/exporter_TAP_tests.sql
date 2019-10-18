@@ -110,6 +110,23 @@ SELECT
   FROM cte;
 -- endregion
 
+--region is there increase year by year in products
+with cte as (SELECT extract('year' FROM time_series)::int                                   AS approval_year,
+                    count(application_id) - lag(count(application_id)) over (order by extract('year' FROM time_series)::int) as difference
+             FROM exporter_projects,
+                  generate_series(
+                          date_trunc('year', to_date(budget_start,
+                                                     'MM DD YYYY')),
+                          date_trunc('year', to_date(regexp_replace(budget_start, 'Approved Prior to ', '', 'g'),
+                                                     'Mon DD YYYY')),
+                          interval '1 year') time_series
+             GROUP BY time_series, approval_year
+             ORDER BY approval_year offset 1)
+SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
+              CAST(:MIN_YEARLY_INCREASE_OF_RECORDS as BIGINT),
+              format('%s.tables should increase at least %s record', 'FDA', :MIN_YEARLY_INCREASE_OF_RECORDS));
+-- endregion
+
 SELECT *
   FROM finish();
 ROLLBACK;

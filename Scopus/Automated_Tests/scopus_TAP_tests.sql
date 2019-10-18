@@ -130,7 +130,7 @@ SELECT
 
 --region is there increase year by year
 WITH cte AS (SELECT extract('year' FROM time_series)::int                      AS pub_year,
-                    count(sgr) - lag(count(sgr)) over (order by min(pub_date)) as difference
+                    count(sgr) - lag(count(sgr)) over (order by extract('year' FROM time_series)::int) as difference
              FROM scopus_publication_groups,
                   generate_series(date_trunc('year', pub_date::timestamp), date_trunc('year', pub_date::timestamp),
                                   interval '1 year') time_series
