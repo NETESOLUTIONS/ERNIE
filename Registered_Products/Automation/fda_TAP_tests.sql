@@ -20,7 +20,7 @@
 
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;
-SET job_name= :'job_name'
+SET script.module_name= :'module_name';
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
@@ -36,7 +36,7 @@ $block$
             SELECT table_name
             FROM information_schema.tables --
             WHERE table_schema = current_schema
-              AND table_name LIKE ( :'job_name' || '%')
+              AND table_name LIKE ( 'script.job_name' || '%')
         )
             LOOP
                 EXECUTE format('ANALYZE VERBOSE %I;', tab.table_name);
