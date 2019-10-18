@@ -8,9 +8,9 @@
 
  The assertions to test are:
  1. do expected tables exist
- 2. do all tables have at least a uk
+ 2. do all tables have at least a unique index
  3. do any of the tables have columns that are 100% NULL
- 4. for various tables was there an increase
+ 4. for various tables was there an increase (based on a threshold of minimum record)
 */
 
 -- \timing
@@ -20,7 +20,6 @@
 
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;
-SET script.module_name= :module_name;
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
@@ -36,7 +35,7 @@ $block$
             SELECT table_name
             FROM information_schema.tables --
             WHERE table_schema = current_schema
-              AND table_name LIKE ( 'script.job_name' || '%')
+              AND table_name LIKE 'fda%'
         )
             LOOP
                 EXECUTE format('ANALYZE VERBOSE %I;', tab.table_name);
