@@ -120,14 +120,18 @@ SELECT cmp_ok(cte.num_products, '>=', cte.prev_num_products,
 FROM cte;
 --endregion
 
---region is there increase year by year
-WITH cte AS (SELECT extract('year' FROM time_series)::int                      AS pub_year,
-                    count(sgr) - lag(count(sgr)) over (order by min(pub_date)) as difference
-             FROM scopus_publication_groups,
-                  generate_series(date_trunc('year', pub_date::timestamp), date_trunc('year', pub_date::timestamp),
-                                  interval '1 year') time_series
-             GROUP BY time_series, pub_year
-             ORDER BY pub_year offset 1) -- offset to get rid of null
+--region is there increase year by year in products
+with cte as (SELECT extract('year' FROM time_series)::int                                   AS approval_year,
+                    count(appl_no) - lag(count(appl_no)) over (order by min(approval_date)) as difference
+             FROM fda_products,
+                  generate_series(
+                          date_trunc('year', to_date(regexp_replace(approval_date, 'Approved Prior to ', '', 'g'),
+                                                     'Mon DD YYYY')),
+                          date_trunc('year', to_date(regexp_replace(approval_date, 'Approved Prior to ', '', 'g'),
+                                                     'Mon DD YYYY')),
+                          interval '1 year') time_series
+             GROUP BY time_series, approval_year
+             ORDER BY approval_year offset 1)
 SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
               CAST(:MIN_YEARLY_INCREASE_OF_RECORDS as BIGINT),
               format('%s.tables should increase at least %s record', 'FDA', :MIN_YEARLY_INCREASE_OF_RECORDS));

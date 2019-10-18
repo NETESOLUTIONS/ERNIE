@@ -16,6 +16,8 @@
 \set ON_ERROR_STOP on
 \set ECHO all
 \set MIN_NUM_OF_RECORDS 3
+\set MIN_YEARLY_INCREASE_OF_RECORDS 0
+
 
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;

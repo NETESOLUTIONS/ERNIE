@@ -25,6 +25,7 @@ SET search_path = :schema,public;
 
 -- This could be schema-dependent
 \set MIN_NUM_OF_RECORDS 5
+\set MIN_YEARLY_INCREASE_OF_RECORDS 0
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
@@ -126,6 +127,19 @@ SELECT
          'The number of Scopus records should not decrease after an update')
   FROM cte;
 -- endregion
+
+--region is there increase year by year
+WITH cte AS (SELECT extract('year' FROM time_series)::int                      AS pub_year,
+                    count(sgr) - lag(count(sgr)) over (order by min(pub_date)) as difference
+             FROM scopus_publication_groups,
+                  generate_series(date_trunc('year', pub_date::timestamp), date_trunc('year', pub_date::timestamp),
+                                  interval '1 year') time_series
+             GROUP BY time_series, pub_year
+             ORDER BY pub_year offset 1) -- offset to get rid of null
+SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
+              CAST(:MIN_YEARLY_INCREASE_OF_RECORDS as BIGINT),
+              format('%s.tables should increase at least %s record', 'FDA', :MIN_YEARLY_INCREASE_OF_RECORDS));
+--endregion
 
 SELECT *
   FROM finish();

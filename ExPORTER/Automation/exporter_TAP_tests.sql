@@ -21,6 +21,8 @@ SET search_path = public;
 
 -- This could be schema-dependent
 \set MIN_NUM_OF_RECORDS 3
+\set MIN_YEARLY_INCREASE_OF_RECORDS 0
+
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
