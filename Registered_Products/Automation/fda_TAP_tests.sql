@@ -124,10 +124,9 @@ FROM cte;
 WITH cte AS (SELECT extract('year' FROM time_series)::int                      AS pub_year,
                     count(sgr) - lag(count(sgr)) over (order by min(pub_date)) as difference
              FROM scopus_publication_groups,
-                  generate_series(date_trunc('year', pub_date::timestamp) -- cast to ts here!
-                      , date_trunc('year', pub_date::timestamp)
-                      , interval '1 year') time_series
-             group by time_series, pub_year
+                  generate_series(date_trunc('year', pub_date::timestamp), date_trunc('year', pub_date::timestamp),
+                                  interval '1 year') time_series
+             GROUP BY time_series, pub_year
              ORDER BY pub_year offset 1) -- offset to get rid of null
 SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
               CAST(:MIN_YEARLY_INCREASE_OF_RECORDS as BIGINT),
