@@ -8,7 +8,7 @@
 
  The assertions to test are:
  1. do expected tables exist
- 2. do all tables have at least a unique index
+ 2. do all tables have at least a UNIQUE INDEX
  3. do any of the tables have columns that are 100% NULL
  4. for various tables was there an increase (based on a threshold of minimum record)
 */
@@ -16,6 +16,7 @@
 -- \timing
 \set ON_ERROR_STOP on
 \set MIN_NUM_OF_RECORDS 3
+\set MIN_YEARLY_INCREASE_OF_RECORDS 0
 \set ECHO all
 
 -- public has to be used in search_path to find pgTAP routines
@@ -63,7 +64,8 @@ SELECT is_empty($$
                     FROM pg_indexes idx
                    WHERE idx.schemaname = current_schema
                      AND idx.tablename = tbls.tablename
-                     and idx.indexdef like 'CREATE UNIQUE INDEX%')$$, 'All FDA tables should have at least a UNIQUE INDEX');
+                     and idx.indexdef like 'CREATE UNIQUE INDEX%')$$,
+                'All FDA tables should have at least a UNIQUE INDEX');
 -- endregion
 
 -- region are any tables completely null for every field
@@ -92,19 +94,46 @@ SELECT cmp_ok(CAST(cte.total_rows AS BIGINT), '>=', CAST(:MIN_NUM_OF_RECORDS AS 
 FROM cte;
 -- endregion
 
--- region is there a decrease in records
+-- region is there a decrease in patents
 WITH cte AS (
-    SELECT num_scopus_pub, lead(num_scopus_pub, 1, 0) OVER (ORDER BY id DESC) AS prev_num_scopus_pub
-    FROM update_log_scopus
-    WHERE num_scopus_pub IS NOT NULL
+    SELECT num_patent, lead(num_patent, 1, 0) OVER (ORDER BY id DESC) AS prev_num_patent
+    FROM update_log_fda
+    WHERE num_patent IS NOT NULL
     ORDER BY id DESC
     LIMIT 1
 )
-SELECT cmp_ok(cte.num_scopus_pub, '>=', cte.prev_num_scopus_pub,
-              'The number of FDA records should not decrease after an update')
+SELECT cmp_ok(cte.num_patent, '>=', cte.prev_num_patent,
+              'The number of FDA records on patents should not decrease after an update')
 FROM cte;
 -- endregion
-END;
+
+--region is there a decrease in products
+WITH cte AS (
+    SELECT num_products, lead(num_products, 1, 0) OVER (ORDER BY id DESC) AS prev_num_products
+    FROM update_log_fda
+    WHERE num_products IS NOT NULL
+    ORDER BY id DESC
+    LIMIT 1
+)
+SELECT cmp_ok(cte.num_products, '>=', cte.prev_num_products,
+              'The number of FDA records on products should not decrease after an update')
+FROM cte;
+--endregion
+
+--region is there increase year by year
+WITH cte AS (SELECT extract('year' FROM time_series)::int                      AS pub_year,
+                    count(sgr) - lag(count(sgr)) over (order by min(pub_date)) as difference
+             FROM scopus_publication_groups,
+                  generate_series(date_trunc('year', pub_date::timestamp) -- cast to ts here!
+                      , date_trunc('year', pub_date::timestamp)
+                      , interval '1 year') time_series
+             group by time_series, pub_year
+             ORDER BY pub_year offset 1) -- offset to get rid of null
+SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
+              CAST(:MIN_YEARLY_INCREASE_OF_RECORDS as BIGINT),
+              format('%s.tables should increase at least %s record', 'FDA', :MIN_YEARLY_INCREASE_OF_RECORDS));
+-- endregion
+
 
 SELECT *
 FROM finish();

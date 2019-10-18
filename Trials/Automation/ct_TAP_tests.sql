@@ -8,7 +8,7 @@
 
  The assertions to test are:
  1. do expected tables exist
- 2. do all tables have at least a uk
+ 2. do all tables have at least a UNIQUE INDEX
  3. do any of the tables have columns that are 100% NULL
  4. for various tables was there an increase
 */
@@ -110,13 +110,13 @@ FROM cte;
 
 -- region is there a decrease in records
 WITH cte AS (
-    SELECT num_scopus_pub, lead(num_scopus_pub, 1, 0) OVER (ORDER BY id DESC) AS prev_num_scopus_pub
-    FROM update_log_scopus
-    WHERE num_scopus_pub IS NOT NULL
+    SELECT num_nct, lead(num_nct, 1, 0) OVER (ORDER BY id DESC) AS prev_num_nct
+    FROM update_log_ct
+    WHERE num_nct IS NOT NULL
     ORDER BY id DESC
     LIMIT 1
 )
-SELECT cmp_ok(cte.num_scopus_pub, '>=', cte.prev_num_scopus_pub,
+SELECT cmp_ok(cte.num_nct, '>=', cte.prev_num_nct,
               'The number of CT records should not decrease after an update')
 FROM cte;
 -- endregion

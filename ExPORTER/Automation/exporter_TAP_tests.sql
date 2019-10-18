@@ -1,5 +1,5 @@
 /*
- Title: exporter-update TAP-test
+ Title: ExPORTER TAP-test
  Author: Djamil Lakhdar-Hamina
  Date: 07/23/2019
  Purpose: Develop a TAP protocol to test if the exporter_update parser is behaving as intended.
@@ -8,7 +8,7 @@
 
  The assertions to test are:
  1. do expected tables exist
- 2. do all tables have at least a uk
+ 2. do all tables have at least a UNIQUE INDEX
  3. do any of the tables have columns that are 100% NULL
  4. for various tables was there an increase
 */

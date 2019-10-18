@@ -9,7 +9,7 @@
 
  The assertions to test are:
  1. do expected tables exist
- 2. do all tables have at least a uk
+ 2. do all tables have at least a UNIQUE INDEX
  3. do any of the tables have columns that are 100% NULL
  4. for various tables was there an increase
  */
@@ -86,7 +86,7 @@ SELECT is_empty($$
                      and idx.indexdef like 'CREATE UNIQUE INDEX%')$$, 'All Scopus tables should have at least a UNIQUE INDEX');
 -- endregion
 
--- region Are any tables completely null for every field (Y/N?)
+-- region are any tables completely null for every field
 SELECT
   is_empty($$
   SELECT current_schema || '.' || tablename || '.' || attname AS not_populated_column
@@ -95,7 +95,7 @@ SELECT
            'All Scopus table columns should be populated (not 100% NULL)');
 -- endregion
 
--- region Are all tables populated?
+-- region are all tables populated
   WITH cte AS (
     SELECT parent_pc.relname, sum(coalesce(partition_pc.reltuples, parent_pc.reltuples)) AS total_rows
       FROM
@@ -113,7 +113,7 @@ SELECT
   FROM cte;
 -- endregion
 
--- region Is there a decrease in records ?
+-- region is there a decrease in records
   WITH cte AS (
     SELECT num_scopus_pub, lead(num_scopus_pub, 1, 0) OVER (ORDER BY id DESC) AS prev_num_scopus_pub
       FROM update_log_scopus
