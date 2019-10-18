@@ -20,6 +20,7 @@
 
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;
+SET job_name= :'job_name'
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
@@ -35,7 +36,7 @@ $block$
             SELECT table_name
             FROM information_schema.tables --
             WHERE table_schema = current_schema
-              AND table_name LIKE 'fda%'
+              AND table_name LIKE ( :'job_name' || '%')
         )
             LOOP
                 EXECUTE format('ANALYZE VERBOSE %I;', tab.table_name);
@@ -58,7 +59,7 @@ SELECT has_table('fda_purple_book');
 SELECT is_empty($$
  SELECT current_schema || '.' || tablename
   FROM pg_catalog.pg_tables tbls
- WHERE schemaname= current_schema AND tablename LIKE 'fda_%'
+ WHERE schemaname= current_schema AND tablename LIKE 'fda%'
    AND NOT EXISTS(SELECT *
                     FROM pg_indexes idx
                    WHERE idx.schemaname = current_schema
