@@ -132,18 +132,22 @@ FROM cte;
 -- endregion
 
 --region is there increase year by year
-WITH cte AS (SELECT extract('year' FROM time_series)::int                      AS pub_year,
+WITH cte AS (SELECT extract('year' FROM time_series)::int                                                             AS pub_year,
                     count(sgr),
-                    coalesce(count(sgr) - lag(count(sgr)) over (order by extract('year' FROM time_series)::int),'0' )as difference
+                    coalesce(count(sgr) - lag(count(sgr)) over (order by extract('year' FROM time_series)::int),
+                             '0')                                                                                     as difference
              FROM scopus_publication_groups,
-                  generate_series(to_date(pub_year::text, 'YYYY')::timestamp ,to_date(pub_year::text, 'YYYY')::timestamp,
+                  generate_series(to_date(pub_year::text, 'YYYY')::timestamp,
+                                  to_date(pub_year::text, 'YYYY')::timestamp,
                                   interval '1 year') time_series
-             WHERE pub_year >= '1930' and pub_year <= '2020'
+             WHERE pub_year >= '1930'
+               and pub_year <= '2020'
              GROUP BY time_series, pub_year
-             ORDER BY pub_year )
+             ORDER BY pub_year)
 SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
               CAST(:MIN_YEARLY_INCREASE_OF_RECORDS as BIGINT),
-              format('%s.tables should increase at least %s record', 'FDA', :MIN_YEARLY_INCREASE_OF_RECORDS));
+              format('%s.tables should increase at least %s record', 'FDA', :MIN_YEARLY_INCREASE_OF_RECORDS))
+from cte;
 --endregion
 
 SELECT *

@@ -1,5 +1,4 @@
--- This script creates new tables for ExPORTER data
-
+-- This script creates tables for ExPORTER data
 -- Author: Djamil Lakhdar-Hamina
 -- Refactored: 10/11/2019
 
@@ -13,7 +12,76 @@ SET TIMEZONE = 'US/Eastern';
 
 -- Drop existing tables manually before executing
 
+-- region staging  tables 
+create table if not exists temp_exporter_projects
+(
+	application_id integer not null
+		constraint temp_exporter_projects_pk
+			primary key,
+	activity varchar(3),
+	administering_ic varchar(2),
+	application_type varchar(3),
+	arra_funded varchar(3),
+	award_notice_date varchar(30),
+	budget_start varchar(15),
+	budget_end varchar(15),
+	cfda_code varchar(30),
+	core_project_num varchar(30),
+	ed_inst_type varchar(90),
+	foa_number varchar(15),
+	full_project_num varchar(45),
+	subproject_id varchar(10),
+	funding_ics varchar(350),
+	fy varchar(4),
+	ic_name varchar(100),
+	nih_spending_cats varchar(5000),
+	org_city varchar(40),
+	org_country varchar(20),
+	org_dept varchar(40),
+	org_district varchar(4),
+	org_duns varchar(75),
+	org_fips varchar(3),
+	org_name varchar(100),
+	org_state varchar(3),
+	org_zipcode varchar(12),
+	phr varchar(40000),
+	pi_ids varchar(300),
+	pi_names varchar(1000),
+	program_officer_name varchar(40),
+	project_start varchar(12),
+	project_end varchar(12),
+	project_terms varchar(50000),
+	project_title varchar(250),
+	serial_number varchar(7),
+	study_section varchar(4),
+	study_section_name varchar(120),
+	suffix varchar(8),
+	support_year varchar(4),
+	total_cost varchar(20),
+	total_cost_sub_project varchar(12)
+);
 
+alter table temp_exporter_projects owner to ernie_admin;
+
+create table if not exists temp_exporter_project_abstracts
+(
+	application_id integer,
+	abstract_text text
+);
+
+alter table temp_exporter_project_abstracts owner to ernie_admin;
+
+create table if not exists temp_class_code
+(
+	scp bigint,
+	class_type text,
+	class_code text,
+	last_updated_time timestamp,
+	modified_class_code text
+);
+--endregion
+
+--region exporter table 
 create table if not exists exporter_publink
 (
     pmid           integer     not null,
@@ -57,7 +125,7 @@ create table if not exists exporter_projects
     org_country            varchar(20),
     org_dept               varchar(40),
     org_district           varchar(4),
-    org_duns               varchar(35),
+    org_duns               varchar(75),
     org_fips               varchar(3),
     org_name               varchar(100),
     org_state              varchar(3),
@@ -95,3 +163,5 @@ create table if not exists exporter_project_abstracts
 
 CREATE UNIQUE INDEX IF NOT EXISTS exporter_project_abstracts_uk
     ON exporter_project_abstracts (application_id) TABLESPACE index_tbs;
+--endregion 
+
