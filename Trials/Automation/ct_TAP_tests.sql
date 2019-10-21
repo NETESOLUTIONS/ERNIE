@@ -16,7 +16,7 @@
 \set ON_ERROR_STOP on
 \set ECHO all
 \set MIN_NUM_OF_RECORDS 3
-\set MIN_YEARLY_INCREASE_OF_RECORDS 0
+\set MIN_YEARLY_DIFFERENCE 0
 
 
 -- public has to be used in search_path to find pgTAP routines
@@ -80,7 +80,8 @@ SELECT is_empty($$
                     FROM pg_indexes idx
                    WHERE idx.schemaname = current_schema
                      AND idx.tablename = tbls.tablename
-                     and idx.indexdef like 'CREATE UNIQUE INDEX%')$$, 'All CT tables should have at least a UNIQUE INDEX');
+                     and idx.indexdef like 'CREATE UNIQUE INDEX%')$$,
+                'All CT tables should have at least a UNIQUE INDEX');
 -- endregion
 
 -- region Are any tables completely null for every field
@@ -122,7 +123,30 @@ SELECT cmp_ok(cte.num_nct, '>=', cte.prev_num_nct,
               'The number of CT records should not decrease after an update')
 FROM cte;
 -- endregion
-END;
+
+--region do clinical trials increase year by year
+with cte as (SELECT extract('year' FROM time_series)::int AS verification_year,
+                    coalesce(count(nct_id) -
+                             lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),
+                             '0')                         as difference
+             FROM ct_clinical_studies,
+                  generate_series(
+                          date_trunc('year', to_date(
+                                  regexp_replace(verification_date, '[0-9]{2},', '', 'g'), -- there are different data formats , normal is Month YYYY,
+                              -- but there are some Month DD YYYY, were changed to normal format
+                                  'Month YYYY')),
+                          date_trunc('year', to_date(regexp_replace(verification_date, '[0-9]{2},', '', 'g'),
+                                                     'Month YYYY')),
+                          interval '1 year') time_series
+             GROUP BY time_series, verification_year
+             ORDER BY verification_year)
+SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
+              CAST(:MIN_YEARLY_DIFFERENCE as BIGINT),
+              format('%s.tables should increase at least %s record', 'FDA', :MIN_YEARLY_DIFFERENCE))
+FROM cte
+where verification_year >= 1981;
+-- some of the dates for verification are 0Y instead of YYYY in terms of date and so were eliminated
+--endregion
 
 SELECT *
 FROM finish();

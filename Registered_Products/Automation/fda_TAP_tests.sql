@@ -16,7 +16,7 @@
 -- \timing
 \set ON_ERROR_STOP on
 \set MIN_NUM_OF_RECORDS 3
-\set MIN_YEARLY_INCREASE_OF_RECORDS 0
+\set MIN_YEARLY_DIFFERENCE 0
 \set ECHO all
 
 -- public has to be used in search_path to find pgTAP routines
@@ -120,7 +120,7 @@ SELECT cmp_ok(cte.num_products, '>=', cte.prev_num_products,
 FROM cte;
 --endregion
 
---region is there increase year by year in products
+--region is there increase year by year in fda products
 with cte as (SELECT extract('year' FROM time_series)::int AS approval_year,
                     coalesce(count(appl_no) - lag(count(appl_no)) over (order by extract('year' FROM time_series)::int),
                              '0')                         as difference
@@ -134,8 +134,8 @@ with cte as (SELECT extract('year' FROM time_series)::int AS approval_year,
              GROUP BY time_series, approval_year
              ORDER BY approval_year)
 SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
-              CAST(:MIN_YEARLY_INCREASE_OF_RECORDS as BIGINT),
-              format('%s.tables should increase at least %s record', 'FDA', :MIN_YEARLY_INCREASE_OF_RECORDS))
+              CAST(:MIN_YEARLY_DIFFERENCE as BIGINT),
+              format('%s.tables should increase at least %s record', 'FDA', :MIN_YEARLY_DIFFERENCE))
 from cte;
 -- endregion
 
