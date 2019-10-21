@@ -15,7 +15,7 @@ SET TIMEZONE = 'US/Eastern';
 
 -- insert into using a values list
 
-INSERT INTO update_log_scopus (update_time, num_ex_project)
+INSERT INTO update_log_exporter (update_time, num_ex_project)
      SELECT *
      FROM
      (VALUES
@@ -28,5 +28,5 @@ INSERT INTO update_log_scopus (update_time, num_ex_project)
 AS t (update_time, num_ex_project);
 
 SELECT *
-FROM update_log_scopus
+FROM update_log_exporter
 ORDER BY id DESC;

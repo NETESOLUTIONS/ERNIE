@@ -31,22 +31,26 @@ SET search_path = :schema,public;
 SET TIMEZONE = 'US/Eastern';
 
 -- Analyze tables
-DO $block$
-  DECLARE tab RECORD;
-  BEGIN
-    FOR tab IN (
-      SELECT table_name
-        FROM
-          information_schema.tables --
-       WHERE table_schema = current_schema AND table_name LIKE 'scopus%'
-    ) LOOP
-      EXECUTE format('ANALYZE VERBOSE %I;', tab.table_name);
-    END LOOP;
-  END $block$;
+DO
+$block$
+    DECLARE
+        tab RECORD;
+    BEGIN
+        FOR tab IN (
+            SELECT table_name
+            FROM information_schema.tables --
+            WHERE table_schema = current_schema
+              AND table_name LIKE 'scopus%'
+        )
+            LOOP
+                EXECUTE format('ANALYZE VERBOSE %I;', tab.table_name);
+            END LOOP;
+    END
+$block$;
 
 BEGIN;
 SELECT *
-  FROM no_plan();
+FROM no_plan();
 
 -- region all scopus tables exist
 SELECT has_table('scopus_abstracts');
@@ -84,63 +88,64 @@ SELECT is_empty($$
                     FROM pg_indexes idx
                    WHERE idx.schemaname = current_schema
                      AND idx.tablename = tbls.tablename
-                     and idx.indexdef like 'CREATE UNIQUE INDEX%')$$, 'All Scopus tables should have at least a UNIQUE INDEX');
+                     and idx.indexdef like 'CREATE UNIQUE INDEX%')$$,
+                'All Scopus tables should have at least a UNIQUE INDEX');
 -- endregion
 
 -- region are any tables completely null for every field
-SELECT
-  is_empty($$
+SELECT is_empty($$
   SELECT current_schema || '.' || tablename || '.' || attname AS not_populated_column
     FROM pg_stats
   WHERE schemaname = current_schema AND tablename LIKE 'scopus%' AND null_frac = 1$$,
-           'All Scopus table columns should be populated (not 100% NULL)');
+                'All Scopus table columns should be populated (not 100% NULL)');
 -- endregion
 
 -- region are all tables populated
-  WITH cte AS (
+WITH cte AS (
     SELECT parent_pc.relname, sum(coalesce(partition_pc.reltuples, parent_pc.reltuples)) AS total_rows
-      FROM
-        pg_class parent_pc
-          JOIN pg_namespace pn ON pn.oid = parent_pc.relnamespace AND pn.nspname = current_schema
-          LEFT JOIN pg_inherits pi ON pi.inhparent = parent_pc.oid
-          LEFT JOIN pg_class partition_pc ON partition_pc.oid = pi.inhrelid
-     WHERE parent_pc.relname LIKE 'scopus%' AND parent_pc.relkind IN ('r', 'p') AND NOT parent_pc.relispartition
-     GROUP BY parent_pc.oid, parent_pc.relname
-  )
-SELECT
-  cmp_ok(CAST(cte.total_rows AS BIGINT), '>=', CAST(:MIN_NUM_OF_RECORDS AS BIGINT),
-         format('%s.%s table should have at least %s record%s', current_schema, cte.relname, :MIN_NUM_OF_RECORDS,
-                CASE WHEN :MIN_NUM_OF_RECORDS > 1 THEN 's' ELSE '' END))
-  FROM cte;
+    FROM pg_class parent_pc
+             JOIN pg_namespace pn ON pn.oid = parent_pc.relnamespace AND pn.nspname = current_schema
+             LEFT JOIN pg_inherits pi ON pi.inhparent = parent_pc.oid
+             LEFT JOIN pg_class partition_pc ON partition_pc.oid = pi.inhrelid
+    WHERE parent_pc.relname LIKE 'scopus%'
+      AND parent_pc.relkind IN ('r', 'p')
+      AND NOT parent_pc.relispartition
+    GROUP BY parent_pc.oid, parent_pc.relname
+)
+SELECT cmp_ok(CAST(cte.total_rows AS BIGINT), '>=', CAST(:MIN_NUM_OF_RECORDS AS BIGINT),
+              format('%s.%s table should have at least %s record%s', current_schema, cte.relname, :MIN_NUM_OF_RECORDS,
+                     CASE WHEN :MIN_NUM_OF_RECORDS > 1 THEN 's' ELSE '' END))
+FROM cte;
 -- endregion
 
 -- region is there a decrease in records
-  WITH cte AS (
+WITH cte AS (
     SELECT num_scopus_pub, lead(num_scopus_pub, 1, 0) OVER (ORDER BY id DESC) AS prev_num_scopus_pub
-      FROM update_log_scopus
-     WHERE num_scopus_pub IS NOT NULL
-     ORDER BY id DESC
-     LIMIT 1
-  )
-SELECT
-  cmp_ok(cte.num_scopus_pub, '>=', cte.prev_num_scopus_pub,
-         'The number of Scopus records should not decrease after an update')
-  FROM cte;
+    FROM update_log_scopus
+    WHERE num_scopus_pub IS NOT NULL
+    ORDER BY id DESC
+    LIMIT 1
+)
+SELECT cmp_ok(cte.num_scopus_pub, '>=', cte.prev_num_scopus_pub,
+              'The number of Scopus records should not decrease after an update')
+FROM cte;
 -- endregion
 
 --region is there increase year by year
 WITH cte AS (SELECT extract('year' FROM time_series)::int                      AS pub_year,
-                    count(sgr) - lag(count(sgr)) over (order by extract('year' FROM time_series)::int) as difference
+                    count(sgr),
+                    coalesce(count(sgr) - lag(count(sgr)) over (order by extract('year' FROM time_series)::int),'0' )as difference
              FROM scopus_publication_groups,
-                  generate_series(date_trunc('year', pub_date::timestamp), date_trunc('year', pub_date::timestamp),
+                  generate_series(to_date(pub_year::text, 'YYYY')::timestamp ,to_date(pub_year::text, 'YYYY')::timestamp,
                                   interval '1 year') time_series
+             WHERE pub_year >= '1930' and pub_year <= '2020'
              GROUP BY time_series, pub_year
-             ORDER BY pub_year offset 1) -- offset to get rid of null
+             ORDER BY pub_year )
 SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
               CAST(:MIN_YEARLY_INCREASE_OF_RECORDS as BIGINT),
               format('%s.tables should increase at least %s record', 'FDA', :MIN_YEARLY_INCREASE_OF_RECORDS));
 --endregion
 
 SELECT *
-  FROM finish();
+FROM finish();
 ROLLBACK;
