@@ -9,6 +9,7 @@ Generate citation counts for scopus_references
 Results to be used for hazen percentile calculations
 """
 
+from __future__ import print_function
 from os.path import expanduser, join
 from pyspark.sql import SparkSession
 from pyspark.sql import Row
