@@ -15,6 +15,7 @@
 
 -- \timing
 \set ON_ERROR_STOP on
+\set ECHO all
 
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;
