@@ -21,7 +21,9 @@
 
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;
-SET script.module_name = :module_name;
+\set script.module_name :module_name;
+set script.module_name = :module_name;
+
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
