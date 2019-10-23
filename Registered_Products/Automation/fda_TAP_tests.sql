@@ -36,7 +36,7 @@ $block$
             SELECT table_name
             FROM information_schema.tables --
             WHERE table_schema = current_schema
-              AND table_name LIKE 'script.module_name' || '%'
+              AND table_name LIKE current_setting('script.module_name') || '%'
         )
 
             LOOP
@@ -60,7 +60,7 @@ SELECT has_table(:'module_name' || '_purple_book');
 SELECT is_empty($$
  SELECT current_schema || '.' || tablename
   FROM pg_catalog.pg_tables tbls
- WHERE schemaname= current_schema AND tablename LIKE script.module_name || '%'
+ WHERE schemaname= current_schema AND tablename LIKE current_setting('script.module_name') || '%'
    AND NOT EXISTS(SELECT *
                     FROM pg_indexes idx
                    WHERE idx.schemaname = current_schema
@@ -73,7 +73,7 @@ SELECT is_empty($$
 SELECT is_empty($$
   SELECT current_schema || '.' || tablename || '.' || attname AS not_populated_column
     FROM pg_stats
-  WHERE schemaname = current_schema AND tablename LIKE 'fda'|| '%' AND null_frac = 1$$,
+  WHERE schemaname = current_schema AND tablename LIKE current_setting('script.module_name') || '%' AND null_frac = 1$$,
                 'All FDA table columns should be populated (not 100% NULL)');
 -- endregion
 
