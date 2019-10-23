@@ -75,7 +75,7 @@ SELECT is_empty($$
 SELECT is_empty($$
   SELECT current_schema || '.' || tablename || '.' || attname AS not_populated_column
     FROM pg_stats
-  WHERE schemaname = current_schema AND tablename LIKE :module_name || '% AND null_frac = 1$$,
+  WHERE schemaname = current_schema AND tablename LIKE 'fda'|| '%' AND null_frac = 1$$,
                 'All FDA table columns should be populated (not 100% NULL)');
 -- endregion
 
