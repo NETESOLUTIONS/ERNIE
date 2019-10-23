@@ -60,7 +60,7 @@ SELECT has_table(:'module_name' || '_purple_book');
 SELECT is_empty($$
  SELECT current_schema || '.' || tablename
   FROM pg_catalog.pg_tables tbls
- WHERE schemaname= current_schema AND tablename LIKE 'fda' || '%'
+ WHERE schemaname= current_schema AND tablename LIKE script.module_name || '%'
    AND NOT EXISTS(SELECT *
                     FROM pg_indexes idx
                    WHERE idx.schemaname = current_schema
