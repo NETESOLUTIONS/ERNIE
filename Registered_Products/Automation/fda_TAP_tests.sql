@@ -62,7 +62,7 @@ SELECT has_table(:'module_name' || '_purple_book');
 SELECT is_empty($$
  SELECT current_schema || '.' || tablename
   FROM pg_catalog.pg_tables tbls
- WHERE schemaname= current_schema AND tablename LIKE :'module_name' || '%'
+ WHERE schemaname= current_schema AND tablename LIKE 'fda' || '%'
    AND NOT EXISTS(SELECT *
                     FROM pg_indexes idx
                    WHERE idx.schemaname = current_schema
@@ -75,7 +75,7 @@ SELECT is_empty($$
 SELECT is_empty($$
   SELECT current_schema || '.' || tablename || '.' || attname AS not_populated_column
     FROM pg_stats
-  WHERE schemaname = current_schema AND tablename LIKE 'fda%' AND null_frac = 1$$,
+  WHERE schemaname = current_schema AND tablename LIKE :module_name || '% AND null_frac = 1$$,
                 'All FDA table columns should be populated (not 100% NULL)');
 -- endregion
 
@@ -86,7 +86,7 @@ WITH cte AS (
              JOIN pg_namespace pn ON pn.oid = parent_pc.relnamespace AND pn.nspname = current_schema
              LEFT JOIN pg_inherits pi ON pi.inhparent = parent_pc.oid
              LEFT JOIN pg_class partition_pc ON partition_pc.oid = pi.inhrelid
-    WHERE parent_pc.relname LIKE :module_name
+    WHERE parent_pc.relname LIKE :'module_name' || '%'
       AND parent_pc.relkind IN ('r', 'p')
       AND NOT parent_pc.relispartition
     GROUP BY parent_pc.oid, parent_pc.relname
@@ -100,7 +100,7 @@ FROM cte;
 -- region is there a decrease in patents
 WITH cte AS (
     SELECT num_patent, lead(num_patent, 1, 0) OVER (ORDER BY id DESC) AS prev_num_patent
-    FROM update_log_fda
+    FROM update_log_:module_name
     WHERE num_patent IS NOT NULL
     ORDER BY id DESC
     LIMIT 1
@@ -113,7 +113,7 @@ FROM cte;
 --region is there a decrease in products
 WITH cte AS (
     SELECT num_products, lead(num_products, 1, 0) OVER (ORDER BY id DESC) AS prev_num_products
-    FROM update_log_fda
+    FROM update_log_:module_name
     WHERE num_products IS NOT NULL
     ORDER BY id DESC
     LIMIT 1
