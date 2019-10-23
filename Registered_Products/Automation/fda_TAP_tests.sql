@@ -95,7 +95,7 @@ FROM cte;
 -- endregion
 
 --region show update log for patent
-SELECT num_patent, lead(num_patent, 1, 0) OVER (ORDER BY id DESC) AS prev_num_patent
+SELECT num_patent
 FROM update_log_:module_name
 WHERE num_patent IS NOT NULL
 ORDER BY id DESC
@@ -116,7 +116,7 @@ FROM cte;
 -- endregion
 
 --region show update log for products
-SELECT num_products, lead(num_products, 1, 0) OVER (ORDER BY id DESC) AS prev_num_products
+SELECT num_products
 FROM update_log_:module_name
 WHERE num_products IS NOT NULL
 ORDER BY id DESC
