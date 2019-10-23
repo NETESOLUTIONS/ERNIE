@@ -15,7 +15,6 @@
 
 -- \timing
 \set ON_ERROR_STOP on
-\set ECHO all
 
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;
@@ -95,6 +94,14 @@ SELECT cmp_ok(CAST(cte.total_rows AS BIGINT), '>=', CAST(:min_num_of_records AS 
 FROM cte;
 -- endregion
 
+--region show update log for patent
+SELECT num_patent, lead(num_patent, 1, 0) OVER (ORDER BY id DESC) AS prev_num_patent
+FROM update_log_:module_name
+WHERE num_patent IS NOT NULL
+ORDER BY id DESC
+LIMIT 10;
+--endregion
+
 -- region is there a decrease in patents
 WITH cte AS (
     SELECT num_patent, lead(num_patent, 1, 0) OVER (ORDER BY id DESC) AS prev_num_patent
@@ -108,6 +115,14 @@ SELECT cmp_ok(cte.num_patent, '>=', cte.prev_num_patent,
 FROM cte;
 -- endregion
 
+--region show update log for products
+SELECT num_products, lead(num_products, 1, 0) OVER (ORDER BY id DESC) AS prev_num_products
+FROM update_log_:module_name
+WHERE num_products IS NOT NULL
+ORDER BY id DESC
+LIMIT 10;
+--endregion
+
 --region is there a decrease in products
 WITH cte AS (
     SELECT num_products, lead(num_products, 1, 0) OVER (ORDER BY id DESC) AS prev_num_products
@@ -119,6 +134,21 @@ WITH cte AS (
 SELECT cmp_ok(cte.num_products, '>=', cte.prev_num_products,
               'The number of FDA records on products should not decrease after an update')
 FROM cte;
+--endregion
+
+--region show differences between consecutive years
+SELECT extract('year' FROM time_series)::int AS approval_year,
+       coalesce(count(appl_no) - lag(count(appl_no)) over (order by extract('year' FROM time_series)::int),
+                '0')                         as difference
+FROM fda_products,
+     generate_series(
+             date_trunc('year', to_date(regexp_replace(approval_date, 'Approved Prior to ', '', 'g'),
+                                        'Mon DD YYYY')),
+             date_trunc('year', to_date(regexp_replace(approval_date, 'Approved Prior to ', '', 'g'),
+                                        'Mon DD YYYY')),
+             interval '1 year') time_series
+GROUP BY time_series, approval_year
+ORDER BY approval_year;
 --endregion
 
 --region is there increase year by year in fda products
