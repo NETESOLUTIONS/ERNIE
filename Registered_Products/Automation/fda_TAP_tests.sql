@@ -21,7 +21,7 @@
 
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;
-\set module_name :module_name;
+\set module_name :'module_name';
 set script.module_name to 'module_name';
 
 
@@ -86,7 +86,7 @@ WITH cte AS (
              JOIN pg_namespace pn ON pn.oid = parent_pc.relnamespace AND pn.nspname = current_schema
              LEFT JOIN pg_inherits pi ON pi.inhparent = parent_pc.oid
              LEFT JOIN pg_class partition_pc ON partition_pc.oid = pi.inhrelid
-    WHERE parent_pc.relname LIKE 'fda%'
+    WHERE parent_pc.relname LIKE :module_name
       AND parent_pc.relkind IN ('r', 'p')
       AND NOT parent_pc.relispartition
     GROUP BY parent_pc.oid, parent_pc.relname
