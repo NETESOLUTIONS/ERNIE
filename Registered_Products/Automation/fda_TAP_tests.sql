@@ -36,7 +36,7 @@ $block$
             SELECT table_name
             FROM information_schema.tables --
             WHERE table_schema = current_schema
-              AND table_name LIKE script.module_name || '%'
+              AND table_name LIKE 'script.module_name' || '%'
         )
 
             LOOP
