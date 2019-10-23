@@ -95,7 +95,7 @@ FROM cte;
 -- endregion
 
 --region show update log for patent
-SELECT num_patent
+SELECT id, num_patent, last_updated
 FROM update_log_:module_name
 WHERE num_patent IS NOT NULL
 ORDER BY id DESC
@@ -116,7 +116,7 @@ FROM cte;
 -- endregion
 
 --region show update log for products
-SELECT num_products
+SELECT id, num_products, last_updated
 FROM update_log_:module_name
 WHERE num_products IS NOT NULL
 ORDER BY id DESC
