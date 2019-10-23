@@ -19,10 +19,6 @@
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;
 
--- This could be schema-dependent
-\set MIN_NUM_OF_RECORDS 3
-\set MIN_YEARLY_DIFFERENCE 0
-
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
@@ -52,9 +48,9 @@ SELECT *
 FROM no_plan();
 
 -- region all exporter tables exist 
-SELECT has_table('exporter_project_abstracts');
-SELECT has_table('exporter_projects');
-SELECT has_table('exporter_publink');
+SELECT has_table(:'module_name' || '_project_abstracts');
+SELECT has_table(:'module_name' || '_projects');
+SELECT has_table(:'module_name' || '_publink');
 -- endregion
 
 -- region all tables should have at least a UNIQUE INDEX
@@ -85,21 +81,29 @@ WITH cte AS (
              JOIN pg_namespace pn ON pn.oid = parent_pc.relnamespace AND pn.nspname = current_schema
              LEFT JOIN pg_inherits pi ON pi.inhparent = parent_pc.oid
              LEFT JOIN pg_class partition_pc ON partition_pc.oid = pi.inhrelid
-    WHERE parent_pc.relname LIKE 'exporter%'
+    WHERE parent_pc.relname LIKE :'module_name' || '%'
       AND parent_pc.relkind IN ('r', 'p')
       AND NOT parent_pc.relispartition
     GROUP BY parent_pc.oid, parent_pc.relname
 )
-SELECT cmp_ok(CAST(cte.total_rows AS BIGINT), '>=', CAST(:MIN_NUM_OF_RECORDS AS BIGINT),
-              format('%s.%s table should have at least %s record%s', current_schema, cte.relname, :MIN_NUM_OF_RECORDS,
-                     CASE WHEN :MIN_NUM_OF_RECORDS > 1 THEN 's' ELSE '' END))
+SELECT cmp_ok(CAST(cte.total_rows AS BIGINT), '>=', CAST(:min_num_of_records AS BIGINT),
+              format('%s.%s table should have at least %s record%s', current_schema, cte.relname, :min_num_of_records,
+                     CASE WHEN :min_num_of_records > 1 THEN 's' ELSE '' END))
 FROM cte;
 -- endregion
+
+--region show update log
+SELECT id, num_ex_project, update_time
+FROM update_log_:module_name
+WHERE num_ex_project IS NOT NULL
+ORDER BY id DESC
+LIMIT 10;
+--end region
 
 -- region is there a decrease in records
 WITH cte AS (
     SELECT num_ex_project, lead(num_ex_project, 1, 0) OVER (ORDER BY id DESC) AS prev_num_exporter_project
-    FROM update_log_exporter
+    FROM update_log_:module_name
     WHERE num_ex_project IS NOT NULL
     ORDER BY id DESC
     LIMIT 1
@@ -109,11 +113,29 @@ SELECT cmp_ok(cte.num_ex_project, '>=', cte.prev_num_exporter_project,
 FROM cte;
 -- endregion
 
+--region show publications per year
+SELECT extract('year' FROM time_series)::int as budget_start_year,
+       count(application_id)                 as project_count,
+       coalesce(count(application_id) -
+                lag(count(application_id)) over (order by extract('year' FROM time_series)::int),
+                '0')                         as difference
+FROM exporter_projects,
+     generate_series(
+             date_trunc('year', to_date(budget_start,
+                                        'MM DD YYYY')),
+             date_trunc('year', to_date(regexp_replace(budget_start, 'Approved Prior to ', '', 'g'),
+                                        'MM DD YYYY')),
+             interval '1 year') time_series
+WHERE budget_start <= '2019'
+GROUP BY time_series, budget_start_year
+ORDER BY budget_start_year;
+--endregion
+
 --region is there increase year by year in projects
-with cte as (SELECT extract('year' FROM time_series)::int                                                           as budget_start_year,
+with cte as (SELECT extract('year' FROM time_series)::int as budget_start_year,
                     coalesce(count(application_id) -
                              lag(count(application_id)) over (order by extract('year' FROM time_series)::int),
-                             '0')                                                                                   as difference
+                             '0')                         as difference
              FROM exporter_projects,
                   generate_series(
                           date_trunc('year', to_date(budget_start,
@@ -125,8 +147,8 @@ with cte as (SELECT extract('year' FROM time_series)::int                       
              GROUP BY time_series, budget_start_year
              ORDER BY budget_start_year)
 SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
-              CAST(:MIN_YEARLY_DIFFERENCE as BIGINT),
-              format('%s.tables should increase at least %s record', 'FDA', :MIN_YEARLY_DIFFERENCE))
+              CAST(:min_yearly_difference as BIGINT),
+              format('%s.tables should increase at least %s record', 'FDA', :min_yearly_difference))
 from cte;
 -- endregion
 

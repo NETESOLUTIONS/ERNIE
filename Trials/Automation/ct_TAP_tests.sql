@@ -15,9 +15,6 @@
 
 \set ON_ERROR_STOP on
 \set ECHO all
-\set MIN_NUM_OF_RECORDS 3
-\set MIN_YEARLY_DIFFERENCE 0
-
 
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;
@@ -46,28 +43,28 @@ SELECT *
 FROM no_plan();
 
 -- region all ct_ tables exist
-SELECT has_table('ct_clinical_studies');
-SELECT has_table('ct_arm_groups');
-SELECT has_table('ct_collaborators');
-SELECT has_table('ct_condition_browses');
-SELECT has_table('ct_conditions');
-SELECT has_table('ct_expanded_access_info');
-SELECT has_table('ct_intervention_arm_group_labels');
-SELECT has_table('ct_intervention_browses');
-SELECT has_table('ct_intervention_other_names');
-SELECT has_table('ct_interventions');
-SELECT has_table('ct_keywords');
-SELECT has_table('ct_links');
-SELECT has_table('ct_location_countries');
-SELECT has_table('ct_location_investigators');
-SELECT has_table('ct_locations');
-SELECT has_table('ct_outcomes');
-SELECT has_table('ct_overall_contacts');
-SELECT has_table('ct_overall_officials');
-SELECT has_table('ct_publications');
-SELECT has_table('ct_references');
-SELECT has_table('ct_secondary_ids');
-SELECT has_table('ct_study_design_info');
+SELECT has_table(:'module_name' || '_clinical_studies');
+SELECT has_table(:'module_name' || '_arm_groups');
+SELECT has_table(:'module_name' || '_collaborators');
+SELECT has_table(:'module_name' || '_condition_browses');
+SELECT has_table(:'module_name' || '_conditions');
+SELECT has_table(:'module_name' || '_expanded_access_info');
+SELECT has_table(:'module_name' || '_intervention_arm_group_labels');
+SELECT has_table(:'module_name' || '_intervention_browses');
+SELECT has_table(:'module_name' || '_intervention_other_names');
+SELECT has_table(:'module_name' || '_interventions');
+SELECT has_table(:'module_name' || '_keywords');
+SELECT has_table(:'module_name' || '_links');
+SELECT has_table(:'module_name' || '_location_countries');
+SELECT has_table(:'module_name' || '_location_investigators');
+SELECT has_table(:'module_name' || '_locations');
+SELECT has_table(:'module_name' || '_outcomes');
+SELECT has_table(:'module_name' || '_overall_contacts');
+SELECT has_table(:'module_name' || '_overall_officials');
+SELECT has_table(:'module_name' || '_publications');
+SELECT has_table(:'module_name' || '_references');
+SELECT has_table(:'module_name' || '_secondary_ids');
+SELECT has_table(:'module_name' || '_study_design_info');
 BEGIN;
 -- endregion
 
@@ -100,21 +97,29 @@ WITH cte AS (
              JOIN pg_namespace pn ON pn.oid = parent_pc.relnamespace AND pn.nspname = current_schema
              LEFT JOIN pg_inherits pi ON pi.inhparent = parent_pc.oid
              LEFT JOIN pg_class partition_pc ON partition_pc.oid = pi.inhrelid
-    WHERE parent_pc.relname LIKE 'ct_%'
+    WHERE parent_pc.relname LIKE :'module_name' || '%'
       AND parent_pc.relkind IN ('r', 'p')
       AND NOT parent_pc.relispartition
     GROUP BY parent_pc.oid, parent_pc.relname
 )
-SELECT cmp_ok(CAST(cte.total_rows AS BIGINT), '>=', CAST(:MIN_NUM_OF_RECORDS AS BIGINT),
-              format('%s.%s table should have at least %s record%s', current_schema, cte.relname, :MIN_NUM_OF_RECORDS,
-                     CASE WHEN :MIN_NUM_OF_RECORDS > 1 THEN 's' ELSE '' END))
+SELECT cmp_ok(CAST(cte.total_rows AS BIGINT), '>=', CAST(:min_num_of_records AS BIGINT),
+              format('%s.%s table should have at least %s record%s', current_schema, cte.relname, :min_num_of_records,
+                     CASE WHEN :min_num_of_records > 1 THEN 's' ELSE '' END))
 FROM cte;
 -- endregion
+
+--region show update log
+SELECT id, num_nct, last_updated
+FROM update_log_:module_name
+WHERE num_nct IS NOT NULL
+ORDER BY id DESC
+LIMIT 10;
+--endregion
 
 -- region is there a decrease in records
 WITH cte AS (
     SELECT num_nct, lead(num_nct, 1, 0) OVER (ORDER BY id DESC) AS prev_num_nct
-    FROM update_log_ct
+    FROM update_log_:module_name
     WHERE num_nct IS NOT NULL
     ORDER BY id DESC
     LIMIT 1
@@ -123,6 +128,25 @@ SELECT cmp_ok(cte.num_nct, '>=', cte.prev_num_nct,
               'The number of CT records should not decrease after an update')
 FROM cte;
 -- endregion
+
+--region show rows per year
+SELECT extract('year' FROM time_series)::int AS verification_year,
+       count(nct_id)                            count_nct,
+       coalesce(count(nct_id) -
+                lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),
+                '0')                         as difference
+FROM ct_clinical_studies,
+     generate_series(
+             date_trunc('year', to_date(
+                     regexp_replace(verification_date, '[0-9]{2},', '', 'g'), -- there are different data formats , normal is Month YYYY,
+                 -- but there are some Month DD YYYY, were changed to normal format
+                     'Month YYYY')),
+             date_trunc('year', to_date(regexp_replace(verification_date, '[0-9]{2},', '', 'g'),
+                                        'Month YYYY')),
+             interval '1 year') time_series
+GROUP BY time_series, verification_year
+ORDER BY verification_year;
+--endregion
 
 --region do clinical trials increase year by year
 with cte as (SELECT extract('year' FROM time_series)::int AS verification_year,
@@ -141,8 +165,8 @@ with cte as (SELECT extract('year' FROM time_series)::int AS verification_year,
              GROUP BY time_series, verification_year
              ORDER BY verification_year)
 SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
-              CAST(:MIN_YEARLY_DIFFERENCE as BIGINT),
-              format('%s.tables should increase at least %s record', 'FDA', :MIN_YEARLY_DIFFERENCE))
+              CAST(:min_yearly_difference as BIGINT),
+              format('%s.tables should increase at least %s record', 'FDA', :min_yearly_difference))
 FROM cte
 where verification_year >= 1981;
 -- some of the dates for verification are 0Y instead of YYYY in terms of date and so were eliminated
