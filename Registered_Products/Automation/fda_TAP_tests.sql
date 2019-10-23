@@ -50,14 +50,14 @@ $block$;
 -- BEGIN;
 -- SELECT *
 -- FROM no_plan();
---
--- -- region all fda tables exist
--- SELECT has_table('script.module_name_patents');
--- SELECT has_table('script.module_name_exclusivities');
--- SELECT has_table('script.module_name_products');
--- SELECT has_table('script.module_name_purple_book');
--- -- endregion
---
+
+-- region all fda tables exist
+SELECT has_table(:module_name'_patents');
+SELECT has_table(:module_name'_exclusivities');
+SELECT has_table(:module_name'_products');
+SELECT has_table(:module_name'_purple_book');
+-- endregion
+
 -- --region every table should have at least a UNIQUE INDEX
 -- SELECT is_empty($$
 --  SELECT current_schema || '.' || tablename
