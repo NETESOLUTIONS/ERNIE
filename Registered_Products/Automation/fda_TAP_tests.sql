@@ -21,7 +21,7 @@
 
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;
-\set script.module_name :module_name;
+\set module_name :module_name;
 set script.module_name = :module_name;
 
 
