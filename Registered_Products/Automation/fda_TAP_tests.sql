@@ -38,7 +38,7 @@ $block$
             SELECT table_name
             FROM information_schema.tables --
             WHERE table_schema = current_schema
-              AND table_name LIKE :'script.module_name' || '%'
+              AND table_name LIKE 'script.module_name' || '%'
         )
 
             LOOP
@@ -52,7 +52,7 @@ SELECT *
 FROM no_plan();
 
 -- region all fda tables exist
-SELECT has_table('fda_patents');
+SELECT has_table(:'module_name' || '_patents');
 SELECT has_table('fda_exclusivities');
 SELECT has_table('fda_products');
 SELECT has_table('fda_purple_book');
