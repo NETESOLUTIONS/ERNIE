@@ -19,6 +19,10 @@
 -- public has to be used in search_path to find pgTAP routines
 SET search_path = public;
 
+--DO blocks don't accept any parameters. In order to pass a parameter, use a custom session variable AND current_settings
+-- https://github.com/NETESOLUTIONS/tech/wiki/Postgres-Recipes#Passing_psql_variables_to_DO_blocks
+--for more:https://stackoverflow.com/questions/24073632/passing-argument-to-a-psql-procedural-script
+set script.module_name = :'module_name';
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
@@ -35,7 +39,7 @@ $block$
             SELECT table_name
             FROM information_schema.tables --
             WHERE table_schema = current_schema
-              AND table_name LIKE 'exporter%'
+              AND table_name LIKE current_setting('script.module_name') || '%'
         )
             LOOP
                 EXECUTE format('ANALYZE VERBOSE %I;', tab.table_name);
@@ -57,7 +61,7 @@ SELECT has_table(:'module_name' || '_publink');
 SELECT is_empty($$
  SELECT current_schema || '.' || tablename
   FROM pg_catalog.pg_tables tbls
- WHERE schemaname= current_schema AND tablename LIKE 'exporter_%'
+ WHERE schemaname= current_schema AND tablename LIKE current_setting('script.module_name') || '%'
    AND NOT EXISTS(SELECT *
                     FROM pg_indexes idx
                    WHERE idx.schemaname = current_schema
@@ -70,7 +74,7 @@ SELECT is_empty($$
 SELECT is_empty($$
   SELECT current_schema || '.' || tablename || '.' || attname AS not_populated_column
     FROM pg_stats
-  WHERE schemaname = current_schema AND tablename LIKE 'exporter%' AND null_frac = 1$$,
+  WHERE schemaname = current_schema AND tablename LIKE current_setting('script.module_name') || '%' AND null_frac = 1$$,
                 'All exporter table columns should be populated (not 100% NULL)');
 -- endregion
 

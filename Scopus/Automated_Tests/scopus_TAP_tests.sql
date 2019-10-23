@@ -23,9 +23,10 @@
 SET search_path = :schema,public;
 \endif
 
--- This could be schema-dependent
-\set MIN_NUM_OF_RECORDS 5
-\set MIN_YEARLY_DIFFERENCE -50000
+--DO blocks don't accept any parameters. In order to pass a parameter, use a custom session variable AND current_settings
+-- https://github.com/NETESOLUTIONS/tech/wiki/Postgres-Recipes#Passing_psql_variables_to_DO_blocks
+--for more:https://stackoverflow.com/questions/24073632/passing-argument-to-a-psql-procedural-script
+set script.module_name = :'module_name';
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
@@ -40,7 +41,7 @@ $block$
             SELECT table_name
             FROM information_schema.tables --
             WHERE table_schema = current_schema
-              AND table_name LIKE 'scopus%'
+              AND table_name LIKE current_setting('script.module_name') || '%'
         )
             LOOP
                 EXECUTE format('ANALYZE VERBOSE %I;', tab.table_name);
@@ -53,37 +54,37 @@ SELECT *
 FROM no_plan();
 
 -- region all scopus tables exist
-SELECT has_table('scopus_abstracts');
-SELECT has_table('scopus_affiliations');
-SELECT has_table('scopus_authors');
-SELECT has_table('scopus_author_affiliations');
-SELECT has_table('scopus_chemical_groups');
-SELECT has_table('scopus_classes');
-SELECT has_table('scopus_classification_lookup');
-SELECT has_table('scopus_conf_editors');
-SELECT has_table('scopus_conf_proceedings');
-SELECT has_table('scopus_conference_events');
-SELECT has_table('scopus_grant_acknowledgments');
-SELECT has_table('scopus_grants');
-SELECT has_table('scopus_isbns');
-SELECT has_table('scopus_issns');
-SELECT has_table('scopus_keywords');
-SELECT has_table('scopus_publication_groups');
-SELECT has_table('scopus_publication_identifiers');
-SELECT has_table('scopus_publications');
-SELECT has_table('scopus_references');
-SELECT has_table('scopus_source_publication_details');
-SELECT has_table('scopus_sources');
-SELECT has_table('scopus_subject_keywords');
-SELECT has_table('scopus_subjects');
-SELECT has_table('scopus_titles');
+SELECT has_table(:'module_name' || '_abstracts');
+SELECT has_table(:'module_name' || '_affiliations');
+SELECT has_table(:'module_name' || '_authors');
+SELECT has_table(:'module_name' || '_author_affiliations');
+SELECT has_table(:'module_name' || '_chemical_groups');
+SELECT has_table(:'module_name' || '_classes');
+SELECT has_table(:'module_name' || '_classification_lookup');
+SELECT has_table(:'module_name' || '_conf_editors');
+SELECT has_table(:'module_name' || '_conf_proceedings');
+SELECT has_table(:'module_name' || '_conference_events');
+SELECT has_table(:'module_name' || '_grant_acknowledgments');
+SELECT has_table(:'module_name' || '_grants');
+SELECT has_table(:'module_name' || '_isbns');
+SELECT has_table(:'module_name' || '_issns');
+SELECT has_table(:'module_name' || '_keywords');
+SELECT has_table(:'module_name' || '_publication_groups');
+SELECT has_table(:'module_name' || '_publication_identifiers');
+SELECT has_table(:'module_name' || '_publications');
+SELECT has_table(:'module_name' || '_references');
+SELECT has_table(:'module_name' || '_source_publication_details');
+SELECT has_table(:'module_name' || '_sources');
+SELECT has_table(:'module_name' || '_subject_keywords');
+SELECT has_table(:'module_name' || '_subjects');
+SELECT has_table(:'module_name' || '_titles');
 -- endregion
 
 -- region all tables should have at least a UNIQUE INDEX
 SELECT is_empty($$
  SELECT current_schema || '.' || tablename
   FROM pg_catalog.pg_tables tbls
- WHERE schemaname= current_schema AND tablename LIKE 'scopus_%'
+ WHERE schemaname= current_schema AND tablename LIKE current_setting('script.module_name') || '%'
    AND NOT EXISTS(SELECT *
                     FROM pg_indexes idx
                    WHERE idx.schemaname = current_schema
@@ -96,7 +97,7 @@ SELECT is_empty($$
 SELECT is_empty($$
   SELECT current_schema || '.' || tablename || '.' || attname AS not_populated_column
     FROM pg_stats
-  WHERE schemaname = current_schema AND tablename LIKE 'scopus%' AND null_frac = 1$$,
+  WHERE schemaname = current_schema AND tablename LIKE current_setting('script.module_name') || '%' AND null_frac = 1$$,
                 'All Scopus table columns should be populated (not 100% NULL)');
 -- endregion
 
@@ -107,21 +108,29 @@ WITH cte AS (
              JOIN pg_namespace pn ON pn.oid = parent_pc.relnamespace AND pn.nspname = current_schema
              LEFT JOIN pg_inherits pi ON pi.inhparent = parent_pc.oid
              LEFT JOIN pg_class partition_pc ON partition_pc.oid = pi.inhrelid
-    WHERE parent_pc.relname LIKE 'scopus%'
+    WHERE parent_pc.relname LIKE :'module_name' || '%'
       AND parent_pc.relkind IN ('r', 'p')
       AND NOT parent_pc.relispartition
     GROUP BY parent_pc.oid, parent_pc.relname
 )
-SELECT cmp_ok(CAST(cte.total_rows AS BIGINT), '>=', CAST(:MIN_NUM_OF_RECORDS AS BIGINT),
-              format('%s.%s table should have at least %s record%s', current_schema, cte.relname, :MIN_NUM_OF_RECORDS,
-                     CASE WHEN :MIN_NUM_OF_RECORDS > 1 THEN 's' ELSE '' END))
+SELECT cmp_ok(CAST(cte.total_rows AS BIGINT), '>=', CAST(:min_num_of_records AS BIGINT),
+              format('%s.%s table should have at least %s record%s', current_schema, cte.relname, :min_num_of_records,
+                     CASE WHEN :min_num_of_records > 1 THEN 's' ELSE '' END))
 FROM cte;
 -- endregion
+
+--region check update log
+SELECT id, num_scopus_pub, update_time
+FROM update_log_:module_name
+WHERE num_scopus_pub IS NOT NULL
+ORDER BY id DESC
+LIMIT 10;
+--endregiom
 
 -- region is there a decrease in records
 WITH cte AS (
     SELECT num_scopus_pub, lead(num_scopus_pub, 1, 0) OVER (ORDER BY id DESC) AS prev_num_scopus_pub
-    FROM update_log_scopus
+    FROM update_log_:module_name
     WHERE num_scopus_pub IS NOT NULL
     ORDER BY id DESC
     LIMIT 1
@@ -131,10 +140,25 @@ SELECT cmp_ok(cte.num_scopus_pub, '>=', cte.prev_num_scopus_pub,
 FROM cte;
 -- endregion
 
+--region check number of pubs per year 
+SELECT extract('year' FROM time_series)::int AS pub_year,
+       count(sgr)                            as pub_count,
+       coalesce(count(sgr) - lag(count(sgr)) over (order by extract('year' FROM time_series)::int),
+                '0')                         as difference -- difference between count year 2 and year 1
+FROM scopus_publication_groups,
+     generate_series(to_date(pub_year::text, 'YYYY')::timestamp,
+                     to_date(pub_year::text, 'YYYY')::timestamp,
+                     interval '1 year') time_series
+WHERE pub_year >= '1930'
+  and pub_year <= '2019'
+GROUP BY time_series, pub_year
+ORDER BY pub_year;
+--endregion 
+
 --region is there increase year by year in scopus pubs
-WITH cte AS (SELECT extract('year' FROM time_series)::int                                                             AS pub_year,
+WITH cte AS (SELECT extract('year' FROM time_series)::int AS pub_year,
                     coalesce(count(sgr) - lag(count(sgr)) over (order by extract('year' FROM time_series)::int),
-                             '0')                                                                                     as difference -- difference between count year 2 and year 1
+                             '0')                         as difference -- difference between count year 2 and year 1
              FROM scopus_publication_groups,
                   generate_series(to_date(pub_year::text, 'YYYY')::timestamp,
                                   to_date(pub_year::text, 'YYYY')::timestamp,
@@ -144,8 +168,8 @@ WITH cte AS (SELECT extract('year' FROM time_series)::int                       
              GROUP BY time_series, pub_year
              ORDER BY pub_year)
 SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
-              CAST(:MIN_YEARLY_DIFFERENCE as BIGINT),
-              format('%s.tables should increase at least %s record', 'FDA', :MIN_YEARLY_DIFFERENCE))
+              CAST(:min_yearly_difference as BIGINT),
+              format('%s.tables should increase at least %s record', 'FDA', :min_yearly_difference))
 from cte;
 --endregion
 
