@@ -25,7 +25,7 @@ SET search_path = :schema,public;
 
 -- This could be schema-dependent
 \set MIN_NUM_OF_RECORDS 5
-\set MIN_YEARLY_DIFFERENCE 0
+\set MIN_YEARLY_DIFFERENCE -50000
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
