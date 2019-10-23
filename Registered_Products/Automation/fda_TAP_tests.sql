@@ -15,8 +15,6 @@
 
 -- \timing
 \set ON_ERROR_STOP on
-\set MIN_NUM_OF_RECORDS 5
-\set MIN_YEARLY_DIFFERENCE -100
 \set ECHO all
 
 -- public has to be used in search_path to find pgTAP routines
@@ -91,9 +89,9 @@ WITH cte AS (
       AND NOT parent_pc.relispartition
     GROUP BY parent_pc.oid, parent_pc.relname
 )
-SELECT cmp_ok(CAST(cte.total_rows AS BIGINT), '>=', CAST(:MIN_NUM_OF_RECORDS AS BIGINT),
-              format('%s.%s table should have at least %s record%s', current_schema, cte.relname, :MIN_NUM_OF_RECORDS,
-                     CASE WHEN :MIN_NUM_OF_RECORDS > 1 THEN 's' ELSE '' END))
+SELECT cmp_ok(CAST(cte.total_rows AS BIGINT), '>=', CAST(:min_num_of_records AS BIGINT),
+              format('%s.%s table should have at least %s record%s', current_schema, cte.relname, :min_num_of_records,
+                     CASE WHEN :min_num_of_records > 1 THEN 's' ELSE '' END))
 FROM cte;
 -- endregion
 
@@ -137,8 +135,8 @@ with cte as (SELECT extract('year' FROM time_series)::int AS approval_year,
              GROUP BY time_series, approval_year
              ORDER BY approval_year)
 SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
-              CAST(:MIN_YEARLY_DIFFERENCE as BIGINT),
-              format('%s.tables should increase at least %s record', 'FDA', :MIN_YEARLY_DIFFERENCE))
+              CAST(:min_yearly_difference as BIGINT),
+              format('%s.tables should increase at least %s record', 'FDA', :min_yearly_difference))
 from cte;
 -- endregion
 
