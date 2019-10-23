@@ -138,6 +138,7 @@ FROM cte;
 
 --region show differences between consecutive years
 SELECT extract('year' FROM time_series)::int AS approval_year,
+       count(appl_no) as product_count,
        coalesce(count(appl_no) - lag(count(appl_no)) over (order by extract('year' FROM time_series)::int),
                 '0')                         as difference
 FROM fda_products,
