@@ -47,9 +47,9 @@ $block$
     END
 $block$;
 
--- BEGIN;
--- SELECT *
--- FROM no_plan();
+BEGIN;
+SELECT *
+FROM no_plan();
 
 -- region all fda tables exist
 SELECT has_table(:module_name'_patents');
@@ -141,10 +141,10 @@ SELECT has_table(:module_name'_purple_book');
 --               format('%s.tables should increase at least %s record', 'FDA', :MIN_YEARLY_DIFFERENCE))
 -- from cte;
 -- -- endregion
---
---
--- SELECT *
--- FROM finish();
--- ROLLBACK;
---
--- -- END OF SCRIPT
+
+
+SELECT *
+FROM finish();
+ROLLBACK;
+
+-- END OF SCRIPT
