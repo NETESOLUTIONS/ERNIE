@@ -54,7 +54,7 @@ SELECT *
 FROM no_plan();
 
 -- region all fda tables exist
-SELECT has_table(:'module_name''_patents');
+SELECT has_table(:'module_name' || '_patents');
 SELECT has_table(:'module_name' || '_exclusivities');
 SELECT has_table(:'module_name' || '_products');
 SELECT has_table(:'module_name' || '_purple_book');
