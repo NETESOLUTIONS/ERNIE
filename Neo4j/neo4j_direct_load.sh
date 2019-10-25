@@ -44,13 +44,18 @@ if ! command -v cypher-shell >/dev/null; then
   exit 1
 fi
 
-echo "Loading"
+echo "Cleaning"
 # language=Cypher
 cypher-shell --format verbose <<HEREDOC
-// Clean DB
+DROP INDEX ON :Publication(source_id);
+
 MATCH (n)
 DETACH DELETE n;
+HEREDOC
 
+echo "Loading nodes"
+# language=Cypher
+cypher-shell --format verbose <<HEREDOC
 WITH 'jdbc:postgresql://ernie2/ernie?user=ernie_admin&password=${ERNIE_ADMIN_POSTGRES}' AS db,
      '
 SELECT source_id, cluster_20 AS cluster_no, pub_year, citation_count
@@ -61,9 +66,17 @@ WHERE publication = TRUE
 CALL apoc.load.jdbc(db, sql) YIELD row
 CREATE (p:Publication {source_id: row.source_id, cluster_no: row.cluster_no, year: row.pub_year,
                       citation_count: row.citation_count});
+HEREDOC
 
+echo "Indexing"
+# language=Cypher
+cypher-shell --format verbose <<HEREDOC
 CREATE INDEX ON :Publication(source_id);
+HEREDOC
 
+echo "Loading edges"
+# language=Cypher
+cypher-shell --format verbose <<HEREDOC
 WITH 'jdbc:postgresql://ernie1/ernie?user=ernie_admin&password=${ERNIE_ADMIN_POSTGRES}' AS db,
      '
 SELECT source_id, cited_source_uid
@@ -79,7 +92,6 @@ CALL apoc.load.jdbc(db, sql) YIELD row
 MATCH (p:Publication {source_id: row.source_id}), (r:Publication {source_id: row.cited_source_uid})
 MERGE (p)-[:CITES]->(r);
 HEREDOC
-echo "Loaded."
 
 echo "Calculating metrics"
 cypher-shell <<'HEREDOC'
