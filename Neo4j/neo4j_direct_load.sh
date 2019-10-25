@@ -44,7 +44,7 @@ if ! command -v cypher-shell >/dev/null; then
   exit 1
 fi
 
-echo "Loading ..."
+echo "Loading"
 # language=Cypher
 cypher-shell --format verbose <<HEREDOC
 // Clean DB
@@ -81,7 +81,7 @@ MERGE (p)-[:CITES]->(r);
 HEREDOC
 echo "Loaded."
 
-#echo "Calculating metrics and indexing ..."
+echo "Calculating metrics"
 cypher-shell <<'HEREDOC'
 // Calculate and store PageRank
 CALL algo.pageRank()
@@ -99,6 +99,7 @@ YIELD nodes, loadMillis, computeMillis, writeMillis;
 MATCH (n)
 RETURN apoc.agg.statistics(n.pagerank);
 HEREDOC
+echo "Done"
 
 # TODO Parallelize
 #parallel --halt soon,fail=1 --verbose --line-buffer --pipe cypher-shell ::: "// Calculate and store PageRank
