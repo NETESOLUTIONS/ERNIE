@@ -177,6 +177,25 @@ where verification_year >= 1981;
 -- some of the dates for verification are 0Y instead of YYYY in terms of date and so were eliminated
 --endregion
 
+-- region are there records in the future
+SELECT is_empty($$SELECT extract('year' FROM time_series)::int AS verification_year,
+                    coalesce(count(nct_id) -
+                             lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),
+                             '0')                         as difference
+             FROM ct_clinical_studies,
+                  generate_series(
+                          date_trunc('year', to_date(
+                                  regexp_replace(verification_date, '[0-9]{2},', '', 'g'), -- there are different data formats , normal is Month YYYY,
+                              -- but there are some Month DD YYYY, were changed to normal format
+                                  'Month YYYY')),
+                          date_trunc('year', to_date(regexp_replace(verification_date, '[0-9]{2},', '', 'g'),
+                                                     'Month YYYY')),
+                          interval '1 year') time_series
+             WHERE time_series::date > '2021 01 01'
+             GROUP BY time_series, verification_year
+             ORDER BY verification_year)$$, 'There should be no CT records two years from present');
+-- endregion
+
 SELECT *
 FROM finish();
 ROLLBACK;

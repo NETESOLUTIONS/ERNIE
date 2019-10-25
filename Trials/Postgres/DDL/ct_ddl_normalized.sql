@@ -325,33 +325,57 @@ COMMENT ON COLUMN ct_overall_contacts.phone_ext IS $$Example: 259$$;
 COMMENT ON COLUMN ct_overall_contacts.email IS $$Example: joanne.clifton@vch.ca$$;
 
 /* Find a proper PK here to use as an FK to the child tables, ZIP+Name would be good, but ZIP not always populated. Maybe an coalesce into a hash based on available fields would be viable?*/
-DROP TABLE IF EXISTS ct_locations;
-CREATE TABLE ct_locations (
-  nct_id                     REFERENCES ct_clinical_studies(nct_id) ON DELETE CASCADE,
-  location_hash              REFERENCES ct_locations(location_hash) ON DELETE CASCADE,
-  CONSTRAINT ct_locations_pk PRIMARY KEY (nct_id, location_hash) -- Replace this
-  USING INDEX TABLESPACE index_tbs
-) TABLESPACE ct_tbs;
+CREATE TABLE IF NOT EXISTS ct_locations
+(
+	id INTEGER,
+	nct_id TEXT NOT NULL,
+	facility_name TEXT DEFAULT ''::TEXT NOT NULL,
+	facility_city TEXT DEFAULT ''::TEXT NOT NULL,
+	facility_state TEXT,
+	facility_zip TEXT DEFAULT ''::TEXT NOT NULL,
+	facility_country TEXT DEFAULT ''::TEXT NOT NULL,
+	status TEXT,
+	contact_first_name TEXT,
+	contact_middle_name TEXT,
+	contact_last_name TEXT,
+	contact_degrees TEXT,
+	contact_phone TEXT,
+	contact_phone_ext TEXT,
+	contact_email TEXT,
+	contact_backup_first_name TEXT,
+	contact_backup_middle_name TEXT,
+	contact_backup_last_name TEXT,
+	contact_backup_degrees TEXT,
+	contact_backup_phone TEXT,
+	contact_backup_phone_ext TEXT,
+	contact_backup_email TEXT,
+	CONSTRAINT ct_locations_pk
+		PRIMARY KEY (nct_id, facility_city, facility_city, facility_zip, facility_name)
+);
 
-COMMENT ON TABLE ct_locations IS $$Table of clinical trial location summary$$;
-COMMENT ON COLUMN ct_locations.nct_id IS $$Example: NCT00000102$$;
-COMMENT ON COLUMN ct_locations.location_hash IS $$Example: Medical University of South Carolina$$;
-
-
--- GENERATE location hash based on name, city, country, state
-DROP TABLE IF EXISTS ct_locations;
-CREATE TABLE ct_locations (
-  location_hash              TEXT NOT NULL,
-  facility_name              TEXT,
-  facility_city              TEXT,
-  facility_state             TEXT,
-  facility_zip               TEXT,
-  facility_country           TEXT,
-  status                     TEXT,
-  CONSTRAINT ct_locations_pk PRIMARY KEY (location_hash) -- Replace this
-  USING INDEX TABLESPACE index_tbs
-) TABLESPACE ct_tbs;
-
+COMMENT ON TABLE ct_locations IS 'TABLE OF CLINICAL TRIAL LOCATION SUMMARY';
+COMMENT ON COLUMN ct_locations.ID IS 'INTERNAL(PARDI) NUMBER.EXAMPLE: 1';
+COMMENT ON COLUMN ct_locations.NCT_ID IS 'EXAMPLE: NCT00000102';
+COMMENT ON COLUMN ct_locations.FACILITY_NAME IS 'EXAMPLE: MEDICAL UNIVERSITY OF SOUTH CAROLINA';
+COMMENT ON COLUMN ct_locations.FACILITY_CITY IS 'EXAMPLE: CHARLESTON';
+COMMENT ON COLUMN ct_locations.FACILITY_STATE IS 'EXAMPLE: SOUTH CAROLINA';
+COMMENT ON COLUMN ct_locations.FACILITY_ZIP IS 'EXAMPLE: 27100';
+COMMENT ON COLUMN ct_locations.FACILITY_COUNTRY IS 'EXAMPLE: UNITED STATES';
+COMMENT ON COLUMN ct_locations.STATUS IS 'EXAMPLE: ACTIVE, NOT RECRUITING';
+COMMENT ON COLUMN ct_locations.CONTACT_FIRST_NAME IS 'NO RECORDS YET';\
+COMMENT ON COLUMN ct_locations.CONTACT_MIDDLE_NAME IS 'NO RECORDS YET';
+COMMENT ON COLUMN ct_locations.CONTACT_LAST_NAME IS 'EXAMPLE: 1134IFNFORMCLL TEAM';
+COMMENT ON COLUMN ct_locations.CONTACT_DEGREES IS 'NO RECORDS YET';
+COMMENT ON COLUMN ct_locations.CONTACT_PHONE IS 'EXAMPLE: +001 (214) 265-2137';
+COMMENT ON COLUMN ct_locations.CONTACT_PHONE_EXT IS 'EXAMPLE: +33';
+COMMENT ON COLUMN ct_locations.CONTACT_EMAIL IS 'EXAMPLE: LABAN63@YAHOO.COM';
+COMMENT ON COLUMN ct_locations.CONTACT_BACKUP_FIRST_NAME IS 'NO RECORDS YET';
+COMMENT ON COLUMN ct_locations.CONTACT_BACKUP_MIDDLE_NAME IS 'NO RECORDS YET';
+COMMENT ON COLUMN ct_locations.CONTACT_BACKUP_LAST_NAME IS 'EXAMPLE: ALAA HASSANIN, MD';
+COMMENT ON COLUMN ct_locations.CONTACT_BACKUP_DEGREES IS 'NO RECORDS YET';
+COMMENT ON COLUMN ct_locations.CONTACT_BACKUP_PHONE IS 'EXAMPLE: 01002554281';
+COMMENT ON COLUMN ct_locations.CONTACT_BACKUP_PHONE_EXT IS 'EXAMPLE: 6770';
+COMMENT ON COLUMN ct_locations.CONTACT_BACKUP_EMAIL IS 'EXAMPLE: ZHW6216@YAHOO.COM';
 COMMENT ON TABLE ct_locations IS $$Table of clinical trial location summary$$;
 COMMENT ON COLUMN ct_locations.location_hash IS $$Example: NCT00000102$$;
 COMMENT ON COLUMN ct_locations.facility_name IS $$Example: Medical University of South Carolina$$;

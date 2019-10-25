@@ -156,6 +156,25 @@ SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
 from cte;
 -- endregion
 
+-- region there should be no future records
+select is_empty($$SELECT extract('year' FROM time_series)::int as budget_start_year,
+                    coalesce(count(application_id) -
+                             lag(count(application_id)) over (order by extract('year' FROM time_series)::int),
+                             '0')                         as difference
+             FROM exporter_projects,
+                  generate_series(
+                          date_trunc('year', to_date(budget_start,
+                                                     'MM DD YYYY')),
+                          date_trunc('year', to_date(regexp_replace(budget_start, 'Approved Prior to ', '', 'g'),
+                                                     'MM DD YYYY')),
+                          interval '1 year') time_series
+             WHERE budget_start >= '2021'
+             GROUP BY time_series, budget_start_year
+             ORDER BY budget_start_year;$$ , 'There should be no exporter records two years from present');
+-- endregion
+
 SELECT *
 FROM finish();
 ROLLBACK;
+
+--END OF SCRIPT

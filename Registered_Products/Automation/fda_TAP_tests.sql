@@ -176,9 +176,25 @@ SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
 from cte;
 -- endregion
 
+-- region are there records in the future
+SELECT is_empty($$SELECT extract('year' FROM time_series)::int AS approval_year,
+                    coalesce(count(appl_no) - lag(count(appl_no)) over (order by extract('year' FROM time_series)::int),
+                             '0')                         as difference
+             FROM fda_products,
+                  generate_series(
+                          date_trunc('year', to_date(regexp_replace(approval_date, 'Approved Prior to ', '', 'g'),
+                                                     'Mon DD YYYY')),
+                          date_trunc('year', to_date(regexp_replace(approval_date, 'Approved Prior to ', '', 'g'),
+                                                     'Mon DD YYYY')),
+                          interval '1 year') time_series
+             WHERE time_series::date > '2019 01 01'
+             GROUP BY time_series, approval_year
+             ORDER BY approval_year;$$, 'There should be no FDA records two years from present');
+-- endregion
+
 
 SELECT *
 FROM finish();
 ROLLBACK;
 
--- END OF SCRIPT
+--END OF SCRIPT

@@ -173,6 +173,23 @@ SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
 from cte;
 --endregion
 
+-- region are there records in the future
+select is_empty($$SELECT extract('year' FROM time_series)::int AS pub_year,
+       count(sgr)                            as pub_count,
+       coalesce(count(sgr) - lag(count(sgr)) over (order by extract('year' FROM time_series)::int),
+                '0')                         as difference -- difference between count year 2 and year 1
+FROM scopus_publication_groups,
+     generate_series(to_date(pub_year::text, 'YYYY')::timestamp,
+                     to_date(pub_year::text, 'YYYY')::timestamp,
+                     interval '1 year') time_series
+WHERE pub_year >= '2021'
+GROUP BY time_series, pub_year
+ORDER BY pub_year;$$,'There should be no Scopus records two years from present');
+-- endregion
+
+
 SELECT *
 FROM finish();
 ROLLBACK;
+
+--END OF SCRIPT
