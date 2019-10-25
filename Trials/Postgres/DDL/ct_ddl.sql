@@ -106,7 +106,6 @@ COMMENT ON COLUMN ct_clinical_studies.primary_completion_date IS $$Example: Dece
 COMMENT ON COLUMN ct_clinical_studies.primary_completion_date_type IS $$Actual/Anticipated/(null)$$;
 COMMENT ON COLUMN ct_clinical_studies.phase IS $$Example: Phase 3$$;
 COMMENT ON COLUMN ct_clinical_studies.study_type IS $$Example: Interventional$$;
-COMMENT ON COLUMN ct_clinical_studies.study_design IS $$Example: Intervention Model: Parallel Assignment, Masking: Double-Blind, Primary Purpose: Treatment$$;
 COMMENT ON COLUMN ct_clinical_studies.target_duration IS $$Example: 100 Years$$;
 COMMENT ON COLUMN ct_clinical_studies.number_of_arms IS $$Example: 3$$;
 COMMENT ON COLUMN ct_clinical_studies.number_of_groups IS $$Example: 1$$;
@@ -483,7 +482,7 @@ CREATE TABLE ct_references (
   id       INTEGER,
   nct_id   TEXT NOT NULL,
   citation TEXT NOT NULL DEFAULT '',
-  pmid
+  pmid TEXT,
   CONSTRAINT ct_references_pk PRIMARY KEY (nct_id) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE ct_tbs;
 
