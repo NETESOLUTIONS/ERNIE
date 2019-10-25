@@ -44,7 +44,7 @@ if ! command -v cypher-shell >/dev/null; then
   exit 1
 fi
 
-echo -e "\nCleaning"
+echo -e "Cleaning"
 # language=Cypher
 cypher-shell --format verbose <<HEREDOC
 // Drop all existing indexes and constraints
