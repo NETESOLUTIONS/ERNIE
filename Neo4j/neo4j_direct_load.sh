@@ -59,7 +59,7 @@ WHERE publication = TRUE
   AND citation_count IS NOT NULL
   AND pub_year IS NOT NULL' AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
-MERGE (p:Publication {source_id: row.source_id, cluster_no: row.cluster_no, year: row.pub_year,
+CREATE (p:Publication {source_id: row.source_id, cluster_no: row.cluster_no, year: row.pub_year,
                       citation_count: row.citation_count});
 
 CREATE INDEX ON :Publication(source_id);
