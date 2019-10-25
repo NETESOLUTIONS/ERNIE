@@ -38,7 +38,7 @@ CREATE SCHEMA :account AUTHORIZATION :account;
 -- endregion
 
 -- Set password
-ALTER USER :account WITH PASSWORD :password_in_single_quotes;
+ALTER USER :account WITH PASSWORD :'password';
 
 -- region User decommissioning
 --@formatter:off

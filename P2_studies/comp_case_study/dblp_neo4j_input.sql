@@ -27,7 +27,8 @@ SET SEARCH_PATH TO public;
 SELECT source_id, cluster_20 AS cluster_no, pub_year, citation_count
 FROM dblp_graclus
 WHERE publication = TRUE
-  AND citation_count IS NOT NULL;
+  AND citation_count IS NOT NULL
+AND pub_year IS NOT NULL;
 
 -- 2nd query
 
