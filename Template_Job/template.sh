@@ -44,7 +44,7 @@ cd "${work_dir}"
 echo -e "\n## Running under ${USER}@${HOSTNAME} at ${PWD} ##\n"
 
 if [[ "${HOSTNAME}" == *ernie2* ]]; then
-  echo "Executing a Postgres script ..."
+  echo "Executing a Postgres script via $(psql --version)"
   # The script uses `\set ON_ERROR_STOP on` and `\set ECHO all`
   # -h localhost switches from Unix sockets to TCP/IP
   psql -f ${absolute_script_dir}/template_psql_script.sql -v "work_dir=${work_dir}"
