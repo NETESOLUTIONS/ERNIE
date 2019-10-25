@@ -44,7 +44,7 @@ if ! command -v cypher-shell >/dev/null; then
   exit 1
 fi
 
-echo "Cleaning"
+echo -e "\nCleaning"
 # language=Cypher
 cypher-shell --format verbose <<HEREDOC
 // Drop all existing indexes and constraints
@@ -54,7 +54,7 @@ MATCH (n)
 DETACH DELETE n;
 HEREDOC
 
-echo "Loading nodes"
+echo -e "\nLoading nodes"
 # language=Cypher
 cypher-shell --format verbose <<HEREDOC
 WITH 'jdbc:postgresql://ernie2/ernie?user=ernie_admin&password=${ERNIE_ADMIN_POSTGRES}' AS db,
@@ -69,16 +69,16 @@ CREATE (p:Publication {source_id: row.source_id, cluster_no: row.cluster_no, yea
                       citation_count: row.citation_count});
 HEREDOC
 
-echo "Indexing"
+echo -e "\nIndexing"
 # language=Cypher
 cypher-shell --format verbose <<HEREDOC
 CREATE INDEX ON :Publication(source_id);
 HEREDOC
 
-echo "Loading edges"
+echo -e "\nLoading edges"
 # language=Cypher
 cypher-shell --format verbose <<HEREDOC
-WITH 'jdbc:postgresql://ernie1/ernie?user=ernie_admin&password=${ERNIE_ADMIN_POSTGRES}' AS db,
+WITH 'jdbc:postgresql://ernie2/ernie?user=ernie_admin&password=${ERNIE_ADMIN_POSTGRES}' AS db,
      '
 SELECT source_id, cited_source_uid
 FROM dblp_dataset
@@ -94,7 +94,7 @@ MATCH (p:Publication {source_id: row.source_id}), (r:Publication {source_id: row
 MERGE (p)-[:CITES]->(r);
 HEREDOC
 
-echo "Calculating metrics"
+echo -e "\nCalculating metrics"
 cypher-shell <<'HEREDOC'
 // Calculate and store PageRank
 CALL algo.pageRank()
