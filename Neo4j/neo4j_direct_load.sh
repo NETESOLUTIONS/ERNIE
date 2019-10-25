@@ -47,7 +47,8 @@ fi
 echo "Cleaning"
 # language=Cypher
 cypher-shell --format verbose <<HEREDOC
-DROP INDEX ON :Publication(source_id);
+// Drop all existing indexes and constraints
+CALL apoc.schema.assert({}, {}, true);
 
 MATCH (n)
 DETACH DELETE n;
