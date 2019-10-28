@@ -19,7 +19,7 @@ HEREDOC
   exit 1
 fi
 
-set -xe
+set -e
 set -o pipefail
 
 # Get a script directory, same as by $(dirname $0)
@@ -33,7 +33,7 @@ absolute_script_dir=$(cd "${script_dir}" && pwd)
 #cd "${work_dir}"
 echo -e "\n## Running under ${USER}@${HOSTNAME} at ${PWD} ##\n"
 
-if ! which cypher-shell >/dev/null; then
+if ! command -v cypher-shell >/dev/null; then
   echo "Please install Neo4j"
   exit 1
 fi
@@ -61,24 +61,18 @@ fi
 db_name="${name%%_*}${db_suffix}-v${db_ver}.db"
 # endregion
 
-# region Hide password from the output and decrease verbosity
-set +x
 # The current directory must be writeable for the neo4j user. Otherwise, it'd fail with the
 # `java.io.FileNotFoundException: import.report (Permission denied)` error
 echo "$3" | sudo --stdin -u neo4j bash -c "set -xe
   echo 'Loading data into ${db_name} ...'
   neo4j-admin import --nodes:Publication '${nodes_file}' --relationships:CITES '${edges_file}' --database='${db_name}'"
 
-${absolute_script_dir}/neo4j_switch_db.sh "${db_name}" "$3"
-set -x
-# endregion
+"${absolute_script_dir}/neo4j_switch_db.sh" "${db_name}" "$3"
 
 echo "Calculating metrics and indexing ..."
 cypher-shell <<'HEREDOC'
 // Indexes will be created even if there are no nodes with indexed properties
-CREATE INDEX ON :Publication(endpoint);
-CREATE INDEX ON :Publication(nida_support);
-CREATE INDEX ON :Publication(other_hhs_support);
+CREATE INDEX ON :Publication(node_id);
 
 // Calculate and store PageRank
 CALL algo.pageRank()

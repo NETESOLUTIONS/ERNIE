@@ -17,7 +17,7 @@ WHERE sgr = 20384762;
 
 SELECT *
 FROM scopus_publications
-WHERE sgr = 20384762;
+WHERE sgr = 25340609;
 
 SELECT st.*
 FROM
