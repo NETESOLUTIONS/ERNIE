@@ -261,7 +261,7 @@ def parse(input_filename):
         row['email']=next(iter(root.xpath("//*[local-name()='"+contact_type+"']/*[local-name()='email']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
         ct_dict['ct_overall_contacts']+=[row]
     ct_pkeys['ct_overall_contacts']=['nct_id', 'contact_type', 'last_name']
-    #### ct_locations, ct_location_investigators, ct_location_countries
+    #### ct_locations, ct_location_investigators
     for location_count in root.xpath("//*[local-name()='location']"):
         row=dict(); row['nct_id']=nct_id
         row['facility_name']=next(iter(etree.ElementTree(location_count).xpath("//*[local-name()='facility']/*[local-name()='name']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
@@ -357,17 +357,13 @@ def parse(input_filename):
             child_row['investigator_affiliation']=next(iter(etree.ElementTree(investigator_count).xpath("//*[local-name()='affiliation']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
             ct_dict['ct_location_investigators']+=[child_row]
         ###
-        countries=[country.strip().replace("'","''").replace("\"","*") for country in etree.ElementTree(location_count).xpath("//*[local-name()='location_countries']/*[local-name()='country']/text()")]
-        for country in countries:
-            child_row=dict(); child_row['nct_id']=nct_id; child_row['country']=country
-            ct_dict['ct_location_countries']+=[child_row]
     ct_pkeys['ct_locations']=['nct_id', 'facility_country', 'facility_city', 'facility_zip', 'facility_name']
     ct_pkeys['ct_location_investigators']=['nct_id', 'investigator_last_name']
 
     ## ct_location_countries
-    for country in root.xpath("//*[local-name()='location_countries']/*[local-name()='country']"):
+    for country in root.xpath("//*[local-name()='location_countries']/*[local-name()='country']/text()"):
         child_row = dict(); child_row['nct_id'] = nct_id
-        child_row['country']=etree.ElementTree(country).xpath("//*[local-name()='country']/text()")
+        child_row['country']=country
         ct_dict['ct_location_countries'] += [child_row]
     ct_pkeys['ct_location_countries']=['nct_id', 'country']
 
