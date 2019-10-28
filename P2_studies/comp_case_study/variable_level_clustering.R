@@ -1,7 +1,7 @@
 rm(list=ls())
 
 # read in csv file
-# setwd('~/Desktop/dblp')
+setwd('~/Desktop/dblp')
 x <- fread('dblp_high_cited_pubs_frequency_integers.csv')
 # order by co-citation_frequency descending
 x <- x[order(-co_citation_frequency)]
@@ -30,14 +30,14 @@ x <- x[!sortkey %in% y$sortkey]
 x <- x[order(-co_citation_frequency)]
 
 
-# begin loop for i=2 to 100 
+# begin loop from i=2 to 100 
 
 for (i in 2:nrow(x)){
 		z <-x[cited_1 %in% unname(as.vector(x[1,1])) | cited_1 %in% unname(as.vector(x[1,2])) |
 		cited_2 %in% unname(as.vector(x[1,1])) | cited_2 %in% unname(as.vector(x[1,2]))][,cluster:=i]
 		y <- rbind(y,z)
 		x <- x[!sortkey %in% z$sortkey]
-		x <- x[order(-normalized_co_citation_frequency)]
+		x <- x[order(-co_citation_frequency)]
 print(paste('Cluster #',i,'co-cited pairs =', nrow(z),sep=" "))
 print(paste("Remaining data rows =",nrow(x)))
 print(i)
@@ -46,3 +46,4 @@ break}
 }
 yy <- y[,length(sortkey),by='cluster']
 fwrite(y,file='level_1_clustering.csv')
+
