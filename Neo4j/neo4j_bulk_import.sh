@@ -79,52 +79,53 @@ db_name="${DB_PREFIX}v${db_ver}.db"
 # The current directory must be writeable for the neo4j user. Otherwise, it'd fail with the
 # `java.io.FileNotFoundException: import.report (Permission denied)` error
 echo "$3" | sudo --stdin -u neo4j bash -c "set -xe
-  echo 'Loading data into ${db_name} ...'
+  echo 'Loading data into ${db_name}'
   neo4j-admin import --nodes:Publication '${NODES_FILE}' --relationships:CITES '${EDGES_FILE}' --database='${db_name}'"
 
 "${ABSOLUTE_SCRIPT_DIR}/neo4j_switch_db.sh" "${db_name}" "$3"
 
-echo "Calculating metrics and indexing ..."
+echo "Indexing"
+cypher-shell <<HEREDOC
+CREATE INDEX ON :Publication(node_id);
+HEREDOC
+
 if [[ $CALC_METRICS == true ]]; then
-  parallel --null --halt soon,fail=1 --line-buffer --tagstring '|job#{#} s#{%}|' 'echo {} | cypher-shell' ::: \
-    "// Calculate and store PageRank
-    CALL algo.pageRank()
-    YIELD nodes, iterations, loadMillis, computeMillis, writeMillis, dampingFactor, write, writeProperty;" \
-    "// Calculate and store Betweenness Centrality
-    CALL algo.betweenness(null, null, {writeProperty: 'betweenness'})
-    YIELD nodes, minCentrality, maxCentrality, sumCentrality, loadMillis, computeMillis, writeMillis;" \
-    "// Calculate and store Closeness Centrality
-    CALL algo.closeness(null, null, {writeProperty: 'closeness'})
-    YIELD nodes, loadMillis, computeMillis, writeMillis;" \
-    "CREATE INDEX ON :Publication(node_id);"
-
+  echo "Calculating metrics"
   cypher-shell <<'HEREDOC'
-    // PageRank statistics
-    MATCH (n)
-    RETURN apoc.agg.statistics(n.pagerank);
-HEREDOC
-else
-  cypher-shell <<HEREDOC
-    CREATE INDEX ON :Publication(node_id);
-HEREDOC
-fi
+// Calculate and store PageRank
+CALL algo.pageRank()
+YIELD nodes, iterations, loadMillis, computeMillis, writeMillis, dampingFactor, write, writeProperty;
 
-#cypher-shell <<'HEREDOC'
-#CREATE INDEX ON :Publication(node_id);
-#
-#// Calculate and store PageRank
-#CALL algo.pageRank()
-#YIELD nodes, iterations, loadMillis, computeMillis, writeMillis, dampingFactor, write, writeProperty;
-#
-#// Calculate and store Betweenness Centrality
-#CALL algo.betweenness(null, null, {writeProperty: 'betweenness'})
-#YIELD nodes, minCentrality, maxCentrality, sumCentrality, loadMillis, computeMillis, writeMillis;
-#
-#// Calculate and store Closeness Centrality
-#CALL algo.closeness(null, null, {writeProperty: 'closeness'})
-#YIELD nodes, loadMillis, computeMillis, writeMillis;
-#
-#// PageRank statistics
-#MATCH (n)
-#RETURN apoc.agg.statistics(n.pagerank);
+// Calculate and store Betweenness Centrality
+CALL algo.betweenness(null, null, {writeProperty: 'betweenness'})
+YIELD nodes, minCentrality, maxCentrality, sumCentrality, loadMillis, computeMillis, writeMillis;
+
+// Calculate and store Closeness Centrality
+CALL algo.closeness(null, null, {writeProperty: 'closeness'})
+YIELD nodes, loadMillis, computeMillis, writeMillis;
+
+// PageRank statistics
+MATCH (n)
+RETURN apoc.agg.statistics(n.pagerank);
+HEREDOC
+
+  # TBD Running into `Failed to invoke procedure `algo.pageRank`: Caused by: java.lang.NullPointerException`
+#  parallel --null --halt soon,fail=1 --line-buffer --tagstring '|job#{#} s#{%}|' 'echo {} | cypher-shell' ::: \
+#    "// Calculate and store PageRank
+#    CALL algo.pageRank()
+#    YIELD nodes, iterations, loadMillis, computeMillis, writeMillis, dampingFactor, write, writeProperty;" \
+#    "// Calculate and store Betweenness Centrality
+#    CALL algo.betweenness(null, null, {writeProperty: 'betweenness'})
+#    YIELD nodes, minCentrality, maxCentrality, sumCentrality, loadMillis, computeMillis, writeMillis;" \
+#    "// Calculate and store Closeness Centrality
+#    CALL algo.closeness(null, null, {writeProperty: 'closeness'})
+#    YIELD nodes, loadMillis, computeMillis, writeMillis;" \
+#    "CREATE INDEX ON :Publication(node_id);"
+
+#  cypher-shell <<'HEREDOC'
+#    // PageRank statistics
+#    MATCH (n)
+#    RETURN apoc.agg.statistics(n.pagerank);
 #HEREDOC
+fi
+exit 0
