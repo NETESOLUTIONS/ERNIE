@@ -1,27 +1,18 @@
 #!/usr/bin/env bash
-if [[ $1 == "-h" || $# -lt 3 ]]; then
+if [[ $1 == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
 
-  neo4j_bulk_import.sh -- loads CSVs in bulk to Neo4j and optionally calculate metrics
+  neo4j_bulk_import.sh -- calculate graph metrics
 
 SYNOPSIS
 
-  neo4j_bulk_import.sh [-m] nodes_file edges_file current_user_password [DB_name_prefix]
-  neo4j_bulk_import.sh -h: display this help
+  neo4j_calc_metrics.sh
+  neo4j_calc_metrics.sh -h: display this help
 
 DESCRIPTION
-  Bulk imports to a new `{DB_name_prefix-}v{file_timestamp}` DB.
-  Spaces are replaced by underscores in the `DB_name_prefix`.
-  Updates Neo4j config file and restarts Neo4j.
 
-  The following options are available:
-
-  -m  Calculate metrics: PageRank, Betweenness Centrality, Closeness Centrality
-
-ENVIRONMENT
-
-  Current user must be a sudoer.
+  Calculate metrics: PageRank, Betweenness Centrality, Closeness Centrality
 
 HEREDOC
   exit 1
