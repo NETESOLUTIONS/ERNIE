@@ -157,7 +157,7 @@ from cte;
 -- endregion
 
 -- region there should be no future records
-select is_empty($$SELECT extract('year' FROM time_series)::int as budget_start_year,
+SELECT is_empty($$SELECT extract('year' FROM time_series)::int as budget_start_year,
                     coalesce(count(application_id) -
                              lag(count(application_id)) over (order by extract('year' FROM time_series)::int),
                              '0')                         as difference
