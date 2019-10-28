@@ -86,7 +86,7 @@ echo "$3" | sudo --stdin -u neo4j bash -c "set -xe
 
 echo "Calculating metrics and indexing ..."
 if [[ $CALC_METRICS == true ]]; then
-  parallel --halt soon,fail=1 --line-buffer --tagstring '|job#{#} s#{%}|' --pipe cypher-shell ::: \
+  parallel --null --halt soon,fail=1 --line-buffer --tagstring '|job#{#} s#{%}|' 'echo {} | cypher-shell' ::: \
     "// Calculate and store PageRank
     CALL algo.pageRank()
     YIELD nodes, iterations, loadMillis, computeMillis, writeMillis, dampingFactor, write, writeProperty;" \
