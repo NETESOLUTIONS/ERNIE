@@ -168,7 +168,7 @@ select is_empty($$SELECT extract('year' FROM time_series)::int as budget_start_y
                           date_trunc('year', to_date(regexp_replace(budget_start, 'Approved Prior to ', '', 'g'),
                                                      'MM DD YYYY')),
                           interval '1 year') time_series
-             WHERE budget_start >= '2021'
+             WHERE time_series::date >= '2021 01 01'
              GROUP BY time_series, budget_start_year
              ORDER BY budget_start_year;$$ , 'There should be no exporter records two years from present');
 -- endregion
