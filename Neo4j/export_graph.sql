@@ -9,6 +9,6 @@ SET search_path = :schema;
 SET TIMEZONE = 'US/Eastern';
 
 -- Using client-side copy to generate the file under the current user ownership
-
-\copy nodes TO 'nodes.csv' (FORMAT CSV, HEADER ON)
+-- Have to do `COPY (SELECT * FROM {view}) TO` rather than simply `COPY {view} TO`
+\copy (SELECT * FROM nodes) TO 'nodes.csv' (FORMAT CSV, HEADER ON)
 \copy (SELECT from_node_id AS ":START_ID", to_node_id AS ":END_ID" FROM edges) TO 'edges.csv' (FORMAT CSV, HEADER ON)
