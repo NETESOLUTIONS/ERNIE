@@ -363,7 +363,14 @@ def parse(input_filename):
             ct_dict['ct_location_countries']+=[child_row]
     ct_pkeys['ct_locations']=['nct_id', 'facility_country', 'facility_city', 'facility_zip', 'facility_name']
     ct_pkeys['ct_location_investigators']=['nct_id', 'investigator_last_name']
+
+    ## ct_location_countries
+    for country in root.xpath("//*[local-name()='location_countries']/*[local-name()='country']"):
+        child_row = dict(); child_row['nct_id'] = nct_id
+        child_row['country']=etree.ElementTree(country).xpath("//*[local-name()='country']/text()")
+        ct_dict['ct_location_countries'] += [child_row]
     ct_pkeys['ct_location_countries']=['nct_id', 'country']
+
     #### ct_links
     for link_count in root.xpath("//*[local-name()='link']"):
         row=dict(); row['nct_id']=nct_id
