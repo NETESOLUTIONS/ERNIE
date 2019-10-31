@@ -32,7 +32,7 @@ def parse(input_filename):
         return None
     # Parse XML data of interest to populate variables via xpaths
     row=dict(); row['nct_id']=nct_id
-    row['rank']=next(iter(root.xpath("//*[local-name()='rank']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
+    row['rank']=root.get('rank')
     row['download_date']=next(iter(root.xpath("//*[local-name()='required_header']/*[local-name()='download_date']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
     row['link_text']=next(iter(root.xpath("//*[local-name()='required_header']/*[local-name()='link_text']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
     row['url']=next(iter(root.xpath("//*[local-name()='required_header']/*[local-name()='url']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
