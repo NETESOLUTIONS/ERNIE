@@ -33,7 +33,7 @@ CREATE TABLE ct_clinical_studies
     lead_sponsor_agency                  TEXT,
     lead_sponsor_agency_class            TEXT,
     source                               TEXT,
-    has_dmc                              TEXT,
+    has_dmc                              BOOLEAN,
     brief_summary                        TEXT,
     detailed_description                 TEXT,
     overall_status                       TEXT,
@@ -56,7 +56,7 @@ CREATE TABLE ct_clinical_studies
     sampling_method                      TEXT,
     criteria                             TEXT,
     gender                               TEXT,
-    gender_based                         TEXT,
+    gender_based                         BOOLEAN,
     gender_description                   TEXT,
     minimum_age                          TEXT,
     maximum_age                          TEXT,
@@ -70,12 +70,12 @@ CREATE TABLE ct_clinical_studies
     responsible_investigator_affiliation TEXT,
     responsible_investigator_full_name   TEXT,
     responsible_investigator_title       TEXT,
-    is_fda_regulated_drug                TEXT,
-    is_fda_regulated_device              TEXT,
-    is_unapproved_device                 TEXT,
-    is_ppsd                              TEXT,
-    is_us_export                         TEXT,
-    has_expanded_access                  TEXT,
+    is_fda_regulated_drug                BOOLEAN,
+    is_fda_regulated_device              BOOLEAN,
+    is_unapproved_device                 BOOLEAN,
+    is_ppsd                              BOOLEAN,
+    is_us_export                         BOOLEAN,
+    has_expanded_access                  BOOLEAN,
     CONSTRAINT ct_clinical_studies_pk PRIMARY KEY (nct_id) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE ct_tbs;
 
@@ -166,9 +166,9 @@ CREATE TABLE ct_expanded_access_info
 (
     id                                INTEGER,
     nct_id                            TEXT NOT NULL,
-    expanded_access_type_individual   TEXT,
-    expanded_access_type_intermediate TEXT,
-    expanded_access_type_treatment    TEXT,
+    expanded_access_type_individual   BOOLEAN,
+    expanded_access_type_intermediate BOOLEAN,
+    expanded_access_type_treatment    BOOLEAN,
     CONSTRAINT ct_expanded_access_info_pk PRIMARY KEY (nct_id) USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_expanded_access_info_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
 ) TABLESPACE ct_tbs;
@@ -527,10 +527,8 @@ CREATE TABLE ct_references
     id       INTEGER,
     nct_id   TEXT NOT NULL,
     citation TEXT NOT NULL DEFAULT '',
-    pmid     TEXT,
-    CONSTRAINT ct_references_pk PRIMARY KEY (nct_id) USING INDEX TABLESPACE index_tbs,
+    pmid     INTEGER,
     CONSTRAINT ct_references_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
-
 ) TABLESPACE ct_tbs;
 
 DROP INDEX IF EXISTS ct_references_uk;

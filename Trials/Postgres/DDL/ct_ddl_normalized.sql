@@ -33,7 +33,7 @@ CREATE TABLE ct_clinical_studies
     lead_sponsor_agency                  TEXT,
     lead_sponsor_agency_class            TEXT,
     source                               TEXT,
-    has_dmc                              TEXT,
+    has_dmc                              BOOLEAN,
     brief_summary                        TEXT,
     detailed_description                 TEXT,
     overall_status                       TEXT,
@@ -56,7 +56,7 @@ CREATE TABLE ct_clinical_studies
     sampling_method                      TEXT,
     criteria                             TEXT,
     gender                               TEXT,
-    gender_based                         TEXT,
+    gender_based                         BOOLEAN,
     gender_description                   TEXT,
     minimum_age                          TEXT,
     maximum_age                          TEXT,
@@ -70,12 +70,12 @@ CREATE TABLE ct_clinical_studies
     responsible_investigator_affiliation TEXT,
     responsible_investigator_full_name   TEXT,
     responsible_investigator_title       TEXT,
-    is_fda_regulated_drug                TEXT,
-    is_fda_regulated_device              TEXT,
-    is_unapproved_device                 TEXT,
-    is_ppsd                              TEXT,
-    is_us_export                         TEXT,
-    has_expanded_access                  TEXT,
+    is_fda_regulated_drug                BOOLEAN,
+    is_fda_regulated_device              BOOLEAN,
+    is_unapproved_device                 BOOLEAN,
+    is_ppsd                              BOOLEAN,
+    is_us_export                         BOOLEAN,
+    has_expanded_access                  BOOLEAN,
     CONSTRAINT ct_clinical_studies_pk PRIMARY KEY (nct_id) USING INDEX TABLESPACE index_tbs
 ) TABLESPACE ct_tbs;
 
@@ -134,7 +134,7 @@ COMMENT ON COLUMN ct_clinical_studies.has_expanded_access IS $$Example: No / Yes
 DROP TABLE IF EXISTS ct_study_design_info;
 CREATE TABLE ct_study_design_info
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id                         TEXT,
     allocation                     TEXT,
     intervention_model             TEXT,
     intervention_model_description TEXT,
@@ -163,10 +163,10 @@ CREATE TABLE ct_reported_events (
 DROP TABLE IF EXISTS ct_expanded_access_info;
 CREATE TABLE ct_expanded_access_info
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
-    expanded_access_type_individual   TEXT,
-    expanded_access_type_intermediate TEXT,
-    expanded_access_type_treatment    TEXT,
+    nct_id                            TEXT,
+    expanded_access_type_individual   BOOLEAN,
+    expanded_access_type_intermediate BOOLEAN,
+    expanded_access_type_treatment    BOOLEAN,
     CONSTRAINT ct_expanded_access_info_pk PRIMARY KEY (nct_id) USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_expanded_access_info_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
 
@@ -175,14 +175,14 @@ CREATE TABLE ct_expanded_access_info
 DROP TABLE IF EXISTS ct_arm_groups;
 CREATE TABLE ct_arm_groups
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id,
     arm_group_label TEXT NOT NULL,
-    arm_group_type  TEXT NOT NULL DEFAULT '',
-    description     TEXT NOT NULL DEFAULT '',
+    arm_group_type TEXT NOT NULL DEFAULT '',
+    description TEXT NOT NULL DEFAULT '',
     CONSTRAINT ct_arm_groups_pk PRIMARY KEY (nct_id, arm_group_label, arm_group_type, description) USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_arm_groups_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
-
-) TABLESPACE ct_tbs;
+)
+TABLESPACE ct_tbs;
 
 COMMENT ON TABLE ct_arm_groups IS $$Table of arm group info$$;
 COMMENT ON COLUMN ct_arm_groups.nct_id IS $$Example; NCT00000105$$;
@@ -193,12 +193,12 @@ COMMENT ON COLUMN ct_arm_groups.description IS $$Detailed description text$$;
 DROP TABLE IF EXISTS ct_secondary_ids;
 CREATE TABLE ct_secondary_ids
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id       TEXT,
     secondary_id TEXT NOT NULL,
     CONSTRAINT ct_secondary_ids_pk PRIMARY KEY (nct_id, secondary_id) USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_secondary_ids_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
-
-) TABLESPACE ct_tbs;
+)
+    TABLESPACE ct_tbs;
 
 COMMENT ON TABLE ct_secondary_ids IS $$Table of id info of clinical trails$$;
 COMMENT ON COLUMN ct_secondary_ids.nct_id IS $$Example: NCT00000579$$;
@@ -208,13 +208,13 @@ COMMENT ON COLUMN ct_secondary_ids.secondary_id IS $$Example: N01 HR46063$$;
 DROP TABLE IF EXISTS ct_collaborators;
 CREATE TABLE ct_collaborators
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id       TEXT,
     agency       TEXT NOT NULL,
     agency_class TEXT,
     CONSTRAINT ct_collaborators_pk PRIMARY KEY (nct_id, agency) USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_collaborators_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
-
-) TABLESPACE ct_tbs;
+)
+    TABLESPACE ct_tbs;
 
 COMMENT ON TABLE ct_collaborators IS $$Table of clinical trial collaborators info$$;
 COMMENT ON COLUMN ct_collaborators.nct_id IS $$Example; NCT00000217$$;
@@ -225,7 +225,7 @@ COMMENT ON COLUMN ct_collaborators.agency_class IS $$Example: U.S. Fed / NIH / I
 DROP TABLE IF EXISTS ct_outcomes;
 CREATE TABLE ct_outcomes
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id       TEXT,
     outcome_type TEXT NOT NULL,
     measure      TEXT NOT NULL,
     time_frame   TEXT NOT NULL DEFAULT '',
@@ -233,8 +233,8 @@ CREATE TABLE ct_outcomes
     description  TEXT,
     CONSTRAINT ct_outcomes_pk PRIMARY KEY (nct_id, outcome_type, measure, time_frame) USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_outcomes_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
-
-) TABLESPACE ct_tbs;
+)
+    TABLESPACE ct_tbs;
 
 COMMENT ON TABLE ct_outcomes IS $$Table of clinical trial outcome$$;
 COMMENT ON COLUMN ct_outcomes.nct_id IS $$Example: NCT00000113$$;
@@ -247,12 +247,12 @@ COMMENT ON COLUMN ct_outcomes.description IS $$Outcome description long text$$;
 DROP TABLE IF EXISTS ct_conditions;
 CREATE TABLE ct_conditions
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id    TEXT,
     condition TEXT NOT NULL,
     CONSTRAINT ct_conditions_pk PRIMARY KEY (nct_id, condition) USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_conditions_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
-
-) TABLESPACE ct_tbs;
+)
+    TABLESPACE ct_tbs;
 
 COMMENT ON TABLE ct_conditions IS $$Table of clinical trials condition$$;
 COMMENT ON COLUMN ct_conditions.nct_id IS $$Example: NCT00000105$$;
@@ -262,15 +262,15 @@ COMMENT ON COLUMN ct_conditions.condition IS $$Current condition. Example: Cance
 DROP TABLE IF EXISTS ct_interventions;
 CREATE TABLE ct_interventions
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id            TEXT,
     intervention_type TEXT NOT NULL,
     intervention_name TEXT NOT NULL,
     description       TEXT NOT NULL DEFAULT '',
     CONSTRAINT ct_interventions_pk PRIMARY KEY (nct_id, intervention_type, intervention_name, description) --
         USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_interventions_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
-
-) TABLESPACE ct_tbs;
+)
+    TABLESPACE ct_tbs;
 
 COMMENT ON TABLE ct_interventions IS $$Table of intervention details$$;
 COMMENT ON COLUMN ct_interventions.nct_id IS $$Example: NCT00000102$$;
@@ -281,26 +281,26 @@ COMMENT ON COLUMN ct_interventions.description IS $$Intervention description tex
 DROP TABLE IF EXISTS ct_intervention_arm_group_labels;
 CREATE TABLE ct_intervention_arm_group_labels
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id            TEXT,
     intervention_name TEXT NOT NULL,
     arm_group_label   TEXT NOT NULL,
     CONSTRAINT ct_intervention_arm_group_labels_pk PRIMARY KEY (nct_id, intervention_name, arm_group_label) --
         USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_intervention_arm_group_labels_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
-
-) TABLESPACE ct_tbs;
+)
+    TABLESPACE ct_tbs;
 
 DROP TABLE IF EXISTS ct_intervention_other_names;
 CREATE TABLE ct_intervention_other_names
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id            TEXT,
     intervention_name TEXT NOT NULL,
     other_name        TEXT NOT NULL,
     CONSTRAINT ct_intervention_other_names_pk PRIMARY KEY (nct_id, intervention_name, other_name) --
         USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_intervention_other_names_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
-
-) TABLESPACE ct_tbs;
+)
+    TABLESPACE ct_tbs;
 
 COMMENT ON TABLE ct_intervention_other_names IS $$Table of intervention names$$;
 COMMENT ON COLUMN ct_intervention_other_names.nct_id IS $$Example: NCT00002816$$;
@@ -310,7 +310,7 @@ COMMENT ON COLUMN ct_intervention_other_names.other_name IS $$Example: VP-16$$;
 DROP TABLE IF EXISTS ct_overall_officials;
 CREATE TABLE ct_overall_officials
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id      TEXT,
     first_name  TEXT,
     middle_name TEXT,
     last_name   TEXT NOT NULL,
@@ -319,8 +319,8 @@ CREATE TABLE ct_overall_officials
     affiliation TEXT,
     CONSTRAINT ct_overall_officials_pk PRIMARY KEY (nct_id, role, last_name) USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_overall_officials_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
-
-) TABLESPACE ct_tbs;
+)
+    TABLESPACE ct_tbs;
 
 COMMENT ON TABLE ct_overall_officials IS $$Table of overall official summary$$;
 COMMENT ON COLUMN ct_overall_officials.nct_id IS $$Example: NCT00000462$$;
@@ -335,7 +335,7 @@ COMMENT ON COLUMN ct_overall_officials.affiliation IS $$Example: National Instit
 DROP TABLE IF EXISTS ct_overall_contacts;
 CREATE TABLE ct_overall_contacts
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id       TEXT,
     contact_type TEXT NOT NULL,
     first_name   TEXT,
     middle_name  TEXT,
@@ -346,8 +346,8 @@ CREATE TABLE ct_overall_contacts
     email        TEXT,
     CONSTRAINT ct_overall_contacts_pk PRIMARY KEY (nct_id, last_name) USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_overall_contacts_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
-
-) TABLESPACE ct_tbs;
+)
+    TABLESPACE ct_tbs;
 
 COMMENT ON TABLE ct_overall_contacts IS $$Table of overall contacts summary$$;
 COMMENT ON COLUMN ct_overall_contacts.nct_id IS $$Example: NCT00323089$$;
@@ -427,8 +427,8 @@ COMMENT ON COLUMN ct_locations.status IS $$Example: Active, not recruiting$$;
 DROP TABLE IF EXISTS ct_location_contacts;
 CREATE TABLE ct_location_contacts
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
-    location_hash REFERENCES ct_locations (location_hash) ON DELETE CASCADE,
+    nct_id              TEXT,
+    location_hash       TEXT,
     contact_type        TEXT NOT NULL,
     contact_first_name  TEXT,
     contact_middle_name TEXT,
@@ -458,8 +458,8 @@ COMMENT ON COLUMN ct_location_contacts.contact_email IS $$Example: laban63@yahoo
 DROP TABLE IF EXISTS ct_location_investigators;
 CREATE TABLE ct_location_investigators
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
-    location_hash REFERENCES ct_locations (location_hash) ON DELETE CASCADE,
+    nct_id                   TEXT,
+    location_hash            TEXT,
     investigator_first_name  TEXT, --currently unused (Raw XML has full names populated into the last_name column)
     investigator_middle_name TEXT, --currently unused (Raw XML has full names populated into the last_name column)
     investigator_last_name   TEXT NOT NULL,
@@ -484,7 +484,7 @@ COMMENT ON COLUMN ct_location_investigators.investigator_affiliation IS $$invest
 DROP TABLE IF EXISTS ct_links;
 CREATE TABLE ct_links
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id      TEXT,
     url         TEXT NOT NULL,
     description TEXT,
     CONSTRAINT ct_links_pk PRIMARY KEY (nct_id, url) USING INDEX TABLESPACE index_tbs,
@@ -499,7 +499,7 @@ COMMENT ON COLUMN ct_links.description IS $$Description about the link$$;
 DROP TABLE IF EXISTS ct_condition_browses;
 CREATE TABLE ct_condition_browses
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id    TEXT,
     mesh_term TEXT NOT NULL,
     CONSTRAINT ct_condition_browses_pk PRIMARY KEY (nct_id, mesh_term) USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_condition_browses_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
@@ -514,7 +514,7 @@ COMMENT ON COLUMN ct_condition_browses.mesh_term IS $$Disease name. Example: Opi
 DROP TABLE IF EXISTS ct_intervention_browses;
 CREATE TABLE ct_intervention_browses
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id    TEXT,
     mesh_term TEXT NOT NULL,
     CONSTRAINT ct_intervention_browses_pk PRIMARY KEY (nct_id, mesh_term) USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_intervention_browses_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
@@ -529,7 +529,7 @@ DROP TABLE IF EXISTS ct_references;
 CREATE TABLE ct_references
 (
     id       INTEGER,                                                                        -- may not be necessary
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id   TEXT,
     citation TEXT NOT NULL,
     pmid     INTEGER,
     CONSTRAINT ct_references_pk PRIMARY KEY (nct_id, pmid) USING INDEX TABLESPACE index_tbs, -- PMID corresponds to the citation
@@ -550,7 +550,7 @@ DROP TABLE IF EXISTS ct_publications;
 CREATE TABLE ct_publications
 (
     id       INTEGER,                                                                              -- may not be necessary
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id   TEXT,
     citation TEXT NOT NULL,
     pmid     TEXT,
     CONSTRAINT ct_publications_pk PRIMARY KEY (nct_id, citation) USING INDEX TABLESPACE index_tbs, -- PMID corresponds to the citation
@@ -567,7 +567,7 @@ COMMENT ON COLUMN ct_publications.pmid IS $$Example: 10801969$$;
 DROP TABLE IF EXISTS ct_keywords;
 CREATE TABLE ct_keywords
 (
-    nct_id REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    nct_id  TEXT,
     keyword TEXT NOT NULL,
     CONSTRAINT ct_keywords_pk PRIMARY KEY (nct_id, keyword) USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_keywords_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
