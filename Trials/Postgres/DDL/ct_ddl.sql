@@ -278,6 +278,8 @@ CREATE TABLE ct_interventions
     CONSTRAINT ct_interventions_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
 ) TABLESPACE ct_tbs;
 
+CREATE UNIQUE INDEX on ct_interventions (nct_id, intervention_name) TABLESPACE index_tbs;
+
 COMMENT ON TABLE ct_interventions IS $$Table of intervention details$$;
 COMMENT ON COLUMN ct_interventions.id IS $$Internal(PARDI) number.Example: 1$$;
 COMMENT ON COLUMN ct_interventions.nct_id IS $$Example: NCT00000102$$;
@@ -294,7 +296,9 @@ CREATE TABLE ct_intervention_arm_group_labels
     arm_group_label   TEXT NOT NULL,
     CONSTRAINT ct_intervention_arm_group_labels_pk PRIMARY KEY (nct_id, intervention_name, arm_group_label) --
         USING INDEX TABLESPACE index_tbs,
-    CONSTRAINT ct_intervention_arm_group_labels_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
+    CONSTRAINT ct_intervention_arm_group_labels_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    CONSTRAINT ct_intervention_arm_group_labels_fk2 FOREIGN KEY (nct_id,intervention_name) REFERENCES ct_interventions (nct_id,intervention_name) ON DELETE CASCADE
+
 
 ) TABLESPACE ct_tbs;
 
@@ -307,7 +311,9 @@ CREATE TABLE ct_intervention_other_names
     other_name        TEXT NOT NULL,
     CONSTRAINT ct_intervention_other_names_pk PRIMARY KEY (nct_id, intervention_name, other_name) --
         USING INDEX TABLESPACE index_tbs,
-    CONSTRAINT ct_intervention_other_names_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
+    CONSTRAINT ct_intervention_other_names_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE,
+    CONSTRAINT ct_intervention_other_names_fk2 FOREIGN KEY (nct_id, intervention_name) REFERENCES ct_interventions (nct_id,intervention_name ) ON DELETE CASCADE
+
 ) TABLESPACE ct_tbs;
 
 COMMENT ON TABLE ct_intervention_other_names IS $$Table of intervention names$$;
@@ -392,6 +398,7 @@ CREATE TABLE ct_locations
     contact_backup_first_name  TEXT,
     contact_backup_middle_name TEXT,
     contact_backup_last_name   TEXT,
+    contact_backup_full_name   TEXT,
     contact_backup_degrees     TEXT,
     contact_backup_phone       TEXT,
     contact_backup_phone_ext   TEXT,
@@ -420,7 +427,7 @@ COMMENT ON COLUMN ct_locations.contact_phone_ext IS $$Example: +33$$;
 COMMENT ON COLUMN ct_locations.contact_email IS $$Example: laban63@yahoo.com$$;
 COMMENT ON COLUMN ct_locations.contact_backup_first_name IS $$No records yet$$;
 COMMENT ON COLUMN ct_locations.contact_backup_middle_name IS $$No records yet$$;
-COMMENT ON COLUMN ct_locations.contact_backup_last_name IS $$Example: Alaa Hassanin, MD$$;
+COMMENT ON COLUMN ct_locations.contact_backup_full_name IS $$Example: Alaa Hassanin, MD$$;
 COMMENT ON COLUMN ct_locations.contact_backup_degrees IS $$No records yet$$;
 COMMENT ON COLUMN ct_locations.contact_backup_phone IS $$Example: 01002554281$$;
 COMMENT ON COLUMN ct_locations.contact_backup_phone_ext IS $$Example: 6770$$;
@@ -436,7 +443,7 @@ CREATE TABLE ct_location_investigators
     investigator_last_name   TEXT NOT NULL,
     investigator_degrees     TEXT,
     investigator_role        TEXT,
-    investigator_affiliation TEXT,
+--     investigator_affiliation TEXT,
     CONSTRAINT ct_location_investigators_pk PRIMARY KEY (nct_id, investigator_last_name) USING INDEX TABLESPACE index_tbs,
     CONSTRAINT ct_location_investigators_fk FOREIGN KEY (nct_id) REFERENCES ct_clinical_studies (nct_id) ON DELETE CASCADE
 
