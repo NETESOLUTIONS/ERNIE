@@ -239,7 +239,7 @@ for DATA_DIR in "${sorted_args[@]}"; do
           echo "Skipping file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} ). It is already marked as completed."
         else
           echo -e "\nProcessing delete file ${ZIP_DATA} ( .zip file #$((++i)) out of ${num_deletes} )..."
-          unzip ${DATA_DIR}/${ZIP_DATA}
+          unzip -u ${DATA_DIR}/${ZIP_DATA}
           psql -f "${ABSOLUTE_SCRIPT_DIR}/process_deletes.sql"
           rm delete.txt
           echo "${ZIP_DATA}" >> ${PROCESSED_LOG}
