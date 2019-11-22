@@ -149,6 +149,7 @@ FROM ct_clinical_studies,
              date_trunc('year', to_date(regexp_replace(verification_date, '[0-9]{2},', '', 'g'),
                                         'Month YYYY')),
              interval '1 year') time_series
+where time_series::date >= '01 01 1981'
 GROUP BY time_series, verification_year
 ORDER BY verification_year;
 --endregion

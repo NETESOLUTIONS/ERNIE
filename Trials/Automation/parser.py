@@ -32,7 +32,7 @@ def parse(input_filename):
         return None
     # Parse XML data of interest to populate variables via xpaths
     row=dict(); row['nct_id']=nct_id
-    row['rank']=next(iter(root.xpath("//*[local-name()='rank']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
+    row['rank']=root.get('rank')
     row['download_date']=next(iter(root.xpath("//*[local-name()='required_header']/*[local-name()='download_date']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
     row['link_text']=next(iter(root.xpath("//*[local-name()='required_header']/*[local-name()='link_text']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
     row['url']=next(iter(root.xpath("//*[local-name()='required_header']/*[local-name()='url']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
@@ -307,10 +307,28 @@ def parse(input_filename):
         row['contact_phone']=next(iter(etree.ElementTree(location_count).xpath("//*[local-name()='contact']/*[local-name()='phone']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
         row['contact_phone_ext']=next(iter(etree.ElementTree(location_count).xpath("//*[local-name()='contact']/*[local-name()='phone_ext']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
         row['contact_email']=next(iter(etree.ElementTree(location_count).xpath("//*[local-name()='contact']/*[local-name()='email']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
-        row['contact_backup_first_name']=next(iter(etree.ElementTree(location_count).xpath("//*[local-name()='contact_backup']/*[local-name()='first_name']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
-        row['contact_backup_middle_name']=next(iter(etree.ElementTree(location_count).xpath("//*[local-name()='contact_backup']/*[local-name()='middle_name']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
-        row['contact_backup_last_name']=next(iter(etree.ElementTree(location_count).xpath("//*[local-name()='contact_backup']/*[local-name()='last_name']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
-        row['contact_backup_degrees']=next(iter(etree.ElementTree(location_count).xpath("//*[local-name()='contact_backup']/*[local-name()='degrees']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
+        row['contact_backup_full_name'] = next(iter(etree.ElementTree(location_count).xpath("//*[local-name()='contact_backup']/*[local-name()='last_name']/text()")), 'NULL').strip().replace("'","''").replace("\"", "*")
+        row['contact_backup_degrees'] = ','.join(row['contact_backup_full_name'].split(",")[1:])
+        contact_backup_backup_degrees = row['contact_backup_degrees'] ; contact_backup_full_name = row['contact_backup_full_name'].split(",")[0]
+
+        ## since we posses the full-name only split based on canonical case 1. First (Optional Middle) Last
+
+        if contact_backup_backup_degrees is "":
+            row['contact_backup_degrees'] = 'Null'
+
+        if len(contact_backup_full_name.split(" ")) == 2:
+            row['contact_backup_first_name'] = contact_backup_full_name.split(" ")[0]
+            row['contact_backup_last_name'] = contact_backup_full_name.split(" ")[1]
+        elif len(contact_backup_full_name.split(" ")) > 2:
+            row['contact_backup_first_name'] = contact_backup_full_name.split(" ")[0]
+            row['contact_backup_middle_name'] = contact_backup_full_name.split(" ")[1]
+            row['contact_backup_last_name'] = " ".join(contact_backup_full_name.split(" ")[2:])
+        else:
+            row['contact_backup_first_name'] = 'Null'
+            row['contact_backup_middle_name'] = 'Null'
+            row['contact_backup_last_name'] = 'Null'
+
+
         row['contact_backup_phone']=next(iter(etree.ElementTree(location_count).xpath("//*[local-name()='contact_backup']/*[local-name()='phone']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
         row['contact_backup_phone_ext']=next(iter(etree.ElementTree(location_count).xpath("//*[local-name()='contact_backup']/*[local-name()='phone_ext']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
         row['contact_backup_email']=next(iter(etree.ElementTree(location_count).xpath("//*[local-name()='contact_backup']/*[local-name()='email']/text()")),'NULL').strip().replace("'","''").replace("\"","*")

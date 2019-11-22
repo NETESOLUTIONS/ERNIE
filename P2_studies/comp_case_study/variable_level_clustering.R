@@ -1,7 +1,8 @@
 rm(list=ls())
 
 # read in csv file
-setwd('~/Desktop/dblp')
+#setwd('~/Desktop/dblp')
+library(data.table)
 x <- fread('dblp_high_cited_pubs_frequency_integers.csv')
 # order by co-citation_frequency descending
 x <- x[order(-co_citation_frequency)]
