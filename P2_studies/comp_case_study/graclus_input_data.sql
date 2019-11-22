@@ -9,7 +9,7 @@
 \set dataset_graclus_data 'graclus_':dataset
 \set dataset_graclus_coded 'graclus_coded_':dataset
 
-SET SEARCH_PATH TO public;
+SET SEARCH_PATH TO comp,public;
 
 DROP TABLE IF EXISTS :dataset_graclus_data;
 CREATE TABLE :dataset_graclus_data TABLESPACE p2_studies_tbs AS
