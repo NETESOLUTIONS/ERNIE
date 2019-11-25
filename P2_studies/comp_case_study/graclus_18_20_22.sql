@@ -12,7 +12,7 @@ INNER JOIN comp.dblp_graclus2 b ON a.source_id=b.source_id)
 SELECT cte.*,b.cluster_18 AS cited_cluster 
 FROM cte INNER JOIN comp.dblp_graclus2 b ON cte.cited=b.source_id;
 \COPY (SELECT * FROM comp.dblp_graclus2_edgelist_clusters_18) TO 
-'~/dblp_graclus2_edgelist_clusters_18.csv' CSV HEADER DELIMITER ',';
+'/home/chackoge/dblp_graclus2_edgelist_clusters_18.csv' CSV HEADER DELIMITER ',';
 
 DROP TABLE IF EXISTS comp.dblp_graclus2_edgelist_clusters_20;
 CREATE TABLE comp.dblp_graclus2_edgelist_clusters_20 tablespace p2_studies_tbs 
@@ -23,7 +23,7 @@ INNER JOIN comp.dblp_graclus2 b ON a.source_id=b.source_id)
 SELECT cte.*,b.cluster_20 AS cited_cluster 
 FROM cte INNER JOIN comp.dblp_graclus2 b ON cte.cited=b.source_id;
 \COPY (SELECT * FROM comp.dblp_graclus2_edgelist_clusters_20) TO 
-'~/dblp_graclus2_edgelist_clusters_20.csv' CSV HEADER DELIMITER ',';
+'/home/chackoge/dblp_graclus2_edgelist_clusters_20.csv' CSV HEADER DELIMITER ',';
 
 DROP TABLE IF EXISTS comp.dblp_graclus2_edgelist_clusters_22;
 CREATE TABLE comp.dblp_graclus2_edgelist_clusters_22 tablespace p2_studies_tbs 
@@ -34,7 +34,7 @@ INNER JOIN comp.dblp_graclus2 b ON a.source_id=b.source_id)
 SELECT cte.*,b.cluster_22 AS cited_cluster 
 FROM cte INNER JOIN comp.dblp_graclus2 b ON cte.cited=b.source_id;
 \COPY (SELECT * FROM comp.dblp_graclus2_edgelist_clusters_22) TO 
-'~/dblp_graclus2_edgelist_clusters_22.csv' CSV HEADER DELIMITER ',';
+'/home/chackoge/dblp_graclus2_edgelist_clusters_22.csv' CSV HEADER DELIMITER ',';
 
 
 
