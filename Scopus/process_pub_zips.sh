@@ -208,7 +208,10 @@ for scopus_data_archive in *.zip; do
     # Reduced verbosity
     # -u extracting files that are newer and files that do not already exist on disk
     # -q perform operations quietly
-    unzip -u -q "${scopus_data_archive}" -d "${TMP_DIR}"
+    if ! unzip -u -q "${scopus_data_archive}" -d "${TMP_DIR}"; then
+      echo "Corrupted ZIP: ${scopus_data_archive}"
+      exit $FATAL_FAILURE_CODE
+    fi
 
     export failed_files_dir="${FAILED_FILES_DIR}/${scopus_data_archive}"
     cd "${TMP_DIR}"
@@ -227,8 +230,10 @@ for scopus_data_archive in *.zip; do
     echo "Parsing ..."
     #@formatter:off
     set +e
-    find -name '*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} --line-buffer\
-        --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_pub "{}" ${SUBSET_SP} | ${OUTPUT_PROCESSOR}
+    # shellcheck disable=SC2016
+    find . -name '*.xml' -type f -print0 | parallel -0 "${PARALLEL_HALT_OPTION}" "${PARALLEL_JOBSLOTS_OPTION}" \
+        --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_pub "{}" "${SUBSET_SP}" \
+        | "${OUTPUT_PROCESSOR}"
     parallel_exit_code=${PIPESTATUS[1]}
     set -e
     #@formatter:on
@@ -243,7 +248,7 @@ for scopus_data_archive in *.zip; do
     ((total_failures += parallel_exit_code)) || :
     if (( parallel_exit_code > 0 )); then
       # Preserve error log
-      cd ${WORKING_DIR}
+      cd "${WORKING_DIR}"
       cp -fv "${TMP_DIR}/${ERROR_LOG}" "${failed_files_dir}/"
       cd "${TMP_DIR}"
     fi
@@ -283,7 +288,7 @@ HEREDOC
       exit $FATAL_FAILURE_CODE
     fi
 
-    cd ${WORKING_DIR}
+    cd "${WORKING_DIR}"
 
     # sql script that inserts from staging table into scopus
     # Using STAGING
