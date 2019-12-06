@@ -123,7 +123,7 @@ done
 arg_array=("$@")
 echo "${arg_array[*]}"
 # Courtesy of https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
-IFS=$'\n' readonly SORTED_ARGS=($(sort ${SORT_ORDER} <<< "${arg_array[*]}"))
+IFS=$'\n' SORTED_ARGS=($(sort ${SORT_ORDER} <<< "${arg_array[*]}"))
 unset IFS
 
 echo "${MODE} JOB"
@@ -168,6 +168,10 @@ for data_dir in "${SORTED_ARGS[@]}"; do
     ((eta = start_time + est_total))
     echo "ETA after ${data_dir} data directory: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
   else
+    echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
+    echo -e "Update and delete packages to process:"
+    ls "${data_dir}/*.zip"
+
     processed_log="${data_dir}/processed.log"
     [[ "${CLEAN_MODE_OPTION}" ]] && rm -rf "${processed_log}"
     processed_archive_dir="${data_dir}/processed"
@@ -176,8 +180,6 @@ for data_dir in "${SORTED_ARGS[@]}"; do
       chmod g+w "${processed_archive_dir}"
     fi
 
-    echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
-    echo -e "Update and delete packages to process:\n$(ls ${data_dir}/*.zip)"
     rm -f eta.log
     declare -i files=$(ls "${data_dir}"/*ANI-ITEM-full-format-xml.zip | wc -l) i=0
     declare -i start_time file_start_time file_stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
