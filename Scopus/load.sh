@@ -141,8 +141,9 @@ for data_dir in "${SORTED_ARGS[@]}"; do
     ((i == 0)) && start_time=${dir_start_time}
     echo -e "\n## Directory #$((++i)) out of ${directories} ##"
     echo "Processing ${data_dir} directory ..."
-    "${ABSOLUTE_SCRIPT_DIR}/process_pub_zips.sh" "${MAX_ERRORS_OPTION}" \
-        "${PARALLEL_JOBSLOTS_OPTION}" "${SUBSET_OPTION}" ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${data_dir}"
+    # shellcheck disable=SC2086
+    "${ABSOLUTE_SCRIPT_DIR}/process_pub_zips.sh" ${MAX_ERRORS_OPTION} \
+        ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${data_dir}"
     declare -i result_code=$?
     if ((result_code > 0)); then
       # Faial error?
@@ -195,9 +196,8 @@ for data_dir in "${SORTED_ARGS[@]}"; do
       unzip -u -q "${zip_data}" -d "${UPDATE_DIR}"
 
       echo "Processing ${UPDATE_DIR} directory"
-      # shellcheck disable=SC2086
-      #   SUBSET_OPTION must be unquoted
       set +e
+      # shellcheck disable=SC2086
       "${ABSOLUTE_SCRIPT_DIR}/process_pub_zips.sh" -l "${processed_log}" ${REPROCESS_OPTION} ${MAX_ERRORS_OPTION} \
           ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${UPDATE_DIR}"
       declare -i result_code=$?

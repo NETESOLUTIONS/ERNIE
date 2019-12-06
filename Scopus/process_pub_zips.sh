@@ -175,7 +175,9 @@ parse_pub() {
   # Always produce minimum output below even when not verbose to get stats via the OUTPUT_PROCESSOR
   # Extra output is discarded in non-verbose mode by the OUTPUT_PROCESSOR
   # Using Staging
-  if psql -q -f "${ABSOLUTE_SCRIPT_DIR}/parse_and_stage.sql" -v "xml_file=$PWD/$pub_xml" "${subset_option}" 2>> "${ERROR_LOG}"; then
+  # shellcheck disable=SC2086
+  if psql -q -f "${ABSOLUTE_SCRIPT_DIR}/parse_and_stage.sql" -v "xml_file=$PWD/$pub_xml" ${subset_option} \
+        2>> "${ERROR_LOG}"; then
     echo "$pub_xml: SUCCESSFULLY PARSED."
     return 0
   else
@@ -235,7 +237,8 @@ for scopus_data_archive in *.zip; do
     #@formatter:off
     set +e
     # shellcheck disable=SC2016
-    find . -name '*.xml' -type f -print0 | parallel -0 "${PARALLEL_HALT_OPTION}" "${PARALLEL_JOBSLOTS_OPTION}" \
+    # shellcheck disable=SC2086
+    find . -name '*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} \
         --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_pub "{}" "${SUBSET_SP}" \
         | "${OUTPUT_PROCESSOR}"
     parallel_exit_code=${PIPESTATUS[1]}
