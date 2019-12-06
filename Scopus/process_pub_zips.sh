@@ -236,11 +236,15 @@ for scopus_data_archive in *.zip; do
     echo "Parsing ..."
     #@formatter:off
     set +e
+    # Expressions don't expand in single quotes: passing an embedded Perl expression to `-tagstring`
     # shellcheck disable=SC2016
+    # Double quote to prevent globbing and word splitting: disabling in order to expand options containing soaces
     # shellcheck disable=SC2086
+    # Quotes/backslashes in this variable will not be respected: disabling in order to expand `OUTPUT_PROCESSOR`
+    # shellcheck disable=SC2090
     find . -name '*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} \
         --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_pub "{}" "${SUBSET_SP}" \
-        | "${OUTPUT_PROCESSOR}"
+        | ${OUTPUT_PROCESSOR}
     parallel_exit_code=${PIPESTATUS[1]}
     set -e
     #@formatter:on
