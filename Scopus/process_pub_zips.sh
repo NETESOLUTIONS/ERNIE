@@ -137,6 +137,8 @@ done
 
 declare -rx WORKING_DIR="${PWD}"
 
+# TBD Quotes/backslashes will be treated literally. Use an array.
+# shellcheck disable=SC2089
 readonly TOTAL_JOB_PROCESSOR="tail -1 | pcregrep -o1 'job#\d+/(\d+)' >${TMP_OUT}"
 if [[ "$VERBOSE" == "true" ]]; then
   readonly OUTPUT_PROCESSOR="eval tee >(${TOTAL_JOB_PROCESSOR})"
