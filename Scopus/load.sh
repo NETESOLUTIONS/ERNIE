@@ -143,10 +143,10 @@ for data_dir in "${SORTED_ARGS[@]}"; do
     echo "Processing ${data_dir} directory ..."
     # shellcheck disable=SC2086
     "${ABSOLUTE_SCRIPT_DIR}/process_pub_zips.sh" ${MAX_ERRORS_OPTION} \
-        ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${data_dir}"
+    ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${data_dir}"
     declare -i result_code=$?
     if ((result_code > 0)); then
-      # Faial error?
+      # Fatal error?
       ((result_code == FATAL_FAILURE_CODE)) && exit $FATAL_FAILURE_CODE
 
       failures_occurred="true"
@@ -158,7 +158,7 @@ for data_dir in "${SORTED_ARGS[@]}"; do
     ((delta_m = (delta / 60) % 60)) || :
     ((della_h = delta / 3600)) || :
     printf "\n$(TZ=America/New_York date) Done with ${data_dir} data directory in %dh:%02dm:%02ds\n" ${della_h} \
-    ${delta_m} ${delta_s} | tee -a eta.log
+        ${delta_m} ${delta_s} | tee -a eta.log
     if [[ -f "${data_dir}/${STOP_FILE}" ]]; then
       echo "Found the stop signal file. Gracefully stopping the smokeload..."
       rm -f "${data_dir}/${STOP_FILE}"
@@ -199,7 +199,7 @@ for data_dir in "${SORTED_ARGS[@]}"; do
       set +e
       # shellcheck disable=SC2086
       "${ABSOLUTE_SCRIPT_DIR}/process_pub_zips.sh" -l "${processed_log}" ${REPROCESS_OPTION} ${MAX_ERRORS_OPTION} \
-          ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${UPDATE_DIR}"
+      ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${UPDATE_DIR}"
       declare -i result_code=$?
       set -e
       if ((result_code == 0)); then
@@ -219,7 +219,8 @@ for data_dir in "${SORTED_ARGS[@]}"; do
       ((delta_m = (delta / 60) % 60)) || :
       ((della_h = delta / 3600)) || :
 
-      printf "\n$(TZ=America/New_York date) Done with ${zip_data} package in %dh:%02dm:%02ds\n" ${della_h} \ ${delta_m} ${delta_s} | tee -a eta.log
+      printf "\n$(TZ=America/New_York date) Done with ${zip_data} package in %dh:%02dm:%02ds\n" ${della_h} \
+      ${delta_m} ${delta_s} | tee -a eta.log
       if [[ -f "${zip_data}/${STOP_FILE}" ]]; then
         echo "Found the stop signal file. Gracefully stopping the update."
         rm -f "${zip_data}/${STOP_FILE}"
