@@ -79,7 +79,9 @@ set -o pipefail
 readonly STOP_FILE=".stop"
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
-declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
+ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
+readonly ABSOLUTE_SCRIPT_DIR
+export ABSOLUTE_SCRIPT_DIR
 declare -rx ERROR_LOG=error.log
 declare -rx TMP_OUT=/tmp/ERNIE-Scopus-process_pub_zips.out
 declare -i MAX_ERRORS=101
@@ -154,13 +156,14 @@ rm -rf ${TMP_DIR}
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##"
 
-if ! which parallel > /dev/null; then
+if ! command -v parallel > /dev/null; then
   echo "Please install GNU Parallel"
   exit $FATAL_FAILURE_CODE
 fi
 
 # Set counter and ETA variables
-declare -i num_zips=$(ls *.zip | wc -l)
+declare -i num_zips
+num_zips=$(ls *.zip | wc -l)
 declare -i total_failures=0 processed_pubs total_processed_pubs=0
 declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
 
@@ -172,16 +175,17 @@ parse_pub() {
   # Always produce minimum output below even when not verbose to get stats via the OUTPUT_PROCESSOR
   # Extra output is discarded in non-verbose mode by the OUTPUT_PROCESSOR
   # Using Staging
-  if psql -q -f ${ABSOLUTE_SCRIPT_DIR}/parse_and_stage.sql -v "xml_file=$PWD/$pub_xml" ${subset_option} 2>> "${ERROR_LOG}"; then
+  if psql -q -f "${ABSOLUTE_SCRIPT_DIR}/parse_and_stage.sql" -v "xml_file=$PWD/$pub_xml" "${subset_option}" 2>> "${ERROR_LOG}"; then
     echo "$pub_xml: SUCCESSFULLY PARSED."
     return 0
   else
     echo -e "$pub_xml parsing FAILED.\n" | tee -a "${ERROR_LOG}"
 
-    local full_xml_path=$(realpath ${pub_xml})
-    cd ${WORKING_DIR}
+    local full_xml_path
+    full_xml_path=$(realpath "${pub_xml}")
+    cd "${WORKING_DIR}"
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
-    mv -f $full_xml_path "${failed_files_dir}/"
+    mv -f "$full_xml_path" "${failed_files_dir}/"
     cd "${TMP_DIR}"
     return 1
   fi
@@ -209,7 +213,7 @@ for scopus_data_archive in *.zip; do
     # -u extracting files that are newer and files that do not already exist on disk
     # -q perform operations quietly
     if ! unzip -u -q "${scopus_data_archive}" -d "${TMP_DIR}"; then
-      echo "Corrupted ZIP: ${scopus_data_archive}"
+      echo "Corrupted ZIP: ${WORKING_DIR}/${scopus_data_archive}"
       exit $FATAL_FAILURE_CODE
     fi
 
