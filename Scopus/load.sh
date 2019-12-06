@@ -170,7 +170,7 @@ for data_dir in "${SORTED_ARGS[@]}"; do
   else
     echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
     echo -e "Update and delete packages to process:"
-    ls "${data_dir}/*.zip"
+    ls "${data_dir}"/*.zip
 
     processed_log="${data_dir}/processed.log"
     [[ "${CLEAN_MODE_OPTION}" ]] && rm -rf "${processed_log}"
