@@ -37,7 +37,7 @@ FROM
     SELECT source_sp.scp AS source_id, source_spg.pub_year AS source_year, 'issn' AS source_document_id_type,
       source_ss.issn_main AS source_issn, ref_sp.scp AS cited_source_uid, ref_spg.pub_year AS reference_year,
       'issn' AS reference_document_id_type, ref_ss.issn_main AS reference_issn,
-      count(1) OVER (PARTITION BY scp) AS ref_count
+      count(1) OVER (PARTITION BY source_sp.scp) AS ref_count
     FROM
       scopus_publications source_sp
         JOIN scopus_publication_groups source_spg ON source_spg.sgr = source_sp.sgr AND source_spg.pub_year = :year
