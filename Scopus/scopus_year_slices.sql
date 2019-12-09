@@ -34,7 +34,7 @@ SELECT source_id, source_year, source_document_id_type, source_issn, cited_sourc
   reference_document_id_type, reference_issn
 FROM
   (
-    SELECT scp AS source_id, source_spg.pub_year AS source_year, 'issn' AS source_document_id_type,
+    SELECT sp.scp AS source_id, source_spg.pub_year AS source_year, 'issn' AS source_document_id_type,
       source_ss.issn_main AS source_issn, ref_sp.scp AS cited_source_uid, ref_spg.pub_year AS reference_year,
       'issn' AS reference_document_id_type, ref_ss.issn_main AS reference_issn,
       count(1) OVER (PARTITION BY scp) AS ref_count
