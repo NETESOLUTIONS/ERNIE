@@ -49,7 +49,7 @@ FROM
         JOIN scopus_sources ref_ss ON ref_ss.ernie_source_id = ref_sp.ernie_source_id AND ref_ss.issn_main != ''
     WHERE source_sp.citation_type = 'ar'
   ) sq
-WHERE ref_count > 1;
+WHERE ref_count > 4;
 
 ALTER TABLE :dataset
   ADD CONSTRAINT :dataset_pk PRIMARY KEY (source_id, cited_source_uid) --
