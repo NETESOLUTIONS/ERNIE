@@ -1,58 +1,61 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Dec 17 16:09:11 2019
+Created on Mon Nov 19 10:09:11 2018
 
 @author: sitaram
 """
 
 import pandas as pd
 import numpy as np
-import argparse
-import time
+from collections import Counter
 from itertools import combinations
 import sys
 
+#Arguments passed are filename,instance number,source location,destination location
 filename=sys.argv[1]
 destination_file=sys.argv[2]
 
 def combinations_function(x):
-#     print(x[0])
     return list(combinations(x,2))
+
 
 def generate_obs_freq(df,number):
     print('calculating combinations and frequencies')
+    #Group by source_id and collect all cited_source_uid to store as list
+    df=df.groupby(['source_id'])['cited_source_uid'].apply(list).values    
 
-    df=df.groupby(['scp'])['ref_sgr'].apply(list).values
+    #Calculating the journal pairs for each publication
+    df=list(map(combinations_function, df))
 
-    df=list(map(combinations_function,df))
-
-    print('Flattening the list and creating citation pairs')
-
+    #Flattening the list and storing it as dataframe
+    print('Flattening the list and creating journal_pairs')
     df=pd.DataFrame([z for x in df for z in x],columns=['cited_1','cited_2'])
+    # df['journal_pairs']=df['A']+','+df['B']
 
-    print('calculating value count')
-
-    # df=df.groupby(['cited_1','cited_2']).size().reset_index(name='frequency')
-    df=df.drop_duplicates()
-
+    #Getting the aggregated count of each journal pair
+    print('Calculating value cout')
+    df=df.groupby(by=['cited_1','cited_2']).size().reset_index()
+    df.columns=['cited_1','cited_2','frequency']
+    # df=df['journal_pairs'].value_counts()
+    # df=pd.DataFrame({'journal_pairs':df.index,'frequency':df.values})
+    # print('Writing to csv file')
+    # df.to_csv(destination_file,index=False)
     if number==0:
         df.to_csv(destination_file,index=False)
     else:
         df.to_csv(destination_file,mode='a',index=False,header=False)
 
 #Column names to read
-fields=['scp','ref_sgr']
+fields=['source_id','cited_source_uid']
 
 #Reading input file
 print('Reading input file')
-data_set=pd.read_csv(filename)
+data_set=pd.read_csv(filename,usecols=fields)
 
-data_set.columns=fields
-
-#Sorting the input file by source_id and reference_issn
+#Sorting the input file by source_id and cited_source_uid
 print('sorting by source_id')
-data_set.sort_values(by=['scp','ref_sgr'],inplace=True)
+data_set.sort_values(by=['source_id','cited_source_uid'],inplace=True)
 data_set.reset_index(inplace=True)
 
 end_point=4000000
@@ -65,10 +68,10 @@ if total_len < 4000000:
 else:
     print('Entered else block')
     number=0
-    source_id=data_set['scp'][end_point]
+    source_id=data_set['source_id'][end_point]
     while end_point <= total_len:
         end_point+=1
-        if source_id != data_set['scp'][end_point]:
+        if source_id != data_set['source_id'][end_point]:
             #print('end_point',data_set['source_id'][end_point])
             #print('end_point-1',data_set['source_id'][end_point-1])
             generate_obs_freq(data_set.iloc[start_point:end_point,:],number)
@@ -76,7 +79,7 @@ else:
             start_point=end_point
             end_point+=4000000
             if end_point < total_len:
-                source_id=data_set['scp'][end_point]
+                source_id=data_set['source_id'][end_point]
             if end_point > total_len:
                 end_point=total_len
                 generate_obs_freq(data_set.iloc[start_point:,:],number)
@@ -85,5 +88,7 @@ else:
 print('Done writing obs_freq file')
 
 data_set=pd.read_csv(destination_file)
-data_set=data_set.drop_duplicates()
+# data_set=data_set.groupby(by=['journal_pairs'],as_index=False)['frequency'].sum()
+data_set=data_set.groupby(by=['cited_1','cited_2'])['frequency'].sum().reset_index()
+data_set.columns=['cited_1','cited_2','frequency']
 data_set.to_csv(destination_file,index=False)
