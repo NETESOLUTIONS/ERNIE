@@ -28,31 +28,52 @@ SET SEARCH_PATH = public;
 DROP TABLE IF EXISTS :dataset CASCADE;
 
 CREATE TABLE :dataset
-TABLESPACE p2_studies_tbs --
+    TABLESPACE p2_studies_tbs --
 AS
-SELECT source_id, source_year, source_document_id_type, source_issn, cited_source_uid, reference_year,
-  reference_document_id_type, reference_issn
-FROM
-  (
-    SELECT source_sp.scp AS source_id, source_spg.pub_year AS source_year, 'issn' AS source_document_id_type,
-      source_ss.issn_main AS source_issn, ref_sp.scp AS cited_source_uid, ref_spg.pub_year AS reference_year,
-      'issn' AS reference_document_id_type, ref_ss.issn_main AS reference_issn,
-      count(1) OVER (PARTITION BY source_sp.scp) AS ref_count
-    FROM
-      scopus_publications source_sp
-        JOIN scopus_publication_groups source_spg ON source_spg.sgr = source_sp.sgr AND source_spg.pub_year = :year
-        JOIN scopus_sources source_ss
-      ON source_ss.ernie_source_id = source_sp.ernie_source_id AND source_ss.issn_main != ''
-        JOIN scopus_references sr USING (scp)
-        JOIN scopus_publications ref_sp ON ref_sp.sgr = sr.ref_sgr
-        JOIN scopus_publication_groups ref_spg ON ref_spg.sgr = ref_sp.sgr AND ref_spg.pub_year <= :year
-        JOIN scopus_sources ref_ss ON ref_ss.ernie_source_id = ref_sp.ernie_source_id AND ref_ss.issn_main != ''
-    WHERE source_sp.citation_type = 'ar'
-  ) sq
+SELECT source_id,
+       source_year,
+       source_document_id_type,
+       source_issn,
+       cited_source_uid,
+       reference_year,
+       reference_document_id_type,
+       reference_issn
+FROM (
+         SELECT source_sp.scp                              AS source_id,
+                source_spg.pub_year                        AS source_year,
+                'issn'                                     AS source_document_id_type,
+                source_ss.issn_main                        AS source_issn,
+                ref_sp.scp                                 AS cited_source_uid,
+                ref_spg.pub_year                           AS reference_year,
+                'issn'                                     AS reference_document_id_type,
+                ref_ss.issn_main                           AS reference_issn,
+                count(1) OVER (PARTITION BY source_sp.scp) AS ref_count
+         FROM scopus_publications source_sp
+                  JOIN scopus_publication_groups source_spg
+                       ON source_spg.sgr = source_sp.sgr AND source_spg.pub_year = :year
+                  JOIN scopus_sources source_ss
+                       ON source_ss.ernie_source_id = source_sp.ernie_source_id AND source_ss.issn_main != ''
+                  JOIN scopus_references sr USING (scp)
+                  JOIN scopus_publications ref_sp ON ref_sp.sgr = sr.ref_sgr
+                  JOIN scopus_publication_groups ref_spg ON ref_spg.sgr = ref_sp.sgr AND ref_spg.pub_year <= :year
+                  JOIN scopus_sources ref_ss
+                       ON ref_ss.ernie_source_id = ref_sp.ernie_source_id AND ref_ss.issn_main != ''
+         WHERE source_sp.citation_type = 'ar'
+     ) sq
 WHERE ref_count > 4;
 
 ALTER TABLE :dataset
-  ADD CONSTRAINT :dataset_pk PRIMARY KEY (source_id, cited_source_uid) --
-    USING INDEX TABLESPACE index_tbs;
+    ADD CONSTRAINT :dataset_pk PRIMARY KEY (source_id, cited_source_uid) --
+        USING INDEX TABLESPACE index_tbs;
 
-CREATE INDEX IF NOT EXISTS :dataset_index ON :dataset(reference_year) TABLESPACE index_tbs;
+
+DELETE
+FROM :dataset
+WHERE source_id = cited_source_uid;
+
+DELETE
+FROM :dataset
+WHERE source_id IN (
+    SELECT source_id FROM :dataset GROUP BY source_id HAVING count(cited_source_uid) < 5);
+
+CREATE INDEX IF NOT EXISTS :dataset_index ON :dataset (reference_year) TABLESPACE index_tbs;
