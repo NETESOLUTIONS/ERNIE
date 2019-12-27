@@ -31,4 +31,4 @@ CREATE TABLE :obs_freq
     AND c1.cited_source_uid < c2.cited_source_uid
     GROUP BY c1.cited_source_uid, c2.cited_source_uid;
 
-CREATE INDEX IF NOT EXISTS :dataset_index ON :dataset (cited_1,cited_2) TABLESPACE index_tbs;
+CREATE INDEX IF NOT EXISTS :dataset_index ON :obs_freq (cited_1,cited_2) TABLESPACE index_tbs;
