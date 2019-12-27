@@ -10,7 +10,7 @@ SET TIMEZONE = 'US/Eastern';
 
 SET SEARCH_PATH = cc2;
 
-DROP TABLE IF EXISTS :dataset CASCADE;
+DROP TABLE IF EXISTS :obs_freq CASCADE;
 
 CREATE TABLE :obs_freq
     TABLESPACE p2_studies_tbs
