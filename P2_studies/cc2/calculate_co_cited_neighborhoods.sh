@@ -56,9 +56,11 @@ process_co_cited_pair() {
     cited_1=$(echo $1 | cut -d ',' -f 1)
     cited_2=$(echo $1 | cut -d ',' -f 2)
     first_cited_year=$(echo $1 | cut -d ',' -f 3)
-    echo ${cited_1} ${cited_2} ${first_cited_year}
 
+    psql --quiet --tuples-only --no-align --field-separator=, -f "${ABSOLUTE_SCRIPT_DIR}/co_cited_neighborhoods.sql" \
+        -v cited_1="${cited_1}" -v cited_2="${cited_2}" -v first_cited_year="${first_cited_year}" >>"${OUTPUT_FILE}"
 
+    echo "${cited_1} ${cited_2} ${first_cited_year} done"
 }
 
 export -f process_co_cited_pair
