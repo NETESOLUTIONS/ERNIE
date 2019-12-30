@@ -6,6 +6,11 @@ if [[ $1 == "-h" ]]; then
 NAME
 
   neo4j_calculations.sh -- To calculate citation distance and time lag measurements in neo4j
+  1 parameter i.e file with co-citation pairs is accepted
+
+  example: bash neo4j_calculations.sh input_file.csv
+
+  NOTE: Currently citation distance is taking longer to run, hence commented out
 
 SYNOPSIS
   neo4j_calculations.sh -h: display this help  
@@ -90,7 +95,7 @@ export -f cypher_pairs
 set +e
 
 #Find all files with perfix and pass it parallel
-find . -name ${file_prefix}'*' -type f -print0 | parallel -0 --halt soon,fail=1 -j 4 \
+find . -name ${file_prefix}'*' -type f -print0 | parallel -0 --halt soon,fail=1 -j 8 \
         --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' cypher_pairs "{}"
 
 set -e

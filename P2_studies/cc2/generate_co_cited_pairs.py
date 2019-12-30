@@ -8,6 +8,7 @@ Created on Mon Nov 19 10:09:11 2018
 
 import pandas as pd
 import numpy as np
+import datatable as dt
 from collections import Counter
 from itertools import combinations
 import sys
@@ -87,8 +88,13 @@ else:
 
 print('Done writing obs_freq file')
 
-data_set=pd.read_csv(destination_file)
-# data_set=data_set.groupby(by=['journal_pairs'],as_index=False)['frequency'].sum()
+
+#Read and writing with datatable to improve speed
+data_set=dt.fread(destination_file)
+data_set=data_set.to_pandas()
+
+# data_set=pd.read_csv(destination_file)
 data_set=data_set.groupby(by=['cited_1','cited_2'])['frequency'].sum().reset_index()
 data_set.columns=['cited_1','cited_2','frequency']
-data_set.to_csv(destination_file,index=False)
+data_set=dt.Frame(data_set)
+data_set.to_csv(destination_file)
