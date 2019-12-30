@@ -61,5 +61,8 @@ process_co_cited_pair() {
 
 }
 
+export -f process_co_cited_pair
 
 parallel --halt soon,fail=1 --verbose --line-buffer --tagstring '|job#{#} s#{%}|' process_co_cited_pair {}
+
+exit 0
