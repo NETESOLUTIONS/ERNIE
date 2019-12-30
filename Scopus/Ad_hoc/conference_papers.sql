@@ -52,10 +52,10 @@ SELECT sspd.conf_name, st.title, sp.*
          'Annual International Conference on Research in Computational Molecular Biology');
 -- 3.6s
 
--- Conferences
+-- Conferences by name phrase
 SELECT DISTINCT sspd.conf_name
   FROM scopus_source_publication_details sspd
- WHERE to_tsvector('english', sspd.conf_name) @@ plainto_tsquery('RECOMB')
+ WHERE to_tsvector('english', sspd.conf_name) @@ plainto_tsquery(:'conf_name_phrase')
  ORDER BY conf_name;
 -- 1m:32s
 
