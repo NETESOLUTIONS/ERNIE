@@ -65,7 +65,7 @@ process_co_cited_pair() {
 
 export -f process_co_cited_pair
 
-echo "cited_1,cited_2,first_cited_year,exy,intersect_union,intersect_union2" >> "${OUTPUT_FILE}"
+echo "cited_1,cited_2,first_cited_year,cited_1_count,cited_2_count,pair_edges,exy,intersection_count,union_count,union_xy,intersection_count2,union_count2,union_xy2" >> "${OUTPUT_FILE}"
 
 parallel --halt soon,fail=1 --verbose --line-buffer --tagstring '|job#{#} s#{%}|' process_co_cited_pair {}
 
