@@ -22,7 +22,7 @@ RETURN toFloat(count(E)) / (cnx * cny) AS e_ratio, intersect_to_union_ratio;
 
 // |N(xy) = Co-citing set|/|NxUNy = N*(x) union with N*(y)|
 // 0.02s-0.08s
-MATCH (x:Publication {node_id: '17538003'})<--(Nxy)-->(y:Publication {node_id: '18983824'})
+MATCH (x:Publication {node_id: '9482260'})<--(Nxy)-->(y:Publication {node_id: '14949207'})
 WITH count(Nxy) AS cnxy, x, y
 MATCH (x)<--(Nx)
 WITH collect(Nx) AS nx_list, cnxy, y
@@ -101,19 +101,34 @@ RETURN count(Ny);
 // 1.1s
 MATCH (x:Publication {node_id: '17538003'})<--(Nxy:Publication)-->(y:Publication {node_id: '18983824'})
 WITH min(toInteger(Nxy.pub_year)) AS first_co_citation_year, x, y
-MATCH (x)<--(Ex:Publication)-[E]-(Ey:Publication)-->(y)
+OPTIONAL MATCH (x)<--(Ex:Publication)-[E]-(Ey:Publication)-->(y)
   WHERE toInteger(startNode(E).pub_year) <= first_co_citation_year
-RETURN count(E);
-// 9
+WITH collect(E) AS edges, first_co_citation_year, x, y
+OPTIONAL MATCH (x)<--(y)<-[E]-(Ey:Publication)
+  WHERE toInteger(startNode(E).pub_year) <= first_co_citation_year
+WITH collect(E) + edges AS edges, first_co_citation_year, x, y
+OPTIONAL MATCH (y)<--(x)<-[E]-(Ex:Publication)
+  WHERE toInteger(startNode(E).pub_year) <= first_co_citation_year
+WITH collect(E) + edges AS edges
+UNWIND edges AS edge
+RETURN count(DISTINCT edge);
+// 14
 
-// E(x,y) set
+// E(x,y) on N*(x) and N*(y) result set
 MATCH (x:Publication {node_id: '17538003'})<--(Nxy:Publication)-->(y:Publication {node_id: '18983824'})
 WITH min(toInteger(Nxy.pub_year)) AS first_co_citation_year, x, y
-MATCH (x)<--(Ex:Publication)-[E]-(Ey:Publication)-->(y)
+OPTIONAL MATCH (x)<--(Ex:Publication)-[E]-(Ey:Publication)-->(y)
   WHERE toInteger(startNode(E).pub_year) <= first_co_citation_year
-RETURN toInteger(startNode(E).node_id), toInteger(endNode(E).node_id)
-ORDER BY toInteger(startNode(E).node_id), toInteger(endNode(E).node_id);
-// 9
+WITH collect(E) AS edges, first_co_citation_year, x, y
+OPTIONAL MATCH (x)<--(y)<-[E]-(Ey:Publication)
+  WHERE toInteger(startNode(E).pub_year) <= first_co_citation_year
+WITH collect(E) + edges AS edges, first_co_citation_year, x, y
+OPTIONAL MATCH (y)<--(x)<-[E]-(Ex:Publication)
+  WHERE toInteger(startNode(E).pub_year) <= first_co_citation_year
+WITH collect(E) + edges AS edges
+UNWIND edges AS edge
+RETURN DISTINCT toInteger(startNode(edge).node_id), toInteger(endNode(edge).node_id);
+// 14
 
 // Year of the first co-citation
 MATCH (x:Publication {node_id: '17538003'})<--(Nxy:Publication)-->(y:Publication {node_id: '18983824'})
