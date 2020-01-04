@@ -30,7 +30,7 @@ WITH nx_list + collect(Ny) AS NxUNy_list, cnxy
 UNWIND NxUNy_list AS NxUNy
 RETURN toFloat(cnxy) / count(DISTINCT NxUNy);
 
-// |N(xy) = Co-citing set|/|NxUNy = N*(x) union with N*(y)|
+// Jaccard Index: |N(xy) = Co-citing set|/|NxUNy = N*(x) union with N*(y)|
 MATCH (x:Publication {node_id: $cited_1})<--(Nxy)-->(y:Publication {node_id: $cited_2})
 WITH count(Nxy) AS cnxy, x, y
 MATCH (x)<--(Nx)
@@ -38,7 +38,7 @@ WITH collect(Nx) AS nx_list, cnxy, y
 MATCH (y)<--(Ny)
 WITH nx_list + collect(Ny) AS NxUNy_list, cnxy
 UNWIND NxUNy_list AS NxUNy
-RETURN toFloat(cnxy) / count(DISTINCT NxUNy);
+RETURN toFloat(cnxy) / count(DISTINCT NxUNy) AS Jaccard_Index;
 //
 //MATCH (x:Publication {node_id: ''})<--(Nxy)-->(y:Publication {node_id: ''})
 /*
@@ -49,7 +49,7 @@ cited_1	cited_2     time (s)
 4532	  320221      1.1s
 4532	  371265      0.3s
 
-9482260 14949207    0.02-2.6
+9482260 14949207    0.9-417
 */
 
 // |N(xy) = Co-citing set|/|NxUNy = N*(x) union with N*(y)|

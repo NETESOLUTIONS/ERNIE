@@ -77,7 +77,8 @@ db_name="${DB_PREFIX}v${db_ver}.db"
 # `java.io.FileNotFoundException: import.report (Permission denied)` error
 echo "$3" | sudo --stdin -u neo4j bash -c "set -xe
   echo 'Loading data into ${db_name}'
-  neo4j-admin import --nodes:Publication '${NODES_FILE}' --relationships:CITES '${EDGES_FILE}' --database='${db_name}'"
+  neo4j-admin import --nodes:Publication '${NODES_FILE}' --id-type INTEGER --relationships:CITES '${EDGES_FILE}' \\
+      --database='${db_name}'"
 
 "${ABSOLUTE_SCRIPT_DIR}/neo4j_switch_db.sh" "${db_name}" "$3"
 
