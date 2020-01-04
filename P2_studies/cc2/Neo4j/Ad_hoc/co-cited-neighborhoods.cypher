@@ -20,9 +20,8 @@ MATCH (x)<--(Ex:Publication)-[E]-(Ey:Publication)-->(y)
   WHERE toInteger(startNode(E).pub_year) <= first_co_citation_year
 RETURN toFloat(count(E)) / (cnx * cny) AS e_ratio, intersect_to_union_ratio;
 
-// |N(xy) = Co-citing set|/|NxUNy = N*(x) union with N*(y)|
-// 0.02s-0.08s
-MATCH (x:Publication {node_id: '9482260'})<--(Nxy)-->(y:Publication {node_id: '14949207'})
+// |N(xy) = Co-citing set|/|NxUNy = N*(x) union with N*(y)|: input from the DB
+MATCH (x:Publication {node_id: $cited_1})<--(Nxy)-->(y:Publication {node_id: $cited_2})
 WITH count(Nxy) AS cnxy, x, y
 MATCH (x)<--(Nx)
 WITH collect(Nx) AS nx_list, cnxy, y
@@ -30,6 +29,28 @@ MATCH (y)<--(Ny)
 WITH nx_list + collect(Ny) AS NxUNy_list, cnxy
 UNWIND NxUNy_list AS NxUNy
 RETURN toFloat(cnxy) / count(DISTINCT NxUNy);
+
+// |N(xy) = Co-citing set|/|NxUNy = N*(x) union with N*(y)|
+MATCH (x:Publication {node_id: $cited_1})<--(Nxy)-->(y:Publication {node_id: $cited_2})
+WITH count(Nxy) AS cnxy, x, y
+MATCH (x)<--(Nx)
+WITH collect(Nx) AS nx_list, cnxy, y
+MATCH (y)<--(Ny)
+WITH nx_list + collect(Ny) AS NxUNy_list, cnxy
+UNWIND NxUNy_list AS NxUNy
+RETURN toFloat(cnxy) / count(DISTINCT NxUNy);
+//
+//MATCH (x:Publication {node_id: ''})<--(Nxy)-->(y:Publication {node_id: ''})
+/*
+cited_1	cited_2     time (s)
+474	    84870231656 0.9
+2224	  1156126     0.7
+2224	  33751141500 4.6s
+4532	  320221      1.1s
+4532	  371265      0.3s
+
+9482260 14949207    0.02-2.6
+*/
 
 // |N(xy) = Co-citing set|/|NxUNy = N*(x) union with N*(y)|
 // 0.02s-0.08s

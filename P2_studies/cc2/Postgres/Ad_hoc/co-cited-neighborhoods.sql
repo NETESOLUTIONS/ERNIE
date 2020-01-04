@@ -1,3 +1,15 @@
+-- Test data bins
+SELECT cited_1, cited_2
+  FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
+WHERE bin = 1
+ORDER BY cited_1, cited_2
+LIMIT 5;
+
+-- Test data bins
+SELECT DISTINCT bin
+  FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
+ORDER BY bin;
+
 SELECT a.scp AS n_of_x
   FROM
     scopus_references a
