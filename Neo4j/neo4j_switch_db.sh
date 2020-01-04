@@ -29,17 +29,17 @@ set -o pipefail
 #cd "${work_dir}"
 echo -e "\n## Running under ${USER}@${HOSTNAME} at ${PWD} ##\n"
 
-if ! which cypher-shell >/dev/null; then
+if ! command -v cypher-shell >/dev/null; then
   echo "Please install Neo4j"
   exit 1
 fi
 
-db_name="$1"
+readonly DB_NAME="$1"
 
 # region Hide password from the output
 set +x
 echo "$2" | sudo --stdin -u neo4j bash -c "set -xe
-  sed --in-place --expression='s/dbms.active_database=.*/dbms.active_database=${db_name}/' /etc/neo4j/neo4j.conf"
+  sed --in-place --expression='s/dbms.active_database=.*/dbms.active_database=${DB_NAME}/' /etc/neo4j/neo4j.conf"
 
 echo "Restarting Neo4j with a new active database ..."
 echo "$2" | sudo --stdin systemctl restart neo4j
