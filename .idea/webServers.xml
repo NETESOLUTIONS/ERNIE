@@ -2,7 +2,7 @@
 <project version="4">
   <component name="WebServers">
     <option name="servers">
-      <webServer id="29caccaa-921d-4179-ae3c-d76567156685" name="Ω ERNIE Neo4j" url="http://ernie-neo4j.eastus2.cloudapp.azure.com">
+      <webServer id="29caccaa-921d-4179-ae3c-d76567156685" name="ERNIE Neo4j" url="http://ernie-neo4j.eastus2.cloudapp.azure.com">
         <fileTransfer host="ernie-neo4j.eastus2.cloudapp.azure.com" port="22" rootFolder="/home/dk/Workspaces" accessType="SFTP" authAgent="true">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" shareSSLContext="true" />
