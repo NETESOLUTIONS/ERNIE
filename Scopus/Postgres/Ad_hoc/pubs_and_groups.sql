@@ -1,3 +1,8 @@
+SELECT max(scp)
+  FROM scopus_publications;
+-- 85,076,586,607
+-- max integer: 2,147,483,647
+
 /* WITH cte AS ( SELECT plainto_tsquery('english', document_title), * FROM dblp_publications LIMIT 10 )
 SELECT scp, title
   FROM scopus_titles
