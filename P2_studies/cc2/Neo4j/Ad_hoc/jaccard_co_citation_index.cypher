@@ -1,12 +1,88 @@
-// Jaccard Co-Citation* Index: |N(xy) = Co-citing set|/|NxUNy = N*(x) union with N*(y)| with Postgres query input
-// 5 pairs: 21s-26s
+// Jaccard Co-Citation* Index: |N(xy) = Co-citing set|/|NxUNy = N*(x) union with N*(y)| in parallel
+// 5 pairs: 4.4s-16.0s
 WITH $DB_conn_string AS db,
      '
      SELECT cited_1, cited_2
      FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
      WHERE bin = 1
      ORDER BY random()
-     LIMIT ' + $pairs_limit AS sql
+     LIMIT ' + $input_limit AS sql
+CALL apoc.load.jdbc(db, sql) YIELD row
+WITH collect({x_scp: row.cited_1, y_scp: row.cited_2}) AS pairs
+CALL apoc.cypher.mapParallel2('
+  MATCH (x:Publication {node_id: _.x_scp})<--(Nxy)-->(y:Publication {node_id: _.y_scp})
+  WITH count(Nxy) AS intersect_size, _.x_scp AS x_scp, _.y_scp AS y_scp
+  MATCH (x:Publication {node_id: x_scp})<--(Nx:Publication)
+    WHERE Nx.node_id <> y_scp
+  WITH collect(Nx) AS nx_list, intersect_size, x_scp, y_scp
+  MATCH (y:Publication {node_id: y_scp})<--(Ny:Publication)
+    WHERE Ny.node_id <> x_scp
+  WITH nx_list + collect(Ny) AS union_list, intersect_size, x_scp, y_scp
+  UNWIND union_list AS union_node
+  RETURN x_scp AS cited_1, y_scp AS cited_2,
+         toFloat(intersect_size) / (count(DISTINCT union_node) + 2) AS jaccard_co_citation_star_index', {}, pairs, 16)
+YIELD value
+RETURN value.cited_1 AS cited_1, value.cited_2 AS cited_2,
+       value.jaccard_co_citation_star_index AS jaccard_co_citation_star_index;
+
+// Parallel query
+// 20 nodes: 7.7s-17.2s
+WITH $DB_conn_string AS db,
+     '
+     SELECT cited_1
+     FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
+     WHERE bin = 1
+     GROUP BY cited_1
+     ORDER BY random()
+     LIMIT ' + $input_limit AS sql
+CALL apoc.load.jdbc(db, sql) YIELD row
+MATCH (x:Publication {node_id: row.cited_1})
+WITH collect(x) AS nodes
+CALL apoc.cypher.mapParallel2('
+    MATCH (_)--(n)
+    RETURN _.node_id as scp, count(n) as nx_count', {}, nodes, 16) YIELD value
+RETURN value.scp AS scp, value.nx_count AS nx_count;
+
+// 20 nodes: 11.9s-22.6s
+WITH $DB_conn_string AS db,
+     '
+     SELECT cited_1
+     FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
+     WHERE bin = 1
+     GROUP BY cited_1
+     ORDER BY random()
+     LIMIT ' + $input_limit AS sql
+CALL apoc.load.jdbc(db, sql) YIELD row
+MATCH (x:Publication {node_id: row.cited_1})--(n)
+RETURN x.node_id AS scp, count(n) AS nx_count;
+
+// Parallel query
+// 20 nodes: 74s
+WITH $DB_conn_string AS db,
+     '
+     SELECT cited_1
+     FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
+     WHERE bin = 1
+     GROUP BY cited_1
+     ORDER BY random()
+     LIMIT ' + $input_limit AS sql
+CALL apoc.load.jdbc(db, sql) YIELD row
+MATCH (x:Publication {node_id: row.cited_1})
+WITH collect(x) AS nodes
+CALL apoc.cypher.mapParallel('
+    MATCH (_)--(n)
+    RETURN _.node_id as scp, count(n) as count', {}, nodes) YIELD value
+RETURN value.scp AS scp, value.count AS nx_count;
+
+// Jaccard Co-Citation* Index: |N(xy) = Co-citing set|/|NxUNy = N*(x) union with N*(y)| with Postgres query input
+// 5 pairs: 21s-26s (4.2-5.2 s per pair, 11-14.3 pairs/min)s
+WITH $DB_conn_string AS db,
+     '
+     SELECT cited_1, cited_2
+     FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
+     WHERE bin = 1
+     ORDER BY random()
+     LIMIT ' + $input_limit AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
 MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
 WITH count(Nxy) AS intersect_size, row.cited_1 AS x_scp, row.cited_2 AS y_scp
@@ -21,12 +97,13 @@ RETURN x_scp AS cited_1, y_scp AS cited_2,
        toFloat(intersect_size) / (count(DISTINCT union_node) + 2) AS jaccard_co_citation_star_index;
 
 CREATE INDEX ON :Publication(co_cited);
+
 DROP INDEX ON :Publication(co_cited);
 
 // 0.1s
 MATCH (n:Publication)
   WHERE exists(n.co_cited)
-SET n.co_cited = NULL;
+SET n.co_cited = null;
 
 // Pre-load data input data
 // 5 pairs: 1.7s
@@ -36,19 +113,19 @@ WITH $DB_conn_string AS db,
      FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
      WHERE bin = 1
      ORDER BY random()
-     LIMIT ' + $pairs_limit AS sql
+     LIMIT ' + $input_limit AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
 MATCH (x:Publication {node_id: row.cited_1})
 SET x.co_cited = row.cited_2;
 
 MATCH (n:Publication)
-WHERE exists(n.co_cited)
+  WHERE exists(n.co_cited)
 RETURN *;
 
 // Jaccard Co-Citation* Index: |N(xy) = Co-citing set|/|NxUNy = N*(x) union with N*(y)| with pre-loaded input
 // 5 pairs: 108s-1306s
 MATCH (x:Publication)<--(Nxy)-->(y:Publication)
-WHERE x.co_cited = y.node_id
+  WHERE x.co_cited = y.node_id
 WITH count(Nxy) AS intersect_size, x.node_id AS x_scp, y.node_id AS y_scp
 MATCH (x:Publication {node_id: x_scp})<--(Nx:Publication)
   WHERE Nx.node_id <> y_scp
@@ -69,7 +146,7 @@ WITH $DB_conn_string AS db,
      FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
      WHERE bin = 1
      ORDER BY random()
-     LIMIT ' + $pairs_limit AS sql
+     LIMIT ' + $input_limit AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
 MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
 WITH count(Nxy) AS intersect_size, x, y
@@ -193,73 +270,3 @@ RETURN count(NxUNy);
 MATCH (x:Publication {node_id: '17538003'})<--(Nxy)-->(y:Publication {node_id: '18983824'})
 RETURN count(Nxy);
 // 62
-
-// E(x,y)/(|N(x)|*|N(y)|)
-// 1.1s
-MATCH (x:Publication {node_id: '17538003'})<--(Nxy:Publication)-->(y:Publication {node_id: '18983824'})
-WITH min(toInteger(Nxy.pub_year)) AS first_co_citation_year, x, y
-MATCH (Nx:Publication)-->(x)
-  WHERE toInteger(Nx.pub_year) <= first_co_citation_year
-WITH count(Nx) AS cnx, first_co_citation_year, x, y
-MATCH (Ny:Publication)-->(y)
-  WHERE toInteger(Ny.pub_year) <= first_co_citation_year
-WITH count(Ny) AS cny, cnx, first_co_citation_year, x, y
-MATCH (x)<--(Ex:Publication)-[E]-(Ey:Publication)-->(y)
-  WHERE toInteger(startNode(E).pub_year) <= first_co_citation_year
-RETURN toFloat(count(E)) / (cnx * cny);
-// 0.08181818181818182
-
-// |N(x)|
-// 2.4s
-MATCH (x:Publication {node_id: '17538003'})<--(Nxy:Publication)-->(y:Publication {node_id: '18983824'})
-WITH min(toInteger(Nxy.pub_year)) AS first_co_citation_year, x
-MATCH (Nx:Publication)-->(x)
-  WHERE toInteger(Nx.pub_year) <= first_co_citation_year
-RETURN count(Nx);
-// 22
-
-// |N(y)|
-// 0.04s
-MATCH (x:Publication {node_id: '17538003'})<--(Nxy:Publication)-->(y:Publication {node_id: '18983824'})
-WITH min(toInteger(Nxy.pub_year)) AS first_co_citation_year, y
-MATCH (Ny:Publication)-->(y)
-  WHERE toInteger(Ny.pub_year) <= first_co_citation_year
-RETURN count(Ny);
-// 5
-
-// E(x,y)
-// 1.1s
-MATCH (x:Publication {node_id: '17538003'})<--(Nxy:Publication)-->(y:Publication {node_id: '18983824'})
-WITH min(toInteger(Nxy.pub_year)) AS first_co_citation_year, x, y
-OPTIONAL MATCH (x)<--(Ex:Publication)-[E]-(Ey:Publication)-->(y)
-  WHERE toInteger(startNode(E).pub_year) <= first_co_citation_year
-WITH collect(E) AS edges, first_co_citation_year, x, y
-OPTIONAL MATCH (x)<--(y)<-[E]-(Ey:Publication)
-  WHERE toInteger(startNode(E).pub_year) <= first_co_citation_year
-WITH collect(E) + edges AS edges, first_co_citation_year, x, y
-OPTIONAL MATCH (y)<--(x)<-[E]-(Ex:Publication)
-  WHERE toInteger(startNode(E).pub_year) <= first_co_citation_year
-WITH collect(E) + edges AS edges
-UNWIND edges AS edge
-RETURN count(DISTINCT edge);
-// 14
-
-// E(x,y) on N*(x) and N*(y) result set
-MATCH (x:Publication {node_id: '17538003'})<--(Nxy:Publication)-->(y:Publication {node_id: '18983824'})
-WITH min(toInteger(Nxy.pub_year)) AS first_co_citation_year, x, y
-OPTIONAL MATCH (x)<--(Ex:Publication)-[E]-(Ey:Publication)-->(y)
-  WHERE toInteger(startNode(E).pub_year) <= first_co_citation_year
-WITH collect(E) AS edges, first_co_citation_year, x, y
-OPTIONAL MATCH (x)<--(y)<-[E]-(Ey:Publication)
-  WHERE toInteger(startNode(E).pub_year) <= first_co_citation_year
-WITH collect(E) + edges AS edges, first_co_citation_year, x, y
-OPTIONAL MATCH (y)<--(x)<-[E]-(Ex:Publication)
-  WHERE toInteger(startNode(E).pub_year) <= first_co_citation_year
-WITH collect(E) + edges AS edges
-UNWIND edges AS edge
-RETURN DISTINCT toInteger(startNode(edge).node_id), toInteger(endNode(edge).node_id);
-// 14
-
-// Year of the first co-citation
-MATCH (x:Publication {node_id: '17538003'})<--(Nxy:Publication)-->(y:Publication {node_id: '18983824'})
-RETURN min(toInteger(Nxy.pub_year));

@@ -12,7 +12,7 @@
               <option name="configuration">
                 <map>
                   <entry key="host" value="localhost" />
-                  <entry key="password" value="1234" />
+                  <entry key="password" value="" />
                   <entry key="port" value="7687" />
                   <entry key="user" value="neo4j" />
                 </map>
