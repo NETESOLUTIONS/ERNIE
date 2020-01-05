@@ -58,9 +58,7 @@ readonly CO_CITED_PAIRS_QUERY="$2"
 #echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
 cypher-shell --format plain <<HEREDOC
-WITH $JDBC_CONN_STRING AS db,
-     '
-     ${CO_CITED_PAIRS_QUERY}' AS sql
+WITH '$JDBC_CONN_STRING' AS db, '${CO_CITED_PAIRS_QUERY}' AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
 MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
 WITH count(Nxy) AS intersect_size, row.cited_1 AS x_scp, row.cited_2 AS y_scp
