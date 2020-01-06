@@ -1,11 +1,11 @@
-ALTER TABLE cc2.ten_year_cocit_union_freq11_freqsum_bins
-  ADD CONSTRAINT ten_year_cocit_union_freq11_freqsum_bins_pk PRIMARY KEY (cited_1, cited_2) USING INDEX TABLESPACE index_tbs;
-
--- 1m:16s
-CREATE UNIQUE INDEX IF NOT EXISTS ten_year_cocit_union_freq11_freqsum_bins_uk --
-  ON cc2.ten_year_cocit_union_freq11_freqsum_bins(bin, cited_1, cited_2) TABLESPACE index_tbs;
-
 -- Test data bins
+SELECT cited_1, cited_2
+  FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
+ WHERE bin = 1
+ ORDER BY cited_1, cited_2
+ LIMIT 1000
+ OFFSET 1000;
+
 SELECT count(1)
   FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
  WHERE bin = 1;
@@ -17,6 +17,19 @@ SELECT cited_1, cited_2
  WHERE bin = 1
  ORDER BY random()
  LIMIT 100;
+
+SELECT cited_1, cited_2
+  FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
+ WHERE bin = 1
+ ORDER BY cited_1, cited_2
+ LIMIT 1000;
+
+ALTER TABLE cc2.ten_year_cocit_union_freq11_freqsum_bins
+  ADD CONSTRAINT ten_year_cocit_union_freq11_freqsum_bins_pk PRIMARY KEY (cited_1, cited_2) USING INDEX TABLESPACE index_tbs;
+
+-- 1m:16s
+CREATE UNIQUE INDEX IF NOT EXISTS ten_year_cocit_union_freq11_freqsum_bins_uk --
+  ON cc2.ten_year_cocit_union_freq11_freqsum_bins(bin, cited_1, cited_2) TABLESPACE index_tbs;
 
 SELECT cited_1, cited_2
   FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
