@@ -54,8 +54,8 @@ set -o pipefail
 readonly JDBC_CONN_STRING="$1"
 readonly CO_CITED_PAIRS_QUERY="$2"
 readonly OUTPUT="$3"
-if [[ $3 ]]; then
-  declare -ri MIN_NUM_RECORDS=$3
+if [[ $4 ]]; then
+  declare -ri MIN_NUM_RECORDS=$4
 fi
 
 # Get a script directory, same as by $(dirname $0)
