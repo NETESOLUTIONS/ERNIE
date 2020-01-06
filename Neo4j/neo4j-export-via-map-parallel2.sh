@@ -7,7 +7,7 @@ NAME
 
 SYNOPSIS
 
-    neo4j-export-via-map-parallel2.sh output_file JDBC_conn_string SQL_query Cypher_query_file [expected_rec_number]
+    neo4j-export-via-map-parallel2.sh output_file JDBC_conn_string SQL Cypher_query_file [expected_rec_num] [batch_size]
     neo4j-export-via-map-parallel2.sh -h: display this help
 
 DESCRIPTION
@@ -17,14 +17,17 @@ DESCRIPTION
 
     The following options are available:
 
-    output_file           `-{batch #}` suffixes are automatically added when bactehd.use `/dev/stdout` for `stdout`. Note: the number of records is printed to stdout.
+    output_file           `-{batch #}` suffixes are automatically added when bactehd.use `/dev/stdout` for `stdout`.
+                          Note: the number of records is printed to stdout.
     JDBC_conn_string      JDBC connection string
-    SQL_query             SQL to retrieve input data. Input data should be ordered when batched.
+    SQL                   SQL to retrieve input data. Input data should be ordered when batched.
     Cypher_query_file     file containing Cypher query to execute which uses the `row` resultset returned by
                           `CALL apoc.load.jdbc(db, {SQL_query}) YIELD row`.
     expected_rec_number   If supplied, the number of output records is checked to be = expected
-                          If `expected_rec_number` > 1000, output is batched and
-                          ` LIMIT 1000 OFFSET {batch_offset}` clauses are added to `SQL_query`.
+    batch_size            If `expected_rec_number` > `batch_size`, output is batched and
+                          ` LIMIT {batch_size} OFFSET {batch_offset}` clauses are added to `SQL_query`.
+                          WARNING: `apoc.cypher.mapParallel2()` is unstable as of v3.5.0.6 and may fail on
+                          medium-to-large batches. batch_size = 50 is recommended to start with.
 
 ENVIRONMENT
 
@@ -74,7 +77,6 @@ fi
 set -e
 set -o pipefail
 
-declare -ri BATCH_SIZE=1000
 readonly NUM_LINES_FILE="num_of_CSV_lines.txt"
 
 readonly OUTPUT="$1"
@@ -83,6 +85,10 @@ readonly INPUT_DATA_SQL_QUERY="$3"
 readonly CYPHER_QUERY_FILE="$4"
 if [[ $5 ]]; then
   declare -ri EXPECTED_NUM_RECORDS=$5
+  shift
+fi
+if [[ $5 ]]; then
+  declare -ri BATCH_SIZE=$5
 fi
 
 # Get a script directory, same as by $(dirname $0)
@@ -97,40 +103,42 @@ fi
 #cd "${WORK_DIR}"
 #echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
-{
-cypher-shell --format plain << HEREDOC
+declare -i processed_records=0, batch_num=1
+output_processor="eval tee >(wc -l >$NUM_LINES_FILE)"
+while (( processed_records < EXPECTED_NUM_RECORDS )); do
+  if [[ $BATCH_SIZE ]]; then
+    batch_clauses=" LIMIT $BATCH_SIZE OFFSET $processed_records"
+    if (( num_of_records > 0 )); then
+      output_processor="eval tee >(wc -l >$NUM_LINES_FILE) | tail -n +2"
+    fi
+  fi
+  {
+  cypher-shell --format plain << HEREDOC
 // 5 pairs: 4.4s-16.0s
-WITH '$JDBC_CONN_STRING' AS db, '${INPUT_DATA_SQL_QUERY}' AS sql
+WITH '$JDBC_CONN_STRING' AS db, '${INPUT_DATA_SQL_QUERY}${batch_clauses}' AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
 $(cat "$CYPHER_QUERY_FILE")
 HEREDOC
-} | tee >(wc -l >"$NUM_LINES_FILE") >"$OUTPUT"
+  } | ${output_processor} >>"$OUTPUT"
 
-# shellcheck disable=SC2155 # suppressing an exit code here
-declare -i num_of_records=$(cat "$NUM_LINES_FILE")
-(( num_of_records=num_of_records-1 )) || :
-echo "Exported $num_of_records records to $OUTPUT"
+  declare -i num_of_records
+  num_of_records=$(cat "$NUM_LINES_FILE")
+  if (( num_of_records > 0 )); then
+    # Exclude CSV header
+    (( --num_of_records )) || :
+  fi
+  if [[ $BATCH_SIZE ]]; then
+    echo -n "Batch #${batch_num}: "
+  fi
+  echo "$num_of_records records"
 
-if [[ $EXPECTED_NUM_RECORDS && $num_of_records -ne $EXPECTED_NUM_RECORDS ]]; then
-  # False if EXPECTED_NUM_RECORDS is not defined
-  echo "Error! It's not the expected number of records ($EXPECTED_NUM_RECORDS)." 1>&2
-  exit 1
-fi
-
-#cypher-shell --format plain <<HEREDOC
-#WITH '$JDBC_CONN_STRING' AS db, '${INPUT_DATA_SQL_QUERY}' AS sql
-#CALL apoc.load.jdbc(db, sql) YIELD row
-#MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
-#WITH count(Nxy) AS intersect_size, row.cited_1 AS x_scp, row.cited_2 AS y_scp
-#MATCH (x:Publication {node_id: x_scp})<--(Nx:Publication)
-#  WHERE Nx.node_id <> y_scp
-#WITH collect(Nx) AS nx_list, intersect_size, x_scp, y_scp
-#MATCH (y:Publication {node_id: y_scp})<--(Ny:Publication)
-#  WHERE Ny.node_id <> x_scp
-#WITH nx_list + collect(Ny) AS union_list, intersect_size, x_scp, y_scp
-#UNWIND union_list AS union_node
-#RETURN x_scp AS cited_1, y_scp AS cited_2,
-#       toFloat(intersect_size) / (count(DISTINCT union_node) + 2) AS jaccard_co_citation_star_index;
-#HEREDOC
+  if [[ $EXPECTED_NUM_RECORDS && $num_of_records -ne $EXPECTED_NUM_RECORDS ]]; then
+    # False if EXPECTED_NUM_RECORDS is not defined
+    echo "Error! It's not the expected number of records ($EXPECTED_NUM_RECORDS)." 1>&2
+    exit 1
+  fi
+  (( processed_records += num_of_records ))
+  (( ++batch_num ))
+done
 
 exit 0

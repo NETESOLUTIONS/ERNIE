@@ -1,10 +1,12 @@
 // Jaccard Co-Citation* Conditional Index: |N(xy) = Co-citing set|/|NxUNy = N*(x) union with N*(y)| in parallel
-// 33,642 pairs: 25s, *no results*
+// 1,000 pairs: ?
 WITH $DB_conn_string AS db,'
   SELECT cited_1, cited_2
   FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
   WHERE bin = 1
-  LIMIT 100' AS sql
+  ORDER BY cited_1, cited_2
+  LIMIT 500
+  OFFSET 6000' AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
 WITH collect({x_scp: row.cited_1, y_scp: row.cited_2}) AS pairs
 CALL apoc.cypher.mapParallel2('
