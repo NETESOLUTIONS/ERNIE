@@ -7,7 +7,7 @@ NAME
 
 SYNOPSIS
 
-    calc-jaccard-co-citation-index.sh JDBC_conn_string co_cited_pairs_query output_file [min_rec_number]
+    calc-jaccard-co-citation-index.sh JDBC_conn_string co_cited_pairs_query output_file [expected_rec_number]
     calc-jaccard-co-citation-index.sh -h: display this help
 
 DESCRIPTION
@@ -20,7 +20,7 @@ DESCRIPTION
     JDBC_conn_string      JDBC connection string
     co_cited_pairs_query  SQL to execute. SQL should return (cited_1, cited_2) integer ids.
     output_file           use `/dev/stdout` for `stdout`. Note: the number of records is printed to stdout.
-    min_rec_number        If supplied, the number of output records is checked to be >= minimum
+    expected_rec_number   If supplied, the number of output records is checked to be = expected
 
 ENVIRONMENT
 
@@ -55,7 +55,7 @@ readonly JDBC_CONN_STRING="$1"
 readonly CO_CITED_PAIRS_QUERY="$2"
 readonly OUTPUT="$3"
 if [[ $4 ]]; then
-  declare -ri MIN_NUM_RECORDS=$4
+  declare -ri EXPECTED_NUM_RECORDS=$4
 fi
 
 # Get a script directory, same as by $(dirname $0)
@@ -100,9 +100,9 @@ declare -i num_of_records=$(cat num_of_lines.txt)
 (( num_of_records=num_of_records-1 )) || :
 echo "Exported $num_of_records records to $OUTPUT"
 
-if (( num_of_records < MIN_NUM_RECORDS )); then
-  # False if MIN_NUM_RECORDS is not defined
-  echo "Error! It's less than the minimum number of records ($MIN_NUM_RECORDS)." 1>&2
+if (( num_of_records != EXPECTED_NUM_RECORDS )); then
+  # False if EXPECTED_NUM_RECORDS is not defined
+  echo "Error! It's less than the minimum number of records ($EXPECTED_NUM_RECORDS)." 1>&2
   exit 1
 fi
 
