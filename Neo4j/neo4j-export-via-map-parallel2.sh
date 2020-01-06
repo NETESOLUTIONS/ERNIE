@@ -113,14 +113,15 @@ while (( processed_records < EXPECTED_NUM_RECORDS )); do
       output_processor="eval tee >(wc -l >$NUM_LINES_FILE) | tail -n +2"
     fi
   fi
+  set -x
   {
   cypher-shell --format plain << HEREDOC
-// 5 pairs: 4.4s-16.0s
 WITH '$JDBC_CONN_STRING' AS db, '${INPUT_DATA_SQL_QUERY}${batch_clauses}' AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
 $(cat "$CYPHER_QUERY_FILE")
 HEREDOC
   } | ${output_processor} >>"$OUTPUT"
+  set +x
 
   declare -i num_of_records
   num_of_records=$(cat "$NUM_LINES_FILE")
