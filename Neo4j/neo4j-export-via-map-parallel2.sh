@@ -102,7 +102,7 @@ cypher-shell --format plain << HEREDOC
 // 5 pairs: 4.4s-16.0s
 WITH '$JDBC_CONN_STRING' AS db, '${INPUT_DATA_SQL_QUERY}' AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
-$(cat $"CYPHER_QUERY_FILE")
+$(cat "$CYPHER_QUERY_FILE")
 HEREDOC
 } | tee >(wc -l >"$NUM_LINES_FILE") >"$OUTPUT"
 
