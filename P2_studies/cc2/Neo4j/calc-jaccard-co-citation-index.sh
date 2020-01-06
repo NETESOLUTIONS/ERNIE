@@ -51,6 +51,7 @@ fi
 set -e
 set -o pipefail
 
+readonly NUM_LINES_FILE="num_of_CSV_lines.txt"
 readonly JDBC_CONN_STRING="$1"
 readonly CO_CITED_PAIRS_QUERY="$2"
 readonly OUTPUT="$3"
@@ -91,16 +92,16 @@ CALL apoc.cypher.mapParallel2('
 YIELD value
 RETURN value.x_scp AS cited_1, value.y_scp AS cited_2, value.jaccard_index AS jaccard_co_citation_conditional_index;
 HEREDOC
-} | tee >(wc -l >num_of_lines.txt) >"$OUTPUT"
+} | tee >(wc -l >"$NUM_LINES_FILE") >"$OUTPUT"
 
 # shellcheck disable=SC2155 # suppressing an exit code here
-declare -i num_of_records=$(cat num_of_lines.txt)
+declare -i num_of_records=$(cat "$NUM_LINES_FILE")
 (( num_of_records=num_of_records-1 )) || :
 echo "Exported $num_of_records records to $OUTPUT"
 
-if (( num_of_records != EXPECTED_NUM_RECORDS )); then
+if [[ $EXPECTED_NUM_RECORDS && $num_of_records -ne $EXPECTED_NUM_RECORDS ]]; then
   # False if EXPECTED_NUM_RECORDS is not defined
-  echo "Error! It's less than the minimum number of records ($EXPECTED_NUM_RECORDS)." 1>&2
+  echo "Error! It's not the expected number of records ($EXPECTED_NUM_RECORDS)." 1>&2
   exit 1
 fi
 
