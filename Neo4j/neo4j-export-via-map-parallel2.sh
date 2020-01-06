@@ -103,7 +103,7 @@ fi
 #cd "${WORK_DIR}"
 #echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
-declare -i processed_records=0, batch_num=1
+declare -i processed_records=0 batch_num=1
 output_processor="eval tee >(wc -l >$NUM_LINES_FILE)"
 while (( processed_records < EXPECTED_NUM_RECORDS )); do
   if [[ $BATCH_SIZE ]]; then
@@ -113,15 +113,13 @@ while (( processed_records < EXPECTED_NUM_RECORDS )); do
       output_processor="eval tee >(wc -l >$NUM_LINES_FILE) | tail -n +2"
     fi
   fi
-  #{
-  #cypher-shell --format plain
-  cat << HEREDOC
+  {
+  cypher-shell --format plain << HEREDOC
 WITH '$JDBC_CONN_STRING' AS db, '${INPUT_DATA_SQL_QUERY}${batch_clauses}' AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
 $(cat "$CYPHER_QUERY_FILE")
 HEREDOC
-  #} | ${output_processor} >>"$OUTPUT"
-  exit 1
+  } | ${output_processor} >>"$OUTPUT"
 
   declare -i num_of_records
   num_of_records=$(cat "$NUM_LINES_FILE")
