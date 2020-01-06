@@ -74,5 +74,5 @@ CALL apoc.cypher.mapParallel2('
   UNWIND union_list AS union_node
   RETURN x_scp, y_scp, toFloat(intersect_size) / (count(DISTINCT union_node) + 2) AS jaccard_index', {}, pairs, 16)
 YIELD value
-RETURN value.x_scp AS cited_1, value.y_scp AS cited_2, value.jaccard_index AS jaccard_co_citation_conditional_index
+RETURN value.x_scp AS cited_1, value.y_scp AS cited_2, value.jaccard_index AS jaccard_co_citation_conditional_index;
 HEREDOC

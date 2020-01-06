@@ -18,6 +18,10 @@ SELECT cited_1, cited_2
  ORDER BY random()
  LIMIT 100;
 
+SELECT cited_1, cited_2
+  FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
+ WHERE bin = 1;
+
 -- Test data bins
 SELECT DISTINCT bin
   FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
