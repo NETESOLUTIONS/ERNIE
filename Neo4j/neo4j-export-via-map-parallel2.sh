@@ -108,7 +108,8 @@ output_processor="eval tee >(wc -l >$NUM_LINES_FILE)"
 while (( processed_records < EXPECTED_NUM_RECORDS )); do
   if [[ $BATCH_SIZE ]]; then
     batch_clauses=" LIMIT $BATCH_SIZE OFFSET $processed_records"
-    if (( num_of_records > 0 )); then
+    if (( batch_num > 1 )); then
+      # TODO Refactor duplication
       output_processor="eval tee >(wc -l >$NUM_LINES_FILE) | tail -n +2"
     fi
   fi
