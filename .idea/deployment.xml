@@ -1,11 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="ERNIE2" stopOnFirstError="true" overwriteAll="false" deleteMissingItems="true" exclude=".svn;.cvs;.DS_Store;.git;.hg;*.hprof;*.pyc" filePermissions="484">
+  <component name="PublishConfigData" serverName="ERNIE Neo4j" stopOnFirstError="true" overwriteAll="false" deleteMissingItems="true" exclude=".svn;.cvs;.DS_Store;.git;.hg;*.hprof;*.pyc" filePermissions="484">
     <serverData>
+      <paths name="ERNIE Neo4j">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
       <paths name="ERNIE2">
         <serverdata>
           <mappings>
             <mapping deploy="ERNIE" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="PARDI Data Reload server">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
@@ -41,13 +55,6 @@
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="Ω ERNIE Neo4j">
-        <serverdata>
-          <mappings>
-            <mapping deploy="ERNIE" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
