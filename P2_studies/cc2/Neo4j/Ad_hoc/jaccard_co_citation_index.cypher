@@ -5,7 +5,7 @@ WITH $DB_conn_string AS db,
      SELECT cited_1, cited_2
      FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
      WHERE bin = 1
-     ORDER BY random()
+     ORDER BY cited_1, cited_2
      LIMIT ' + $input_limit AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
 WITH collect({x_scp: row.cited_1, y_scp: row.cited_2}) AS pairs
@@ -25,55 +25,6 @@ YIELD value
 RETURN value.cited_1 AS cited_1, value.cited_2 AS cited_2,
        value.jaccard_co_citation_star_index AS jaccard_co_citation_star_index;
 
-// Parallel query
-// 20 nodes: 7.7s-17.2s
-WITH $DB_conn_string AS db,
-     '
-     SELECT cited_1
-     FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
-     WHERE bin = 1
-     GROUP BY cited_1
-     ORDER BY random()
-     LIMIT ' + $input_limit AS sql
-CALL apoc.load.jdbc(db, sql) YIELD row
-MATCH (x:Publication {node_id: row.cited_1})
-WITH collect(x) AS nodes
-CALL apoc.cypher.mapParallel2('
-    MATCH (_)--(n)
-    RETURN _.node_id as scp, count(n) as nx_count', {}, nodes, 16) YIELD value
-RETURN value.scp AS scp, value.nx_count AS nx_count;
-
-// 20 nodes: 11.9s-22.6s
-WITH $DB_conn_string AS db,
-     '
-     SELECT cited_1
-     FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
-     WHERE bin = 1
-     GROUP BY cited_1
-     ORDER BY random()
-     LIMIT ' + $input_limit AS sql
-CALL apoc.load.jdbc(db, sql) YIELD row
-MATCH (x:Publication {node_id: row.cited_1})--(n)
-RETURN x.node_id AS scp, count(n) AS nx_count;
-
-// Parallel query
-// 20 nodes: 74s
-WITH $DB_conn_string AS db,
-     '
-     SELECT cited_1
-     FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
-     WHERE bin = 1
-     GROUP BY cited_1
-     ORDER BY random()
-     LIMIT ' + $input_limit AS sql
-CALL apoc.load.jdbc(db, sql) YIELD row
-MATCH (x:Publication {node_id: row.cited_1})
-WITH collect(x) AS nodes
-CALL apoc.cypher.mapParallel('
-    MATCH (_)--(n)
-    RETURN _.node_id as scp, count(n) as count', {}, nodes) YIELD value
-RETURN value.scp AS scp, value.count AS nx_count;
-
 // Jaccard Co-Citation* Index: |N(xy) = Co-citing set|/|NxUNy = N*(x) union with N*(y)| with Postgres query input
 // 5 pairs: 21s-26s (4.2-5.2 s per pair, 11-14.3 pairs/min)s
 WITH $DB_conn_string AS db,
@@ -81,7 +32,7 @@ WITH $DB_conn_string AS db,
      SELECT cited_1, cited_2
      FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
      WHERE bin = 1
-     ORDER BY random()
+     ORDER BY cited_1, cited_2
      LIMIT ' + $input_limit AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
 MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
