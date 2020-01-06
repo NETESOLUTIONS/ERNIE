@@ -90,7 +90,7 @@ CALL apoc.cypher.mapParallel2('
   WITH nx_list + collect(Ny) AS union_list, intersect_size, x_scp, y_scp
   UNWIND union_list AS union_node
   RETURN x_scp AS cited_1, y_scp AS cited_2,
-         toFloat(intersect_size) / (count(DISTINCT union_node) + 2) AS jaccard_co_citation_star_index', {}, pairs, 16)
+         toFloat(intersect_size) / (count(DISTINCT union_node) + 2) AS jaccard_co_citation_star_index', {}, pairs, 8)
 YIELD value
 RETURN value.cited_1 AS cited_1, value.cited_2 AS cited_2,
        value.jaccard_co_citation_star_index AS jaccard_co_citation_star_index;
