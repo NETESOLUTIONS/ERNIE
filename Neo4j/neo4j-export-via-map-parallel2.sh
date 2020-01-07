@@ -112,6 +112,14 @@ while (( processed_records < EXPECTED_NUM_RECORDS )); do
       # TODO Refactor duplication
       output_processor="eval tee >(wc -l >$NUM_LINES_FILE) | tail -n +2"
     fi
+    declare -i expected_batch_records=$(( EXPECTED_NUM_RECORDS - processed_records ))
+    if (( expected_batch_records > BATCH_SIZE )); then
+      (( expected_batch_records = BATCH_SIZE ))
+    fi
+  else
+    if [[ $EXPECTED_NUM_RECORDS ]]; then
+      declare -i expected_batch_records=$EXPECTED_NUM_RECORDS
+    fi
   fi
   {
   cypher-shell --format plain << HEREDOC
@@ -132,9 +140,9 @@ HEREDOC
   fi
   echo "$num_of_records records"
 
-  if [[ $EXPECTED_NUM_RECORDS && $num_of_records -ne $EXPECTED_NUM_RECORDS ]]; then
+  if [[ $expected_batch_records && $num_of_records -ne $expected_batch_records ]]; then
     # False if EXPECTED_NUM_RECORDS is not defined
-    echo "Error! It's not the expected number of records ($EXPECTED_NUM_RECORDS)." 1>&2
+    echo "Error! The actual exported number of records is not the expected number ($expected_batch_records)." 1>&2
     exit 1
   fi
   (( processed_records += num_of_records ))
