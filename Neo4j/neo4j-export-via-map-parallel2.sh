@@ -89,6 +89,10 @@ if [[ $5 ]]; then
 fi
 if [[ $5 ]]; then
   declare -ri BATCH_SIZE=$5
+  declare -i expected_batches=$(( EXPECTED_NUM_RECORDS / BATCH_SIZE ))
+  if (( EXPECTED_NUM_RECORDS % BATCH_SIZE > 0 )); then
+    (( ++expected_batches ))
+  fi
 fi
 
 # Get a script directory, same as by $(dirname $0)
@@ -136,7 +140,7 @@ HEREDOC
     (( --num_of_records )) || :
   fi
   if [[ $BATCH_SIZE ]]; then
-    echo -n "Batch #${batch_num}: "
+    echo -n "Batch #${batch_num}/${expected_batches}: "
   fi
   echo "$num_of_records records"
 
