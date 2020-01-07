@@ -144,7 +144,7 @@ HEREDOC
   if [[ $BATCH_SIZE ]]; then
     echo -n "Batch #${batch_num}/${expected_batches}: "
   fi
-  echo "$num_of_records records"
+  echo "$num_of_records records exported"
 
   if [[ $expected_batch_records && $num_of_records -ne $expected_batch_records ]]; then
     # False if EXPECTED_NUM_RECORDS is not defined
