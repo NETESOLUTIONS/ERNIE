@@ -83,6 +83,8 @@ readonly OUTPUT="$1"
 readonly JDBC_CONN_STRING="$2"
 readonly INPUT_DATA_SQL_QUERY="$3"
 readonly CYPHER_QUERY_FILE="$4"
+echo "Calculating via $CYPHER_QUERY_FILE"
+
 if [[ $5 ]]; then
   declare -ri EXPECTED_NUM_RECORDS=$5
   shift
