@@ -7,7 +7,7 @@ NAME
 
 SYNOPSIS
 
-    neo4j-export-in-batches.sh [-v] output_file JDBC_conn_string SQL Cypher_query_file [expected_rec_num] [batch_size]
+    neo4j-export-in-batches.sh [-v] BATCH_OUTPUT JDBC_conn_string SQL Cypher_query_file [expected_rec_num] [batch_size]
     neo4j-export-in-batches.sh -h: display this help
 
 DESCRIPTION
@@ -18,7 +18,7 @@ DESCRIPTION
 
     -v                    verbose output
 
-    output_file           `-{batch #}` suffixes are automatically added when bactehd.use `/dev/stdout` for `stdout`.
+    BATCH_OUTPUT           `-{batch #}` suffixes are automatically added when bactehd.use `/dev/stdout` for `stdout`.
                           Note: the number of records is printed to stdout.
 
     JDBC_conn_string      JDBC connection string
@@ -89,6 +89,9 @@ set -o pipefail
 
 readonly CYPHER_SHELL_OUTPUT="/tmp/cypher-shell.out"
 
+# Note: this file would be written to and owned by the `neo4j` user
+readonly BATCH_OUTPUT="/tmp/batch.csv"
+
 while (( $# > 0 )); do
   case "$1" in
     -v)
@@ -131,12 +134,8 @@ fi
 
 declare -i processed_records=0 batch_num=1
 export sql_query="'${INPUT_DATA_SQL_QUERY}'"
-output_file="$OUTPUT"
 while (( processed_records < EXPECTED_NUM_RECORDS )); do
   if [[ $BATCH_SIZE ]]; then
-    if (( batch_num > 1 )); then
-      output_file="/tmp/batch.csv"
-    fi
     export sql_query="'${INPUT_DATA_SQL_QUERY} LIMIT $BATCH_SIZE OFFSET $processed_records'"
     declare -i expected_batch_records=$(( EXPECTED_NUM_RECORDS - processed_records ))
     if (( expected_batch_records > BATCH_SIZE )); then
@@ -150,7 +149,7 @@ while (( processed_records < EXPECTED_NUM_RECORDS )); do
 
   # shellcheck disable=SC2016 # false alarm
   # cypher-shell :param does not support a multi-line string, hence de-tokenizing SQL query using `envsubst`.
-  cypher_query="CALL apoc.export.csv.query(\"$(envsubst '\$sql_query' <"$CYPHER_QUERY_FILE")\", '$output_file',
+  cypher_query="CALL apoc.export.csv.query(\"$(envsubst '\$sql_query' <"$CYPHER_QUERY_FILE")\", '$BATCH_OUTPUT',
     {params: {JDBC_conn_string: '$JDBC_CONN_STRING'}});"
 
   if ! echo "$cypher_query" | cypher-shell > "$CYPHER_SHELL_OUTPUT"; then
@@ -170,15 +169,20 @@ HEREDOC
 
   declare -i num_of_records
   # Suppress printing a file name
-  num_of_records=$(wc --lines <"$output_file")
+  num_of_records=$(wc --lines <"$BATCH_OUTPUT")
   if (( num_of_records > 0 )); then
     # Exclude CSV header
     (( --num_of_records )) || :
   fi
+  if (( batch_num == 1 )); then
+    # Copy to an output file owned by the current user
+    cp "$BATCH_OUTPUT" "$OUTPUT"
+  fi
+
   if [[ $BATCH_SIZE ]]; then
     echo -n "Batch #${batch_num}/${expected_batches}: "
     if (( batch_num > 1 )); then
-      tail -n +2 <"$output_file" >> "$OUTPUT"
+      tail -n +2 <"$BATCH_OUTPUT" >> "$OUTPUT"
       if [[ "$VERBOSE_MODE" == true ]]; then
         ls -l "$OUTPUT"
       fi
