@@ -109,14 +109,14 @@ fi
 #echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
 declare -i processed_records=0 batch_num=1
-export sql_query="${INPUT_DATA_SQL_QUERY}"
+export sql_query="'${INPUT_DATA_SQL_QUERY}'"
 output_file="$OUTPUT"
 while (( processed_records < EXPECTED_NUM_RECORDS )); do
   if [[ $BATCH_SIZE ]]; then
     if (( batch_num > 1 )); then
       output_file="/tmp/batch.csv"
     fi
-    export sql_query="${INPUT_DATA_SQL_QUERY} LIMIT $BATCH_SIZE OFFSET $processed_records"
+    export sql_query="'${INPUT_DATA_SQL_QUERY} LIMIT $BATCH_SIZE OFFSET $processed_records'"
     declare -i expected_batch_records=$(( EXPECTED_NUM_RECORDS - processed_records ))
     if (( expected_batch_records > BATCH_SIZE )); then
       (( expected_batch_records = BATCH_SIZE ))
