@@ -1,5 +1,11 @@
 // Jaccard Co-Citation* Conditional (<= first_co_citation_year) Index
-// 1000 pairs: ?
+// 30 pairs: 7.1s (254 pairs/min)
+// 50 pairs: 3.3s-8.5s (353-907 pairs/min)
+// *100 pairs: 1.5s-4.1s-11.2s (536-1,473-3,932 pairs/min)*
+// 150 pairs: 9.6s (936 pairs/min)
+// 200 pairs: 14.3s-24.9s (483-834 pairs/min)
+// 400 pairs: 56.5s (424.7 pairs/min)
+// 1000 pairs: 2278s (26 pairs/min)
 WITH $JDBC_conn_string AS db, $sql_query AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
 MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})

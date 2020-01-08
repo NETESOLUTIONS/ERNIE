@@ -18,11 +18,19 @@ DESCRIPTION
 
     output_file           `-{batch #}` suffixes are automatically added when bactehd.use `/dev/stdout` for `stdout`.
                           Note: the number of records is printed to stdout.
+
     JDBC_conn_string      JDBC connection string
+
     SQL                   SQL to retrieve input data. Input data should be ordered when batched.
+
     Cypher_query_file     file containing Cypher query to execute which uses the `row` resultset returned by
                           `CALL apoc.load.jdbc(db, {SQL_query}) YIELD row`.
+
+                          WARNING: `apoc.cypher.mapParallel2()` is unstable as of v3.5.0.6 and may fail (produce
+                          incomplete results) on medium-to-large batches. If this happens, adjust batch size downwards.
+
     expected_rec_number   If supplied, the number of output records is checked to be = expected
+
     batch_size            If `expected_rec_number` > `batch_size`, output is batched and
                           ` LIMIT {batch_size} OFFSET {batch_offset}` clauses are added to `SQL_query`.
                           WARNING: `apoc.cypher.mapParallel2()` is unstable as of v3.5.0.6 and may fail on
@@ -51,24 +59,20 @@ EXAMPLES
 
         jaccard_co_citation_conditional_star_index.cypher:
 ```
-// Jaccard Co-Citation* Conditional (<= first_co_citation_year) Index
 WITH $JDBC_conn_string AS db, $sql_query AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
-WITH collect({x_scp: row.cited_1, y_scp: row.cited_2}) AS pairs
-CALL apoc.cypher.mapParallel2('
-  MATCH (x:Publication {node_id: _.x_scp})<--(Nxy)-->(y:Publication {node_id: _.y_scp})
-  WITH count(Nxy) AS intersect_size, min(Nxy.pub_year) AS first_co_citation_year, _.x_scp AS x_scp, _.y_scp AS y_scp
-  OPTIONAL MATCH (x:Publication {node_id: x_scp})<--(Nx:Publication)
-    WHERE Nx.node_id <> y_scp AND Nx.pub_year <= first_co_citation_year
-  WITH collect(Nx) AS nx_list, intersect_size, first_co_citation_year, x_scp, y_scp
-  OPTIONAL MATCH (y:Publication {node_id: y_scp})<--(Ny:Publication)
-    WHERE Ny.node_id <> x_scp AND Ny.pub_year <= first_co_citation_year
-  WITH nx_list + collect(Ny) AS union_list, intersect_size, x_scp, y_scp
-  UNWIND union_list AS union_node
-  RETURN x_scp, y_scp, toFloat(intersect_size) / (count(DISTINCT union_node) + 2) AS jaccard_index',
-{}, pairs, 8) YIELD value
-RETURN
-  value.x_scp AS cited_1, value.y_scp AS cited_2, value.jaccard_index AS jaccard_co_citation_conditional_star_index;
+MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
+WITH
+  count(Nxy) AS intersect_size, min(Nxy.pub_year) AS first_co_citation_year, row.cited_1 AS x_scp, row.cited_2 AS y_scp
+OPTIONAL MATCH (x:Publication {node_id: x_scp})<--(Nx:Publication)
+  WHERE Nx.node_id <> y_scp AND Nx.pub_year <= first_co_citation_year
+WITH collect(Nx) AS nx_list, intersect_size, first_co_citation_year, x_scp, y_scp
+OPTIONAL MATCH (y:Publication {node_id: y_scp})<--(Ny:Publication)
+  WHERE Ny.node_id <> x_scp AND Ny.pub_year <= first_co_citation_year
+WITH nx_list + collect(Ny) AS union_list, intersect_size, x_scp, y_scp
+UNWIND union_list AS union_node
+RETURN x_scp AS cited_1, y_scp AS cited_2,
+       toFloat(intersect_size) / (count(DISTINCT union_node) + 2) AS jaccard_co_citation_conditional_star_index;
 ```
 
 AUTHOR(S)
@@ -132,16 +136,10 @@ while (( processed_records < EXPECTED_NUM_RECORDS )); do
 
   # shellcheck disable=SC2016 # false alarm
   # cypher-shell :param does not support a multi-line string, hence de-tokenizing SQL query using `envsubst`.
-  # not using `apoc.export.csv.query()` since it's increasing `apoc.cypher.mapParallel2` instability
-  cypher_query="$(envsubst '\$sql_query' <"$CYPHER_QUERY_FILE")"
+  cypher_query="CALL apoc.export.csv.query(\"$(envsubst '\$sql_query' <"$CYPHER_QUERY_FILE")\", '$output_file',
+    {params: {JDBC_conn_string: '$JDBC_CONN_STRING'}});"
 
-  {
-  if ! cypher-shell <<HEREDOC
-    :param JDBC_conn_string => '$JDBC_CONN_STRING'
-
-    $cypher_query
-HEREDOC
-  then
+  if ! echo "$cypher_query" | cypher-shell; then
     cat << HEREDOC
 The failed Cypher query:
 =====
@@ -150,7 +148,6 @@ $cypher_query
 HEREDOC
     exit 2
   fi
-  } | $output_file
 
   declare -i num_of_records
   # Suppress printing a file name
