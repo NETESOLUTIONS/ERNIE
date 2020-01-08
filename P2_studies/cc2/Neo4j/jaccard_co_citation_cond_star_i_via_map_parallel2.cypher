@@ -1,9 +1,8 @@
 // Jaccard Co-Citation* Conditional (<= first_co_citation_year) Index
-WITH $JDBC_conn_string AS db, $sql_query AS sql
-CALL apoc.load.jdbc(db, sql) YIELD row
+CALL apoc.load.jdbc($JDBC_conn_string, $sql_query) YIELD row
 WITH collect({x_scp: row.cited_1, y_scp: row.cited_2}) AS pairs
-CALL apoc.cypher.mapParallel2('
   MATCH (x:Publication {node_id: _.x_scp})<--(Nxy)-->(y:Publication {node_id: _.y_scp})
+  CALL apoc.cypher.mapParallel2('
   WITH count(Nxy) AS intersect_size, min(Nxy.pub_year) AS first_co_citation_year, _.x_scp AS x_scp, _.y_scp AS y_scp
   OPTIONAL MATCH (x:Publication {node_id: x_scp})<--(Nx:Publication)
     WHERE Nx.node_id <> y_scp AND Nx.pub_year <= first_co_citation_year

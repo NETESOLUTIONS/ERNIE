@@ -3,17 +3,16 @@ if [[ $# -lt 4 || "$1" == "-h" ]]; then
   cat << 'HEREDOC'
 NAME
 
-    neo4j-export-via-map-parallel2.sh -- perform calculations via `apoc.cypher.mapParallel2()` and export CSVs
+    neo4j-export-in-batches.sh -- batch input, perform calculations via a supplied Cypher query and export to a CSV
 
 SYNOPSIS
 
-    neo4j-export-via-map-parallel2.sh output_file JDBC_conn_string SQL Cypher_query_file [expected_rec_num] [batch_size]
-    neo4j-export-via-map-parallel2.sh -h: display this help
+    neo4j-export-in-batches.sh output_file JDBC_conn_string SQL Cypher_query_file [expected_rec_num] [batch_size]
+    neo4j-export-in-batches.sh -h: display this help
 
 DESCRIPTION
 
-    Perform calculations via Cypher_query and export in batches. The batch size is 1000 records.
-    Output CSV.
+    Perform calculations via Cypher_query and export in batches. Export results to a CSV.
 
     The following options are available:
 
@@ -31,11 +30,11 @@ DESCRIPTION
 
 ENVIRONMENT
 
-    Neo4j DB should be pre-loaded with data and indexed as needed.
+    Neo4j DB should be loaded with data and indexed as needed.
 
 EXIT STATUS
 
-    The neo4j-export-via-map-parallel2 utility exits with one of the following values:
+    Exits with one of the following values:
 
     0   Success
     1   The actual number of exported records is not the expected one
@@ -45,13 +44,16 @@ EXAMPLES
 
     To find all occurrences of the word `patricia' in a file:
 
-        $ neo4j-export-via-map-parallel2.sh jaccard_co_citation_conditional_star_index.csv \
+        $ neo4j-export-in-batches.sh /tmp/results.csv
             "jdbc:postgresql://ernie2/ernie?user=ernie_admin&password=${ERNIE_ADMIN_POSTGRES}" \
             'SELECT 17538003 AS cited_1, 18983824 AS cited_2' \
             jaccard_co_citation_conditional_star_index.cypher
 
         jaccard_co_citation_conditional_star_index.cypher:
 ```
+// Jaccard Co-Citation* Conditional (<= first_co_citation_year) Index
+WITH $JDBC_conn_string AS db, $sql_query AS sql
+CALL apoc.load.jdbc(db, sql) YIELD row
 WITH collect({x_scp: row.cited_1, y_scp: row.cited_2}) AS pairs
 CALL apoc.cypher.mapParallel2('
   MATCH (x:Publication {node_id: _.x_scp})<--(Nxy)-->(y:Publication {node_id: _.y_scp})
@@ -63,9 +65,10 @@ CALL apoc.cypher.mapParallel2('
     WHERE Ny.node_id <> x_scp AND Ny.pub_year <= first_co_citation_year
   WITH nx_list + collect(Ny) AS union_list, intersect_size, x_scp, y_scp
   UNWIND union_list AS union_node
-  RETURN x_scp, y_scp, toFloat(intersect_size) / (count(DISTINCT union_node) + 2) AS jaccard_index', {}, pairs, 16)
-YIELD value
-RETURN value.x_scp AS cited_1, value.y_scp AS cited_2, value.jaccard_index AS jaccard_co_citation_conditional_index;
+  RETURN x_scp, y_scp, toFloat(intersect_size) / (count(DISTINCT union_node) + 2) AS jaccard_index',
+{}, pairs, 8) YIELD value
+RETURN
+  value.x_scp AS cited_1, value.y_scp AS cited_2, value.jaccard_index AS jaccard_co_citation_conditional_star_index;
 ```
 
 AUTHOR(S)
@@ -129,10 +132,16 @@ while (( processed_records < EXPECTED_NUM_RECORDS )); do
 
   # shellcheck disable=SC2016 # false alarm
   # cypher-shell :param does not support a multi-line string, hence de-tokenizing SQL query using `envsubst`.
-  cypher_query="CALL apoc.export.csv.query(\"$(envsubst '\$sql_query' <"$CYPHER_QUERY_FILE")\", '$output_file',
-    {params: {JDBC_conn_string: '$JDBC_CONN_STRING'}});"
+  # not using `apoc.export.csv.query()` since it's increasing `apoc.cypher.mapParallel2` instability
+  cypher_query="$(envsubst '\$sql_query' <"$CYPHER_QUERY_FILE")"
 
-  if ! echo "$cypher_query" | cypher-shell; then
+  {
+  if ! cypher-shell <<HEREDOC
+    :param JDBC_conn_string => '$JDBC_CONN_STRING'
+
+    $cypher_query
+HEREDOC
+  then
     cat << HEREDOC
 The failed Cypher query:
 =====
@@ -141,6 +150,7 @@ $cypher_query
 HEREDOC
     exit 2
   fi
+  } | $output_file
 
   declare -i num_of_records
   # Suppress printing a file name
