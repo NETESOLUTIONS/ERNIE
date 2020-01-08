@@ -134,7 +134,7 @@ while (( processed_records < EXPECTED_NUM_RECORDS )); do
 
   if ! echo "$cypher_query" | cypher-shell; then
     cat << HEREDOC
-Failed Cypher query:
+The failed Cypher query:
 =====
 $cypher_query
 =====
@@ -158,8 +158,13 @@ HEREDOC
   echo "$num_of_records records exported"
 
   if [[ $expected_batch_records && $num_of_records -ne $expected_batch_records ]]; then
-    # False if EXPECTED_NUM_RECORDS is not defined
     echo "Error! The actual exported number of records is not the expected number ($expected_batch_records)." 1>&2
+    cat << HEREDOC
+The failed Cypher query:
+=====
+$cypher_query
+=====
+HEREDOC
     exit 1
   fi
   (( processed_records += num_of_records ))
