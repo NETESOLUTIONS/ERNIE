@@ -7,7 +7,7 @@ NAME
 
 SYNOPSIS
 
-    neo4j-export-in-batches.sh output_file JDBC_conn_string SQL Cypher_query_file [expected_rec_num] [batch_size]
+    neo4j-export-in-batches.sh [-v] output_file JDBC_conn_string SQL Cypher_query_file [expected_rec_num] [batch_size]
     neo4j-export-in-batches.sh -h: display this help
 
 DESCRIPTION
@@ -15,6 +15,8 @@ DESCRIPTION
     Perform calculations via Cypher_query and export in batches. Export results to a CSV.
 
     The following options are available:
+
+    -v                    verbose output
 
     output_file           `-{batch #}` suffixes are automatically added when bactehd.use `/dev/stdout` for `stdout`.
                           Note: the number of records is printed to stdout.
@@ -85,6 +87,18 @@ fi
 set -e
 set -o pipefail
 
+readonly CYPHER_SHELL_OUTPUT="/tmp/cypher-shell.out"
+
+while (( $# > 0 )); do
+  case "$1" in
+    -v)
+      readonly VERBOSE_MODE="true";;
+    *)
+      break
+  esac
+  shift
+done
+
 readonly OUTPUT="$1"
 readonly JDBC_CONN_STRING="$2"
 readonly INPUT_DATA_SQL_QUERY="$3"
@@ -139,11 +153,16 @@ while (( processed_records < EXPECTED_NUM_RECORDS )); do
   cypher_query="CALL apoc.export.csv.query(\"$(envsubst '\$sql_query' <"$CYPHER_QUERY_FILE")\", '$output_file',
     {params: {JDBC_conn_string: '$JDBC_CONN_STRING'}});"
 
-  if ! echo "$cypher_query" | cypher-shell; then
+  if ! echo "$cypher_query" | cypher-shell > "$CYPHER_SHELL_OUTPUT"; then
     cat << HEREDOC
 The failed Cypher query:
 =====
 $cypher_query
+=====
+
+cypher-shell output:
+=====
+$(cat "$CYPHER_SHELL_OUTPUT")
 =====
 HEREDOC
     exit 2
@@ -159,7 +178,10 @@ HEREDOC
   if [[ $BATCH_SIZE ]]; then
     echo -n "Batch #${batch_num}/${expected_batches}: "
     if (( batch_num > 1 )); then
-      tail -n +2 <"$output_file" >> $"OUTPUT"
+      tail -n +2 <"$output_file" >> "$OUTPUT"
+      if [[ "$VERBOSE_MODE" == true ]]; then
+        ls -l "$OUTPUT"
+      fi
     fi
   fi
   echo "$num_of_records records exported"
