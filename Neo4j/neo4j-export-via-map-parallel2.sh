@@ -77,8 +77,6 @@ fi
 set -e
 set -o pipefail
 
-readonly NUM_LINES_FILE="num_of_CSV_lines.txt"
-
 readonly OUTPUT="$1"
 readonly JDBC_CONN_STRING="$2"
 readonly INPUT_DATA_SQL_QUERY="$3"
@@ -110,14 +108,14 @@ fi
 #echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
 declare -i processed_records=0 batch_num=1
-output_processor="eval tee >(wc -l >$NUM_LINES_FILE)"
+export sql_query="${INPUT_DATA_SQL_QUERY}"
+output_file="$OUTPUT"
 while (( processed_records < EXPECTED_NUM_RECORDS )); do
   if [[ $BATCH_SIZE ]]; then
-    batch_clauses=" LIMIT $BATCH_SIZE OFFSET $processed_records"
     if (( batch_num > 1 )); then
-      # TODO Refactor duplication
-      output_processor="eval tee >(wc -l >$NUM_LINES_FILE) | tail -n +2"
+      output_file="/tmp/batch.csv"
     fi
+    export sql_query="${INPUT_DATA_SQL_QUERY} LIMIT $BATCH_SIZE OFFSET $processed_records"
     declare -i expected_batch_records=$(( EXPECTED_NUM_RECORDS - processed_records ))
     if (( expected_batch_records > BATCH_SIZE )); then
       (( expected_batch_records = BATCH_SIZE ))
@@ -127,22 +125,27 @@ while (( processed_records < EXPECTED_NUM_RECORDS )); do
       declare -i expected_batch_records=$EXPECTED_NUM_RECORDS
     fi
   fi
-  {
-  cypher-shell --format plain << HEREDOC
-WITH '$JDBC_CONN_STRING' AS db, '${INPUT_DATA_SQL_QUERY}${batch_clauses}' AS sql
-CALL apoc.load.jdbc(db, sql) YIELD row
-$(cat "$CYPHER_QUERY_FILE")
+
+  # cypher-shell :param does not support a multi-line string, hence expanding query using `envsubst`.
+  # shellcheck disable=SC2016 # false alarm
+  cypher-shell << HEREDOC
+:param JDBC_conn_string => "$JDBC_CONN_STRING"
+
+CALL apoc.export.csv.query("$(envsubst '\$sql_query' <"$CYPHER_QUERY_FILE")", "$output_file", {});
 HEREDOC
-  } | ${output_processor} >>"$OUTPUT"
 
   declare -i num_of_records
-  num_of_records=$(cat "$NUM_LINES_FILE")
+  # Suppress printing a file name
+  num_of_records=$(wc --lines <"$output_file")
   if (( num_of_records > 0 )); then
     # Exclude CSV header
     (( --num_of_records )) || :
   fi
   if [[ $BATCH_SIZE ]]; then
     echo -n "Batch #${batch_num}/${expected_batches}: "
+    if (( batch_num > 1 )); then
+      tail -n +2 <"$output_file" >> $"OUTPUT"
+    fi
   fi
   echo "$num_of_records records exported"
 

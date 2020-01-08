@@ -5,7 +5,7 @@
       <paths name="ERNIE Neo4j">
         <serverdata>
           <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="ERNIE" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
