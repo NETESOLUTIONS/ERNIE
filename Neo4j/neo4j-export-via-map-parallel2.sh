@@ -39,6 +39,7 @@ EXIT STATUS
 
     0   Success
     1   The actual number of exported records is not the expected one
+    2   Cypher execution failed
 
 EXAMPLES
 
@@ -128,11 +129,17 @@ while (( processed_records < EXPECTED_NUM_RECORDS )); do
 
   # cypher-shell :param does not support a multi-line string, hence expanding query using `envsubst`.
   # shellcheck disable=SC2016 # false alarm
-  cypher-shell << HEREDOC
-:param JDBC_conn_string => "$JDBC_CONN_STRING"
+  if ! cypher-shell << HEREDOC
+:param JDBC_conn_string => '$JDBC_CONN_STRING'
 
-CALL apoc.export.csv.query("$(envsubst '\$sql_query' <"$CYPHER_QUERY_FILE")", "$output_file", {});
+CALL apoc.export.csv.query('$(envsubst '\$sql_query' <"$CYPHER_QUERY_FILE")', '$output_file', {});
 HEREDOC
+  then
+    echo -e "Failed Cypher query:\n====="
+    echo "CALL apoc.export.csv.query('$(envsubst '\$sql_query' <"$CYPHER_QUERY_FILE")', '$output_file', {});"
+    echo -e "====="
+    exit 2
+  fi
 
   declare -i num_of_records
   # Suppress printing a file name
