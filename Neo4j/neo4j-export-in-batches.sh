@@ -193,11 +193,18 @@ The failed Cypher query:
 =====
 $cypher_query
 =====
+
+cypher-shell output:
+=====
+$(cat "$CYPHER_SHELL_OUTPUT")
+=====
+HEREDOC
 HEREDOC
     exit 1
   fi
   (( processed_records += num_of_records ))
   (( ++batch_num ))
 done
+rm -f "$CYPHER_SHELL_OUTPUT"
 
 exit 0
