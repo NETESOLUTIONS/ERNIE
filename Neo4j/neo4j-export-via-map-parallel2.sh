@@ -127,17 +127,22 @@ while (( processed_records < EXPECTED_NUM_RECORDS )); do
     fi
   fi
 
-  # cypher-shell :param does not support a multi-line string, hence expanding query using `envsubst`.
   # shellcheck disable=SC2016 # false alarm
+  # cypher-shell :param does not support a multi-line string, hence de-tokenizing SQL query using `envsubst`.
+  cypher_query="CALL apoc.export.csv.query(\"$(envsubst '\$sql_query' <"$CYPHER_QUERY_FILE")\", '$output_file', {});"
+
   if ! cypher-shell << HEREDOC
 :param JDBC_conn_string => '$JDBC_CONN_STRING'
 
-CALL apoc.export.csv.query('$(envsubst '\$sql_query' <"$CYPHER_QUERY_FILE")', '$output_file', {});
+$cypher_query
 HEREDOC
   then
-    echo -e "Failed Cypher query:\n====="
-    echo "CALL apoc.export.csv.query('$(envsubst '\$sql_query' <"$CYPHER_QUERY_FILE")', '$output_file', {});"
-    echo -e "====="
+    cat << HEREDOC
+Failed Cypher query:
+=====
+$cypher_query
+=====
+HEREDOC
     exit 2
   fi
 
