@@ -134,7 +134,7 @@ fi
 
 declare -i processed_records=0 batch_num=1
 export sql_query="'${INPUT_DATA_SQL_QUERY}'"
-declare -i start_time batch_start_time batch_end_time elapsed=0 est_total
+declare -i start_time batch_start_time batch_end_time elapsed_ms=0 est_total_time_ms
 while (( processed_records < EXPECTED_NUM_RECORDS )); do
   # Epoch time + milliseconds
   batch_start_time=$(date +%s%3N)
@@ -195,8 +195,11 @@ HEREDOC
   batch_end_time=$(date +%s%3N)
   (( delta_ms = batch_end_time - batch_start_time )) || :
   (( delta_s = delta_ms / 1000 )) || :
-  printf "%d records exported in %dh:%02dm:%02d.%03ds\n" "$num_of_records" \
-      $(( delta_s / 3600 )) $(( (delta_s / 60) % 60 )) $(( delta_s % 60 )) $(( delta_ms % 1000 ))
+
+  # When performing calculations `/` will truncate the result and should be done last
+  printf "%d records exported in %dh:%02dm:%02d.%01ds at %.1f records/min\n" "$num_of_records" \
+      $(( delta_s / 3600 )) $(( (delta_s / 60) % 60 )) $(( delta_s % 60 )) $(( delta_ms % 1000 )) \
+      "$(( 10**9 * num_of_records * 1000 * 60 / delta_ms ))e-9"
 
   if [[ $expected_batch_records && $num_of_records -ne $expected_batch_records ]]; then
     echo "Error! The actual exported number of records is not the expected number ($expected_batch_records)." 1>&2
@@ -215,15 +218,16 @@ HEREDOC
     exit 1
   fi
   (( processed_records += num_of_records ))
-  (( elapsed += delta_ms ))
+  (( elapsed_ms += delta_ms ))
+
   if (( processed_records < EXPECTED_NUM_RECORDS )); then
-    (( est_total = elapsed * EXPECTED_NUM_RECORDS / processed_records )) || :
-    (( eta = start_time + est_total ))
-    printf "ETA: $(TZ=America/New_York date --date=@${eta}) at %.1f records/min on average\n" \
-        "$(( 10**9 * processed_records/(elapsed/1000/60) ))e-9"
+    (( est_total_time_ms = elapsed_ms * EXPECTED_NUM_RECORDS / processed_records )) || :
+    printf "ETA: %s" "$(TZ=America/New_York date --date=@$(( (start_time + est_total_time_ms) / 1000 )))"
   else
-    printf "DONE at %.1f records/min on average\n" "$(( 10**9 * processed_records/(elapsed/1000/60) ))e-9"
+    printf "DONE"
   fi
+  # When performing calculations `/` will truncate the result and should be done last
+  printf " at %.1f records/min on average\n" "$(( 10**9 * processed_records * 1000 * 60 / elapsed_ms ))e-9"
 
   (( ++batch_num ))
 done
