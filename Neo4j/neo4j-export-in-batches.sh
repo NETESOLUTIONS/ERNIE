@@ -54,12 +54,12 @@ EXAMPLES
 
     To find all occurrences of the word `patricia' in a file:
 
-        $ neo4j-export-in-batches.sh /tmp/results.csv
+        $ neo4j-export-in-batches.sh /tmp/jaccard_co_citation_cond_star_i.csv
             "jdbc:postgresql://ernie2/ernie?user=ernie_admin&password=${ERNIE_ADMIN_POSTGRES}" \
             'SELECT 17538003 AS cited_1, 18983824 AS cited_2' \
-            jaccard_co_citation_conditional_star_index.cypher
+            jaccard_co_citation_cond_star_i.cypher
 
-        jaccard_co_citation_conditional_star_index.cypher:
+        jaccard_co_citation_cond_star_i.cypher:
 ```
 WITH $JDBC_conn_string AS db, $sql_query AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
@@ -87,10 +87,10 @@ fi
 set -e
 set -o pipefail
 
-readonly CYPHER_SHELL_OUTPUT="/tmp/cypher-shell.out"
+readonly CYPHER_SHELL_OUTPUT=$(mktemp)
 
 # Note: this file would be written to and owned by the `neo4j` user
-readonly BATCH_OUTPUT="/tmp/batch.csv"
+readonly BATCH_OUTPUT=$(mktemp)
 
 while (( $# > 0 )); do
   case "$1" in
@@ -222,6 +222,6 @@ HEREDOC
       "$((10**9 * processed_records*60/elapsed ))e-9"
   (( ++batch_num ))
 done
-rm -f "$CYPHER_SHELL_OUTPUT"
+rm -f "$CYPHER_SHELL_OUTPUT" "$BATCH_OUTPUT"
 
 exit 0
