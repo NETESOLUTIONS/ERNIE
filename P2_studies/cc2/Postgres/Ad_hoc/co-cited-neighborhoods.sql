@@ -1,10 +1,9 @@
 -- Test data bins
+-- 5.9s
 SELECT cited_1, cited_2
   FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
  WHERE bin = 1
- ORDER BY cited_1, cited_2
- LIMIT 1000
- OFFSET 1000;
+ ORDER BY cited_1, cited_2 LIMIT 100 OFFSET 25000;
 
 SELECT count(1)
   FROM cc2.ten_year_cocit_union_freq11_freqsum_bins

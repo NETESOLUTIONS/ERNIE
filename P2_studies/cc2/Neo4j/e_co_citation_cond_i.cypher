@@ -3,7 +3,7 @@
 // 20 pairs: 31.9s (38 records/min)
 // 50 pairs: 65.8s (46 records/min)
 // 100 pairs: 85.7s (70 records/min)
-// 150 pairs: ?
+// 150 pairs: 620.5s (14.5 records/min)
 // 200 pairs: 754.2s (16 records/min)
 WITH $JDBC_conn_string AS db, $sql_query AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row

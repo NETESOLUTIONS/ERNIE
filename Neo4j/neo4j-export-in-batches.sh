@@ -134,7 +134,10 @@ fi
 
 declare -i processed_records=0 batch_num=1
 export sql_query="'${INPUT_DATA_SQL_QUERY}'"
+declare -i start_time batch_start_time batch_end_time elapsed est_total
 while (( processed_records < EXPECTED_NUM_RECORDS )); do
+  batch_start_time=$(date '+%s')
+  (( batch_num == 1 )) && (( start_time=batch_start_time ))
   if [[ $BATCH_SIZE ]]; then
     export sql_query="'${INPUT_DATA_SQL_QUERY} LIMIT $BATCH_SIZE OFFSET $processed_records'"
     declare -i expected_batch_records=$(( EXPECTED_NUM_RECORDS - processed_records ))
@@ -188,7 +191,12 @@ HEREDOC
       fi
     fi
   fi
-  echo "$num_of_records records exported"
+  batch_end_time=$(date '+%s')
+  (( delta = batch_end_time - batch_start_time + 1 )) || :
+  (( delta_s = delta % 60 )) || :
+  (( delta_m = (delta / 60) % 60 )) || :
+  (( della_h = delta / 3600 )) || :
+  printf "%d records exported in %dh:%02dm:%02ds\n" "$num_of_records" ${della_h} ${delta_m} ${delta_s}
 
   if [[ $expected_batch_records && $num_of_records -ne $expected_batch_records ]]; then
     echo "Error! The actual exported number of records is not the expected number ($expected_batch_records)." 1>&2
@@ -207,6 +215,11 @@ HEREDOC
     exit 1
   fi
   (( processed_records += num_of_records ))
+  (( elapsed = elapsed + delta ))
+  (( est_total = elapsed * EXPECTED_NUM_RECORDS / processed_records )) || :
+  (( eta = start_time + est_total ))
+  printf "ETA: $(TZ=America/New_York date --date=@${eta}) at %.1f records/min on average\n" \
+      "$((10**9 * processed_records*60/elapsed ))e-9"
   (( ++batch_num ))
 done
 rm -f "$CYPHER_SHELL_OUTPUT"

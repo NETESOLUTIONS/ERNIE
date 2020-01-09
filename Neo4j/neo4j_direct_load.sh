@@ -94,26 +94,6 @@ MATCH (p:Publication {source_id: row.source_id}), (r:Publication {source_id: row
 MERGE (p)-[:CITES]->(r);
 HEREDOC
 
-echo -e "\nCalculating metrics"
-cypher-shell <<'HEREDOC'
-// Calculate and store PageRank
-CALL algo.pageRank()
-YIELD nodes, iterations, loadMillis, computeMillis, writeMillis, dampingFactor, write, writeProperty;
-
-// Calculate and store Betweenness Centrality
-CALL algo.betweenness(null, null, {writeProperty: 'betweenness'})
-YIELD nodes, minCentrality, maxCentrality, sumCentrality, loadMillis, computeMillis, writeMillis;
-
-// Calculate and store Closeness Centrality
-CALL algo.closeness(null, null, {writeProperty: 'closeness'})
-YIELD nodes, loadMillis, computeMillis, writeMillis;
-
-// PageRank statistics
-MATCH (n)
-RETURN apoc.agg.statistics(n.pagerank);
-HEREDOC
-echo "Done"
-
 # TODO Parallelize
 #parallel --halt soon,fail=1 --verbose --line-buffer --pipe cypher-shell ::: "// Calculate and store PageRank
 #  CALL algo.pageRank()
