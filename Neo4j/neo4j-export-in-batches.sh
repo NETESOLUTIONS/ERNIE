@@ -134,7 +134,7 @@ fi
 
 declare -i processed_records=0 batch_num=1
 export sql_query="'${INPUT_DATA_SQL_QUERY}'"
-declare -i start_time batch_start_time batch_end_time elapsed est_total
+declare -i start_time batch_start_time batch_end_time elapsed=0 est_total
 while (( processed_records < EXPECTED_NUM_RECORDS )); do
   batch_start_time=$(date '+%s')
   (( batch_num == 1 )) && (( start_time=batch_start_time ))
@@ -215,11 +215,13 @@ HEREDOC
     exit 1
   fi
   (( processed_records += num_of_records ))
-  (( elapsed = elapsed + delta ))
-  (( est_total = elapsed * EXPECTED_NUM_RECORDS / processed_records )) || :
-  (( eta = start_time + est_total ))
-  printf "ETA: $(TZ=America/New_York date --date=@${eta}) at %.1f records/min on average\n" \
-      "$((10**9 * processed_records*60/elapsed ))e-9"
+  if (( processed_records < EXPECTED_NUM_RECORDS )); then
+    (( elapsed += delta ))
+    (( est_total = elapsed * EXPECTED_NUM_RECORDS / processed_records )) || :
+    (( eta = start_time + est_total ))
+    printf "ETA: $(TZ=America/New_York date --date=@${eta}) at %.1f records/min on average\n" \
+        "$((10**9 * processed_records*60/elapsed ))e-9"
+  fi
   (( ++batch_num ))
 done
 rm -f "$CYPHER_SHELL_OUTPUT"
