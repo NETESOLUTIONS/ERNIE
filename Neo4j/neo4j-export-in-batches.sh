@@ -89,8 +89,8 @@ set -o pipefail
 
 readonly CYPHER_SHELL_OUTPUT=$(mktemp)
 
-# Note: this file would be written to and owned by the `neo4j` user
-readonly BATCH_OUTPUT=$(mktemp)
+# Note: this file should be written to and owned by the `neo4j` user, hence can't use `mktemp`
+readonly BATCH_OUTPUT="/tmp/batch.$$.csv"
 
 while (( $# > 0 )); do
   case "$1" in
@@ -222,6 +222,6 @@ HEREDOC
       "$((10**9 * processed_records*60/elapsed ))e-9"
   (( ++batch_num ))
 done
-rm -f "$CYPHER_SHELL_OUTPUT" "$BATCH_OUTPUT"
+rm -f "$CYPHER_SHELL_OUTPUT"
 
 exit 0
