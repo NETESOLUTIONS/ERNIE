@@ -7,7 +7,6 @@
 // 50 pairs: 30.7s
 WITH $JDBC_conn_string AS db, $sql_query AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
-WITH collect({x_scp: row.cited_1, y_scp: row.cited_2}) AS pairs
 MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
 WITH min(Nxy.pub_year) AS first_co_citation_year, row.cited_1 AS x_scp, row.cited_2 AS y_scp
 OPTIONAL MATCH (x:Publication {node_id: x_scp})<--(Nx:Publication)
