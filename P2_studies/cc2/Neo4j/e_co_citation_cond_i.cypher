@@ -18,4 +18,4 @@ WITH count(Ny) AS ny_size, nx_size, first_co_citation_year, x_scp, y_scp
 OPTIONAL MATCH
   (x:Publication {node_id: x_scp})<--(Ex:Publication)-[E]-(Ey:Publication)-->(y:Publication {node_id: y_scp})
   WHERE startNode(E).pub_year <= first_co_citation_year
-RETURN x_scp AS cited_1, y_scp AS cited_2, toFloat(count(E)) / (nx_size * ny_size) AS e_index;
+RETURN x_scp AS cited_1, y_scp AS cited_2, toFloat(count(E)) / (nx_size * ny_size) AS e_co_citation_conditional_index;
