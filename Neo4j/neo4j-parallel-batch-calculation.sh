@@ -139,7 +139,7 @@ process_batch() {
   local -ri processed_records=$(((batch_num - 1) * BATCH_SIZE))
   # Note: this file should be written to and owned by the `neo4j` user, hence can't use `mktemp`
   local -r BATCH_OUTPUT="/tmp/$$-batch-$batch_num.csv"
-  local -r CYPHER_SHELL_OUTPUT=$(mktemp)
+  local CYPHER_SHELL_OUTPUT
 
   local -i batch_start_time batch_end_time delta_ms delta_s
 
@@ -164,7 +164,7 @@ process_batch() {
   cypher_query="CALL apoc.export.csv.query(\"$(envsubst '\$sql_query' < "$CYPHER_QUERY_FILE")\", '$BATCH_OUTPUT',
     {params: {JDBC_conn_string: '$JDBC_CONN_STRING'}});"
 
-  if ! echo "$cypher_query" | cypher-shell > "$CYPHER_SHELL_OUTPUT"; then
+  if ! CYPHER_SHELL_OUTPUT=$(echo "$cypher_query" | cypher-shell); then
     cat << HEREDOC
 The failed Cypher query:
 =====
@@ -245,7 +245,5 @@ seq $expected_batches | \
 #  fi
 #  # When performing calculations `/` will truncate the result and should be done last
 #  printf " at %.1f records/min on average\n" "$(( 10**9 * processed_records * 1000 * 60 / elapsed_ms ))e-9"
-
-rm -f "$CYPHER_SHELL_OUTPUT"
 
 exit 0
