@@ -10,7 +10,8 @@ WITH $JDBC_conn_string AS db, $sql_query AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
 MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
 WITH
-  count(Nxy) AS intersect_size, min(Nxy.pub_year) AS first_co_citation_year, row.cited_1 AS x_scp, row.cited_2 AS y_scp
+  count(Nxy) AS intersect_size, row.first_co_cited_year AS first_co_citation_year, row.cited_1 AS x_scp,
+  row.cited_2 AS y_scp
 OPTIONAL MATCH (x:Publication {node_id: x_scp})<--(Nx:Publication)
   WHERE Nx.node_id <> y_scp AND Nx.pub_year <= first_co_citation_year
 WITH collect(Nx) AS nx_list, intersect_size, first_co_citation_year, x_scp, y_scp
