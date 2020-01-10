@@ -60,10 +60,6 @@ SELECT
  WHERE coalesce(obj_pt.spcname, db_pt.spcname) = :'tablespace' AND relname NOT LIKE 'pg_toast_%'
  ORDER BY pg_total_relation_size(pc.oid) DESC;
 
--- Default tablespace parameter
--- An empty string = the default tablespace of the current database
-SHOW default_tablespace;
-
 -- Current DB's default tablespace
 SELECT
   datname AS db, pt.spcname AS db_default_tablespace,
@@ -73,6 +69,10 @@ SELECT
     pg_database pd
       JOIN pg_tablespace pt ON pt.oid = pd.dattablespace
  WHERE datname = current_catalog;
+
+-- Default tablespace parameter
+-- An empty string = the default tablespace of the current database
+SHOW default_tablespace;
 
 -- Change the default tablespace of the database
 -- This command physically moves any tables or indexes in the database's old default tablespace to the new tablespace
