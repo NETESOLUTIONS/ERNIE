@@ -103,7 +103,7 @@ declare -rx OUTPUT="$1"
 declare -rx JDBC_CONN_STRING="$2"
 declare -rx INPUT_DATA_SQL_QUERY="$3"
 declare -rx CYPHER_QUERY_FILE="$4"
-echo "Calculating via $CYPHER_QUERY_FILE"
+echo -e "\nStarting calculations (using $CYPHER_QUERY_FILE)..."
 
 if [[ $5 ]]; then
   declare -rxi EXPECTED_NUM_RECORDS=$5
@@ -111,13 +111,14 @@ if [[ $5 ]]; then
 fi
 if [[ $5 ]]; then
   declare -rxi BATCH_SIZE=$5
-  declare -i expected_batches=$((EXPECTED_NUM_RECORDS / BATCH_SIZE))
+  declare -xi expected_batches=$((EXPECTED_NUM_RECORDS / BATCH_SIZE))
   if ((EXPECTED_NUM_RECORDS % BATCH_SIZE > 0)); then
     ((++expected_batches))
   fi
 else
-  declare -i expected_batches=1
+  declare -rxi expected_batches=1
 fi
+echo -e "Expected batches: $expected_batches\n"
 
 # Get a script directory, same as by $(dirname $0)
 #readonly SCRIPT_DIR=${0%/*}
