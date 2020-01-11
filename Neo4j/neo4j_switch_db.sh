@@ -15,7 +15,7 @@ HEREDOC
   exit 1
 fi
 
-set -xe
+set -e
 set -o pipefail
 
 # Get a script directory, same as by $(dirname $0)
@@ -37,7 +37,6 @@ fi
 readonly DB_NAME="$1"
 
 # region Hide password from the output
-set +x
 echo "$2" | sudo --stdin -u neo4j bash -c "set -xe
   sed --in-place --expression='s/dbms.active_database=.*/dbms.active_database=${DB_NAME}/' /etc/neo4j/neo4j.conf"
 
@@ -54,5 +53,4 @@ while ! cypher-shell "CALL dbms.components()" 2>/dev/null; do
   fi
   sleep 1
 done
-set -x
 # endregion
