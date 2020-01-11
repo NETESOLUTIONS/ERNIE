@@ -1,9 +1,84 @@
+-- N*(x, fccy) -> N*(y, fccy)
+SELECT sr.scp, sr.ref_sgr
+  FROM
+    scopus_references sr
+ WHERE sr.scp IN (
+   -- N(x, fccy)
+   SELECT sr.scp
+     FROM scopus_references sr
+       JOIN scopus_publication_groups spg ON spg.sgr = sr.scp AND spg.pub_year <= 1990
+    WHERE sr.ref_sgr = 320176 -- :cited_1
+ ) AND sr.ref_sgr IN (
+   -- N(y, fccy)
+   SELECT sr.scp
+     FROM scopus_references sr
+       JOIN scopus_publication_groups spg ON spg.sgr = sr.scp AND spg.pub_year <= 1990
+    WHERE sr.ref_sgr = 6278248 -- :cited_2
+ );
+-- 320176, 6278248: 0
+
+-- N*(y, fccy) -> N*(x, fccy)
+SELECT sr.scp, sr.ref_sgr
+  FROM
+    scopus_references sr
+ WHERE sr.scp IN (
+   -- N(x, fccy)
+   SELECT sr.scp
+     FROM scopus_references sr
+       JOIN scopus_publication_groups spg ON spg.sgr = sr.scp AND spg.pub_year <= 1990
+    WHERE sr.ref_sgr = 6278248 -- :cited_2
+ ) AND sr.ref_sgr IN (
+   -- N(y, fccy)
+   SELECT sr.scp
+     FROM scopus_references sr
+       JOIN scopus_publication_groups spg ON spg.sgr = sr.scp AND spg.pub_year <= 1990
+    WHERE sr.ref_sgr = 320176 -- :cited_1
+ );
+-- 320176, 6278248: 1
+--scp	        ref_sgr
+--45549115281	6278248
+
+-- Conditional citing papers
+SELECT *
+  FROM
+    scopus_references sr
+      JOIN scopus_publication_groups spg ON spg.sgr = sr.scp AND spg.pub_year <= 1990
+ WHERE sr.ref_sgr = :cited;
+-- 320176: 3
+-- 6278248: 1
+
+-- Test data pair
+SELECT cited_1, cited_2, first_co_cited_year
+  FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
+ WHERE bin = 1 AND cited_1 = :cited_1 AND cited_2 = :cited_2;
+-- First co-cited year: 320176, 6278248: 1990
+
+-- Citing paper count
+SELECT count(1)
+  FROM scopus_references
+ WHERE ref_sgr = :cited;
+-- 320176: 356
+-- 6278248: 344
+
+-- Co-citations
+-- TODO report problem with 2 bind variables causing 1 prompt
+SELECT spg.*
+  FROM
+    scopus_publication_groups spg
+      JOIN scopus_references sr1 ON sr1.ref_sgr = 320176 AND sr1.scp = spg.sgr
+      JOIN scopus_references sr2 ON sr2.ref_sgr = 6278248 AND sr2.scp = spg.sgr
+ ORDER BY pub_year;
+-- 320176,6278248: 164 (1988-2019)
+
 -- Test data bins
 -- 5.9s
 SELECT cited_1, cited_2
   FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
  WHERE bin = 1
- ORDER BY cited_1, cited_2 LIMIT 100 OFFSET 25000;
+ ORDER BY cited_1, cited_2
+ LIMIT 100
+OFFSET
+ 25000;
 
 SELECT count(1)
   FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
