@@ -205,7 +205,7 @@ HEREDOC
   ((delta_s = delta_ms / 1000)) || :
 
   # When performing calculations `/` will truncate the result and should be done last
-  printf "%d records exported in %dh:%02dm:%02d.%ds at %.1f records/min." "$num_of_records" \
+  printf "%d records exported in %dh:%02dm:%02d.%ds at %.1f records/min (this thread)." "$num_of_records" \
   $((delta_s / 3600)) $(((delta_s / 60) % 60)) $((delta_s % 60)) $((delta_ms % 1000)) \
       "$((10 ** 9 * num_of_records * 1000 * 60 / delta_ms))e-9"
 
@@ -235,7 +235,7 @@ HEREDOC
     echo " DONE"
   fi
   # When performing calculations `/` will truncate the result and should be done last
-  printf " at %.1f records/min on average.\n" "$(( 10**9 * processed_records * 1000 * 60 / elapsed_ms ))e-9"
+  printf " at %.1f records/min overall.\n" "$(( 10**9 * processed_records * 1000 * 60 / elapsed_ms ))e-9"
 }
 export -f process_batch
 
