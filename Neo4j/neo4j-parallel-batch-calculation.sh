@@ -244,6 +244,6 @@ declare -ix START_TIME
 START_TIME=$(date +%s%3N)
 
 seq $expected_batches | \
-    parallel --halt soon,fail=1 --verbose --line-buffer --tagstring '|batch#{} s#{%}|' 'process_batch {}'
+    parallel --halt soon,fail=1 --verbose --line-buffer --tagstring '|job#{#} s#{%}|' 'process_batch {}'
 
 exit 0
