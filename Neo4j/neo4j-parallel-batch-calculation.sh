@@ -136,7 +136,7 @@ echo -e ", expected batches: $expected_batches\n"
 
 process_batch() {
   local -ri batch_num=$1
-  local -ri processed_records=$(((batch_num - 1) * BATCH_SIZE))
+  local -i processed_records=$(((batch_num - 1) * BATCH_SIZE))
   # Note: this file should be written to and owned by the `neo4j` user, hence can't use `mktemp`
   local -r BATCH_OUTPUT="/tmp/$$-batch-$batch_num.csv"
   local cypher_shell_output
@@ -224,9 +224,8 @@ $cypher_shell_output
 HEREDOC
     exit 1
   fi
-  declare -i processed_records=$(( (batch_num - 1) * BATCH_SIZE + num_of_records ))
-#  (( processed_records += num_of_records ))
-  declare -i elapsed_ms=$(( batch_end_time - START_TIME ))
+  (( processed_records += num_of_records ))
+  local -i elapsed_ms=$(( batch_end_time - START_TIME ))
 #  (( elapsed_ms += delta_ms ))
 
   if (( processed_records < EXPECTED_NUM_RECORDS )); then
