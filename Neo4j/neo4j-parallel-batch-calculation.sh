@@ -222,7 +222,6 @@ cypher-shell output:
 $cypher_shell_output
 =====
 HEREDOC
-    HEREDOC
     exit 1
   fi
   #  (( processed_records += num_of_records ))
