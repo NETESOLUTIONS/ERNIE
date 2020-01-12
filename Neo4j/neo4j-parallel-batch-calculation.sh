@@ -240,12 +240,10 @@ HEREDOC
 }
 export -f process_batch
 
-#declare -i processed_records=0 batch_num=1
 export sql_query="'${INPUT_DATA_SQL_QUERY}'"
-#declare -i START_TIME batch_START_TIME batch_end_time elapsed_ms=0 est_total_time_ms
-
-declare -rix START_TIME
+declare -ix START_TIME
 START_TIME=$(date +%s%3N)
+
 seq $expected_batches | \
     parallel --halt soon,fail=1 --verbose --line-buffer --tagstring '|batch#{} s#{%}|' 'process_batch {}'
 
