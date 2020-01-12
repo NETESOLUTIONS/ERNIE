@@ -4,7 +4,7 @@
 // 200 pairs: 3.8-6.4-8.2s (1,958 records/min)
 WITH $JDBC_conn_string AS db, $sql_query AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
-MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
+OPTIONAL MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
   WHERE Nxy.pub_year <= row.first_co_cited_year
 WITH
   count(Nxy) AS intersect_size, row.first_co_cited_year AS first_co_citation_year, row.cited_1 AS x_scp,
