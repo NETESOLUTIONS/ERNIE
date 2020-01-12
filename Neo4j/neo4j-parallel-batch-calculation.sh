@@ -141,11 +141,11 @@ process_batch() {
   local -r BATCH_OUTPUT="/tmp/$$-batch-$batch_num.csv"
   local cypher_shell_output
 
-  local -i batch_START_TIME batch_end_time delta_ms delta_s
+  local -i batch_start_time batch_end_time delta_ms delta_s
 
   # Epoch time + milliseconds
-  batch_START_TIME=$(date +%s%3N)
-  #  (( batch_num == 1 )) && (( START_TIME=batch_START_TIME ))
+  batch_start_time=$(date +%s%3N)
+  #  (( batch_num == 1 )) && (( START_TIME=batch_start_time ))
   if [[ $BATCH_SIZE ]]; then
     export sql_query="'${INPUT_DATA_SQL_QUERY} LIMIT $BATCH_SIZE OFFSET $processed_records'"
     declare -i expected_batch_records=$((EXPECTED_NUM_RECORDS - processed_records))
@@ -201,11 +201,11 @@ HEREDOC
     fi
   fi
   batch_end_time=$(date +%s%3N)
-  ((delta_ms = batch_end_time - batch_START_TIME)) || :
+  ((delta_ms = batch_end_time - batch_start_time)) || :
   ((delta_s = delta_ms / 1000)) || :
 
   # When performing calculations `/` will truncate the result and should be done last
-  printf "%d records exported in %dh:%02dm:%02d.%01ds at %.1f records/min." "$num_of_records" \
+  printf "%d records exported in %dh:%02dm:%02d.%ds at %.1f records/min." "$num_of_records" \
   $((delta_s / 3600)) $(((delta_s / 60) % 60)) $((delta_s % 60)) $((delta_ms % 1000)) \
       "$((10 ** 9 * num_of_records * 1000 * 60 / delta_ms))e-9"
 
