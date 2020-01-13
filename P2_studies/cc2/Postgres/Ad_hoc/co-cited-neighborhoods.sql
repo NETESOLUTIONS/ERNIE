@@ -1,4 +1,4 @@
--- N*(x, fccy) -> N*(y, fccy)
+-- N(x, fccy) -> N(y, fccy) published <= fccy
 SELECT sr.scp, sr.ref_sgr
   FROM
     scopus_references sr
@@ -6,52 +6,69 @@ SELECT sr.scp, sr.ref_sgr
    -- N(x, fccy)
    SELECT sr.scp
      FROM scopus_references sr
-       JOIN scopus_publication_groups spg ON spg.sgr = sr.scp AND spg.pub_year <= 1990
-    WHERE sr.ref_sgr = 320176 -- :cited_1
+       JOIN scopus_publication_groups spg ON spg.sgr = sr.scp AND spg.pub_year <= :fccy
+    WHERE sr.ref_sgr = :cited_1
  ) AND sr.ref_sgr IN (
    -- N(y, fccy)
    SELECT sr.scp
      FROM scopus_references sr
-       JOIN scopus_publication_groups spg ON spg.sgr = sr.scp AND spg.pub_year <= 1990
-    WHERE sr.ref_sgr = 6278248 -- :cited_2
+       JOIN scopus_publication_groups spg ON spg.sgr = sr.scp AND spg.pub_year <= :fccy
+    WHERE sr.ref_sgr = :cited_2
  );
--- 320176, 6278248: 0
+-- 738652, 44149093434, 1982: 2
+-- scp	                    ref_sgr
+-- 33847069350	            738652 (x in N(y))
+-- 44149093434	(y in N(x)) 738652 (x in N(y))
 
--- N*(y, fccy) -> N*(x, fccy)
+-- N(y, fccy) -> N(x, fccy)
 SELECT sr.scp, sr.ref_sgr
   FROM
     scopus_references sr
  WHERE sr.scp IN (
-   -- N(x, fccy)
-   SELECT sr.scp
-     FROM scopus_references sr
-       JOIN scopus_publication_groups spg ON spg.sgr = sr.scp AND spg.pub_year <= 1990
-    WHERE sr.ref_sgr = 6278248 -- :cited_2
- ) AND sr.ref_sgr IN (
    -- N(y, fccy)
    SELECT sr.scp
      FROM scopus_references sr
-       JOIN scopus_publication_groups spg ON spg.sgr = sr.scp AND spg.pub_year <= 1990
-    WHERE sr.ref_sgr = 320176 -- :cited_1
+       JOIN scopus_publication_groups spg ON spg.sgr = sr.scp AND spg.pub_year <= :fccy
+    WHERE sr.ref_sgr = 44149093434 --:cited_2
+ ) AND sr.ref_sgr IN (
+   -- N(x, fccy)
+   SELECT sr.scp
+     FROM scopus_references sr
+       JOIN scopus_publication_groups spg ON spg.sgr = sr.scp AND spg.pub_year <= :fccy
+    WHERE sr.ref_sgr = 738652 --:cited_1
  );
--- 320176, 6278248: 1
---scp	        ref_sgr
---45549115281	6278248
+-- 738652, 44149093434, 1982: 3
+-- scp	        ref_sgr
+-- 738652	      44149093434
+-- 33847069350	44149093434
+-- 738652	      33847069350
 
 -- Conditional citing papers
-SELECT *
+SELECT sr.scp
   FROM
     scopus_references sr
-      JOIN scopus_publication_groups spg ON spg.sgr = sr.scp AND spg.pub_year <= 1990
+      JOIN scopus_publication_groups spg ON spg.sgr = sr.scp AND spg.pub_year <= :fccy
  WHERE sr.ref_sgr = :cited;
--- 320176: 3
--- 6278248: 1
+-- 738652: 2
+-- scp
+-- 33847069350
+-- 44149093434
+
+-- 44149093434: 2
+-- scp
+-- 33847069350
+-- 738652
 
 -- Test data pair
 SELECT cited_1, cited_2, first_co_cited_year
   FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
  WHERE bin = 1 AND cited_1 = :cited_1 AND cited_2 = :cited_2;
 -- First co-cited year: 320176, 6278248: 1990
+
+-- Test data pair inner citations
+SELECT *
+  FROM scopus_references sr
+WHERE (sr.scp = :cited_1 AND sr.ref_sgr = :cited_2) OR (sr.scp = :cited_2 AND sr.ref_sgr = :cited_1);
 
 -- Citing paper count
 SELECT count(1)
