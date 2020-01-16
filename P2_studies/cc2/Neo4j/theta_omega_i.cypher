@@ -1,9 +1,9 @@
-// E(x,y)/(|N(x)|*|N(y)|) Index
-// 10 pairs: 12.6s
-// 15 pairs: 3.3-10.4s
-// 20 pairs: 3.0-30.6s
-// *30 pairs: 3.2-5.0s*
-// 40 pairs: 11.3-61.2s
+// Theta-Omega Index
+// 10 pairs: 2.7s
+// 20 pairs: 1.8s-72s
+// 25 pairs: 11.0s
+// *30 pairs: 5.0-8.0s*
+// 40 pairs: 129.4s
 WITH $JDBC_conn_string AS db, $sql_query AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
 OPTIONAL MATCH (x:Publication {node_id: row.cited_1})<--(Nx:Publication)

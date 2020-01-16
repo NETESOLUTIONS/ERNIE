@@ -1,3 +1,14 @@
+-- 9.3s-1m:07s
+SELECT cited_1, cited_2, first_co_cited_year
+  FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
+ WHERE bin BETWEEN 4 AND 10 OR scopus_frequency >= 50;
+
+-- 8.3s-9.3s-1m:07s
+SELECT cited_1, cited_2, first_co_cited_year
+  FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
+ WHERE bin BETWEEN 4 AND 10 OR scopus_frequency >= 50
+ ORDER BY cited_1, cited_2;
+
 -- N(x, fccy) -> N(y, fccy) published <= fccy
 SELECT sr.scp, sr.ref_sgr
   FROM
