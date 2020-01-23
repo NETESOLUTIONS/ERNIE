@@ -7,7 +7,7 @@ NAME
 
 SYNOPSIS
 
-    neo4j-export-in-batches.sh [-v] BATCH_OUTPUT JDBC_conn_string SQL Cypher_query_file [expected_rec_num] [batch_size]
+    neo4j-export-in-batches.sh [-v] output_file JDBC_conn_string SQL Cypher_query_file [expected_rec_num] [batch_size]
     neo4j-export-in-batches.sh -h: display this help
 
 DESCRIPTION
@@ -17,9 +17,6 @@ DESCRIPTION
     The following options are available:
 
     -v                    verbose output
-
-    BATCH_OUTPUT           `-{batch #}` suffixes are automatically added when bactehd.use `/dev/stdout` for `stdout`.
-                          Note: the number of records is printed to stdout.
 
     JDBC_conn_string      JDBC connection string
 
