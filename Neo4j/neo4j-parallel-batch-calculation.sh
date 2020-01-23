@@ -16,7 +16,7 @@ DESCRIPTION
 
     The following options are available:
 
-    -v                    verbose output
+    -v                    verbose diagnostics
 
     JDBC_conn_string      JDBC connection string
 
@@ -87,7 +87,7 @@ set -o pipefail
 while (($# > 0)); do
   case "$1" in
     -v)
-      readonly VERBOSE_MODE="true"
+      declare -rx  VERBOSE_MODE="true"
       ;;
     *)
       break
@@ -193,7 +193,7 @@ HEREDOC
     if ((batch_num > 1)); then
       tail -n +2 < "$BATCH_OUTPUT" >> "$OUTPUT"
       if [[ "$VERBOSE_MODE" == true ]]; then
-        ls -l "$OUTPUT"
+        echo "Total records in the output file: $(( $(wc --lines < "$OUTPUT") - 1 ))"
       fi
     fi
   fi
