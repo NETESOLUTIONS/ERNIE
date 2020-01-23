@@ -229,7 +229,7 @@ HEREDOC
     (( est_total_time_ms = elapsed_ms * EXPECTED_NUM_RECORDS / processed_records )) || :
     printf " ETA: %s" "$(TZ=America/New_York date --date=@$(( (START_TIME + est_total_time_ms) / 1000 )))"
   else
-    echo " DONE"
+    printf " DONE"
   fi
   # When performing calculations `/` will truncate the result and should be done last
   printf " at %.1f records/min overall.\n" "$(( 10**9 * processed_records * 1000 * 60 / elapsed_ms ))e-9"
