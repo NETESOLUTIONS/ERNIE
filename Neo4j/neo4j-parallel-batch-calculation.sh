@@ -7,7 +7,7 @@ NAME
 
 SYNOPSIS
 
-    neo4j-export-in-batches.sh [-v] BATCH_OUTPUT JDBC_conn_string SQL Cypher_query_file [expected_rec_num] [batch_size]
+    neo4j-export-in-batches.sh [-v] output_file JDBC_conn_string SQL Cypher_query_file [expected_rec_num] [batch_size]
     neo4j-export-in-batches.sh -h: display this help
 
 DESCRIPTION
@@ -16,10 +16,7 @@ DESCRIPTION
 
     The following options are available:
 
-    -v                    verbose output
-
-    BATCH_OUTPUT           `-{batch #}` suffixes are automatically added when bactehd.use `/dev/stdout` for `stdout`.
-                          Note: the number of records is printed to stdout.
+    -v                    verbose diagnostics
 
     JDBC_conn_string      JDBC connection string
 
@@ -90,7 +87,7 @@ set -o pipefail
 while (($# > 0)); do
   case "$1" in
     -v)
-      readonly VERBOSE_MODE="true"
+      declare -rx  VERBOSE_MODE="true"
       ;;
     *)
       break
@@ -186,20 +183,19 @@ HEREDOC
     # Exclude CSV header
     ((--num_of_records)) || :
   fi
-  if ((batch_num == 1)); then
-    # Copy to an output file owned by the current user
-    cp "$BATCH_OUTPUT" "$OUTPUT"
+  if [[ ! -s "$OUTPUT" ]]; then
+    # Copy headers to an output file owned by the current user
+    head -1 "$BATCH_OUTPUT" > "$OUTPUT"
   fi
 
   if [[ $BATCH_SIZE ]]; then
     echo -n "Batch #${batch_num}/${expected_batches}: "
-    if ((batch_num > 1)); then
-      tail -n +2 < "$BATCH_OUTPUT" >> "$OUTPUT"
-      if [[ "$VERBOSE_MODE" == true ]]; then
-        ls -l "$OUTPUT"
-      fi
-    fi
   fi
+  tail -n +2 < "$BATCH_OUTPUT" >> "$OUTPUT"
+  if [[ "$VERBOSE_MODE" == true ]]; then
+    echo "Total records in the output file: $(( $(wc --lines < "$OUTPUT") - 1 ))"
+  fi
+
   batch_end_time=$(date +%s%3N)
   ((delta_ms = batch_end_time - batch_start_time)) || :
   ((delta_s = delta_ms / 1000)) || :
@@ -232,7 +228,7 @@ HEREDOC
     (( est_total_time_ms = elapsed_ms * EXPECTED_NUM_RECORDS / processed_records )) || :
     printf " ETA: %s" "$(TZ=America/New_York date --date=@$(( (START_TIME + est_total_time_ms) / 1000 )))"
   else
-    echo " DONE"
+    printf " DONE"
   fi
   # When performing calculations `/` will truncate the result and should be done last
   printf " at %.1f records/min overall.\n" "$(( 10**9 * processed_records * 1000 * 60 / elapsed_ms ))e-9"
@@ -243,6 +239,7 @@ export sql_query="'${INPUT_DATA_SQL_QUERY}'"
 declare -ix START_TIME
 START_TIME=$(date +%s%3N)
 
+rm -f "$OUTPUT"
 seq $expected_batches | \
     parallel --halt soon,fail=1 --verbose --line-buffer --tagstring '|job#{#} s#{%}|' 'process_batch {}'
 
