@@ -24,4 +24,7 @@ OPTIONAL MATCH
   (y:Publication {node_id: y_scp})<--(x:Publication {node_id: x_scp})<-[E]-(Ex:Publication)
   WHERE Ex.pub_year <= f_c_c_y
 RETURN x_scp AS cited_1, y_scp AS cited_2,
-       toFloat(count(E) + case1_size + case2_size) / (nx_size * ny_size) AS theta_omega_index;
+       CASE WHEN nx_size * ny_size = 0 THEN 0
+         ELSE toFloat(count(E) + case1_size + case2_size) / (nx_size * ny_size)
+         END
+       AS theta_omega_index;
