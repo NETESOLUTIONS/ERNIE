@@ -119,6 +119,10 @@ else
 fi
 echo -e ", expected batches: $expected_batches\n"
 
+export sql_query="'${INPUT_DATA_SQL_QUERY}'"
+declare -ix START_TIME
+START_TIME=$(date +%s%3N)
+
 # Get a script directory, same as by $(dirname $0)
 #readonly SCRIPT_DIR=${0%/*}
 #readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
@@ -234,10 +238,6 @@ HEREDOC
   printf " at %.1f records/min overall.\n" "$(( 10**9 * processed_records * 1000 * 60 / elapsed_ms ))e-9"
 }
 export -f process_batch
-
-export sql_query="'${INPUT_DATA_SQL_QUERY}'"
-declare -ix START_TIME
-START_TIME=$(date +%s%3N)
 
 rm -f "$OUTPUT"
 seq $expected_batches | \
