@@ -9,6 +9,12 @@
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="false" project-jdk-name="Anaconda 3" project-jdk-type="Python SDK">
     <output url="file://out" />
   </component>
+  <component name="Struts Navigator">
+    <option name="strutsConfigFile" />
+    <option name="strutsTilesFile" />
+    <option name="strutsValidatorFiles" />
+    <option name="enable" value="false" />
+  </component>
   <component name="TaskProjectConfiguration">
     <server type="JIRA" url="http://jira.nete.com" />
   </component>
