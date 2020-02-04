@@ -138,7 +138,8 @@ START_TIME=$(date +%s%3N)
 process_batch() {
   local -ri batch_num=$1
   local -i processed_records=$(((batch_num - 1) * BATCH_SIZE))
-  # Note: this file should be written to and owned by the `neo4j` user, hence can't use `mktemp`
+
+  # Note: these files should be written to and owned by the `neo4j` user, hence can't use `mktemp`
   local -r BATCH_OUTPUT="/tmp/$$-batch-$batch_num.csv"
   local cypher_shell_output
 
@@ -195,7 +196,9 @@ HEREDOC
   if [[ $BATCH_SIZE ]]; then
     echo -n "Batch #${batch_num}/${expected_batches}: "
   fi
-  tail -n +2 < "$BATCH_OUTPUT" >> "$OUTPUT"
+  # Appending with a write-lock to prevent corruption during concatenation in parallel
+  # shellcheck disable=SC2094 # flock doesn't write to $OUTPUT, just locks it
+  flock "$OUTPUT" tail -n +2 < "$BATCH_OUTPUT" >> "$OUTPUT"
   if [[ "$VERBOSE_MODE" == true ]]; then
     echo "Total records in the output file: $(( $(wc --lines < "$OUTPUT") - 1 ))"
   fi
