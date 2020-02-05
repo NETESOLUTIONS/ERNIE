@@ -5,7 +5,7 @@ Theta-Omega Prime Index: for a co-cited publication pair (x,y)
 * Let X = the set of publications that cite x and published in a year <= fccy
 * Let Y = the set of publications that cite Y and published in a year <= fccy
 * Let X' = X - Y (that is, minus intersection) and Y' = Y - X.
-* Then Theta-Omega Prime Index = |edges between X' and Y'| / (|X'| * |Y'|) if |X'| <> 0 or |Y'| <> 0 else it is = 0.
+* Then Theta-Omega Prime Index = |edges between X' and Y'| / (|X'| * |Y'|) if |X'| * |Y'| <> 0 else it is = 0.
 */
 WITH $JDBC_conn_string AS db, $sql_query AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
