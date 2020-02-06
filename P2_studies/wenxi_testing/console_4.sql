@@ -1,14 +1,16 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-SET SEARCH_PATH = public;
+SET SEARCH_PATH = wenxi;
 
 -- SELECT NOW();
 
 DROP TABLE If EXISTS wenxi.tableseed;
 
+CREATE TABLE wenxi.tableseed AS
 
-(SELECT DISTINCT scp AS source, 'citing' AS source_type, ref_sgr AS tagret, 'seed' AS tagret_type INTO TableSeed
+
+((SELECT DISTINCT scp AS source, 'citing' AS source_type, ref_sgr AS tagret, 'seed' AS tagret_type
  FROM ernie.public.scopus_references
  WHERE scp IN (SELECT c.scp
                FROM ernie.public.scopus_references c LEFT JOIN ernie.public.scopus_publication_groups d
@@ -36,4 +38,4 @@ UNION
                                      ON a.scp = b.sgr
      WHERE a.document_id_type = 'DOI' and a.document_id = '10.1038/227680a0' and b.pub_year IS NOT NULL))
 
-ORDER BY source_type DESC;
+ORDER BY source_type DESC);
