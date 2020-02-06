@@ -75,7 +75,7 @@ UNION
 
 (SELECT :ref_sgr3 as cited_1, :ref_sgr4 as cited_2, COUNT(count) as count FROM (
 SELECT COUNT(*) FROM (SELECT scp, ref_sgr FROM ernie.public.scopus_references as count
-WHERE ref_sgr = :ref_sgr3 OR ref_sgr = :ref_sgr4  a
+WHERE ref_sgr = :ref_sgr3 OR ref_sgr = :ref_sgr4)  a
 GROUP BY scp
 HAVING COUNT(*) > 1 ) b)
 
