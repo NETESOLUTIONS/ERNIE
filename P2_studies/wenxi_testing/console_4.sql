@@ -1,4 +1,9 @@
 -- DataGrip: start execution from here
+
+\set ON_ERROR_STOP on
+\set ECHO all
+
+
 SET TIMEZONE = 'US/Eastern';
 
 SET SEARCH_PATH = wenxi;
