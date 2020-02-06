@@ -60,6 +60,20 @@ HAVING COUNT(*) > 1) b
 GROUP BY pub_year;
 
 
+
+DROP TABLE If EXISTS wenxi.tablepair;
+
+CREATE TABLE wenxi.tablepair AS
+
+
+SELECT 'ref_sgr1, ref_sgr2' as pair, COUNT(count) as count FROM (
+SELECT COUNT(*) FROM (SELECT scp, ref_sgr FROM ernie.public.scopus_references as count
+WHERE ref_sgr = :ref_sgr1 OR ref_sgr = :ref_sgr2)  a
+GROUP BY scp
+HAVING COUNT(*) > 1 ) b
+
+
+
 grant all PRIVILEGES on all tables in schema wenxi to wenxi;
 
 
