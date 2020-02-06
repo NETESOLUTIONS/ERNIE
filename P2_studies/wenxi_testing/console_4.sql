@@ -45,6 +45,21 @@ UNION
 
 ORDER BY source_type DESC);
 
+
+DROP TABLE If EXISTS wenxi.tablecount;
+
+CREATE TABLE wenxi.tablecount AS
+
+SELECT pub_year, COUNT(count) FROM (
+SELECT pub_year, COUNT(*) as count FROM (SELECT scp, ref_sgr, pub_year
+FROM  ernie.public.scopus_references a INNER JOIN ernie.public.scopus_publication_groups b
+ON a.scp = b.sgr
+WHERE ref_sgr =:ref1 OR ref_sgr =: ref2)  a
+GROUP BY scp, pub_year
+HAVING COUNT(*) > 1) b
+GROUP BY pub_year;
+
+
 grant all PRIVILEGES on all tables in schema wenxi to wenxi;
 
 
