@@ -44,3 +44,7 @@ UNION
      WHERE a.document_id_type = 'DOI' and a.document_id = '10.1038/227680a0' and b.pub_year IS NOT NULL))
 
 ORDER BY source_type DESC);
+
+grant all PRIVILEGES on all tables in schema wenxi to wenxi;
+
+
