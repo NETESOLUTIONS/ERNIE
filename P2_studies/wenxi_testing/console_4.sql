@@ -5,6 +5,9 @@ SET SEARCH_PATH = public;
 
 -- SELECT NOW();
 
+DROP TABLE If EXISTS wenxi.tableseed;
+
+
 (SELECT DISTINCT scp AS source, 'citing' AS source_type, ref_sgr AS tagret, 'seed' AS tagret_type INTO TableSeed
  FROM ernie.public.scopus_references
  WHERE scp IN (SELECT c.scp
