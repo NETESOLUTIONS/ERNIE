@@ -99,13 +99,12 @@ done
 
 declare -rx INPUT_FILE="$1"
 declare -rx OUTPUT_FILE="$2"
-declare -rx INPUT_DATA_SQL_QUERY="$3"
-declare -rx CYPHER_QUERY_FILE="$4"
+declare -rx CYPHER_QUERY_FILE="$3"
 
 declare -rxi INPUT_NUM_REC=$(($(wc -l "$INPUT_FILE") - 1))
 echo -en "\nCalculating using $CYPHER_QUERY_FILE, the input number of records = $INPUT_NUM_REC"
-if [[ $5 ]]; then
-  declare -rxi BATCH_SIZE_REC=$5
+if [[ $4 ]]; then
+  declare -rxi BATCH_SIZE_REC=$4
   echo -n ", batch size: $BATCH_SIZE_REC"
   declare -xi expected_batches=$((INPUT_NUM_REC / BATCH_SIZE_REC))
   if ((INPUT_NUM_REC % BATCH_SIZE_REC > 0)); then
