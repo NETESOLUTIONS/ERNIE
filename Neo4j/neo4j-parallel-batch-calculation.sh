@@ -102,7 +102,8 @@ declare -rx OUTPUT_FILE="$2"
 declare -rx CYPHER_QUERY_FILE="$3"
 
 declare -rxi INPUT_NUM_REC=$(($(wc --lines < "$INPUT_FILE") - 1))
-echo -en "\nCalculating using $CYPHER_QUERY_FILE, the input number of records = $INPUT_NUM_REC"
+echo -en "\nCalculating using $CYPHER_QUERY_FILE"
+echo -n "The input number of records = $INPUT_NUM_REC"
 if [[ $4 ]]; then
   declare -rxi BATCH_SIZE_REC=$4
   echo -n ", batch size: $BATCH_SIZE_REC"
@@ -118,9 +119,10 @@ if [[ $4 ]]; then
 else
   declare -rxi expected_batches=1
 fi
-declare -ra HEADERS
+declare -a HEADERS
 # Parse headers using `csvtool` which outputs pure comma-separated cells
 IFS=',' read -ra HEADERS < <(csvtool head 1 "$INPUT_FILE")
+readonly HEADERS
 
 export sql_query="'${INPUT_DATA_SQL_QUERY}'"
 declare -ix START_TIME
