@@ -33,7 +33,9 @@ DESCRIPTION
                           If the number of input records > `appr_batch_size`, process in parallel in batches.
                           Batches are sliced by GNU Parallel in bytes.
 
-    -ae                   If supplied, assert that the total number of output records = the number of input records.
+    -ae                   Assert that:
+                            1. The number of output records per batch = the number of batch input records.
+                            2. The total number of output records = the total number of input records.
 
     -v                    Verbose diagnostics.
 
@@ -272,6 +274,7 @@ export -f process_batch
 rm -f "$OUTPUT_FILE"
 # Pipe input CSV (skipping the headers) and parse using `csvtool` which outputs pure comma-separated cells
 # Decrease the number of job slots lest Neo4j gets overloaded
+# FIXME a batch failure doesn't exit the process
 tail -n +2 "$INPUT_FILE" \
     | csvtool col 1- - \
     | parallel --jobs 75% --pipe --block "$BATCH_SIZE" --halt soon,fail=1 --line-buffer --tagstring '|job#{#}|' \
