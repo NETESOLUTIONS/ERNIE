@@ -145,6 +145,8 @@ START_TIME=$(date +%s%3N)
 #echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
 process_batch() {
+  [[ $VERBOSE_MODE == true ]] && set -x
+
   local -ri batch_num=$1
   local -a INPUT_COLUMNS
   # Parse a comma-separated list into an array
@@ -285,6 +287,6 @@ rm -f "$OUTPUT"
 tail -n +2 "$INPUT_FILE" \
     | csvtool col 1- - \
     | parallel --pipe --block "$BATCH_SIZE" --halt soon,fail=1 --line-buffer --tagstring '|job#{#} s#{%}|' \
-        process_batch '{#}'
+        'process_batch {#}'
 
 exit 0
