@@ -276,8 +276,9 @@ rm -f "$OUTPUT"
 # Pipe input CSV (skipping the headers) and parse using `csvtool` which outputs pure comma-separated cells
 tail -n +2 "$INPUT_FILE" \
     | csvtool col 1- - \
-    | parallel --pipe --block "$BATCH_SIZE" --halt soon,fail=1 --line-buffer --tagstring '|job#{#} s#{%}|' \
+    | parallel --jobs -8 --pipe --block "$BATCH_SIZE" --halt soon,fail=1 --line-buffer --tagstring '|job#{#}|' \
         'process_batch {#}'
+# TODO --tagstring '|job#{#} s#{%}|' reports slot # always as 1 with --pipe
 
 if [[ "$ASSERT_NUM_REC_EQUALITY" == true ]]; then
   declare -i num_of_records
