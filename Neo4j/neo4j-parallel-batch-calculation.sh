@@ -31,11 +31,7 @@ DESCRIPTION
 
     batch_size            If the number of input records > `batch_size`, process in parallel in batches.
 
-    -ae                   If supplied, the number of output records per batch is asserted to be equal the number
-                          of input records or +/- 1. The difference can occur due to approximate split into batches
-                          performed by GNU Parallel `--block`.
-
-                          Additionally, assert that the total number of output records = the number of input records.
+    -ae                   If supplied, assert that the total number of output records = the number of input records.
 
     -v                    verbose diagnostics
 
@@ -85,7 +81,7 @@ set -o pipefail
 while (($# > 0)); do
   case "$1" in
     -ae)
-      declare -rx ASSERT_NUM_REC_EQUALITY=true
+      readonly ASSERT_NUM_REC_EQUALITY=true
       ;;
     -v)
       declare -rx VERBOSE_MODE=true
@@ -186,15 +182,14 @@ process_batch() {
   done
   input_data_list="${input_data_list}${param_rows} ]"
 
-  #  (( batch_num == 1 )) && (( START_TIME=batch_start_time ))
-  if [[ $BATCH_SIZE_REC ]]; then
-    declare -i expected_batch_records=$((INPUT_NUM_REC - processed_records))
-    if ((expected_batch_records > BATCH_SIZE_REC)); then
-      ((expected_batch_records = BATCH_SIZE_REC))
-    fi
-  else
-    declare -i expected_batch_records=$INPUT_NUM_REC
-  fi
+#  if [[ $BATCH_SIZE_REC ]]; then
+#    declare -i expected_batch_records=$((INPUT_NUM_REC - processed_records))
+#    if ((expected_batch_records > BATCH_SIZE_REC)); then
+#      ((expected_batch_records = BATCH_SIZE_REC))
+#    fi
+#  else
+#    declare -i expected_batch_records=$INPUT_NUM_REC
+#  fi
 
   local cypher_query
   cypher_query="CALL apoc.export.csv.query('$(cat "$CYPHER_QUERY_FILE")', '$BATCH_OUTPUT',
@@ -202,13 +197,14 @@ process_batch() {
 
   local cypher_shell_output
   if ! cypher_shell_output=$(echo "$cypher_query" | cypher-shell); then
+    exec 1>&2
     cat << HEREDOC
-The failed Cypher query:
+Error! The Cypher query failed:
 =====
 $cypher_query
 =====
 
-cypher-shell output:
+The cypher-shell output:
 =====
 $cypher_shell_output
 =====
@@ -216,7 +212,7 @@ HEREDOC
     exit 2
   fi
 
-  declare -i num_of_records
+  local -i num_of_records
   # Suppress printing a file name
   num_of_records=$(wc --lines < "$BATCH_OUTPUT")
   if ((num_of_records > 0)); then
@@ -247,28 +243,6 @@ HEREDOC
       $((delta_s / 3600)) $(((delta_s / 60) % 60)) $((delta_s % 60)) $((delta_ms % 1000)) \
       "$((10 ** 9 * num_of_records * 1000 * 60 / delta_ms))e-9"
 
-  if [[ $ASSERT_NUM_REC_EQUALITY == true ]]; then
-    local -i difference=$((num_of_records - expected_batch_records))
-    # ${difference#-}: abs(difference)
-    if [[ ${difference#-} -gt 1 ]]; then
-#      exec 1>&2
-      cat << HEREDOC
-
-Error! The actual number of records differs from the expected number ($expected_batch_records) for more than 1 record.
-The failed Cypher query:
-=====
-$cypher_query
-=====
-
-cypher-shell output:
-=====
-$cypher_shell_output
-=====
-HEREDOC
-      exit 1
-    fi
-  fi
-
   ((processed_records += num_of_records))
   local -i elapsed_ms=$((batch_end_time - START_TIME))
   if ((processed_records < INPUT_NUM_REC)); then
@@ -288,5 +262,19 @@ tail -n +2 "$INPUT_FILE" \
     | csvtool col 1- - \
     | parallel --pipe --block "$BATCH_SIZE" --halt soon,fail=1 --line-buffer --tagstring '|job#{#} s#{%}|' \
         'process_batch {#}'
+
+if [[ "$ASSERT_NUM_REC_EQUALITY" == true ]]; then
+  declare -i num_of_records
+  num_of_records=$(wc --lines < "$OUTPUT_FILE")
+  if ((num_of_records > 0)); then
+    # Exclude CSV header
+    ((num_of_records--)) || :
+  fi
+  if (( num_of_records != INPUT_NUM_REC )); then
+    exec 1>&2
+    echo "Error! The actual number of records $num_of_records differs from the expected number $INPUT_NUM_REC."
+    exit 1
+  fi
+fi
 
 exit 0
