@@ -123,6 +123,7 @@ declare -xa HEADERS
 # Parse headers using `csvtool` which outputs pure comma-separated cells
 IFS=',' read -ra HEADERS < <(csvtool head 1 "$INPUT_FILE")
 readonly HEADERS
+echo "Input columns: ${HEADERS[*]}"
 
 export sql_query="'${INPUT_DATA_SQL_QUERY}'"
 declare -ix START_TIME
