@@ -7,7 +7,7 @@ NAME
 
 SYNOPSIS
 
-    neo4j-parallel-batch-calculation.sh [-ae] [-v] input_CSV_file output_CSV_file Cypher_query_file [batch_size]
+    neo4j-parallel-batch-calculation.sh [-ae] [-v] input_CSV_file output_CSV_file Cypher_query_file [appr_batch_size]
     neo4j-parallel-batch-calculation.sh -h: display this help
 
 DESCRIPTION
@@ -29,9 +29,11 @@ DESCRIPTION
                           WARNING: `apoc.cypher.mapParallel2()` is unstable as of v3.5.0.6 and may fail (produce
                           incomplete results) on medium-to-large batches. If this happens, adjust batch size downwards.
 
-    batch_size            If the number of input records > `batch_size`, process in parallel in batches.
+    appr_batch_size       Approximate number of records per batch.
+                          If the number of input records > `appr_batch_size`, process in parallel in batches.
+                          Batches are sliced by GNU Parallel in bytes.
 
-    -ae                   If supplied, assert that the total number of output records = the number of input records.
+    -ae                   If supplied, assert that the total number of output records = the number of input records
 
     -v                    verbose diagnostics
 

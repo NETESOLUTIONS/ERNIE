@@ -2,7 +2,7 @@
 // 50 pairs: 0.6-0.7s (6.3s)
 // 100 pairs: 3.5-3.7s (2.10s)
 UNWIND $input_data AS row
-OPTIONAL MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
+MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
 WITH
   count(Nxy) AS intersect_size, row.cited_1 AS x_scp, row.cited_2 AS y_scp
 OPTIONAL MATCH (x:Publication {node_id: x_scp})<--(Nx:Publication)
