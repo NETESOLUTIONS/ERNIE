@@ -150,7 +150,7 @@ process_batch() {
   # Parse a comma-separated list into an array
   IFS="," read -ra INPUT_COLUMNS <<< "${INPUT_COLUMN_LIST}"
   readonly INPUT_COLUMNS
-  local -i processed_records=$(((batch_num - 1) * BATCH_SIZE_REC))
+  local -i appr_processed_records=$(((batch_num - 1) * BATCH_SIZE_REC))
 
   # Note: these files should be written to and owned by the `neo4j` user, hence can't use `mktemp`
   local -r BATCH_OUTPUT="/tmp/$$-batch-$batch_num.csv"
@@ -259,16 +259,13 @@ HEREDOC
     fi
   fi
 
-  ((processed_records += num_of_records))
+  ((appr_processed_records += num_of_records))
   local -i elapsed_ms=$((batch_end_time - START_TIME))
-  if ((processed_records < INPUT_NUM_REC)); then
-    ((est_total_time_ms = elapsed_ms * INPUT_NUM_REC / processed_records)) || :
-    printf " ETA: %s" "$(TZ=America/New_York date --date=@$(((START_TIME + est_total_time_ms) / 1000)))"
-  else
-    printf " DONE"
-  fi
+  ((est_total_time_ms = elapsed_ms * INPUT_NUM_REC / appr_processed_records)) || :
   # When performing calculations `/` will truncate the result and should be done last
-  printf " at %.1f records/min overall.\n" "$((10 ** 9 * processed_records * 1000 * 60 / elapsed_ms))e-9"
+  printf " ETA ≈ %s at ≈ %.1f records/min overall.\n" \
+      "$(TZ=America/New_York date --date=@$(((START_TIME + est_total_time_ms) / 1000)))" \
+      "$((10 ** 9 * appr_processed_records * 1000 * 60 / elapsed_ms))e-9"
 }
 export -f process_batch
 
@@ -276,7 +273,7 @@ rm -f "$OUTPUT"
 # Pipe input CSV (skipping the headers) and parse using `csvtool` which outputs pure comma-separated cells
 tail -n +2 "$INPUT_FILE" \
     | csvtool col 1- - \
-    | parallel --jobs -8 --pipe --block "$BATCH_SIZE" --halt soon,fail=1 --line-buffer --tagstring '|job#{#}|' \
+    | parallel --jobs -4 --pipe --block "$BATCH_SIZE" --halt soon,fail=1 --line-buffer --tagstring '|job#{#}|' \
         'process_batch {#}'
 # TODO --tagstring '|job#{#} s#{%}|' reports slot # always as 1 with --pipe
 
