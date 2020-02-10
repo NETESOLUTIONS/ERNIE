@@ -101,14 +101,14 @@ declare -rx INPUT_FILE="$1"
 declare -rx OUTPUT_FILE="$2"
 declare -rx CYPHER_QUERY_FILE="$3"
 
-declare -rxi INPUT_NUM_REC=$(($(wc --lines < "$INPUT_FILE") - 1))
+declare -rxi INPUT_RECS=$(($(wc --lines < "$INPUT_FILE") - 1))
 echo -e "\nCalculating using $CYPHER_QUERY_FILE"
-echo -n "The input number of records = $INPUT_NUM_REC"
+echo -n "The input number of records = $INPUT_RECS"
 if [[ $4 ]]; then
   declare -rxi BATCH_SIZE_REC=$4
   echo -n ", batch size: $BATCH_SIZE_REC"
-  declare -xi expected_batches=$((INPUT_NUM_REC / BATCH_SIZE_REC))
-  if ((INPUT_NUM_REC % BATCH_SIZE_REC > 0)); then
+  declare -xi expected_batches=$((INPUT_RECS / BATCH_SIZE_REC))
+  if ((INPUT_RECS % BATCH_SIZE_REC > 0)); then
     ((expected_batches++))
   fi
   echo -e ", expected batches ≈ $expected_batches"
@@ -164,9 +164,9 @@ process_batch() {
   local input_data_list="[ "
   local -a cells
   local param_rows cell
-  local -i input_batch_records=0
+  local -i input_batch_recs=0
   while IFS=',' read -ra cells; do
-    ((input_batch_records++))
+    ((input_batch_recs++))
 
     # Convert one record to a Cypher map
     if [[ $param_rows ]]; then
@@ -208,12 +208,12 @@ HEREDOC
     exit 2
   fi
 
-  local -i num_of_records
+  local -i num_of_recs
   # Suppress printing a file name
-  num_of_records=$(wc --lines < "$BATCH_OUTPUT")
-  if ((num_of_records > 0)); then
+  num_of_recs=$(wc --lines < "$BATCH_OUTPUT")
+  if ((num_of_recs > 0)); then
     # Exclude CSV header
-    ((num_of_records--)) || :
+    ((num_of_recs--)) || :
   fi
   if [[ ! -s "$OUTPUT_FILE" ]]; then
     # Copy headers to an output file owned by the current user
@@ -235,16 +235,16 @@ HEREDOC
   ((delta_s = delta_ms / 1000)) || :
 
   # When performing calculations `/` will truncate the result and should be done last
-  printf "%d records exported in %dh:%02dm:%02d.%ds at %.1f records/min (this thread)." "$num_of_records" \
+  printf "%d records exported in %dh:%02dm:%02d.%ds at %.1f records/min (this thread)." "$num_of_recs" \
       $((delta_s / 3600)) $(((delta_s / 60) % 60)) $((delta_s % 60)) $((delta_ms % 1000)) \
-      "$((10 ** 9 * num_of_records * 1000 * 60 / delta_ms))e-9"
+      "$((10 ** 9 * num_of_recs * 1000 * 60 / delta_ms))e-9"
 
   if [[ $ASSERT_NUM_REC_EQUALITY == true ]]; then
-    if (( num_of_records != input_batch_records )); then
+    if (( num_of_recs != input_batch_recs )); then
       exec 1>&2
       cat << HEREDOC
 
-Error! The actual number of records $num_of_records differs from the expected number $input_batch_records.
+Error! The actual number of records $num_of_recs differs from the expected number $input_batch_recs.
 The failed Cypher query:
 =====
 $cypher_query
@@ -259,9 +259,9 @@ HEREDOC
     fi
   fi
 
-  ((appr_processed_records += num_of_records))
+  ((appr_processed_records += num_of_recs))
   local -i elapsed_ms=$((batch_end_time - START_TIME))
-  ((est_total_time_ms = elapsed_ms * INPUT_NUM_REC / appr_processed_records)) || :
+  ((est_total_time_ms = elapsed_ms * INPUT_RECS / appr_processed_records)) || :
   # When performing calculations `/` will truncate the result and should be done last
   printf " ETA ≈ %s at ≈ %.1f records/min overall.\n" \
       "$(TZ=America/New_York date --date=@$(((START_TIME + est_total_time_ms) / 1000)))" \
@@ -271,21 +271,22 @@ export -f process_batch
 
 rm -f "$OUTPUT"
 # Pipe input CSV (skipping the headers) and parse using `csvtool` which outputs pure comma-separated cells
+# Decrease the number of job slots lest Neo4j gets overloaded
 tail -n +2 "$INPUT_FILE" \
     | csvtool col 1- - \
-    | parallel --jobs -4 --pipe --block "$BATCH_SIZE" --halt soon,fail=1 --line-buffer --tagstring '|job#{#}|' \
+    | parallel --jobs 75% --pipe --block "$BATCH_SIZE" --halt soon,fail=1 --line-buffer --tagstring '|job#{#}|' \
         'process_batch {#}'
 # TODO --tagstring '|job#{#} s#{%}|' reports slot # always as 1 with --pipe
 
 if [[ "$ASSERT_NUM_REC_EQUALITY" == true ]]; then
-  declare -i num_of_records
-  num_of_records=$(wc --lines < "$OUTPUT_FILE")
-  if ((num_of_records > 0)); then
+  declare -i num_of_recs
+  num_of_recs=$(wc --lines < "$OUTPUT_FILE")
+  if ((num_of_recs > 0)); then
     # Exclude CSV header
-    ((num_of_records--)) || :
+    ((num_of_recs--)) || :
   fi
-  if (( num_of_records != INPUT_NUM_REC )); then
-    echo "Error! The total actual number of records $num_of_records differs from the expected number $INPUT_NUM_REC." >&2
+  if (( num_of_recs != INPUT_RECS )); then
+    echo "Error! The total actual number of records $num_of_recs differs from the expected number $INPUT_RECS." >&2
     exit 1
   fi
 fi

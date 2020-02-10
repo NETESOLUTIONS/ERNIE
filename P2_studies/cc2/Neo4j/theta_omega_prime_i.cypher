@@ -7,8 +7,7 @@ Theta-Omega Prime Index: for a co-cited publication pair (x,y)
 * Let X' = X - Y (that is, minus intersection) and Y' = Y - X.
 * Then Theta-Omega Prime Index = |edges between X' and Y'| / (|X'| * |Y'|) if |X'| * |Y'| <> 0 else it is = 0.
 */
-WITH $JDBC_conn_string AS db, $sql_query AS sql
-CALL apoc.load.jdbc(db, sql) YIELD row
+UNWIND $input_data AS row
 OPTIONAL MATCH (x:Publication {node_id: row.cited_1})<--(X_prime:Publication)
   WHERE X_prime.pub_year <= row.first_co_cited_year AND NOT exists((:Publication {node_id: row.cited_2})<--(X_prime))
 OPTIONAL MATCH (y:Publication {node_id: row.cited_2})<--(Y_prime:Publication)

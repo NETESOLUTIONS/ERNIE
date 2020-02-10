@@ -1,6 +1,4 @@
 // Jaccard Co-Citation Index
-// 50 pairs: 0.6-0.7s (6.3s)
-// 100 pairs: 3.5-3.7s (2.10s)
 UNWIND $input_data AS row
 MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
 WITH
