@@ -97,6 +97,8 @@ while (($# > 0)); do
   shift
 done
 
+[[ $VERBOSE_MODE == true ]] && set -x
+
 declare -rx INPUT_FILE="$1"
 declare -rx OUTPUT_FILE="$2"
 declare -rx CYPHER_QUERY_FILE="$3"
@@ -152,10 +154,8 @@ process_batch() {
 
   # Note: these files should be written to and owned by the `neo4j` user, hence can't use `mktemp`
   local -r BATCH_OUTPUT="/tmp/$$-batch-$batch_num.csv"
-  local cypher_shell_output
 
   local -i batch_start_time batch_end_time delta_ms delta_s
-
   # Epoch time + milliseconds
   batch_start_time=$(date +%s%3N)
 
@@ -182,7 +182,7 @@ process_batch() {
     done
     param_rows="$param_rows}"
   done
-  input_data_list="$input_data_list $param_rows ]"
+  input_data_list="${input_data_list}${param_rows} ]"
 
   #  (( batch_num == 1 )) && (( START_TIME=batch_start_time ))
   if [[ $BATCH_SIZE_REC ]]; then
@@ -198,6 +198,7 @@ process_batch() {
   cypher_query="CALL apoc.export.csv.query('$(cat "$CYPHER_QUERY_FILE")', '$BATCH_OUTPUT',
     {params: {input_data: $input_data_list}});"
 
+  local cypher_shell_output
   if ! cypher_shell_output=$(echo "$cypher_query" | cypher-shell); then
     cat << HEREDOC
 The failed Cypher query:
@@ -250,6 +251,7 @@ HEREDOC
     if [[ ${difference#-} -gt 1 ]]; then
 #      exec 1>&2
       cat << HEREDOC
+
 Error! The actual number of records differs from the expected number ($expected_batch_records) for more than 1 record.
 The failed Cypher query:
 =====
