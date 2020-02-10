@@ -192,7 +192,7 @@ process_batch() {
     {params: {input_data: $input_data_list}});"
 
   local cypher_shell_output
-  if ! cypher_shell_output=$(echo "$cypher_query" | cypher-shell); then
+  if ! cypher_shell_output=$(echo "$cypher_query" | cypher-shell --encryption false); then
     exec 1>&2
     cat << HEREDOC
 Error! The Cypher query failed:
