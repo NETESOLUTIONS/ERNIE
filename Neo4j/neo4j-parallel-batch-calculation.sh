@@ -25,6 +25,7 @@ DESCRIPTION
     output_CSV_file       Written as an RFC 4180-compliant CSV (with EOLs set to `\n`) containing a header row
 
     Cypher_query_file     A file containing a Cypher query to execute which uses the `$input_data` array.
+                          TODO The query should not contain embedded double quotes.
 
                           WARNING: `apoc.cypher.mapParallel2()` is unstable as of v3.5.0.6 and may fail (produce
                           incomplete results) on medium-to-large batches. If this happens, adjust batch size downwards.
@@ -190,7 +191,7 @@ process_batch() {
   input_data_list="${input_data_list}${param_rows} ]"
 
   local cypher_query
-  cypher_query="CALL apoc.export.csv.query('$(cat "$CYPHER_QUERY_FILE")', '$BATCH_OUTPUT',
+  cypher_query="CALL apoc.export.csv.query(\"$(cat "$CYPHER_QUERY_FILE")\", '$BATCH_OUTPUT',
     {params: {input_data: $input_data_list}});"
 
   local cypher_shell_output
