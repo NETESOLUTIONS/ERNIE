@@ -223,9 +223,9 @@ HEREDOC
     # Exclude CSV header
     ((num_of_records--)) || :
   fi
-  if [[ ! -s "$OUTPUT" ]]; then
+  if [[ ! -s "$OUTPUT_FILE" ]]; then
     # Copy headers to an output file owned by the current user
-    head -1 "$BATCH_OUTPUT" > "$OUTPUT"
+    head -1 "$BATCH_OUTPUT" > "$OUTPUT_FILE"
   fi
 
   if [[ $BATCH_SIZE_REC ]]; then
@@ -233,9 +233,9 @@ HEREDOC
   fi
   # Appending with a write-lock to prevent corruption during concatenation in parallel
   # shellcheck disable=SC2094 # flock doesn't write to $OUTPUT, just locks it
-  flock "$OUTPUT" tail -n +2 < "$BATCH_OUTPUT" >> "$OUTPUT"
+  flock "$OUTPUT_FILE" tail -n +2 < "$BATCH_OUTPUT" >> "$OUTPUT_FILE"
   if [[ "$VERBOSE_MODE" == true ]]; then
-    echo "Total records in the output file: $(($(wc --lines < "$OUTPUT") - 1))"
+    echo "Total records in the output file: $(($(wc --lines < "$OUTPUT_FILE") - 1))"
   fi
 
   batch_end_time=$(date +%s%3N)
