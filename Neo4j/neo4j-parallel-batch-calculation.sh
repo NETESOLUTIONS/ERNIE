@@ -24,18 +24,18 @@ DESCRIPTION
 
     output_CSV_file       Written as an RFC 4180-compliant CSV (with EOLs set to `\n`) containing a header row
 
-    Cypher_query_file     file containing a Cypher query to execute which uses the `$input_data` array.
+    Cypher_query_file     A file containing a Cypher query to execute which uses the `$input_data` array.
 
                           WARNING: `apoc.cypher.mapParallel2()` is unstable as of v3.5.0.6 and may fail (produce
                           incomplete results) on medium-to-large batches. If this happens, adjust batch size downwards.
 
-    appr_batch_size       Approximate number of records per batch.
+    appr_batch_size       An approximate number of records per batch.
                           If the number of input records > `appr_batch_size`, process in parallel in batches.
                           Batches are sliced by GNU Parallel in bytes.
 
-    -ae                   If supplied, assert that the total number of output records = the number of input records
+    -ae                   If supplied, assert that the total number of output records = the number of input records.
 
-    -v                    verbose diagnostics
+    -v                    Verbose diagnostics.
 
 ENVIRONMENT
 
