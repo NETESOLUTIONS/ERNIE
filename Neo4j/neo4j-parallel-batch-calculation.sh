@@ -105,7 +105,7 @@ declare -rx OUTPUT_FILE="$2"
 declare -rx CYPHER_QUERY_FILE="$3"
 
 declare -rxi INPUT_RECS=$(($(wc --lines < "$INPUT_FILE") - 1))
-echo -e "\nCalculating using $CYPHER_QUERY_FILE"
+echo -e "\nCalculating via ${CYPHER_QUERY_FILE}, $INPUT_FILE => $OUTPUT_FILE"
 echo -n "The input number of records = $INPUT_RECS"
 if [[ $4 ]]; then
   declare -rxi BATCH_SIZE_REC=$4
