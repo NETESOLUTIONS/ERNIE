@@ -111,19 +111,20 @@ if [[ $4 ]]; then
   if ((INPUT_NUM_REC % BATCH_SIZE_REC > 0)); then
     ((expected_batches++))
   fi
-  echo -e ", expected batches ≈ $expected_batches\n"
+  echo -e ", expected batches ≈ $expected_batches"
 
   # Retrieve the first batch by the number of records (exclude the header) and use its size as the batch size
   readonly BATCH_1=$(cat <(tail -n +2 "$INPUT_FILE" | head -"$BATCH_SIZE_REC"))
   readonly BATCH_SIZE=${#BATCH_1}
 else
   declare -rxi expected_batches=1
+  echo ""
 fi
-declare -xa HEADERS
+declare -x INPUT_COLUMN_LIST
 # Parse headers using `csvtool` which outputs pure comma-separated cells
-IFS=',' read -ra HEADERS < <(csvtool head 1 "$INPUT_FILE")
-readonly HEADERS
-echo "Input columns: ${HEADERS[*]}"
+INPUT_COLUMN_LIST=$(csvtool head 1 "$INPUT_FILE")
+readonly INPUT_COLUMN_LIST
+echo -e "Input columns: ${INPUT_COLUMN_LIST[*]}\n"
 
 export sql_query="'${INPUT_DATA_SQL_QUERY}'"
 declare -ix START_TIME
@@ -143,6 +144,10 @@ START_TIME=$(date +%s%3N)
 
 process_batch() {
   local -ri batch_num=$1
+  local -a INPUT_COLUMNS
+  # Parse a comma-separated list into an array
+  IFS="," read -ra INPUT_COLUMNS <<< "${INPUT_COLUMN_LIST}"
+  readonly INPUT_COLUMNS
   local -i processed_records=$(((batch_num - 1) * BATCH_SIZE_REC))
 
   # Note: these files should be written to and owned by the `neo4j` user, hence can't use `mktemp`
@@ -171,7 +176,7 @@ process_batch() {
         param_rows="$param_rows, "
       fi
       # Assume numeric input data. String input data should be double-quoted in Cypher.
-      param_rows="${param_rows}${HEADERS[$i]}: $cell"
+      param_rows="${param_rows}${INPUT_COLUMN_LIST[$i]}: $cell"
 
       ((i++))
     done
