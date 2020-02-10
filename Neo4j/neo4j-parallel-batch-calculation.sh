@@ -224,7 +224,7 @@ HEREDOC
     echo -n "Batch #${batch_num}/≈${expected_batches}: "
   fi
   # Appending with a write-lock to prevent corruption during concatenation in parallel
-  # shellcheck disable=SC2094 # flock doesn't write to $OUTPUT, just locks it
+  # shellcheck disable=SC2094 # flock doesn't write to $OUTPUT_FILE, just locks it
   flock "$OUTPUT_FILE" tail -n +2 < "$BATCH_OUTPUT" >> "$OUTPUT_FILE"
   if [[ "$VERBOSE_MODE" == true ]]; then
     echo "Total records in the output file: $(($(wc --lines < "$OUTPUT_FILE") - 1))"
@@ -269,7 +269,7 @@ HEREDOC
 }
 export -f process_batch
 
-rm -f "$OUTPUT"
+rm -f "$OUTPUT_FILE"
 # Pipe input CSV (skipping the headers) and parse using `csvtool` which outputs pure comma-separated cells
 # Decrease the number of job slots lest Neo4j gets overloaded
 tail -n +2 "$INPUT_FILE" \
