@@ -176,7 +176,7 @@ process_batch() {
         param_rows="$param_rows, "
       fi
       # Assume numeric input data. String input data should be double-quoted in Cypher.
-      param_rows="${param_rows}${INPUT_COLUMN_LIST[$i]}: $cell"
+      param_rows="${param_rows}${INPUT_COLUMNS[$i]}: $cell"
 
       ((i++))
     done
