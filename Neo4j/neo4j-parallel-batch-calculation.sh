@@ -196,7 +196,6 @@ process_batch() {
 
   local cypher_shell_output
   if ! cypher_shell_output=$(echo "$cypher_query" | cypher-shell --encryption false); then
-    exec 1>&2
     cat << HEREDOC
 Error! The Cypher query failed:
 =====
@@ -244,7 +243,6 @@ HEREDOC
 
   if [[ $ASSERT_NUM_REC_EQUALITY == true ]]; then
     if (( num_of_recs != input_batch_recs )); then
-      exec 1>&2
       cat << HEREDOC
 
 Error! The actual number of records $num_of_recs differs from the expected number $input_batch_recs.
