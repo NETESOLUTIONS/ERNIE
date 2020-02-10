@@ -164,7 +164,10 @@ process_batch() {
   local input_data_list="[ "
   local -a cells
   local param_rows cell
+  local -i input_batch_records=0
   while IFS=',' read -ra cells; do
+    ((input_batch_records++))
+
     # Convert one record to a Cypher map
     if [[ $param_rows ]]; then
       param_rows="$param_rows, "
@@ -183,15 +186,6 @@ process_batch() {
     param_rows="$param_rows}"
   done
   input_data_list="${input_data_list}${param_rows} ]"
-
-#  if [[ $BATCH_SIZE_REC ]]; then
-#    declare -i expected_batch_records=$((INPUT_NUM_REC - processed_records))
-#    if ((expected_batch_records > BATCH_SIZE_REC)); then
-#      ((expected_batch_records = BATCH_SIZE_REC))
-#    fi
-#  else
-#    declare -i expected_batch_records=$INPUT_NUM_REC
-#  fi
 
   local cypher_query
   cypher_query="CALL apoc.export.csv.query('$(cat "$CYPHER_QUERY_FILE")', '$BATCH_OUTPUT',
@@ -245,6 +239,26 @@ HEREDOC
       $((delta_s / 3600)) $(((delta_s / 60) % 60)) $((delta_s % 60)) $((delta_ms % 1000)) \
       "$((10 ** 9 * num_of_records * 1000 * 60 / delta_ms))e-9"
 
+  if [[ $ASSERT_NUM_REC_EQUALITY == true ]]; then
+    if (( num_of_records != input_batch_records )); then
+      exec 1>&2
+      cat << HEREDOC
+
+Error! The actual number of records $num_of_records differs from the expected number $input_batch_records.
+The failed Cypher query:
+=====
+$cypher_query
+=====
+
+cypher-shell output:
+=====
+$cypher_shell_output
+=====
+HEREDOC
+      exit 1
+    fi
+  fi
+
   ((processed_records += num_of_records))
   local -i elapsed_ms=$((batch_end_time - START_TIME))
   if ((processed_records < INPUT_NUM_REC)); then
@@ -273,8 +287,7 @@ if [[ "$ASSERT_NUM_REC_EQUALITY" == true ]]; then
     ((num_of_records--)) || :
   fi
   if (( num_of_records != INPUT_NUM_REC )); then
-    exec 1>&2
-    echo "Error! The actual number of records $num_of_records differs from the expected number $INPUT_NUM_REC."
+    echo "Error! The total actual number of records $num_of_records differs from the expected number $INPUT_NUM_REC." >&2
     exit 1
   fi
 fi
