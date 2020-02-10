@@ -248,18 +248,18 @@ HEREDOC
     local -i difference=$((num_of_records - expected_batch_records))
     # ${difference#-}: abs(difference)
     if [[ ${difference#-} -gt 1 ]]; then
-      exec 1>&2
+#      exec 1>&2
       cat << HEREDOC
-  Error! The actual number of records differs from the expected number ($expected_batch_records) for more than 1 record.
-  The failed Cypher query:
-  =====
-  $cypher_query
-  =====
+Error! The actual number of records differs from the expected number ($expected_batch_records) for more than 1 record.
+The failed Cypher query:
+=====
+$cypher_query
+=====
 
-  cypher-shell output:
-  =====
-  $cypher_shell_output
-  =====
+cypher-shell output:
+=====
+$cypher_shell_output
+=====
 HEREDOC
       exit 1
     fi

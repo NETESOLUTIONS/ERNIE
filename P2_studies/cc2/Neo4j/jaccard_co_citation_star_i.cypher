@@ -4,7 +4,7 @@
 // 100 pairs: 7.13s ()
 WITH $JDBC_conn_string AS db, $sql_query AS sql
 CALL apoc.load.jdbc(db, sql) YIELD row
-MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
+OPTIONAL MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
 WITH
   count(Nxy) AS intersect_size, row.cited_1 AS x_scp, row.cited_2 AS y_scp
 OPTIONAL MATCH (x:Publication {node_id: x_scp})<--(Nx:Publication)
