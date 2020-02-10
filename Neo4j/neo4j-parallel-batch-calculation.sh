@@ -272,7 +272,7 @@ export -f process_batch
 
 rm -f "$OUTPUT_FILE"
 # Pipe input CSV (skipping the headers) and parse using `csvtool` which outputs pure comma-separated cells
-# Reserve 15% from job slots lest teh server gets starved for CPU and Neo4j gets overloaded and refuses connections
+# Reserve some job slots lest the server gets CPU-taxed until Neo4j starts timing out `cypher-shell` connections (in 5s)
 # FIXME a batch failure doesn't exit the process
 tail -n +2 "$INPUT_FILE" \
     | csvtool col 1- - \
