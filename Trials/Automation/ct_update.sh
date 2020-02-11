@@ -67,4 +67,4 @@ FETCH FIRST 10 ROWS ONLY;
 HEREDOC
 
 # Clean the uploaded files out
-rm -rf ${work_dir}/nct_files
+# rm -rf ${work_dir}/nct_files
