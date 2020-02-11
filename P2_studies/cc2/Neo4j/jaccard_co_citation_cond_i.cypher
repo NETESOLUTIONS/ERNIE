@@ -1,6 +1,5 @@
 // Jaccard Co-Citation Conditional (<= first_co_citation_year) Index
 UNWIND $input_data AS row
-CALL apoc.load.jdbc(db, sql) YIELD row
 OPTIONAL MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
   WHERE Nxy.pub_year <= row.first_co_cited_year
 WITH
