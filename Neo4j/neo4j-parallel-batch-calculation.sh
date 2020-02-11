@@ -272,11 +272,12 @@ export -f process_batch
 
 rm -f "$OUTPUT_FILE"
 # Pipe input CSV (skipping the headers) and parse using `csvtool` which outputs pure comma-separated cells
-# Reserve some job slots lest the server gets CPU-taxed until Neo4j starts timing out `cypher-shell` connections (in 5s)
+# TBD Reserve some job slots lest the server gets CPU-taxed until Neo4j starts timing out `cypher-shell` connections (in 5s)
 tail -n +2 "$INPUT_FILE" \
     | csvtool col 1- - \
-    | parallel --jobs 75% --pipe --block "$BATCH_SIZE" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
+    | parallel --pipe --block "$BATCH_SIZE" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
         'process_batch {#}'
+# --jobs 75%
 # TODO --halt soon,fail=1 does not terminate on failures
 # TODO --tagstring '|job#{#} s#{%}|' reports slot # always as 1 with --pipe
 
