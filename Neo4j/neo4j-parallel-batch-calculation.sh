@@ -277,8 +277,8 @@ tail -n +2 "$INPUT_FILE" \
     | csvtool col 1- - \
     | parallel --jobs -1 --pipe --block "$BATCH_SIZE" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
         'process_batch {#}'
-# TODO --halt soon,fail=1 does not terminate on failures
-# TODO --tagstring '|job#{#} s#{%}|' reports slot # always as 1 with --pipe
+# TODO report: --halt soon,fail=1 does not terminate on failures
+# TODO report: --tagstring '|job#{#} s#{%}|' reports slot # always as 1 with --pipe
 
 if [[ "$ASSERT_NUM_REC_EQUALITY" == true ]]; then
   declare -i num_of_recs
