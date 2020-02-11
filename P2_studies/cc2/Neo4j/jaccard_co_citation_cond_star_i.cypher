@@ -1,8 +1,5 @@
 // Jaccard Co-Citation* Conditional (<= first_co_citation_year) Index
-// 100 pairs: 1.3-2.6-4.3s (732 records/min)
-// *200 pairs: 3.0-5.0s-6.1s (851 records/min)*
-// 400 pairs: 6.1-12.0s-21.2s
-WITH $JDBC_conn_string AS db, $sql_query AS sql
+UNWIND $input_data AS row
 CALL apoc.load.jdbc(db, sql) YIELD row
 OPTIONAL MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
   WHERE Nxy.pub_year <= row.first_co_cited_year

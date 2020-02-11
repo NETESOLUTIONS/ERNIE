@@ -1,10 +1,5 @@
 // Theta-Omega Index
-// 10 pairs: 2.7s
-// 20 pairs: 1.8s-72s
-// 25 pairs: 11.0s
-// *30 pairs: 5.0-8.0s*
-// 40 pairs: 129.4s
-WITH $JDBC_conn_string AS db, $sql_query AS sql
+UNWIND $input_data AS row
 CALL apoc.load.jdbc(db, sql) YIELD row
 OPTIONAL MATCH (x:Publication {node_id: row.cited_1})<--(Nx:Publication)
   WHERE Nx.pub_year <= row.first_co_cited_year

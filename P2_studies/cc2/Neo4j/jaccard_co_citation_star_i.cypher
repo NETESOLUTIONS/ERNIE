@@ -1,8 +1,5 @@
 // Jaccard Co-Citation* Index
-// 50 pairs: 2.20s
-// *75 pairs: 1.56s*
-// 100 pairs: 7.13s ()
-WITH $JDBC_conn_string AS db, $sql_query AS sql
+UNWIND $input_data AS row
 CALL apoc.load.jdbc(db, sql) YIELD row
 OPTIONAL MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
 WITH
