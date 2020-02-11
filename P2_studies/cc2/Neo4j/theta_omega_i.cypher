@@ -1,6 +1,5 @@
 // Theta-Omega Index
 UNWIND $input_data AS row
-CALL apoc.load.jdbc(db, sql) YIELD row
 OPTIONAL MATCH (x:Publication {node_id: row.cited_1})<--(Nx:Publication)
   WHERE Nx.pub_year <= row.first_co_cited_year
 WITH count(Nx) AS nx_size, row.first_co_cited_year AS f_c_c_y, row.cited_1 AS x_scp, row.cited_2 AS y_scp
