@@ -1,18 +1,16 @@
-/*
-Jaccard Co-Citation Conditional (<= first_co_citation_year) Index
-
-# Let fccy = min(co-citing paper publication year)
-# Let X = the set of publications that cite x and published in a year <= fccy
-# Let Y = the set of publications that cite y and published in a year <= fccy
-# Let XY = X * Y (that is, the intersection)
-# Then Jaccard Co-Citation Conditional Index = |XY| / (|X| + |Y| - |XY|)
-*/
+// Jaccard Co-Citation Conditional (<= first_co_citation_year) Index
 UNWIND $input_data AS row
-OPTIONAL MATCH (x:Publication {node_id: row.cited_1})<--(X:Publication)
-  WHERE X.pub_year <= row.first_co_cited_year
-OPTIONAL MATCH (y:Publication {node_id: row.cited_2})<--(Y:Publication)
-  WHERE Y.pub_year <= row.first_co_cited_year
-OPTIONAL MATCH (XY:Publication)
-  WHERE XY.node_id = X.node_id AND XY.node_id = Y.node_id
-RETURN row.cited_1 AS cited_1, row.cited_2 AS cited_2,
-       toFloat(count(XY)) / (count(X) + count(Y) - count(XY)) AS jaccard_co_citation_conditional_index;
+OPTIONAL MATCH (x:Publication {node_id: row.cited_1})<--(Nxy)-->(y:Publication {node_id: row.cited_2})
+  WHERE Nxy.pub_year <= row.first_co_cited_year
+WITH
+  count(Nxy) AS intersect_size, row.first_co_cited_year AS first_co_citation_year, row.cited_1 AS x_scp,
+  row.cited_2 AS y_scp
+OPTIONAL MATCH (x:Publication {node_id: x_scp})<--(Nx:Publication)
+  WHERE Nx.pub_year <= first_co_citation_year
+WITH collect(Nx) AS nx_list, intersect_size, first_co_citation_year, x_scp, y_scp
+OPTIONAL MATCH (y:Publication {node_id: y_scp})<--(Ny:Publication)
+  WHERE Ny.pub_year <= first_co_citation_year
+WITH nx_list + collect(Ny) AS union_list, intersect_size, x_scp, y_scp
+UNWIND union_list AS union_node
+RETURN x_scp AS cited_1, y_scp AS cited_2,
+       toFloat(intersect_size) / count(DISTINCT union_node) AS jaccard_co_citation_conditional_index;
