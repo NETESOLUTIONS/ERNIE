@@ -276,7 +276,7 @@ rm -f "$OUTPUT_FILE"
 # FIXME a batch failure doesn't exit the process
 tail -n +2 "$INPUT_FILE" \
     | csvtool col 1- - \
-    | parallel --jobs 75% --pipe --block "$BATCH_SIZE" --halt soon,fail=1 --line-buffer --tagstring '|job#{#}|' \
+    | parallel --jobs 75% --pipe --block "$BATCH_SIZE" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
         'process_batch {#}'
 # TODO --tagstring '|job#{#} s#{%}|' reports slot # always as 1 with --pipe
 
