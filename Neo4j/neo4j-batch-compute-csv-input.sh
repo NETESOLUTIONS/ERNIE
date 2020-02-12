@@ -21,7 +21,8 @@ DESCRIPTION
                             # a header row (no quotes)
                             # a trailing EOL in the last record line
 
-    output_CSV_file       Written as an RFC 4180-compliant CSV (with EOLs set to `\n`) containing a header row
+    output_CSV_file       Written as an RFC 4180-compliant CSV (with EOLs set to `\n`) containing a header row.
+                          Temporary CSV files are written into the same directory.
 
     Cypher_query_file     A file containing a Cypher query to execute which uses the `$input_data` array.
                           TODO The query should not contain embedded double quotes.
@@ -105,16 +106,23 @@ done
 [[ $VERBOSE_MODE == true ]] && set -x
 
 declare -rx INPUT_FILE="$1"
-declare -rx OUTPUT_FILE="$2"
+declare -x output_file="$2"
+if [[ "${output_file}" != */* ]]; then
+  output_file=./${output_file}
+fi
+# Remove shortest /* suffix
+declare -rx OUTPUT_DIR=${output_file%/*}
 declare -rx CYPHER_QUERY_FILE="$3"
 
 declare -rxi INPUT_RECS=$(($(wc --lines < "$INPUT_FILE") - 1))
-echo -e "\nCalculating via ${CYPHER_QUERY_FILE}, $INPUT_FILE => $OUTPUT_FILE"
+echo -e "\nCalculating via ${CYPHER_QUERY_FILE}, $INPUT_FILE => $output_file"
 echo -n "The input number of records = $INPUT_RECS"
 if [[ $4 ]]; then
   declare -rxi BATCH_SIZE_REC=$4
   echo -n ", batch size: $BATCH_SIZE_REC"
-  declare -xi expected_batches=$((INPUT_RECS / BATCH_SIZE_REC))
+  declare -rx ADJUSTMENT_PERCENT=115
+  # Adjust expectations because GNU Parallel chops unevenly and we end up with a larger number of batches
+  declare -xi expected_batches=$((INPUT_RECS * ADJUSTMENT_PERCENT / (BATCH_SIZE_REC * 100) )
   if ((INPUT_RECS % BATCH_SIZE_REC > 0)); then
     ((expected_batches++))
   fi
@@ -157,10 +165,10 @@ process_batch() {
   # Parse a comma-separated list into an array
   IFS="," read -ra INPUT_COLUMNS <<< "${INPUT_COLUMN_LIST}"
   readonly INPUT_COLUMNS
-  local -i appr_processed_records=$(((batch_num - 1) * BATCH_SIZE_REC))
+  local -i appr_processed_records=$(((batch_num - 1) * BATCH_SIZE_REC * 100 / ADJUSTMENT_PERCENT))
 
   # Note: these files should be written to and owned by the `neo4j` user, hence can't use `mktemp`
-  local -r BATCH_OUTPUT="/tmp/$$-batch-$batch_num.csv"
+  local -r BATCH_OUTPUT="$OUTPUT_DIR/$$-batch-$batch_num.csv"
 
   local -i batch_start_time batch_end_time delta_ms delta_s
   # Epoch time + milliseconds
@@ -221,19 +229,19 @@ HEREDOC
     # Exclude CSV header
     ((num_of_recs--)) || :
   fi
-  if [[ ! -s "$OUTPUT_FILE" ]]; then
+  if [[ ! -s "$output_file" ]]; then
     # Copy headers to an output file owned by the current user
-    head -1 "$BATCH_OUTPUT" > "$OUTPUT_FILE"
+    head -1 "$BATCH_OUTPUT" > "$output_file"
   fi
 
   if [[ $BATCH_SIZE_REC ]]; then
     echo -n "Batch #${batch_num}/≈${expected_batches}: "
   fi
   # Appending with a write-lock to prevent corruption during concatenation in parallel
-  # shellcheck disable=SC2094 # flock doesn't write to $OUTPUT_FILE, just locks it
-  flock "$OUTPUT_FILE" tail -n +2 < "$BATCH_OUTPUT" >> "$OUTPUT_FILE"
+  # shellcheck disable=SC2094 # flock doesn't write to $output_file, just locks it
+  flock "$output_file" tail -n +2 < "$BATCH_OUTPUT" >> "$output_file"
   if [[ "$VERBOSE_MODE" == true ]]; then
-    echo "Total records in the output file: $(($(wc --lines < "$OUTPUT_FILE") - 1))"
+    echo "Total records in the output file: $(($(wc --lines < "$output_file") - 1))"
   fi
 
   batch_end_time=$(date +%s%3N)
@@ -270,11 +278,11 @@ HEREDOC
   # When performing calculations `/` will truncate the result and should be done last
   printf " ETA ≈ %s at ≈ %.1f records/min overall.\n" \
       "$(TZ=America/New_York date --date=@$(((START_TIME + est_total_time_ms) / 1000)))" \
-      "$((10 ** 9 * appr_processed_records * 1000 * 60 / elapsed_ms))e-9"
+      "$((10 ** 8 * appr_processed_records * 1000 * 60 / elapsed_ms))e-8"
 }
 export -f process_batch
 
-rm -f "$OUTPUT_FILE"
+rm -f "$output_file"
 # Pipe input CSV (skipping the headers) and
 
 # TBD Reserve 1 job slot lest the server gets CPU-taxed until Neo4j starts timing out `cypher-shell` connections (in 5s)
@@ -288,7 +296,7 @@ tail -n +2 "$INPUT_FILE" \
 
 if [[ "$ASSERT_NUM_REC_EQUALITY" == true ]]; then
   declare -i num_of_recs
-  num_of_recs=$(wc --lines < "$OUTPUT_FILE")
+  num_of_recs=$(wc --lines < "$output_file")
   if ((num_of_recs > 0)); then
     # Exclude CSV header
     ((num_of_recs--)) || :
