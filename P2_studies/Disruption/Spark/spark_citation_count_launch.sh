@@ -41,4 +41,4 @@ sudo /usr/bin/anaconda/bin/conda install -y --debug psycopg2
 # Next run PySpark calculations
 $SPARK_HOME/bin/spark-submit --driver-memory 15g --executor-memory 25G --num-executors 8 --executor-cores 4 \
   --driver-class-path $(pwd)/postgresql-42.2.6.jar --jars $(pwd)/postgresql-42.2.6.jar \
-  ./hazen_calculations.py -ph ${POSTGRES_HOSTNAME} -pd ${POSTGRES_DATABASE} -U ${POSTGRES_USER} -W "${POSTGRES_PASSWORD}"
+  ./citation_counts_accumulated_first_8_years.py -ph ${POSTGRES_HOSTNAME} -pd ${POSTGRES_DATABASE} -U ${POSTGRES_USER} -W "${POSTGRES_PASSWORD}"
