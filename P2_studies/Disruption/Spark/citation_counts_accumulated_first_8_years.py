@@ -73,11 +73,11 @@ if __name__ == "__main__":
                                     SELECT c.*, d.pub_year AS scp_pub_year  
                                         FROM (
                                             SELECT a.scp, a.ref_sgr, b.pub_year AS ref_pub_year
-                                                 FROM ernie.public.scopus_references a
-                                                 INNER JOIN ernie.public.scopus_publication_groups b
+                                                 FROM scopus_references a
+                                                 INNER JOIN scopus_publication_groups b
                                                  ON a.ref_sgr = b.sgr
                                              ) c
-                                        LEFT JOIN ernie.public.scopus_publication_groups d
+                                        LEFT JOIN scopus_publication_groups d
                                         ON c.scp = d.sgr
                                         WHERE d.pub_year - c.ref_pub_year <= 8
 
