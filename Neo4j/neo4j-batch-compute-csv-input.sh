@@ -3,12 +3,12 @@ if [[ $# -lt 4 || "$1" == "-h" ]]; then
   cat << 'HEREDOC'
 NAME
 
-    neo4j-parallel-batch-calculation.sh -- perform calculations in batches via a Cypher query and export results
+    neo4j-batch-compute-csv-input.sh -- perform calculations in batches via a Cypher query and export results
 
 SYNOPSIS
 
-    neo4j-parallel-batch-calculation.sh [-ae] [-v] input_CSV_file output_CSV_file Cypher_query_file [appr_batch_size]
-    neo4j-parallel-batch-calculation.sh -h: display this help
+    neo4j-batch-compute-csv-input.sh [-ae] [-v] input_CSV_file output_CSV_file Cypher_query_file [appr_batch_size]
+    neo4j-batch-compute-csv-input.sh -h: display this help
 
 DESCRIPTION
 
@@ -17,10 +17,9 @@ DESCRIPTION
     The following options are available:
 
     input_CSV_file        An RFC 4180-compliant CSV file (with EOLs set to `\n`) containing:
-                            # all numeric (integer or float) columns
-                            # a header row
+                            # all numeric (integer or float) columns (no quotes)
+                            # a header row (no quotes)
                             # a trailing EOL in the last record line
-                            # Future: no embedded commas in string columns
 
     output_CSV_file       Written as an RFC 4180-compliant CSV (with EOLs set to `\n`) containing a header row
 
@@ -83,6 +82,11 @@ fi
 set -e
 set -o pipefail
 
+if ! command -v parallel >/dev/null; then
+  echo "Please install GNU Parallel"
+  exit 1
+fi
+
 while (($# > 0)); do
   case "$1" in
     -ae)
@@ -124,8 +128,8 @@ else
   echo ""
 fi
 declare -x INPUT_COLUMN_LIST
-# Parse headers using `csvtool` which outputs pure comma-separated cells
-INPUT_COLUMN_LIST=$(csvtool head 1 "$INPUT_FILE")
+# Parse headers
+INPUT_COLUMN_LIST=$(head -1 "$INPUT_FILE")
 readonly INPUT_COLUMN_LIST
 echo -e "Input columns: ${INPUT_COLUMN_LIST[*]}\n"
 
@@ -271,14 +275,16 @@ HEREDOC
 export -f process_batch
 
 rm -f "$OUTPUT_FILE"
-# Pipe input CSV (skipping the headers) and parse using `csvtool` which outputs pure comma-separated cells
+# Pipe input CSV (skipping the headers) and
+
 # TBD Reserve 1 job slot lest the server gets CPU-taxed until Neo4j starts timing out `cypher-shell` connections (in 5s)
 tail -n +2 "$INPUT_FILE" \
-    | csvtool col 1- - \
     | parallel --jobs -1 --pipe --block "$BATCH_SIZE" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
         'process_batch {#}'
-# TODO report: --halt soon,fail=1 does not terminate on failures
-# TODO report: --tagstring '|job#{#} s#{%}|' reports slot # always as 1 with --pipe
+# TODO report. --halt soon,fail=1 does not terminate on failures
+# TODO report. --tagstring '|job#{#} s#{%}|' reports slot # always as 1 with --pipe
+# TODO report. CSV streaming parsing using `| csvtool col 1- -` fails on a very large file (97 Mb, 4M rows)
+
 
 if [[ "$ASSERT_NUM_REC_EQUALITY" == true ]]; then
   declare -i num_of_recs
