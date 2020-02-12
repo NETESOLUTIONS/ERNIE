@@ -69,7 +69,7 @@ if __name__ == "__main__":
     # Salvage data in the cited_source_uid column where possible by prepending 'WOS:' to those IDs which are simply chains of numbers via a CASE statement
 
     citation_counts=spark.sql('''
-                                SELECT scp, scp_pub_year, COUNT(*) FROM (
+                                SELECT scp, scp_pub_year, COUNT(*) AS citation_count FROM (
                                     SELECT c.*, d.pub_year AS scp_pub_year  
                                         FROM (
                                             SELECT a.scp, a.ref_sgr, b.pub_year AS ref_pub_year
