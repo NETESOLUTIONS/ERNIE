@@ -82,7 +82,7 @@ if [[ "$2" == "f1000_disruption.sql" ]]; then
 ",k6_2,k7_2,k8_2,k9_2,k10_2,k11_2,j1_1,j2_1,j3_1,j4_1,j5_1,j6_1,j7_1,j8_1,j9_1,j10_1,j11_1,j1_2,j2_2,j3_2,j4_2,j5_2,j6_2,"\
 "j7_2,j8_2,j9_2,j10_2,j11_2" >"${OUTPUT_FILE}"
 elif [[ "$2" == "scientometrics_disruption_ad_hoc.sql" ]]; then
-    echo "focal_paper_id,i,new_i"
+    echo "focal_paper_id,i,new_i" >"${OUTPUT_FILE}"
 else
     echo "focal_paper_id,i,orig_j,orig_k,new_j,new_j1_1,new_j2_1,new_j3_1,new_j4_1,new_j5_1,new_j6_1,new_j7_1,new_j8_1,"\
 "new_j9_1,new_j10_1,new_j11_1,new_j1_2,new_j2_2,new_j3_2,new_j4_2,new_j5_2,new_j6_2,new_j7_2,new_j8_2,new_j9_2,new_j10_2,"\
