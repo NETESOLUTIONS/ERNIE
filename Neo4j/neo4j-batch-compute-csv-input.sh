@@ -233,8 +233,9 @@ process_batch() {
     exit 0
   fi
   readonly STOP_FILE_NAME="${OUTPUT_FILE_NAME}.stop"
-  if [[ -f $STOP_FILE_NAME ]]; then
+  if [[ -f "$STOP_FILE_NAME" ]]; then
     echo "Found the stop file: $OUTPUT_DIR/$STOP_FILE_NAME. Stopping the process ..."
+    rm -f "$STOP_FILE_NAME"
     exit 1
   fi
 
