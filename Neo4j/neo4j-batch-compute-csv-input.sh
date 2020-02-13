@@ -237,18 +237,19 @@ process_batch() {
     echo -n "Batch #${batch_num}/≈${expected_batches}: "
   fi
 
+  readonly STOP_FILE_NAME="${OUTPUT_FILE_NAME}.stop"
+  if [[ -f "$STOP_FILE_NAME" ]]; then
+    echo "found the stop file: $OUTPUT_DIR/$STOP_FILE_NAME. Stopping the process..."
+    rm -f "$STOP_FILE_NAME"
+    exit 1
+  fi
+
   # Note: these files should be written to and owned by the `neo4j` user, hence can't use `mktemp`.
   # The path should be absolute for a Neo4j server to write to it.
   local -r BATCH_OUTPUT="$OUTPUT_DIR/$OUTPUT_FILE_NAME-batch-$batch_num.csv"
   if [[ -s ${BATCH_OUTPUT} ]]; then
     echo "SKIPPED (already generated)."
     exit 0
-  fi
-  readonly STOP_FILE_NAME="${OUTPUT_FILE_NAME}.stop"
-  if [[ -f "$STOP_FILE_NAME" ]]; then
-    echo "found the stop file: $OUTPUT_DIR/$STOP_FILE_NAME. Stopping the process..."
-    rm -f "$STOP_FILE_NAME"
-    exit 1
   fi
 
   local -a INPUT_COLUMNS
