@@ -7,12 +7,13 @@ NAME
 
 SYNOPSIS
 
-    neo4j-batch-compute-csv-input.sh [-ae] [-v] input_CSV_file output_CSV_file Cypher_query_file [appr_batch_size]
+    neo4j-batch-compute-csv-input.sh [-c] [-ae] [-v] input_CSV_file output_CSV_file Cypher_query_file [appr_batch_size]
     neo4j-batch-compute-csv-input.sh -h: display this help
 
 DESCRIPTION
 
-    Perform calculations via `Cypher_query` in batches. Export results to a CSV.
+    Perform calculations via Cyoher in batches. Export results to a CSV. The process can be gracefully stopped by
+    creating (e.g. via `touch`) a file `{output_dir}/{output_CSV_file_name}.stop`.
 
     The following options are available:
 
@@ -24,6 +25,8 @@ DESCRIPTION
     output_CSV_file       Written as an RFC 4180-compliant CSV (with EOLs set to `\n`) containing a header row.
                           Temporary CSV files are written into the same directory.
 
+                          WARNING: Without clean start option, the output file, if exists, will be appended to.
+
     Cypher_query_file     A file containing a Cypher query to execute which uses the `$input_data` array.
                           TODO The query should not contain embedded double quotes.
 
@@ -33,6 +36,10 @@ DESCRIPTION
     appr_batch_size       An approximate number of records per batch.
                           If the number of input records > `appr_batch_size`, process in parallel in batches.
                           Batches are sliced by GNU Parallel in bytes.
+
+    -c                    Clean start. The process normally resumes after failures, skipping over already generated
+                          batches and appending to the output. Clean start would remove already generated batches
+                          and the output first.
 
     -ae                   Assert that:
                             1. The number of output records per batch = the number of batch input records.
@@ -90,6 +97,9 @@ fi
 
 while (($# > 0)); do
   case "$1" in
+    -c)
+      readonly CLEAN_START=true
+      ;;
     -ae)
       readonly ASSERT_NUM_REC_EQUALITY=true
       ;;
@@ -107,6 +117,16 @@ done
 
 declare -rx INPUT_FILE="$1"
 declare -x output_file="$2"
+# Remove longest */ prefix
+declare output_file_name_with_ext=${output_file##*/}
+
+if [[ "${output_file_name_with_ext}" != *.* ]]; then
+  output_file_name_with_ext=${output_file_name_with_ext}.
+fi
+
+# Remove shortest .* suffix
+declare -rx OUTPUT_FILE_NAME=${output_file_name_with_ext%.*}
+
 if [[ "${output_file}" != */* ]]; then
   output_file=./${output_file}
 fi
@@ -161,15 +181,23 @@ process_batch() {
   [[ $VERBOSE_MODE == true ]] && set -x
 
   local -ri batch_num=$1
+  # Note: these files should be written to and owned by the `neo4j` user, hence can't use `mktemp`
+  local -r BATCH_OUTPUT="$OUTPUT_FILE_NAME-batch-$batch_num.csv"
+  if [[ -s ${BATCH_OUTPUT} ]]; then
+    echo "Batch #${batch_num}/≈${expected_batches}: SKIPPED (already generated)."
+    exit 0
+  fi
+  readonly $STOP_FILE_NAME="${OUTPUT_FILE_NAME}.stop"
+  if [[ -f $STOP_FILE_NAME ]]; then
+    echo "Found the stop file: $OUTPUT_DIR/$STOP_FILE_NAME. Stopping the process ..."
+    exit 1
+  fi
+
   local -a INPUT_COLUMNS
   # Parse a comma-separated list into an array
   IFS="," read -ra INPUT_COLUMNS <<< "${INPUT_COLUMN_LIST}"
   readonly INPUT_COLUMNS
   local -i appr_processed_records=$(((batch_num - 1) * BATCH_SIZE_REC * 100 / ADJUSTMENT_PERCENT))
-
-  # Note: these files should be written to and owned by the `neo4j` user, hence can't use `mktemp`
-  local -r BATCH_OUTPUT="$OUTPUT_DIR/$$-batch-$batch_num.csv"
-
   local -i batch_start_time batch_end_time delta_ms delta_s
   # Epoch time + milliseconds
   batch_start_time=$(date +%s%3N)
@@ -282,17 +310,20 @@ HEREDOC
 }
 export -f process_batch
 
-rm -f "$output_file"
-# Pipe input CSV (skipping the headers) and
+cd "$OUTPUT_DIR"
+if [[ $ClEAN_MODE == true ]]; then
+  echo "Cleaning previously generated output"
+  ls | grep -E "${OUTPUT_FILE_NAME}.*\.csv$" | xargs -I '{}' rm -fv {}
+fi
 
-# TBD Reserve 1 job slot lest the server gets CPU-taxed until Neo4j starts timing out `cypher-shell` connections (in 5s)
-tail -n +2 "$INPUT_FILE" \
-    | parallel --jobs -1 --pipe --block "$BATCH_SIZE" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
-        'process_batch {#}'
-# TODO report. --halt soon,fail=1 does not terminate on failures
-# TODO report. --tagstring '|job#{#} s#{%}|' reports slot # always as 1 with --pipe
+# Pipe input CSV (skipping the headers)
+# Reserve job slots lest the server gets CPU-taxed until Neo4j starts timing out `cypher-shell` connections (in 5s)
+# TODO report. With --pipe, --halt soon,fail=1 does not terminate on failures
+# TODO report. With --pipe, --tagstring '|job#{#} s#{%}|' reports slot # = 1 for all jobs
 # TODO report. CSV streaming parsing using `| csvtool col 1- -` fails on a very large file (97 Mb, 4M rows)
-
+tail -n +2 "$INPUT_FILE" \
+    | parallel --jobs -85% --pipe --block "$BATCH_SIZE" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
+        'process_batch {#}'
 
 if [[ "$ASSERT_NUM_REC_EQUALITY" == true ]]; then
   declare -i num_of_recs

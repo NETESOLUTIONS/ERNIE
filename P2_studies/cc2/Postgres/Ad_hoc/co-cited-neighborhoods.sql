@@ -1,3 +1,7 @@
+SELECT *
+  FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
+ WHERE (cited_1, cited_2) = (4532, 320221);
+
 -- 9.3s-1m:07s
 SELECT cited_1, cited_2, first_co_cited_year
   FROM cc2.ten_year_cocit_union_freq11_freqsum_bins
