@@ -322,7 +322,7 @@ fi
 # TODO report. With --pipe, --tagstring '|job#{#} s#{%}|' reports slot # = 1 for all jobs
 # TODO report. CSV streaming parsing using `| csvtool col 1- -` fails on a very large file (97 Mb, 4M rows)
 tail -n +2 "$INPUT_FILE" \
-    | parallel --jobs -85% --pipe --block "$BATCH_SIZE" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
+    | parallel --jobs 85% --pipe --block "$BATCH_SIZE" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
         'process_batch {#}'
 
 if [[ "$ASSERT_NUM_REC_EQUALITY" == true ]]; then
