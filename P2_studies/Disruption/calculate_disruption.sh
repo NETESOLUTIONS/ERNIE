@@ -70,8 +70,8 @@ process_focal_paper() {
 
     echo "Processing ${focal_paper} in year ${focal_paper_year} from table ${table}..."
     psql --quiet --tuples-only --no-align --field-separator=, -f "${ABSOLUTE_SCRIPT_DIR}/${INPUT_FILE}" \
-        -v pub_id="${input}" -v table_name="${table}" >>"${OUTPUT_FILE}"
-    echo "${input}: done."
+        -v pub_id="${focal_paper}" -v table_name="${table}" >>"${OUTPUT_FILE}"
+    echo "${focal_paper}: done."
   else
     echo "Processing ${input} ..."
     psql --quiet --tuples-only --no-align --field-separator=, -f "${ABSOLUTE_SCRIPT_DIR}/${INPUT_FILE}" \
