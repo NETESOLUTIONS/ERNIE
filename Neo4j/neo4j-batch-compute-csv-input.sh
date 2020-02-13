@@ -379,7 +379,7 @@ fi
 # TODO report. CSV streaming parsing using `| csvtool col 1- -` fails on a very large file (97 Mb, 4M rows)
 echo -e "\nStarting batch computation..."
 tail -n +2 "$ABSOLUTE_INPUT_FILE" \
-    | parallel --jobs 85% --pipe --block "$batch_size" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
+    | parallel --jobs 75% --pipe --block "$batch_size" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
         'process_batch {#}'
 
 if [[ "$ASSERT_NUM_REC_EQUALITY" == true ]]; then
