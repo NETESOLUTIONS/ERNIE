@@ -64,9 +64,13 @@ process_focal_paper() {
         -v pub_id="${input}" >>"${OUTPUT_FILE}"
     echo "${input}: done."
   elif [[ "${INPUT_FILE}" == "scientometrics_disruption_ad_hoc.sql" ]]; then
+    focal_paper=$(echo ${input} | cut -d ',' -f 1)
+    focal_paper_year=$(echo ${input} | cut -d ',' -f 2)
+    table="citing_scientometrics_"${focal_paper_year}
+
     echo "Processing ${input} ..."
     psql --quiet --tuples-only --no-align --field-separator=, -f "${ABSOLUTE_SCRIPT_DIR}/${INPUT_FILE}" \
-        -v pub_id="${input}" -v table_name="${TABLE_NAME}" >>"${OUTPUT_FILE}"
+        -v pub_id="${input}" -v table_name="${table}" >>"${OUTPUT_FILE}"
     echo "${input}: done."
   else
     echo "Processing ${input} ..."
