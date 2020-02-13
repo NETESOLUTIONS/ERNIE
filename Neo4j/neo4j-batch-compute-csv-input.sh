@@ -178,7 +178,7 @@ if [[ $4 ]]; then
   echo -e ", expected batches ≈ $expected_batches"
 
   # Retrieve the first batch by the number of records (exclude the header) and use its size as the batch size
-  readonly BATCH_1=$(cat <(tail -n +2 "$INPUT_FILE" | head -"$BATCH_SIZE_REC"))
+  readonly BATCH_1=$(cat <(tail -n +2 "$ABSOLUTE_INPUT_FILE" | head -"$BATCH_SIZE_REC"))
   readonly BATCH_SIZE=${#BATCH_1}
 else
   declare -rxi expected_batches=1
@@ -186,7 +186,7 @@ else
 fi
 declare -x INPUT_COLUMN_LIST
 # Parse headers
-INPUT_COLUMN_LIST=$(head -1 "$INPUT_FILE")
+INPUT_COLUMN_LIST=$(head -1 "$ABSOLUTE_INPUT_FILE")
 readonly INPUT_COLUMN_LIST
 echo -e "Input columns: ${INPUT_COLUMN_LIST[*]}\n"
 
