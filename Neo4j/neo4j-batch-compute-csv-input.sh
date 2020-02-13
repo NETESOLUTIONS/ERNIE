@@ -201,7 +201,7 @@ if [[ $4 ]]; then
   declare -i batch_size=${#BATCH_1}
 
   # Pad batch size by ADJUSTMENT_PERCENT because GNU Parallel chops batches unevenly, by the byte size
-  declare -rx ADJUSTMENT_PERCENT=110
+  declare -ri ADJUSTMENT_PERCENT=110
   (( batch_size = batch_size * ADJUSTMENT_PERCENT / 100 ))
 else
   declare -rxi expected_batches=1
@@ -255,7 +255,7 @@ process_batch() {
   # Parse a comma-separated list into an array
   IFS="," read -ra INPUT_COLUMNS <<< "${INPUT_COLUMN_LIST}"
   readonly INPUT_COLUMNS
-  local -i appr_processed_records=$(((batch_num - 1) * BATCH_SIZE_REC * 100 / ADJUSTMENT_PERCENT))
+  local -i appr_processed_records=$(( (batch_num - 1) * BATCH_SIZE_REC ))
   local -i batch_start_time batch_end_time delta_ms delta_s
   # Epoch time + milliseconds
   batch_start_time=$(date +%s%3N)
