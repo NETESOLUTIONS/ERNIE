@@ -319,6 +319,7 @@ def parse(input_filename):
         if len(contact_backup_full_name.split(" ")) == 2:
             row['contact_backup_first_name'] = contact_backup_full_name.split(" ")[0]
             row['contact_backup_last_name'] = contact_backup_full_name.split(" ")[1]
+            row['contact_backup_middle_name'] = 'Null'
         elif len(contact_backup_full_name.split(" ")) > 2:
             row['contact_backup_first_name'] = contact_backup_full_name.split(" ")[0]
             row['contact_backup_middle_name'] = contact_backup_full_name.split(" ")[1]
