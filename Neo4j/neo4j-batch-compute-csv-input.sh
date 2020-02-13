@@ -201,7 +201,7 @@ if [[ $4 ]]; then
   declare -i batch_size=${#BATCH_1}
 
   # Pad batch size by ADJUSTMENT_PERCENT because GNU Parallel chops batches unevenly, by the byte size
-  declare -ri ADJUSTMENT_PERCENT=120
+  declare -ri ADJUSTMENT_PERCENT=115
   (( batch_size = batch_size * ADJUSTMENT_PERCENT / 100 ))
 else
   declare -rxi expected_batches=1
