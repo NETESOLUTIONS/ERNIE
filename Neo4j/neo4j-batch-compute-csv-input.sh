@@ -38,8 +38,8 @@ DESCRIPTION
                           Batches are sliced by GNU Parallel in bytes.
 
     -c                    Clean start. The process normally resumes after failures, skipping over already generated
-                          batches and appending to the output. Clean start would remove already generated batches
-                          and the output first.
+                          batches and appending to the output. Clean start would remove leftover batches and the
+                          output first. This assumes that leftover batches if any are writeable by the current user.
 
     -ae                   Assert that:
                             1. The number of output records per batch = the number of batch input records.
@@ -119,7 +119,7 @@ done
 
 [[ $VERBOSE_MODE == true ]] && set -x
 
-#region Parse input file name
+#region Parse input filename
 declare -x input_file="$1"
 if [[ "${input_file}" != */* ]]; then
   input_file=./${input_file}
@@ -135,7 +135,7 @@ readonly ABSOLUTE_INPUT_DIR="$(cd ${INPUT_DIR} && pwd)"
 readonly ABSOLUTE_INPUT_FILE="${ABSOLUTE_INPUT_DIR}/${INPUT_NAME_WITH_EXT}"
 #endregion
 
-#region Parse output file name
+#region Parse output filename
 declare -x output_file="$2"
 # Remove longest */ prefix
 declare output_file_name_with_ext=${output_file##*/}
@@ -154,7 +154,7 @@ fi
 declare -rx OUTPUT_DIR=${output_file%/*}
 #endregion
 
-#region Parse input file name
+#region Parse input filename
 declare cypher_query_file="$3"
 
 if [[ "${cypher_query_file}" != */* ]]; then
@@ -315,8 +315,6 @@ HEREDOC
   # Appending with a write-lock to prevent corruption during concatenation in parallel
   # shellcheck disable=SC2094 # flock doesn't write to $output_file, just locks it
   flock "$output_file" tail -n +2 < "$BATCH_OUTPUT" >> "$output_file"
-  # Saving disk space
-  rm "$BATCH_OUTPUT"
 
   if [[ "$VERBOSE_MODE" == true ]]; then
     echo "Total records in the output file: $(($(wc --lines < "$output_file") - 1))"
