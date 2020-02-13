@@ -194,7 +194,7 @@ if [[ $4 ]]; then
 
   # Retrieve the first batch by the number of records (exclude the header) and use its size as the batch size
   readonly BATCH_1=$(cat <(tail -n +2 "$ABSOLUTE_INPUT_FILE" | head -"$BATCH_SIZE_REC"))
-  readonly BATCH_SIZE=${#BATCH_1}
+  declare -i BATCH_SIZE=${#BATCH_1}
 else
   declare -rxi expected_batches=1
   echo ""
@@ -356,7 +356,7 @@ HEREDOC
 }
 export -f process_batch
 
-if [[ $ClEAN_MODE == true ]]; then
+if [[ "$CLEAN_START" == true ]]; then
   echo "Cleaning previously generated output"
   ls | grep -E "${OUTPUT_FILE_NAME}.*\.csv$" | xargs -I '{}' rm -fv {}
 fi
