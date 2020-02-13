@@ -225,16 +225,20 @@ process_batch() {
   [[ $VERBOSE_MODE == true ]] && set -x
 
   local -ri batch_num=$1
+  if [[ $BATCH_SIZE_REC ]]; then
+    echo -n "Batch #${batch_num}/≈${expected_batches}: "
+  fi
+
   # Note: these files should be written to and owned by the `neo4j` user, hence can't use `mktemp`.
   # The path should be absolute for a Neo4j server to write to it.
   local -r BATCH_OUTPUT="$OUTPUT_DIR/$OUTPUT_FILE_NAME-batch-$batch_num.csv"
   if [[ -s ${BATCH_OUTPUT} ]]; then
-    echo "Batch #${batch_num}/≈${expected_batches}: SKIPPED (already generated)."
+    echo "SKIPPED (already generated)."
     exit 0
   fi
   readonly STOP_FILE_NAME="${OUTPUT_FILE_NAME}.stop"
   if [[ -f "$STOP_FILE_NAME" ]]; then
-    echo "Found the stop file: $OUTPUT_DIR/$STOP_FILE_NAME. Stopping the process ..."
+    echo "found the stop file: $OUTPUT_DIR/$STOP_FILE_NAME. Stopping the process..."
     rm -f "$STOP_FILE_NAME"
     exit 1
   fi
@@ -303,17 +307,17 @@ HEREDOC
     # Exclude CSV header
     ((num_of_recs--)) || :
   fi
+
   if [[ ! -s "$output_file" ]]; then
     # Copy headers to an output file owned by the current user
     head -1 "$BATCH_OUTPUT" > "$output_file"
   fi
-
-  if [[ $BATCH_SIZE_REC ]]; then
-    echo -n "Batch #${batch_num}/≈${expected_batches}: "
-  fi
   # Appending with a write-lock to prevent corruption during concatenation in parallel
   # shellcheck disable=SC2094 # flock doesn't write to $output_file, just locks it
   flock "$output_file" tail -n +2 < "$BATCH_OUTPUT" >> "$output_file"
+  # Saving disk space
+  rm "$BATCH_OUTPUT"
+
   if [[ "$VERBOSE_MODE" == true ]]; then
     echo "Total records in the output file: $(($(wc --lines < "$output_file") - 1))"
   fi
@@ -321,7 +325,6 @@ HEREDOC
   batch_end_time=$(date +%s%3N)
   ((delta_ms = batch_end_time - batch_start_time)) || :
   ((delta_s = delta_ms / 1000)) || :
-
   # When performing calculations `/` will truncate the result and should be done last
   printf "%d records exported in %dh:%02dm:%02d.%ds at %.1f records/min (this thread)." "$num_of_recs" \
       $((delta_s / 3600)) $(((delta_s / 60) % 60)) $((delta_s % 60)) $((delta_ms % 1000)) \
