@@ -179,7 +179,7 @@ cd "${OUTPUT_DIR}"
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
 declare -rxi INPUT_RECS=$(($(wc --lines < "$ABSOLUTE_INPUT_FILE") - 1))
-echo -e "\nCalculating via ${CYPHER_QUERY_FILE}, $ABSOLUTE_INPUT_FILE => $output_file"
+echo -e "\nCalculating via ${ABSOLUTE_CYPHER_FILE}, $ABSOLUTE_INPUT_FILE => $output_file"
 echo -n "The input number of records = $INPUT_RECS"
 if [[ $4 ]]; then
   declare -rxi BATCH_SIZE_REC=$4
@@ -225,8 +225,9 @@ process_batch() {
   [[ $VERBOSE_MODE == true ]] && set -x
 
   local -ri batch_num=$1
-  # Note: these files should be written to and owned by the `neo4j` user, hence can't use `mktemp`
-  local -r BATCH_OUTPUT="$OUTPUT_FILE_NAME-batch-$batch_num.csv"
+  # Note: these files should be written to and owned by the `neo4j` user, hence can't use `mktemp`.
+  # The path should be absolute for a Neo4j server to write to it.
+  local -r BATCH_OUTPUT="$OUTPUT_DIR/$OUTPUT_FILE_NAME-batch-$batch_num.csv"
   if [[ -s ${BATCH_OUTPUT} ]]; then
     echo "Batch #${batch_num}/≈${expected_batches}: SKIPPED (already generated)."
     exit 0
