@@ -359,7 +359,9 @@ export -f process_batch
 
 if [[ "$CLEAN_START" == true ]]; then
   echo "Cleaning previously generated output"
+  set +o pipefail
   ls | grep -E "${OUTPUT_FILE_NAME}.*\.csv$" | xargs -I '{}' rm -fv {}
+  set -o pipefail
 fi
 
 # Pipe input CSV (skipping the headers)
