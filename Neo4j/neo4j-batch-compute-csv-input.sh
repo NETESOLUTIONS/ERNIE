@@ -358,7 +358,7 @@ HEREDOC
 export -f process_batch
 
 if [[ "$CLEAN_START" == true ]]; then
-  echo "Cleaning previously generated output"
+  echo "Cleaning previously generated output if any"
   set +o pipefail
   ls | grep -E "${OUTPUT_FILE_NAME}.*\.csv$" | xargs -I '{}' rm -fv {}
   set -o pipefail
@@ -369,6 +369,7 @@ fi
 # TODO report. With --pipe, --halt soon,fail=1 does not terminate on failures
 # TODO report. With --pipe, --tagstring '|job#{#} s#{%}|' reports slot # = 1 for all jobs
 # TODO report. CSV streaming parsing using `| csvtool col 1- -` fails on a very large file (97 Mb, 4M rows)
+echo -e "\nStarting batch computation..."
 tail -n +2 "$ABSOLUTE_INPUT_FILE" \
     | parallel --jobs 85% --pipe --block "$BATCH_SIZE" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
         'process_batch {#}'
