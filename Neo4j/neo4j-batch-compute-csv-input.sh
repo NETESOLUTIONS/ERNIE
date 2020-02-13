@@ -120,16 +120,16 @@ done
 [[ $VERBOSE_MODE == true ]] && set -x
 
 #region Parse input file name
-declare -x INPUT_FILE="$1"
-if [[ "${INPUT_FILE}" != */* ]]; then
-  INPUT_FILE=./${INPUT_FILE}
+declare -x input_file="$1"
+if [[ "${input_file}" != */* ]]; then
+  input_file=./${input_file}
 fi
 # Remove shortest /* suffix
-readonly INPUT_DIR=${INPUT_FILE%/*}
+readonly INPUT_DIR=${input_file%/*}
 # dir = '.' for files in the current directory
 
 # Remove longest */ prefix
-readonly INPUT_NAME_WITH_EXT=${INPUT_FILE##*/}
+readonly INPUT_NAME_WITH_EXT=${input_file##*/}
 
 readonly ABSOLUTE_INPUT_DIR="$(cd ${INPUT_DIR} && pwd)"
 readonly ABSOLUTE_INPUT_FILE="${ABSOLUTE_INPUT_DIR}/${INPUT_NAME_WITH_EXT}"
@@ -154,7 +154,22 @@ fi
 declare -rx OUTPUT_DIR=${output_file%/*}
 #endregion
 
-declare -rx CYPHER_QUERY_FILE="$3"
+#region Parse input file name
+declare cypher_query_file="$3"
+
+if [[ "${cypher_query_file}" != */* ]]; then
+  cypher_query_file=./${cypher_query_file}
+fi
+# Remove shortest /* suffix
+readonly CYPHER_DIR=${cypher_query_file%/*}
+# dir = '.' for files in the current directory
+
+# Remove longest */ prefix
+readonly CYPHER_NAME_WITH_EXT=${cypher_query_file##*/}
+
+readonly ABSOLUTE_CYPHER_DIR="$(cd ${CYPHER_DIR} && pwd)"
+declare -rx ABSOLUTE_CYPHER_FILE="${ABSOLUTE_CYPHER_DIR}/${CYPHER_NAME_WITH_EXT}"
+#endregion
 
 if [[ ! -d "${OUTPUT_DIR}" ]]; then
   mkdir -p "${OUTPUT_DIR}"
@@ -216,7 +231,7 @@ process_batch() {
     echo "Batch #${batch_num}/≈${expected_batches}: SKIPPED (already generated)."
     exit 0
   fi
-  readonly $STOP_FILE_NAME="${OUTPUT_FILE_NAME}.stop"
+  readonly STOP_FILE_NAME="${OUTPUT_FILE_NAME}.stop"
   if [[ -f $STOP_FILE_NAME ]]; then
     echo "Found the stop file: $OUTPUT_DIR/$STOP_FILE_NAME. Stopping the process ..."
     exit 1
@@ -260,8 +275,8 @@ process_batch() {
   input_data_list="${input_data_list}${param_rows} ]"
 
   local cypher_query
-  cypher_query="CALL apoc.export.csv.query(\"$(cat "$CYPHER_QUERY_FILE")\", '$BATCH_OUTPUT',
-    {params: {input_data: $input_data_list}});"
+  cypher_query="CALL apoc.export.csv.query(\"$(cat "$ABSOLUTE_CYPHER_FILE")\", '$BATCH_OUTPUT',
+      {params: {input_data: $input_data_list}});"
 
   local cypher_shell_output
   if ! cypher_shell_output=$(echo "$cypher_query" | cypher-shell --encryption false); then
