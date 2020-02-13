@@ -190,7 +190,7 @@ if [[ $4 ]]; then
   declare -rxi BATCH_SIZE_REC=$4
   echo -n ", batch size: $BATCH_SIZE_REC"
 
-  declare -xi expected_batches=$((INPUT_RECS / BATCH_SIZE_REC)))
+  declare -xi expected_batches=$((INPUT_RECS / BATCH_SIZE_REC))
   if ((INPUT_RECS % BATCH_SIZE_REC > 0)); then
     ((expected_batches++))
   fi
@@ -202,7 +202,7 @@ if [[ $4 ]]; then
 
   # Pad batch size by ADJUSTMENT_PERCENT because GNU Parallel chops batches unevenly, by the byte size
   declare -rx ADJUSTMENT_PERCENT=110
-  (( batch_size*=ADJUSTMENT_PERCENT ))
+  (( batch_size = batch_size * ADJUSTMENT_PERCENT / 100 ))
 else
   declare -rxi expected_batches=1
   echo ""
