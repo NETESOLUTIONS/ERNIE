@@ -68,7 +68,7 @@ process_focal_paper() {
     focal_paper_year=$(echo ${input} | cut -d ',' -f 2)
     table="citing_scientometrics_"${focal_paper_year}
 
-    echo "Processing ${input} ..."
+    echo "Processing ${focal_paper} in year ${focal_paper_year} from table ${table}..."
     psql --quiet --tuples-only --no-align --field-separator=, -f "${ABSOLUTE_SCRIPT_DIR}/${INPUT_FILE}" \
         -v pub_id="${input}" -v table_name="${table}" >>"${OUTPUT_FILE}"
     echo "${input}: done."
