@@ -41,6 +41,11 @@ DESCRIPTION
                           batches and appending to the output. Clean start would remove leftover batches and the
                           output first. This assumes that leftover batches if any are writeable by the current user.
 
+                          WARNING: resume doesn't guarantee to produce clean results because GNU parallel `--halt now`
+                          terminates remaining jobs abnormally. `-ae` is recommended to use when resuming. If the
+                          total number of records in the output is not what's expected differences could be reconciled
+                          manually.
+
     -ae                   Assert that:
                             1. The number of output records per batch = the number of batch input records.
                             2. The total number of output records = the total number of input records.
@@ -369,7 +374,7 @@ fi
 
 # Pipe input CSV (skipping the headers)
 # Reserve job slots lest the server gets CPU-taxed until Neo4j starts timing out `cypher-shell` connections (in 5s)
-# TODO report. With --pipe, --halt soon,fail=1 does not terminate on failures
+# FIXME report. With --pipe, --halt soon,fail=1 does not terminate on failures
 # TODO report. With --pipe, --tagstring '|job#{#} s#{%}|' reports slot # = 1 for all jobs
 # TODO report. CSV streaming parsing using `| csvtool col 1- -` fails on a very large file (97 Mb, 4M rows)
 echo -e "\nStarting batch computation..."
