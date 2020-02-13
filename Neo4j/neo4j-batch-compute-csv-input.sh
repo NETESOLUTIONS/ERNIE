@@ -122,7 +122,7 @@ if [[ $4 ]]; then
   echo -n ", batch size: $BATCH_SIZE_REC"
   declare -rx ADJUSTMENT_PERCENT=125
   # Adjust expectations because GNU Parallel chops unevenly and we end up with a larger number of batches
-  declare -xi expected_batches=$((INPUT_RECS * ADJUSTMENT_PERCENT / (BATCH_SIZE_REC * 100) )
+  declare -xi expected_batches=$((INPUT_RECS * ADJUSTMENT_PERCENT / (BATCH_SIZE_REC * 100)))
   if ((INPUT_RECS % BATCH_SIZE_REC > 0)); then
     ((expected_batches++))
   fi
