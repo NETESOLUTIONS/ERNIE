@@ -307,4 +307,5 @@ if [[ "$ASSERT_NUM_REC_EQUALITY" == true ]]; then
   fi
 fi
 
+echo -e "\nBatch computation is DONE."
 exit 0
