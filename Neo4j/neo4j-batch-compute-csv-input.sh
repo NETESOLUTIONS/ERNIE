@@ -90,6 +90,10 @@ fi
 set -e
 set -o pipefail
 
+# Get a script directory, same as by $(dirname $0)
+readonly SCRIPT_DIR=${0%/*}
+readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
+
 if ! command -v parallel >/dev/null; then
   echo "Please install GNU Parallel"
   exit 1
@@ -115,7 +119,23 @@ done
 
 [[ $VERBOSE_MODE == true ]] && set -x
 
-declare -rx INPUT_FILE="$1"
+#region Parse input file name
+declare -x INPUT_FILE="$1"
+if [[ "${INPUT_FILE}" != */* ]]; then
+  INPUT_FILE=./${INPUT_FILE}
+fi
+# Remove shortest /* suffix
+readonly INPUT_DIR=${INPUT_FILE%/*}
+# dir = '.' for files in the current directory
+
+# Remove longest */ prefix
+readonly INPUT_NAME_WITH_EXT=${INPUT_FILE##*/}
+
+readonly ABSOLUTE_INPUT_DIR="$(cd ${INPUT_DIR} && pwd)"
+readonly ABSOLUTE_INPUT_FILE="${ABSOLUTE_INPUT_DIR}/${INPUT_NAME_WITH_EXT}"
+#endregion
+
+#region Parse output file name
 declare -x output_file="$2"
 # Remove longest */ prefix
 declare output_file_name_with_ext=${output_file##*/}
@@ -132,7 +152,16 @@ if [[ "${output_file}" != */* ]]; then
 fi
 # Remove shortest /* suffix
 declare -rx OUTPUT_DIR=${output_file%/*}
+#endregion
+
 declare -rx CYPHER_QUERY_FILE="$3"
+
+if [[ ! -d "${OUTPUT_DIR}" ]]; then
+  mkdir -p "${OUTPUT_DIR}"
+  chmod g+w "${OUTPUT_DIR}"
+fi
+cd "${OUTPUT_DIR}"
+echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
 declare -rxi INPUT_RECS=$(($(wc --lines < "$INPUT_FILE") - 1))
 echo -e "\nCalculating via ${CYPHER_QUERY_FILE}, $INPUT_FILE => $output_file"
@@ -310,7 +339,6 @@ HEREDOC
 }
 export -f process_batch
 
-cd "$OUTPUT_DIR"
 if [[ $ClEAN_MODE == true ]]; then
   echo "Cleaning previously generated output"
   ls | grep -E "${OUTPUT_FILE_NAME}.*\.csv$" | xargs -I '{}' rm -fv {}
@@ -321,7 +349,7 @@ fi
 # TODO report. With --pipe, --halt soon,fail=1 does not terminate on failures
 # TODO report. With --pipe, --tagstring '|job#{#} s#{%}|' reports slot # = 1 for all jobs
 # TODO report. CSV streaming parsing using `| csvtool col 1- -` fails on a very large file (97 Mb, 4M rows)
-tail -n +2 "$INPUT_FILE" \
+tail -n +2 "$ABSOLUTE_INPUT_FILE" \
     | parallel --jobs 85% --pipe --block "$BATCH_SIZE" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
         'process_batch {#}'
 
