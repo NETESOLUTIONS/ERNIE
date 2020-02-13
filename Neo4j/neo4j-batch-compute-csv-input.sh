@@ -184,17 +184,20 @@ echo -n "The input number of records = $INPUT_RECS"
 if [[ $4 ]]; then
   declare -rxi BATCH_SIZE_REC=$4
   echo -n ", batch size: $BATCH_SIZE_REC"
-  declare -rx ADJUSTMENT_PERCENT=130
-  # Adjust expectations because GNU Parallel chops unevenly and we end up with a larger number of batches
-  declare -xi expected_batches=$((INPUT_RECS * ADJUSTMENT_PERCENT / (BATCH_SIZE_REC * 100)))
+
+  declare -xi expected_batches=$((INPUT_RECS / BATCH_SIZE_REC)))
   if ((INPUT_RECS % BATCH_SIZE_REC > 0)); then
     ((expected_batches++))
   fi
   echo -e ", expected batches ≈ $expected_batches"
 
   # Retrieve the first batch by the number of records (exclude the header) and use its size as the batch size
-  readonly BATCH_1=$(cat <(tail -n +2 "$ABSOLUTE_INPUT_FILE" | head -"$BATCH_SIZE_REC"))
-  declare -i BATCH_SIZE=${#BATCH_1}
+  readonly BATCH_1=$( cat <(tail -n +2 "$ABSOLUTE_INPUT_FILE" | head -"$BATCH_SIZE_REC") )
+  declare -i batch_size=${#BATCH_1}
+
+  # Pad batch size by ADJUSTMENT_PERCENT because GNU Parallel chops batches unevenly, by the byte size
+  declare -rx ADJUSTMENT_PERCENT=110
+  (( batch_size*=ADJUSTMENT_PERCENT ))
 else
   declare -rxi expected_batches=1
   echo ""
@@ -371,7 +374,7 @@ fi
 # TODO report. CSV streaming parsing using `| csvtool col 1- -` fails on a very large file (97 Mb, 4M rows)
 echo -e "\nStarting batch computation..."
 tail -n +2 "$ABSOLUTE_INPUT_FILE" \
-    | parallel --jobs 85% --pipe --block "$BATCH_SIZE" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
+    | parallel --jobs 85% --pipe --block "$batch_size" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
         'process_batch {#}'
 
 if [[ "$ASSERT_NUM_REC_EQUALITY" == true ]]; then
