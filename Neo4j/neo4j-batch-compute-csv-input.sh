@@ -163,8 +163,8 @@ fi
 cd "${OUTPUT_DIR}"
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
-declare -rxi INPUT_RECS=$(($(wc --lines < "$INPUT_FILE") - 1))
-echo -e "\nCalculating via ${CYPHER_QUERY_FILE}, $INPUT_FILE => $output_file"
+declare -rxi INPUT_RECS=$(($(wc --lines < "$ABSOLUTE_INPUT_FILE") - 1))
+echo -e "\nCalculating via ${CYPHER_QUERY_FILE}, $ABSOLUTE_INPUT_FILE => $output_file"
 echo -n "The input number of records = $INPUT_RECS"
 if [[ $4 ]]; then
   declare -rxi BATCH_SIZE_REC=$4
