@@ -314,20 +314,20 @@ def parse(input_filename):
         ## since we posses the full-name only split based on canonical case 1. First (Optional Middle) Last
 
         if contact_backup_backup_degrees is "":
-            row['contact_backup_degrees'] = 'Null'
+            row['contact_backup_degrees'] = 'NULL'
 
         if len(contact_backup_full_name.split(" ")) == 2:
             row['contact_backup_first_name'] = contact_backup_full_name.split(" ")[0]
             row['contact_backup_last_name'] = contact_backup_full_name.split(" ")[1]
-            row['contact_backup_middle_name'] = 'Null'
+            row['contact_backup_middle_name'] = 'NULL'
         elif len(contact_backup_full_name.split(" ")) > 2:
             row['contact_backup_first_name'] = contact_backup_full_name.split(" ")[0]
             row['contact_backup_middle_name'] = contact_backup_full_name.split(" ")[1]
             row['contact_backup_last_name'] = " ".join(contact_backup_full_name.split(" ")[2:])
         else:
-            row['contact_backup_first_name'] = 'Null'
-            row['contact_backup_middle_name'] = 'Null'
-            row['contact_backup_last_name'] = 'Null'
+            row['contact_backup_first_name'] = 'NULL'
+            row['contact_backup_middle_name'] = 'NULL'
+            row['contact_backup_last_name'] = 'NULL'
 
 
         row['contact_backup_phone']=next(iter(etree.ElementTree(location_count).xpath("//*[local-name()='contact_backup']/*[local-name()='phone']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
