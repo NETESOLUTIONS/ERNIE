@@ -237,21 +237,6 @@ process_batch() {
     echo -n "Batch #${batch_num}/≈${expected_batches}: "
   fi
 
-  readonly STOP_FILE_NAME="${OUTPUT_FILE_NAME}.stop"
-  if [[ -f "$STOP_FILE_NAME" ]]; then
-    echo "found the stop file: $OUTPUT_DIR/$STOP_FILE_NAME. Stopping the process..."
-    rm -f "$STOP_FILE_NAME"
-    exit 1
-  fi
-
-  # Note: these files should be written to and owned by the `neo4j` user, hence can't use `mktemp`.
-  # The path should be absolute for a Neo4j server to write to it.
-  local -r BATCH_OUTPUT="$OUTPUT_DIR/$OUTPUT_FILE_NAME-batch-$batch_num.csv"
-  if [[ -s ${BATCH_OUTPUT} ]]; then
-    echo "SKIPPED (already generated)."
-    exit 0
-  fi
-
   local -a INPUT_COLUMNS
   # Parse a comma-separated list into an array
   IFS="," read -ra INPUT_COLUMNS <<< "${INPUT_COLUMN_LIST}"
@@ -261,8 +246,8 @@ process_batch() {
   # Epoch time + milliseconds
   batch_start_time=$(date +%s%3N)
 
-  # Convert piped data to a Cypher list
-#  local input_data_list=":param input_data => [ "
+  # Convert piped data to a Cypher list.
+  # Read piped data first before stopping or skipping to consume the batch correctly.
   local input_data_list="[ "
   local -a cells
   local param_rows cell
@@ -289,6 +274,21 @@ process_batch() {
   done
   input_data_list="${input_data_list}${param_rows} ]"
 
+  readonly STOP_FILE_NAME="${OUTPUT_FILE_NAME}.stop"
+  if [[ -f "$STOP_FILE_NAME" ]]; then
+    echo "found the stop file: $OUTPUT_DIR/$STOP_FILE_NAME. Stopping the process..."
+    rm -f "$STOP_FILE_NAME"
+    exit 1
+  fi
+
+  # Note: these files should be written to and owned by the `neo4j` user, hence can't use `mktemp`.
+  # The path should be absolute for a Neo4j server to write to it.
+  local -r BATCH_OUTPUT="$OUTPUT_DIR/$OUTPUT_FILE_NAME-batch-$batch_num.csv"
+  if [[ -s ${BATCH_OUTPUT} ]]; then
+    echo "SKIPPED (already generated)."
+    exit 0
+  fi
+
   local cypher_query
   cypher_query="CALL apoc.export.csv.query(\"$(cat "$ABSOLUTE_CYPHER_FILE")\", '$BATCH_OUTPUT',
       {params: {input_data: $input_data_list}});"
@@ -303,7 +303,7 @@ process_batch() {
         break
       fi
 
-      echo "WARNING: $cypher_shell_output. Retry attempt #$((++retry_attempts))"
+      echo "WARNING: $cypher_shell_output. Retry attempt #$((++retry_attempts)): waiting for ${sleep_s} seconds..."
       sleep ${sleep_s}
       ((sleep_s *= 2))
     else
