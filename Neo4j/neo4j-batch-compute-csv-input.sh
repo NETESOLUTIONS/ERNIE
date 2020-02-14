@@ -293,10 +293,22 @@ process_batch() {
   cypher_query="CALL apoc.export.csv.query(\"$(cat "$ABSOLUTE_CYPHER_FILE")\", '$BATCH_OUTPUT',
       {params: {input_data: $input_data_list}});"
 
+  readonly TIMEOUT_MSG_PREFIX='Unable to establish connection'
   local cypher_shell_output
-  if ! cypher_shell_output=$(echo "$cypher_query" | cypher-shell --encryption false); then
-    cat << HEREDOC
-Error! The Cypher query failed:
+  local -i retry_attempts=0 sleep_s=5 MAX_RETRIES=10
+  while ! cypher_shell_output=$(echo "$cypher_query" | cypher-shell --encryption false 2>&1); do
+    if [[ "$cypher_shell_output" == *"$TIMEOUT_MSG_PREFIX"* ]]; then
+      if (( retry_attempts >= MAX_RETRIES )); then
+        echo "ERROR: $cypher_shell_output. Retried $MAX_RETRIES times and gave up."
+        break
+      fi
+
+      echo "WARNING: $cypher_shell_output. Retry attempt #$((++retry_attempts))"
+      sleep ${sleep_s}
+      ((sleep_s *= 2))
+    else
+      cat << HEREDOC
+ERROR: The Cypher query failed:
 =====
 $cypher_query
 =====
@@ -306,8 +318,9 @@ The cypher-shell output:
 $cypher_shell_output
 =====
 HEREDOC
-    exit 2
-  fi
+      exit 2
+    fi
+  done
 
   local -i num_of_recs
   # Suppress printing a file name
@@ -341,7 +354,7 @@ HEREDOC
     if (( num_of_recs != input_batch_recs )); then
       cat << HEREDOC
 
-Error! The actual number of records $num_of_recs differs from the expected number $input_batch_recs.
+ERROR: The actual number of records $num_of_recs differs from the expected number $input_batch_recs.
 The failed Cypher query:
 =====
 $cypher_query
