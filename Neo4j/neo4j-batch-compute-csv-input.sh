@@ -375,7 +375,7 @@ HEREDOC
   # When performing calculations `/` will truncate the result and should be done last
   printf " ETA ≈ %s at ≈ %.1f records/min overall.\n" \
       "$(TZ=America/New_York date --date=@$(((START_TIME + est_total_time_ms) / 1000)))" \
-      "$((10 ** 8 * appr_processed_records * 1000 * 60 / elapsed_ms))e-8"
+      "$((10 ** 7 * appr_processed_records * 1000 * 60 / elapsed_ms))e-7"
 }
 export -f process_batch
 
