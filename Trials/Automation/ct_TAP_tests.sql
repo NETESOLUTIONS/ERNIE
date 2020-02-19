@@ -149,7 +149,7 @@ FROM ct_clinical_studies,
              date_trunc('year', to_date(regexp_replace(verification_date, '[0-9]{2},', '', 'g'),
                                         'Month YYYY')),
              interval '1 year') time_series
-where time_series::date >= '01 01 1981'
+where time_series::date >= '01 01 1981' and verification_date NOT LIKE '%2020%'
 GROUP BY time_series, verification_year
 ORDER BY verification_year;
 --endregion
@@ -166,7 +166,7 @@ SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
               CAST(:min_yearly_difference as BIGINT),
               format('%s.tables should increase at least %s record', 'CT', :min_yearly_difference))
 FROM cte
-where CAST(verification_year AS INT) >= 1981;
+where CAST(verification_year AS INT) >= 1981 and verification_date NOT LIKE '%2020%';
 -- some of the dates for verification are 0Y instead of YYYY in terms of date and so were eliminated
 --endregion
 
@@ -184,7 +184,7 @@ SELECT is_empty($$SELECT extract('year' FROM time_series)::int AS verification_y
                           date_trunc('year', to_date(regexp_replace(verification_date, '[0-9]{2},', '', 'g'),
                                                      'Month YYYY')),
                           interval '1 year') time_series
-             WHERE time_series::date > '2021 01 01'
+             WHERE time_series::date > '2021 01 01' and verification_date NOT LIKE '%2020%'
              GROUP BY time_series, verification_year
              ORDER BY verification_year)$$, 'There should be no CT records two years from present');
 -- endregion
