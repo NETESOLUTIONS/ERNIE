@@ -155,14 +155,15 @@ ORDER BY verification_year;
 --endregion
 
 --region do clinical trials increase year by year
-with cte as (SELECT substring(verification_date, '[0-9]{4}') date_column,
-       count(verification_date) as entity_count,
-       count(verification_date) - lag(count(verification_date)) over (order by substring(verification_date, '[0-9]{4}')) as difference
-FROM ct_clinical_studies
-WHERE substring(verification_date, '[0-9]{4}') is not null
---- AND verification_date NOT LIKE '%2020%'
-GROUP BY date_column
-ORDER BY date_column)
+with cte as (SELECT substring(verification_date, '[0-9]{4}')                                                  date_column,
+                    count(verification_date)                                                               as entity_count,
+                    count(verification_date) -
+                    lag(count(verification_date)) over (order by substring(verification_date, '[0-9]{4}')) as difference
+             FROM ct_clinical_studies
+             WHERE substring(verification_date, '[0-9]{4}') is not null
+               AND verification_date NOT LIKE '%2020%'
+             GROUP BY date_column
+             ORDER BY date_column)
 SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
               CAST(:min_yearly_difference as BIGINT),
               format('%s.tables should increase at least %s record', 'CT', :min_yearly_difference))
