@@ -166,7 +166,7 @@ SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
               CAST(:min_yearly_difference as BIGINT),
               format('%s.tables should increase at least %s record', 'CT', :min_yearly_difference))
 FROM cte
-where verification_year >= 1981;
+where CAST(verification_year AS INT) >= 1981;
 -- some of the dates for verification are 0Y instead of YYYY in terms of date and so were eliminated
 --endregion
 
