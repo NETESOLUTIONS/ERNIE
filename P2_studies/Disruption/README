@@ -1,0 +1,16 @@
+This file describes the purpose of each file
+Spark/citation_count_calculations.py -> calculates citation counts for all papers in Scopus
+Spark/spark_citation_count_launch.sh -> launches citation count calculations in Spark
+Spark/citation_counts_accumulated_first_8_years.py -> calculates citation counts accumulated in the first 8 years
+f1000_disruption.sql -> sql code for disruption calculations of f1000 papers
+scientometrics_disruption.sql -> sql code for calculating disruption for scientometrics papers
+scientometrics_disruption_ad_hoc.sql -> ad-hoc sql code for scientometrics papers ('i' is modified in this case)
+calculate_disruption.sh -> bash script used to trigger disruption calculations
+disruption.sql -> disruption formula sql code
+
+Tables related to this:
+f1000_calculations
+f1000_metadata
+f1000_scopus_variants
+scientometrics_scopus_variants -> results based on methods published in manuscript
+scientometrics_data_new_variant -> results based on new variant
