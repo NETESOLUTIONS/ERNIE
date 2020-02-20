@@ -76,3 +76,28 @@ CREATE TABLE cc2.co_citation_data
     scopus_frequency    BIGINT
 
 ) TABLESPACE p2_studies_tbs;
+
+
+ALTER TABLE cc2.ten_year_cocit_union_freq11_freqsum_bins
+    ADD COLUMN citing_papers boolean DEFAULT FALSE;
+
+
+UPDATE cc2.ten_year_cocit_union_freq11_freqsum_bins
+SET citing_papers= TRUE
+WHERE exists(SELECT scp, ref_sgr
+             FROM public.scopus_references
+             WHERE ref_sgr = cited_1
+               AND scp = cited_2
+             UNION ALL
+             SELECT scp, ref_sgr
+             FROM public.scopus_references
+             WHERE ref_sgr = cited_2
+               AND scp = cited_1)
+and scopus_frequency>=10;
+
+
+SELECT sr.scp, sr.ref_sgr, spg.pub_year
+FROM public.scopus_references sr
+         JOIN public.scopus_publication_groups spg
+              ON sr.scp = spg.sgr
+                  AND spg.pub_year <= 1997;
