@@ -1,39 +1,39 @@
 #!/usr/bin/env bash
 if [[ "$1" == "-h" ]]; then
-#  cat <<'HEREDOC'
-#NAME
-#
-#    theta_omega_calculations.sh -- calculate theta omega measures of co-cited pairs
-#
-#SYNOPSIS
-#
-#    theta_omega_calculations.sh
-#    theta_omega_calculations.sh -h: display this help
-#
-#DESCRIPTION
-#
-#    Processes all supplied co-cited pairs: in text format on `stdin`
-#ENVIRONMENT
-#
-#    Postgres accessible by default (via `psql`).
-#
-#    Set standard Postgres environment variables (https://www.postgresql.org/docs/current/libpq-envars.html) to alter
-#    connection parameters, e.g.:
-#      PGHOST
-#      PGPORT
-#      PGDATABASE
-#      PGPASSWORD/PGPASSFILE
-#
-#
-#EXAMPLES
-#
-#        $ cat dataset100_wos_ids.csv | ./theta_omega_calculations.sh
-#
-#AUTHOR(S)
-#
-#    Written by Sitaram Devarakonda
-#HEREDOC
-#  exit 1
+  cat <<'HEREDOC'
+NAME
+
+    theta_omega_calculations.sh -- calculate theta omega measures of co-cited pairs
+
+SYNOPSIS
+
+    theta_omega_calculations.sh
+    theta_omega_calculations.sh -h: display this help
+
+DESCRIPTION
+
+    Processes all supplied co-cited pairs: in text format on `stdin`
+ENVIRONMENT
+
+    Postgres accessible by default (via `psql`).
+
+    Set standard Postgres environment variables (https://www.postgresql.org/docs/current/libpq-envars.html) to alter
+    connection parameters, e.g.:
+      PGHOST
+      PGPORT
+      PGDATABASE
+      PGPASSWORD/PGPASSFILE
+
+
+EXAMPLES
+
+        $ cat dataset100_wos_ids.csv | ./theta_omega_calculations.sh
+
+AUTHOR(S)
+
+    Written by Sitaram Devarakonda
+HEREDOC
+  exit 1
 fi
 
 set -ex
