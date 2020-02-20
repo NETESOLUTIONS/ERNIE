@@ -34,7 +34,7 @@ if [[ "$1" == "-h" ]]; then
 #    Written by Sitaram Devarakonda
 #HEREDOC
 #  exit 1
-#fi
+fi
 
 set -ex
 set -o pipefail
@@ -76,7 +76,6 @@ theta_omega_calculations() {
     printf "Number of records per minute %.1f \n"  \
     "$(($per_minute/$duration))e-7"
   fi
-  #
 
 }
 
