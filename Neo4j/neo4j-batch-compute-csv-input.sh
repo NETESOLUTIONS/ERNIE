@@ -230,6 +230,10 @@ START_TIME=$(date +%s%3N)
 #echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
 process_batch() {
+  # Executed in a subshell. Need to set these again,
+  set -e
+  set -o pipefail
+
   [[ $VERBOSE_MODE == true ]] && set -x
 
   local -ri batch_num=$1
