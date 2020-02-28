@@ -10,85 +10,19 @@ SET SEARCH_PATH = wenxi;
 
 -- SELECT NOW();
 
-DROP TABLE If EXISTS wenxi.tableseed;
+DROP TABLE If EXISTS wenxi.initial_test;
 
-CREATE TABLE wenxi.tableseed AS
+CREATE TABLE wenxi.initial_test AS (
 
-
-((SELECT DISTINCT scp AS source, 'citing' AS source_type, ref_sgr AS tagret, 'seed' AS tagret_type
- FROM ernie.public.scopus_references
- WHERE scp IN (SELECT c.scp
-               FROM ernie.public.scopus_references c LEFT JOIN ernie.public.scopus_publication_groups d
-                                                               ON c.scp = d.sgr
-               WHERE c.ref_sgr = (
-                   SELECT a.scp FROM ernie.public.scopus_publication_identifiers a
-                                         LEFT JOIN ernie.public.scopus_publication_groups b
-                                                   ON a.scp = b.sgr
-                   WHERE a.document_id_type = 'DOI' and a.document_id = '10.1038/227680a0' and b.pub_year IS NOT NULL))
-
-   AND ref_sgr = (SELECT a.scp FROM ernie.public.scopus_publication_identifiers a
-                                        LEFT JOIN ernie.public.scopus_publication_groups b
-                                                  ON a.scp = b.sgr
-                  WHERE a.document_id_type = 'DOI' and a.document_id = '10.1038/227680a0' and b.pub_year IS NOT NULL))
-
-UNION
-
-(SELECT c.scp as source,  'seed' AS source_type,
-        c.ref_sgr as target, 'cited' AS target_type
- FROM ernie.public.scopus_references c LEFT JOIN ernie.public.scopus_publication_groups d
-                                                 ON c.scp = d.sgr
- WHERE c.scp = (
-     SELECT a.scp FROM ernie.public.scopus_publication_identifiers a
-                           LEFT JOIN ernie.public.scopus_publication_groups b
-                                     ON a.scp = b.sgr
-     WHERE a.document_id_type = 'DOI' and a.document_id = '10.1038/227680a0' and b.pub_year IS NOT NULL))
-
-ORDER BY source_type DESC);
-
-
-DROP TABLE If EXISTS wenxi.tablecount;
-
-CREATE TABLE wenxi.tablecount AS
-
-SELECT pub_year, COUNT(count) FROM (
-SELECT pub_year, COUNT(*) as count FROM (SELECT scp, ref_sgr, pub_year
-FROM  ernie.public.scopus_references a INNER JOIN ernie.public.scopus_publication_groups b
-ON a.scp = b.sgr
-WHERE ref_sgr = :ref_sgr1 OR ref_sgr = :ref_sgr2)  a
-GROUP BY scp, pub_year
-HAVING COUNT(*) > 1) b
-GROUP BY pub_year;
-
-
-
-DROP TABLE If EXISTS wenxi.tablepair;
-
-CREATE TABLE wenxi.tablepair AS
-
-(SELECT :ref_sgr1 as cited_1,:ref_sgr2 as cited_2, COUNT(count) as count FROM (
-SELECT COUNT(*) FROM (SELECT scp, ref_sgr FROM ernie.public.scopus_references as count
-WHERE ref_sgr = :ref_sgr1 OR ref_sgr = :ref_sgr2)  a
-GROUP BY scp
-HAVING COUNT(*) > 1 ) b)
-
-UNION
-
-(SELECT :ref_sgr3 as cited_1, :ref_sgr4 as cited_2, COUNT(count) as count FROM (
-SELECT COUNT(*) FROM (SELECT scp, ref_sgr FROM ernie.public.scopus_references as count
-WHERE ref_sgr = :ref_sgr3 OR ref_sgr = :ref_sgr4)  a
-GROUP BY scp
-HAVING COUNT(*) > 1 ) b)
-
-UNION
-
-(SELECT :ref_sgr5 as cited_1, :ref_sgr6 as cited_2, COUNT(count) as count FROM (
-SELECT COUNT(*) FROM (SELECT scp, ref_sgr FROM ernie.public.scopus_references as count
-WHERE ref_sgr = :ref_sgr5 OR ref_sgr = :ref_sgr6)  a
-GROUP BY scp
-HAVING COUNT(*) > 1 ) b);
-
-
-
-grant all PRIVILEGES on all tables in schema wenxi to wenxi;
+SELECT c.scp, c.auid AS scp_auid, c.ref_sgr, d.auid AS ref_auid, c.pub_year FROM (
+SELECT a.scp, a.ref_sgr, b1.auid, b2.pub_year
+FROM public.scopus_references a
+INNER JOIN public.scopus_authors b1
+ON a.scp = b1.scp
+INNER JOIN public.scopus_publication_groups b2
+ON a.scp = b2.sgr
+WHERE b2.pub_year = 2005) c
+INNER JOIN public.scopus_authors d
+ON c.ref_sgr = d.scp);
 
 
