@@ -65,6 +65,12 @@ readonly file_prefix="data"
 mkdir -p ${work_dir}
 mkdir -p ${results_dir}
 
+if [[ -d ${results_dir} ]]
+then
+    rm -rf ${results_dir}
+else
+    mkdir ${results_dir}
+
 #Copying input file to working directory
 cp ${ABSOLUTE_SCRIPT_DIR}/${INPUT_FILE} ${work_dir}
 
