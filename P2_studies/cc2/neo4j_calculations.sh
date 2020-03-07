@@ -63,7 +63,7 @@ echo "cited_1,cited_2,co_cited_year,frequency" >> ${ABSOLUTE_SCRIPT_DIR}/${OUTPU
 echo "Working directory is ${work_dir}"
 readonly file_prefix="data"
 mkdir -p ${work_dir}
-mkdir -p ${results_dir}
+# mkdir -p ${results_dir}
 
 if [[ -d ${results_dir} ]]
 then
