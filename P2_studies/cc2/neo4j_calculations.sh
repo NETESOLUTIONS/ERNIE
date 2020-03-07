@@ -70,6 +70,7 @@ then
     rm -rf ${results_dir}
 else
     mkdir ${results_dir}
+fi
 
 #Copying input file to working directory
 cp ${ABSOLUTE_SCRIPT_DIR}/${INPUT_FILE} ${work_dir}
