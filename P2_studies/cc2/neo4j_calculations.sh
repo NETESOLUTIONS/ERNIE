@@ -67,7 +67,7 @@ mkdir -p ${results_dir}
 
 if [[ -d ${results_dir} ]]
 then
-    rm -rf ${results_dir}
+    rm ${results_dir}/*
 else
     mkdir ${results_dir}
 fi
