@@ -67,7 +67,7 @@ mkdir -p ${work_dir}
 
 if [[ -d ${results_dir} ]]
 then
-    rm ${results_dir}/*
+    rm ${results_dir}/* || echo "No files from previous run to delete"
 else
     mkdir ${results_dir}
 fi
