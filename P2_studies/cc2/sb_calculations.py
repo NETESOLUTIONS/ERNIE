@@ -37,17 +37,29 @@ zero_df=zero_df[zero_df['co_cited_year']>=zero_df['first_co_cited_year']]
 zero_df['pfcy']=zero_df[['cited_1_year','cited_2_year']].max(axis=1)
 
 zero_df=zero_df.drop(columns=['cited_1_year','cited_2_year'])
+print('printing zero df')
+print(zero_df)
 
 #First write code to generate 0 rows of data
 
 #Get all data where pfcy 
-temp_df=zero_df.groupby(by=['cited_1','cited_2'],as_index=False)['first_co_cited_year','pfcy'].min()
+#temp_df=zero_df.groupby(by=['cited_1','cited_2'],as_index=False)['first_co_cited_year','pfcy'].min()
+temp_df=zero_df.groupby(by=['cited_1','cited_2'],as_index=False)['first_co_cited_year','co_cited_year','pfcy'].min()
 
 # print(temp_df.head())
-print(temp_df[(temp_df['cited_1']==14949207) & (temp_df['cited_2']==17184389)])
-temp_df=temp_df[temp_df['pfcy'] < temp_df['first_co_cited_year']]
+#print(temp_df[(temp_df['cited_1']==14949207) & (temp_df['cited_2']==17184389)])
+#temp_df=temp_df[temp_df['pfcy'] < temp_df['first_co_cited_year']]
+temp_df=temp_df[temp_df['pfcy'] < temp_df['co_cited_year']]
 
-temp_df['diff']=temp_df['first_co_cited_year']-temp_df['pfcy']
+print('debug prints')
+print(temp_df)
+
+#temp_df.columns=['cited_1','cited_2','first_co_cited_year','pfcy']
+
+print('debug prints')
+print(temp_df)
+
+temp_df['diff']=temp_df['co_cited_year']-temp_df['pfcy']
 
 temp_df['cited_1']=temp_df['cited_1'].astype(int)
 
@@ -60,6 +72,9 @@ temp_df['rank']=temp_df['rank']-1
 temp_df['co_cited_year']=temp_df['pfcy']+temp_df['rank']
 temp_df['frequency']=0
 temp_df=temp_df[['cited_1','cited_2','co_cited_year','frequency','first_co_cited_year']]
+
+print('printing temp df')
+print(temp_df)
 
 
 # print(df[(df['cited_1']==4532) & (df['cited_2']==10882054)][['cited_1','cited_2','co_cited_year','frequency','first_co_cited_year']])
@@ -117,8 +132,12 @@ print('Size',len(final_df))
 print(final_df.head())
 
 #Add first_possible_year
+print('testing results')
+print(final_df)
 temp_df=final_df.groupby(by=['cited_1','cited_2'],as_index=False)['co_cited_year'].min()
 temp_df.columns=['cited_1','cited_2','first_possible_year']
+print('group by results')
+print(temp_df)
 final_df=pd.merge(final_df,temp_df,on=['cited_1','cited_2'],how='inner')
 
 """
