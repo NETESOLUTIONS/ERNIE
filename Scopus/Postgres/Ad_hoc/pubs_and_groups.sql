@@ -1,3 +1,8 @@
+-- Pubs by keyword
+SELECT st.scp, st.title, st.language
+  FROM scopus_titles st
+ WHERE to_tsvector('english', st.title) @@ to_tsquery('english', 'COVID-19 | SARS-CoV | MERS_CoV | 2019-nCoV');
+
 SELECT max(scp)
   FROM scopus_publications;
 -- 85,076,586,607

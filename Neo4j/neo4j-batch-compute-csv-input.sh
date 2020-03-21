@@ -230,6 +230,10 @@ START_TIME=$(date +%s%3N)
 #echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
 process_batch() {
+  # Executed in a subshell. Need to set these again,
+  set -e
+  set -o pipefail
+
   [[ $VERBOSE_MODE == true ]] && set -x
 
   local -ri batch_num=$1
@@ -348,7 +352,7 @@ HEREDOC
   # When performing calculations `/` will truncate the result and should be done last
   printf "%d records exported in %dh:%02dm:%02d.%ds at %.1f records/min (this thread)." "$num_of_recs" \
       $((delta_s / 3600)) $(((delta_s / 60) % 60)) $((delta_s % 60)) $((delta_ms % 1000)) \
-      "$((10 ** 9 * num_of_recs * 1000 * 60 / delta_ms))e-9"
+      "$((10 ** 7 * num_of_recs * 1000 * 60 / delta_ms))e-7"
 
   if [[ $ASSERT_NUM_REC_EQUALITY == true ]]; then
     if (( num_of_recs != input_batch_recs )); then
@@ -393,7 +397,7 @@ fi
 # TODO report. CSV streaming parsing using `| csvtool col 1- -` fails on a very large file (97 Mb, 4M rows)
 echo -e "\nStarting batch computation..."
 tail -n +2 "$ABSOLUTE_INPUT_FILE" \
-    | parallel --jobs 75% --pipe --block "$batch_size" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
+    | parallel --jobs 50% --pipe --block "$batch_size" --halt now,fail=1 --line-buffer --tagstring '|job#{#}|' \
         'process_batch {#}'
 
 if [[ "$ASSERT_NUM_REC_EQUALITY" == true ]]; then

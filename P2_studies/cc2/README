@@ -1,0 +1,15 @@
+This file describes the purpose of each file
+neo4j_calculations.sh -> Runs on neo4j server to calculate kinetics, first_co_cited year calculations
+theta_omega_calculations.sh -> theta omega sql calculations, writes them to table cc2.theta_omega_delta_results
+theta_omega.sql and theta_omega_calculations.sql are files related to theta omega sql calculations
+sb_calculations.py -> sleeping beauty calculations
+
+Tables:
+cc2.theta_omega_delta_results -> table to which theta omega calculations are written
+(would advice to move data to a new table after each run and truncate this table, chance of duplicate cited_1,cited_2 pairs occuring
+if not truncated.)
+cc2.ten_year_cocit_union_freq11_freqsum_bins -> main table with all 33 million pairs
+cc2.co_citation_10_plus -> refdiff,mindiff,maxdiff data for all pairs with scopus_frequency >= 10
+
+kinetics_data -> kinetics data for pairs with scopus_frequency >= 50
+sb_results -> sleeping beauty calculations for pairs with scopus_frequency >= 50

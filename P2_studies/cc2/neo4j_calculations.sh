@@ -37,7 +37,9 @@ set +x
 
 readonly SCRIPT_DIR=${0%/*}
 readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
+readonly WORKING_DIRECTORY=$2
 readonly INPUT_FILE=$1
+readonly OUTPUT_FILE=$3
 
 readonly CITATION_DISTANCE_FILE=$(echo ${INPUT_FILE} | cut -d '.' -f 1)"_citation_distance.csv"
 readonly TIME_LAG_FILE=$(echo ${INPUT_FILE} | cut -d '.' -f 1)"_time_lag.csv"
@@ -48,20 +50,27 @@ readonly KINETICS_FILE=$(echo ${INPUT_FILE} | cut -d '.' -f 1)"_kinetics.csv"
 echo "Directory is" ${ABSOLUTE_SCRIPT_DIR}
 
 #Creating working directory where split files are stored
-readonly work_dir=${ABSOLUTE_SCRIPT_DIR}/work_dir
-readonly results_dir=${ABSOLUTE_SCRIPT_DIR}/results_dir
+readonly work_dir=${WORKING_DIRECTORY}/work_dir
+readonly results_dir=${WORKING_DIRECTORY}/results_dir
 
 
 #Add code for 1st line in output files
-echo "cited_1,cited_1_year,cited_2,cited_2_year,first_cited_year" >> ${ABSOLUTE_SCRIPT_DIR}/${TIME_LAG_FILE}
-#echo "cited_1,cited_2,co_cited_year,scopus_frequency" >> ${ABSOLUTE_SCRIPT_DIR}/${KINETICS_FILE}
+# echo "cited_1,cited_1_year,cited_2,cited_2_year,first_cited_year" >> ${ABSOLUTE_SCRIPT_DIR}/${TIME_LAG_FILE}
+echo "cited_1,cited_2,co_cited_year,frequency" >> ${ABSOLUTE_SCRIPT_DIR}/${OUTPUT_FILE}
 #echo "cited_1,cited_2,frequency,scopus_frequency" >> ${ABSOLUTE_SCRIPT_DIR}/${FREQUENCY_FILE}
 #echo "cited_1,cited_2,scopus_frequency" >> ${ABSOLUTE_SCRIPT_DIR}/${SCOPUS_FREQUENCY_FILE}
 
 echo "Working directory is ${work_dir}"
 readonly file_prefix="data"
 mkdir -p ${work_dir}
-mkdir -p ${results_dir}
+# mkdir -p ${results_dir}
+
+if [[ -d ${results_dir} ]]
+then
+    rm ${results_dir}/* || echo "No files from previous run to delete"
+else
+    mkdir ${results_dir}
+fi
 
 #Copying input file to working directory
 cp ${ABSOLUTE_SCRIPT_DIR}/${INPUT_FILE} ${work_dir}
@@ -136,7 +145,7 @@ set +e
 
 #Find all files with perfix and pass it parallel
 find . -name ${file_prefix}'*' -type f -print0 | parallel -0 --halt soon,fail=1 -j 8 \
-        --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' cypher_pairs "{}"
+        --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' kinetics "{}"
 
 set -e
 
@@ -147,9 +156,10 @@ rm -rf ${work_dir}
 for file in $(ls ${results_dir})
 do
     echo "Merging file $file"
-    cat ${results_dir}/$file >> ${ABSOLUTE_SCRIPT_DIR}/${TIME_LAG_FILE}
+    cat ${results_dir}/$file >> ${ABSOLUTE_SCRIPT_DIR}/${OUTPUT_FILE}
 done
 
+cp ${ABSOLUTE_SCRIPT_DIR}/${OUTPUT_FILE} ${WORKING_DIRECTORY}
 
 end=`date +%s`
 runtime=$((end-start))

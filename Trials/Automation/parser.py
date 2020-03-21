@@ -373,8 +373,7 @@ def parse(input_filename):
                         child_row['investigator_last_name'] = " ".join(words[2:]).strip().replace("'", "''").replace("\"", "*")
 
             child_row['investigator_role']=next(iter(etree.ElementTree(investigator_count).xpath("//*[local-name()='role']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
-            for affiliation in root.xpath("//*[local-name()='responsible_party']/*[local-name()='investigator_affiliation']/text()"):
-                child_row['investigator_affiliation']=affiliation
+            child_row['investigator_affiliation']=next(iter(root.xpath("//*[local-name()='responsible_party']/*[local-name()='investigator_affiliation']/text()")),'NULL').strip().replace("'","''").replace("\"","*")
             ct_dict['ct_location_investigators']+=[child_row]
     ct_pkeys['ct_locations']=['nct_id', 'facility_country', 'facility_city', 'facility_zip', 'facility_name']
     ct_pkeys['ct_location_investigators']=['nct_id', 'investigator_last_name']
