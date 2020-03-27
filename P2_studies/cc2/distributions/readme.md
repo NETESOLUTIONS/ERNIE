@@ -2,7 +2,7 @@
 
 This folder contains code relevant to analyzing the observed co-citation frequencies in Scopus.
 
--lognorm_buckets.exe
+- lognorm_buckets.exe
   - Purpose: compute the Maximium Likleihood Estimator (MLE) parameters for a lognormal distribution.
   - Compiled C++ program using a modified version of amoeba.h from Numerical recipes in {C}: The art of scientific computing (3rd ed.) by Press, W.H. and Teukolsky, S.A. and Vetterling, W.T. and Flannery, B.P.
   - Input arguments:
