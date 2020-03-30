@@ -13,3 +13,7 @@
 	year = {2018}
 }
 ```
+
+
+
+Folder for "Frequently Co-cited Publications: Features and Kinetics" code is https://github.com/NETESOLUTIONS/ERNIE/tree/master/P2_studies/cc2
