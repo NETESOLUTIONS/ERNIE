@@ -1,46 +1,23 @@
-/* Existing tables: current schema. */
-SELECT *
-  FROM information_schema.tables
- WHERE table_schema = current_schema;
-
 /* Existing tables: only those tables and views are shown that the current user has access to
 (by way of being the owner or having some privilege). */
+SELECT *
+  FROM information_schema.tables
+ WHERE table_schema = 'public' AND table_name LIKE :tablePattern;
+
+-- Public table class data including tablespace
 SELECT
-  table_catalog, table_schema, table_name, table_type, self_referencing_column_name, reference_generation,
-  user_defined_type_catalog, user_defined_type_schema, user_defined_type_name, is_insertable_into, is_typed,
-  commit_action
-  FROM information_schema.tables t
- WHERE table_catalog = current_catalog AND table_name LIKE :'tablePattern'
- ORDER BY table_catalog, table_schema, table_name;
-
--- Default tables: the first on the current search path
-SELECT pc.oid, pn.nspname, pc.relname, pc.relkind
-  FROM
-    pg_catalog.pg_class pc
-      LEFT JOIN pg_catalog.pg_namespace pn ON pn.oid = pc.relnamespace
- WHERE pc.relkind IN ('r', 'p') AND pc.relname LIKE :'tablePattern' AND pg_catalog.pg_table_is_visible(pc.oid)
- ORDER BY nspname, relname;
-
--- Tables visible on the search path (by a regex pattern)
-SELECT c.oid, n.nspname, c.relname
-  FROM
-    pg_catalog.pg_class c
-      LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
- WHERE c.relname ~ ('^(' || :table_pattern || ')$') AND pg_catalog.pg_table_is_visible(c.oid)
- ORDER BY 2, 3;
-
--- Table class data
-SELECT
-  pc.relname, pc.relnamespace, pc.reltype, pc.reloftype, pc.relowner, pc.relam, pc.relfilenode, pc.reltablespace,
-  pc.relpages, pc.reltuples, pc.relallvisible, pc.reltoastrelid, pc.relhasindex, pc.relisshared, pc.relpersistence,
-  pc.relkind, pc.relnatts, pc.relchecks, pc.relhasoids, pc.relhasrules, pc.relhastriggers, pc.relhassubclass,
-  pc.relrowsecurity, pc.relforcerowsecurity, pc.relispopulated, pc.relreplident, pc.relispartition, pc.relrewrite,
-  pc.relfrozenxid, pc.relminmxid, pc.relacl, pc.reloptions, pc.relpartbound, pi.inhrelid, pi.inhparent, pi.inhseqno
+  pc.relname, coalesce(obj_pt.spcname, db_pt.spcname) AS tablespace, pc.reltype, pc.reloftype, pc.relowner, pc.relam,
+  pc.relfilenode, pc.reltablespace, pc.relpages, pc.reltuples, pc.relallvisible, pc.reltoastrelid, pc.relhasindex,
+  pc.relisshared, pc.relpersistence, pc.relkind, pc.relnatts, pc.relchecks, pc.relhasoids, pc.relhasrules,
+  pc.relhastriggers, pc.relhassubclass, pc.relrowsecurity, pc.relforcerowsecurity, pc.relispopulated, pc.relreplident,
+  pc.relispartition, pc.relrewrite, pc.relfrozenxid, pc.relminmxid, pc.relacl, pc.reloptions, pc.relpartbound
   FROM
     pg_class pc
-      JOIN pg_namespace pn ON pn.oid = pc.relnamespace AND pn.nspname = current_schema
-      LEFT JOIN pg_inherits pi ON pi.inhparent = pc.oid
- WHERE pc.relname = :'tableName' AND pc.relkind IN ('r', 'p');
+      JOIN pg_namespace pn ON pn.oid = pc.relnamespace AND pn.nspname = 'public'
+      LEFT JOIN pg_tablespace obj_pt ON obj_pt.oid = pc.reltablespace
+      JOIN pg_database pd ON pd.datname = current_catalog
+      JOIN pg_tablespace db_pt ON db_pt.oid = pd.dattablespace
+ WHERE pc.relname = :tableName;
 
 -- All tables with owners
 SELECT table_pc.relname AS table_name, pa.rolname AS owner
@@ -48,7 +25,7 @@ SELECT table_pc.relname AS table_name, pa.rolname AS owner
     pg_class table_pc
       JOIN pg_namespace pn ON pn.oid = table_pc.relnamespace AND pn.nspname = 'public'
       JOIN pg_authid pa ON pa.oid = table_pc.relowner
- WHERE table_pc.relkind IN ('r', 'p')
+ WHERE table_pc.relkind = 'r'
  ORDER BY 2, 1;
 
 -- Foreign tables
@@ -135,6 +112,22 @@ SELECT
       JOIN pg_class index_pc ON index_pc.oid = pi.indexrelid
  WHERE table_pc.relname = :tableName;
 
+-- Is it visible on the search path?
+SELECT c.oid, n.nspname, c.relname
+  FROM
+    pg_catalog.pg_class c
+      LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+ WHERE c.relname = :table_name AND pg_catalog.pg_table_is_visible(c.oid)
+ ORDER BY 2, 3;
+
+-- Is it visible on the search path (by a regex pattern)?
+SELECT c.oid, n.nspname, c.relname
+  FROM
+    pg_catalog.pg_class c
+      LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+ WHERE c.relname ~ ('^(' || :table_pattern || ')$') AND pg_catalog.pg_table_is_visible(c.oid)
+ ORDER BY 2, 3;
+
 -- DDL
 SELECT create_table_ddl(:tablename);
 
@@ -160,12 +153,15 @@ SELECT
          CASE pc.relpersistence WHEN 't' THEN '' ELSE pn.nspname || '.' END, --
          pc.relname, --
          string_agg(format(E'\t%I %s%s', pa.attname, pg_catalog.format_type(pa.atttypid, pa.atttypmod),
-                           CASE WHEN pa.attnotnull THEN ' NOT NULL' ELSE '' END), E',\n' ORDER BY pa.attnum),
-         ( SELECT pkey FROM cte WHERE cte.conrelid = pc.oid )) AS ddl
+                           CASE WHEN pa.attnotnull THEN ' NOT NULL' ELSE '' END), E',\n' ORDER BY pa.attnum), (
+           SELECT pkey
+             FROM cte
+            WHERE cte.conrelid = pc.oid
+         )) AS ddl
   FROM
     pg_catalog.pg_class pc
       JOIN pg_catalog.pg_namespace pn ON pn.oid = pc.relnamespace
       JOIN pg_catalog.pg_attribute pa ON pa.attrelid = pc.oid AND pa.attnum > 0
       JOIN pg_catalog.pg_type pt ON pa.atttypid = pt.oid
- WHERE pc.relname = :table_name AND (pn.nspname = 'public' OR pc.relpersistence = 't')
+ WHERE pc.relname = :'table_name' AND (pn.nspname = 'public' OR pc.relpersistence = 't')
  GROUP BY pc.oid, pc.relname, pc.relpersistence, pn.nspname;

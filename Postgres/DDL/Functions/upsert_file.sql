@@ -7,7 +7,7 @@ Inserts/updates records from a file.
 * toTable: destination table in the public schema
 ** The table must have all columns and the structure of the loaded CSV file.
 ** The table must have a single unique key: PK or UK (unique index).
-* dataFile: absolute path. Make sure that the file is readable by postgres user (pardicore group).
+* dataFile: absolute path. Make sure that the file is readable by postgres user (a core group).
 * csvHeaders: does a CSV file have a line of headers?
 * delimiter: field delimiter
 * dataFormat: see COPY documentation for file format details.

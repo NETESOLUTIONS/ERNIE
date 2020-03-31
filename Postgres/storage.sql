@@ -26,14 +26,15 @@ SELECT
  ORDER BY pg_tablespace_size(pt.spcname) DESC;
 
 /*
-Relations (data-containing objects) by a tablespace excluding TOAST tables and their indexes.
-Does not support `pg_default`
+Space-occupying relations (data-containing objects) by a tablespace excluding TOAST tables, their indexes and sequences.
 */
 SELECT
   pc.relname, pg_size_pretty(pg_relation_size(pc.oid)),
   CASE pc.relkind -- By default, CASE will cast results as char (pc.relkind)
     WHEN 'r'
       THEN CAST('table' AS TEXT)
+    WHEN 'p'
+      THEN 'partitioned table'
     WHEN 'i'
       THEN 'index'
     WHEN 'S'
@@ -58,7 +59,12 @@ SELECT
       JOIN pg_namespace pn ON pn.oid = pc.relnamespace AND pn.nspname = 'public'
       JOIN pg_authid pa ON pa.oid = pc.relowner
  WHERE coalesce(obj_pt.spcname, db_pt.spcname) = :'tablespace' AND relname NOT LIKE 'pg_toast_%'
+   AND pc.relkind NOT IN ('S') AND pg_relation_size(pc.oid) <> 0
  ORDER BY pg_total_relation_size(pc.oid) DESC;
+
+-- Default tablespace parameter
+-- An empty string = the default tablespace of the current database
+SHOW default_tablespace;
 
 -- Current DB's default tablespace
 SELECT
@@ -70,14 +76,12 @@ SELECT
       JOIN pg_tablespace pt ON pt.oid = pd.dattablespace
  WHERE datname = current_catalog;
 
--- Default tablespace parameter
--- An empty string = the default tablespace of the current database
-SHOW default_tablespace;
-
--- Change the default tablespace of the database
--- This command physically moves any tables or indexes in the database's old default tablespace to the new tablespace
--- user_tbs must be empty
--- no one can be connected to the database
+/*
+Change the default tablespace of a database
+* No one can be connected to the database, including you: connect to `postgres` or another DB
+* This command physically moves any tables or indexes in the database's old default tablespace to the target tablespace
+* `user_tbs` must be empty
+*/
 ALTER DATABASE :db SET TABLESPACE user_tbs;
 
 SHOW temp_tablespaces;
@@ -91,6 +95,8 @@ SELECT
   CASE pc.relkind -- By default, CASE will cast results as char (pc.relkind)
     WHEN 'r'
       THEN CAST('table' AS TEXT)
+    WHEN 'p'
+      THEN 'partitioned table'
     WHEN 'i'
       THEN 'index'
     WHEN 'S'
@@ -120,6 +126,8 @@ SELECT
   CASE pc.relkind -- By default, CASE will cast results as char (pc.relkind)
     WHEN 'r'
       THEN CAST('table' AS TEXT)
+    WHEN 'p'
+      THEN 'partitioned table'
     WHEN 'i'
       THEN 'index'
     WHEN 'S'
@@ -135,7 +143,9 @@ SELECT
     WHEN 'f'
       THEN 'foreign table'
     ELSE pc.relkind --
-  END AS kind, coalesce(obj_pt.spcname, db_pt.spcname) AS tablespace
+  END AS kind, --
+  coalesce(obj_pt.spcname, db_pt.spcname) AS tablespace,
+  pg_size_pretty(sum(pg_total_relation_size(pc.oid)) OVER ()) AS total_size
   FROM
     pg_class pc --
       JOIN pg_namespace pn ON pn.oid = pc.relnamespace
@@ -154,6 +164,8 @@ SELECT
   CASE pc.relkind -- By default, CASE will cast results as char (pc.relkind)
     WHEN 'r'
       THEN CAST('table' AS TEXT)
+    WHEN 'p'
+      THEN 'partitioned table'
     WHEN 'i'
       THEN 'index'
     WHEN 'S'
@@ -187,6 +199,8 @@ SELECT
   CASE pc.relkind -- By default, CASE will cast results as char (pc.relkind)
     WHEN 'r'
       THEN CAST('table' AS TEXT)
+    WHEN 'p'
+      THEN 'partitioned table'
     WHEN 'i'
       THEN 'index'
     WHEN 'S'
@@ -220,6 +234,8 @@ SELECT
   CASE pc.relkind
     WHEN 'r' -- By default, CASE will cast results as char (pc.relkind)
       THEN CAST('table' AS TEXT)
+    WHEN 'p'
+      THEN 'partitioned table'
     WHEN 'i'
       THEN 'index'
     WHEN 'S'
@@ -285,18 +301,16 @@ DROP TABLESPACE :tbs;
 -- endregion
 
 -- region Move objects to a tablespace
-ALTER TABLE ALL IN TABLESPACE user_tbs SET TABLESPACE pg_default;
-ALTER MATERIALIZED VIEW ALL IN TABLESPACE user_tbs SET TABLESPACE pg_default;
-ALTER SEQUENCE ALL IN TABLESPACE user_tbs SET TABLESPACE pg_default;
-
-ALTER INDEX ALL IN TABLESPACE user_tbs SET TABLESPACE index_tbs;
+ALTER TABLE ALL IN TABLESPACE :source_tbs SET TABLESPACE :target_tbs;
+ALTER MATERIALIZED VIEW ALL IN TABLESPACE :source_tbs SET TABLESPACE :target_tbs;
+ALTER INDEX ALL IN TABLESPACE :source_tbs SET TABLESPACE :target_tbs;
 
 -- 1.7 GB
 -- 17s for a Premium to Premium storage move
 ALTER TABLE :table
-  SET TABLESPACE :tbs;
+  SET TABLESPACE :target_tbs;
 
 -- 2.6 GB
 -- 23-42s for a Premium to Premium storage move
-ALTER INDEX :index SET TABLESPACE :tbs;
+ALTER INDEX :index SET TABLESPACE :target_tbs;
 -- endregion

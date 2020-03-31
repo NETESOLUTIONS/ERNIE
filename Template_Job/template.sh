@@ -53,7 +53,6 @@ if [[ "${HOSTNAME}" == *ernie2* ]]; then
   # Unquoted $SWITCHES get expanded into *multiple* command-line arguments
   # Quoted $SWITCHES get expanded into a *single* command-line argument
   # Python 2.7.13 :: Anaconda custom (64-bit)
-  # Connects to -h localhost pardi pardi_admin (hard-coded)
   /anaconda2/bin/python ${absolute_script_dir}/template_connect_to_Postgres.py -t test 'arg with spaces' ${switches}
 fi
 

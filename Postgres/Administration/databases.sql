@@ -9,7 +9,6 @@ JOIN pg_database AS pd
 ORDER BY db
 ;
 
-ALTER DATABASE pardi OWNER TO pardi_admin;
+ALTER DATABASE ernie OWNER TO ernie_admin;
 
--- Import selected object(s) into a (foreign) schema
-IMPORT FOREIGN SCHEMA "LINK_OD_PARDI" LIMIT TO (ct_clinical_studies) FROM SERVER irdb INTO foreign_irdb;
+DROP DATABASE :db;

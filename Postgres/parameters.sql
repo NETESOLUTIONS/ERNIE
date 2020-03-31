@@ -70,7 +70,6 @@ ALTER ROLE current_user SET temp_tablespaces = DEFAULT;
 ALTER USER :user RESET default_tablespace;
 
 -- ## Set session default ##
--- SELECT set_config('temp_tablespaces', 'pardi_private_tbs', false);
 SET temp_tablespaces = 'temp_tbs';
 
 SET client_min_messages = 'WARNING';

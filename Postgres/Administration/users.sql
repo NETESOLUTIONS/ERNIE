@@ -15,13 +15,13 @@ FROM pg_group;
 -- region Grant read-only privileges to all users on future objects, manually created by superusers
 ALTER DEFAULT PRIVILEGES --
   -- Owners below would grant automatically on objects created in the future
-  FOR USER avon, chackoge, dk, sitaram, siyu --
+  FOR USER chackoge, dk, shreya, wenxi --
   IN SCHEMA public --
   GRANT SELECT ON TABLES TO PUBLIC;
 
 ALTER DEFAULT PRIVILEGES --
   -- Owners below would grant automatically on objects created in the future
-  FOR USER avon, chackoge, dk, sitaram, siyu --
+  FOR USER chackoge, dk, shreya, wenxi --
   IN SCHEMA public --
   GRANT SELECT ON SEQUENCES TO PUBLIC;
 -- endregion
@@ -59,7 +59,7 @@ DO $block$ --
   END $block$;
 --@formatter:on
 
-REASSIGN OWNED BY :user TO pardi_admin;
+REASSIGN OWNED BY :user TO ernie_admin;
 DROP SCHEMA :enduser;
 DROP USER :enduser;
 -- endregion

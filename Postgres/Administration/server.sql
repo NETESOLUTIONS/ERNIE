@@ -9,21 +9,22 @@ SELECT *
 FROM pg_extension
 ORDER BY extname;
 
+-- Available extensions
 SELECT *
 FROM pg_available_extensions
 ORDER BY name;
 
--- region Install out-of-the-box extensions: postgresql96-contrib
+-- Install available extension
+
+-- region postgresql96-contrib
 CREATE EXTENSION postgres_fdw;
 CREATE EXTENSION dblink;
 CREATE EXTENSION pg_buffercache;
 CREATE EXTENSION fuzzystrmatch;
 -- endregion
 
--- region Install third-party extensions
--- TBD could not install with Postgres 11
+-- Install third-party extensions
 CREATE EXTENSION pg_dropcache;
--- endregion
 
 -- Cache, ordered by the number of buffers
 SELECT pn.nspname AS schema, pc.relname, count(1) AS buffers, sum(pb.isdirty :: INT) AS dirty_pages
@@ -46,9 +47,8 @@ JOIN pg_class pc ON pb.relfilenode = pg_relation_filenode(pc.oid) --
                            FROM pg_database
                            WHERE datname = current_database()))
 JOIN pg_namespace pn ON pn.oid = pc.relnamespace
-WHERE pc.relname SIMILAR TO '(wos_|dataset)%'
+WHERE pc.relname SIMILAR TO '(wos_|op_|pcr)%'
 GROUP BY pc.relname, pn.nspname
 ORDER BY relname;
 
--- Drop cache by object(s)
 SELECT pg_drop_rel_cache('wos_references'), pg_drop_rel_cache('wos_references_pk');
