@@ -13,11 +13,11 @@ LIMIT 1000;
 
 SELECT *
 FROM scopus_publication_groups
-WHERE sgr = 20384762;
+WHERE sgr = :scp;
 
 SELECT *
 FROM scopus_publications
-WHERE sgr = 20384762;
+WHERE sgr = :scp;
 
 SELECT st.*
 FROM
