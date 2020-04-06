@@ -56,7 +56,7 @@ EXAMPLES
 
     To run a parser subset and stop on the first error:
 
-      ll ../failed$ ./lexis_nexis_smokeload.sh -s LexisNexis_parse_history -e  /pardidata3/LexisNexis/LexisNexis-API-2.0_xml_10_2018.tar.gz
+      $ ./lexis_nexis_smokeload.sh -s LexisNexis_parse_history -e  /pardidata3/LexisNexis/LexisNexis-API-2.0_xml_10_2018.tar.gz
 
 HEREDOC
   exit 1
@@ -279,8 +279,8 @@ else
   echo "FAILED PARSING ${failed_xml_counter_total} XML FILES"
 fi
 
-for directory in "${FAILED_FILES_DIR}"; do
-  cd $directory
+for directory in ${FAILED_FILES_DIR}; do
+  cd "$directory"
   check_errors # Exits here if errors occurred
   cd
 done
