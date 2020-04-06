@@ -1,4 +1,5 @@
 \include_relative lexis_nexis_tables.sql
+\include_relative lexis_nexis_views.sql
 
 \include_relative Procedures/lexis_nexis_parse_abstracts.sql
 \include_relative Procedures/lexis_nexis_parse_bibliographic_data.sql
