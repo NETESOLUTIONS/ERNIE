@@ -621,6 +621,8 @@
       <option name="TABLE_TYPES_ALIGN" value="false" />
       <option name="TABLE_DEFAULTS_ALIGN" value="false" />
       <option name="TABLE_NULLABILITIES_ALIGN" value="false" />
+      <option name="CONSTRAINT_WRAP_2" value="true" />
+      <option name="CONSTRAINT_WRAP_3" value="true" />
       <option name="POST_OPT_WRAP_1" value="true" />
       <option name="POST_OPT_INDENT" value="false" />
       <option name="POST_OPT_ALIGN" value="false" />
