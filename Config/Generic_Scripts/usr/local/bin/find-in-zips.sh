@@ -69,7 +69,7 @@ AUTHOR(S)
 
     Written by Dmitriy "DK" Korobskiy.
 HEREDOC
-  exit 255
+  exit 1
 fi
 
 set -e
@@ -86,7 +86,6 @@ while [[ $# -gt 1 ]]; do
   # zipinfo uses glob patterns to match files.
   # `${FILE_NAME_OR_GLOB}` would match file(s) in the root dir.
   # `*/${FILE_NAME_OR_GLOB}` would match file(s) in any sub-dir.
-  # While zipinfo can process '*.zip',
   if zipinfo -h "$1" "${FILE_NAME_OR_GLOB}" "*/${FILE_NAME_OR_GLOB}" 2>/dev/null; then
     echo -e "\nFound '${FILE_NAME_OR_GLOB}' in '$1'."
     if [[ $UNZIP_DIR ]]; then
