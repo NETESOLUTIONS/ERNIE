@@ -3,6 +3,10 @@
 -- George Chacko (with Dmitriy Korobskiy's tutelage
 -- April 8, 2020
 
+-- In this case, the source table is t_o_p_final table
+-- which contains all co-cited pairs with frequency >=10
+-- roughly 4.12 million pairs.
+
 CREATE TABLE chackoge.top_bc TABLESPACE p2_studies_tbs AS
 WITH CTE AS (SELECT a1.cited_1,b1.ref_sgr as cr1,b2.ref_sgr as cr2,a1.cited_2
 FROM t_o_p_final_table a1
