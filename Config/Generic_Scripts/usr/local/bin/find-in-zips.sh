@@ -39,7 +39,7 @@ EXIT STATUS
     The find-in-zips.sh utility exits with one of the following values:
 
     0   Not found
-    255 Found
+    255 Found or this help requested
 
 EXAMPLES
 
@@ -69,7 +69,7 @@ AUTHOR(S)
 
     Written by Dmitriy "DK" Korobskiy.
 HEREDOC
-  exit 1
+  exit 255
 fi
 
 set -e
