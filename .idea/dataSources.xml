@@ -10,7 +10,7 @@
         <property name="ApplicationName" value="DataGrip" />
       </driver-properties>
     </data-source>
-    <data-source source="LOCAL" name="ERNIE2 (ernie_admin) @ tunnel" uuid="bd1cd9d7-2987-438e-8a81-fc2819260cfc">
+    <data-source source="LOCAL" name="~ ERNIE2 (ernie_admin) @ tunnel" uuid="bd1cd9d7-2987-438e-8a81-fc2819260cfc">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
