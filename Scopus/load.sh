@@ -4,7 +4,7 @@ if [[ $1 == "-h" ]]; then
   cat << 'HEREDOC'
 NAME
 
-  load.sh -- Smokeload or update Scopus data
+  load.sh -- smokeload or update Scopus data
 
 SYNOPSIS
   load.sh -k [common_option] ... data_directory [...]
