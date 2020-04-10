@@ -1,9 +1,9 @@
 SELECT doc_number, CAST(substring(scopus_url FROM 'eid=2-s2.0-(\d+)') AS BIGINT) AS scp, scopus_url
-  FROM lexis_nexis_nonpatent_literature_citations
+  FROM lexis_nexis_nonpatent_literature_citations lnnlc
  LIMIT 50;
 
 SELECT doc_number, scopus_url, REGEXP_MATCHES(scopus_url, '[0-9]{10}')
-  FROM lexis_nexis_nonpatent_literature_citations
+  FROM lexis_nexis_nonpatent_literature_citations lnnlc
  LIMIT 50;
 
 SELECT *
