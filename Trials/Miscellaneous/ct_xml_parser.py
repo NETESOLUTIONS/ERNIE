@@ -82,10 +82,7 @@ if nct_id is None:
 
 
 # %% Open connection to ERNIE database
-try:
-   conn=psycopg2.connect("dbname='ernie' user='ernie_admin'")
-except:
-   print "I am unable to connect to the database ernie."
+conn=psycopg2.connect("dbname='ernie' user='ernie_admin'")
 
 cur = conn.cursor()
 
