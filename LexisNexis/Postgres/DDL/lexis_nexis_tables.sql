@@ -37,7 +37,7 @@ CREATE TABLE lexis_nexis_patents (
     PRIMARY KEY (country_code, doc_number, kind_code) USING INDEX TABLESPACE index_tbs,
   CONSTRAINT lexis_nexis_patents_fk
     FOREIGN KEY (family_id)
-      REFERENCES lexis_nexis_patent_families ON DELETE SET NULL CASCADE
+      REFERENCES lexis_nexis_patent_families ON DELETE SET NULL
 )
 TABLESPACE lexis_nexis_tbs;
 
