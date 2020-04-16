@@ -32,6 +32,7 @@ CREATE TABLE lexis_nexis_patents (
   main_national_classification_subclass TEXT,
   number_of_claims INT,
   last_updated_time TIMESTAMP DEFAULT now(),
+  family_id INT,
   CONSTRAINT lexis_nexis_patents_pk
     PRIMARY KEY (country_code, doc_number, kind_code) USING INDEX TABLESPACE index_tbs
 )
@@ -997,4 +998,31 @@ COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_language IS 'Language us
 COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_date_changed IS 'Date the abstract was last changed at the source data end';
 COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_text IS 'Abstract text';
 COMMENT ON COLUMN lexis_nexis_patent_abstracts.last_updated_time IS '';
+                                                  
+-- region lexis_nexis_domestic_and_extended_family
+DROP TABLE IF EXISTS lexis_nexis_domestic_and_extended_family;
+CREATE TABLE lexis_nexis_domestic_and_extended_family (
+  earliest_date DATE,
+  country_code TEXT NOT NULL,
+  doc_number TEXT NOT NULL,
+  kind_code TEXT NOT NULL,
+  application_date DATE,
+  family_id INT NOT NULL,
+  flag BOOLEAN,
+  CONSTRAINT lexis_nexis_domestic_and_extended_family_pk
+    PRIMARY KEY (country_code, doc_number, kind_code, family_id) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_domestic_and_extended_family_fk
+    FOREIGN KEY (family_id)
+      REFERENCES lexis_nexis_patents ON DELETE CASCADE
+)
+TABLESPACE lexis_nexis_tbs;
+
+COMMENT ON TABLE lexis_nexis_domestic_and_extended_family IS 'Domestic family and extended family combined table';
+COMMENT ON COLUMN lexis_nexis_domestic_and_extended_family.earliest_date IS 'Earliest date';
+COMMENT ON COLUMN lexis_nexis_domestic_and_extended_family.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_domestic_and_extended_family.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_domestic_and_extended_family.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_domestic_and_extended_family.application_date IS 'Application date';
+COMMENT ON COLUMN lexis_nexis_domestic_and_extended_family.family_id IS 'Family id';
+COMMENT ON COLUMN lexis_nexis_domestic_and_extended_family.flag IS 'A boolean value indicates whether it is a domestic family or extended family';                                                 
 -- endregion
