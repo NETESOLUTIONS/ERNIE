@@ -8,6 +8,25 @@ SET search_path = :schema;
 -- JetBrains IDEs: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
+-- region lexis_nexis_patent_families
+
+DROP TABLE IF EXISTS lexis_nexis_patent_families;
+CREATE TABLE lexis_nexis_patent_families (
+  earliest_date DATE,
+  family_id INT,
+  is_extended_family BOOLEAN,
+  CONSTRAINT lexis_nexis_patent_families_pk
+    PRIMARY KEY (family_id) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+COMMENT ON TABLE lexis_nexis_patent_families IS 'Domestic family and extended family combined table';
+COMMENT ON COLUMN lexis_nexis_patent_families.earliest_date IS 'Earliest date';
+COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Family id';
+COMMENT ON COLUMN lexis_nexis_patent_families.is_extended_family IS 'A boolean value indicates whether it is a domestic family or extended family';
+
+-- endregion
+
 -- region lexis_nexis_patents
 DROP TABLE IF EXISTS lexis_nexis_patents CASCADE;
 CREATE TABLE lexis_nexis_patents (
@@ -976,6 +995,7 @@ COMMENT ON COLUMN lexis_nexis_patent_legal_data.last_updated_time IS '';
 -- endregion
 
 -- region lexis_nexis_patent_abstracts
+
 DROP TABLE IF EXISTS lexis_nexis_patent_abstracts;
 CREATE TABLE lexis_nexis_patent_abstracts (
   country_code TEXT NOT NULL,
@@ -1001,24 +1021,6 @@ COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_language IS 'Language us
 COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_date_changed IS 'Date the abstract was last changed at the source data end';
 COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_text IS 'Abstract text';
 COMMENT ON COLUMN lexis_nexis_patent_abstracts.last_updated_time IS '';
-                                                  
--- region lexis_nexis_patent_families
-DROP TABLE IF EXISTS lexis_nexis_patent_families;
-CREATE TABLE lexis_nexis_patent_families (
-  earliest_date DATE,
-  family_id INT,
-  is_extended_family BOOLEAN,
-  CONSTRAINT lexis_nexis_patent_families_pk
-    PRIMARY KEY (family_id) USING INDEX TABLESPACE index_tbs
-)
-TABLESPACE lexis_nexis_tbs;
 
-COMMENT ON TABLE lexis_nexis_patent_families IS 'Domestic family and extended family combined table';
-COMMENT ON COLUMN lexis_nexis_patent_families.earliest_date IS 'Earliest date';
-COMMENT ON COLUMN lexis_nexis_patent_families.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
-COMMENT ON COLUMN lexis_nexis_patent_families.doc_number IS 'Document number';
-COMMENT ON COLUMN lexis_nexis_patent_families.kind_code IS 'Document kind';
-COMMENT ON COLUMN lexis_nexis_patent_families.application_date IS 'Application date';
-COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Family id';
-COMMENT ON COLUMN lexis_nexis_patent_families.is_extended_family IS 'A boolean value indicates whether it is a domestic family or extended family';                                                 
 -- endregion
+
