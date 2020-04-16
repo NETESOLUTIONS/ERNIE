@@ -1013,7 +1013,7 @@ CREATE TABLE lexis_nexis_patent_families (
   family_id INT,
   is_extended_family BOOLEAN,
   CONSTRAINT lexis_nexis_patent_families_pk
-    PRIMARY KEY (family_id) USING INDEX TABLESPACE index_tbs,
+    PRIMARY KEY (family_id) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
