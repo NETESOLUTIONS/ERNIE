@@ -34,7 +34,7 @@ CREATE TABLE lexis_nexis_patents (
   last_updated_time TIMESTAMP DEFAULT now(),
   family_id INT,
   CONSTRAINT lexis_nexis_patents_pk
-    PRIMARY KEY (country_code, doc_number, kind_code) USING INDEX TABLESPACE index_tbs
+    PRIMARY KEY (country_code, doc_number, kind_code) USING INDEX TABLESPACE index_tbs,
   CONSTRAINT lexis_nexis_patents_fk
     FOREIGN KEY (family_id)
       REFERENCES lexis_nexis_patent_families ON DELETE SET NULL CASCADE
@@ -1006,10 +1006,6 @@ COMMENT ON COLUMN lexis_nexis_patent_abstracts.last_updated_time IS '';
 DROP TABLE IF EXISTS lexis_nexis_patent_families;
 CREATE TABLE lexis_nexis_patent_families (
   earliest_date DATE,
-  country_code TEXT NOT NULL,
-  doc_number TEXT NOT NULL,
-  kind_code TEXT NOT NULL,
-  application_date DATE,
   family_id INT,
   is_extended_family BOOLEAN,
   CONSTRAINT lexis_nexis_patent_families_pk
