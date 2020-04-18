@@ -9,6 +9,13 @@
           </mappings>
         </serverdata>
       </paths>
+      <paths name="ERNIE2 (project level)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="Workspaces/ERNIE" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
     </serverData>
   </component>
 </project>

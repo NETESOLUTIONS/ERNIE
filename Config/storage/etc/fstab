@@ -1,0 +1,69 @@
+#
+# /etc/fstab
+#
+# Fields on each line are separated by tabs or spaces:
+#   fs_spec fs_file fs_vfstype fs_mntops [fs_freq] [fs_passno]
+
+# fs_spec
+#   Describes the block special device or remote filesystem to be mounted.
+#   For ordinary mounts it will hold (a link to) a block special device node like  `/dev/cdrom' or `/dev/sdb7'
+#   Instead of giving the device explicitly, one may indicate the filesystem that is to be mounted by its UUID or LABEL,
+#   e.g., `LABEL=Boot'  or  `UUID=3e6be9de-8139-11d1-9106-a43f08d823a6'.
+#
+# fs_file
+#   Describes the mount point for the filesystem.  For swap partitions, this field should be specified as `none'.
+#
+# fs_vfstype
+#   Describes the type of the filesystem. For more details, see mount(8).
+#
+# fs_mntops
+#   Describes the mount options. It is formatted as a comma separated list of options. It contains at least the type
+#   of mount (`fs_type`) plus any additional options appropriate to the filesystem type.
+#   If fs_type is `sw` then the special file is made available as a piece of swap space by the swapon(8) command at
+#   the end of the system reboot procedure. If fs_type is specified as `xx` the entry is ignored.
+#
+#   Basic file system independent options are:
+#
+#     defaults  use default options: rw, suid, dev, exec, auto, nouser, and async.
+#
+#     nofail    do not report errors for this device if it does not exist.
+#
+# fs_freq
+#   Used by the dump(8) command to determine which filesystems need to be dumped.
+#   Defaults to 0 = does not need to be dumped.
+#   Azure default = 0 for system volumes.
+#
+# fs_passno
+#   Used by the fsck(8) program to determine the order in which filesystem checks are done at reboot time
+#   The root filesystem should be specified with a fs_passno of 1, and other filesystems should have a fs_passno of 2.
+#   Defaults to 0 = does not need to be checked.
+#   Azure default = 0 for system volumes.
+#
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+
+# == System Volumes ==
+
+UUID=12907c8a-6b2f-4981-b94c-f3cd772270a7	/		xfs	defaults
+UUID=fa2f8157-21c9-43b6-85e3-ff04422dfa00	/boot		xfs	defaults
+tmpfs						/dev/shm	tmpfs	defaults,nodev,nosuid,noexec
+
+# == Temporary Volumes ==
+# Hardened per CIS Benchmark L1 1.1.*
+
+/tmp/tmp_fs					/tmp		ext3	noexec,nosuid,nodev,loop 1 1
+/tmp						/var/tmp	none	bind
+
+# == Data Volumes ==
+
+UUID=6af19922-9bf5-44df-b5fa-2115581df926	/erniedev_data1	ext4	defaults,nofail
+UUID=b162b1c7-564b-41eb-9662-419c3f831acb	/erniedev_data2	ext4	defaults,nofail
+UUID=b028cfca-9aeb-4347-b7af-ef0bb5dde6f6	/erniedev_data3	ext4	defaults,nofail
+UUID=1c2538f3-9363-4039-8001-0331a2292e42	/erniedev_data4	ext4	defaults,nofail
+UUID=f0010566-2e92-44dc-825e-394c29d948be	/erniedev_data5	ext4	defaults,nofail
+UUID=6046eeca-2d4e-4423-9bf2-ef4eabe8f76d	/ernie1_museum	ext4	defaults,nofail
+UUID=8e46d904-57a6-407e-9242-14ed7987e440	/ernie1_museum2	ext4	defaults,nofail
+
+# == Swap Volumes ==
+
+/erniedev_data5/swap100gfile			none		swap	sw
