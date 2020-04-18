@@ -2,7 +2,6 @@
 <project version="4">
   <component name="SshConfigs">
     <configs>
-      <sshConfig host="ernie-neo4j.eastus2.cloudapp.azure.com" id="57840ce2-8956-4985-8c64-8679c267c098" keyPath="C:\Users\korobskd\.ssh\id_rsa" port="22" customName="ERNIE Neo4j" nameFormat="CUSTOM" username="dk" />
       <sshConfig host="ernie2.eastus2.cloudapp.azure.com" id="6ba1512e-2feb-449f-bb7a-01479abaf703" keyPath="$USER_HOME$/.ssh/id_rsa" port="22" customName="ERNIE2" nameFormat="CUSTOM" username="dk" />
     </configs>
   </component>

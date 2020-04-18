@@ -3,7 +3,7 @@
 #
 # Fields on each line are separated by tabs or spaces:
 #   fs_spec fs_file fs_vfstype fs_mntops [fs_freq] [fs_passno]
-
+#
 # fs_spec
 #   Describes the block special device or remote filesystem to be mounted.
 #   For ordinary mounts it will hold (a link to) a block special device node like  `/dev/cdrom' or `/dev/sdb7'
@@ -39,7 +39,7 @@
 #   Defaults to 0 = does not need to be checked.
 #   Azure default = 0 for system volumes.
 #
-# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info.
 #
 
 # == System Volumes ==
