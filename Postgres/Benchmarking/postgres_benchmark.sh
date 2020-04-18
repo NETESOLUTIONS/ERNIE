@@ -25,8 +25,12 @@ DESCRIPTION
 ENVIRONMENT
 
     # `PGDATABASE`/`PGUSER`, etc.: default Postgres connection parameters
+
     # `pgbench` must be installed on the system PATH. For example: `sudo ln -snfv /usr/pgsql*/bin/pgbench /usr/bin`.
-    # `pgbench` must be initialized. For example, for 5 simulated clients: `pgbench -i -s 5`.
+
+    # `pgbench` must be initialized connecting as the same Postgres user who would run it.
+      For example, for 5 simulated clients: `sudo -u jenkins pgbench --initialize --scale=5 $PGDATABASE`.
+
     # `pcregrep` must be installed.
 
 AUTHOR(S)
