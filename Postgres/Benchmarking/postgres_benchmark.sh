@@ -12,22 +12,22 @@ SYNOPSIS
 
 DESCRIPTION
 
-    Run pgbench and extract tps (excluding connections establishing) into a CSV.
+    Run `pgbench` and extract tps (excluding connections establishing) into a CSV.
     Display progress every 20 seconds.
 
     The following options are available:
 
-    --file                 Execute a custom pgbench script and extract TPS to `pgbench_custom.csv`.
+    --file                 Execute a custom `pgbench` script and extract TPS to `pgbench_custom.csv`.
                            The default is to execute built-in scripts and extract TPS to `pgbench_buitin.csv`.
     benchmark_time_seconds Run the test for this many seconds. Default is 10.
     simulated_clients      Number of clients simulated, that is, number of concurrent database sessions. Default is 5.
 
 ENVIRONMENT
 
-    # PGDATABASE/PGUSER, etc.: default Postgres connection parameters
-    # pgbench must be installed on the system PATH. For example: `sudo ln -snfv /usr/pgsql*/bin/pgbench /usr/bin`.
-    # pgbench must be initialized. For example, for 5 simulated clients: `pgbench -i -s 5`.
-    # pcregrep must be installed.
+    # `PGDATABASE`/`PGUSER`, etc.: default Postgres connection parameters
+    # `pgbench` must be installed on the system PATH. For example: `sudo ln -snfv /usr/pgsql*/bin/pgbench /usr/bin`.
+    # `pgbench` must be initialized. For example, for 5 simulated clients: `pgbench -i -s 5`.
+    # `pcregrep` must be installed.
 
 AUTHOR(S)
 
