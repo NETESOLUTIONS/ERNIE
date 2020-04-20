@@ -8,6 +8,25 @@ SET search_path = :schema;
 -- JetBrains IDEs: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
+-- region lexis_nexis_patent_families
+
+DROP TABLE IF EXISTS lexis_nexis_patent_families;
+CREATE TABLE lexis_nexis_patent_families (
+  earliest_date DATE,
+  family_id INT,
+  is_extended_family BOOLEAN,
+  CONSTRAINT lexis_nexis_patent_families_pk
+    PRIMARY KEY (family_id) USING INDEX TABLESPACE index_tbs
+)
+TABLESPACE lexis_nexis_tbs;
+
+COMMENT ON TABLE lexis_nexis_patent_families IS 'Domestic family and extended family combined table';
+COMMENT ON COLUMN lexis_nexis_patent_families.earliest_date IS 'Earliest date';
+COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Family id';
+COMMENT ON COLUMN lexis_nexis_patent_families.is_extended_family IS 'A boolean value indicates whether it is a domestic family or extended family';
+
+-- endregion
+
 -- region lexis_nexis_patents
 DROP TABLE IF EXISTS lexis_nexis_patents CASCADE;
 CREATE TABLE lexis_nexis_patents (
@@ -32,8 +51,12 @@ CREATE TABLE lexis_nexis_patents (
   main_national_classification_subclass TEXT,
   number_of_claims INT,
   last_updated_time TIMESTAMP DEFAULT now(),
+  family_id INT,
   CONSTRAINT lexis_nexis_patents_pk
-    PRIMARY KEY (country_code, doc_number, kind_code) USING INDEX TABLESPACE index_tbs
+    PRIMARY KEY (country_code, doc_number, kind_code) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_patents_fk
+    FOREIGN KEY (family_id)
+      REFERENCES lexis_nexis_patent_families ON DELETE SET NULL
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -972,6 +995,7 @@ COMMENT ON COLUMN lexis_nexis_patent_legal_data.last_updated_time IS '';
 -- endregion
 
 -- region lexis_nexis_patent_abstracts
+
 DROP TABLE IF EXISTS lexis_nexis_patent_abstracts;
 CREATE TABLE lexis_nexis_patent_abstracts (
   country_code TEXT NOT NULL,
@@ -997,4 +1021,6 @@ COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_language IS 'Language us
 COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_date_changed IS 'Date the abstract was last changed at the source data end';
 COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_text IS 'Abstract text';
 COMMENT ON COLUMN lexis_nexis_patent_abstracts.last_updated_time IS '';
+
 -- endregion
+
