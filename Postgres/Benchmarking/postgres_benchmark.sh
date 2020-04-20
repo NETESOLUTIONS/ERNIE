@@ -72,9 +72,17 @@ readonly SIMULATED_CLIENTS=${1:-5}
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
+echo -e "\nCurrently running queries"
+# language=PostgresPLSQL
+psql -c 'SELECT * FROM running;'
+
 echo '"TPS (excluding connections establishing)"' >"$OUTPUT_CSV"
 # Output progress to stdout and tee the extracted TPS into the output CSV
 pgbench --client=${SIMULATED_CLIENTS} --time=${BENCHMARK_TIME_SECONDS} --progress=20 "${CUSTOM_SCRIPT_OPTION}" | \
   tee >(pcregrep -o1 'tps = ([\d.]+).*excluding connections' >>"$OUTPUT_CSV")
+
+echo -e "\nCurrently running queries"
+# language=PostgresPLSQL
+psql -c 'SELECT * FROM running;'
 
 exit 0
