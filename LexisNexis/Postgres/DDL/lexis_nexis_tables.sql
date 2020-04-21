@@ -11,19 +11,34 @@ SET TIMEZONE = 'US/Eastern';
 -- region lexis_nexis_patent_families
 
 -- DROP TABLE IF EXISTS lexis_nexis_patent_families;
+CREATE TYPE family_type AS ENUM ('domestic', 'main', 'complete', 'extended');
 CREATE TABLE lexis_nexis_patent_families (
   earliest_date DATE,
   family_id INT,
-  is_extended_family BOOLEAN,
+  family_type family_type,
   CONSTRAINT lexis_nexis_patent_families_pk
     PRIMARY KEY (family_id) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
-COMMENT ON TABLE lexis_nexis_patent_families IS 'Domestic family and extended family combined table';
+COMMENT ON TABLE lexis_nexis_patent_families IS 'Patent Family which contains four family types';
 COMMENT ON COLUMN lexis_nexis_patent_families.earliest_date IS 'Earliest date';
-COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Family id';
-COMMENT ON COLUMN lexis_nexis_patent_families.is_extended_family IS 'A boolean value indicates whether it is a domestic family or extended family';
+COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Id for each family type';
+COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Type to indicate family type';
+
+-- DROP TABLE IF EXISTS lexis_nexis_patents_family_link;
+CREATE TABLE lexis_nexis_patents_family_link (
+  family_id INT,
+  country_code TEXT NOT NULL,
+  doc_number TEXT NOT NULL,
+  kind_code TEXT NOT NULL,
+CONSTRAINT lexis_nexis_patents_family_fk
+    FOREIGN KEY (family_id)
+      REFERENCES lexis_nexis_patent_families ON DELETE CASCADE,
+    FOREIGN KEY (country_code, doc_number, kind_code)
+      REFERENCES lexis_nexis_patents ON DELETE CASCADE
+)
+TABLESPACE lexis_nexis_tbs;
 
 -- endregion
 
@@ -51,12 +66,8 @@ CREATE TABLE lexis_nexis_patents (
   main_national_classification_subclass TEXT,
   number_of_claims INT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  family_id INT,
   CONSTRAINT lexis_nexis_patents_pk
     PRIMARY KEY (country_code, doc_number, kind_code) USING INDEX TABLESPACE index_tbs,
-  CONSTRAINT lexis_nexis_patents_fk
-    FOREIGN KEY (family_id)
-      REFERENCES lexis_nexis_patent_families ON DELETE SET NULL
 )
 TABLESPACE lexis_nexis_tbs;
 
