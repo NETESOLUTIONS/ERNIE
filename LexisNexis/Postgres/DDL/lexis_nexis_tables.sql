@@ -26,20 +26,6 @@ COMMENT ON COLUMN lexis_nexis_patent_families.earliest_date IS 'Earliest date';
 COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Id for each family type';
 COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Type to indicate family type';
 
--- DROP TABLE IF EXISTS lexis_nexis_patents_family_link;
-CREATE TABLE lexis_nexis_patents_family_link (
-  family_id INT,
-  country_code TEXT NOT NULL,
-  doc_number TEXT NOT NULL,
-  kind_code TEXT NOT NULL,
-CONSTRAINT lexis_nexis_patents_family_fk
-    FOREIGN KEY (family_id)
-      REFERENCES lexis_nexis_patent_families ON DELETE CASCADE,
-    FOREIGN KEY (country_code, doc_number, kind_code)
-      REFERENCES lexis_nexis_patents ON DELETE CASCADE
-)
-TABLESPACE lexis_nexis_tbs;
-
 -- endregion
 
 -- region lexis_nexis_patents
@@ -95,6 +81,24 @@ COMMENT ON COLUMN lexis_nexis_patents.number_of_claims IS 'Number of claims';
 COMMENT ON COLUMN lexis_nexis_patents.last_updated_time IS '';
 -- endregion
 
+
+-- DROP TABLE IF EXISTS lexis_nexis_patents_family_link;
+CREATE TABLE lexis_nexis_patents_family_link (
+  family_id INT,
+  country_code TEXT NOT NULL,
+  doc_number TEXT NOT NULL,
+  kind_code TEXT NOT NULL,
+CONSTRAINT lexis_nexis_patents_family_link_fk
+    PRIMARY KEY (family_id, country_code, doc_number, kind_code) USING INDEX TABLESPACE index_tbs,
+CONSTRAINT lexis_nexis_patents_family_link_fk
+    FOREIGN KEY (family_id)
+      REFERENCES lexis_nexis_patent_families ON DELETE CASCADE,
+    FOREIGN KEY (country_code, doc_number, kind_code)
+      REFERENCES lexis_nexis_patents ON DELETE CASCADE
+)
+TABLESPACE lexis_nexis_tbs;
+-- endregion
+
 -- region lexis_nexis_patent_titles
 -- DROP TABLE IF EXISTS lexis_nexis_patent_titles;
 CREATE TABLE lexis_nexis_patent_titles (
@@ -120,6 +124,7 @@ COMMENT ON COLUMN lexis_nexis_patent_titles.invention_title IS 'Preferably two t
 COMMENT ON COLUMN lexis_nexis_patent_titles.language IS 'Title text language';
 COMMENT ON COLUMN lexis_nexis_patent_titles.last_updated_time IS '';
 -- endregion
+
 
 -- region lexis_nexis_patent_citations
 -- DROP TABLE IF EXISTS lexis_nexis_patent_citations;
