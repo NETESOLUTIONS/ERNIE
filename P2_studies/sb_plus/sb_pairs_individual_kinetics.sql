@@ -15,9 +15,11 @@ SELECT c.cited_1, d.pub_year, COUNT(*)
  GROUP BY c.cited_1, d.pub_year;
 
 --- Remove records that scp pub year earlier than ref_sgr pub year, scp pub year later than 2019 and scp pub year is null
+CREATE TABLE wenxi.sleep_beauty_1380_individual_kinetics_update TABLESPACE p2_studies_tbs AS
 SELECT a.*, b.pub_year AS cited_1_pub_year
-  INTO wenxi.sleep_beauty_1380_individual_kinetics_update
   FROM wenxi.sleep_beauty_1380_individual_kinetics a
   INNER JOIN public.scopus_publication_groups b
              ON CAST(a.cited_1 AS BIGINT) = b.sgr
  WHERE a.pub_year >= b.pub_year and a.pub_year <= 2019 and a.pub_year IS NOT NULL;
+ 
+ 
