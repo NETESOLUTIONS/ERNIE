@@ -10,25 +10,26 @@ SET TIMEZONE = 'US/Eastern';
 
 -- region lexis_nexis_patent_families
 
-DROP TABLE IF EXISTS lexis_nexis_patent_families;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_families;
+CREATE TYPE FAMILY_TYPE AS ENUM ('domestic', 'main', 'complete', 'extended');
 CREATE TABLE lexis_nexis_patent_families (
   earliest_date DATE,
   family_id INT,
-  is_extended_family BOOLEAN,
+  family_type FAMILY_TYPE,
   CONSTRAINT lexis_nexis_patent_families_pk
     PRIMARY KEY (family_id) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
-COMMENT ON TABLE lexis_nexis_patent_families IS 'Domestic family and extended family combined table';
+COMMENT ON TABLE lexis_nexis_patent_families IS 'Patent Family which contains four family types';
 COMMENT ON COLUMN lexis_nexis_patent_families.earliest_date IS 'Earliest date';
-COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Family id';
-COMMENT ON COLUMN lexis_nexis_patent_families.is_extended_family IS 'A boolean value indicates whether it is a domestic family or extended family';
+COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Id for each family type';
+COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Type to indicate family type';
 
 -- endregion
 
 -- region lexis_nexis_patents
-DROP TABLE IF EXISTS lexis_nexis_patents CASCADE;
+-- DROP TABLE IF EXISTS lexis_nexis_patents CASCADE;
 CREATE TABLE lexis_nexis_patents (
   country_code TEXT NOT NULL,
   doc_number TEXT NOT NULL,
@@ -51,12 +52,8 @@ CREATE TABLE lexis_nexis_patents (
   main_national_classification_subclass TEXT,
   number_of_claims INT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  family_id INT,
   CONSTRAINT lexis_nexis_patents_pk
     PRIMARY KEY (country_code, doc_number, kind_code) USING INDEX TABLESPACE index_tbs,
-  CONSTRAINT lexis_nexis_patents_fk
-    FOREIGN KEY (family_id)
-      REFERENCES lexis_nexis_patent_families ON DELETE SET NULL
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -84,8 +81,25 @@ COMMENT ON COLUMN lexis_nexis_patents.number_of_claims IS 'Number of claims';
 COMMENT ON COLUMN lexis_nexis_patents.last_updated_time IS '';
 -- endregion
 
+-- DROP TABLE IF EXISTS lexis_nexis_patents_family_link;
+CREATE TABLE lexis_nexis_patents_family_link (
+  family_id INT,
+  country_code TEXT NOT NULL,
+  doc_number TEXT NOT NULL,
+  kind_code TEXT NOT NULL,
+  CONSTRAINT lexis_nexis_patents_family_link_pk
+    PRIMARY KEY (family_id, country_code, doc_number, kind_code) USING INDEX TABLESPACE index_tbs,
+  CONSTRAINT lexis_nexis_patents_family_link_fk
+    FOREIGN KEY (family_id)
+      REFERENCES lexis_nexis_patent_families ON DELETE CASCADE,
+  FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE
+)
+TABLESPACE lexis_nexis_tbs;
+-- endregion
+
 -- region lexis_nexis_patent_titles
-DROP TABLE IF EXISTS lexis_nexis_patent_titles;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_titles;
 CREATE TABLE lexis_nexis_patent_titles (
   country_code TEXT NOT NULL,
   doc_number TEXT NOT NULL,
@@ -111,7 +125,7 @@ COMMENT ON COLUMN lexis_nexis_patent_titles.last_updated_time IS '';
 -- endregion
 
 -- region lexis_nexis_patent_citations
-DROP TABLE IF EXISTS lexis_nexis_patent_citations;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_citations;
 CREATE TABLE lexis_nexis_patent_citations (
   country_code TEXT NOT NULL,
   doc_number TEXT NOT NULL,
@@ -148,7 +162,7 @@ COMMENT ON COLUMN lexis_nexis_patent_citations.last_updated_time IS 'Timestamp o
 -- endregion
 
 -- region lexis_nexis_nonpatent_literature_citations
-DROP TABLE IF EXISTS lexis_nexis_nonpatent_literature_citations;
+-- DROP TABLE IF EXISTS lexis_nexis_nonpatent_literature_citations;
 CREATE TABLE lexis_nexis_nonpatent_literature_citations (
   country_code TEXT,
   doc_number TEXT,
@@ -175,7 +189,7 @@ CREATE INDEX IF NOT EXISTS lnnlc_fun_scp_i ON --
 -- endregion
 
 -- region lexis_nexis_patent_priority_claims
-DROP TABLE IF EXISTS lexis_nexis_patent_priority_claims;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_priority_claims;
 CREATE TABLE lexis_nexis_patent_priority_claims (
   doc_number TEXT NOT NULL,
   country_code TEXT NOT NULL,
@@ -213,7 +227,7 @@ COMMENT ON COLUMN lexis_nexis_patent_priority_claims.last_updated_time IS '';
 -- endregion
 
 /*-- region lexis_nexis_patent_priority_claim_ib_info
-DROP TABLE IF EXISTS lexis_nexis_patent_priority_claim_ib_info;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_priority_claim_ib_info;
 CREATE TABLE lexis_nexis_patent_priority_claim_ib_info (
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT lexis_nexis_patent_priority_claim_ib_info_pk PRIMARY KEY (country_code,doc_number,kind_code,language) USING INDEX TABLESPACE index_tbs
@@ -227,7 +241,7 @@ COMMENT ON COLUMN lexis_nexis_patent_priority_claim_ib_info.last_updated_time IS
 
 -- region lexis_nexis_patent_related_documents: tables can be modified based on parsing results
 -- region lexis_nexis_patent_related_document_additions
-DROP TABLE IF EXISTS lexis_nexis_patent_related_document_additions;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_additions;
 CREATE TABLE lexis_nexis_patent_related_document_additions (
   country_code TEXT,
   doc_number TEXT,
@@ -260,7 +274,7 @@ CREATE TABLE lexis_nexis_patent_related_document_additions (
 TABLESPACE lexis_nexis_tbs;
 
 -- region lexis_nexis_patent_related_document_divisions
-DROP TABLE IF EXISTS lexis_nexis_patent_related_document_divisions;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_divisions;
 CREATE TABLE lexis_nexis_patent_related_document_divisions (
   country_code TEXT,
   doc_number TEXT,
@@ -293,7 +307,7 @@ CREATE TABLE lexis_nexis_patent_related_document_divisions (
 TABLESPACE lexis_nexis_tbs;
 
 -- region lexis_nexis_patent_related_document_continuations
-DROP TABLE IF EXISTS lexis_nexis_patent_related_document_continuations;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_continuations;
 CREATE TABLE lexis_nexis_patent_related_document_continuations (
   country_code TEXT,
   doc_number TEXT,
@@ -326,7 +340,7 @@ CREATE TABLE lexis_nexis_patent_related_document_continuations (
 TABLESPACE lexis_nexis_tbs;
 
 -- region lexis_nexis_patent_related_document_continuation_in_parts
-DROP TABLE IF EXISTS lexis_nexis_patent_related_document_continuation_in_parts;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_continuation_in_parts;
 CREATE TABLE lexis_nexis_patent_related_document_continuation_in_parts (
   country_code TEXT,
   doc_number TEXT,
@@ -359,7 +373,7 @@ CREATE TABLE lexis_nexis_patent_related_document_continuation_in_parts (
 TABLESPACE lexis_nexis_tbs;
 
 -- region lexis_nexis_patent_related_document_continuing_reissues
-DROP TABLE IF EXISTS lexis_nexis_patent_related_document_continuing_reissues;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_continuing_reissues;
 CREATE TABLE lexis_nexis_patent_related_document_continuing_reissues (
   country_code TEXT,
   doc_number TEXT,
@@ -392,7 +406,7 @@ CREATE TABLE lexis_nexis_patent_related_document_continuing_reissues (
 TABLESPACE lexis_nexis_tbs;
 
 -- region lexis_nexis_patent_related_document_reissues
-DROP TABLE IF EXISTS lexis_nexis_patent_related_document_reissues;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_reissues;
 CREATE TABLE lexis_nexis_patent_related_document_reissues (
   country_code TEXT,
   doc_number TEXT,
@@ -425,7 +439,7 @@ CREATE TABLE lexis_nexis_patent_related_document_reissues (
 TABLESPACE lexis_nexis_tbs;
 
 -- region lexis_nexis_patent_related_document_divisional_reissues
-DROP TABLE IF EXISTS lexis_nexis_patent_related_document_divisional_reissues;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_divisional_reissues;
 CREATE TABLE lexis_nexis_patent_related_document_divisional_reissues (
   country_code TEXT,
   doc_number TEXT,
@@ -458,7 +472,7 @@ CREATE TABLE lexis_nexis_patent_related_document_divisional_reissues (
 TABLESPACE lexis_nexis_tbs;
 
 -- region lexis_nexis_patent_related_document_reexaminations
-DROP TABLE IF EXISTS lexis_nexis_patent_related_document_reexaminations;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_reexaminations;
 CREATE TABLE lexis_nexis_patent_related_document_reexaminations (
   country_code TEXT,
   doc_number TEXT,
@@ -492,7 +506,7 @@ TABLESPACE lexis_nexis_tbs;
 
 /* Name too long here, need a shorter name to avoid truncation warnings/error on PK creation
 -- region lexis_nexis_patent_related_document_reexamination_reissue_mergers
-DROP TABLE IF EXISTS lexis_nexis_patent_related_document_reexamination_reissue_mergers;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_reexamination_reissue_mergers;
 CREATE TABLE lexis_nexis_patent_related_document_reexamination_reissue_mergers (
   country_code TEXT,
   doc_number TEXT,
@@ -525,7 +539,7 @@ TABLESPACE lexis_nexis_tbs;
 */
 
 -- region lexis_nexis_patent_related_document_substitutions
-DROP TABLE IF EXISTS lexis_nexis_patent_related_document_substitutions;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_substitutions;
 CREATE TABLE lexis_nexis_patent_related_document_substitutions (
   country_code TEXT,
   doc_number TEXT,
@@ -558,7 +572,7 @@ CREATE TABLE lexis_nexis_patent_related_document_substitutions (
 TABLESPACE lexis_nexis_tbs;
 
 -- region lexis_nexis_patent_related_document_provisional_applications
-DROP TABLE IF EXISTS lexis_nexis_patent_related_document_provisional_applications;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_provisional_applications;
 CREATE TABLE lexis_nexis_patent_related_document_provisional_applications (
   country_code TEXT,
   doc_number TEXT,
@@ -576,7 +590,7 @@ CREATE TABLE lexis_nexis_patent_related_document_provisional_applications (
 TABLESPACE lexis_nexis_tbs;
 
 -- region lexis_nexis_patent_related_document_utility_model_basis
-DROP TABLE IF EXISTS lexis_nexis_patent_related_document_utility_model_basis;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_utility_model_basis;
 CREATE TABLE lexis_nexis_patent_related_document_utility_model_basis (
   country_code TEXT,
   doc_number TEXT,
@@ -609,7 +623,7 @@ CREATE TABLE lexis_nexis_patent_related_document_utility_model_basis (
 TABLESPACE lexis_nexis_tbs;
 
 -- region lexis_nexis_patent_related_corrections
-DROP TABLE IF EXISTS lexis_nexis_patent_related_corrections;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_related_corrections;
 CREATE TABLE lexis_nexis_patent_related_corrections (
   country_code TEXT,
   doc_number TEXT,
@@ -630,7 +644,7 @@ CREATE TABLE lexis_nexis_patent_related_corrections (
 TABLESPACE lexis_nexis_tbs;
 
 -- region lexis_nexis_patent_related_publications
-DROP TABLE IF EXISTS lexis_nexis_patent_related_publications;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_related_publications;
 CREATE TABLE lexis_nexis_patent_related_publications (
   country_code TEXT,
   doc_number TEXT,
@@ -647,7 +661,7 @@ CREATE TABLE lexis_nexis_patent_related_publications (
 TABLESPACE lexis_nexis_tbs;
 
 -- region lexis_nexis_patent_related_document_371_international
-DROP TABLE IF EXISTS lexis_nexis_patent_related_document_371_international;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_371_international;
 CREATE TABLE lexis_nexis_patent_related_document_371_international (
   country_code TEXT,
   doc_number TEXT,
@@ -685,7 +699,7 @@ TABLESPACE lexis_nexis_tbs;
 -- endregion
 
 -- region lexis_nexis_patent_application_references
-DROP TABLE IF EXISTS lexis_nexis_patent_application_references;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_application_references;
 CREATE TABLE lexis_nexis_patent_application_references (
   country_code TEXT NOT NULL,
   doc_number TEXT NOT NULL,
@@ -760,7 +774,7 @@ COMMENT ON COLUMN lexis_nexis_applicants.last_updated_time IS 'Time record was l
 -- endregion
 
 -- region lexis_nexis_inventors
-DROP TABLE IF EXISTS lexis_nexis_inventors;
+-- DROP TABLE IF EXISTS lexis_nexis_inventors;
 CREATE TABLE lexis_nexis_inventors (
   country_code TEXT NOT NULL,
   doc_number TEXT NOT NULL,
@@ -809,7 +823,7 @@ COMMENT ON COLUMN lexis_nexis_inventors.last_updated_time IS '';
 -- endregion
 
 -- region lexis_nexis_us_agents
-DROP TABLE IF EXISTS lexis_nexis_us_agents;
+-- DROP TABLE IF EXISTS lexis_nexis_us_agents;
 CREATE TABLE lexis_nexis_us_agents (
   country_code TEXT,
   doc_number TEXT,
@@ -841,7 +855,7 @@ COMMENT ON COLUMN lexis_nexis_us_agents.first_name IS 'First name of the agent';
 COMMENT ON COLUMN lexis_nexis_us_agents.last_updated_time IS '';
 
 -- region lexis_nexis_ep_agents
-DROP TABLE IF EXISTS lexis_nexis_ep_agents;
+-- DROP TABLE IF EXISTS lexis_nexis_ep_agents;
 CREATE TABLE lexis_nexis_ep_agents (
   country_code TEXT,
   doc_number TEXT,
@@ -881,7 +895,7 @@ COMMENT ON COLUMN lexis_nexis_ep_agents.last_updated_time IS '';
 -- endregion
 
 -- region lexis_nexis_examiners
-DROP TABLE IF EXISTS lexis_nexis_examiners;
+-- DROP TABLE IF EXISTS lexis_nexis_examiners;
 CREATE TABLE lexis_nexis_examiners (
   country_code TEXT,
   doc_number TEXT,
@@ -907,7 +921,7 @@ COMMENT ON COLUMN lexis_nexis_examiners.last_updated_time IS '';
 -- endregion
 
 -- region lexis_nexis_patent_legal_data
-DROP TABLE IF EXISTS lexis_nexis_patent_legal_data;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_legal_data;
 CREATE TABLE lexis_nexis_patent_legal_data (
   country_code TEXT NOT NULL,
   doc_number TEXT NOT NULL,
@@ -996,7 +1010,7 @@ COMMENT ON COLUMN lexis_nexis_patent_legal_data.last_updated_time IS '';
 
 -- region lexis_nexis_patent_abstracts
 
-DROP TABLE IF EXISTS lexis_nexis_patent_abstracts;
+-- DROP TABLE IF EXISTS lexis_nexis_patent_abstracts;
 CREATE TABLE lexis_nexis_patent_abstracts (
   country_code TEXT NOT NULL,
   doc_number TEXT NOT NULL,
