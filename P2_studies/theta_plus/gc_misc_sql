@@ -1,0 +1,7 @@
+CREATE TABLE theta_plus.top_scp_title_concat_abstract
+TABLESPACE theta_plus_tbs AS
+WITH cte AS (SELECT * FROM ((
+     SELECT cited_1 AS scp FROM t_o_p_final_table)
+     UNION (SELECT cited_2 AS scp FROM t_o_p_final_table))c)                                                                        SELECT cte.scp,st.title,sa.abstract_textFROM cte
+INNER JOIN scopus_titles st ON cte.scp=st.scp
+INNER JOIN scopus_abstracts sa ON cte.scp=sa.scp;
