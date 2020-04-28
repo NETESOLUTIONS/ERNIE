@@ -23,7 +23,7 @@ from sys import argv
 start_time=time.time()
 
 pmt_content=argv[1]
-data_directory = "'" + argv[2] + "'"
+data_directory = argv[2]
 
 ## Build a function that 1) opens email 2) scans it for urls 3) stores urls and then opens file in them 4) then rename this downloaded file and store in specified directory.
 
@@ -86,6 +86,10 @@ def email_parser(pmt_content, data_directory):
 
 ## Run the function with the relevant input, which is already default argument for email_parser
 print("Scanning email now for url...")
+print("The email content is:")
+print("")
+print(pmt_content)
+print("")
 result=email_parser(pmt_content, data_directory)
 print('The revelevant items are zip files:', result)
 print('The total duration for the whole process:',time.time()-start_time)
