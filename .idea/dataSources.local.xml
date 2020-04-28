@@ -18,6 +18,7 @@
               <node kind="schema">
                 <name qname="@" />
                 <name qname="cc2" />
+                <name qname="comp" />
                 <name qname="jenkins" />
                 <name qname="public" />
               </node>
