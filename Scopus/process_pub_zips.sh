@@ -172,13 +172,14 @@ declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m del
 parse_pub() {
   local pub_xml="$1"
   [[ $2 ]] && local subset_option="-v subset_sp=$2"
+  local scopus_data_archive="$3"
 
   [[ ${VERBOSE} == "true" ]] && echo "Parsing $pub_xml"
   # Always produce minimum output below even when not verbose to get stats via the OUTPUT_PROCESSOR
   # Extra output is discarded in non-verbose mode by the OUTPUT_PROCESSOR
   # Using Staging
   # shellcheck disable=SC2086
-  if psql -q -f "${ABSOLUTE_SCRIPT_DIR}/parse_and_stage.sql" -v "xml_file=$PWD/$pub_xml" ${subset_option} \
+  if psql -q -f "${ABSOLUTE_SCRIPT_DIR}/parse_and_stage.sql" -v "pub_zip_name=$scopus_data_archieve" -v "xml_file=$PWD/$pub_xml" ${subset_option} \
         2>> "${ERROR_LOG}"; then
     echo "$pub_xml: SUCCESSFULLY PARSED."
     return 0
