@@ -45,17 +45,29 @@ for (j in 1:length(global_dflist)){
 
 setwd('/Users/george/Desktop/theta_plus/top')
 ncf_20 <- do.call(rbind,global_dflist[[1]]); fwrite(ncf_20,file="ncf_20.csv")
+colnames(ncf_20) <- c('cluster_no','scp')
 ncf_30 <- do.call(rbind,global_dflist[[2]]); fwrite(ncf_30,file="ncf_30.csv")
+colnames(ncf_30) <- c('cluster_no','scp')
 ncf_40 <- do.call(rbind,global_dflist[[3]]); fwrite(ncf_40,file="ncf_40.csv")
-ncf_60 <- do.call(rbind,global_dflist[[4]]); fwrite(ncf_60,file="ncf_60.csv")1
+colnames(ncf_40) <- c('cluster_no','scp')
+ncf_60 <- do.call(rbind,global_dflist[[4]]); fwrite(ncf_60,file="ncf_60.csv")
+colnames(ncf_60) <- c('cluster_no','scp')
 
 now_20 <- do.call(rbind,global_dflist[[5]]); fwrite(now_20,file="now_20.csv")
+colnames(now_20) <- c('cluster_no','scp')
 now_30 <- do.call(rbind,global_dflist[[6]]); fwrite(now_30,file="now_30.csv")
+colnames(now_30) <- c('cluster_no','scp')
 now_40 <- do.call(rbind,global_dflist[[7]]); fwrite(now_40,file="now_40.csv")
+colnames(now_40) <- c('cluster_no','scp')
 now_60 <- do.call(rbind,global_dflist[[8]]); fwrite(now_60,file="now_60.csv")
+colnames(now_60) <- c('cluster_no','scp')
 
 sf_20 <- do.call(rbind,global_dflist[[9]]);  fwrite(sf_20,file="sf_20.csv")
+colnames(sf_20) <- c('cluster_no','scp')
 sf_30 <- do.call(rbind,global_dflist[[10]]); fwrite(sf_30,file="sf_30.csv")
+colnames(sf_30) <- c('cluster_no','scp')
 sf_40 <- do.call(rbind,global_dflist[[11]]); fwrite(sf_40,file="sf_40.csv")
+colnames(sf_40) <- c('cluster_no','scp')
 sf_60 <- do.call(rbind,global_dflist[[12]]); fwrite(sf_60,file="sf_60.csv")
+colnames(sf_60) <- c('cluster_no','scp')
 
