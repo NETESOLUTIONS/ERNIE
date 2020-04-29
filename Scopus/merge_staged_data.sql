@@ -72,10 +72,10 @@ SELECT DISTINCT ernie_source_id, conf_code, conf_name, indexed_name, surname, de
 -- endregion
 
 -- region publication and group
-INSERT INTO scopus_publication_groups(sgr, pub_year)
-SELECT sgr, pub_year
+INSERT INTO scopus_publication_groups(sgr, pub_year, pub_zip)
+SELECT sgr, pub_year, pub_zip
   FROM stg_scopus_publication_groups
-    ON CONFLICT (sgr) DO UPDATE SET pub_year = excluded.pub_year;
+    ON CONFLICT (sgr, pub_zip) DO UPDATE SET pub_year = excluded.pub_year, pub_zip = excluded.pub_zip;
 
 DELETE
   FROM scopus_publications scp USING stg_scopus_publications stg
