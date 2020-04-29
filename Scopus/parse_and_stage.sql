@@ -5,6 +5,7 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
+SET script.pub_zip = :'pub_zip_name';
 SET script.xml_file = :'xml_file';
 \if :{?subset_sp}
   SET script.subset_sp = :'subset_sp';
@@ -16,12 +17,17 @@ DO $block$
   DECLARE
     -- scopus_doc TEXT;
     scopus_doc_xml XML;
+    -- pub zip name TEXT;
+    pub_zip TEXT;
+    
   BEGIN
     SELECT xmlparse(DOCUMENT convert_from(pg_read_binary_file(current_setting('script.xml_file')), 'UTF8'))
       INTO scopus_doc_xml;
+      
+    pub_zip := current_setting('script.pub_zip')
 
     IF current_setting('script.subset_sp')='' THEN -- Execute all parsing SPs
-      CALL stg_scopus_parse_publication_and_group(scopus_doc_xml);
+      CALL stg_scopus_parse_publication_and_group(scopus_doc_xml, pub_zip);
       CALL stg_scopus_parse_source_and_conferences(scopus_doc_xml);
       CALL stg_scopus_parse_pub_details_subjects_and_classes(scopus_doc_xml);
       CALL stg_scopus_parse_authors_and_affiliations(scopus_doc_xml);
@@ -33,7 +39,7 @@ DO $block$
       CALL stg_scopus_parse_references(scopus_doc_xml);
     ELSE -- Execute only the selected SP
       -- Make sure that parent records are present
-      CALL stg_scopus_parse_publication_and_group(scopus_doc_xml);
+      CALL stg_scopus_parse_publication_and_group(scopus_doc_xml, pub_zip);
 
       EXECUTE format('CALL %I($1)',current_setting('script.subset_sp')) using scopus_doc_xml;
     END IF;
