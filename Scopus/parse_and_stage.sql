@@ -24,7 +24,7 @@ DO $block$
     SELECT xmlparse(DOCUMENT convert_from(pg_read_binary_file(current_setting('script.xml_file')), 'UTF8'))
       INTO scopus_doc_xml;
       
-    pub_zip := current_setting('script.pub_zip')
+    pub_zip := current_setting('script.pub_zip');
 
     IF current_setting('script.subset_sp')='' THEN -- Execute all parsing SPs
       CALL stg_scopus_parse_publication_and_group(scopus_doc_xml, pub_zip);
