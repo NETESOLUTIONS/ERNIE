@@ -91,6 +91,6 @@ print("")
 print(pmt_content)
 print("")
 result=email_parser(pmt_content, data_directory)
-print('The revelevant items are zip files:', result)
+#print('The revelevant items are zip files:', result)
 print('The total duration for the whole process:',time.time()-start_time)
 ## End of the script
