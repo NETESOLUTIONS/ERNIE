@@ -14,6 +14,7 @@ SET TIMEZONE = 'US/Eastern';
 CREATE TABLE IF NOT EXISTS scopus_publication_groups (
   sgr BIGINT,
   pub_year SMALLINT,
+  pub_zip VARCHAR(100),
   CONSTRAINT scopus_publication_groups_pk PRIMARY KEY (sgr) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;

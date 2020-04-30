@@ -172,14 +172,15 @@ declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m del
 parse_pub() {
   local pub_xml="$1"
   [[ $2 ]] && local subset_option="-v subset_sp=$2"
+  local scopus_data_archive="$3"
 
   [[ ${VERBOSE} == "true" ]] && echo "Parsing $pub_xml"
   # Always produce minimum output below even when not verbose to get stats via the OUTPUT_PROCESSOR
   # Extra output is discarded in non-verbose mode by the OUTPUT_PROCESSOR
   # Using Staging
   # shellcheck disable=SC2086
-  if psql -q -f "${ABSOLUTE_SCRIPT_DIR}/parse_and_stage.sql" -v "xml_file=$PWD/$pub_xml" ${subset_option} \
-        2>> "${ERROR_LOG}"; then
+  if psql -q -f "${ABSOLUTE_SCRIPT_DIR}/parse_and_stage.sql" -v "pub_zip_name=$scopus_data_archive" \
+      -v "xml_file=$PWD/$pub_xml" ${subset_option} 2>> "${ERROR_LOG}"; then
     echo "$pub_xml: SUCCESSFULLY PARSED."
     return 0
   else
@@ -245,7 +246,7 @@ for scopus_data_archive in *.zip; do
     # Quotes/backslashes in this variable will not be respected: disabling in order to expand `OUTPUT_PROCESSOR`
     # shellcheck disable=SC2090
     find . -name '*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} \
-        --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_pub "{}" "${SUBSET_SP}" \
+        --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_pub "{}" "${SUBSET_SP}" "${scopus_data_archive}" \
         | ${OUTPUT_PROCESSOR}
     parallel_exit_code=${PIPESTATUS[1]}
     set -e

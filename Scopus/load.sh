@@ -207,7 +207,7 @@ for data_dir in "${SORTED_ARGS[@]}"; do
         rm -rf "${UPDATE_DIR}"
         mv -v "${zip_data}" "${processed_archive_dir}"
       else
-        # Faial error?
+        # Fatal error?
         ((result_code == FATAL_FAILURE_CODE)) && exit $FATAL_FAILURE_CODE
 
         failures_occurred="true"
