@@ -246,7 +246,7 @@ for scopus_data_archive in *.zip; do
     # Quotes/backslashes in this variable will not be respected: disabling in order to expand `OUTPUT_PROCESSOR`
     # shellcheck disable=SC2090
     find . -name '*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} \
-        --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_pub "{}" "${SUBSET_SP}" \
+        --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_pub "{}" "${SUBSET_SP}" "${scopus_data_archive}" \
         | ${OUTPUT_PROCESSOR}
     parallel_exit_code=${PIPESTATUS[1]}
     set -e
