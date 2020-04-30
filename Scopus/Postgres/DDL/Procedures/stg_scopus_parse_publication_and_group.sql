@@ -4,7 +4,7 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-CREATE OR REPLACE PROCEDURE stg_scopus_parse_publication_and_group(scopus_doc_xml XML, pub_zip TEXT)
+CREATE OR REPLACE PROCEDURE stg_scopus_parse_publication_and_group(scopus_doc_xml XML, pub_zip VARCHAR(100))
   LANGUAGE plpgsql AS $$
 DECLARE cur RECORD;
 BEGIN
