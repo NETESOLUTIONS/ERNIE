@@ -7,8 +7,11 @@ x <- fread('scopus_freq.csv'); x <- x[complete.cases(x)]
 pp <- data.frame(cbind(seq(0,100,by=1),unname(quantile(x$scopus_frequency,seq(0,1,by=0.01)))))
 p1 <- qplot(X1,X2,data=pp,geom=c("point","line"),xlab="",ylab="frequency") +
 theme_bw() + theme(text=element_text(family="Arial", size=18))
-p2 <- qplot(X1,log(X2),data=pp,geom=c("point","line"),xlab="",ylab="ln(frequency)") +
-theme_bw() + theme(text=element_text(family="Arial", size=18))
+# p2 <- qplot(X1,log(X2),data=pp,geom=c("point","line"),xlab="",ylab="ln(frequency)") +
+# theme_bw() + theme(text=element_text(family="Arial", size=18))
+
+# In response to Reviewer 1's request for log-scale rather than log-value plotting
+p2 <- qplot(X1,X2,data=pp,geom=c("point","line"),xlab="",ylab="frequency") + scale_y_continuous(trans='log2') + theme_bw() + theme(text=element_text(family="Arial", size=18))
 
 x <- fread('timelag3.csv')
 # x[,lag:=first_co_cited_year-first_possible_year]
