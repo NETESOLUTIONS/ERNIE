@@ -203,7 +203,7 @@ for data_dir in "${SORTED_ARGS[@]}"; do
       declare -i result_code=$?
       set -e
       if [[ -f "${zip_data}/${STOP_FILE}" ]] && ((result_code == 0)); then
-        echo "Leave partially processed super ZIP after a graceful stop in the super ZIP working directory"
+        echo "$zip_data has been processed partially. It will be reprocessed on the next run."
       elif ((result_code == 0)); then
         echo "Removing directory ${UPDATE_DIR}"
         rm -rf "${UPDATE_DIR}"
