@@ -202,7 +202,9 @@ for data_dir in "${SORTED_ARGS[@]}"; do
       ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${UPDATE_DIR}"
       declare -i result_code=$?
       set -e
-      if ((result_code == 0)); then
+      if [[ -f "${zip_data}/${STOP_FILE}" ]] && ((result_code == 0)); then
+        echo "$zip_data has been processed partially. It will be reprocessed on the next run."
+      elif ((result_code == 0)); then
         echo "Removing directory ${UPDATE_DIR}"
         rm -rf "${UPDATE_DIR}"
         mv -v "${zip_data}" "${processed_archive_dir}"
