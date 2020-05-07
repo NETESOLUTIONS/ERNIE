@@ -1,3 +1,14 @@
+"""
+Command line arguments:
+
+[1] type of weight - choose from (ncf, now, sf)
+[2] inflation values - choose from (20, 30, 40, 60)
+[3] start from cluster number - ideally 1
+
+"""
+
+
+
 from scipy.spatial import distance
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
@@ -16,6 +27,7 @@ import nltk
 from nltk.util import ngrams
 import re
 nltk.download('stopwords')
+from sys import argv
 
 # ------------------------------------------------------------------------------------ #
 
@@ -161,15 +173,53 @@ def merge_vocab_dictionary(vocab_column):
     for key, value in merged_freq_dict.items():
         merged_freq_dict[key] = sum(value)
 
-    sorted_merged_freq_dict = sorted(
-        merged_freq_dict.items(), key=lambda x: x[1], reverse=True)
+#     sorted_merged_freq_dict = sorted(
+#         merged_freq_dict.items(), key=lambda x: x[1], reverse=True)
 
 #     total_sum = sum(merged_freq_dict.values())
 #     merged_prop_dict = {key : merged_freq_dict[key] * 1.0 / total_sum for key, value in merged_freq_dict.items()}
 #     merged_combined_dict = {key : [merged_freq_dict[key], (merged_freq_dict[key] * 1.0 / total_sum)] for key, value in merged_freq_dict.items()}
 
-    return sorted_merged_freq_dict
+    return merged_freq_dict
 
+
+# ------------------------------------------------------------------------------------ #
+
+def remove_less_than(frequency_dict, less_than = 1):
+    
+    """
+    We use the 
+    
+    Argument(s): 'frequency_dict' - a dictionary 
+                 'max_frequency' - 
+                 'less_than' - 
+    
+    Output: 'retained' - a dictionary of
+    """
+   
+    retained_dict = {key : value for key, value in frequency_dict.items() if (value > less_than)}
+    
+    return retained_dict
+
+# ------------------------------------------------------------------------------------ #
+
+def filter_after_preprocess(processed_tokens, retained_dict):
+    
+    """
+    We use the 
+    
+    Argument(s): processed_tokens  -
+                 vocabulary_dict -
+    
+    Output: filtered 
+    """
+    filtered = []
+
+    for token in processed_tokens:
+        if token in retained_dict.keys():
+            filtered.append(token)
+
+    return filtered
 
 # ------------------------------------------------------------------------------------ #
 
@@ -182,7 +232,7 @@ def get_doc_term_mat(corpus_by_article, corpus_by_cluster):
     Output(s): doc_term_prob_mat, cluster_prob_mat
     """
 
-    count_vectorizer = CountVectorizer()
+    count_vectorizer = CountVectorizer(lowercase=False, vocabulary=list(set(corpus_by_cluster[0].split())))
     cluster_count_mat = count_vectorizer.fit_transform(corpus_by_cluster)
     doc_term_count_mat = count_vectorizer.transform(corpus_by_article)
 
@@ -214,88 +264,96 @@ set_schema = "SET SEARCH_PATH TO " + schema + ";"
 curs.execute(set_schema)
 
 
-weights = ['ncf', 'now', 'sf'] 
-inflation = ['20', '30', '40', '60']
+# weights = ['ncf', 'now', 'sf'] 
+# inflation = ['20', '30', '40', '60']
+
+name = argv[1]
+val = argv[2]
+start_cluster_num = argv[3]
         
 title_abstract_table = 'top_scp_title_concat_abstract_english'
 
 
 jsd_output = pd.DataFrame()
 
-for name in weights:
-    for val in inflation:
-        cluster_table = name + '_' + val + '_ids'
-        print("Querying: ", cluster_table)
-        
-        
-        max_query = "SELECT MAX(cluster) FROM " + cluster_table + ";"
 
-        curs.execute(max_query, conn)
-        max_cluster_number = curs.fetchone()[0]
+cluster_table = name + '_' + val + '_ids'
+print("Querying: ", cluster_table)
 
-        for cluster_num in range(1, max_cluster_number+1):
+
+max_query = "SELECT MAX(cluster) FROM " + cluster_table + ";"
+
+curs.execute(max_query, conn)
+max_cluster_number = curs.fetchone()[0]
+
+for cluster_num in range(start_cluster_num, max_cluster_number+1):
             
-            print("Querying Cluster Number: ", str(cluster_num))
-            
-            
-            query = "SELECT clt.scp, tat.title, tat.abstract_text, clt.cluster " + "FROM " + cluster_table +  " AS clt " + "LEFT JOIN " + title_abstract_table + " AS tat " + "ON clt.scp = tat.scp " + "WHERE clt.cluster=" + str(cluster_num) + ";"
-
-            print(query)
+    print("Querying Cluster Number: ", str(cluster_num))
 
 
-            mcl_data = pd.read_sql(query, conn)
+    query = "SELECT clt.scp, tat.title, tat.abstract_text, clt.cluster " + "FROM " + cluster_table +  " AS clt " + "LEFT JOIN " + title_abstract_table + " AS tat " + "ON clt.scp = tat.scp " + "WHERE clt.cluster=" + str(cluster_num) + ";"
 
-            print('The size of the cluster is: ', len(mcl_data))
-            original_cluster_size = len(mcl_data)
-            mcl_data = mcl_data.dropna()
-            print('Size after removing missing titles and abstracts: ', len(mcl_data))
-            final_cluster_size = len(mcl_data)
-            
-            
-            if final_cluster_size < 10:
-                
-                print("")
-                print("The cluster size is inadequate.")
-                print("Moving to next cluster.")
-                print("")
-                
-            else:
-                
-                data_text = mcl_data.copy()
-                data_text['scp'] = data_text.astype('str')
-                data_text['processed_title'] = data_text['title'].swifter.apply(preprocess_text)
-                data_text['processed_abstract'] = data_text['abstract_text'].swifter.apply(preprocess_text)
-
-                data_text['processed_all_text'] = data_text['processed_title'] + data_text['processed_abstract']
-                data_text['processed_all_text_frequencies'] = data_text['processed_all_text'].swifter.apply(get_frequency)
-                data_all_text_frequency = merge_vocab_dictionary(data_text['processed_all_text_frequencies'])
-
-                mcl_all_text = data_text.processed_all_text.tolist()
-                corpus_by_article = [' '.join(text) for text in mcl_all_text]
-                corpus_by_cluster = [' '.join(corpus_by_article)]
-
-                doc_term_prob_mat, cluster_prob_mat = get_doc_term_mat(corpus_by_article, corpus_by_cluster)
-                cluster_prob_vec = cluster_prob_mat.toarray().tolist()[0]
-
-                data_text['doc_term_prob'] = doc_term_prob_mat.toarray().tolist()
-
-                def calculate_jsd(doc_prob_vec, cluster_prob_vec = cluster_prob_vec):
-
-                    jsd = distance.jensenshannon(doc_prob_vec, cluster_prob_vec)
-
-                    return jsd
+    print(query)
 
 
-                data_text['JSD'] = data_text['doc_term_prob'].swifter.apply(calculate_jsd)
-                
-                jsd_min = min(data_text['JSD'])
-                jsd_25_percentile = np.percentile(data_text['JSD'], 25)
-                jsd_median = np.percentile(data_text['JSD'], 50)
-                jsd_75_percentile = np.percentile(data_text['JSD'], 75)
-                jsd_max = max(data_text['JSD'])
-                jsd_mean = np.mean(data_text['JSD'])
-                jsd_std = np.std(data_text['JSD'])
-                
+    mcl_data = pd.read_sql(query, conn)
+
+    print('The size of the cluster is: ', len(mcl_data))
+    original_cluster_size = len(mcl_data)
+    mcl_data = mcl_data.dropna()
+    print('Size after removing missing titles and abstracts: ', len(mcl_data))
+    final_cluster_size = len(mcl_data)
+
+
+    if final_cluster_size < 10:
+
+        print("")
+        print("The cluster size is inadequate.")
+        print("Moving to next cluster.")
+        print("")
+
+    else:
+
+        data_text = mcl_data.copy()
+        data_text['scp'] = data_text.astype('str')
+        data_text['processed_title'] = data_text['title'].swifter.apply(preprocess_text)
+        data_text['processed_abstract'] = data_text['abstract_text'].swifter.apply(preprocess_text)
+
+        data_text['processed_all_text'] = data_text['processed_title'] + data_text['processed_abstract']
+        data_text['processed_all_text_frequencies'] = data_text['processed_all_text'].swifter.apply(get_frequency)
+        data_all_text_frequency = merge_vocab_dictionary(data_text['processed_all_text_frequencies'])
+        retained_dict = remove_less_than(data_all_text_frequency)
+        data_text['filtered_text'] = data_text['processed_all_text'].swifter.apply(filter_after_preprocess, args = (retained_dict,))
+
+        mcl_all_text = data_text.filtered_text.tolist()
+        corpus_by_article = [' '.join(text) for text in mcl_all_text]
+        corpus_by_cluster = [' '.join(corpus_by_article)]
+
+        doc_term_prob_mat, cluster_prob_mat = get_doc_term_mat(corpus_by_article, corpus_by_cluster)
+        cluster_prob_vec = cluster_prob_mat.toarray().tolist()[0]
+
+        data_text['doc_term_prob'] = doc_term_prob_mat.toarray().tolist()
+
+        def calculate_jsd(doc_prob_vec, cluster_prob_vec = cluster_prob_vec):
+
+            jsd = distance.jensenshannon(doc_prob_vec, cluster_prob_vec)
+
+            return jsd
+
+
+        data_text['JS_distance'] = data_text['doc_term_prob'].swifter.apply(calculate_jsd)
+        data_text = data_text.dropna()
+        data_text['JS_divergence'] = np.square(data_text['JS_distance'])
+        jsd_cluster_size = len(data_text)
+
+        jsd_min = min(data_text['JS_divergence'])
+        jsd_25_percentile = np.percentile(data_text['JS_divergence'], 25)
+        jsd_median = np.percentile(data_text['JS_divergence'], 50)
+        jsd_75_percentile = np.percentile(data_text['JS_divergence'], 75)
+        jsd_max = max(data_text['JS_divergence'])
+        jsd_mean = np.mean(data_text['JS_divergence'])
+        jsd_std = np.std(data_text['JS_divergence'])
+
 #                 print("")
 #                 print('Minimum JSD value for the cluster is: ', jsd_min)
 #                 print('25th Percentile JSD value for the cluster is: ', jsd_25_percentile)
@@ -306,32 +364,38 @@ for name in weights:
 #                 print('Std Dev of JSD for the cluster is: ', np.std(data_text['JSD']))
 #                 print("")
 
-                
-                print("")
-                print("JSD computed.")
-                print("Cluster analysis complete.")
-                print("")
-                print("Saving to CSV")
-                print("")
-                
-                result_df = pd.DataFrame({
-                    'Weight': name, 
-                    'Inflation': val,
-                    'Cluster': cluster_num,
-                    'Total Size': original_cluster_size, 
-                    'Final Size': final_cluster_size, 
-                    'Missing Values': (original_cluster_size-final_cluster_size,), 
-                    'Mean JSD': jsd_mean, 
-                    'Min JSD': jsd_min,
-                    '25th Percentile': jsd_25_percentile, 
-                    'Median JSD': jsd_median,
-                    '75th Percentile': jsd_75_percentile, 
-                    'Max JSD': jsd_max, 
-                    'Std Dev':jsd_std})
-                
-                jsd_output = jsd_output.append(result_df)
-                jsd_output.to_csv("/home/shreya/mcl_jsd/JSD_output.csv", index = None, header=True, encoding='utf-8')
-                
+
+        print("")
+        print("JSD computed.")
+        print("Cluster analysis complete.")
+        print("")
+        print("Saving to CSV")
+        print("")
+
+        
+        result_df = pd.DataFrame({
+            'weight': name, 
+            'inflation': val,
+            'cluster': cluster_num,
+            'total_size': original_cluster_size, 
+            'pre_jsd_size': final_cluster_size,
+            'missing_values': (original_cluster_size-final_cluster_size,),
+            'post_jsd_size': jsd_cluster_size,
+            'jsd_nans': (final_cluster_size-jsd_cluster_size), 
+            'mean_jsd': jsd_mean, 
+            'min_jsd': jsd_min,
+            'percentile_25_jsd': jsd_25_percentile, 
+            'median_jsd': jsd_median,
+            'percentile_75_jsd': jsd_75_percentile, 
+            'max_jsd': jsd_max, 
+            'std_dev_jsd': jsd_std,
+            'total_unique_bigrams': len(data_all_text_frequency),
+            'final_unique_bigrams': len(retained_dict),
+            'size_1_bigram_prop': (1-(len(retained_dict)/len(data_all_text_frequency)))})
+
+        jsd_output = jsd_output.append(result_df)
+        result_df.to_csv("/home/shreya/mcl_jsd/JSD_output.csv", mode = 'a', index = None, header=False, encoding='utf-8')
+
                 
 
 
