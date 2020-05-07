@@ -40,7 +40,7 @@ dev.off()
 system('cp kinetics.pdf ~/cocitation_2/')
 
 pdf('lag.pdf')
-qplot(lag,scopus_frequency,data=y,facets=connected~perc,color=connected,xlab="time to first co-citation (yrs)") + 
+qplot(lag,scopus_frequency,data=y,facets=connected~perc,color=connected,xlab="time to first co-citation (yrs)",ylab="co-citation frequency") + 
 scale_y_continuous(trans='log2') + theme_bw() + 
 theme(text=element_text(family="Arial", size=18)) + theme(axis.text.x=element_text(angle = -75, hjust = 0)) +
 theme(legend.text=element_text(size=18))
