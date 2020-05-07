@@ -1,0 +1,7 @@
+### Sleeping Beauty Co-citation Pairs Project
+
+initial_sb_pairs_table.sql: extract initial dataset from Postgresql by setting some limitations
+static_sb_pairs_dataset.ipynb: set more stringent conditions to filter out 1380 pairs, calculate slope, data cleaning and exploration
+sb_pairs_individual_kinetics.sql: get all individual papers' kinectis of 1380 pairs (1398 individual papers)
+sb_pairs_complete_kinetics.sql: regenerate all pairs' kinetcis (add data after first peak year) 
+individual_kinetics_exploration.ipynb: explore and clean individual papers data, apply van Raan's and Ke's method to find sb individual papers, and calculate the number of pairs that have 0,1 and 2 sb individual papers.
