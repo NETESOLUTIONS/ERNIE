@@ -1,4 +1,4 @@
-### Sleeping Beauty Co-citation Pairs Project
+Sleeping Beauty Co-citation Pairs Project
 
 initial_sb_pairs_table.sql: extract initial dataset from Postgresql by setting some limitations
 static_sb_pairs_dataset.ipynb: set more stringent conditions to filter out 1380 pairs, calculate slope, data cleaning and exploration
