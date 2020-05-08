@@ -10,7 +10,7 @@ Command line arguments:
 
 
 from scipy.spatial import distance
-from sklearn.feature_extraction.text import TfidfTransformer
+from scipy import sparse
 from sklearn.feature_extraction.text import CountVectorizer
 import sklearn
 import numpy as np
@@ -223,27 +223,26 @@ def filter_after_preprocess(processed_tokens, retained_dict):
 
 # ------------------------------------------------------------------------------------ #
 
-def get_doc_term_mat(corpus_by_article, corpus_by_cluster):
+def vectorize(text, corpus_by_cluster):
     
-    """
-    Argument(s): corpus_by_article - (list of lists)
-                 corpus_by_cluster - flattened list 
-
-    Output(s): doc_term_prob_mat, cluster_prob_mat
-    """
-
     count_vectorizer = CountVectorizer(lowercase=False, vocabulary=list(set(corpus_by_cluster[0].split())))
-    cluster_count_mat = count_vectorizer.fit_transform(corpus_by_cluster)
-    doc_term_count_mat = count_vectorizer.transform(corpus_by_article)
-
-    prob_transformer = TfidfTransformer(norm='l1', use_idf=False, smooth_idf=False)
     
-    doc_term_prob_mat = prob_transformer.fit_transform(doc_term_count_mat)
-    cluster_prob_mat = prob_transformer.fit_transform(cluster_count_mat)
+    cluster_count_mat = count_vectorizer.fit(corpus_by_cluster)
     
-    return doc_term_prob_mat, cluster_prob_mat
+    article_count_mat = count_vectorizer.transform([' '.join(text)])
+    article_sum = sparse.diags(1/article_count_mat.sum(axis=1).A.ravel())
+    article_prob_vec = (article_sum @ article_count_mat).toarray().tolist()[0]
+    
+    return article_prob_vec
 
 # ------------------------------------------------------------------------------------ #
+
+def calculate_jsd(doc_prob_vec, cluster_prob_vec):
+    
+    jsd = distance.jensenshannon(doc_prob_vec, cluster_prob_vec)
+    
+    return jsd
+
 # ------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------ #
 
@@ -328,21 +327,17 @@ for cluster_num in range(start_cluster_num, max_cluster_number+1):
         mcl_all_text = data_text.filtered_text.tolist()
         corpus_by_article = [' '.join(text) for text in mcl_all_text]
         corpus_by_cluster = [' '.join(corpus_by_article)]
+        
+        count_vectorizer = CountVectorizer(lowercase=False, vocabulary=list(set(corpus_by_cluster[0].split())))
+        data_text['probability_vector'] = data_text['filtered_text'].swifter.apply(vectorize, args=(corpus_by_cluster,))
+        cluster_count_mat = count_vectorizer.fit_transform(corpus_by_cluster)
+        cluster_sum = sparse.diags(1/cluster_count_mat.sum(axis=1).A.ravel())
+        cluster_prob_vec = (cluster_sum @ cluster_count_mat).toarray().tolist()[0]
 
-        doc_term_prob_mat, cluster_prob_mat = get_doc_term_mat(corpus_by_article, corpus_by_cluster)
-        cluster_prob_vec = cluster_prob_mat.toarray().tolist()[0]
+        data_text['JS_distance'] = data_text['probability_vector'].swifter.apply(calculate_jsd, args = (cluster_prob_vec,))
 
-        data_text['doc_term_prob'] = doc_term_prob_mat.toarray().tolist()
-
-        def calculate_jsd(doc_prob_vec, cluster_prob_vec = cluster_prob_vec):
-
-            jsd = distance.jensenshannon(doc_prob_vec, cluster_prob_vec)
-
-            return jsd
-
-
-        data_text['JS_distance'] = data_text['doc_term_prob'].swifter.apply(calculate_jsd)
         data_text = data_text.dropna()
+
         data_text['JS_divergence'] = np.square(data_text['JS_distance'])
         jsd_cluster_size = len(data_text)
 
