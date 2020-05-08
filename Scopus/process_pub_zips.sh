@@ -179,7 +179,7 @@ parse_pub() {
   # Extra output is discarded in non-verbose mode by the OUTPUT_PROCESSOR
   # Using Staging
   # shellcheck disable=SC2086
-  if psql -q -f "${ABSOLUTE_SCRIPT_DIR}/parse_and_stage.sql" -v "pub_zip_name=$scopus_data_archive" \
+  if psql -q -f "${ABSOLUTE_SCRIPT_DIR}/parse_and_stage.sql" -v "pub_zip_name=$PWD/$scopus_data_archive" \
       -v "xml_file=$PWD/$pub_xml" ${subset_option} 2>> "${ERROR_LOG}"; then
     echo "$pub_xml: SUCCESSFULLY PARSED."
     return 0
