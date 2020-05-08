@@ -87,8 +87,6 @@ declare -rx TMP_OUT=/tmp/ERNIE-Scopus-process_pub_zips.out
 declare -i MAX_ERRORS=101
 
 FAILED_FILES_DIR="../failed"
-echo -e "\nRunning process_data_directory.sh $*"
-
 REPROCESS=false
 while (($# > 0)); do
   case "$1" in
@@ -156,7 +154,7 @@ fi
 export TMP_DIR
 rm -rf ${TMP_DIR}
 
-echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##"
+echo -e "\n## Running $0 $* under ${USER}@${HOSTNAME} in ${PWD} ##"
 
 if ! command -v parallel > /dev/null; then
   echo "Please install GNU Parallel"
