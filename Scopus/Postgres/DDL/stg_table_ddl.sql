@@ -10,7 +10,8 @@ SET TIMEZONE = 'US/Eastern';
 
 CREATE TABLE IF NOT EXISTS stg_scopus_publication_groups (
   sgr BIGINT,
-  pub_year SMALLINT
+  pub_year SMALLINT,
+  pub_zip VARCHAR(100)
 );
 
 CREATE TABLE IF NOT EXISTS stg_scopus_sources (
