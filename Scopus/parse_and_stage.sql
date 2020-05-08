@@ -18,7 +18,7 @@ DO $block$
     -- scopus_doc TEXT;
     scopus_doc_xml XML;
     -- pub zip name TEXT;
-    pub_zip TEXT;
+    pub_zip VARCHAR(100);
     
   BEGIN
     SELECT xmlparse(DOCUMENT convert_from(pg_read_binary_file(current_setting('script.xml_file')), 'UTF8'))
