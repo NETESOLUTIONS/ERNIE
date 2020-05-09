@@ -5,20 +5,21 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-SET script.pub_zip = :'pub_zip_name';
+
 SET script.xml_file = :'xml_file';
 \if :{?subset_sp}
   SET script.subset_sp = :'subset_sp';
 \else
   SET script.subset_sp = '';
 \endif
+SET script.pub_zip = :'pub_zip_name';
 
 DO $block$
   DECLARE
     -- scopus_doc TEXT;
     scopus_doc_xml XML;
     -- pub zip name TEXT;
-    pub_zip TEXT;
+    pub_zip VARCHAR(100);
     
   BEGIN
     SELECT xmlparse(DOCUMENT convert_from(pg_read_binary_file(current_setting('script.xml_file')), 'UTF8'))
