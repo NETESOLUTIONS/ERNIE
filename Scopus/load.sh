@@ -164,7 +164,7 @@ for data_dir in "${SORTED_ARGS[@]}"; do
       rm -f "${data_dir}/${STOP_FILE}"
       break
     fi
-    ((elapsed = elapsed + delta))
+    ((elapsed += delta))
     ((est_total = elapsed * directories / i)) || :
     ((eta = start_time + est_total))
     echo "ETA after ${data_dir} data directory: $(TZ=America/New_York date --date=@${eta})" | tee -a eta.log
@@ -229,7 +229,7 @@ for data_dir in "${SORTED_ARGS[@]}"; do
         break
       fi
 
-      ((elapsed = elapsed + delta))
+      ((elapsed += delta))
       ((est_total = elapsed * files / i)) || :
       ((eta = start_time + est_total))
 
