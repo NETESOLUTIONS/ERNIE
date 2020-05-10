@@ -143,7 +143,7 @@ for data_dir in "${SORTED_ARGS[@]}"; do
     echo "Processing ${data_dir} directory ..."
     # shellcheck disable=SC2086
     "${ABSOLUTE_SCRIPT_DIR}/process_pub_zips.sh" ${MAX_ERRORS_OPTION} \
-    ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${data_dir}"
+      ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${data_dir}"
     declare -i result_code=$?
     if ((result_code > 0)); then
       # Fatal error?
@@ -158,7 +158,7 @@ for data_dir in "${SORTED_ARGS[@]}"; do
     ((delta_m = (delta / 60) % 60)) || :
     ((della_h = delta / 3600)) || :
     printf "\n$(TZ=America/New_York date) Done with ${data_dir} data directory in %dh:%02dm:%02ds\n" ${della_h} \
-        ${delta_m} ${delta_s} | tee -a eta.log
+      ${delta_m} ${delta_s} | tee -a eta.log
     if [[ -f "${data_dir}/${STOP_FILE}" ]]; then
       echo "Found the stop signal file. Gracefully stopping the smokeload..."
       rm -f "${data_dir}/${STOP_FILE}"
@@ -185,7 +185,7 @@ for data_dir in "${SORTED_ARGS[@]}"; do
     declare -i files=$(ls "${data_dir}"/*ANI-ITEM-full-format-xml.zip | wc -l) i=0
     declare -i start_time file_start_time file_stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
     declare -i directories=${#SORTED_ARGS[@]} i=0 start_time dir_start_time dir_stop_time delta delta_s delta_m della_h \
-    elapsed=0 est_total eta
+      elapsed=0 est_total eta
 
     for zip_data in "${data_dir}"/*ANI-ITEM-full-format-xml.zip; do
       file_start_time=$(date '+%s')
@@ -199,10 +199,10 @@ for data_dir in "${SORTED_ARGS[@]}"; do
       set +e
       # shellcheck disable=SC2086
       "${ABSOLUTE_SCRIPT_DIR}/process_pub_zips.sh" -l "${processed_log}" ${REPROCESS_OPTION} ${MAX_ERRORS_OPTION} \
-      ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${UPDATE_DIR}"
+        ${PARALLEL_JOBSLOTS_OPTION} ${SUBSET_OPTION} ${VERBOSE_OPTION} -f "${FAILED_FILES_DIR}" "${UPDATE_DIR}"
       declare -i result_code=$?
       set -e
-      if [[ -f "${zip_data%.zip}/${STOP_FILE}" ]] && ((result_code == 0)); then
+      if [[ -f "${UPDATE_DIR}/${STOP_FILE}" ]] && ((result_code == 0)); then
         echo "$zip_data has been processed partially. It will be reprocessed on the next run."
       elif ((result_code == 0)); then
         echo "Removing directory ${UPDATE_DIR}"
@@ -222,10 +222,10 @@ for data_dir in "${SORTED_ARGS[@]}"; do
       ((della_h = delta / 3600)) || :
 
       printf "\n$(TZ=America/New_York date) Done with ${zip_data} package in %dh:%02dm:%02ds\n" ${della_h} \
-      ${delta_m} ${delta_s} | tee -a eta.log
-      if [[ -f "${zip_data}/${STOP_FILE}" ]]; then
+        ${delta_m} ${delta_s} | tee -a eta.log
+      if [[ -f "${UPDATE_DIR}/${STOP_FILE}" ]]; then
         echo "Found the stop signal file. Gracefully stopping the update."
-        rm -f "${zip_data}/${STOP_FILE}"
+        rm -f "${UPDATE_DIR}/${STOP_FILE}"
         break
       fi
 
