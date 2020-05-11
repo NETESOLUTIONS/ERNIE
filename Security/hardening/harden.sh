@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-if [[ $# -lt 1 || "$1" == "-h" ]]; then
+if [[ $# -lt 2 || "$1" == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
 
-    harden_server.sh -- harden a CentOS server semi-automatically
+    harden.sh -- harden a CentOS machine semi-automatically
 
 SYNOPSIS
 
-    sudo harden_server.sh default_owner_user [excluded_dir] ...
-    harden_server.sh -h: display this help
+    sudo harden.sh system_user end_user_group [excluded_dir] ...
+    harden.sh -h: display this help
 
 DESCRIPTION
 
@@ -21,15 +21,18 @@ DESCRIPTION
 
     The following options are available:
 
-    default_owner_user   User account to assign ownership of unowned files and directories.
+    system_user     User account to assign ownership of unowned files and directories.
                          The primary group of that user account will be used as group owner.
+                    Processes owned by this user are checked to determine a quiet period for reboot.
 
-    excluded_dir         Directory excluded from the ownership and system executables check. This is needed for mapped Docker container dirs.
-                         Docker home is excluded automatically.
+    end_user_group  Processed owned by this group are checked to determine a quiet period for reboot.
+
+    excluded_dir    Directory excluded from the ownership and system executables check.
+                    This is needed for mapped Docker container dirs. The Docker home is excluded automatically.
 
 EXAMPLES
 
-    sudo ./main_ernie.sh ernie_admin
+    sudo ./harden.sh pardi_admin pardiusers /pardidata1/upsource
 HEREDOC
   exit 1
 fi
@@ -39,9 +42,11 @@ readonly MIN_NON_SYSTEM_UID=$(pcregrep -o1 '^UID_MIN\s+(\d+)' /etc/login.defs)
 set -e
 set -o pipefail
 
-readonly DEFAULT_OWNER_USER=$1
+readonly SYSTEM_USER=$1
+readonly DEFAULT_OWNER_GROUP=$(id --group --name ${SYSTEM_USER})
 shift
-readonly DEFAULT_OWNER_GROUP=$(id --group --name ${DEFAULT_OWNER_USER})
+readonly END_USER_GROUP=$1
+shift
 
 readonly DOCKER_HOME=$(docker info 2>/dev/null | pcregrep -o1 'Docker Root Dir: (.+)')
 [[ ${DOCKER_HOME} ]] && EXCLUDE_DIRS="-not -path *${DOCKER_HOME}/*"
@@ -53,34 +58,24 @@ done
 readonly EXCLUDE_DIRS
 
 # Get a script directory, same as by $(dirname $0)
-script_dir=${0%/*}
-absolute_script_dir=$(cd "${script_dir}" && pwd)
-source $absolute_script_dir/upsert.sh
-source $absolute_script_dir/uninstall.sh
-source $absolute_script_dir/enable_sysv_service.sh
-source $absolute_script_dir/disable_sysv_service.sh
-source $absolute_script_dir/check_execs_with_special_perissions.sh
-
-#work_dir=${1:-${absolute_script_dir}/build} # $1 with the default
-#if [[ ! -d "${work_dir}" ]]; then
-#  mkdir "${work_dir}"
-#  chmod g+w "${work_dir}"
-#fi
-#cd "${work_dir}"
+readonly SCRIPT_DIR=${0%/*}
+cd "$SCRIPT_DIR"
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
 # TODO Many checks are executed twice. Refactor to execute once and capture stdout.
 
+for f in functions/*.sh; do
+  source "$f"
+done
+
 # region Baseline Configuration items: 1-100.
 
-echo 'Section Header: Install Updates, Patches and Additional Security Software'
-printf "\n\n"
+for f in checks/*.sh; do
+  source "$f"
+done
 
-yum clean expire-cache
-
-echo 'Section Header: Filesystem Configuration'
-printf "\n\n"
+echo -e '## Filesystem Configuration ##\n\n'
 
 echo '1.1.1 Create separate partition for /tmp'
 echo 'Verify that there is a /tmp file partition in the /etc/fstab file'
@@ -90,10 +85,9 @@ else
   echo "Partitioning"
   dd if=/dev/zero of=/tmp/tmp_fs seek=512 count=512 bs=1M
   mkfs.ext3 -F /tmp/tmp_fs
-  tee -a /etc/fstab <<HEREDOC
-/tmp/tmp_fs /tmp ext3 noexec,nosuid,nodev,loop 1 1
-tmpfs                   /dev/shm                tmpfs   defaults,noexec,nosuid,nodev        0 0
-/tmp /var/tmp none bind 0 0
+  cat >> /etc/fstab << HEREDOC
+/tmp/tmp_fs					/tmp		ext3	noexec,nosuid,nodev,loop 1 1
+/tmp						/var/tmp	none	bind
 HEREDOC
   chmod a+wt /tmp
   mount /tmp
@@ -127,8 +121,7 @@ printf "\n\n"
 # TBD DISABLED
 #echo '1.1.17 Set Sticky Bit on All world-writable directories'
 
-echo "Section Header: Configure Software Updates"
-printf "\n\n"
+echo -e '## Configure Software Updates ##\n\n'
 
 echo "1.2.1 Verify CentOS GPG Key is Installed"
 echo "___CHECK___"
@@ -160,12 +153,12 @@ printf "\n\n"
 echo "1.2.3 Obtain Software Package Updates with yum"
 echo "___CHECK___"
 #yum check-update
-if yum check-update; then
+if yum check-update --exclude=jenkins; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "___SET___"
-  ACCEPT_EULA=Y yum -y update
+  ACCEPT_EULA=Y yum -y update --exclude=jenkins
 fi
 printf "\n\n"
 
@@ -181,14 +174,11 @@ printf "\n\n"
 #fi
 #printf "\n\n"
 
-echo "Section Header: Advanced Intrusion Detection Environment (AIDE)"
-printf "\n\n"
+echo -e '## Advanced Intrusion Detection Environment (AIDE) ##\n\n'
 
-echo "Section Header: Configure SELinux"
-printf "\n\n"
+echo -e '## Configure SELinux ##\n\n'
 
-echo "Section Header: Secure Boot Settings"
-printf "\n\n"
+echo -e '## Secure Boot Settings ##\n\n'
 
 echo "1.5.1 Set User/Group Owner on the boot loader config"
 echo "___CHECK___"
@@ -270,8 +260,7 @@ else
 fi
 printf "\n\n"
 
-echo "Section Header: Additional Process Hardening"
-printf "\n\n"
+echo -e '### Additional Process Hardening ###\n\n'
 
 echo "1.6.1	Restrict Core Dumps"
 echo "____CHECK 1/2____"
@@ -327,11 +316,9 @@ else
 fi
 printf "\n\n"
 
-echo "Section Header: OS Services"
-printf "\n\n"
+echo -e '## OS Services ##\n\n'
 
-echo "Section Header: Remove Legacy Services"
-printf "\n\n"
+echo -e '### Remove Legacy Services ###\n\n'
 
 uninstall 2.1.1 telnet-server
 uninstall 2.1.2 telnet
@@ -365,8 +352,7 @@ disable_sysv_service echo-stream
 echo "2.1.18 Disable tcpmux-server"
 disable_sysv_service tcpmux-server
 
-echo "Section Header: Special Purpose Services"
-printf "\n\n"
+echo -e '### Special Purpose Services ###\n\n'
 
 echo "3.1 Set Daemon umask"
 echo "___CHECK___"
@@ -489,8 +475,7 @@ else
 fi
 printf "\n\n"
 
-echo "Section Header: Network Configuration and Firewalls"
-printf "\n\n"
+echo -e '### Network Configuration and Firewalls ###\n\n'
 
 # region TBD DISABLED until the decision on a firewall is made
 #echo "4.0.7	Enable IPtables"
@@ -521,8 +506,7 @@ printf "\n\n"
 #printf "\n\n"
 # endregion
 
-echo "Section Header: Modify Network Parameters (Host Only)"
-printf "\n\n"
+echo -e '### Modify Network Parameters (Host Only) ###\n\n'
 
 echo "4.1.1	Disable IP Forwarding"
 echo "____CHECK____"
@@ -566,8 +550,7 @@ else
 fi
 printf "\n\n"
 
-echo "Section Header: Modify Network Parameters (Host and Router)"
-printf "\n\n"
+echo -e '### Modify Network Parameters (Host and Router) ###\n\n'
 
 echo "4.2.1	Disable Source Routed Packet Acceptance"
 echo "____CHECK 1/2____"
@@ -744,8 +727,7 @@ else
 fi
 printf "\n\n"
 
-echo "Section Header: Install TCP Wrappers"
-printf "\n\n"
+echo -e '### Install TCP Wrappers ###\n\n'
 
 echo "4.4.1.2 Disable IPv6 Redirect Acceptance"
 echo "____CHECK 1/2____"
@@ -812,8 +794,7 @@ printf "\n\n"
 # endregion
 
 # region Baseline Configuration items: 101-199.
-echo "Section Header: Uncommon Network Protocols"
-printf "\n\n"
+echo -e '### Uncommon Network Protocols ###\n\n'
 
 echo "4.6.1 Disable DCCP"
 echo "___CHECK___"
@@ -863,8 +844,7 @@ else
 fi
 printf "\n\n"
 
-echo "Section Header: Logging and Auditing"
-printf "\n\n"
+echo -e '### Logging and Auditing ###\n\n'
 
 echo "5.0.3 Configure logrotate"
 echo "___CHECK 1/6___"
@@ -923,8 +903,7 @@ else
 fi
 printf "\n\n"
 
-echo "Section Header: Configure rsyslog"
-printf "\n\n"
+echo -e '### Configure rsyslog ###\n\n'
 
 echo "5.1.1 Install the rsyslog package"
 echo "___CHECK___"
@@ -1046,14 +1025,11 @@ else
 fi
 printf "\n\n"
 
-echo "Section Header: Configure System Accounting (auditd)"
-printf "\n\n"
+echo -e '### Configure System Accounting (auditd) ###\n\n'
 
-echo "Section Header: Configure Data Retention"
-printf "\n\n"
+echo -e '### Configure Data Retention ###\n\n'
 
-echo "Section Header: System Access, Authentication and Authorization"
-printf "\n\n"
+echo -e '### System Access, Authentication and Authorization ###\n\n'
 
 # DISABLED N/A for the Cloud hosting
 #echo "6.0.4 Restrict root Login to System Console"
@@ -1072,8 +1048,7 @@ else
 fi
 printf "\n\n"
 
-echo "Section Header: Configure cron and anacron"
-printf "\n\n"
+echo -e '### Configure cron and anacron ###\n\n'
 
 echo "6.1.1 Enable anacron Daemon"
 echo "___CHECK___"
@@ -1233,8 +1208,7 @@ else
 fi
 printf "\n\n"
 
-echo "Section Header: Configure SSH "
-printf "\n\n"
+echo -e '### Configure SSH  ###\n\n'
 
 echo "6.2.1 Set SSH Protocol to 2 (default)"
 echo "____CHECK____"
@@ -1415,8 +1389,7 @@ HEREDOC
 fi
 printf "\n\n"
 
-echo "Section Header: Configure PAM"
-printf "\n\n"
+echo -e '### Configure PAM ###\n\n'
 
 echo "6.3.1 Upgrade Password Hashing Algorithm to SHA-512"
 echo "____CHECK____"
@@ -1464,8 +1437,7 @@ else
 fi
 printf "\n\n"
 
-echo "Section Header: User Accounts and Environment"
-printf "\n\n"
+echo -e '### User Accounts and Environment ###\n\n'
 
 echo "7.0.2 Set System Accounts to Non-Login"
 echo "___CHECK___"
@@ -1535,8 +1507,7 @@ else
 fi
 printf "\n\n"
 
-echo "Section Header: Set Shadow Password Suite Parameters (/etc/login.defs)"
-printf "\n\n"
+echo -e '### Set Shadow Password Suite Parameters (/etc/login.defs) ###\n\n'
 
 echo "7.1.1 Set Password Expiration Days"
 echo "___CHECK___"
@@ -1574,8 +1545,7 @@ else
 fi
 printf "\n\n"
 
-echo "Section Header: Warning Banners"
-printf "\n\n"
+echo -e '### Warning Banners ###\n\n'
 
 echo "8.1 Set Warning Banner for Standard Login Services"
 echo "___CHECK 1/3___"
@@ -1645,11 +1615,9 @@ echo "___CHECK___"
 echo "We do not need GNOME Display Manager, and we do not have /apps directory."
 printf "\n\n"
 
-echo "Section Header: System Maintenance"
-printf "\n\n"
+echo -e '### System Maintenance ###\n\n'
 
-echo "Section Header: Verify System File Permissions"
-printf "\n\n"
+echo -e '### Verify System File Permissions ###\n\n'
 
 echo "9.1.2 Verify Permissions on /etc/passwd"
 echo "____CHECK____"
@@ -1794,7 +1762,7 @@ rm -f ownership_issues.log
 df --local --output=target | tail -n +2 | xargs -I '{}' find '{}' ${EXCLUDE_DIRS} -xdev -type f \( -nouser -or -nogroup \) -ls |\
     while read inode blocks perms number_of_links_or_dirs owner group size month day time_or_year filename; do
   echo -e "$filename $owner $group $size $month $day $time_or_year" | tee -a ownership_issues.log
-  chown ${DEFAULT_OWNER_USER}:${DEFAULT_OWNER_GROUP} "$filename"
+  chown ${SYSTEM_USER}:${DEFAULT_OWNER_GROUP} "$filename"
 done
 # df --local -P | awk {'if (NR!=1) print $6'}
 
@@ -1803,7 +1771,7 @@ if [[ ! -f ownership_issues.log ]]; then
 else
   echo "Check FAILED, corrected."
   echo "____SET____"
-  echo "Assigned ownership to ${DEFAULT_OWNER_USER}:${DEFAULT_OWNER_GROUP}"
+  echo "Assigned ownership to ${SYSTEM_USER}:${DEFAULT_OWNER_GROUP}"
   echo "WARNING: review ownership_issues.log for obsolete files that can be removed"
 fi
 printf "\n\n"
@@ -1814,8 +1782,7 @@ check_execs_with_special_permissions 4000 SUID
 echo "9.1.14 Find SGID System Executables"
 check_execs_with_special_permissions 2000 SGID
 
-echo "Section Header: Review User and Group Settings"
-printf "\n\n"
+echo -e '### Review User and Group Settings ###\n\n'
 
 echo "9.2.1 Ensure Password Fields are Not Empty"
 failures=$(cat /etc/shadow | awk -F: '($2 == "" ) { print $1 " does not have a password "}')
@@ -2140,14 +2107,14 @@ for dir in `cat /etc/passwd | awk -F: '{ print $6 }'`; do
 done
 echo -e "\nCheck PASSED: No Presence of User .forward Files"
 printf "\n\n"
-
-#call kernel reboot cron job
-log_dir=${1:-${absolute_script_dir}/log}
-if [[ ! -d "${log_dir}" ]]; then
-  mkdir "${log_dir}"
-  chmod g+w "${log_dir}"
-fi
-echo "Cron job has been activated"
-crontab -l && echo "*/10 * * * * sudo $absolute_script_dir/update_and_reboot_ernie.sh >> $absolute_script_dir/log/reboot.log" | crontab -
-$absolute_script_dir/update_and_reboot_ernie.sh
 # endregion
+
+if [[ ${KERNEL_UPDATE} == true || ${JENKINS_UPDATE} == true ]]; then
+  readonly LOG=${absolute_script_dir}/safe_reboot.log
+  echo "Activating the cron job for safe reboot..."
+  # Use flock to prevent secondary processes if the first safe_reboot hasn't finished for some reason.
+  { crontab -l; \
+  echo "*/10 * * * * flock --nonblock $SCRIPT_DIR/safe_updates.lock sudo $SCRIPT_DIR/safe_updates.sh -r 'Kernel update from v${kernel_version} to v${latest_kernel_package_version}' -j ${END_USER_GROUP} ${SYSTEM_USER} >>$LOG"; } | crontab -
+fi
+
+exit 0

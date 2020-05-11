@@ -15,6 +15,5 @@
   </component>
   <component name="TaskProjectConfiguration">
     <server type="JIRA" url="https://jira.nete.com" />
-    <server type="JIRA" url="http://jira.nete.com" />
   </component>
 </project>
