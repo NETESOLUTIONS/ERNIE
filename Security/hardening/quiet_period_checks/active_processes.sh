@@ -17,7 +17,7 @@ DESCRIPTION
     Active processes are all processes excluding:
 
     1. `sshd` processes
-    2. Login shells, e.g. ` \_ -bash` (in the process tree view)
+    2. Login shells, e.g. `-bash`
     3. Status `T`: stopped by job control signal
     3. Status `Z`: defunct ("zombie") process, terminated but not reaped by its parent
 

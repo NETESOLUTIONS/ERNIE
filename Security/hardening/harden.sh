@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 if [[ $# -lt 2 || "$1" == "-h" ]]; then
-  cat <<'HEREDOC'
+  cat << 'HEREDOC'
 NAME
 
     harden.sh -- harden a CentOS machine semi-automatically
 
 SYNOPSIS
 
-    sudo harden.sh system_user end_user_group [excluded_dir] ...
+    sudo harden.sh [-k notification_address] system_user end_user_group [excluded_dir] ...
     harden.sh -h: display this help
 
 DESCRIPTION
@@ -48,9 +48,9 @@ shift
 readonly END_USER_GROUP=$1
 shift
 
-readonly DOCKER_HOME=$(docker info 2>/dev/null | pcregrep -o1 'Docker Root Dir: (.+)')
+readonly DOCKER_HOME=$(docker info 2> /dev/null | pcregrep -o1 'Docker Root Dir: (.+)')
 [[ ${DOCKER_HOME} ]] && EXCLUDE_DIRS="-not -path *${DOCKER_HOME}/*"
-while (( $# > 0 )); do
+while (($# > 0)); do
   [[ ${EXCLUDE_DIRS} ]] && EXCLUDE_DIRS="$EXCLUDE_DIRS "
   EXCLUDE_DIRS="${EXCLUDE_DIRS}-not -path *$1/*"
   shift
@@ -59,6 +59,7 @@ readonly EXCLUDE_DIRS
 
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
+readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 cd "$SCRIPT_DIR"
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
@@ -95,7 +96,7 @@ fi
 printf "\n\n"
 
 echo '1.1.2 Set nodev option for /tmp Partition'
-if [[ "$(grep /tmp /etc/fstab |grep nodev)" != "" ]]; then
+if [[ "$(grep /tmp /etc/fstab | grep nodev)" != "" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correct this!"
@@ -103,7 +104,7 @@ fi
 printf "\n\n"
 
 echo '1.1.3 Set nosuid option for /tmp Partition'
-if [[ "$(grep /tmp /etc/fstab |grep nosuid)" != "" ]]; then
+if [[ "$(grep /tmp /etc/fstab | grep nosuid)" != "" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correct this!"
@@ -111,7 +112,7 @@ fi
 printf "\n\n"
 
 echo '1.1.4 Set noexec option for /tmp Partition'
-if [[ "$(grep /tmp /etc/fstab |grep nosuid)" != "" ]]; then
+if [[ "$(grep /tmp /etc/fstab | grep nosuid)" != "" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correct this!"
@@ -140,7 +141,7 @@ printf "\n\n"
 echo "1.2.2 Verify that gpgcheck is Globally Activated"
 echo "___CHECK___"
 grep gpgcheck /etc/yum.conf
-if [[ "$(grep gpgcheck /etc/yum.conf)" = "gpgcheck=1" ]]; then
+if [[ "$(grep gpgcheck /etc/yum.conf)" == "gpgcheck=1" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -265,7 +266,7 @@ echo -e '### Additional Process Hardening ###\n\n'
 echo "1.6.1	Restrict Core Dumps"
 echo "____CHECK 1/2____"
 grep "hard core" /etc/security/limits.conf
-if [[ "$(grep "hard core" /etc/security/limits.conf)" = "* hard core 0" ]]; then
+if [[ "$(grep "hard core" /etc/security/limits.conf)" == "* hard core 0" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -276,7 +277,7 @@ fi
 
 echo "____CHECK 2/2____"
 sysctl fs.suid_dumpable
-if [[ "$(sysctl fs.suid_dumpable)" = "fs.suid_dumpable = 0" ]]; then
+if [[ "$(sysctl fs.suid_dumpable)" == "fs.suid_dumpable = 0" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -306,7 +307,7 @@ printf "\n\n"
 echo "1.6.3	Enable Randomized Virtual Memory Region Placement"
 echo "____CHECK____"
 sysctl kernel.randomize_va_space
-if [[ "$(sysctl kernel.randomize_va_space)" = "kernel.randomize_va_space = 2" ]]; then
+if [[ "$(sysctl kernel.randomize_va_space)" == "kernel.randomize_va_space = 2" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -357,7 +358,7 @@ echo -e '### Special Purpose Services ###\n\n'
 echo "3.1 Set Daemon umask"
 echo "___CHECK___"
 grep umask /etc/sysconfig/init
-if [[ "$(grep umask /etc/sysconfig/init)" = "umask 027" ]]; then
+if [[ "$(grep umask /etc/sysconfig/init)" == "umask 027" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -407,7 +408,7 @@ uninstall '3.5 Remove DHCP Server' dhcp
 echo "3.6 Configure Network Time Protocol (NTP)"
 echo "___CHECK 1/3___"
 ls /etc | grep ntp.conf
-if [[ "$(ls /etc | grep ntp.conf)" = "ntp.conf" ]]; then
+if [[ "$(ls /etc | grep ntp.conf)" == "ntp.conf" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -416,7 +417,7 @@ else
 fi
 echo "___CHECK 2/3___"
 grep 'restrict default' /etc/ntp.conf
-if [[ "$(grep 'restrict default' /etc/ntp.conf)" = "restrict default kod nomodify notrap nopeer noquery" ]]; then
+if [[ "$(grep 'restrict default' /etc/ntp.conf)" == "restrict default kod nomodify notrap nopeer noquery" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -426,7 +427,7 @@ else
 fi
 echo "___CHECK 3/3___"
 grep 'restrict -6 default' /etc/ntp.conf
-if [[ "$(grep 'restrict -6 default' /etc/ntp.conf)" = "restrict -6 default kod nomodify notrap nopeer noquery" ]]; then
+if [[ "$(grep 'restrict -6 default' /etc/ntp.conf)" == "restrict -6 default kod nomodify notrap nopeer noquery" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -511,7 +512,7 @@ echo -e '### Modify Network Parameters (Host Only) ###\n\n'
 echo "4.1.1	Disable IP Forwarding"
 echo "____CHECK____"
 /sbin/sysctl net.ipv4.ip_forward
-if [[ "$(/sbin/sysctl net.ipv4.ip_forward)" = "net.ipv4.ip_forward = 0" ]]; then
+if [[ "$(/sbin/sysctl net.ipv4.ip_forward)" == "net.ipv4.ip_forward = 0" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -526,7 +527,7 @@ printf "\n\n"
 echo "4.1.2	Disable Send Packet Redirects"
 echo "____CHECK 1/2____"
 /sbin/sysctl net.ipv4.conf.all.send_redirects
-if [[ "$(/sbin/sysctl net.ipv4.conf.all.send_redirects)" = "net.ipv4.conf.all.send_redirects = 0" ]]; then
+if [[ "$(/sbin/sysctl net.ipv4.conf.all.send_redirects)" == "net.ipv4.conf.all.send_redirects = 0" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -538,7 +539,7 @@ else
 fi
 echo "____CHECK 2/2____"
 /sbin/sysctl net.ipv4.conf.default.send_redirects
-if [[ "$(/sbin/sysctl net.ipv4.conf.default.send_redirects)" = "net.ipv4.conf.default.send_redirects = 0" ]]; then
+if [[ "$(/sbin/sysctl net.ipv4.conf.default.send_redirects)" == "net.ipv4.conf.default.send_redirects = 0" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -555,7 +556,7 @@ echo -e '### Modify Network Parameters (Host and Router) ###\n\n'
 echo "4.2.1	Disable Source Routed Packet Acceptance"
 echo "____CHECK 1/2____"
 /sbin/sysctl net.ipv4.conf.all.accept_source_route
-if [[ "$(/sbin/sysctl net.ipv4.conf.all.accept_source_route)" = "net.ipv4.conf.all.accept_source_route = 0" ]]; then
+if [[ "$(/sbin/sysctl net.ipv4.conf.all.accept_source_route)" == "net.ipv4.conf.all.accept_source_route = 0" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -567,8 +568,7 @@ else
 fi
 echo "____CHECK 2/2____"
 /sbin/sysctl net.ipv4.conf.default.accept_source_route
-if [[ "$(/sbin/sysctl net.ipv4.conf.default.accept_source_route)" = \
-    "net.ipv4.conf.default.accept_source_route = 0" ]]; then
+if [[ "$(/sbin/sysctl net.ipv4.conf.default.accept_source_route)" == "net.ipv4.conf.default.accept_source_route = 0" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -583,8 +583,8 @@ printf "\n\n"
 echo "4.2.2	Disable ICMP Redirect Acceptance"
 echo "____CHECK 1/2____"
 /sbin/sysctl net.ipv4.conf.all.accept_redirects
-if [[ "$(/sbin/sysctl net.ipv4.conf.all.accept_redirects)" = "net.ipv4.conf.all.accept_redirects = 0" ]];
-  then     echo "Check PASSED";
+if [[ "$(/sbin/sysctl net.ipv4.conf.all.accept_redirects)" == "net.ipv4.conf.all.accept_redirects = 0" ]]; then
+  echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
@@ -595,7 +595,7 @@ else
 fi
 echo "____CHECK 2/2____"
 /sbin/sysctl net.ipv4.conf.default.accept_redirects
-if [[ "$(/sbin/sysctl net.ipv4.conf.default.accept_redirects)" = "net.ipv4.conf.default.accept_redirects = 0" ]]; then
+if [[ "$(/sbin/sysctl net.ipv4.conf.default.accept_redirects)" == "net.ipv4.conf.default.accept_redirects = 0" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -610,7 +610,7 @@ printf "\n\n"
 echo "4.2.4	Log Suspicious Packets"
 echo "____CHECK 1/2____"
 /sbin/sysctl net.ipv4.conf.all.log_martians
-if [[ "$(/sbin/sysctl net.ipv4.conf.all.log_martians)" = "net.ipv4.conf.all.log_martians = 1" ]]; then
+if [[ "$(/sbin/sysctl net.ipv4.conf.all.log_martians)" == "net.ipv4.conf.all.log_martians = 1" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -622,7 +622,7 @@ else
 fi
 echo "____CHECK 2/2____"
 /sbin/sysctl net.ipv4.conf.default.log_martians
-if [[ "$(/sbin/sysctl net.ipv4.conf.default.log_martians)" = "net.ipv4.conf.default.log_martians = 1" ]]; then
+if [[ "$(/sbin/sysctl net.ipv4.conf.default.log_martians)" == "net.ipv4.conf.default.log_martians = 1" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -637,7 +637,7 @@ printf "\n\n"
 echo "4.2.5	Enable Ignore Broadcast Requests"
 echo "____CHECK____"
 /sbin/sysctl net.ipv4.icmp_echo_ignore_broadcasts
-if [[ "$(/sbin/sysctl net.ipv4.icmp_echo_ignore_broadcasts)" = "net.ipv4.icmp_echo_ignore_broadcasts = 1" ]]; then
+if [[ "$(/sbin/sysctl net.ipv4.icmp_echo_ignore_broadcasts)" == "net.ipv4.icmp_echo_ignore_broadcasts = 1" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -652,8 +652,7 @@ printf "\n\n"
 echo "4.2.6	Enable Bad Error Message Protection"
 echo "____CHECK____"
 /sbin/sysctl net.ipv4.icmp_ignore_bogus_error_responses
-if [[ "$(/sbin/sysctl net.ipv4.icmp_ignore_bogus_error_responses)" = \
-    "net.ipv4.icmp_ignore_bogus_error_responses = 1" ]]; then
+if [[ "$(/sbin/sysctl net.ipv4.icmp_ignore_bogus_error_responses)" == "net.ipv4.icmp_ignore_bogus_error_responses = 1" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -668,15 +667,15 @@ printf "\n\n"
 echo "4.2.8	Enable TCP SYN Cookies"
 echo "____CHECK____"
 /sbin/sysctl net.ipv4.tcp_syncookies
-if [[ "$(/sbin/sysctl net.ipv4.tcp_syncookies)" = "net.ipv4.tcp_syncookies = 1" ]]; then
+if [[ "$(/sbin/sysctl net.ipv4.tcp_syncookies)" == "net.ipv4.tcp_syncookies = 1" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
   sed -i '/net.ipv4.tcp_syncookies =/d' /etc/sysctl.conf
   echo "net.ipv4.tcp_syncookies = 1" >> /etc/sysctl.conf
-   /sbin/sysctl -w net.ipv4.tcp_syncookies=1
-   /sbin/sysctl -w net.ipv4.route.flush=1
+  /sbin/sysctl -w net.ipv4.tcp_syncookies=1
+  /sbin/sysctl -w net.ipv4.route.flush=1
 fi
 printf "\n\n"
 
@@ -703,8 +702,8 @@ printf "\n\n"
 echo "4.4.1.2 Disable IPv6 Redirect Acceptance"
 echo "____CHECK 1/2____"
 /sbin/sysctl net.ipv6.conf.all.accept_redirects
-if [[ "$(/sbin/sysctl net.ipv6.conf.all.accept_redirects)" = "net.ipv6.conf.all.accept_redirects = 0" ]]; then
-   echo "Check PASSED"
+if [[ "$(/sbin/sysctl net.ipv6.conf.all.accept_redirects)" == "net.ipv6.conf.all.accept_redirects = 0" ]]; then
+  echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
@@ -715,7 +714,7 @@ else
 fi
 echo "____CHECK 2/2____"
 /sbin/sysctl net.ipv6.conf.default.accept_redirects
-if [[ "$(/sbin/sysctl net.ipv6.conf.default.accept_redirects)" = "net.ipv6.conf.default.accept_redirects = 0" ]]; then
+if [[ "$(/sbin/sysctl net.ipv6.conf.default.accept_redirects)" == "net.ipv6.conf.default.accept_redirects = 0" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -735,7 +734,7 @@ ldd /sbin/sshd | grep libwrap.so
 output=$(ldd /sbin/sshd | grep libwrap.so)
 output_size=${#output}
 if [[ "$output_size" != "0" ]]; then
-   echo "Check PASSED"
+  echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
@@ -763,7 +762,7 @@ echo "____CHECK____"
 ls -l /etc/hosts.allow
 access_privileges_line=$(ls -l /etc/hosts.allow)
 access_privileges=${access_privileges_line:0:10}
-if [[ "$access_privileges" = "-rw-r--r--" ]]; then
+if [[ "$access_privileges" == "-rw-r--r--" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -782,7 +781,7 @@ echo "____CHECK____"
 ls -l /etc/hosts.deny
 access_privileges_line=$(ls -l /etc/hosts.deny)
 access_privileges=${access_privileges_line:0:10}
-if [[ "$access_privileges" = "-rw-r--r--" ]]; then
+if [[ "$access_privileges" == "-rw-r--r--" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -1238,7 +1237,7 @@ ls -l /etc/ssh/sshd_config
 chown root:root /etc/ssh/sshd_config
 access_privileges_line=$(ls -l /etc/ssh/sshd_config)
 access_privileges=${access_privileges_line:0:10}
-if [[ "$access_privileges" = "-rw-------" ]]; then
+if [[ "$access_privileges" == "-rw-------" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -1257,7 +1256,7 @@ echo "____CHECK____"
 declare -i value
 # value = 0 when not found
 value=$(pcregrep --only-matching=1 '^MaxAuthTries (.*)' /etc/ssh/sshd_config) || :
-if (( value > 0 && value <= 4 )); then
+if ((value > 0 && value <= 4)); then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -1354,7 +1353,7 @@ echo "6.2.13 Limit Access via SSH"
 if grep -E '^AllowGroups' /etc/ssh/sshd_config; then
   echo "Check PASSED"
 else
-  cat <<HEREDOC
+  cat << HEREDOC
 Check FAILED, correct this!
 Add AllowGroups to /etc/ssh/sshd_config
 HEREDOC
@@ -1370,7 +1369,7 @@ else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
   if [[ ! -f /etc/issue.net ]]; then
-    cat >/etc/issue.net <<'HEREDOC'
+    cat > /etc/issue.net << 'HEREDOC'
 ********************************************************************
 *                                                                  *
 * This system is for the use of authorized users only.  Usage of   *
@@ -1441,8 +1440,8 @@ echo -e '### User Accounts and Environment ###\n\n'
 
 echo "7.0.2 Set System Accounts to Non-Login"
 echo "___CHECK___"
-if grep -E -v "^\+" /etc/passwd | \
-    awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<500 && $7!="/sbin/nologin")'; then
+if grep -E -v "^\+" /etc/passwd \
+  | awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<500 && $7!="/sbin/nologin")'; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -1453,7 +1452,7 @@ else
       if [[ ${user} != "sync" && ${user} != "shutdown" && ${user} != "halt" ]]; then
         usermod -s /sbin/nologin ${user}
       fi
-   fi
+    fi
   done
 fi
 printf "\n\n"
@@ -1593,7 +1592,7 @@ else
   sed -i '/(\\v\|\\r\|\\m\|\\s)/d' /etc/motd
 fi
 echo "___CHECK 2/3___"
-if ! grep -E  '(\\v|\\r|\\m|\\s)' /etc/issue; then
+if ! grep -E '(\\v|\\r|\\m|\\s)' /etc/issue; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -1624,7 +1623,7 @@ echo "____CHECK____"
 ls -l /etc/passwd
 access_privileges_line=$(ls -l /etc/passwd)
 access_privileges=${access_privileges_line:0:10}
-if [[ "$access_privileges" = "-rw-r--r--" ]]; then
+if [[ "$access_privileges" == "-rw-r--r--" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -1639,7 +1638,7 @@ echo "____CHECK____"
 ls -l /etc/shadow
 access_privileges_line=$(ls -l /etc/shadow)
 access_privileges=${access_privileges_line:0:10}
-if [[ "$access_privileges" = "----------" ]]; then
+if [[ "$access_privileges" == "----------" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -1654,7 +1653,7 @@ echo "____CHECK____"
 ls -l /etc/gshadow
 access_privileges_line=$(ls -l /etc/gshadow)
 access_privileges=${access_privileges_line:0:10}
-if [[ "$access_privileges" = "----------" ]]; then
+if [[ "$access_privileges" == "----------" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
@@ -1669,8 +1668,8 @@ echo "____CHECK____"
 ls -l /etc/group
 access_privileges_line=$(ls -l /etc/group)
 access_privileges=${access_privileges_line:0:10}
-if [ "$access_privileges" = "-rw-r--r--" ];
-  then    echo "Check PASSED";
+if [ "$access_privileges" = "-rw-r--r--" ]; then
+  echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
@@ -1684,8 +1683,8 @@ echo "____CHECK____"
 ls -l /etc/passwd
 is_root_root=$(ls -l /etc/passwd | egrep -w "root root")
 #check the length if it nonzero, then success, otherwise failure.
-if [[ "${#is_root_root}" != "0" ]];
-  then    echo "Check PASSED";
+if [[ "${#is_root_root}" != "0" ]]; then
+  echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
@@ -1748,7 +1747,7 @@ else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
   echo "Removing write access for 'other' ..."
-  for file in ${output};do
+  for file in ${output}; do
     chmod o-w ${file}
   done
 fi
@@ -1759,11 +1758,11 @@ echo "9.1.11 Find Un-owned Files and Directories + 9.1.12 Find Un-grouped Files 
 echo "____CHECK____: List of Un-owned Files and Directories:"
 rm -f ownership_issues.log
 # -xdev Don't descend directories on other filesystems
-df --local --output=target | tail -n +2 | xargs -I '{}' find '{}' ${EXCLUDE_DIRS} -xdev -type f \( -nouser -or -nogroup \) -ls |\
-    while read inode blocks perms number_of_links_or_dirs owner group size month day time_or_year filename; do
-  echo -e "$filename $owner $group $size $month $day $time_or_year" | tee -a ownership_issues.log
-  chown ${SYSTEM_USER}:${DEFAULT_OWNER_GROUP} "$filename"
-done
+df --local --output=target | tail -n +2 | xargs -I '{}' find '{}' ${EXCLUDE_DIRS} -xdev -type f \( -nouser -or -nogroup \) -ls \
+  | while read inode blocks perms number_of_links_or_dirs owner group size month day time_or_year filename; do
+    echo -e "$filename $owner $group $size $month $day $time_or_year" | tee -a ownership_issues.log
+    chown ${SYSTEM_USER}:${DEFAULT_OWNER_GROUP} "$filename"
+  done
 # df --local -P | awk {'if (NR!=1) print $6'}
 
 if [[ ! -f ownership_issues.log ]]; then
@@ -1794,7 +1793,7 @@ else
   for user in $(awk -F ':' '{print $1}' /etc/passwd); do
     passwd -S ${user}
   done
-  cat <<HEREDOC
+  cat << HEREDOC
 Status (second column) legend:
 
 PS  : Account has a usable password
@@ -1827,7 +1826,7 @@ User List  having UID equals to 0"
 cat /etc/passwd | awk -F: '($3 == 0) { print $1 }'
 output=$(cat /etc/passwd | awk -F: '($3 == 0) { print $1 }')
 #check the length if it nonzero, then success, otherwise failure.
-if [[ "$output" = "root" ]]; then
+if [[ "$output" == "root" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correct this!"
@@ -1838,22 +1837,22 @@ printf "\n\n"
 
 echo "9.2.6 Ensure root PATH Integrity"
 echo -e "____CHECK____"
-if [[ ""`echo $PATH | grep :: `"" != """" ]]; then
+if [[ ""$(echo $PATH | grep ::)"" != """" ]]; then
   echo "Check FAILED, correct this!"
   echo "Empty Directory in PATH \(::\)"
   exit 1
 fi
 
-if [[ "`echo $PATH | grep :$`" != """" ]]; then
+if [[ "$(echo $PATH | grep :$)" != """" ]]; then
   echo "Check FAILED, correct this!"
   echo ""Trailing : in PATH""
   exit 1
 fi
 
-p=`echo $PATH | sed -e 's/::/:/' -e 's/:$//' -e 's/:/ /g'`
+p=$(echo $PATH | sed -e 's/::/:/' -e 's/:$//' -e 's/:/ /g')
 set -- $p
 while [[ ""$1"" != """" ]]; do
-  if [[ ""$1"" = ""."" ]]; then
+  if [[ ""$1"" == ""."" ]]; then
     echo ""PATH contains .""
     echo "Check FAILED, correct this!"
     exit 1
@@ -1865,20 +1864,20 @@ while [[ ""$1"" != """" ]]; do
     exit 1
   fi
 
-  dirperm=`ls -ldH $1 | cut -f1 -d"" ""`
-  if [ `echo $dirperm | cut -c6 ` != ""-"" ]; then
+  dirperm=$(ls -ldH $1 | cut -f1 -d"" "")
+  if [ $(echo $dirperm | cut -c6) != ""-"" ]; then
     echo ""Group Write permission set on directory $1""
     echo "Check FAILED, correct this!"
     exit 1
   fi
-  if [ `echo $dirperm | cut -c9 ` != ""-"" ]; then
+  if [ $(echo $dirperm | cut -c9) != ""-"" ]; then
     echo ""Other Write permission set on directory $1""
     echo "Check FAILED, correct this!"
     exit 1
   fi
 
-  dirown=`ls -ldH $1 | awk '{print $3}'`
-  if [ ""$dirown"" != ""root"" ] ; then
+  dirown=$(ls -ldH $1 | awk '{print $3}')
+  if [ ""$dirown"" != ""root"" ]; then
     echo $1 is not owned by root
     echo "Check FAILED, correct this!"
     exit 1
@@ -1893,64 +1892,64 @@ printf "\n\n"
 #printf "\n\n"
 
 echo '9.2.8 Check User "Dot" File Permissions'
-echo  -e "____CHECK____: List of group or world-writable user "dot" files and directories"
-for dir in `cat /etc/passwd | egrep -v '(root|sync|halt|shutdown)' | awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
+echo -e "____CHECK____: List of group or world-writable user "dot" files and directories"
+for dir in $(cat /etc/passwd | egrep -v '(root|sync|halt|shutdown)' | awk -F: '($7 != "/sbin/nologin") { print $6 }'); do
   for file in $dir/.[A-Za-z0-9]*; do
     if [ ! -h "$file" -a -f "$file" ]; then
-      fileperm=`ls -ld $file | cut -f1 -d" "`
-    if [ `echo $fileperm | cut -c6 ` != "-" ]; then
-      echo "Group Write permission set on file $file"
-      echo "Check FAILED, correct this!"
-      exit 1
+      fileperm=$(ls -ld $file | cut -f1 -d" ")
+      if [ $(echo $fileperm | cut -c6) != "-" ]; then
+        echo "Group Write permission set on file $file"
+        echo "Check FAILED, correct this!"
+        exit 1
+      fi
+      if [ $(echo $fileperm | cut -c9) != "-" ]; then
+        echo "Other Write permission set on file $file"
+        echo "Check FAILED, correct this!"
+        exit 1
+      fi
     fi
-    if [ `echo $fileperm | cut -c9 ` != "-" ]; then
-      echo "Other Write permission set on file $file"
-      echo "Check FAILED, correct this!"
-      exit 1
-    fi
-  fi
- done
+  done
 done
 
 echo "9.2.9 Check Permissions on User .netrc Files"
-echo  -e "____CHECK____: List of problematic permissions on User .netrc Files:"
-for dir in `cat /etc/passwd | egrep -v '(root|sync|halt|shutdown)' |\
-    awk -F: '($7 != "/sbin/nologin") { print $6 }'`; do
+echo -e "____CHECK____: List of problematic permissions on User .netrc Files:"
+for dir in $(cat /etc/passwd | egrep -v '(root|sync|halt|shutdown)' \
+  | awk -F: '($7 != "/sbin/nologin") { print $6 }'); do
   for file in $dir/.netrc; do
     if [ ! -h "$file" -a -f "$file" ]; then
-      fileperm=`ls -ld $file | cut -f1 -d" "`
-      if [ `echo $fileperm | cut -c5 ` != "-" ]; then
+      fileperm=$(ls -ld $file | cut -f1 -d" ")
+      if [ $(echo $fileperm | cut -c5) != "-" ]; then
         echo "Group Read set on $file"
         echo "Check FAILED, correct this!"
         exit 1
       fi
-      if [ `echo $fileperm | cut -c6 ` != "-" ]; then
+      if [ $(echo $fileperm | cut -c6) != "-" ]; then
         echo "Group Write set on $file"
         echo "Check FAILED, correct this!"
         exit 1
       fi
-      if [ `echo $fileperm | cut -c7 ` != "-" ]; then
+      if [ $(echo $fileperm | cut -c7) != "-" ]; then
         echo "Group Execute set on $file"
         echo "Check FAILED, correct this!"
         exit 1
       fi
-      if [ `echo $fileperm | cut -c8 ` != "-" ]; then
+      if [ $(echo $fileperm | cut -c8) != "-" ]; then
         echo "Other Read set on $file"
         echo "Check FAILED, correct this!"
         exit 1
       fi
-      if [ `echo $fileperm | cut -c9 ` != "-" ]; then
+      if [ $(echo $fileperm | cut -c9) != "-" ]; then
         echo "Other Write set on $file"
         echo "Check FAILED, correct this!"
         exit 1
       fi
-      if [ `echo $fileperm | cut -c10 ` != "-" ]; then
+      if [ $(echo $fileperm | cut -c10) != "-" ]; then
         echo "Other Execute set on $file"
         echo "Check FAILED, correct this!"
         exit 1
       fi
     fi
-   done
+  done
 done
 echo "Check PASSED"
 printf "\n\n"
@@ -1960,7 +1959,7 @@ echo -e "____CHECK____: List of  Presence of User .rhosts Files:"
 for d in $(cat /etc/passwd | egrep -v '(root|halt|sync|shutdown)' | awk -F: '($7 != "/sbin/nologin") { print $6 }'); do
   for file in ${d}/.rhosts; do
     if [ ! -h "$file" -a -f "$file" ]; then
-      cat <<HEREDOC
+      cat << HEREDOC
 Check FAILED, correct this!
 .rhosts file in $d
 While no .rhosts files are shipped with OS, users can easily create them. This action is only meaningful if .rhosts
@@ -1977,7 +1976,7 @@ printf "\n\n"
 
 echo "9.2.11 Check Groups in /etc/passwd"
 echo -e "____CHECK____"
-for group in $(cut -s -d: -f4 /etc/passwd | sort -u ); do
+for group in $(cut -s -d: -f4 /etc/passwd | sort -u); do
   if ! grep -q -P "^.*?:x:$group:" /etc/group; then
     echo "Group $group is referenced by /etc/passwd but does not exist in /etc/group"
     echo "Check FAILED, correct this!"
@@ -1991,7 +1990,7 @@ echo "9.2.12 Check That Users Are Assigned Valid Home Directories"
 echo -e "____CHECK____"
 while IFS=: read user enc_passwd uid gid full_name home shell; do
   if [[ ${uid} -ge ${MIN_NON_SYSTEM_UID} && ! -d "$home" && ${user} != "nfsnobody" ]]; then
-    cat <<HEREDOC
+    cat << HEREDOC
 Check FAILED, correct this!"
 This script checks to make sure that home directories assigned in the /etc/passwd file exist.
 
@@ -2002,7 +2001,7 @@ make sure the respective user owns the directory.
 HEREDOC
     exit 1
   fi
-done </etc/passwd
+done < /etc/passwd
 echo "Check PASSED"
 printf "\n\n"
 
@@ -2012,7 +2011,7 @@ while IFS=: read user enc_passwd uid gid full_name home shell; do
   if [[ ${uid} -ge ${MIN_NON_SYSTEM_UID} && -d "$home" && ${user} != "nfsnobody" ]]; then
     owner=$(stat -L -c "%U" "$home")
     if [[ "$owner" != "$user" ]]; then
-      cat <<HEREDOC
+      cat << HEREDOC
 Check FAILED, correct this!
 The home directory ($home) of user $user is owned by different owner: $owner.
 Change the ownership of home directories to a correct user.
@@ -2020,7 +2019,7 @@ HEREDOC
       exit 1
     fi
   fi
-done </etc/passwd
+done < /etc/passwd
 echo "Check PASSED"
 printf "\n\n"
 
@@ -2072,21 +2071,21 @@ printf "\n\n"
 echo "9.2.17 Check for Duplicate Group Names"
 echo -e "____CHECK____"
 cat /etc/group | cut -f1 -d":" | sort -n | uniq -c | while read x; do
- [[ -z "${x}" ]] && break
- set - ${x}
- if [[ "$1" -gt "1" ]]; then
-   echo "Check FAILED, correct this!"
-   echo "Duplicate Group Name $2:"
-   gawk -F: '($1 == n) { print $3 }' n=$2 /etc/group | xargs
-   exit 1
- fi
+  [[ -z "${x}" ]] && break
+  set - ${x}
+  if [[ "$1" -gt "1" ]]; then
+    echo "Check FAILED, correct this!"
+    echo "Duplicate Group Name $2:"
+    gawk -F: '($1 == n) { print $3 }' n=$2 /etc/group | xargs
+    exit 1
+  fi
 done
 echo -e "\nCheck PASSED: No Duplicate Group Name"
 printf "\n\n"
 
 echo "9.2.18 Check for Presence of User .netrc Files"
 echo -e "____CHECK____"
-for dir in `cat /etc/passwd | awk -F: '{ print $6 }'`; do
+for dir in $(cat /etc/passwd | awk -F: '{ print $6 }'); do
   if [ ! -h "$dir/.netrc" -a -f "$dir/.netrc" ]; then
     echo "Check FAILED, correct this!"
     echo ".netrc file $dir/.netrc exists"
@@ -2098,7 +2097,7 @@ printf "\n\n"
 
 echo "9.2.19 Check for Presence of User .forward Files"
 echo -e "____CHECK____"
-for dir in `cat /etc/passwd | awk -F: '{ print $6 }'`; do
+for dir in $(cat /etc/passwd | awk -F: '{ print $6 }'); do
   if [ ! -h "$dir/.forward" -a -f "$dir/.forward" ]; then
     echo "Check FAILED, correct this!"
     echo ".forward file $dir/.forward exists"
@@ -2110,11 +2109,9 @@ printf "\n\n"
 # endregion
 
 if [[ ${KERNEL_UPDATE} == true || ${JENKINS_UPDATE} == true ]]; then
-  readonly LOG=${absolute_script_dir}/safe_reboot.log
-  echo "Activating the cron job for safe reboot..."
-  # Use flock to prevent secondary processes if the first safe_reboot hasn't finished for some reason.
-  { crontab -l; \
-  echo "*/10 * * * * flock --nonblock $SCRIPT_DIR/safe_updates.lock sudo $SCRIPT_DIR/safe_updates.sh -r 'Kernel update from v${kernel_version} to v${latest_kernel_package_version}' -j ${END_USER_GROUP} ${SYSTEM_USER} >>$LOG"; } | crontab -
+  readonly LOG=${ABSOLUTE_SCRIPT_DIR}/safe_updates.log
+  "$SCRIPT_DIR/safe_updates.sh" -r "Kernel update from v${kernel_version} to v${latest_kernel_package_version}" \
+    -j "${END_USER_GROUP}" "${SYSTEM_USER}" >> "$LOG"
 fi
 
 exit 0

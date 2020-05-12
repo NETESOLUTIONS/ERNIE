@@ -4,30 +4,40 @@ usage() {
   cat << 'HEREDOC'
 NAME
 
-    safe_updates.sh -- update Jenkins and/or reboot during a quiet period
+    safe_updates.sh -- update Jenkins and/or reboot during a quiet (safe) period
 
 SYNOPSIS
 
-    sudo safe_updates.sh [-r message] [-j] unsafe_process_user_group [unsafe_process_user]
+    sudo safe_updates.sh [-r message] [-m notification_address] [-j] [-d postgres_DB] unsafe_group [unsafe_user]
     safe_updates.sh -h: display this help
 
 DESCRIPTION
 
-    Take actions when the system is in a quiet period, that is there are no:
-      # Postgres non-system queries running (if `psql` is installed)
-      # Jenkins jobs running
-      # Processes owned by the select user group
-      # Processes owned by the select user
+    Update Jenkins when there are no Jenkins jobs running.
+
+    Reboot when there are no:
+      * Jenkins jobs running
+      * "Active" processes owned by the group (EGID) and, optionally, user (EUID). These are all processes excluding:
+        1. `sshd` processes
+        2. Login shells, e.g. `-bash`
+        3. Status `T`: stopped by job control signal
+        4. Status `Z`: defunct ("zombie") process, terminated but not reaped by its parent
+      * Optionally, Postgres active, non-system queries running in the specified DB
 
     The following options are available:
 
-    -r                          Reboot and use `message` to send an email notification
+    -r message                  Reboot and email a `message` to `notification_address`
+
+    -m notification_address     An address to send notification to
 
     -j                          Update Jenkins
 
-    unsafe_process_user_group   Owned processes are checked to determine a quiet period
+    -d postgres_DB              Check Postgres DB for active, non-system queries
 
-    unsafe_process_user         Owned processes are checked to determine a quiet period
+    unsafe_group                Owned (under EGID) processes are considered unsafe for reboot
+
+    unsafe_user                 Owned (under EUID) processes are considered unsafe for reboot.
+                                `jenkins` user is automatically unsafe when there are more than 1 active processes.
 
 EXIT STATUS
 
@@ -43,20 +53,20 @@ HEREDOC
 set -e
 set -o pipefail
 
-# Get a script directory, same as by $(dirname $0)
-readonly SCRIPT_DIR=${0%/*}
-#readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
-# Remove longest */ prefix
-declare -rx SCRIPT_NAME_WITH_EXT=${0##*/}
-
 # If a character is followed by a colon, the option is expected to have an argument
-while getopts r:j OPT; do
+while getopts r:m:jd: OPT; do
   case "$OPT" in
     r)
-      readonly REBOOT="$OPTARG"
+      readonly REBOOT_MSG="$OPTARG"
+      ;;
+    m)
+      readonly NOTIFICATION_ADDRESS="$OPTARG"
       ;;
     j)
       readonly JENKINS_UPDATE="true"
+      ;;
+    d)
+      readonly POSTGRES_DB="$OPTARG"
       ;;
     *) # -h or `?`: an unknown option
       usage
@@ -67,31 +77,42 @@ shift $((OPTIND - 1))
 
 # Process positional parameters
 [[ $1 == "" ]] && usage
-declare -rx UNSAFE_PROCESS_USER_GROUP=$1
-declare -rx UNSAFE_PROCESS_USER=$2
+readonly UNSAFE_PROCESS_USER_GROUP=$1
+readonly UNSAFE_PROCESS_USER=$2
 
-TZ=America/New_York echo -e "\n$(date) ## Running $SCRIPT_NAME_WITH_EXT under ${USER}@${HOSTNAME} in ${PWD} ##\n"
+# Get a script directory, same as by $(dirname $0)
+readonly SCRIPT_DIR=${0%/*}
+readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
+# Remove longest */ prefix
+readonly SCRIPT_NAME_WITH_EXT=${0##*/}
+# Remove shortest .* suffix
+readonly SCRIPT_NAME=${name_with_ext%.*}
 
-disable_cron_job() {
-  echo "Disabling cron job..."
-  crontab -l | grep --invert-match -F "$SCRIPT_NAME_WITH_EXT" | crontab -
+declare -rx LOG=${ABSOLUTE_SCRIPT_DIR}/${SCRIPT_NAME}.log
+
+echo -e "\n$(TZ=America/New_York date) ## Running $SCRIPT_NAME_WITH_EXT under ${USER}@${HOSTNAME} in ${PWD} ##\n"
+
+enable_cron_job() {
+  if ! crontab -l | grep -F "$SCRIPT_NAME_WITH_EXT"; then
+    echo "Scheduling to check for a quiet (safe) period every 10 minutes"
+
+    # Append the job to `crontab`
+    # Use `flock` to prevent launching of additional processes if the first launch hasn't finished for some reason
+    { crontab -l;
+      echo "*/10 * * * * flock --nonblock $ABSOLUTE_SCRIPT_DIR/$SCRIPT_NAME.lock sudo $ABSOLUTE_SCRIPT_DIR/$SCRIPT_NAME_WITH_EXT $* >> $LOG";
+    } | crontab -
+  fi
 }
 
-########################################
-# Notify by email
-#
-# Arguments:
-#   $1 subject
-#   $2 body
-#   $3 address
-########################################
-notify() {
-  echo "$2" | mailx -S smtp=localhost -s "$1"
+disable_cron_job() {
+  echo "Disabling the cron job"
+  crontab -l | grep --invert-match -F "$SCRIPT_NAME_WITH_EXT" | crontab -
 }
 
 readonly PROCESS_CHECK="${SCRIPT_DIR}/quiet_period_checks/active_processes.sh"
 
-if ! ${PROCESS_CHECK} -u jenkins 1 && [[ "$REBOOT" || "$JENKINS_UPDATE" == true ]]; then
+if ! ${PROCESS_CHECK} -u jenkins 1 && [[ "$REBOOT_MSG" || "$JENKINS_UPDATE" == true ]]; then
+  enable_cron_job "$@"
   exit 1
 fi
 if [[ "$JENKINS_UPDATE" == true ]]; then
@@ -110,31 +131,37 @@ if [[ "$JENKINS_UPDATE" == true ]]; then
   fi
 fi
 
-if [[ "$REBOOT" == true ]]; then
-  if ! ! ${PROCESS_CHECK} -g ${UNSAFE_PROCESS_USER_GROUP} 1; then
-    exit 1
+if [[ "$REBOOT_MSG" ]]; then
+  readonly JENKINS_GROUPS=$(id jenkins)
+  if [[ $JENKINS_GROUPS == *($UNSAFE_PROCESS_USER_GROUP)* ]]; then
+    # Allow 1 Jenkins server process
+    readonly MAX_GROUP_PROCESSES=1
+  else
+    readonly MAX_GROUP_PROCESSES=0
   fi
 
-  if [[ $UNSAFE_PROCESS_USER ]] && ! ${PROCESS_CHECK} -u ${UNSAFE_PROCESS_USER}; then
-    exit 1
-  fi
-
-  if command -v psql > /dev/null && ! ${SCRIPT_DIR}/quiet_period_checks/active_postgres_queries.sh; then
+  if ! "${PROCESS_CHECK}" -g "${UNSAFE_PROCESS_USER_GROUP}" $MAX_GROUP_PROCESSES || \
+      [[ $UNSAFE_PROCESS_USER ]] && ! ${PROCESS_CHECK} -u "${UNSAFE_PROCESS_USER}" || \
+      [[ $POSTGRES_DB ]] && ! "${SCRIPT_DIR}/quiet_period_checks/active_postgres_queries.sh" "$POSTGRES_DB"; then
+    enable_cron_job "$@"
     exit 1
   fi
 
   echo "In a quiet period"
 
+  if [[ $NOTIFICATION_ADDRESS ]]; then
+    # Notify by email
+    echo "$REBOOT_MSG" | mailx -S smtp=localhost -s "Hardening: server reboot" "$NOTIFICATION_ADDRESS"
+    sleep 10
+  fi
+
   disable_cron_job
 
-  notify "Hardening: server reboot" w6y4s9s6d2d1a7a4@neteteam.slack.com
-  sleep 10
-
-  echo "**Rebooting**, please wait for 2 minutes, then reconnect"
+  echo "$(TZ=America/New_York date) Done. **Rebooting**"
   reboot
 else
   disable_cron_job
 fi
 
-echo "$(date) Done"
+echo "$(TZ=America/New_York date) Done"
 exit 0
