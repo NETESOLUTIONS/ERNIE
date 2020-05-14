@@ -18,9 +18,11 @@
               <node kind="schema">
                 <name qname="@" />
                 <name qname="cc2" />
+                <name qname="chackoge" />
                 <name qname="comp" />
                 <name qname="jenkins" />
                 <name qname="public" />
+                <name qname="shreya" />
               </node>
             </node>
           </node>

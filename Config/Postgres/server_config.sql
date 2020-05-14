@@ -28,7 +28,7 @@ of the memory in your system. There are some workloads where even large settings
 because PostgreSQL also relies on the operating system cache, it is unlikely that an allocation of more than 40% of RAM
 to shared_buffers will work better than a smaller amount.
 */
-ALTER SYSTEM SET shared_buffers = '10GB';
+ALTER SYSTEM SET shared_buffers = '10 GB';
 
 --endregion
 
@@ -61,21 +61,28 @@ ALTER SYSTEM SET random_page_cost = 1;
 /*
 Specifies the amount of memory to be used by internal sort operations and hash tables before writing to temporary disk
 files. The value defaults to four megabytes (4MB).
+
+Postgres executor node-based work_mem management means that the peak space usage depends on the number of concurrent queries * number of executor nodes * number of parallel processes allowed * `work_mem`.
+
+High values can cause Shared Memory to overflow on memory-intensive queries.
+Observed shared memory single query consumption max: 8.4 GB for `work_mem` = '512 MB'.
+
+The recommended setting ≈ {`/dev/shm` size} / { CPU cores } / 2.
 */
-ALTER SYSTEM SET work_mem = '1GB';
+ALTER SYSTEM SET work_mem = '512 MB';
 
 /*
 Specifies the maximum amount of memory to be used by maintenance operations, such as VACUUM, CREATE INDEX, and
 ALTER TABLE ADD FOREIGN KEY. It defaults to 64 megabytes (64MB).
 */
-ALTER SYSTEM SET maintenance_work_mem = '2GB';
+ALTER SYSTEM SET maintenance_work_mem = '2 GB';
 
 /*
 Maximum size to let the WAL grow to between automatic WAL checkpoints. This is a soft limit; WAL size can exceed
 max_wal_size under special circumstances, like under heavy load, a failing archive_command, or a high wal_keep_segments
 setting. The default is 1 GB.
 */
-ALTER SYSTEM SET max_wal_size = '2GB';
+ALTER SYSTEM SET max_wal_size = '2 GB';
 
 ALTER SYSTEM SET temp_tablespaces = 'temp_tbs';
 
