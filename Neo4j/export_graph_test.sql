@@ -25,9 +25,10 @@ SET TIMEZONE = 'US/Eastern';
 -- DROP VIEW IF EXISTS nodes_test;
 
 -- CREATE VIEW nodes_test AS
--- SELECT sp.scp AS "node_id:ID", pub_year, pub_type
+-- SELECT sp.scp, pub_year, pub_type
 --   FROM scopus_publications sp
 --   JOIN scopus_publication_groups spg ON sp.sgr = spg.sgr
+-- ORDERBY scp
 -- LIMIT 1000;
 
 -- SELECT COUNT(1)
@@ -41,8 +42,8 @@ SET TIMEZONE = 'US/Eastern';
 -- CREATE VIEW edges_test AS
 -- SELECT scp AS from_node_id, ref_sgr AS to_node_id
 --   FROM scopus_references
---  WHERE scp IN (SELECT "node_id:ID" FROM nodes_test) --
---    AND ref_sgr IN (SELECT "node_id:ID" FROM nodes_test);
+--  WHERE scp IN (SELECT scp FROM nodes_test) --
+--    AND ref_sgr IN (SELECT scp FROM nodes_test);
 
 -- SELECT COUNT(1)
 --   FROM edges_test;
