@@ -87,8 +87,6 @@ declare -rx TMP_OUT=/tmp/ERNIE-Scopus-process_pub_zips.out
 declare -i MAX_ERRORS=101
 
 FAILED_FILES_DIR="../failed"
-echo -e "\nRunning process_data_directory.sh $*"
-
 REPROCESS=false
 while (($# > 0)); do
   case "$1" in
@@ -156,7 +154,7 @@ fi
 export TMP_DIR
 rm -rf ${TMP_DIR}
 
-echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##"
+echo -e "\n## Running $0 $* under ${USER}@${HOSTNAME} in ${PWD} ##"
 
 if ! command -v parallel > /dev/null; then
   echo "Please install GNU Parallel"
@@ -171,9 +169,9 @@ declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m del
 
 parse_pub() {
   local pub_xml="$1"
-  [[ $2 ]] && local subset_option="-v subset_sp=$2"
-  local scopus_data_archive="$3"
-
+  local scopus_data_archive="$2"
+  [[ $3 ]] && local subset_option="-v subset_sp=$3"
+  
   [[ ${VERBOSE} == "true" ]] && echo "Parsing $pub_xml"
   # Always produce minimum output below even when not verbose to get stats via the OUTPUT_PROCESSOR
   # Extra output is discarded in non-verbose mode by the OUTPUT_PROCESSOR
@@ -246,7 +244,7 @@ for scopus_data_archive in *.zip; do
     # Quotes/backslashes in this variable will not be respected: disabling in order to expand `OUTPUT_PROCESSOR`
     # shellcheck disable=SC2090
     find . -name '*.xml' -type f -print0 | parallel -0 ${PARALLEL_HALT_OPTION} ${PARALLEL_JOBSLOTS_OPTION} \
-        --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_pub "{}" "${SUBSET_SP}" "${scopus_data_archive}" \
+        --line-buffer --tagstring '|job#{#}/{= $_=total_jobs() =} s#{%}|' parse_pub "{}" "${scopus_data_archive}" "${SUBSET_SP}"\
         | ${OUTPUT_PROCESSOR}
     parallel_exit_code=${PIPESTATUS[1]}
     set -e

@@ -8,7 +8,7 @@ NAME
 
 SYNOPSIS
 
-  update.sh [-s subset_SP] -d data_directory
+  update.sh [-s subset_SP] -w data_directory
   update.sh -h: display this help
 
 DESCRIPTION

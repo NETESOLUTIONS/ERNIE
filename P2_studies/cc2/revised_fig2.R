@@ -11,7 +11,7 @@ theme_bw() + theme(text=element_text(family="Arial", size=18))
 # theme_bw() + theme(text=element_text(family="Arial", size=18))
 
 # In response to Reviewer 1's request for log-scale rather than log-value plotting
-p2 <- qplot(X1,X2,data=pp,geom=c("point","line"),xlab="",ylab="frequency") + scale_y_continuous(trans='log2') + theme_bw() + theme(text=element_text(family="Arial", size=18))
+p2 <- qplot(X1,X2,data=pp,geom=c("point","line"),xlab="",ylab="frequency") + scale_y_continuous(trans='log2') + theme_bw() + theme(text=element_text(family="Arial", size=20))
 
 x <- fread('timelag3.csv')
 # x[,lag:=first_co_cited_year-first_possible_year]
@@ -44,7 +44,7 @@ q1[,proportion:=round(100*connected/total,1)]
 
 
 p3 <- qplot(perc,proportion,data=q1,xlab="",ylab="percent connected",
-ylim=c(0,50),geom=c("point","line"),group=1) + theme_bw() + theme(text=element_text(family="Arial", size=18))
+ylim=c(0,50),geom=c("point","line"),group=1) + theme_bw() + theme(text=element_text(family="Arial", size=20))
 
 p4 <- p1/p2 | p3
 pdf('percent_connected2.pdf',h=5,w=7)
