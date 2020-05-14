@@ -12,32 +12,36 @@
  In this case only edges where a publications is citing another publication are selected
  */
 
-SET SEARCH_PATH TO public;
+-- SET SEARCH_PATH TO public;
 
---1st query
+-- --1st query
 
-DROP VIEW IF EXISTS nodes_test;
+-- DROP VIEW IF EXISTS nodes_test;
 
-CREATE VIEW nodes_test AS
-SELECT sp.scp AS "node_id:ID", pub_year, pub_type
-  FROM scopus_publications sp
-  JOIN scopus_publication_groups spg ON sp.sgr = spg.sgr
-LIMIT 1000;
+-- CREATE VIEW nodes_test AS
+-- SELECT sp.scp AS "node_id:ID", pub_year, pub_type
+--   FROM scopus_publications sp
+--   JOIN scopus_publication_groups spg ON sp.sgr = spg.sgr
+-- LIMIT 1000;
 
-SELECT COUNT(1)
-  FROM nodes_test;
--- 1000
+-- SELECT COUNT(1)
+--   FROM nodes_test;
+-- -- 1000
 
--- 2nd query
+-- -- 2nd query
 
-DROP VIEW IF EXISTS edges_test;
+-- DROP VIEW IF EXISTS edges_test;
 
-CREATE VIEW edges_test AS
-SELECT scp AS from_node_id, ref_sgr AS to_node_id
-  FROM scopus_references
- WHERE scp IN (SELECT "node_id:ID" FROM nodes_test) --
-   AND ref_sgr IN (SELECT "node_id:ID" FROM nodes_test);
+-- CREATE VIEW edges_test AS
+-- SELECT scp AS from_node_id, ref_sgr AS to_node_id
+--   FROM scopus_references
+--  WHERE scp IN (SELECT "node_id:ID" FROM nodes_test) --
+--    AND ref_sgr IN (SELECT "node_id:ID" FROM nodes_test);
 
-SELECT COUNT(1)
-  FROM edges_test;
---- 5
+-- SELECT COUNT(1)
+--   FROM edges_test;
+-- --- 5
+
+
+\copy (SELECT * FROM nodes_test) TO 'nodes.csv' (FORMAT CSV, HEADER ON)
+\copy (SELECT from_node_id AS ":START_ID", to_node_id AS ":END_ID" FROM edges_test) TO 'edges.csv' (FORMAT CSV, HEADER ON)
