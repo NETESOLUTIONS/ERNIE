@@ -67,7 +67,7 @@ Postgres executor node-based work_mem management means that the peak space usage
 High values can cause Shared Memory to overflow on memory-intensive queries.
 Observed shared memory single query consumption max: 8.4 GB for `work_mem` = '512 MB'.
 
-The recommended setting ≈ {`/dev/shm` size} / { CPU cores } / 2.
+The recommended setting ≈ {`/dev/shm` size} / { CPU cores } / 4.
 */
 ALTER SYSTEM SET work_mem = '512 MB';
 
