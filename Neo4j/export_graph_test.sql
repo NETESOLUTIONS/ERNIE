@@ -25,10 +25,12 @@ SET TIMEZONE = 'US/Eastern';
 -- DROP VIEW IF EXISTS nodes_test;
 
 -- CREATE VIEW nodes_test AS
--- SELECT sp.scp, pub_year, pub_type
+-- SELECT sp.scp AS "node_id:ID", spg.pub_year, sp.citation_type,
+--   CAST(CASE WHEN ss.issn_main != '' THEN 1 ELSE 0 END AS bit) AS have_issn
 --   FROM scopus_publications sp
 --   JOIN scopus_publication_groups spg ON sp.sgr = spg.sgr
--- ORDERBY scp
+--   JOIN scopus_sources ss ON ss.ernie_source_id = sp.ernie_source_id
+-- ORDER BY "node_id:ID"
 -- LIMIT 1000;
 
 -- SELECT COUNT(1)
