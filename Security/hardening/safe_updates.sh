@@ -8,7 +8,7 @@ NAME
 
 SYNOPSIS
 
-    sudo safe_updates.sh [-r message] [-m notification_address] [-j] [-d postgres_DB] unsafe_group [unsafe_user]
+    sudo safe_updates.sh [-r message] [-m notification_address] [-j] [-g unsafe_group] [-u unsafe_user]
     safe_updates.sh -h: display this help
 
 DESCRIPTION
@@ -32,12 +32,19 @@ DESCRIPTION
 
     -j                          Update Jenkins
 
-    -d postgres_DB              Check Postgres DB for active, non-system queries
+    -g unsafe_group             Owned (under EGID) processes are considered unsafe for reboot
 
-    unsafe_group                Owned (under EGID) processes are considered unsafe for reboot
-
-    unsafe_user                 Owned (under EUID) processes are considered unsafe for reboot.
+    -u unsafe_user              Owned (under EUID) processes are considered unsafe for reboot.
                                 `jenkins` user is automatically unsafe when there are more than 1 active processes.
+
+ENVIRONMENT
+
+    Pre-requisite dependencies:
+
+      # `pcregrep`
+
+    PGDATABASE             When defined, check Postgres DB for active, non-system queries
+
 
 EXIT STATUS
 
@@ -54,7 +61,7 @@ set -e
 set -o pipefail
 
 # If a character is followed by a colon, the option is expected to have an argument
-while getopts r:m:jd: OPT; do
+while getopts r:m:jd:g:u:h OPT; do
   case "$OPT" in
     r)
       readonly REBOOT_MSG="$OPTARG"
@@ -65,8 +72,11 @@ while getopts r:m:jd: OPT; do
     j)
       readonly JENKINS_UPDATE="true"
       ;;
-    d)
-      readonly POSTGRES_DB="$OPTARG"
+    g)
+      readonly UNSAFE_USER="$OPTARG"
+      ;;
+    u)
+      readonly UNSAFE_GROUP="$OPTARG"
       ;;
     *) # -h or `?`: an unknown option
       usage
@@ -74,11 +84,6 @@ while getopts r:m:jd: OPT; do
   esac
 done
 shift $((OPTIND - 1))
-
-# Process positional parameters
-[[ $1 == "" ]] && usage
-readonly UNSAFE_PROCESS_USER_GROUP=$1
-readonly UNSAFE_PROCESS_USER=$2
 
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
@@ -94,7 +99,7 @@ echo -e "\n$(TZ=America/New_York date) ## Running $SCRIPT_NAME_WITH_EXT under ${
 
 enable_cron_job() {
   if ! crontab -l | grep -F "$SCRIPT_NAME_WITH_EXT"; then
-    echo "Scheduling to check for a quiet (safe) period every 10 minutes"
+    echo "Scheduling to check for a safe period every 10 minutes"
 
     # Append the job to `crontab`
     # Use `flock` to prevent launching of additional processes if the first launch hasn't finished for some reason
@@ -109,13 +114,14 @@ disable_cron_job() {
   crontab -l | grep --invert-match -F "$SCRIPT_NAME_WITH_EXT" | crontab -
 }
 
-readonly PROCESS_CHECK="${SCRIPT_DIR}/quiet_period_checks/active_processes.sh"
+readonly PROCESS_CHECK="${SCRIPT_DIR}/quiet_period_checks/active-processes.sh"
 
 if ! ${PROCESS_CHECK} -u jenkins 1 && [[ "$REBOOT_MSG" || "$JENKINS_UPDATE" == true ]]; then
   enable_cron_job "$@"
   exit 1
 fi
 if [[ "$JENKINS_UPDATE" == true ]]; then
+  echo "Updating Jenkins"
   if command -v monit > /dev/null; then
     monit unmonitor Jenkins
   fi
@@ -133,21 +139,19 @@ fi
 
 if [[ "$REBOOT_MSG" ]]; then
   readonly JENKINS_GROUPS=$(id jenkins)
-  if [[ $JENKINS_GROUPS == *($UNSAFE_PROCESS_USER_GROUP)* ]]; then
+  if [[ $UNSAFE_GROUP && $JENKINS_GROUPS == *($UNSAFE_GROUP)* ]]; then
     # Allow 1 Jenkins server process
     readonly MAX_GROUP_PROCESSES=1
   else
     readonly MAX_GROUP_PROCESSES=0
   fi
 
-  if ! "${PROCESS_CHECK}" -g "${UNSAFE_PROCESS_USER_GROUP}" $MAX_GROUP_PROCESSES || \
-      [[ $UNSAFE_PROCESS_USER ]] && ! ${PROCESS_CHECK} -u "${UNSAFE_PROCESS_USER}" || \
-      [[ $POSTGRES_DB ]] && ! "${SCRIPT_DIR}/quiet_period_checks/active_postgres_queries.sh" "$POSTGRES_DB"; then
+  if [[ $UNSAFE_GROUP ]] && ! "${PROCESS_CHECK}" -g "${UNSAFE_GROUP}" $MAX_GROUP_PROCESSES || \
+      [[ $UNSAFE_USER ]] && ! ${PROCESS_CHECK} -u "${UNSAFE_USER}" || \
+      [[ $PGDATABASE ]] && ! "${SCRIPT_DIR}/quiet_period_checks/active-postgres-queries.sh" "$POSTGRES_DB"; then
     enable_cron_job "$@"
     exit 1
   fi
-
-  echo "In a quiet period"
 
   if [[ $NOTIFICATION_ADDRESS ]]; then
     # Notify by email
