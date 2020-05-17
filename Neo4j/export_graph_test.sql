@@ -52,5 +52,5 @@ SET TIMEZONE = 'US/Eastern';
 -- --- 5
 
 
-\copy (SELECT * FROM nodes_test) TO 'nodes.csv' (FORMAT CSV, HEADER ON)
-\copy (SELECT from_node_id AS ":START_ID", to_node_id AS ":END_ID" FROM edges_test) TO 'edges.csv' (FORMAT CSV, HEADER ON)
+\copy (SELECT * FROM nodes_test1) TO 'nodes.csv' (FORMAT CSV, HEADER ON)
+\copy (SELECT from_node_id AS ":START_ID", to_node_id AS ":END_ID" FROM edges_test1) TO 'edges.csv' (FORMAT CSV, HEADER ON)
