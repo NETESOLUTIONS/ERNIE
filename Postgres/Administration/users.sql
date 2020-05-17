@@ -8,6 +8,13 @@ SELECT 1
 FROM pg_authid
 WHERE rolname = :user_name;
 
+-- End user list
+SELECT rolname AS login
+  FROM pg_authid
+-- Excluding Postgres system users and super-users
+WHERE rolcanlogin AND NOT rolsuper
+ ORDER BY rolname;
+
 -- Groups = roles without the login privilege
 SELECT *
 FROM pg_group;
