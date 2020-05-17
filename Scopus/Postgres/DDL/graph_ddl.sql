@@ -11,5 +11,5 @@ SELECT sp.scp AS "node_id:ID", spg.pub_year, sp.citation_type, (ss.issn_main != 
 CREATE OR REPLACE VIEW edges_test AS
 SELECT scp AS from_node_id, ref_sgr AS to_node_id
   FROM scopus_references
- WHERE scp IN (SELECT "node_id:ID" FROM nodes_test2)
-   AND ref_sgr IN (SELECT "node_id:ID" FROM nodes_test2);
+ WHERE scp IN (SELECT "node_id:ID" FROM nodes_test)
+   AND ref_sgr IN (SELECT "node_id:ID" FROM nodes_test);
