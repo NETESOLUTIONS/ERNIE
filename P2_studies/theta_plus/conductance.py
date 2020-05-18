@@ -41,7 +41,7 @@ for name in weights:
         x1_clusters = x1_clusters.fillna(0)
         x2_clusters = counts_data.merge(x2, left_on = 'cluster', right_on = 'cited_2_cluster', how = 'left')[['cluster', 'ext_in']]
         x2_clusters = x2_clusters.fillna(0)
-        x3_clusters = counts_data.merge(x3, left_on = 'cluster', right_on = 'cited_2_cluster', how = 'left')[['cluster', 'int_edges']]
+        x3_clusters = counts_data.merge(x3, left_on = 'cluster', right_on = 'cited_2_cluster', how = 'left')[['cluster', 'int_edges', 'cluster_counts']]
         x3_clusters = x3_clusters.fillna(0)
         x4 = x1_clusters.merge(x2_clusters, left_on='cluster', right_on='cluster', how = 'inner')
         x5 = x4.merge(x3_clusters, left_on='cluster', right_on='cluster')
