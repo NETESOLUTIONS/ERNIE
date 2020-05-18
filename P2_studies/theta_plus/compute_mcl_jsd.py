@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Command line arguments:
 
@@ -7,10 +8,7 @@ Command line arguments:
 
 """
 
-
-
 from scipy.spatial import distance
-from scipy import sparse
 from sklearn.feature_extraction.text import CountVectorizer
 import sklearn
 import numpy as np
@@ -28,31 +26,76 @@ from nltk.util import ngrams
 import re
 nltk.download('stopwords')
 from sys import argv
+from scipy import sparse
+from ast import literal_eval
+import multiprocessing as mp
+import time
+
 
 # ------------------------------------------------------------------------------------ #
 
-stop_words = stopwords.words('english')
-f = open('/home/shreya/mcl_jsd/nih_stopwords.txt', 'r')
-stop_words.extend([word.rstrip('\n') for word in f])
-f.close()
-stop_words.extend(['a', 'in', 'of', 'the', 'at', 'on', 'and', 'with', 'from', 'to', 'for',
-                   'some', 'but', 'not', 'their', 'human', 'mouse', 'rat', 'monkey', 'man',
-                   'method', 'during', 'process', 'hitherto', 'unknown', 'many', 'these',
-                   'have', 'into', 'improved', 'use', 'find', 'show', 'may', 'study', 'result',
-                   'contain', 'day', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight',
-                   'nine', 'ten', 'give', 'also', 'suggest', 'data', 'number', 'right reserved',
-                   'right', 'reserve', 'society', 'american', 'publish', 'group', 'wiley', 'depend',
-                   'upon', 'good', 'within', 'small', 'amount', 'large', 'quantity', 'control',
-                   'complete', 'record', 'task', 'effect', 'single', 'database', 'ref',
-                   'ref', 'university', 'press', 'psycinfo', 'apa', 'inc', 'alan', 'find', 'finding',
-                   'perform', 'new', 'reference', 'noticeable', 'america', 'copyright', 'attempt', 'make',
-                   'theory', 'demonstrate', 'present', 'analysis', 'other', 'due', 'receive', 'rabbit',
-                   'property', 'e.g.', 'and/or', 'or', 'unlikely', 'nih', 'cause', 'best', 'well',
-                   'without', 'whereas', 'whatever', 'require', 'wiley', 'aaa', 'whether', 'require',
-                   'relevant', 'take', 'together', 'appear'])  # ---> updated based on results
+stop_words = ['a', 'aaa', 'about', 'above', 'account', 'activity', 'addition', 'affect', 
+              'after', 'again', 'against', 'age', 'ain', 'alan', 'all', 'allow', 'almost',
+              'along', 'along', 'also', 'although', 'always', 'am', 'america', 'american', 
+              'among', 'amount', 'an', 'analysis', 'and', 'and/or', 'another', 'any', 'apa', 
+              'appear', 'application', 'apply', 'approach', 'approximately', 'are', 'area', 
+              'aren', "aren't", 'as', 'aspect', 'associate', 'association', 'assume', 'at', 
+              'attempt', 'author', 'average', 'base', 'basis', 'be', 'because', 'become', 'been', 
+              'before', 'behavior', 'being', 'below', 'best', 'between', 'both', 'but', 'by', 
+              'calculate', 'calculation', 'can', 'case', 'cause', 'certain', 'change', 
+              'characteristic', 'characterize', 'conclude', 'closely', 'common', 'compare', 
+              'comparison', 'complete', 'complex', 'component', 'condition', 'consider', 
+              'consist', 'consistent', 'constant', 'contain', 'control', 'copyright', 'could', 
+              'couldn', "couldn't", 'd', 'data', 'database', 'day', 'decrease', 'define', 
+              'demonstrate', 'depend', 'describe', 'detect', 'determine', 'develop', 'did', 'didn',
+              "didn't", 'differ', 'difference', 'different', 'directly', 'discuss', 'distribution', 'do', 
+              'does', 'doesn', "doesn't", 'doing', 'don', "don't", 'done', 'down', 'due', 'during', 'e.g.', 
+              'each', 'early', 'effect', 'effective', 'eight', 'either', 'employ', 'enough', 'especially',
+              'establish', 'establish', 'estimate', 'etc', 'evaluate', 'even', 'evidence', 'examine', 
+              'example', 'exhibit', 'exhibit', 'experiment', 'experimental', 'explain', 'factor', 'far', 
+              'feature', 'few', 'find', 'finding', 'first', 'five', 'follow', 'for', 'form', 'formation', 
+              'found', 'four', 'free', 'from', 'function', 'further', 'furthermore', 'general', 'give', 
+              'good', 'great', 'group', 'had', 'hadn', "hadn't", 'has', 'hasn', "hasn't", 'have',
+              'haven', "haven't", 'having', 'he', 'her', 'here', 'hers', 'herself', 'high', 'highly', 
+              'him', 'himself', 'his', 'hitherto', 'how', 'however', 'human', 'i', 'if', 'important', 
+              'improved', 'in', 'inc', 'include', 'increase', 'increased', 'indicate', 'individual',
+              'induce', 'influence', 'information', 'initial', 'interaction', 'into', 'is', 
+              'isn', "isn't", 'it', "it's", 'its', 'itself', 'just', 'kg', 'km', 'know', 'large', 'latter', 
+              'least', 'less', 'level', 'likely', 'limit', 'line', 'll', 'low', 'm', 'ma', 'made', 
+              'mainly', 'make', 'man', 'many', 'maximum', 'may', 'me', 'mean', 'measure', 
+              'measurement', 'method', 'mg', 'might', 'mightn', "mightn't", 'ml', 'mm', 'monkey', 
+              'month', 'more', 'most', 'mostly', 'mouse', 'much', 'multiple', 'must', 'mustn',
+              "mustn't", 'my', 'myself', 'near', 'nearly', 'need', 'needn', "needn't", 'neither',
+              'new', 'nih', 'nine', 'no', 'nor', 'normal', 'not', 'noticeable', 'now', 'number', 
+              'o', 'observation', 'observe', 'obtain', 'obtained', 'occur', 'of', 'off', 'often', 
+              'on', 'once', 'one', 'only', 'or', 'order', 'other', 'our', 'ours', 'ourselves', 
+              'out', 'over', 'overall', 'own', 'parameter', 'part', 'particular', 'per', 'perform', 
+              'perhaps', 'period', 'phase', 'physical', 'pmid', 'point', 'population', 'possible', 
+              'potential', 'presence', 'present', 'press', 'previous', 'previously', 'probably', 
+              'process', 'produce', 'product', 'property', 'propose', 'provide', 'psycinfo', 
+              'publish', 'quantity', 'quite', 'rabbit', 'range', 'rat', 'rate', 'rather', 're', 
+              'reaction', 'really', 'receive', 'recent', 'recently', 'record', 'ref', 'reference', 
+              'regarding', 'relate', 'relation', 'relationship', 'relative', 'relatively', 'relevant', 
+              'remain', 'report', 'represent', 'require', 'respectively', 'response', 'result', 
+              'reveal', 'review', 'right', 'right reserved', 'role', 's', 'same', 'sample', 'second',
+              'see', 'seem', 'seen', 'separate', 'set', 'seven', 'several', 'shan', "shan't", 'she', 
+              "she's", 'should', "should've", 'shouldn', "shouldn't", 'show', 'showed', 'shown', 
+              'shows', 'significant', 'significantly', 'similar', 'simple', 'since', 'six', 'size',
+              'small', 'so', 'society', 'some', 'specific', 'state', 'strong', 'study', 'subject',
+              'subsequent', 'such', 'suggest', 'support', 't', 'take', 'task', 'technique', 'ten', 
+              'term', 'test', 'than', 'that', "that'll", 'the', 'their', 'theirs', 'them',
+              'themselves', 'then', 'theory', 'there', 'therefore', 'these', 'they', 'this', 'those',
+              'three', 'through', 'thus', 'time', 'to', 'together', 'too', 'total', 'two', 'type',
+              'under', 'university', 'unknown', 'unlikely', 'until', 'up', 'upon', 'use', 'used', 
+              'useful', 'using', 'usually', 'value', 'various', 'vary', 've', 'very', 'via', 'view', 
+              'was', 'wasn', "wasn't", 'we', 'well', 'were', 'weren', "weren't", 'what', 'whatever', 
+              'when', 'where', 'whereas', 'whether', 'which', 'while', 'who', 'whom', 'why', 'wiley', 
+              'will', 'with', 'within', 'without', 'won', "won't", 'work', 'would', 'wouldn', 
+              "wouldn't", 'y', 'yield', 'you', "you'd", "you'll", "you're", "you've", 'your', 'yours',
+              'yourself', 'yourselves', 'involve', 'investigate', 'apparent', 'identify', 'assess']  # ---> updated based on results
 
 
-def preprocess_text(doc, n_grams='two'):
+def preprocess_text(doc, n_grams='one'):
     """
     Pre-processing using TextBlob: 
     tokenizing, converting to lower-case, and lemmatization based on POS tagging, 
@@ -223,15 +266,11 @@ def filter_after_preprocess(processed_tokens, retained_dict):
 
 # ------------------------------------------------------------------------------------ #
 
-def vectorize(text, corpus_by_cluster):
-    
-    count_vectorizer = CountVectorizer(lowercase=False, vocabulary=list(set(corpus_by_cluster[0].split())))
-    
-    cluster_count_mat = count_vectorizer.fit(corpus_by_cluster)
+def vectorize(text, corpus_by_cluster, count_vectorizer):
     
     article_count_mat = count_vectorizer.transform([' '.join(text)])
     article_sum = sparse.diags(1/article_count_mat.sum(axis=1).A.ravel())
-    article_prob_vec = (article_sum @ article_count_mat).toarray().tolist()[0]
+    article_prob_vec = (article_sum @ article_count_mat).toarray()
     
     return article_prob_vec
 
@@ -239,7 +278,7 @@ def vectorize(text, corpus_by_cluster):
 
 def calculate_jsd(doc_prob_vec, cluster_prob_vec):
     
-    jsd = distance.jensenshannon(doc_prob_vec, cluster_prob_vec)
+    jsd = distance.jensenshannon(doc_prob_vec.tolist()[0], cluster_prob_vec)
     
     return jsd
 
@@ -252,7 +291,7 @@ import psycopg2
 with open('/home/shreya/mcl_jsd/ernie_password.txt') as f:
     ernie_password = f.readline()
 
-conn=psycopg2.connect(database="ernie",user="shreya",host="localhost",password=ernie_password)
+conn=psycopg2.connect(database="ernie",user="shreya",host="ernie2",password=ernie_password)
 conn.set_client_encoding('UTF8')
 conn.autocommit=True
 curs=conn.cursor()
@@ -285,12 +324,12 @@ max_query = "SELECT MAX(cluster) FROM " + cluster_table + ";"
 curs.execute(max_query, conn)
 max_cluster_number = curs.fetchone()[0]
 
-for cluster_num in range(start_cluster_num, max_cluster_number+1):
+for cluster_num in range(int(start_cluster_num), max_cluster_number+1):
             
     print("Querying Cluster Number: ", str(cluster_num))
 
 
-    query = "SELECT clt.scp, tat.title, tat.abstract_text, clt.cluster " + "FROM " + cluster_table +  " AS clt " + "LEFT JOIN " + title_abstract_table + " AS tat " + "ON clt.scp = tat.scp " + "WHERE clt.cluster=" + str(cluster_num) + ";"
+    query = "SELECT tat.*, clt.cluster " + "FROM " + cluster_table +  " AS clt " + "LEFT JOIN " + title_abstract_table + " AS tat " + "ON clt.scp = tat.scp " + "WHERE clt.cluster=" + str(cluster_num) + ";"
 
     print(query)
 
@@ -315,10 +354,17 @@ for cluster_num in range(start_cluster_num, max_cluster_number+1):
 
         data_text = mcl_data.copy()
         data_text['scp'] = data_text.astype('str')
-        data_text['processed_title'] = data_text['title'].swifter.apply(preprocess_text)
-        data_text['processed_abstract'] = data_text['abstract_text'].swifter.apply(preprocess_text)
 
-        data_text['processed_all_text'] = data_text['processed_title'] + data_text['processed_abstract']
+        data_text['all_text'] = data_text['title'] + data_text['abstract_text']
+        
+#         p = mp.Pool(mp.cpu_count())
+#         data_text['processed_all_text'] = p.map(preprocess_text, data_text['all_text'])
+#         p.close()
+
+        data_text['processed_all_text'] = data_text['all_text'].swifter.apply(preprocess_text)
+    
+        print("")
+        print("")
         data_text['processed_all_text_frequencies'] = data_text['processed_all_text'].swifter.apply(get_frequency)
         data_all_text_frequency = merge_vocab_dictionary(data_text['processed_all_text_frequencies'])
         retained_dict = remove_less_than(data_all_text_frequency)
@@ -327,10 +373,12 @@ for cluster_num in range(start_cluster_num, max_cluster_number+1):
         mcl_all_text = data_text.filtered_text.tolist()
         corpus_by_article = [' '.join(text) for text in mcl_all_text]
         corpus_by_cluster = [' '.join(corpus_by_article)]
-        
+
         count_vectorizer = CountVectorizer(lowercase=False, vocabulary=list(set(corpus_by_cluster[0].split())))
-        data_text['probability_vector'] = data_text['filtered_text'].swifter.apply(vectorize, args=(corpus_by_cluster,))
         cluster_count_mat = count_vectorizer.fit_transform(corpus_by_cluster)
+
+        data_text['probability_vector'] = data_text['processed_all_text'].swifter.apply(vectorize, args=(corpus_by_cluster, count_vectorizer,))
+
         cluster_sum = sparse.diags(1/cluster_count_mat.sum(axis=1).A.ravel())
         cluster_prob_vec = (cluster_sum @ cluster_count_mat).toarray().tolist()[0]
 
@@ -349,17 +397,6 @@ for cluster_num in range(start_cluster_num, max_cluster_number+1):
         jsd_mean = np.mean(data_text['JS_divergence'])
         jsd_std = np.std(data_text['JS_divergence'])
 
-#                 print("")
-#                 print('Minimum JSD value for the cluster is: ', jsd_min)
-#                 print('25th Percentile JSD value for the cluster is: ', jsd_25_percentile)
-#                 print('Median JSD value for the cluster is: ', jsd_median)
-#                 print('75th Percentile JSD value for the cluster is: ', jsd_75_percentile)
-#                 print('Maximum JSD value for the cluster is: ', jsd_max)
-#                 print('Mean JSD value for the cluster is: ', jsd_mean)
-#                 print('Std Dev of JSD for the cluster is: ', np.std(data_text['JSD']))
-#                 print("")
-
-
         print("")
         print("JSD computed.")
         print("Cluster analysis complete.")
@@ -367,7 +404,6 @@ for cluster_num in range(start_cluster_num, max_cluster_number+1):
         print("Saving to CSV")
         print("")
 
-        
         result_df = pd.DataFrame({
             'weight': name, 
             'inflation': val,
@@ -384,14 +420,12 @@ for cluster_num in range(start_cluster_num, max_cluster_number+1):
             'percentile_75_jsd': jsd_75_percentile, 
             'max_jsd': jsd_max, 
             'std_dev_jsd': jsd_std,
-            'total_unique_bigrams': len(data_all_text_frequency),
-            'final_unique_bigrams': len(retained_dict),
-            'size_1_bigram_prop': (1-(len(retained_dict)/len(data_all_text_frequency)))})
+            'total_unique_unigrams': len(data_all_text_frequency),
+            'final_unique_unigrams': len(retained_dict),
+            'size_1_unigram_prop': (1-(len(retained_dict)/len(data_all_text_frequency)))})
 
-        jsd_output = jsd_output.append(result_df)
-        result_df.to_csv("/home/shreya/mcl_jsd/JSD_output.csv", mode = 'a', index = None, header=False, encoding='utf-8')
-
-                
-
+        result_df.to_csv("/home/shreya/mcl_jsd/JSD_output_unigrams.csv", mode = 'a', index = None, header=False, encoding='utf-8')
+        
+        print("")
 
 print("ALL COMPLETED.")
