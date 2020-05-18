@@ -61,8 +61,8 @@ UUID=b162b1c7-564b-41eb-9662-419c3f831acb	/erniedev_data2	ext4	defaults,nofail
 UUID=b028cfca-9aeb-4347-b7af-ef0bb5dde6f6	/erniedev_data3	ext4	defaults,nofail
 UUID=1c2538f3-9363-4039-8001-0331a2292e42	/erniedev_data4	ext4	defaults,nofail
 UUID=f0010566-2e92-44dc-825e-394c29d948be	/erniedev_data5	ext4	defaults,nofail
-UUID=6046eeca-2d4e-4423-9bf2-ef4eabe8f76d	/ernie1_museum	ext4	defaults,nofail
-UUID=8e46d904-57a6-407e-9242-14ed7987e440	/ernie1_museum2	ext4	defaults,nofail
+UUID=6046eeca-2d4e-4423-9bf2-ef4eabe8f76d	/erniedev_data6	ext4	defaults,nofail
+UUID=8e46d904-57a6-407e-9242-14ed7987e440	/erniedev_data7	ext4	defaults,nofail
 
 # == Swap Volumes ==
 

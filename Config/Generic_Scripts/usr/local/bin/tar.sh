@@ -64,6 +64,7 @@ fi
 # -c: Create a new archive containing the specified items.
 # -z: Compress the resulting archive with gzip(1)
 # -f: Write the archive to the specified file
+# shellcheck disable=SC2086 # Options are expanded into multiple parameters
 tar -c -z -v ${options} -f ${archive_and_files}
 
 exit 0
