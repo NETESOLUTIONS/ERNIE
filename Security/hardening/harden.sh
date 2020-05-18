@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-if [[ $# -lt 2 || "$1" == "-h" ]]; then
+
+usage() {
   cat << 'HEREDOC'
 NAME
 
@@ -7,7 +8,7 @@ NAME
 
 SYNOPSIS
 
-    sudo harden.sh [-k notification_address] system_user end_user_group [excluded_dir] ...
+    sudo harden.sh [-k] [-m email] [-e excluded_dir] [-e ...] [-u unsafe_user] [-g unsafe_group] system_user
     harden.sh -h: display this help
 
 DESCRIPTION
@@ -15,47 +16,91 @@ DESCRIPTION
     The script automatically makes changes that it can to harden a CentOS server per the Baseline Security Configuration
     derived from the Center for Internet Security (CIS) Security Benchmarks.
     The script would fail on the first problem that needs to be fixed manually. Correct the problem and re-run.
+    The script should resume at the failing check.
 
-    WARNING: it updates Linux kernel and all packages to their latest versions. In the case of kernel update, it would
-    reboot the server. Re-run the script after the reboot.
+    WARNING: it updates *all* yum packages to their latest versions, including, optionally the kernel.
+
+    Kernel and Jenkins updates are done during automatically determined "safe" periods.
 
     The following options are available:
 
-    system_user     User account to assign ownership of unowned files and directories.
-                         The primary group of that user account will be used as group owner.
-                    Processes owned by this user are checked to determine a quiet period for reboot.
+    -k                      Include Linux kernel in the updates.
+                            Reboot safely and notify `notification_address` by email when kernel is updated.
 
-    end_user_group  Processed owned by this group are checked to determine a quiet period for reboot.
+    -m email                An address to send notification to
 
-    excluded_dir    Directory excluded from the ownership and system executables check.
-                    This is needed for mapped Docker container dirs. The Docker home is excluded automatically.
+    -e excluded_dir         Directory(-ies) excluded from the ownership and system executables check.
+                            This is needed for mapped Docker container dirs.
+                            The Docker home (if Docker is installed) is excluded automatically.
+
+    -u unsafe_user          Check "active" processes of this effective user to determine a "safe" period.
+
+    -g unsafe_group         Check "active" processes of this effective group to determine a "safe" period.
+
+    system_user             User account to assign ownership of unowned files and directories and backups.
+                            The primary group of that user account will be used as group owner.
+
+ENVIRONMENT
+
+    Pre-requisite dependencies:
+
+      # `pcregrep`
+
+    PGDATABASE             When defined, used to include "active" non-system Postgres queries in the
+
+EXIT STATUS
+
+    The harden.sh utility exits with one of the following values:
+
+    0   All hardening checks passed pending unsafe actions: kernel and Jenkins updates.
+    >1  A hardening check failed, which could not be automatically corrected.
 
 EXAMPLES
 
-    sudo ./harden.sh pardi_admin pardiusers /pardidata1/upsource
+    sudo ./harden.sh -k -m j5g1e0d8w9w2t7v2@neteteam.slack.com -e /data1/upsource -g endusers admin
 HEREDOC
   exit 1
-fi
-
-readonly MIN_NON_SYSTEM_UID=$(pcregrep -o1 '^UID_MIN\s+(\d+)' /etc/login.defs)
+}
 
 set -e
 set -o pipefail
 
+# Check if Docker is installed
+readonly DOCKER_HOME=$(docker info 2> /dev/null | pcregrep -o1 'Docker Root Dir: (.+)')
+if [[ ${DOCKER_HOME} ]]; then
+  exclude_dirs=("${DOCKER_HOME}")
+else
+  exclude_dirs=()
+fi
+
+safe_update_options=""
+# If a character is followed by a colon, the option is expected to have an argument
+while getopts km:e:u:g:h OPT; do
+  case "$OPT" in
+    k)
+      readonly KERNEL_UPDATE=true
+      ;;
+    e)
+      exclude_dirs+=("$OPTARG")
+      ;;
+    m)
+      readonly NOTIFICATION_ADDRESS="$OPTARG"
+      ;&
+    m | u | g)
+      # Pass-through options
+      safe_update_options="$safe_update_options -$OPT $OPTARG"
+      ;;
+    *) # -h or `?`: an unknown option
+      usage
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+# Process positional parameters
+[[ $1 == "" ]] && usage
 readonly SYSTEM_USER=$1
 readonly DEFAULT_OWNER_GROUP=$(id --group --name ${SYSTEM_USER})
-shift
-readonly END_USER_GROUP=$1
-shift
-
-readonly DOCKER_HOME=$(docker info 2> /dev/null | pcregrep -o1 'Docker Root Dir: (.+)')
-[[ ${DOCKER_HOME} ]] && EXCLUDE_DIRS="-not -path *${DOCKER_HOME}/*"
-while (($# > 0)); do
-  [[ ${EXCLUDE_DIRS} ]] && EXCLUDE_DIRS="$EXCLUDE_DIRS "
-  EXCLUDE_DIRS="${EXCLUDE_DIRS}-not -path *$1/*"
-  shift
-done
-readonly EXCLUDE_DIRS
 
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
@@ -64,104 +109,28 @@ cd "$SCRIPT_DIR"
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
+if ! command -v pcregrep > /dev/null; then
+  echo "Please install pcregrep"
+  exit 1
+fi
+
+MIN_NON_SYSTEM_UID=$(pcregrep -o1 '^UID_MIN\s+(\d+)' /etc/login.defs)
+readonly MIN_NON_SYSTEM_UID
+
 # TODO Many checks are executed twice. Refactor to execute once and capture stdout.
 
 for f in functions/*.sh; do
   source "$f"
 done
 
-# region Baseline Configuration items: 1-100.
-
+# Execute checks
 for f in checks/*.sh; do
   source "$f"
 done
 
-echo -e '## Filesystem Configuration ##\n\n'
+#region DISABLED checks
 
-echo '1.1.1 Create separate partition for /tmp'
-echo 'Verify that there is a /tmp file partition in the /etc/fstab file'
-if [[ "$(grep "[[:space:]]/tmp[[:space:]]" /etc/fstab)" != "" ]]; then
-  echo "Check PASSED"
-else
-  echo "Partitioning"
-  dd if=/dev/zero of=/tmp/tmp_fs seek=512 count=512 bs=1M
-  mkfs.ext3 -F /tmp/tmp_fs
-  cat >> /etc/fstab << HEREDOC
-/tmp/tmp_fs					/tmp		ext3	noexec,nosuid,nodev,loop 1 1
-/tmp						/var/tmp	none	bind
-HEREDOC
-  chmod a+wt /tmp
-  mount /tmp
-fi
-printf "\n\n"
-
-echo '1.1.2 Set nodev option for /tmp Partition'
-if [[ "$(grep /tmp /etc/fstab | grep nodev)" != "" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correct this!"
-fi
-printf "\n\n"
-
-echo '1.1.3 Set nosuid option for /tmp Partition'
-if [[ "$(grep /tmp /etc/fstab | grep nosuid)" != "" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correct this!"
-fi
-printf "\n\n"
-
-echo '1.1.4 Set noexec option for /tmp Partition'
-if [[ "$(grep /tmp /etc/fstab | grep nosuid)" != "" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correct this!"
-fi
-printf "\n\n"
-
-# TBD DISABLED
 #echo '1.1.17 Set Sticky Bit on All world-writable directories'
-
-echo -e '## Configure Software Updates ##\n\n'
-
-echo "1.2.1 Verify CentOS GPG Key is Installed"
-echo "___CHECK___"
-rpm -q --queryformat "%{SUMMARY}\n" gpg-pubkey
-matches=$(rpm -q --queryformat "%{SUMMARY}\n" gpg-pubkey)
-b='gpg(CentOS-7 Key (CentOS 7 Official Signing Key) <security@centos.org>) gpg(OpenLogic Inc (OpenLogic RPM Development) <support@openlogic.com>)'
-if [[ "$(echo $matches)" == *"$b"* ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  gpg --quiet --with-fingerprint /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
-fi
-printf "\n\n"
-
-echo "1.2.2 Verify that gpgcheck is Globally Activated"
-echo "___CHECK___"
-grep gpgcheck /etc/yum.conf
-if [[ "$(grep gpgcheck /etc/yum.conf)" == "gpgcheck=1" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '/gpgcheck=/d' /etc/yum.conf
-  echo "gpgcheck=1" >> /etc/yum.conf
-fi
-printf "\n\n"
-
-echo "1.2.3 Obtain Software Package Updates with yum"
-echo "___CHECK___"
-#yum check-update
-if yum check-update --exclude=jenkins; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  ACCEPT_EULA=Y yum -y update --exclude=jenkins
-fi
-printf "\n\n"
 
 # TBD DISABLED Files get modified for different reasons. It's unclear what could be done to fix a failure.
 
@@ -174,65 +143,6 @@ printf "\n\n"
 #  echo "Check PASSED"
 #fi
 #printf "\n\n"
-
-echo -e '## Advanced Intrusion Detection Environment (AIDE) ##\n\n'
-
-echo -e '## Configure SELinux ##\n\n'
-
-echo -e '## Secure Boot Settings ##\n\n'
-
-echo "1.5.1 Set User/Group Owner on the boot loader config"
-echo "___CHECK___"
-BOOT_CONFIG=/etc/grub2.cfg
-if stat --dereference --format="%u %g" ${BOOT_CONFIG} | grep "0 0"; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  chown root:root ${BOOT_CONFIG}
-fi
-printf "\n\n"
-
-echo "1.5.2 Set Permissions on the boot loader config"
-echo "___CHECK___"
-if stat --dereference --format="%a" ${BOOT_CONFIG} | grep ".00"; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  chmod og-rwx ${BOOT_CONFIG}
-fi
-printf "\n\n"
-
-echo "1.5.3 Set Boot Loader Password"
-echo "___CHECK___"
-matches=$(grep "^password" ${BOOT_CONFIG}) || :
-if [[ "$matches" == 'password --md5' || -z "$matches" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED"
-  exit 1
-#  echo "Check FAILED, correcting ..."
-#  echo "___SET___"
-#  sed -i '/^password/d' ${BOOT_CONFIG}
-#  echo "password --md5 _[Encrypted Password]_" >>${BOOT_CONFIG}
-fi
-printf "\n\n"
-
-echo "1.5.4 Require Authentication for Single-User Mode"
-echo "___CHECK 1/2___"
-if [[ "$(grep SINGLE /etc/sysconfig/init | tee /tmp/hardening-1.5.4.1.log)" == 'SINGLE=/sbin/sulogin' ]]; then
-  echo "Check PASSED"
-else
-  cat /tmp/hardening-1.5.4.1.log
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  if [[ -s /tmp/hardening-1.5.4.1.log ]]; then
-    sed -i "/SINGLE/s/sushell/sulogin/" /etc/sysconfig/init
-  else
-    echo "SINGLE=/sbin/sulogin" >> /etc/sysconfig/init
-  fi
-fi
 
 echo "___CHECK 2/2___"
 if [[ "$(grep PROMPT /etc/sysconfig/init | tee /tmp/hardening-1.5.4.2.log)" == 'PROMPT=no' ]]; then
@@ -288,7 +198,7 @@ fi
 printf "\n\n"
 
 # TBD DISABLED
-# Samet K.: Exec-shield is no longer an option in sysctl for kernel tuning in CENTOS7, it is by
+# `Exec-shield` is no longer an option in `sysctl` for kernel tuning in CentOS 7, it is by
 # default on. This is a security measure, as documented in the RHEL 7 Security Guide.
 # See http://centosfaq.org/centos/execshield-in-c6-or-c7-kernels/
 
@@ -1757,11 +1667,16 @@ echo "9.1.11 Find Un-owned Files and Directories + 9.1.12 Find Un-grouped Files 
 
 echo "____CHECK____: List of Un-owned Files and Directories:"
 rm -f ownership_issues.log
+printf -v EXCLUDE_DIR_OPTION -- '-not -path *%s/* ' "${exclude_dirs[@]}"
+
 # -xdev Don't descend directories on other filesystems
-df --local --output=target | tail -n +2 | xargs -I '{}' find '{}' ${EXCLUDE_DIRS} -xdev -type f \( -nouser -or -nogroup \) -ls \
-  | while read inode blocks perms number_of_links_or_dirs owner group size month day time_or_year filename; do
+# shellcheck disable=SC2086 # Expanding EXCLUDE_DIR_OPTION into multiple parameters
+df --local --output=target \
+  | tail -n +2 \
+  | xargs -I '{}' find '{}' ${EXCLUDE_DIR_OPTION} -xdev -type f \( -nouser -or -nogroup \) -ls \
+  | while read -r inode blocks perms number_of_links_or_dirs owner group size month day time_or_year filename; do
     echo -e "$filename $owner $group $size $month $day $time_or_year" | tee -a ownership_issues.log
-    chown ${SYSTEM_USER}:${DEFAULT_OWNER_GROUP} "$filename"
+    chown "${SYSTEM_USER}":"${DEFAULT_OWNER_GROUP}" "$filename"
   done
 # df --local -P | awk {'if (NR!=1) print $6'}
 
@@ -2108,10 +2023,11 @@ echo -e "\nCheck PASSED: No Presence of User .forward Files"
 printf "\n\n"
 # endregion
 
-if [[ ${KERNEL_UPDATE} == true || ${JENKINS_UPDATE} == true ]]; then
+if [[ ${KERNEL_UPDATE_MESSAGE} || ${JENKINS_UPDATE} == true ]]; then
   readonly LOG=${ABSOLUTE_SCRIPT_DIR}/safe_updates.log
-  "$SCRIPT_DIR/safe_updates.sh" -r "Kernel update from v${kernel_version} to v${latest_kernel_package_version}" \
-    -j "${END_USER_GROUP}" "${SYSTEM_USER}" >> "$LOG"
+  [[ ${KERNEL_UPDATE_MESSAGE} ]] && safe_update_options="-r "$KERNEL_UPDATE_MESSAGE" $safe_update_options"
+  # shellcheck disable=SC2086 # Expanding `$safe_update_options` into multiple parameters
+  "$SCRIPT_DIR/safe_updates.sh" $safe_update_options >> "$LOG"
 fi
 
 exit 0

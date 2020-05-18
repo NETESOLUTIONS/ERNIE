@@ -1,9 +1,9 @@
+#!/usr/bin/env bash
 echo -e '## Install Updates, Patches and Additional Security Software ##\n\n'
 
 yum clean expire-cache
 
 echo '1.0.7 Use the Latest OS Kernel'
-echo '(1.2.3 Check that all OS packages are updated)'
 # Install an updated kernel package if available
 yum --enablerepo=elrepo-kernel install -y kernel-ml python-perf
 
@@ -14,9 +14,12 @@ latest_kernel_package_version=$(rpm --query --last kernel-ml | head -1 | pcregre
 
 if [[ ${kernel_version} == ${latest_kernel_package_version} ]]; then
   echo "Check PASSED"
-  notify "Hardening: kernel check" "The kernel version is up to date: v${kernel_version}"
+  if [[ $NOTIFICATION_ADDRESS ]]; then
+    echo "The kernel version is up to date: v${kernel_version}" \
+        | mailx -S smtp=localhost -s "Hardening: kernel check" "$NOTIFICATION_ADDRESS"
+  fi
 else
-  readonly KERNEL_UPDATE=true
+  readonly KERNEL_UPDATE_MESSAGE="Kernel update from v${kernel_version} to v${latest_kernel_package_version}"
   echo "Check FAILED, correcting ..."
   echo "___SET___"
 
@@ -25,9 +28,4 @@ else
 
   grub2-set-default 0
   grub2-mkconfig -o /boot/grub2/grub.cfg
-fi
-
-if ! yum check-update jenkins; then
-  # When Jenkins is not installed, this is false
-  readonly JENKINS_UPDATE=true
 fi

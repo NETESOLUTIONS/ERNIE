@@ -1,4 +1,11 @@
-This file describes the purpose of each file
+This README describes the purpose of each file in this folder.
+
+Co-cited pairs were generated from year-slices in Scopus, i.e., publications of type article with at least 5 cited references.
+Only those references with complete records, i.e., also present in the scopus_publications table were included and issns 
+were required for both publications and references. The reason for this is that these year slices were designed to support
+citation switching experiments using an MCMC approach (Uzzi et al. 2013, Bradley et al 2020) and frequencies were computed at 
+the journal level (issn).
+
 neo4j_calculations.sh -> Runs on neo4j server to calculate kinetics, first_co_cited year calculations
 theta_omega_calculations.sh -> theta omega sql calculations, writes them to table cc2.theta_omega_delta_results
 theta_omega.sql and theta_omega_calculations.sql are files related to theta omega sql calculations

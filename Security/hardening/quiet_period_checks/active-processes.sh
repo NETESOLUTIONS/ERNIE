@@ -12,9 +12,9 @@ SYNOPSIS
 
 DESCRIPTION
 
-    Check the active processes of effective user(s) or group(s).
+    Check the "active" processes of effective user(s) or group(s).
 
-    Active processes are all processes excluding:
+    "Active" processes are all processes excluding:
 
     1. `sshd` processes
     2. Login shells, e.g. `-bash`
@@ -74,6 +74,8 @@ done
 
 # Defaults to 0 when empty
 declare -ri MAX_PROCESSES=$1
+
+echo "Checking active processes for ${ps_select_options[*]}"
 
 # Redirected output is not truncated: hence `-w` option(s) are not needed
 # The filtering and formatting logic is too complex to use `pgrep`

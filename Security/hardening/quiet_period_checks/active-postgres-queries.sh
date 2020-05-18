@@ -8,7 +8,7 @@ NAME
 
 SYNOPSIS
 
-    active_postgres_queries.sh [-v] database
+    active_postgres_queries.sh [-v]
     active_postgres_queries.sh -h: display this help
 
 DESCRIPTION
@@ -23,6 +23,14 @@ DESCRIPTION
     The following options are available:
 
     -v    verbose: print all execute lines
+
+ENVIRONMENT
+
+    Pre-requisite dependencies:
+
+      # `pcregrep`
+
+    PGDATABASE             When defined, check Postgres DB for active, non-system queries
 
 EXIT STATUS
 
@@ -56,25 +64,29 @@ shift $((OPTIND - 1))
 [[ $1 == "" ]] && usage
 
 [[ "${VERBOSE}" == true ]] && set -x
-readonly DATABASE=$1
 
 if ! command -v pcregrep >/dev/null; then
   echo "Please install pcregrep"
   exit 1
 fi
 
+if [[ ! $PGDATABASE ]]; then
+  echo "Please define PGDATABASE environment variable"
+  exit 1
+fi
+
+echo "Checking active Postgres queries in the $PGDATABASE DB".
+
 readonly QUERIES=$(
   # Avoid any directory permission warning
   cd /tmp
   # language=PostgresPLSQL
-  sudo -u jenkins psql -v ON_ERROR_STOP=on "$DATABASE" << 'HEREDOC'
+  sudo -u jenkins psql -v ON_ERROR_STOP=on "$PGDATABASE" << 'HEREDOC'
 SELECT *
 FROM pg_stat_activity
 WHERE pid <> pg_backend_pid() and state <> 'idle' and usename != 'postgres';
 HEREDOC
 )
-
-#mapfile -t QUERY_LINES <<< "$QUERIES"
 
 # Minus header and footer
 declare -i QUERY_COUNT=$(pcregrep -o1 '^\((\d+) rows?\)$'<<< "$QUERIES")
