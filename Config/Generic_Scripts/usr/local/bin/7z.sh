@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 if [[ "$1" == "-h" ]]; then
-  cat <<'HEREDOC'
+  cat << 'HEREDOC'
 NAME
 
     7z.sh -- archive to a .7z recursively using 100MB split volumes
@@ -57,7 +57,7 @@ set -o pipefail
 
 declare -a options files
 # Find first non-switch (not -*) option
-while (( $# > 0 )); do
+while (($# > 0)); do
   case "$1" in
     -*)
       options+=("$1")
@@ -94,15 +94,17 @@ if [[ ! ${archive} ]]; then
   if [[ ${target_dir} ]]; then
     archive="${target_dir}/${archive_name}"
   else
-    target_dir=.
     archive="${archive_name}"
+    if [[ "${archive}" != */* ]]; then
+      archive=./${archive}
+    fi
+    # Remove shortest /* suffix
+    target_dir=${archive%/*}
   fi
 fi
-if (( ${#files[@]} == 0 )); then
+if ((${#files[@]} == 0)); then
   files=('*')
 fi
-
-echo -e "\n## ${PWD}> Archiving to ${archive}.7z.* ##\n"
 
 # Since `-sdel` is supported for add only, determine the command to use based on existence of archive
 if [[ -f ${archive} ]]; then
@@ -112,15 +114,18 @@ else
   readonly COMMAND_7ZIP="a"
 fi
 
+readonly ALL_OPTIONS="${COMMAND_7ZIP} -v100m ${options[*]}"
+echo -e "\n## ${PWD}> Archiving to ${archive}.7z.* (options: $ALL_OPTIONS) ##\n"
+
 # shellcheck disable=SC2086 # Expansions should be unquoted to split them into multiple arguments
-7za ${COMMAND_7ZIP} -v100m ${options[*]} ${archive} ${files[*]}
+7za $ALL_OPTIONS ${archive} ${files[*]}
 
 # Volumes are named .7z.001, .7z.002, ...
 # If there is a single volume at the end, rename it to .7z
 if [[ ! -s ${archive}.7z.002 ]]; then
-  mv "${archive}.7z.001" "${target_dir}/${archive_name}.7z"
+  mv -v "${archive}.7z.001" "${target_dir}/${archive_name}.7z"
 fi
 
-command -v growlnotify >/dev/null && growlnotify "$SCRIPT_NAME" -m "Finished archiving ${archive}.zip"
+command -v growlnotify > /dev/null && growlnotify "$SCRIPT_NAME" -m "Finished archiving ${archive}.zip"
 
 exit 0
