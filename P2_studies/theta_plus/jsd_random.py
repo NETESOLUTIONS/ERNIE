@@ -305,9 +305,10 @@ def random_jsd(jsd_size, sample_data = all_data, repeat = 50):
 jsd_data = jsd[(jsd['weight'] == name) & (jsd['inflation'] == int(val))]
 jsd_data['random_jsd'] = 0
 
-save_name = '/home/shreya/mcl_jsd/' + name + '_' + str(val) + '_jsd_random_unigrams.csv'
+save_name = '/home/shreya/mcl_jsd/unigrams/' + name + '_' + str(val) + '_jsd_unigrams_20200519.csv'
 
-p = mp.Pool(mp.cpu_count())
+# p = mp.Pool(mp.cpu_count())
+p = mp.Pool(6)
 
 for cluster_num in range(start_cluster_num-1, len(jsd_data)):
     print("")
