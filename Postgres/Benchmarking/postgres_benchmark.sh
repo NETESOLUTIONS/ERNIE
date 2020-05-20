@@ -83,7 +83,7 @@ echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
 current_state
 
-echo '"TPS (excluding connections establishing)"' > "$OUTPUT_CSV"
+echo '"Transactions per sec (TPS) excluding connecting"' > "$OUTPUT_CSV"
 # Output progress to stdout and tee the extracted TPS into the output CSV
 pgbench --client=${SIMULATED_CLIENTS} --time=${BENCHMARK_TIME_SECONDS} --progress=20 "${CUSTOM_SCRIPT_OPTION}" \
   | tee >(pcregrep -o1 'tps = ([\d.]+).*excluding connections' >> "$OUTPUT_CSV")
