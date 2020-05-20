@@ -18,13 +18,12 @@ ensure_permissions() {
   local file="$1"
   local permissions="${2:-600}"
   local ownership="${3:-root:root}"
-  local actual
-  actual=$(stat --format="%U:%G %a" "${file}")
+  local actual=$(stat --format="%U:%G %a" "${file}")
   if [[ "$actual" == "$ownership $permissions" ]]; then
     echo "Check PASSED"
   else
     echo "Check FAILED"
-    echo "The actual ownership and permissions for $file: $actual"
+    echo "The actual ownership and permissions for $file: '$actual'"
 
     echo "Correcting ..."
     echo "___SET___"

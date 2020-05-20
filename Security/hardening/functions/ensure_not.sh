@@ -16,13 +16,12 @@ ensure() {
 
   local file="$1"
   local pattern="$2"
-  local actual
-  actual=$(grep -E "$pattern" "$file")
+  local actual=$(grep -E "$pattern" "$file")
   if [[ ! "$actual" ]]; then
     echo "Check PASSED"
   else
     echo "Check FAILED"
-    echo "The actual value in $1: $actual"
+    echo "The actual value in $1: '$actual'"
     echo "Correcting ..."
     backup "$file"
     sed --in-place --regexp-extended "/$pattern/d" "$file"

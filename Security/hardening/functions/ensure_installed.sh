@@ -3,28 +3,25 @@
 ########################################
 # Check and uninstall a package
 # Arguments:
-#   $1  message
-#   $2  YUM package name
+#   $1  YUM package name
 # Returns:
 #   None
 # Examples:
 #   uninstall '3.9 Remove DNS Server' bind
 ########################################
-uninstall() {
+ensure_installed() {
   set -e
   set -o pipefail
 
-  local msg=$1
-  local package=$2
-  echo "$msg"
+  local package=$1
   echo "___CHECK___"
-  if ! rpm -q "$package"; then
+  if rpm -q "$package"; then
     echo "Check PASSED"
   else
     echo "Check FAILED, correcting ..."
-    echo "Package $package should not be installed"
+    echo "Package $package should be installed"
     echo "___SET___"
-    yum autoremove -y "$package"
+    yum install -y "$package"
   fi
   printf "\n\n"
 }

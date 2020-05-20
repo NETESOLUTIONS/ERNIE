@@ -71,10 +71,10 @@ shift
 readonly SIMULATED_CLIENTS=${1:-5}
 
 current_state() {
-  echo -e "\nCurrently running top processes"
+  echo -e "-----\nCurrently running top processes\n-----"
   top -b -n 1 | head -15
 
-  echo -e "\nCurrently running queries"
+  echo -e "-----\nCurrently running queries\n-----"
   # language=PostgresPLSQL
   psql -c 'SELECT * FROM running;'
 }

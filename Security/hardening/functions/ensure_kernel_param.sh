@@ -16,13 +16,12 @@ ensure_kernel_param() {
 
   local param="$1"
   local expected="${2}"
-  local actual
-  actual=$(sysctl "$param")
+  local actual=$(sysctl "$param")
   if [[ "$actual" == "$expected" ]]; then
     echo "Check PASSED"
   else
     echo "Check FAILED"
-    echo "The actual value for $param: $actual"
+    echo "The actual value for $param: '$actual'"
 
     echo "Correcting ..."
     echo "___SET___"

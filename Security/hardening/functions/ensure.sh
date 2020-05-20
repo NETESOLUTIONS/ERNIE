@@ -18,16 +18,19 @@ ensure() {
   local file="$1"
   local pattern="$2"
   local expected="$3"
-  local actual
-  actual=$(grep -E "$pattern" "$file")
+  local actual=$(grep -E "$pattern" "$file")
   if [[ "$actual" == "$expected" ]]; then
     echo "Check PASSED"
   else
     echo "Check FAILED"
-    echo "The actual value in $1: $actual"
+    echo "The actual value in $1: '$actual'"
 
     [[ ! $expected ]] && exit 1
     echo "Correcting ..."
-    upsert "^$actual$" "$expected" "$file"
+    echo "___SET___"
+    mapfile -t lines <<< "$expected"
+    for line in "${lines[@]}"; do
+      upsert "^$line$" "$line" "$file"
+    done
   fi
 }
