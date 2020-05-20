@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-set -e
-set -o pipefail
+
 ########################################
 # disable system service
 # Arguments:
@@ -12,6 +11,9 @@ set -o pipefail
 ########################################
 
 disable_sysv_service() {
+  set -e
+  set -o pipefail
+
   echo "___CHECK___"
   # By default, the on and off options affect only runlevels 2, 3, 4, and 5, while reset and reset priorities affect all
   # of the runlevels. The --level option may be used to specify which runlevels are affected.

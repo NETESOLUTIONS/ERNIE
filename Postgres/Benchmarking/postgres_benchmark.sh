@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 if [[ "$1" == "-h" ]]; then
-  cat <<'HEREDOC'
+  cat << 'HEREDOC'
 NAME
 
     postgres_benchmark.sh -- run pgbench and extract tps (excluding connections establishing) into a CSV
@@ -44,8 +44,8 @@ set -e
 set -o pipefail
 #set -x
 
-if ! command -v pgbench >/dev/null; then
-  cat <<HEREDOC
+if ! command -v pgbench > /dev/null; then
+  cat << HEREDOC
 pgbench is not found. Please add it to the system PATH. For example:
 
   $ sudo ln -snfv /usr/pgsql*/bin/pgbench /usr/bin
@@ -53,7 +53,7 @@ HEREDOC
   exit 2
 fi
 
-if ! command -v  pcregrep >/dev/null; then
+if ! command -v pcregrep > /dev/null; then
   echo "pcregrep is not found. Please install it."
   exit 2
 fi
@@ -70,19 +70,24 @@ readonly BENCHMARK_TIME_SECONDS=${1:-10}
 shift
 readonly SIMULATED_CLIENTS=${1:-5}
 
+current_state() {
+  echo -e "\nCurrently running top processes"
+  top -b -n 1 | head -15
+
+  echo -e "\nCurrently running queries"
+  # language=PostgresPLSQL
+  psql -c 'SELECT * FROM running;'
+}
+
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
-echo -e "\nCurrently running queries"
-# language=PostgresPLSQL
-psql -c 'SELECT * FROM running;'
+current_state
 
-echo '"TPS (excluding connections establishing)"' >"$OUTPUT_CSV"
+echo '"TPS (excluding connections establishing)"' > "$OUTPUT_CSV"
 # Output progress to stdout and tee the extracted TPS into the output CSV
-pgbench --client=${SIMULATED_CLIENTS} --time=${BENCHMARK_TIME_SECONDS} --progress=20 "${CUSTOM_SCRIPT_OPTION}" | \
-  tee >(pcregrep -o1 'tps = ([\d.]+).*excluding connections' >>"$OUTPUT_CSV")
+pgbench --client=${SIMULATED_CLIENTS} --time=${BENCHMARK_TIME_SECONDS} --progress=20 "${CUSTOM_SCRIPT_OPTION}" \
+  | tee >(pcregrep -o1 'tps = ([\d.]+).*excluding connections' >> "$OUTPUT_CSV")
 
-echo -e "\nCurrently running queries"
-# language=PostgresPLSQL
-psql -c 'SELECT * FROM running;'
+current_state
 
 exit 0

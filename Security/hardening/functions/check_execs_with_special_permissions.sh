@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-set -ex
-set -o pipefail
+
 ################################################################################
 # Check for non-whitelisted executables with special permissions
 # Arguments:
@@ -12,6 +11,9 @@ set -o pipefail
 #   check_execs_with_special_permissions 4000 SUID
 ################################################################################
 check_execs_with_special_permissions() {
+  set -ex
+  set -o pipefail
+
   echo "____CHECK____: List of non-whitelisted $2 System Executables:"
   echo ${EXCLUDE_DIRS}
   # Non-zero exit codes in the sub-shell are intentionally suppressed using this variable declaration

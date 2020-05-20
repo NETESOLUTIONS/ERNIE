@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-set -e
-set -o pipefail
+
 ########################################
 # Check and uninstall a package
 # Arguments:
@@ -12,14 +11,19 @@ set -o pipefail
 #   uninstall '3.9 Remove DNS Server' bind
 ########################################
 uninstall() {
-  echo "$1: package $2 should not be installed"
+  set -e
+  set -o pipefail
+
+  local msg=$1
+  local package=$2
+  echo "$msg: package $package should not be installed"
   echo "___CHECK___"
-  if ! rpm -q $2; then
+  if ! rpm -q "$package"; then
     echo "Check PASSED"
   else
     echo "Check FAILED, correcting ..."
     echo "___SET___"
-    yum autoremove -y $2
+    yum autoremove -y "$package"
   fi
   printf "\n\n"
 }

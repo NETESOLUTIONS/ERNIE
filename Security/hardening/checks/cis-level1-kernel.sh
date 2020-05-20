@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-echo -e '## Install Updates, Patches and Additional Security Software ##\n\n'
+echo -e '1.8 Ensure updates, patches, and additional security software are installed'
 
 yum clean expire-cache
 
