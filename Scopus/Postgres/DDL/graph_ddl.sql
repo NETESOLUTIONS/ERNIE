@@ -3,10 +3,10 @@ SELECT sp.scp AS "node_id:ID", spg.pub_year, sp.citation_type, (ss.issn_main != 
   FROM scopus_publications sp
   JOIN scopus_publication_groups spg
        ON sp.sgr = spg.sgr
+  JOIN scopus_references sr USING (scp)
+  JOIN scopus_publications ref_sp ON ref_sp.sgr = sr.ref_sgr
   LEFT JOIN scopus_sources ss
-            ON ss.ernie_source_id = sp.ernie_source_id
- ORDER BY "node_id:ID"
- -- LIMIT 1000;
+            ON ss.ernie_source_id = sp.ernie_source_id;
 
 CREATE OR REPLACE VIEW edges_test AS
 SELECT scp AS from_node_id, ref_sgr AS to_node_id
