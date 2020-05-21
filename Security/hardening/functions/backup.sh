@@ -11,9 +11,6 @@
 #   backup /etc/motd
 ########################################
 backup() {
-  set -e
-  set -o pipefail
-
   local file="$1"
   if [[ $BACKUP_DIR ]]; then
     if [[ ! -d $BACKUP_DIR ]]; then

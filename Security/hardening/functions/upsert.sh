@@ -14,9 +14,6 @@
 # See https://superuser.com/questions/590630/sed-how-to-replace-line-if-found-or-append-to-end-of-file-if-not-found
 ########################################
 upsert() {
-  set -e
-  set -o pipefail
-
   local file="$3"
   backup "$file"
 

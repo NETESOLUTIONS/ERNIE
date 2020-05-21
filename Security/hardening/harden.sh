@@ -4,7 +4,7 @@ usage() {
   cat << 'HEREDOC'
 NAME
 
-    harden-CentOS.sh -- harden a machine semi-automatically per CIS CentOS Linux 7 Benchmark v2.2.0 (Level 1 only)
+    harden -- harden a machine semi-automatically per included hardening checks
 
 SYNOPSIS
 
@@ -13,8 +13,8 @@ SYNOPSIS
 
 DESCRIPTION
 
-    The script automatically makes changes that it can to harden a CentOS server per the Baseline Security Configuration
-    derived from the Center for Internet Security (CIS) CentOS Linux 7 Benchmark v2.2.0.
+    The script automatically makes changes that it can to harden a server. Included hardening checks are based on the
+    Baseline Security Configuration derived from the Center for Internet Security (CIS) Benchmark.
 
     The current directory is used for logs and configuration file backups (e.g. `./2020-05-19-09-33-20.bak/*`).
 
@@ -125,11 +125,13 @@ readonly MIN_NON_SYSTEM_UID
 # TODO Many checks are executed twice. Refactor to execute once and capture stdout.
 
 for f in "$SCRIPT_DIR"/functions/*.sh; do
+  # shellcheck source=functions/*.sh
   source "$f"
 done
 
 # Execute checks
-for f in "$SCRIPT_DIR"/checks/*.sh; do
+for f in "$SCRIPT_DIR"/hardening-checks*/*.sh; do
+  # shellcheck source=hardening-checks*/*.sh
   source "$f"
 done
 

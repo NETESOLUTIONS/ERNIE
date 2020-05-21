@@ -11,11 +11,9 @@
 #   ensure_kernel_param fs.suid_dumpable 0
 ########################################
 ensure_kernel_param() {
-  set -e
-  set -o pipefail
-
   local param="$1"
   local expected="${2}"
+  # shellcheck disable=SC2155
   local actual=$(sysctl "$param")
   if [[ "$actual" == "$expected" ]]; then
     echo "Check PASSED"

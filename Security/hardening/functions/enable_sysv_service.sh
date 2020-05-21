@@ -10,9 +10,6 @@
 #   enable_sysv_service chargen-dgram
 ########################################
 enable_sysv_service() {
-  set -e
-  set -o pipefail
-
   echo "___CHECK___"
   # If the service is not present, the check fails
   output=$(systemctl list-unit-files | grep -w $1.service || echo "")

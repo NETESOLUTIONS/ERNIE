@@ -10,9 +10,6 @@
 #   uninstall '3.9 Remove DNS Server' bind
 ########################################
 ensure_installed() {
-  set -e
-  set -o pipefail
-
   local package=$1
   echo "___CHECK___"
   if rpm -q "$package"; then

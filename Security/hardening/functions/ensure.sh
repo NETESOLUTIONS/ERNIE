@@ -12,12 +12,10 @@
 #   ensure /usr/lib/systemd/system/rescue.service '/sbin/sulogin' 'ExecStart=-/bin/sh -c "/sbin/sulogin; /usr/bin/systemctl --fail --no-block default"'
 ########################################
 ensure() {
-  set -e
-  set -o pipefail
-
   local file="$1"
   local pattern="$2"
   local expected="$3"
+  # shellcheck disable=SC2155
   local actual=$(grep -E "$pattern" "$file")
   if [[ "$actual" == "$expected" ]]; then
     echo "Check PASSED"

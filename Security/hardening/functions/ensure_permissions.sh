@@ -12,12 +12,10 @@
 #   ensure /usr/lib/systemd/system/rescue.service '/sbin/sulogin' 'ExecStart=-/bin/sh -c "/sbin/sulogin; /usr/bin/systemctl --fail --no-block default"'
 ########################################
 ensure_permissions() {
-  set -e
-  set -o pipefail
-
   local file="$1"
   local permissions="${2:-600}"
   local ownership="${3:-root:root}"
+  # shellcheck disable=SC2155
   local actual=$(stat --format="%U:%G %a" "${file}")
   if [[ "$actual" == "$ownership $permissions" ]]; then
     echo "Check PASSED"

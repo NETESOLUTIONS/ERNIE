@@ -11,11 +11,9 @@
 #   ensure_not /etc/motd '(\\v\|\\r\|\\m\|\\s)'
 ########################################
 ensure() {
-  set -e
-  set -o pipefail
-
   local file="$1"
   local pattern="$2"
+  # shellcheck disable=SC2155
   local actual=$(grep -E "$pattern" "$file")
   if [[ ! "$actual" ]]; then
     echo "Check PASSED"
