@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="OPEN_SSH" host="ernie-neo4j.eastus2.cloudapp.azure.com" id="f9fdaa92-a5dc-4326-8567-47c1c31ed987" port="22" nameFormat="DESCRIPTIVE" username="dk" />
+    </configs>
+  </component>
+</project>
