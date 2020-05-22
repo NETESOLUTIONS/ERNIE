@@ -95,3 +95,6 @@ TABLESPACE index_tbs;
 select count(1) from (select distinct scp from theta_plus.t_o_p_nodes_dc union select distinct ref_sgr from theta_plus.t_o_p_nodes_dc)c
 
 select count(1) from theta_plus.t_o_p_nodes_dc
+
+select abstract_text from scopus_abstracts where scp=75149149112
+

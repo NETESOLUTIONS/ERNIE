@@ -36,6 +36,14 @@ SELECT DISTINCT citing,cited from imm1990_testcase_cited UNION
 SELECT DISTINCT citing,cited from imm1990_testcase_citing;
 SELECT count(1) from imm1990_testcase_asjc2403_citing_cited
 
+CREATE TABLE theta_plus.imm90_title_abstracts
+TABLESPACE theta_plus_tbs AS
+SELECT tpin.scp,st.title,sa.abstract_text
+FROM theta_plus.imm90_nodes tpin
+INNER JOIN scopus_titles st ON tpin.scp=st.scp
+INNER JOIN scopus_abstracts sa ON tpin.scp=sa.scp
+AND sa.abstract_language='eng'
 
+select count(1) from theta_plus.imm90_title_abstracts
 
 
