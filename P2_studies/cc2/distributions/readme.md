@@ -11,13 +11,13 @@ This folder contains code relevant to analyzing the observed co-citation frequen
     - mean and standard deviation of a normal distribution underlying the lognormal distribution that is the MLE solution
   - This program was executed from a Python program to determine the moments of the lognormal distribution as mentioned above.
 
-**Sample Input File**
-80	0.019438446
-81	0.019438446
-82	0.015118791
-83	0.008639309
-84	0.008639309
-85	0.017278617
-86	0.010799136
-87	0.012958963
-...
+**Sample Input File**  
+80	0.019438446  
+81	0.019438446  
+82	0.015118791  
+83	0.008639309  
+84	0.008639309  
+85	0.017278617  
+86	0.010799136  
+87	0.012958963  
+...  
