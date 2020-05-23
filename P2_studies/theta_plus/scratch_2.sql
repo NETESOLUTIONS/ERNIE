@@ -98,3 +98,10 @@ select count(1) from theta_plus.t_o_p_nodes_dc
 
 select abstract_text from scopus_abstracts where scp=75149149112
 
+
+
+select scp from scopus_references where ref_sgr=75149149112
+
+select distinct scp from scopus_references where scp in(
+select distinct scp from scopus_references where ref_sgr=75149149112
+)
