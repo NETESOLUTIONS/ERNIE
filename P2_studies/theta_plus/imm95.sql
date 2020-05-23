@@ -36,7 +36,15 @@ CREATE TABLE theta_plus.imm1995_testcase_asjc2403_citing_cited
 TABLESPACE theta_plus_tbs AS
 SELECT DISTINCT citing,cited from imm1995_testcase_cited UNION
 SELECT DISTINCT citing,cited from imm1995_testcase_citing;
-SELECT count(1) from imm1995_testcase_asjc2403_citing_cited
+SELECT count(1) from imm1995_testcase_asjc2403_citing_cited;
+
+CREATE TABLE theta_plus.imm95_nodes
+TABLESPACE theta_plus_tbs AS
+SELECT distinct citing as scp
+FROM theta_plus.imm1995_testcase_asjc2403_citing_cited
+UNION
+SELECT distinct cited
+FROM theta_plus.imm1995_testcase_asjc2403_citing_cited;
 
 CREATE TABLE theta_plus.imm95_title_abstracts
 TABLESPACE theta_plus_tbs AS
