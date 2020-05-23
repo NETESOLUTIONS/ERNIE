@@ -15,16 +15,18 @@ TABLESPACE index_tbs;
 CREATE TABLE theta_plus.imm1995_testcase_cited
 TABLESPACE theta_plus_tbs AS
 SELECT tp.scp as citing,sr.ref_sgr as cited from theta_plus.imm1995_testcase_asjc2403 tp
-INNER JOIN scopus_references sr on tp.scp = sr.scp
+INNER JOIN scopus_references sr on tp.scp = sr.scp;
 CREATE INDEX imm1995_testcase_cited_idx ON theta_plus.imm1995_testcase_cited(citing,cited)
 TABLESPACE index_tbs
 
-CREATE TABLE theta_plus.imm1995_testcase_citing TABLESPACE theta_plus_tbs AS
-SELECT sr.scp as citing,tp.scp as cited FROM theta_plus.imm1995_testcase_asjc2403 tp
+CREATE TABLE theta_plus.imm1995_testcase_citing
+TABLESPACE theta_plus_tbs AS
+SELECT sr.scp as citing,tp.scp AS cited
+FROM theta_plus.imm1995_testcase_asjc2403 tp
 INNER JOIN scopus_references sr on tp.scp=sr.ref_sgr;
-CREATE INDEX imm1995_testcase_citing_idx ON theta_plus.imm1995_testcase_citing(citing,cited)
-TABLESPACE index_tbs
-CREATE INDEX imm1995_testcase_citing_idx ON theta_plus.imm1995_testcase_citing(citing,cited)
+CREATE INDEX imm1995_testcase_citing_idx ON
+theta_plus.imm1995_testcase_citing(citing,cited)
+TABLESPACE index_tbs;
 
 select count(1) from imm1995_testcase_asjc2403;
 select count(1) from imm1995_testcase_cited;
