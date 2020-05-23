@@ -10,6 +10,28 @@ JetBrains IDEs / Graph Database Support plug-in
 }
 */
 
+// 0.05s
+MATCH (p:Publication {node_id: $scp})<--(c:Publication)-[r]->(x:Publication)
+RETURN x.node_id AS scp, count(r) AS co_citations
+ORDER BY co_citations DESC, scp
+LIMIT 10;
+
+// 0.05s
+MATCH (p:Publication {node_id: $scp})<--(c:Publication)
+MATCH (x:Publication)<-[r]-(c)
+WHERE x.node_id <> $scp
+RETURN x.node_id AS scp, count(r) AS co_citations
+ORDER BY co_citations DESC, scp
+LIMIT 10;
+
+// 0.1s
+MATCH (p:Publication {node_id: $scp})<--(c:Publication)
+WITH collect(c.node_id) AS citing_pubs
+MATCH (x:Publication)<-[r]-(c:Publication)
+WHERE x.node_id <> $scp AND c.node_id IN citing_pubs
+RETURN x.node_id AS scp, count(r) AS co_citations
+ORDER BY co_citations DESC, scp
+LIMIT 10;
 
 // 0.1s
 MATCH (p:Publication {node_id: $scp})<--(c:Publication)
