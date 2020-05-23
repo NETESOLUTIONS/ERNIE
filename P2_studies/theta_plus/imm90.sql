@@ -45,5 +45,3 @@ INNER JOIN scopus_abstracts sa ON tpin.scp=sa.scp
 AND sa.abstract_language='eng'
 
 select scp,title from theta_plus.imm90_title_abstracts limit 5;
-
-
