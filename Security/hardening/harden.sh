@@ -233,28 +233,6 @@ done
 #fi
 #printf "\n\n"
 
-# DISABLED X Window is required in order to run DataGrip on server(s)
-#echo "3.2 Remove X Window"
-#echo "___CHECK 1/2___"
-#systemctl get-default
-#if [[ "$(systemctl get-default)" = "multi-user.target" ]]; then
-#  echo "Check PASSED"
-#else
-#  echo "Check FAILED, correcting ..."
-#  echo "___SET___"
-#  systemctl set-default multi-user.target
-#fi
-#echo "___CHECK 2/2___"
-#yum grouplist | grep "X Window System"
-#if [[ "$(yum grouplist | grep 'X Window System')" = "" ]]; then
-#  echo "Check PASSED"
-#else
-#  echo "Check FAILED, correcting ..."
-#  echo "___SET___"
-#  yum groupremove "X Window System"
-#fi
-#printf "\n\n"
-
 # iptables: DISABLED (`firewalld` is the preferred firewall)
 #
 #echo -e '### Network Configuration and Firewalls ###\n\n'

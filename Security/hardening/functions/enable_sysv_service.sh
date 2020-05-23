@@ -19,7 +19,7 @@ enable_sysv_service() {
     systemctl enable $1.service
   elif [[ ! "${output}" ]]; then
     echo "No service found, please install"
-    exit 1
+    return 1
   else
     echo "Check PASSED"
   fi
