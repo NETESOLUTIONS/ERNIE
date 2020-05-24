@@ -22,5 +22,10 @@ This folder contains code relevant to analyzing the observed co-citation frequen
   - This program was executed from a Python program to determine the moments of the lognormal distribution as mentioned above.
 - kl_table.pdf
   - This file reports Kullback-Leibler Divergence for the empirical frequency distribution versus the best-fit lognormal and power law distributions.
+- Results database (MySQL)
+  - cocit.sql
+    - Dump file of resutls database
+  - cocit_data_dict.pdf
+    - Data dictionary for cocit.sql (not yest posted)
 
 
