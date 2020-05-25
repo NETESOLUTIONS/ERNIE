@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-echo "2.2.5 Ensure DHCP Server is not enabled"
-disable_sysv_service cups
-
-disable_sysv_service dhcpd
 
 uninstall 2.1.1 telnet-server
 uninstall 2.1.2 telnet
