@@ -59,7 +59,8 @@ SELECT tpin.scp,st.title,sa.abstract_text
 FROM theta_plus.imm1990_nodes tpin
 INNER JOIN scopus_titles st ON tpin.scp=st.scp
 INNER JOIN scopus_abstracts sa ON tpin.scp=sa.scp
-AND sa.abstract_language='eng';
+AND sa.abstract_language='eng'
+AND st.language='English';
 
 select scp,title from theta_plus.imm1990_title_abstracts limit 5;
 select count(1) from theta_plus.imm1990_title_abstracts;
