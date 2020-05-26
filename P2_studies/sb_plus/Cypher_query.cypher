@@ -12,5 +12,5 @@ WHERE  c.pub_year = 1985 AND c.citation_type = 'ar' AND d.pub_year <=1985 AND c.
 WITH c.node_id as scp, count(r) as citations
 MATCH (a:Publication)<-[r1:CITES]-(c:Publication {node_id: scp})-[r2:CITES]->(b:Publication)
 WHERE a.node_id <> c.node_id AND b.node_id <> c.node_id AND a.pub_year <= 1985 AND b.pub_year <= 1985 AND a.node_id < b.node_id AND citations >= 5
-WITH a,b,c,citations
+WITH a.node_id, b.node_id, c.node_id
 RETURN COUNT([c,a,b])
