@@ -14,114 +14,16 @@ import numpy as np
 import swifter  # Makes applying to datframe as fast as vectorizing
 from nltk.probability import FreqDist
 import string
-# from nltk.corpus import stopwords
 import glob
 import os
 import pandas as pd
-import re
-from textblob import TextBlob, Word
 import nltk
-from nltk.util import ngrams
 import re
-# nltk.download('stopwords')
 from sys import argv
 from ast import literal_eval
 from scipy import sparse
 import multiprocessing as mp
 
-
-
-# ------------------------------------------------------------------------------------ #
-
-# stop_words = stopwords.words('english')
-# f = open('/home/shreya/mcl_jsd/nih_stopwords.txt', 'r')
-# stop_words.extend([word.rstrip('\n') for word in f])
-# f.close()
-# stop_words.extend(['a', 'in', 'of', 'the', 'at', 'on', 'and', 'with', 'from', 'to', 'for',
-#                    'some', 'but', 'not', 'their', 'human', 'mouse', 'rat', 'monkey', 'man',
-#                    'method', 'during', 'process', 'hitherto', 'unknown', 'many', 'these',
-#                    'have', 'into', 'improved', 'use', 'find', 'show', 'may', 'study', 'result',
-#                    'contain', 'day', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight',
-#                    'nine', 'ten', 'give', 'also', 'suggest', 'data', 'number', 'right reserved',
-#                    'right', 'reserve', 'society', 'american', 'publish', 'group', 'wiley', 'depend',
-#                    'upon', 'good', 'within', 'small', 'amount', 'large', 'quantity', 'control',
-#                    'complete', 'record', 'task', 'effect', 'single', 'database', 'ref',
-#                    'ref', 'university', 'press', 'psycinfo', 'apa', 'inc', 'alan', 'find', 'finding',
-#                    'perform', 'new', 'reference', 'noticeable', 'america', 'copyright', 'attempt', 'make',
-#                    'theory', 'demonstrate', 'present', 'analysis', 'other', 'due', 'receive', 'rabbit',
-#                    'property', 'e.g.', 'and/or', 'or', 'unlikely', 'nih', 'cause', 'best', 'well',
-#                    'without', 'whereas', 'whatever', 'require', 'wiley', 'aaa', 'whether', 'require',
-#                    'relevant', 'take', 'together', 'appear'])  # ---> updated based on results
-
-
-def preprocess_text(doc, n_grams='two'):
-    """
-    Pre-processing using TextBlob: 
-    tokenizing, converting to lower-case, and lemmatization based on POS tagging, 
-    removing stop-words, and retaining tokens greater than length 2
-
-    We can also choose to include n_grams (n = 1,2,3) in the final output
-
-    Argument(s): 'doc' - a string of words or sentences.
-                 'n_grams' - one: only unigrams (tokens consisting of one word each)
-                           - two: only bigrams
-                           - two_plus: unigrams + bigrams
-                           - three: only trigrams 
-                           - three_plus: unigrams + bigrams + trigrams
-
-    Output: 'reuslt_singles' - a list of pre-processed tokens (individual words) of each sentence in 'doc'
-            'result_ngrams' - a list of pre-processed tokens (including n-grams) of each sentence in 'doc'
-
-    """
-
-    blob = TextBlob(doc).lower()
-#     lang = blob.detect_language()
-#     print(lang)
-#     if lang != 'en':
-#         blob = blob.translate(to = 'en')
-
-    result_singles = []
-
-    tag_dict = {"J": 'a',  # Adjective
-                "N": 'n',  # Noun
-                "V": 'v',  # Verb
-                "R": 'r'}  # Adverb
-
-    # For all other types of parts of speech (including those not classified at all)
-    # the tag_dict object maps to 'None'
-    # the method w.lemmatize() defaults to 'Noun' as POS for those classified as 'None'
-
-    for sent in blob.sentences:
-
-        words_and_tags = [(w, tag_dict.get(pos[0])) for w, pos in sent.tags]
-        lemmatized_list = [w.lemmatize(tag) for w, tag in words_and_tags]
-
-        for i in range(len(lemmatized_list)):
-
-            if lemmatized_list[i] not in stop_words and len(lemmatized_list[i].lower()) > 2 and not lemmatized_list[i].isdigit():
-                result_singles.append(lemmatized_list[i].lower())
-
-    result_bigrams = ['_'.join(x) for x in ngrams(result_singles, 2)]
-
-    result_bigrams = [
-        token for token in result_bigrams if token != 'psychological_association']
-
-    result_trigrams = ['_'.join(x) for x in ngrams(result_singles, 3)]
-    result_two_plus = result_singles + result_bigrams
-    result_three_plus = result_singles + result_bigrams + result_trigrams
-
-    if n_grams == 'one':
-        result = result_singles
-    elif n_grams == 'two':
-        result = result_bigrams
-    elif n_grams == 'three':
-        result = result_trigrams
-    elif n_grams == 'two_plus':
-        result = result_two_plus
-    elif n_grams == 'three_plus':
-        result = result_three_plus
-
-    return result
 
 
 # ------------------------------------------------------------------------------------ #
@@ -249,72 +151,84 @@ def fix_eval_issue(doc):
 
 # ------------------------------------------------------------------------------------ #
 
+# name = argv[1]
+# val = argv[2]
+start_cluster_num = int(argv[1])
+repeat = int(argv[2])
+cluster_type = argv[3]
 
-jsd = pd.read_csv("/home/shreya/mcl_jsd/JSD_output_unigrams.csv")
-all_data = pd.read_csv("/home/shreya/mcl_jsd/top_scp_title_concat_abstract_english_processed.csv")
-all_data['processed_all_text_unigrams'] = all_data['processed_all_text_unigrams'].swifter.apply(fix_eval_issue)
-all_data['processed_all_text_unigrams_frequencies'] = all_data['processed_all_text_unigrams_frequencies'].swifter.apply(fix_eval_issue)
+jsd_column_names = ['weight', 'inflation', 'cluster', 'total_size', 'pre_jsd_size',
+       'missing_values', 'post_jsd_size', 'jsd_nans', 'mean_jsd', 'min_jsd',
+       'percentile_25_jsd', 'median_jsd', 'percentile_75_jsd', 'max_jsd',
+       'std_dev_jsd', 'total_unique_unigrams', 'final_unique_unigrams',
+       'size_1_unigram_prop']
 
-
-# all_data['scp'] = all_data.astype('str')
-# all_data['processed_title'] = all_data['title'].swifter.apply(preprocess_text)
-# all_data['processed_abstract'] = all_data['abstract_text'].swifter.apply(preprocess_text)
-# all_data['processed_all_text'] = all_data['processed_title'] + all_data['processed_abstract']
-
-
-name = argv[1]
-val = argv[2]
-start_cluster_num = int(argv[3])
-repeat = int(argv[4])
+jsd_file_name = '/home/shreya/mcl_jsd/immunology/JSD_output_imm90_' + cluster_type + '.csv'
 
 
-def random_jsd(jsd_size, sample_data = all_data, repeat = 50):
+jsd_data = pd.read_csv(jsd_file_name, names = jsd_column_names)
+all_data = pd.read_csv("/home/shreya/mcl_jsd/immunology/imm90_title_abstracts_processed.csv")
+
+all_data = all_data.dropna()
+
+# all_data['processed_all_text'] = all_data['processed_all_text'].swifter.apply(fix_eval_issue)
+# all_data['processed_all_text_frequencies'] = all_data['processed_all_text_frequencies'].swifter.apply(fix_eval_issue)
+
+
+def random_jsd(jsd_size, sample_data = all_data, repeat = repeat):
     
     random_jsd = []
     
-    for i in range(repeat):
-        data_text = sample_data.sample(n = jsd_size)
-#         data_text['processed_all_text_unigrams_frequencies'] = data_text['processed_all_text'].swifter.apply(get_frequency)
-        data_all_text_frequency = merge_vocab_dictionary(data_text['processed_all_text_unigrams_frequencies'])
-        retained_dict = remove_less_than(data_all_text_frequency)
-        data_text['filtered_text'] = data_text['processed_all_text_unigrams'].swifter.apply(filter_after_preprocess, args = (retained_dict,))
+    if int(jsd_size) >= 10:
+    
+        for i in range(repeat):
+            data_text = sample_data.sample(n = int(jsd_size))
+            
+            data_text['processed_all_text'] = data_text['processed_all_text'].swifter.apply(fix_eval_issue)
+            data_text['processed_all_text_frequencies'] = data_text['processed_all_text_frequencies'].swifter.apply(fix_eval_issue)
+            
+            data_all_text_frequency = merge_vocab_dictionary(data_text['processed_all_text_frequencies'])
+            retained_dict = remove_less_than(data_all_text_frequency)
+            data_text['filtered_text'] = data_text['processed_all_text'].swifter.apply(filter_after_preprocess, args = (retained_dict,))
 
-        data_all_text = data_text.filtered_text.tolist()
-        corpus_by_article = [' '.join(text) for text in data_all_text]
-        corpus_by_cluster = [' '.join(corpus_by_article)]
+            data_all_text = data_text.filtered_text.tolist()
+            corpus_by_article = [' '.join(text) for text in data_all_text]
+            corpus_by_cluster = [' '.join(corpus_by_article)]
 
-        count_vectorizer = CountVectorizer(lowercase=False, vocabulary=list(set(corpus_by_cluster[0].split())))
-        cluster_count_mat = count_vectorizer.fit_transform(corpus_by_cluster)
+            count_vectorizer = CountVectorizer(lowercase=False, vocabulary=list(set(corpus_by_cluster[0].split())))
+            cluster_count_mat = count_vectorizer.fit_transform(corpus_by_cluster)
 
-        data_text['probability_vector'] = data_text['filtered_text'].swifter.apply(vectorize, args=(corpus_by_cluster, count_vectorizer,))
+            data_text['probability_vector'] = data_text['filtered_text'].swifter.apply(vectorize, args=(corpus_by_cluster, count_vectorizer,))
 
-        cluster_sum = sparse.diags(1/cluster_count_mat.sum(axis=1).A.ravel())
-        cluster_prob_vec = (cluster_sum @ cluster_count_mat).toarray().tolist()[0]
+            cluster_sum = sparse.diags(1/cluster_count_mat.sum(axis=1).A.ravel())
+            cluster_prob_vec = (cluster_sum @ cluster_count_mat).toarray().tolist()[0]
 
-        data_text['JS_distance'] = data_text['probability_vector'].swifter.apply(calculate_jsd, args = (cluster_prob_vec,))
+            data_text['JS_distance'] = data_text['probability_vector'].swifter.apply(calculate_jsd, args = (cluster_prob_vec,))
 
-        data_text = data_text.dropna()
-        data_text['JS_divergence'] = np.square(data_text['JS_distance'])
-
-
-        random_jsd.append(data_text['JS_divergence'].mean())
+            data_text = data_text.dropna()
+            data_text['JS_divergence'] = np.square(data_text['JS_distance'])
+            
+            random_jsd.append(data_text['JS_divergence'].mean())
+            
+    else:
+        random_jsd = None
     
     return random_jsd
         
 
-jsd_data = jsd[(jsd['weight'] == name) & (jsd['inflation'] == int(val))]
-jsd_data['random_jsd'] = 0
+# jsd_data = jsd[(jsd['weight'] == name) & (jsd['inflation'] == int(val))]
+# jsd_data['random_jsd'] = 0
 
-save_name = '/home/shreya/mcl_jsd/unigrams/' + name + '_' + str(val) + '_jsd_unigrams_20200519.csv'
+save_name = '/home/shreya/mcl_jsd/immunology/JSD_random_output_imm90_' + cluster_type + '.csv'
 
 # p = mp.Pool(mp.cpu_count())
 p = mp.Pool(6)
 
 for cluster_num in range(start_cluster_num-1, len(jsd_data)):
     print("")
-    print(f'Working on Cluster: {name} {val}.')
+#     print(f'Working on Cluster: {name} {val}.')
     print(f'The Cluster Number is {cluster_num+1}')
-    random_list = p.map(random_jsd, jsd_data['post_jsd_size'][cluster_num:cluster_num+1])
+    random_list = p.map(random_jsd, jsd_data['pre_jsd_size'][cluster_num:cluster_num+1])
     
     result_df = jsd_data[cluster_num:cluster_num+1]
     result_df['random_jsd'] = random_list
