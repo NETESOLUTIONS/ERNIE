@@ -9,17 +9,16 @@ JetBrains IDEs / Graph Database Support plug-in
   "scp": 75149149112
 }
 */
-MATCH (a:Publication)<-[r1:CITES]-(c:Publication {node_id: $scp})-[r2:CITES]->(b:Publication)
-  WHERE a.node_id <> c.node_id AND b.node_id <> c.node_id AND c.citation_type = 'ar'
-  AND c.pub_year = 1985 AND a.pub_year <= 1985 AND b.pub_year <= 1985 AND a.node_id < b.node_id
-WITH c.node_id AS scp, count(r1) + count(r2) AS citations
-//LIMIT 10
-MATCH (a:Publication)<-[r1:CITES]-(c:Publication {node_id: scp})-[r2:CITES]->(b:Publication)
-WHERE citations >= 50 AND a.node_id <> c.node_id AND b.node_id <> c.node_id
-  AND a.pub_year <= 1985 AND b.pub_year <= 1985 AND a.node_id < b.node_id
-//RETURN a.node_id AS cited1_scp, b.node_id AS cited2_scp;
-RETURN scp, COUNT([a.node_id, b.node_id]);
 
+MATCH (c:Publication)-[r:CITES]->(d:Publication)
+  WHERE c.pub_year = 1985 AND c.citation_type = 'ar' AND d.pub_year <= 1985 AND c.node_id <> d.node_id
+AND c.node_id IN [13033105, 21923086, 21823196, 22006539, 21846363]
+WITH c.node_id AS scp, count(r) AS citations
+MATCH (a:Publication)<-[r1:CITES]-(c:Publication {node_id: scp})-[r2:CITES]->(b:Publication)
+  WHERE a.node_id <> c.node_id AND b.node_id <> c.node_id AND a.pub_year <= 1985 AND b.pub_year <= 1985
+  AND a.node_id < b.node_id AND citations >= 5
+RETURN a.node_id AS cited_1, b.node_id AS cited_2, count(scp) AS frequency
+  ORDER BY frequency DESC;
 
 MATCH (a:Publication)<-[r1:CITES]-(c:Publication {node_id: $scp})-[r2:CITES]->(b:Publication)
   WHERE a.node_id <> c.node_id AND b.node_id <> c.node_id AND c.citation_type = 'ar'

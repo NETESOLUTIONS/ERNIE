@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-echo "4.2.4	Log Suspicious Packets"
+echo "3.2.4 Ensure suspicious packets are logged"
 echo "____CHECK 1/2____"
 /sbin/sysctl net.ipv4.conf.all.log_martians
 if [[ "$(/sbin/sysctl net.ipv4.conf.all.log_martians)" == "net.ipv4.conf.all.log_martians = 1" ]]; then
