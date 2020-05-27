@@ -4,17 +4,20 @@ usage() {
   cat << 'HEREDOC'
 NAME
 
-    harden.sh -- harden a CentOS machine semi-automatically
+    harden -- harden a machine semi-automatically per included hardening checks
 
 SYNOPSIS
 
-    sudo harden.sh [-k] [-m email] [-e excluded_dir] [-e ...] [-u unsafe_user] [-g unsafe_group] system_user
-    harden.sh -h: display this help
+    sudo harden-CentOS.sh [-k] [-m email] [-e excluded_dir] [-e ...] [-u unsafe_user] [-g unsafe_group] system_user
+    harden-CentOS.sh-h: display this help
 
 DESCRIPTION
 
-    The script automatically makes changes that it can to harden a CentOS server per the Baseline Security Configuration
-    derived from the Center for Internet Security (CIS) Security Benchmarks.
+    The script automatically makes changes that it can to harden a server. Included hardening checks are based on the
+    Baseline Security Configuration derived from the Center for Internet Security (CIS) Benchmark.
+
+    The current directory is used for logs and configuration file backups (e.g. `./2020-05-19-09-33-20.bak/*`).
+
     The script would fail on the first problem that needs to be fixed manually. Correct the problem and re-run.
     The script should resume at the failing check.
 
@@ -99,13 +102,12 @@ shift $((OPTIND - 1))
 
 # Process positional parameters
 [[ $1 == "" ]] && usage
-readonly SYSTEM_USER=$1
-readonly DEFAULT_OWNER_GROUP=$(id --group --name ${SYSTEM_USER})
+readonly DEFAULT_OWNER_USER=$1
+readonly DEFAULT_OWNER_GROUP=$(id --group --name "${DEFAULT_OWNER_USER}")
 
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
 readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
-cd "$SCRIPT_DIR"
 
 echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
@@ -114,25 +116,95 @@ if ! command -v pcregrep > /dev/null; then
   exit 1
 fi
 
+BACKUP_DIR=$(date "+%F-%H-%M-%S").bak
+readonly BACKUP_DIR
+
 MIN_NON_SYSTEM_UID=$(pcregrep -o1 '^UID_MIN\s+(\d+)' /etc/login.defs)
 readonly MIN_NON_SYSTEM_UID
 
 # TODO Many checks are executed twice. Refactor to execute once and capture stdout.
 
-for f in functions/*.sh; do
+for f in "$SCRIPT_DIR"/functions/*.sh; do
+  # shellcheck source=functions/*.sh
   source "$f"
 done
 
 # Execute checks
-for f in checks/*.sh; do
+for f in "$SCRIPT_DIR"/hardening-checks*/*.sh; do
+  # shellcheck source=hardening-checks*/*.sh
   source "$f"
 done
 
-#region DISABLED checks
+#region New (not yet implemented) checks, Level 2 and DISABLED checks
 
-#echo '1.1.17 Set Sticky Bit on All world-writable directories'
+# TODO 1.1.1.1 Ensure mounting of cramfs filesystems is disabled
+# TODO 1.1.1.2 Ensure mounting of freevxfs filesystems is disabled
+# TODO 1.1.1.3 Ensure mounting of jffs2 filesystems is disabled
+# TODO 1.1.1.4 Ensure mounting of hfs filesystems is disabled
+# TODO 1.1.1.5 Ensure mounting of hfsplus filesystems is disabled
+# TODO 1.1.1.6 Ensure mounting of squashfs filesystems is disabled
+# TODO 1.1.1.7 Ensure mounting of udf filesystems is disabled
+# L2: 1.1.1.8 Ensure mounting of FAT filesystems is disabled
+# L2: 1.1.2 Ensure separate partition exists for /var
+#echo '1.1.2 Ensure separate partition exists for /tmp'
+#
+#if [[ "$(grep "[[:space:]]/tmp[[:space:]]" /etc/fstab)" != "" ]]; then
+#  echo "Check PASSED"
+#else
+#  echo "Partitioning"
+#  dd if=/dev/zero of=/tmp/tmp_fs seek=512 count=512 bs=1M
+#  mkfs.ext3 -F /tmp/tmp_fs
+#  cat >> /etc/fstab << HEREDOC
+#/tmp/tmp_fs					/tmp		ext3	noexec,nosuid,nodev,loop 1 1
+#/tmp						/var/tmp	none	bind
+#HEREDOC
+#  chmod a+wt /tmp
+#  mount /tmp
+#fi
+#printf "\n\n"
 
+# L2 1.1.6 Ensure separate partition exists for /var
+# L2 1.1.7 Ensure separate partition exists for /var/tmp
+# TODO 1.1.8 Ensure nodev option set on /var/tmp partition
+# TODO 1.1.9 Ensure nosuid option set on /var/tmp partition
+# TODO 1.1.10 Ensure noexec option set on /var/tmp partition
+# L2 1.1.11 Ensure separate partition exists for /var/log
+# L2 1.1.12 Ensure separate partition exists for /var/log/audit
+# L2 1.1.13 Ensure separate partition exists for /home
+# TODO 1.1.14 Ensure nodev option set on /home partition
+# TODO 1.1.15 Ensure nodev option set on /dev/shm partition
+# TODO 1.1.16 Ensure nosuid option set on /dev/shm partition
+# TODO 1.1.17 Ensure noexec option set on /dev/shm partition
+# TODO 1.1.18 Ensure nodev option set on removable media partitions
+# TODO 1.1.19 Ensure nosuid option set on removable media partitions
+# TODO 1.1.20 Ensure noexec option set on removable media partitions
+
+#echo '1.1.21 Ensure sticky bit is set on all world-writable directories'
 # TBD DISABLED Files get modified for different reasons. It's unclear what could be done to fix a failure.
+
+# TODO 1.1.2 Disable Automounting
+# TODO 1.2.1 Ensure package manager repositories are configured
+# TODO 1.3.1 Ensure AIDE is installed
+# TODO 1.3.2 Ensure filesystem integrity is regularly checked
+# TODO 1.5.2 Ensure XD/NX support is enabled
+# TODO 1.5.3 Ensure address space layout randomization (ASLR) is enabled
+# TODO 1.5.4 Ensure prelink is disabled (Scored)
+
+# L2 1.6.1.1 Ensure SELinux is not disabled in bootloader configuration
+# L2 1.6.1.2 Ensure the SELinux state is enforcing
+# L2 1.6.1.3 Ensure SELinux policy is configured
+# L2 1.6.1.4 Ensure SETroubleshoot is not installed
+# L2 1.6.1.5 Ensure the MCS Translation Service (mcstrans) is not installed
+# L2 1.6.1.6 Ensure no unconfined daemons exist
+# L2 1.6.2 Ensure SELinux is installed
+
+#echo "1.7.2 Ensure GDM login banner is configured"
+#echo "___CHECK___"
+#echo "We do not need GNOME Display Manager, and we do not have /apps directory."
+#printf "\n\n"
+
+#endregion
+
 
 #echo "1.2.4 Verify Package Integrity Using RPM"
 #echo "___CHECK___"
@@ -144,65 +216,12 @@ done
 #fi
 #printf "\n\n"
 
-echo "___CHECK 2/2___"
-if [[ "$(grep PROMPT /etc/sysconfig/init | tee /tmp/hardening-1.5.4.2.log)" == 'PROMPT=no' ]]; then
-  echo "Check PASSED"
-else
-  cat /tmp/hardening-1.5.4.2.log
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  if [[ -s /tmp/hardening-1.5.4.2.log ]]; then
-    sed -i "/PROMPT/s/yes/no/" /etc/sysconfig/init
-  else
-    echo "PROMPT=no" >> /etc/sysconfig/init
-  fi
-fi
-printf "\n\n"
-
-echo "1.5.5 Disable Interactive Boot"
-echo "___CHECK___"
-grep "^PROMPT" /etc/sysconfig/init
-if [[ "$(grep "^PROMPT" /etc/sysconfig/init)" == 'PROMPT=no' ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i "/PROMPT/s/yes/no/" /etc/sysconfig/init
-fi
-printf "\n\n"
-
-echo -e '### Additional Process Hardening ###\n\n'
-
-echo "1.6.1	Restrict Core Dumps"
-echo "____CHECK 1/2____"
-grep "hard core" /etc/security/limits.conf
-if [[ "$(grep "hard core" /etc/security/limits.conf)" == "* hard core 0" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/* hard core/d' /etc/security/limits.conf
-  echo "* hard core 0" >> /etc/security/limits.conf
-fi
-
-echo "____CHECK 2/2____"
-sysctl fs.suid_dumpable
-if [[ "$(sysctl fs.suid_dumpable)" == "fs.suid_dumpable = 0" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/fs.suid_dumpable = 0/d' /etc/sysctl.conf
-  echo "fs.suid_dumpable = 0" >> /etc/sysctl.conf
-fi
-printf "\n\n"
-
 # TBD DISABLED
 # `Exec-shield` is no longer an option in `sysctl` for kernel tuning in CentOS 7, it is by
 # default on. This is a security measure, as documented in the RHEL 7 Security Guide.
 # See http://centosfaq.org/centos/execshield-in-c6-or-c7-kernels/
 
-#echo "1.6.2	Configure ExecShield"
+#echo "1.6.2 Configure ExecShield"
 #echo "____CHECK____"
 #if [ "$(sysctl kernel.exec-shield)" = "kernel.exec-shield = 1" ]; then
 #  echo "Check PASSED"
@@ -214,181 +233,10 @@ printf "\n\n"
 #fi
 #printf "\n\n"
 
-echo "1.6.3	Enable Randomized Virtual Memory Region Placement"
-echo "____CHECK____"
-sysctl kernel.randomize_va_space
-if [[ "$(sysctl kernel.randomize_va_space)" == "kernel.randomize_va_space = 2" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/kernel.randomize_va_space =/d' /etc/security/limits.conf
-  echo "kernel.randomize_va_space = 2" >> /etc/security/limits.conf
-fi
-printf "\n\n"
-
-echo -e '## OS Services ##\n\n'
-
-echo -e '### Remove Legacy Services ###\n\n'
-
-uninstall 2.1.1 telnet-server
-uninstall 2.1.2 telnet
-uninstall 2.1.3 rsh-server
-uninstall 2.1.4 rsh
-uninstall 2.1.5 ypbind
-uninstall 2.1.6 ypserv
-uninstall 2.1.7 tftp
-uninstall 2.1.8 tftp-server
-uninstall 2.1.9 talk
-uninstall 2.1.10 talk-server
-
-echo "2.1.12 Disable chargen-dgram"
-disable_sysv_service chargen-dgram
-
-echo "2.1.13 Disable chargen-stream"
-disable_sysv_service chargen-stream
-
-echo "2.1.14 Disable daytime-dgram"
-disable_sysv_service daytime-dgram
-
-echo "2.1.15 Disable daytime-stream"
-disable_sysv_service daytime-stream
-
-echo "2.1.16 Disable echo-dgram"
-disable_sysv_service echo-dgram
-
-echo "2.1.17 Disable echo-stream"
-disable_sysv_service echo-stream
-
-echo "2.1.18 Disable tcpmux-server"
-disable_sysv_service tcpmux-server
-
-echo -e '### Special Purpose Services ###\n\n'
-
-echo "3.1 Set Daemon umask"
-echo "___CHECK___"
-grep umask /etc/sysconfig/init
-if [[ "$(grep umask /etc/sysconfig/init)" == "umask 027" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  echo "umask 027" >> /etc/sysconfig/init
-fi
-printf "\n\n"
-
-# DISABLED X WIndow is required in order to run DataGrip on server(s)
-#echo "3.2 Remove X Window"
-#echo "___CHECK 1/2___"
-#systemctl get-default
-#if [[ "$(systemctl get-default)" = "multi-user.target" ]]; then
-#  echo "Check PASSED"
-#else
-#  echo "Check FAILED, correcting ..."
-#  echo "___SET___"
-#  systemctl set-default multi-user.target
-#fi
-#echo "___CHECK 2/2___"
-#yum grouplist | grep "X Window System"
-#if [[ "$(yum grouplist | grep 'X Window System')" = "" ]]; then
-#  echo "Check PASSED"
-#else
-#  echo "Check FAILED, correcting ..."
-#  echo "___SET___"
-#  yum groupremove "X Window System"
-#fi
-#printf "\n\n"
-
-echo "3.3 Disable Avahi Server"
-echo "___CHECK___"
-if chkconfig --list avahi-daemon | grep -E "[2-5]:on"; then
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '/zeroconf/d' /etc/sysconfig/network
-else
-  echo "Check PASSED"
-fi
-printf "\n\n"
-
-echo "3.4 Disable Print Server - CUPS"
-disable_sysv_service cups
-
-uninstall '3.5 Remove DHCP Server' dhcp
-
-echo "3.6 Configure Network Time Protocol (NTP)"
-echo "___CHECK 1/3___"
-ls /etc | grep ntp.conf
-if [[ "$(ls /etc | grep ntp.conf)" == "ntp.conf" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  yum -y install ntp
-fi
-echo "___CHECK 2/3___"
-grep 'restrict default' /etc/ntp.conf
-if [[ "$(grep 'restrict default' /etc/ntp.conf)" == "restrict default kod nomodify notrap nopeer noquery" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '/restrict default/d' /etc/ntp.conf
-  echo 'restrict default kod nomodify notrap nopeer noquery' >> /etc/ntp.conf
-fi
-echo "___CHECK 3/3___"
-grep 'restrict -6 default' /etc/ntp.conf
-if [[ "$(grep 'restrict -6 default' /etc/ntp.conf)" == "restrict -6 default kod nomodify notrap nopeer noquery" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '/restrict -6 default/d' /etc/ntp.conf
-  echo 'restrict -6 default kod nomodify notrap nopeer noquery' >> /etc/ntp.conf
-fi
-printf "\n\n"
-
-uninstall '3.5 Remove LDAP ___CHECK 1/2___' openldap-servers
-uninstall '___CHECK 2/2___' openldap-clients
-
-echo "3.8 Disable NFS and RPC"
-disable_sysv_service nfslock
-disable_sysv_service rpcgssd
-disable_sysv_service rpcbind
-disable_sysv_service rpcidmapd
-disable_sysv_service rpcsvcgssd
-
-uninstall '3.9 Remove DNS Server' bind
-
-uninstall '3.10 Remove FTP Server' vsftpd
-
-uninstall '3.11 Remove HTTP Server' httpd
-
-uninstall '3.12 Remove Dovecot (IMAP and POP3 services)' dovecot
-
-uninstall '3.13 Remove Samba' samba
-
-uninstall '3.14 Remove HTTP Proxy Server' squid
-
-uninstall '3.15 Remove SNMP Server' net-snmp
-
-echo "3.16 Configure Mail Transfer Agent for Local-Only Mode"
-echo "___CHECK___"
-netstat -an | grep LIST | grep ":25[[:space:]]" || :
-matches=$(netstat -an | grep LIST | grep ":25[[:space:]]" || :)
-b='tcp 0 0 127.0.0.1:25 0.0.0.0:* LISTEN'
-if [[ "$(echo $matches)" == *"$b"* ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '/^inet_interfaces/d' /etc/postfix/main.cf
-  echo 'inet_interfaces = localhost' >> /etc/postfix/main.cf
-fi
-printf "\n\n"
-
-echo -e '### Network Configuration and Firewalls ###\n\n'
-
-# region TBD DISABLED until the decision on a firewall is made
+# iptables: DISABLED (`firewalld` is the preferred firewall)
+#
+#echo -e '### Network Configuration and Firewalls ###\n\n'
+#
 #echo "4.0.7	Enable IPtables"
 #echo "____CHECK____"
 #chkconfig --list iptables
@@ -415,179 +263,6 @@ echo -e '### Network Configuration and Firewalls ###\n\n'
 #  chkconfig ip6tables on
 #fi
 #printf "\n\n"
-# endregion
-
-echo -e '### Modify Network Parameters (Host Only) ###\n\n'
-
-echo "4.1.1	Disable IP Forwarding"
-echo "____CHECK____"
-/sbin/sysctl net.ipv4.ip_forward
-if [[ "$(/sbin/sysctl net.ipv4.ip_forward)" == "net.ipv4.ip_forward = 0" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/net.ipv4.ip_forward =/d' /etc/sysctl.conf
-  echo "net.ipv4.ip_forward = 0" >> /etc/sysctl.conf
-  /sbin/sysctl -w net.ipv4.ip_forward=0
-  /sbin/sysctl -w net.ipv4.route.flush=1
-fi
-printf "\n\n"
-
-echo "4.1.2	Disable Send Packet Redirects"
-echo "____CHECK 1/2____"
-/sbin/sysctl net.ipv4.conf.all.send_redirects
-if [[ "$(/sbin/sysctl net.ipv4.conf.all.send_redirects)" == "net.ipv4.conf.all.send_redirects = 0" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/net.ipv4.conf.all.send_redirects =/d' /etc/sysctl.conf
-  echo "net.ipv4.conf.all.send_redirects = 0" >> /etc/sysctl.conf
-  /sbin/sysctl -w net.ipv4.conf.all.send_redirects=0
-  /sbin/sysctl -w net.ipv4.route.flush=1
-fi
-echo "____CHECK 2/2____"
-/sbin/sysctl net.ipv4.conf.default.send_redirects
-if [[ "$(/sbin/sysctl net.ipv4.conf.default.send_redirects)" == "net.ipv4.conf.default.send_redirects = 0" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/net.ipv4.conf.default.send_redirects =/d' /etc/sysctl.conf
-  echo "net.ipv4.conf.default.send_redirects = 0" >> /etc/sysctl.conf
-  /sbin/sysctl -w net.ipv4.conf.default.send_redirects=0
-  /sbin/sysctl -w net.ipv4.route.flush=1
-fi
-printf "\n\n"
-
-echo -e '### Modify Network Parameters (Host and Router) ###\n\n'
-
-echo "4.2.1	Disable Source Routed Packet Acceptance"
-echo "____CHECK 1/2____"
-/sbin/sysctl net.ipv4.conf.all.accept_source_route
-if [[ "$(/sbin/sysctl net.ipv4.conf.all.accept_source_route)" == "net.ipv4.conf.all.accept_source_route = 0" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/net.ipv4.conf.all.accept_source_route =/d' /etc/sysctl.conf
-  echo "net.ipv4.conf.all.accept_source_route = 0" >> /etc/sysctl.conf
-  /sbin/sysctl -w net.ipv4.conf.all.accept_source_route=0
-  /sbin/sysctl -w net.ipv4.route.flush=1
-fi
-echo "____CHECK 2/2____"
-/sbin/sysctl net.ipv4.conf.default.accept_source_route
-if [[ "$(/sbin/sysctl net.ipv4.conf.default.accept_source_route)" == "net.ipv4.conf.default.accept_source_route = 0" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/net.ipv4.conf.default.accept_source_route =/d' /etc/sysctl.conf
-  echo "/net.ipv4.conf.default.accept_source_route = 0" >> /etc/sysctl.conf
-  /sbin/sysctl -w net.ipv4.conf.default.accept_source_route=0
-  /sbin/sysctl -w net.ipv4.route.flush=1
-fi
-printf "\n\n"
-
-echo "4.2.2	Disable ICMP Redirect Acceptance"
-echo "____CHECK 1/2____"
-/sbin/sysctl net.ipv4.conf.all.accept_redirects
-if [[ "$(/sbin/sysctl net.ipv4.conf.all.accept_redirects)" == "net.ipv4.conf.all.accept_redirects = 0" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/net.ipv4.conf.all.accept_redirects =/d' /etc/sysctl.conf
-  echo "net.ipv4.conf.all.accept_redirects = 0" >> /etc/sysctl.conf
-  /sbin/sysctl -w net.ipv4.conf.all.accept_redirects=0
-  /sbin/sysctl -w net.ipv4.route.flush=1
-fi
-echo "____CHECK 2/2____"
-/sbin/sysctl net.ipv4.conf.default.accept_redirects
-if [[ "$(/sbin/sysctl net.ipv4.conf.default.accept_redirects)" == "net.ipv4.conf.default.accept_redirects = 0" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/net.ipv4.conf.default.accept_redirects =/d' /etc/sysctl.conf
-  echo "net.ipv4.conf.default.accept_redirects = 0" >> /etc/sysctl.conf
-  /sbin/sysctl -w net.ipv4.conf.default.accept_redirects=0
-  /sbin/sysctl -w net.ipv4.route.flush=1
-fi
-printf "\n\n"
-
-echo "4.2.4	Log Suspicious Packets"
-echo "____CHECK 1/2____"
-/sbin/sysctl net.ipv4.conf.all.log_martians
-if [[ "$(/sbin/sysctl net.ipv4.conf.all.log_martians)" == "net.ipv4.conf.all.log_martians = 1" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/net.ipv4.conf.all.log_martians =/d' /etc/sysctl.conf
-  echo "net.ipv4.conf.all.log_martians = 1" >> /etc/sysctl.conf
-  /sbin/sysctl -w net.ipv4.conf.all.log_martians=1
-  /sbin/sysctl -w net.ipv4.route.flush=1
-fi
-echo "____CHECK 2/2____"
-/sbin/sysctl net.ipv4.conf.default.log_martians
-if [[ "$(/sbin/sysctl net.ipv4.conf.default.log_martians)" == "net.ipv4.conf.default.log_martians = 1" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/net.ipv4.conf.default.log_martians =/d' /etc/sysctl.conf
-  echo "net.ipv4.conf.default.log_martians = 1" >> /etc/sysctl.conf
-  /sbin/sysctl -w net.ipv4.conf.default.log_martians=1
-  /sbin/sysctl -w net.ipv4.route.flush=1
-fi
-printf "\n\n"
-
-echo "4.2.5	Enable Ignore Broadcast Requests"
-echo "____CHECK____"
-/sbin/sysctl net.ipv4.icmp_echo_ignore_broadcasts
-if [[ "$(/sbin/sysctl net.ipv4.icmp_echo_ignore_broadcasts)" == "net.ipv4.icmp_echo_ignore_broadcasts = 1" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/net.ipv4.icmp_echo_ignore_broadcasts =/d' /etc/sysctl.conf
-  echo "net.ipv4.icmp_echo_ignore_broadcasts = 1" >> /etc/sysctl.conf
-  /sbin/sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1
-  /sbin/sysctl -w net.ipv4.route.flush=1
-fi
-printf "\n\n"
-
-echo "4.2.6	Enable Bad Error Message Protection"
-echo "____CHECK____"
-/sbin/sysctl net.ipv4.icmp_ignore_bogus_error_responses
-if [[ "$(/sbin/sysctl net.ipv4.icmp_ignore_bogus_error_responses)" == "net.ipv4.icmp_ignore_bogus_error_responses = 1" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/net.ipv4.icmp_ignore_bogus_error_responses =/d' /etc/sysctl.conf
-  echo "net.ipv4.icmp_ignore_bogus_error_responses = 1" >> /etc/sysctl.conf
-  /sbin/sysctl -w net.ipv4.icmp_ignore_bogus_error_responses=1
-  /sbin/sysctl -w net.ipv4.route.flush=1
-fi
-printf "\n\n"
-
-echo "4.2.8	Enable TCP SYN Cookies"
-echo "____CHECK____"
-/sbin/sysctl net.ipv4.tcp_syncookies
-if [[ "$(/sbin/sysctl net.ipv4.tcp_syncookies)" == "net.ipv4.tcp_syncookies = 1" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/net.ipv4.tcp_syncookies =/d' /etc/sysctl.conf
-  echo "net.ipv4.tcp_syncookies = 1" >> /etc/sysctl.conf
-  /sbin/sysctl -w net.ipv4.tcp_syncookies=1
-  /sbin/sysctl -w net.ipv4.route.flush=1
-fi
-printf "\n\n"
 
 #echo "Section Header: Wireless Networking"
 #printf "\n\n"
@@ -1454,76 +1129,6 @@ else
 fi
 printf "\n\n"
 
-echo -e '### Warning Banners ###\n\n'
-
-echo "8.1 Set Warning Banner for Standard Login Services"
-echo "___CHECK 1/3___"
-ls /etc/motd
-if [[ "$(ls /etc/motd)" == "/etc/motd" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  touch /etc/motd
-  chown root:root /etc/motd
-  chmod u=rw,go=r /etc/motd
-fi
-echo "___CHECK 2/3___"
-ls /etc/issue
-if [[ "$(ls /etc/issue)" == "/etc/issue" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  echo "Authorized uses only. All activity may be monitored and reported." > /etc/issue
-  chown root:root /etc/issue
-  chmod u=rw,go=r /etc/issue
-fi
-echo "___CHECK 3/3___"
-ls /etc/issue.net
-if [[ "$(ls /etc/issue.net)" == "/etc/issue.net" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  echo "Authorized uses only. All activity may be monitored and reported." > /etc/issue.net
-  chown root:root /etc/issue.net
-  chmod u=rw,go=r /etc/issue.net
-fi
-printf "\n\n"
-
-echo "8.2 Remove OS Information from Login Warning Banners"
-echo "___CHECK 1/3___"
-if ! grep -E '(\\v|\\r|\\m|\\s)' /etc/motd; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '/(\\v\|\\r\|\\m\|\\s)/d' /etc/motd
-fi
-echo "___CHECK 2/3___"
-if ! grep -E '(\\v|\\r|\\m|\\s)' /etc/issue; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '/(\\v\|\\r\|\\m\|\\s)/d' /etc/issue
-fi
-echo "___CHECK 3/3___"
-if ! grep -E '(\\v|\\r|\\m|\\s)' /etc/issue.net; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '/(\\v\|\\r\|\\m\|\\s)/d' /etc/issue.net
-fi
-printf "\n\n"
-
-echo "8.3 Set GNOME Warning Banner"
-echo "___CHECK___"
-echo "We do not need GNOME Display Manager, and we do not have /apps directory."
-printf "\n\n"
-
 echo -e '### System Maintenance ###\n\n'
 
 echo -e '### Verify System File Permissions ###\n\n'
@@ -1676,7 +1281,7 @@ df --local --output=target \
   | xargs -I '{}' find '{}' ${EXCLUDE_DIR_OPTION} -xdev -type f \( -nouser -or -nogroup \) -ls \
   | while read -r inode blocks perms number_of_links_or_dirs owner group size month day time_or_year filename; do
     echo -e "$filename $owner $group $size $month $day $time_or_year" | tee -a ownership_issues.log
-    chown "${SYSTEM_USER}":"${DEFAULT_OWNER_GROUP}" "$filename"
+    chown "${DEFAULT_OWNER_USER}":"${DEFAULT_OWNER_GROUP}" "$filename"
   done
 # df --local -P | awk {'if (NR!=1) print $6'}
 
@@ -1685,7 +1290,7 @@ if [[ ! -f ownership_issues.log ]]; then
 else
   echo "Check FAILED, corrected."
   echo "____SET____"
-  echo "Assigned ownership to ${SYSTEM_USER}:${DEFAULT_OWNER_GROUP}"
+  echo "Assigned ownership to ${DEFAULT_OWNER_USER}:${DEFAULT_OWNER_GROUP}"
   echo "WARNING: review ownership_issues.log for obsolete files that can be removed"
 fi
 printf "\n\n"
@@ -2021,7 +1626,7 @@ for dir in $(cat /etc/passwd | awk -F: '{ print $6 }'); do
 done
 echo -e "\nCheck PASSED: No Presence of User .forward Files"
 printf "\n\n"
-# endregion
+#endregion
 
 if [[ ${KERNEL_UPDATE_MESSAGE} || ${JENKINS_UPDATE} == true ]]; then
   readonly LOG=${ABSOLUTE_SCRIPT_DIR}/safe_updates.log

@@ -114,7 +114,7 @@ disable_cron_job() {
   crontab -l | grep --invert-match -F "$SCRIPT_NAME_WITH_EXT" | crontab -
 }
 
-readonly PROCESS_CHECK="${SCRIPT_DIR}/quiet_period_checks/active-processes.sh"
+readonly PROCESS_CHECK="${SCRIPT_DIR}/safe_period_detectors/active-processes.sh"
 
 if ! ${PROCESS_CHECK} -u jenkins 1 && [[ "$REBOOT_MSG" || "$JENKINS_UPDATE" == true ]]; then
   enable_cron_job "$@"
@@ -148,7 +148,7 @@ if [[ "$REBOOT_MSG" ]]; then
 
   if [[ $UNSAFE_GROUP ]] && ! "${PROCESS_CHECK}" -g "${UNSAFE_GROUP}" $MAX_GROUP_PROCESSES || \
       [[ $UNSAFE_USER ]] && ! ${PROCESS_CHECK} -u "${UNSAFE_USER}" || \
-      [[ $PGDATABASE ]] && ! "${SCRIPT_DIR}/quiet_period_checks/active-postgres-queries.sh" "$POSTGRES_DB"; then
+      [[ $PGDATABASE ]] && ! "${SCRIPT_DIR}/safe_period_detectors/active-postgres-queries.sh" "$POSTGRES_DB"; then
     enable_cron_job "$@"
     exit 1
   fi

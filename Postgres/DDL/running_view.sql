@@ -2,6 +2,7 @@ CREATE OR REPLACE VIEW running
   AS
     SELECT
       pid,
+      psa.usename AS user,
       psa.query,
       /*state,*/ psa.wait_event_type || ': ' || psa.wait_event AS waiting_on,
       pg_blocking_pids(pspv.pid) AS blocking_pids,
@@ -31,7 +32,6 @@ CREATE OR REPLACE VIEW running
                                           1)
         ELSE CASE WHEN pspv.phase IS NULL THEN NULL ELSE 'N/A' END
       END AS vacuum_phase_progress,
-      psa.usename AS user,
       psa.application_name AS app,
       coalesce(host(psa.client_addr), 'server socket') AS from
     FROM pg_stat_activity psa

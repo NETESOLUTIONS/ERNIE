@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-set -ex
-set -o pipefail
+
 ################################################################################
 # Check for non-whitelisted executables with special permissions
 # Arguments:

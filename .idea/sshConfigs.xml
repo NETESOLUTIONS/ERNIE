@@ -2,7 +2,7 @@
 <project version="4">
   <component name="SshConfigs">
     <configs>
-      <sshConfig host="ernie2.eastus2.cloudapp.azure.com" id="6ba1512e-2feb-449f-bb7a-01479abaf703" keyPath="$USER_HOME$/.ssh/id_rsa" port="22" customName="ERNIE2" nameFormat="CUSTOM" username="dk" />
+      <sshConfig authType="OPEN_SSH" host="ernie-neo4j.eastus2.cloudapp.azure.com" id="f9fdaa92-a5dc-4326-8567-47c1c31ed987" port="22" nameFormat="DESCRIPTIVE" username="dk" />
     </configs>
   </component>
 </project>
