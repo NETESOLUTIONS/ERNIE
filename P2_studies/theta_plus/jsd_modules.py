@@ -238,7 +238,7 @@ def compute_jsd(data_text, name, val, cluster_num):
             'cluster': cluster_num,
             'total_size': original_cluster_size, 
             'pre_jsd_size': final_cluster_size,
-            'missing_values': (original_cluster_size-final_cluster_size,),
+            'missing_values': (original_cluster_size-final_cluster_size),
             'post_jsd_size': None,
             'jsd_nans': None, 
             'mean_jsd': None, 
@@ -313,6 +313,46 @@ def compute_jsd(data_text, name, val, cluster_num):
         
     return result_df
 
+# ------------------------------------------------------------------------------------ #
 
-now,20,10,584,577,"(7,)",577,0,0.4958940922376906,0.37222123288412606,0.45717704222701233,0.4920737315475664,0.5309882580204898,0.6494669309233472,0.050673646045331436,9493,3457,0.6358369324765617
-now,20,11,520,485,"(35,)",485,0,0.4797781561297574,0.30764502179862707,0.3670056768672697,0.5115420767917086,0.5760471624231673,0.6657604462027619,0.10680182269611185,9056,3134,0.6539310954063604
+def random_jsd(jsd_size, sample_data, repeat):
+    
+    random_jsd = []
+    
+    if int(jsd_size) >= 10:
+    
+        for i in range(repeat):
+            
+            data_text = sample_data.sample(n = int(jsd_size))
+            
+            data_text['all_text'] = data_text["title"] + data_text["abstract_text"]
+            data_text['processed_all_text'] = data_text["all_text"].swifter.apply(preprocess_text)
+            data_text['processed_all_text_frequencies'] = data_text['processed_all_text'].swifter.apply(get_frequency)
+            
+            data_all_text_frequency = merge_vocab_dictionary(data_text['processed_all_text_frequencies'])
+            retained_dict = remove_less_than(data_all_text_frequency)
+            data_text['filtered_text'] = data_text['processed_all_text'].swifter.apply(filter_after_preprocess, args = (retained_dict,))
+
+            data_all_text = data_text.filtered_text.tolist()
+            corpus_by_article = [' '.join(text) for text in data_all_text]
+            corpus_by_cluster = [' '.join(corpus_by_article)]
+
+            count_vectorizer = CountVectorizer(lowercase=False, vocabulary=list(set(corpus_by_cluster[0].split())))
+            cluster_count_mat = count_vectorizer.fit_transform(corpus_by_cluster)
+
+            data_text['probability_vector'] = data_text['filtered_text'].swifter.apply(vectorize, args=(corpus_by_cluster, count_vectorizer,))
+
+            cluster_sum = sparse.diags(1/cluster_count_mat.sum(axis=1).A.ravel())
+            cluster_prob_vec = (cluster_sum @ cluster_count_mat).toarray().tolist()[0]
+
+            data_text['JS_distance'] = data_text['probability_vector'].swifter.apply(calculate_jsd, args = (cluster_prob_vec,))
+
+            data_text = data_text.dropna()
+            data_text['JS_divergence'] = np.square(data_text['JS_distance'])
+            
+            random_jsd.append(data_text['JS_divergence'].mean())
+            
+    else:
+        random_jsd = None
+    
+    return random_jsd
