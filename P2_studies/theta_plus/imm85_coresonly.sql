@@ -49,23 +49,32 @@ CREATE INDEX imm1985_testcase_asjc2403_citing_cited_coresonly_idx
 ON theta_plus.imm1985_testcase_asjc2403_citing_cited_coresonly(citing,cited);
 
 -- clean up combined table of self-citations
-DELETE FROM theta_plus.imm1985_testcase_asjc2403_citing_cited__coresonly
+DELETE FROM theta_plus.imm1985_testcase_asjc2403_citing_cited_coresonly
 WHERE citing=cited;
 
 -- Remove all dummies from fishing out citing and cited
-CREATE TABLE tpitacc_1985_nodummies
+DROP TABLE IF EXISTS theta_plus.tpitacc_1985_nodummies;
+CREATE TABLE theta_plus.tpitacc_1985_nodummies
 TABLESPACE theta_plus_tbs AS
 WITH cte AS(
-SELECT tpitaccc.citing
+SELECT tpitaccc.citing,tpitaccc.cited
 FROM theta_plus.imm1985_testcase_asjc2403_citing_cited_coresonly tpitaccc
 INNER JOIN scopus_publications sp
 ON tpitaccc.citing=sp.scp
-AND sp.pub_type='core'
+AND sp.pub_type='core')
 SELECT cte.cited
-FROM CTE
+FROM cte
 INNER JOIN scopus_publications sp2
 ON cte.cited=sp2.scp
 AND sp2.pub_type='core';
+
+select count(1) from theta_plus.tpitacc_1985_nodummies;
+select count(1) from theta_plus.imm1985_testcase_asjc2403_citing_cited_coresonly;
+
+DROP TABLE theta_plus.imm1985_testcase_asjc2403_citing_cited_coresonly;
+ALTER TABLE theta_plus.tpitacc_1985_nodummies
+RENAME TO imm1985_testcase_asjc2403_citing_cited_coresonly;
+select count(1) from theta_plus.imm1985_testcase_asjc2403_citing_cited_coresonly;
 
 
 
