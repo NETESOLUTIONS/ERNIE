@@ -24,7 +24,9 @@ start_cluster_num = argv[2]
 cluster_type = argv[3]
 max_cluster_num = argv[4]
 
-for dir_name in dir_list[1:2]:
+tmp_dir_list = ['imm1985', 'imm1995']
+for dir_name in tmp_dir_list:
+# for dir_name in dir_list[1:2]:
     
     title_abstracts_table = dir_name + '_title_abstracts'
     all_text_data = pd.read_sql_table(table_name=title_abstracts_table, schema=schema, con=engine)
