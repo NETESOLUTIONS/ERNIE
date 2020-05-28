@@ -18,10 +18,10 @@ RETURN COUNT([c,a,b])
 MATCH (c:Publication)-[r:CITES]->(d:Publication)
   WHERE c.pub_year = 1985 AND c.citation_type = 'ar' AND d.pub_year <= 1985 AND c.node_id <> d.node_id
 WITH c.node_id AS scp, count(r) AS citations
-MATCH (a:Publication)<-[r1:CITES]-(c:Publication {node_id: scp})-[r2:CITES]->(b:Publication)
+MATCH (a:Publication)<-[]-(c:Publication {node_id: scp})-[]->(b:Publication)
   WHERE a.node_id <> c.node_id AND b.node_id <> c.node_id AND a.pub_year <= 1985 AND b.pub_year <= 1985
   AND a.node_id < b.node_id AND citations >= 5 
 WITH a.node_id AS cited_1, b.node_id AS cited_2
-MATCH (a:Publication {node_id: cited_1})<-[r3:CITES]-(e:Publication)-[r2:CITES]->(b:Publication {node_id: cited_2})
+MATCH (a:Publication {node_id: cited_1})<-[]-(e:Publication)-[]->(b:Publication {node_id: cited_2})
 RETURN cited_1, cited_2, count(e) as frequency
  ORDER BY frequency DESC;
