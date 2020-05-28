@@ -52,7 +52,7 @@ ON theta_plus.imm1985_testcase_asjc2403_citing_cited_coresonly(citing,cited);
 DELETE FROM theta_plus.imm1985_testcase_asjc2403_citing_cited_coresonly
 WHERE citing=cited;
 
--- Remove all dummies from fishing out citing and cited
+-- Remove all dummies from having fished out citing and cited
 DROP TABLE IF EXISTS theta_plus.tpitacc_1985_nodummies;
 CREATE TABLE theta_plus.tpitacc_1985_nodummies
 TABLESPACE theta_plus_tbs AS
