@@ -39,10 +39,7 @@ CREATE INDEX imm1985_testcase_citing__coresonly_idx
 ON theta_plus.imm1985_testcase_citing_coresonly(citing,cited)
 TABLESPACE index_tbs;
 
-select count(1) from imm1985_testcase_asjc2403_coresonly;
-select count(1) from imm1985_testcase_cited_coresonly;
-select count(1) from imm1985_testcase_citing_coresonly;
-
+-- combine citing and cited data
 DROP TABLE IF EXISTS theta_plus.imm1985_testcase_asjc2403_citing_cited_coresonly;
 CREATE TABLE theta_plus.imm1985_testcase_asjc2403_citing_cited_coresonly
 TABLESPACE theta_plus_tbs AS
@@ -51,11 +48,11 @@ SELECT DISTINCT citing,cited from imm1985_testcase_citing_coresonly;
 CREATE INDEX imm1985_testcase_asjc2403_citing_cited_coresonly_idx
 ON theta_plus.imm1985_testcase_asjc2403_citing_cited_coresonly(citing,cited);
 
--- clean up Scopus data
+-- clean up combined table of self-citations
 DELETE FROM theta_plus.imm1985_testcase_asjc2403_citing_cited__coresonly
 WHERE citing=cited;
 
--- Remove all dummies
+-- Remove all dummies from fishing out citing and cited
 CREATE TABLE tpitacc_1985_nodummies
 TABLESPACE theta_plus_tbs AS
 WITH cte AS(
