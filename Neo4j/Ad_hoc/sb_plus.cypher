@@ -59,3 +59,19 @@ WITH b, c
 MATCH (c:Publication)-[:CITES]->(b:Publication)
   WHERE size((c)-->()) >= 50
 RETURN count([c, b]);
+
+
+CALL apoc.periodic.iterate(
+"MATCH (c:Publication)-[r:CITES]->(d:Publication)
+WHERE c.pub_year = 1985 AND c.citation_type = 'ar' AND d.pub_year <= 1985 AND c.node_id <> d.node_id AND c.node_id = 125
+WITH c.node_id AS scp, count(r) AS citations
+MATCH (a:Publication)<-[]-(c:Publication {node_id: scp})-[]->(b:Publication)
+WHERE a.node_id <> c.node_id AND b.node_id <> c.node_id AND a.pub_year <= 1985 AND b.pub_year <= 1985 AND a.node_id < b.node_id AND citations >= 5
+RETURN a.node_id AS cited_1, b.node_id AS cited_2",
+"CALL apoc.export.csv.query(
+'UNWIND $_batch AS batch WITH batch.cited_1 AS cited_1, batch.cited_2 AS cited_2
+MATCH (a:Publication {node_id: cited_1})<-[]-(e:Publication)-[]->(b:Publication {node_id: cited_2})
+RETURN cited_1, cited_2, count(e) as frequency', '/neo4j_data1/sb_plus/results.csv', {})
+YIELD file, source, format, nodes, relationships, properties, time, rows, batchSize, batches, done, data
+RETURN file, source, format, nodes, relationships, properties, time, rows, batchSize, batches, done, data",
+{batchSize:10, parallel:true, batchMode: "BATCH_SINGLE"})
