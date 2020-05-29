@@ -21,3 +21,8 @@ echo "3.4.4 Ensure permissions on /etc/hosts.allow are configured"
 echo "____CHECK____"
 ensure_permissions /etc/hosts.allow 644
 printf "\n\n"
+
+echo "3.4.5 Ensure permissions on /etc/hosts.deny are configured"
+echo "____CHECK____"
+ensure_permissions /etc/hosts.deny 644
+printf "\n\n"

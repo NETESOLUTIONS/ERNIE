@@ -212,6 +212,20 @@ done
 
 #endregion
 
+#region Other / obsolete checks (not in this CIS version)
+
+#echo "Set Daemon umask"
+#echo "___CHECK___"
+#grep umask /etc/sysconfig/init
+#if [[ "$(grep umask /etc/sysconfig/init)" == "umask 027" ]]; then
+#  echo "Check PASSED"
+#else
+#  echo "Check FAILED, correcting ..."
+#  echo "___SET___"
+#  echo "umask 027" >> /etc/sysconfig/init
+#fi
+#printf "\n\n"
+
 #echo "1.2.4 Verify Package Integrity Using RPM"
 #echo "___CHECK___"
 #rpm -qVa | awk '$2 != "c" { print $0 }' | tee /tmp/hardening-1.2.4.log
@@ -276,76 +290,7 @@ done
 #echo "4.3.1	Deactivate Wireless Interfaces (Linux laptops)"
 #printf "\n\n"
 
-echo "4.5.2 Create /etc/hosts.deny"
-echo "Requirements are met by our external Firewalls, yet we can immediately revise this part upon request."
-printf "\n\n"
-
-echo "4.5.3 Verify Permissions on /etc/hosts.deny"
-echo "____CHECK____"
-ls -l /etc/hosts.deny
-access_privileges_line=$(ls -l /etc/hosts.deny)
-access_privileges=${access_privileges_line:0:10}
-if [[ "$access_privileges" == "-rw-r--r--" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  echo "Access mode is changing to u=rw,go=r"
-  chmod u=rw,go=r /etc/hosts.deny
-fi
-printf "\n\n"
-# endregion
-
-# region Baseline Configuration items: 101-199.
-echo -e '### Uncommon Network Protocols ###\n\n'
-
-echo "4.6.1 Disable DCCP"
-echo "___CHECK___"
-grep "install dccp /bin/true" /etc/modprobe.d/CIS.conf
-if [[ "$(grep "install dccp /bin/true" /etc/modprobe.d/CIS.conf)" == "install dccp /bin/true" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  echo "install dccp /bin/true" >> /etc/modprobe.d/CIS.conf
-fi
-printf "\n\n"
-
-echo "4.6.2 Disable SCTP"
-echo "___CHECK___"
-grep "install sctp /bin/true" /etc/modprobe.d/CIS.conf
-if [[ "$(grep "install sctp /bin/true" /etc/modprobe.d/CIS.conf)" == "install sctp /bin/true" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  echo "install sctp /bin/true" >> /etc/modprobe.d/CIS.conf
-fi
-printf "\n\n"
-
-echo "4.6.3 Disable RDS"
-echo "___CHECK___"
-grep "install rds /bin/true" /etc/modprobe.d/CIS.conf
-if [[ "$(grep "install rds /bin/true" /etc/modprobe.d/CIS.conf)" == "install rds /bin/true" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  echo "install rds /bin/true" >> /etc/modprobe.d/CIS.conf
-fi
-printf "\n\n"
-
-echo "4.6.4 Disable TIPC"
-echo "___CHECK___"
-grep "install tipc /bin/true" /etc/modprobe.d/CIS.conf
-if [[ "$(grep "install tipc /bin/true" /etc/modprobe.d/CIS.conf)" == "install tipc /bin/true" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  echo "install tipc /bin/true" >> /etc/modprobe.d/CIS.conf
-fi
-printf "\n\n"
+#endregion
 
 echo -e '### Logging and Auditing ###\n\n'
 
