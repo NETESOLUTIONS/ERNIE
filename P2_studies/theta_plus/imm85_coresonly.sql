@@ -62,7 +62,7 @@ FROM theta_plus.imm1985_testcase_asjc2403_citing_cited_coresonly tpitaccc
 INNER JOIN scopus_publications sp
 ON tpitaccc.citing=sp.scp
 AND sp.pub_type='core')
-SELECT cte.cited
+SELECT cte.citing,cte.cited
 FROM cte
 INNER JOIN scopus_publications sp2
 ON cte.cited=sp2.scp
