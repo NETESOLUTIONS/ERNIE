@@ -30,4 +30,4 @@ ensure_kernel_param() {
     sysctl -w "$param=$expected"
     [[ $additional_correction ]] && sysctl -w "$additional_correction"
   fi
-}Khaaa
+}

@@ -145,8 +145,8 @@ done
 # TODO 1.1.1.6 Ensure mounting of squashfs filesystems is disabled
 # TODO 1.1.1.7 Ensure mounting of udf filesystems is disabled
 # L2: 1.1.1.8 Ensure mounting of FAT filesystems is disabled
-# L2: 1.1.2 Ensure separate partition exists for /var
-#echo '1.1.2 Ensure separate partition exists for /tmp'
+# L2: 1.1.6 Ensure separate partition exists for /var
+# L2: 1.1.7 Ensure separate partition exists for /var/tmp
 #
 #if [[ "$(grep "[[:space:]]/tmp[[:space:]]" /etc/fstab)" != "" ]]; then
 #  echo "Check PASSED"
@@ -179,8 +179,8 @@ done
 # TODO 1.1.19 Ensure nosuid option set on removable media partitions
 # TODO 1.1.20 Ensure noexec option set on removable media partitions
 
-#echo '1.1.21 Ensure sticky bit is set on all world-writable directories'
 # TBD DISABLED Files get modified for different reasons. It's unclear what could be done to fix a failure.
+#echo '1.1.21 Ensure sticky bit is set on all world-writable directories'
 
 # TODO 1.1.2 Disable Automounting
 # TODO 1.2.1 Ensure package manager repositories are configured
@@ -198,13 +198,19 @@ done
 # L2 1.6.1.6 Ensure no unconfined daemons exist
 # L2 1.6.2 Ensure SELinux is installed
 
-#echo "1.7.2 Ensure GDM login banner is configured"
-#echo "___CHECK___"
-#echo "We do not need GNOME Display Manager, and we do not have /apps directory."
-#printf "\n\n"
+# TBD DISABLED We do not need GNOME Display Manager
+#1.7.2 Ensure GDM login banner is configured
+
+# TBD DISABLED Not required for this baseline configuration
+#3.3.3 Ensure IPv6 is disabled
+
+# TBD DISABLED Access control should be enforced by a firewall
+#3.4.2 Ensure /etc/hosts.allow is configured
+
+# TBD DISABLED Access control should be enforced by a firewall
+#3.4.3 Ensure /etc/hosts.deny is configured
 
 #endregion
-
 
 #echo "1.2.4 Verify Package Integrity Using RPM"
 #echo "___CHECK___"
@@ -269,93 +275,6 @@ done
 #
 #echo "4.3.1	Deactivate Wireless Interfaces (Linux laptops)"
 #printf "\n\n"
-
-#echo "Section Header: Disable IPv6"
-#printf "\n\n"
-
-# Not required for this baseline configuration
-#echo "4.4.2	Disable IPv6"
-#printf "\n\n"
-
-#echo "Section Header: Configure IPv6"
-#printf "\n\n"
-#
-# Not required for this baseline configuration
-#echo "4.4.1.1 Disable IPv6 Router Advertisements"
-#printf "\n\n"
-
-echo "4.4.1.2 Disable IPv6 Redirect Acceptance"
-echo "____CHECK 1/2____"
-/sbin/sysctl net.ipv6.conf.all.accept_redirects
-if [[ "$(/sbin/sysctl net.ipv6.conf.all.accept_redirects)" == "net.ipv6.conf.all.accept_redirects = 0" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/net.ipv6.conf.all.accept_redirects =/d' /etc/sysctl.conf
-  echo "net.ipv6.conf.all.accept_redirects = 0" >> /etc/sysctl.conf
-  /sbin/sysctl -w net.ipv6.conf.all.accept_redirects=0
-  /sbin/sysctl -w net.ipv6.route.flush=1
-fi
-echo "____CHECK 2/2____"
-/sbin/sysctl net.ipv6.conf.default.accept_redirects
-if [[ "$(/sbin/sysctl net.ipv6.conf.default.accept_redirects)" == "net.ipv6.conf.default.accept_redirects = 0" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/net.ipv6.conf.default.accept_redirects =/d' /etc/sysctl.conf
-  echo "net.ipv6.conf.default.accept_redirects = 0" >> /etc/sysctl.conf
-  /sbin/sysctl -w net.ipv6.conf.default.accept_redirects=0
-  /sbin/sysctl -w net.ipv6.route.flush=1
-fi
-printf "\n\n"
-
-echo -e '### Install TCP Wrappers ###\n\n'
-
-echo "4.4.1.2 Disable IPv6 Redirect Acceptance"
-echo "____CHECK 1/2____"
-ldd /sbin/sshd | grep libwrap.so
-output=$(ldd /sbin/sshd | grep libwrap.so)
-output_size=${#output}
-if [[ "$output_size" != "0" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  yum install tcp_wrappers
-fi
-echo "____CHECK 2/2____"
-yum list tcp_wrappers | grep -w 'tcp_wrappers'
-out2=$(yum list tcp_wrappers | grep -w 'tcp_wrappers')
-out2_size=${#out2}
-if [[ "$out2_size" != "0" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  yum install tcp_wrappers
-fi
-printf "\n\n"
-
-echo "4.5.2 Create /etc/hosts.allow"
-echo "Requirements are met by our external Firewalls, yet we can immediately revise this part upon request."
-printf "\n\n"
-
-echo "4.5.3 Verify Permissions on /etc/hosts.allow"
-echo "____CHECK____"
-ls -l /etc/hosts.allow
-access_privileges_line=$(ls -l /etc/hosts.allow)
-access_privileges=${access_privileges_line:0:10}
-if [[ "$access_privileges" == "-rw-r--r--" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  echo "Access mode is changing to u=rw,go=r"
-  chmod u=rw,go=r /etc/hosts.allow
-fi
-printf "\n\n"
 
 echo "4.5.2 Create /etc/hosts.deny"
 echo "Requirements are met by our external Firewalls, yet we can immediately revise this part upon request."
