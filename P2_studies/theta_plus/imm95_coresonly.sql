@@ -76,6 +76,20 @@ ALTER TABLE theta_plus.tpitacc_1995_nodummies
 RENAME TO imm1995_testcase_asjc2403_citing_cited_coresonly;
 select count(1) from theta_plus.imm1995_testcase_asjc2403_citing_cited_coresonly;
 
+DROP TABLE IF EXISTS theta_plus.imm1995_nodes_coresonly;
+CREATE TABLE theta_plus.imm1995_nodes_coresonly
+TABLESPACE theta_plus_tbs AS
+SELECT distinct citing as scp
+FROM theta_plus.imm1995_testcase_asjc2403_citing_cited_coresonly
+UNION
+SELECT distinct cited
+FROM theta_plus.imm1995_testcase_asjc2403_citing_cited_coresonly;
 
+DROP TABLE IF EXISTS theta_plus.imm1995_title_abstracts_coresonly;
+CREATE TABLE theta_plus.imm1995_title_abstracts_coresonly
+TABLESPACE theta_plus_tbs AS
+SELECT tpin.scp,st.title,sa.abstract_text
+FROM theta_plus.imm1995_nodes_coresonly tpin
+INNER JOIN scopus_titles st ON tpin.scp=st.scp
 
 
