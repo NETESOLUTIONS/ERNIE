@@ -92,4 +92,7 @@ TABLESPACE theta_plus_tbs AS
 SELECT tpin.scp,st.title,sa.abstract_text
 FROM theta_plus.imm1990_nodes_coresonly tpin
 INNER JOIN scopus_titles st ON tpin.scp=st.scp
+INNER JOIN scopus_abstracts sa ON tpin.scp=sa.scp
+AND sa.abstract_language='eng'
+AND st.language='English';
 
