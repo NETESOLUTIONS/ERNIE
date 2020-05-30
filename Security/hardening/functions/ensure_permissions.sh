@@ -1,31 +1,33 @@
 #!/usr/bin/env bash
 
-########################################
-# Ensure file permissions and ownership are set correctly
+####################################################################
+# Ensure system file permissions and ownership are set correctly
 # Arguments:
 #   $1  file
-#   $2  numerical permissions (optional: defaults to 600 / u=rw,go=)
-#   $3  ownership (optional: defaults to root:root)
+#   $2  (optional) numerical permissions. Default to 600 / u=rw,go=
 # Returns:
 #   None
 # Examples:
-#   ensure /usr/lib/systemd/system/rescue.service '/sbin/sulogin' 'ExecStart=-/bin/sh -c "/sbin/sulogin; /usr/bin/systemctl --fail --no-block default"'
-########################################
+#   ensure_permissions /etc/hosts.allow 644
+####################################################################
 ensure_permissions() {
   local file="$1"
   local permissions="${2:-600}"
-  local ownership="${3:-root:root}"
+  local -r OWNERSHIP="root:root"
+#   $3  OWNERSHIP (optional: defaults to root:root)
+#  local OWNERSHIP="${3:-root:root}"
+
   # shellcheck disable=SC2155
   local actual=$(stat --format="%U:%G %a" "${file}")
-  if [[ "$actual" == "$ownership $permissions" ]]; then
+  if [[ "$actual" == "$OWNERSHIP $permissions" ]]; then
     echo "Check PASSED"
   else
     echo "Check FAILED"
-    echo "The actual ownership and permissions for $file: '$actual'"
+    echo "The actual OWNERSHIP and permissions for $file: '$actual'"
 
     echo "Correcting ..."
     echo "___SET___"
-    chown "${ownership}" "${file}"
+    chown "${OWNERSHIP}" "${file}"
     chmod "${permissions}" "${file}"
   fi
 }

@@ -28,9 +28,11 @@ check_execs_with_special_permissions() {
   done
   [[ -z ${FINAL_EXCLUDE_DIRS} ]] && FINAL_EXCLUDE_DIRS="${EXCLUDE_DIRS}"
 
-  local execs=$(df --local --output=target | tail -n +2 | \
-     xargs -I '{}' find '{}' ${FINAL_EXCLUDE_DIRS} -xdev -type f -perm -$1 -print | \
-     grep -F --line-regexp --invert-match --file=${absolute_script_dir}/$2_executables_white_list.txt)
+  local execs=$(df --local --output=target | \
+     tail -n +2 | \
+     xargs -I '{}' find '{}' "${FINAL_EXCLUDE_DIRS}" -xdev -type f -perm -$1 -print | \
+     grep -F --line-regexp --invert-match \
+        --file"=${absolute_script_dir}/server-white-lists/$2_executables_white_list.txt")
 
   if [[ -n "${execs}" ]]; then
     cat <<HEREDOC

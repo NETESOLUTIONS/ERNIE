@@ -1,24 +1,26 @@
 #!/usr/bin/env bash
 
-########################################
-# Check and uninstall a package
+####################################################
+# Check and install package(s)
 # Arguments:
-#   $1  YUM package name
+#   $@  YUM package(s)
 # Returns:
 #   None
 # Examples:
-#   uninstall '3.9 Remove DNS Server' bind
-########################################
+#   ensure_installed ntp
+#   ensure_installed tcp_wrappers tcp_wrappers-libs
+####################################################
 ensure_installed() {
-  local package=$1
-  echo "___CHECK___"
-  if rpm -q "$package"; then
-    echo "Check PASSED"
-  else
-    echo "Check FAILED, correcting ..."
-    echo "Package $package should be installed"
-    echo "___SET___"
-    yum install -y "$package"
-  fi
+  for package in "$@"; do
+    echo "___CHECK___"
+    if rpm -q "$package"; then
+      echo "Check PASSED"
+    else
+      echo "Check FAILED, correcting ..."
+      echo "Package $package should be installed"
+      echo "___SET___"
+      yum install -y "$package"
+    fi
+  done
   printf "\n\n"
 }
