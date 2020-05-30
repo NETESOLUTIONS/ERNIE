@@ -84,6 +84,9 @@ FROM theta_plus.imm1985_testcase_asjc2403_citing_cited_coresonly
 UNION
 SELECT distinct cited
 FROM theta_plus.imm1985_testcase_asjc2403_citing_cited_coresonly;
+CREATE INDEX imm1985_nodes_coresonly_idx
+ON imm1985_nodes_coresonly(scp)
+TABLESPACE index_tbs;
 
 DROP TABLE IF EXISTS theta_plus.imm1985_title_abstracts_coresonly;
 CREATE TABLE theta_plus.imm1985_title_abstracts_coresonly
@@ -95,6 +98,5 @@ INNER JOIN scopus_abstracts sa ON tpin.scp=sa.scp
 AND sa.abstract_language='eng'
 AND st.language='English';
 
-select count(1) from theta_plus.imm1985_title_abstracts_coresonly;
 
 

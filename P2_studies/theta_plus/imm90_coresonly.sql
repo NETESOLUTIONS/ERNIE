@@ -86,6 +86,10 @@ UNION
 SELECT distinct cited
 FROM theta_plus.imm1990_testcase_asjc2403_citing_cited_coresonly;
 
+CREATE INDEX imm1990_nodes_coresonly_idx
+ON imm1990_nodes_coresonly(scp)
+TABLESPACE index_tbs;
+
 DROP TABLE IF EXISTS theta_plus.imm1990_title_abstracts_coresonly;
 CREATE TABLE theta_plus.imm1990_title_abstracts_coresonly
 TABLESPACE theta_plus_tbs AS
