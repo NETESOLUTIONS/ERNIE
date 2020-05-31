@@ -98,5 +98,7 @@ INNER JOIN scopus_abstracts sa ON tpin.scp=sa.scp
 AND sa.abstract_language='eng'
 AND st.language='English';
 
+select count(1) from theta_plus.imm1990_title_abstracts_coresonly;
+
 
 
