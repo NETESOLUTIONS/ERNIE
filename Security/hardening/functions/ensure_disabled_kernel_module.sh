@@ -14,7 +14,7 @@ ensure_disabled_kernel_module() {
   echo "___CHECK___"
   local modprobe_actual
   modprobe_actual=$(modprobe -n -v "$kernel_module")
-  local lsmod_actual=$(lsmod | grep dccp)
+  local lsmod_actual=$(lsmod | grep "$kernel_module")
   if [[ "$modprobe_actual" == "install /bin/true" && ! "$lsmod_actual" ]]; then
     echo "Check PASSED"
   else

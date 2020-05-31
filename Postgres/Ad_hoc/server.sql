@@ -14,17 +14,18 @@ SELECT *
 FROM pg_available_extensions
 ORDER BY name;
 
--- Install available extension
+-- Install bundled extension
 
--- region postgresql96-contrib
-CREATE EXTENSION postgres_fdw;
+-- region postgresql*-contrib
+-- CREATE EXTENSION postgres_fdw;
 CREATE EXTENSION dblink;
 CREATE EXTENSION pg_buffercache;
 CREATE EXTENSION fuzzystrmatch;
 -- endregion
 
--- Install third-party extensions
-CREATE EXTENSION pg_dropcache;
+-- Install compiled third-party extensions
+CREATE EXTENSION pgtap;
+-- CREATE EXTENSION pg_dropcache;
 
 -- Cache, ordered by the number of buffers
 SELECT pn.nspname AS schema, pc.relname, count(1) AS buffers, sum(pb.isdirty :: INT) AS dirty_pages
@@ -52,3 +53,6 @@ GROUP BY pc.relname, pn.nspname
 ORDER BY relname;
 
 SELECT pg_drop_rel_cache('wos_references'), pg_drop_rel_cache('wos_references_pk');
+
+-- Uninstall
+DROP EXTENSION :extension;

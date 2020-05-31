@@ -38,15 +38,21 @@ SELECT
       THEN 'foreign table'
     ELSE pc.relkind
   END AS kind, pn.nspname AS schema, pa.rolname AS owner
-  FROM
-    pg_class pc
-      LEFT JOIN pg_tablespace obj_pt ON obj_pt.oid = pc.reltablespace
-      JOIN pg_database pd ON pd.datname = current_catalog
-      JOIN pg_tablespace db_pt ON db_pt.oid = pd.dattablespace
-      JOIN pg_namespace pn ON pn.oid = pc.relnamespace
-      JOIN pg_authid pa ON pa.oid = pc.relowner
- WHERE coalesce(obj_pt.spcname, db_pt.spcname) = :'tablespace' AND relname NOT LIKE 'pg_toast_%'
-   AND pc.relkind NOT IN ('S') AND pg_relation_size(pc.oid) <> 0
+  FROM pg_class pc
+  LEFT JOIN pg_tablespace obj_pt
+            ON obj_pt.oid = pc.reltablespace
+  JOIN pg_database pd
+       ON pd.datname = current_catalog
+  JOIN pg_tablespace db_pt
+       ON db_pt.oid = pd.dattablespace
+  JOIN pg_namespace pn
+       ON pn.oid = pc.relnamespace
+  JOIN pg_authid pa
+       ON pa.oid = pc.relowner
+ WHERE coalesce(obj_pt.spcname, db_pt.spcname) = :'tablespace'
+   AND relname NOT LIKE 'pg_toast_%'
+   AND pc.relkind NOT IN ('S')
+   AND pg_relation_size(pc.oid) <> 0
  ORDER BY pg_total_relation_size(pc.oid) DESC;
 
 -- Default tablespace parameter
@@ -58,9 +64,9 @@ SELECT
   datname AS db, pt.spcname AS db_default_tablespace,
   --
   pg_size_pretty(pg_tablespace_size(pt.spcname)) AS used_space
-  FROM
-    pg_database pd
-      JOIN pg_tablespace pt ON pt.oid = pd.dattablespace
+  FROM pg_database pd
+  JOIN pg_tablespace pt
+       ON pt.oid = pd.dattablespace
  WHERE datname = current_catalog;
 
 /*
@@ -100,11 +106,13 @@ SELECT
       THEN 'foreign table'
     ELSE pc.relkind --
   END AS kind, coalesce(obj_pt.spcname, db_pt.spcname) AS tablespace
-  FROM
-    pg_class pc --
-      LEFT JOIN pg_tablespace obj_pt ON obj_pt.oid = pc.reltablespace
-      JOIN pg_database pd ON pd.datname = current_catalog
-      JOIN pg_tablespace db_pt ON db_pt.oid = pd.dattablespace
+  FROM pg_class pc --
+  LEFT JOIN pg_tablespace obj_pt
+            ON obj_pt.oid = pc.reltablespace
+  JOIN pg_database pd
+       ON pd.datname = current_catalog
+  JOIN pg_tablespace db_pt
+       ON db_pt.oid = pd.dattablespace
  ORDER BY pg_total_relation_size(pc.oid) DESC;
 
 -- Size and tablespace of relation(s) (data-containing objects) by name pattern
@@ -131,15 +139,19 @@ SELECT
       THEN 'foreign table'
     ELSE pc.relkind --
   END AS kind, --
-  coalesce(obj_pt.spcname, db_pt.spcname) AS tablespace,
+  obj_pt.spcname AS tablespace, pc.reltablespace AS tablespace_oid, db_pt.spcname AS db_default_tablespace,
   pg_size_pretty(sum(pg_total_relation_size(pc.oid)) OVER ()) AS all_selected_objects_size
-  FROM
-    pg_class pc --
-      JOIN pg_namespace pn ON pn.oid = pc.relnamespace
-      JOIN pg_authid pa ON pa.oid = pc.relowner
-      LEFT JOIN pg_tablespace obj_pt ON obj_pt.oid = pc.reltablespace
-      JOIN pg_database pd ON pd.datname = current_catalog
-      JOIN pg_tablespace db_pt ON db_pt.oid = pd.dattablespace
+  FROM pg_class pc --
+  JOIN pg_namespace pn
+       ON pn.oid = pc.relnamespace
+  JOIN pg_authid pa
+       ON pa.oid = pc.relowner
+  LEFT JOIN pg_tablespace obj_pt
+            ON obj_pt.oid = pc.reltablespace
+  JOIN pg_database pd
+       ON pd.datname = current_catalog
+  JOIN pg_tablespace db_pt
+       ON db_pt.oid = pd.dattablespace
  WHERE pc.relname LIKE :'name_pattern'
  ORDER BY pg_total_relation_size(pc.oid) DESC;
 
@@ -168,14 +180,18 @@ SELECT
     WHEN 'f'
       THEN 'foreign table'
     ELSE pc.relkind --
-  END AS kind, coalesce(obj_pt.spcname, db_pt.spcname) AS tablespace
-  FROM
-    pg_class pc --
-      JOIN pg_namespace pn ON pn.oid = pc.relnamespace
-      JOIN pg_authid pa ON pa.oid = pc.relowner
-      LEFT JOIN pg_tablespace obj_pt ON obj_pt.oid = pc.reltablespace
-      JOIN pg_database pd ON pd.datname = current_catalog
-      JOIN pg_tablespace db_pt ON db_pt.oid = pd.dattablespace
+  END AS kind, obj_pt.spcname AS tablespace, pc.reltablespace AS tablespace_oid, db_pt.spcname AS db_default_tablespace
+  FROM pg_class pc --
+  JOIN pg_namespace pn
+       ON pn.oid = pc.relnamespace
+  JOIN pg_authid pa
+       ON pa.oid = pc.relowner
+  LEFT JOIN pg_tablespace obj_pt
+            ON obj_pt.oid = pc.reltablespace
+  JOIN pg_database pd
+       ON pd.datname = current_catalog
+  JOIN pg_tablespace db_pt
+       ON db_pt.oid = pd.dattablespace
  WHERE pn.nspname = :schema
  ORDER BY pg_total_relation_size(pc.oid) DESC;
 
@@ -205,13 +221,17 @@ SELECT
     ELSE pc.relkind --
   END AS kind, --
   coalesce(obj_pt.spcname, db_pt.spcname) AS tablespace, pa.rolname AS owner
-  FROM
-    pg_class pc --
-      JOIN pg_namespace pn ON pn.oid = pc.relnamespace
-      JOIN pg_authid pa ON pa.oid = pc.relowner
-      LEFT JOIN pg_tablespace obj_pt ON obj_pt.oid = pc.reltablespace
-      JOIN pg_database pd ON pd.datname = current_catalog
-      JOIN pg_tablespace db_pt ON db_pt.oid = pd.dattablespace
+  FROM pg_class pc --
+  JOIN pg_namespace pn
+       ON pn.oid = pc.relnamespace
+  JOIN pg_authid pa
+       ON pa.oid = pc.relowner
+  LEFT JOIN pg_tablespace obj_pt
+            ON obj_pt.oid = pc.reltablespace
+  JOIN pg_database pd
+       ON pd.datname = current_catalog
+  JOIN pg_tablespace db_pt
+       ON db_pt.oid = pd.dattablespace
  WHERE pc.relname LIKE :name_pattern
  ORDER BY schema, relname;
 
@@ -239,11 +259,13 @@ SELECT
       THEN 'foreign table'
     ELSE pc.relkind --
   END AS kind, coalesce(obj_pt.spcname, db_pt.spcname) AS tablespace
-  FROM
-    pg_class pc --
-      LEFT JOIN pg_tablespace obj_pt ON obj_pt.oid = pc.reltablespace
-      JOIN pg_database pd ON pd.datname = current_catalog
-      JOIN pg_tablespace db_pt ON db_pt.oid = pd.dattablespace
+  FROM pg_class pc --
+  LEFT JOIN pg_tablespace obj_pt
+            ON obj_pt.oid = pc.reltablespace
+  JOIN pg_database pd
+       ON pd.datname = current_catalog
+  JOIN pg_tablespace db_pt
+       ON db_pt.oid = pd.dattablespace
  WHERE pc.relkind = :relkind
  ORDER BY pg_total_relation_size(pc.oid) DESC;
 
@@ -252,10 +274,11 @@ SELECT pg_size_pretty(pg_total_relation_size(:'table'));
 
 -- Table indexes with sizes
 SELECT pc_index.relname AS index_name, pg_size_pretty(pg_total_relation_size(pc_index.oid))
-  FROM
-    pg_class pc_table
-      JOIN pg_index pi ON pc_table.oid = pi.indrelid
-      JOIN pg_class pc_index ON pc_index.oid = pi.indexrelid
+  FROM pg_class pc_table
+  JOIN pg_index pi
+       ON pc_table.oid = pi.indrelid
+  JOIN pg_class pc_index
+       ON pc_index.oid = pi.indexrelid
  WHERE pc_table.relname = 'temp_wos_reference'
    --'derwent_familyid'
  ORDER BY pc_index.relname;
@@ -266,9 +289,9 @@ SELECT pg_size_pretty(pg_database_size(current_database()));
 
 -- Total size of the public schema
 SELECT pg_size_pretty(sum(pg_total_relation_size(pc.oid))) AS total_size
-  FROM
-    pg_class pc --
-      JOIN pg_namespace pn ON pn.oid = pc.relnamespace AND pn.nspname = 'public' -- Tables, sequences and MVs occupy space.
+  FROM pg_class pc --
+  JOIN pg_namespace pn
+       ON pn.oid = pc.relnamespace AND pn.nspname = 'public' -- Tables, sequences and MVs occupy space.
     -- Indexes and TOAST tables are added automatically by pg_total_relation_size()
  WHERE pc.relkind IN ('r', 'S', 'm');
 -- 2974 GB
