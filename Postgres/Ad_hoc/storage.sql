@@ -302,7 +302,7 @@ SELECT pc_index.relname AS index_name, pg_size_pretty(pg_total_relation_size(pc_
 
 -- Total DB size
 SELECT pg_size_pretty(pg_database_size(current_database()));
--- 2977 GB
+-- 1,818 GB
 
 -- Total size of the public schema
 SELECT pg_size_pretty(sum(pg_total_relation_size(pc.oid))) AS total_size

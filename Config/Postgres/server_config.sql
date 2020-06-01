@@ -35,12 +35,26 @@ Default = 128MB
 */
 ALTER SYSTEM SET shared_buffers = '10 GB';
 
+-- region Logging
+
+ALTER SYSTEM SET log_filename = 'postgresql.log';
+
+-- Default = none
+-- 'mod' would log all DDL statements, plus DML such as INSERT, UPDATE, DELETE, TRUNCATE, and COPY FROM.
+-- It can produce very large logs and should be used only for troubleshooting
+ALTER SYSTEM SET log_statement = 'ddl';
+
+-- Default = %m [%p]
+ALTER SYSTEM SET log_line_prefix = '%m %q%u@%h (%a) ';
+
+-- Logs long lock waits
+-- Default = off
+ALTER SYSTEM SET log_lock_waits = on;
+
+-- endregion
 --endregion
 
 --region Configuration reload is required
-
--- Default = none
-ALTER SYSTEM SET log_statement = 'ddl';
 
 /*
 Sets the planner's estimate of the cost of a non-sequentially-fetched disk page.
