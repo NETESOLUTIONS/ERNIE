@@ -12,9 +12,7 @@ SELECT
  WHERE ps.name = 'data_directory'
  ORDER BY pg_tablespace_size(pt.spcname) DESC;
 
-/*
-Space-occupying relations (data-containing objects) by a tablespace excluding TOAST tables, their indexes and sequences.
-*/
+-- Space-occupying relations (data-containing objects) by a *tablespace* excluding TOAST objects
 SELECT
   pn.nspname, pc.relname, pg_size_pretty(pg_relation_size(pc.oid)),
   CASE pc.relkind -- By default, CASE will cast results as char (pc.relkind)
@@ -37,7 +35,8 @@ SELECT
     WHEN 'f'
       THEN 'foreign table'
     ELSE pc.relkind
-  END AS kind, pn.nspname AS schema, pa.rolname AS owner
+  END AS kind, --
+  pn.nspname AS schema, pa.rolname AS owner
   FROM pg_class pc
   LEFT JOIN pg_tablespace obj_pt
             ON obj_pt.oid = pc.reltablespace
@@ -82,7 +81,7 @@ SHOW temp_tablespaces;
 -- Database cluster directory
 SHOW data_directory;
 
--- Sizes and tablespaces of all relations (data-containing objects) in the current DB
+-- Sizes and tablespaces of *all* relations (data-containing objects) in the current DB
 SELECT
   pc.relname, pg_size_pretty(pg_total_relation_size(pc.oid)),
   CASE pc.relkind -- By default, CASE will cast results as char (pc.relkind)
@@ -105,7 +104,12 @@ SELECT
     WHEN 'f'
       THEN 'foreign table'
     ELSE pc.relkind --
-  END AS kind, coalesce(obj_pt.spcname, db_pt.spcname) AS tablespace
+  END AS kind, --
+  CASE
+    WHEN pc.reltablespace = 0 -- DB default
+      THEN db_pt.spcname
+    ELSE coalesce(obj_pt.spcname, 'INVALID')
+  END AS tablespace, pc.reltablespace AS tablespace_oid
   FROM pg_class pc --
   LEFT JOIN pg_tablespace obj_pt
             ON obj_pt.oid = pc.reltablespace
@@ -115,7 +119,7 @@ SELECT
        ON db_pt.oid = pd.dattablespace
  ORDER BY pg_total_relation_size(pc.oid) DESC;
 
--- Size and tablespace of relation(s) (data-containing objects) by name pattern
+-- Size and tablespace of relation(s) (data-containing objects) by a *name pattern*
 SELECT
   pn.nspname AS schema, pc.relname, pa.rolname AS owner, pg_size_pretty(pg_total_relation_size(pc.oid)),
   CASE pc.relkind -- By default, CASE will cast results as char (pc.relkind)
@@ -139,7 +143,11 @@ SELECT
       THEN 'foreign table'
     ELSE pc.relkind --
   END AS kind, --
-  obj_pt.spcname AS tablespace, pc.reltablespace AS tablespace_oid, db_pt.spcname AS db_default_tablespace,
+  CASE
+    WHEN pc.reltablespace = 0 -- DB default
+      THEN db_pt.spcname
+    ELSE coalesce(obj_pt.spcname, 'INVALID')
+  END AS tablespace, pc.reltablespace AS tablespace_oid,
   pg_size_pretty(sum(pg_total_relation_size(pc.oid)) OVER ()) AS all_selected_objects_size
   FROM pg_class pc --
   JOIN pg_namespace pn
@@ -155,7 +163,7 @@ SELECT
  WHERE pc.relname LIKE :'name_pattern'
  ORDER BY pg_total_relation_size(pc.oid) DESC;
 
--- Size and tablespace of relation(s) (data-containing objects) by schema
+-- Size and tablespace of relation(s) (data-containing objects) by a *schema*
 SELECT
   pc.relname,
   --   pn.nspname AS schema,
@@ -180,7 +188,12 @@ SELECT
     WHEN 'f'
       THEN 'foreign table'
     ELSE pc.relkind --
-  END AS kind, obj_pt.spcname AS tablespace, pc.reltablespace AS tablespace_oid, db_pt.spcname AS db_default_tablespace
+  END AS kind, --
+  CASE
+    WHEN pc.reltablespace = 0 -- DB default
+      THEN db_pt.spcname
+    ELSE coalesce(obj_pt.spcname, 'INVALID')
+  END AS tablespace, pc.reltablespace AS tablespace_oid
   FROM pg_class pc --
   JOIN pg_namespace pn
        ON pn.oid = pc.relnamespace
@@ -192,50 +205,10 @@ SELECT
        ON pd.datname = current_catalog
   JOIN pg_tablespace db_pt
        ON db_pt.oid = pd.dattablespace
- WHERE pn.nspname = :schema
+ WHERE pn.nspname = :'schema'
  ORDER BY pg_total_relation_size(pc.oid) DESC;
 
--- Tablespace of relation(s) (data-containing objects) by name pattern
-SELECT
-  pc.relname, --
-  pn.nspname AS schema, --
-  CASE pc.relkind -- By default, CASE will cast results as char (pc.relkind)
-    WHEN 'r'
-      THEN CAST('table' AS TEXT)
-    WHEN 'p'
-      THEN 'partitioned table'
-    WHEN 'i'
-      THEN 'index'
-    WHEN 'S'
-      THEN 'sequence'
-    WHEN 'v'
-      THEN 'view'
-    WHEN 'm'
-      THEN 'materialized view'
-    WHEN 'c'
-      THEN 'composite type'
-    WHEN 't'
-      THEN 'TOAST table'
-    WHEN 'f'
-      THEN 'foreign table'
-    ELSE pc.relkind --
-  END AS kind, --
-  coalesce(obj_pt.spcname, db_pt.spcname) AS tablespace, pa.rolname AS owner
-  FROM pg_class pc --
-  JOIN pg_namespace pn
-       ON pn.oid = pc.relnamespace
-  JOIN pg_authid pa
-       ON pa.oid = pc.relowner
-  LEFT JOIN pg_tablespace obj_pt
-            ON obj_pt.oid = pc.reltablespace
-  JOIN pg_database pd
-       ON pd.datname = current_catalog
-  JOIN pg_tablespace db_pt
-       ON db_pt.oid = pd.dattablespace
- WHERE pc.relname LIKE :name_pattern
- ORDER BY schema, relname;
-
--- Relations (data-containing objects) by kind
+-- Relations (data-containing objects) by *kind*
 SELECT
   pc.relname, pg_size_pretty(pg_total_relation_size(pc.oid)),
   CASE pc.relkind
@@ -258,7 +231,13 @@ SELECT
     WHEN 'f'
       THEN 'foreign table'
     ELSE pc.relkind --
-  END AS kind, coalesce(obj_pt.spcname, db_pt.spcname) AS tablespace
+  END AS kind,
+    CASE
+    WHEN pc.reltablespace = 0 -- DB default
+      THEN db_pt.spcname
+    ELSE coalesce(obj_pt.spcname, 'INVALID')
+  END AS tablespace,
+  pc.reltablespace AS tablespace_oid
   FROM pg_class pc --
   LEFT JOIN pg_tablespace obj_pt
             ON obj_pt.oid = pc.reltablespace
