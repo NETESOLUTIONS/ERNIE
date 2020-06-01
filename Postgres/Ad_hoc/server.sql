@@ -52,7 +52,5 @@ WHERE pc.relname SIMILAR TO '(wos_|op_|pcr)%'
 GROUP BY pc.relname, pn.nspname
 ORDER BY relname;
 
-SELECT pg_drop_rel_cache('wos_references'), pg_drop_rel_cache('wos_references_pk');
-
 -- Uninstall
 DROP EXTENSION :extension;
