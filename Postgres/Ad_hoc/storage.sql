@@ -54,6 +54,44 @@ SELECT
    AND pg_relation_size(pc.oid) <> 0
  ORDER BY pg_total_relation_size(pc.oid) DESC;
 
+-- "Orphan" objects with no valid tablespace
+SELECT
+  pn.nspname, pc.relname, pg_size_pretty(pg_relation_size(pc.oid)),
+  CASE pc.relkind -- By default, CASE will cast results as char (pc.relkind)
+    WHEN 'r'
+      THEN CAST('table' AS TEXT)
+    WHEN 'p'
+      THEN 'partitioned table'
+    WHEN 'i'
+      THEN 'index'
+    WHEN 'S'
+      THEN 'sequence'
+    WHEN 'v'
+      THEN 'view'
+    WHEN 'm'
+      THEN 'materialized view'
+    WHEN 'c'
+      THEN 'composite type'
+    WHEN 't'
+      THEN 'TOAST table'
+    WHEN 'f'
+      THEN 'foreign table'
+    ELSE pc.relkind
+  END AS kind, --
+  pn.nspname AS schema, pa.rolname AS owner
+  FROM pg_class pc
+  JOIN pg_database pd
+       ON pd.datname = current_catalog
+  JOIN pg_tablespace db_pt
+       ON db_pt.oid = pd.dattablespace
+  JOIN pg_namespace pn
+       ON pn.oid = pc.relnamespace
+  JOIN pg_authid pa
+       ON pa.oid = pc.relowner
+ WHERE pc.reltablespace <> 0 -- Default DB tablespace
+   AND pc.reltablespace NOT IN (SELECT oid FROM pg_tablespace)
+ ORDER BY pg_total_relation_size(pc.oid) DESC;
+
 -- Default tablespace parameter
 -- An empty string = the default tablespace of the current database
 SHOW default_tablespace;
