@@ -731,25 +731,6 @@ done
 echo "Check PASSED"
 printf "\n\n"
 
-echo "9.2.12 Check That Users Are Assigned Valid Home Directories"
-echo -e "____CHECK____"
-while IFS=: read user enc_passwd uid gid full_name home shell; do
-  if [[ ${uid} -ge ${MIN_NON_SYSTEM_UID} && ! -d "$home" && ${user} != "nfsnobody" ]]; then
-    cat << HEREDOC
-Check FAILED, correct this!"
-This script checks to make sure that home directories assigned in the /etc/passwd file exist.
-
-The home directory ($home) of user $user does not exist.
-
-Users without an assigned home directory should be removed or assigned a home directory as appropriate. Create it and
-make sure the respective user owns the directory.
-HEREDOC
-    exit 1
-  fi
-done < /etc/passwd
-echo "Check PASSED"
-printf "\n\n"
-
 echo "9.2.13 Check User Home Directory Ownership for non-system users"
 echo -e "____CHECK____"
 while IFS=: read user enc_passwd uid gid full_name home shell; do
