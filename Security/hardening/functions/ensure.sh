@@ -4,10 +4,16 @@
 # Ensure configuration value is set in a config file
 # Arguments:
 #   $1  file
-#   $2  configuration key: an ERE pattern
-#   $3  (optional) expected configuration line: a string or a glob pattern (could be multi-line)
-#       Omitting this or using glob pattern characters (`*`, `?`, `[...]`) makes auto correction not possible: failing
-#       if the key is not found.
+#
+#   $2  configuration key: a PCRE pattern.
+#
+#   $3  (optional) expected configuration line(s): a string or a glob pattern
+#       Omitting this or using a glob pattern (`*`, `?`, `[...]` characters) switches function to the assert mode: check
+#       and-fail if the key is not found.
+#       Multiple lines are each checked separately.
+#
+#   $4 (optional) `^` to prepend the line. Defaults to appending.
+#
 # Returns:
 #   None
 # Examples:
@@ -23,11 +29,14 @@
 #     ensure /etc/chrony.conf '^(server|pool)' '*'
 ########################################
 ensure() {
+  local -r PREPEND_INSERTION='1'
+
   local file="$1"
   local pattern="$2"
   local expected="$3"
+  local insertion_mode="$4"
   # shellcheck disable=SC2155
-  local actual=$(grep -E "$pattern" "$file")
+  local actual=$(pcregrep "$pattern" "$file")
   # shellcheck disable=SC2053 # Support globs in `$expected`
   if [[ "$actual" == $expected ]]; then
     echo "Check PASSED"
@@ -44,7 +53,11 @@ ensure() {
     echo "___SET___"
     mapfile -t lines <<< "$expected"
     for line in "${lines[@]}"; do
-      upsert "^$line$" "$line" "$file"
+      if [[ "$insertion_mode" == "$PREPEND_INSERTION" ]]; then
+        upsert "$file" '^' "$line"
+      else
+        upsert "$file" "^$line$" "$line"
+      fi
     done
   fi
 }

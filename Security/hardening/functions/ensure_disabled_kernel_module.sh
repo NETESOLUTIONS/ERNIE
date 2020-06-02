@@ -24,7 +24,7 @@ ensure_disabled_kernel_module() {
 
     # This command instructs `modprobe` to run `/bin/true` instead of inserting the module in the kernel as normal
     # See `man modprobe.d`
-    upsert "install $kernel_module" "install $kernel_module /bin/true" /etc/modprobe.d/CIS.conf
+    upsert /etc/modprobe.d/CIS.conf "install $kernel_module" "install $kernel_module /bin/true"
   fi
   printf "\n\n"
 }

@@ -124,11 +124,97 @@
 # L2 4.1.14 Ensure file deletion events by users are collected
 # ...
 
-#endregion
+# TODO 4.2.1.2 Ensure logging is configured
 
-#region Other / obsolete checks (not in this CIS version)
+#echo "Configure /etc/rsyslog.7conf; Create and Set Permissions on rsyslog Log Files"
+#echo "___CHECK 1/5___"
+#grep "auth,user.* /var/log/messages" /etc/rsyslog.conf
+#if [[ "$(grep "auth,user.* /var/log/messages" /etc/rsyslog.conf)" == "auth,user.* /var/log/messages" ]]; then
+#  echo "Check PASSED"
+#else
+#  echo "Check FAILED, correcting ..."
+#  echo "___SET___"
+#  echo "auth,user.* /var/log/messages" >> /etc/rsyslog.conf
+#  pkill -HUP rsyslogd
+#  touch /var/log/messages
+#  chown root:root /var/log/messages
+#  chmod og-rwx /var/log/messages
+#fi
+#echo "___CHECK 2/5___"
+#grep "kern.* /var/log/kern.log" /etc/rsyslog.conf
+#if [[ "$(grep "kern.* /var/log/kern.log" /etc/rsyslog.conf)" == "kern.* /var/log/kern.log" ]]; then
+#  echo "Check PASSED"
+#else
+#  echo "Check FAILED, correcting ..."
+#  echo "___SET___"
+#  echo "kern.* /var/log/kern.log" >> /etc/rsyslog.conf
+#  pkill -HUP rsyslogd
+#  touch /var/log/kern.log
+#  chown root:root /var/log/kern.log
+#  chmod og-rwx /var/log/kern.log
+#fi
+#echo "___CHECK 3/5___"
+#grep "daemon.* /var/log/daemon.log" /etc/rsyslog.conf
+#if [[ "$(grep "daemon.* /var/log/daemon.log" /etc/rsyslog.conf)" == "daemon.* /var/log/daemon.log" ]]; then
+#  echo "Check PASSED"
+#else
+#  echo "Check FAILED, correcting ..."
+#  echo "___SET___"
+#  echo "daemon.* /var/log/daemon.log" >> /etc/rsyslog.conf
+#  pkill -HUP rsyslogd
+#  touch /var/log/daemon.log
+#  chown root:root /var/log/daemon.log
+#  chmod og-rwx /var/log/daemon.log
+#fi
+#echo "___CHECK 4/5___"
+#grep "syslog.* /var/log/syslog" /etc/rsyslog.conf
+#if [[ "$(grep "syslog.* /var/log/syslog" /etc/rsyslog.conf)" == "syslog.* /var/log/syslog" ]]; then
+#  echo "Check PASSED"
+#else
+#  echo "Check FAILED, correcting ..."
+#  echo "___SET___"
+#  echo "syslog.* /var/log/syslog" >> /etc/rsyslog.conf
+#  pkill -HUP rsyslogd
+#  touch /var/log/syslog
+#  chown root:root /var/log/syslog
+#  chmod og-rwx /var/log/syslog
+#fi
+#echo "___CHECK 5/5___"
+#grep "lpr,news,uucp,local0,local1,local2,local3,local4,local5,local6.* /var/log/unused.log" /etc/rsyslog.conf
+#if [[ "$(grep "lpr,news,uucp,local0,local1,local2,local3,local4,local5,local6.* /var/log/unused.log" /etc/rsyslog.conf)" == "lpr,news,uucp,local0,local1,local2,local3,local4,local5,local6.* /var/log/unused.log" ]]; then
+#  echo "Check PASSED"
+#else
+#  echo "Check FAILED, correcting ..."
+#  echo "___SET___"
+#  echo "lpr,news,uucp,local0,local1,local2,local3,local4,local5,local6.* /var/log/unused.log" >> /etc/rsyslog.conf
+#  pkill -HUP rsyslogd
+#  touch /var/log/unused.log
+#  chown root:root /var/log/unused.log
+#  chmod og-rwx /var/log/unused.log
+#fi
+#printf "\n\n"
+#
 
-#echo "1.2.4 Verify Package Integrity Using RPM"
+# TODO DISABLED 4.2.1.4 Ensure rsyslog is configured to send logs to a remote log host
+
+#echo "Configure rsyslog to Send Logs to a Remote Log Host"
+#echo "___CHECK___"
+#grep "^*.*[^I][^I]*@" /etc/rsyslog.conf
+#if [[ "$(grep "^*.*[^I][^I]*@" /etc/rsyslog.conf | wc -l)" != 0 ]]; then
+#  echo "Check PASSED"
+#else
+#  echo "Check FAILED, correcting ..."
+#  echo "___SET___"
+#  echo "*.* @@remote-host:514" >> /etc/rsyslog.conf
+#  pkill -HUP rsyslogd
+#fi
+#printf "\n\n"
+#
+
+# TODO 4.2.2 Configure syslog-ng (if syslog-ng is installed on the system)
+# TODO 4.2.3 Ensure rsyslog or syslog-ng is installed
+
+# L2 6.1.1 Audit system file permissions
 #echo "___CHECK___"
 #rpm -qVa | awk '$2 != "c" { print $0 }' | tee /tmp/hardening-1.2.4.log
 #if [[ -s /tmp/hardening-1.2.4.log ]]; then
@@ -138,12 +224,16 @@
 #fi
 #printf "\n\n"
 
+#endregion
+
+#region Other / obsolete checks (not in this CIS version)
+
 # TBD DISABLED
 # `Exec-shield` is no longer an option in `sysctl` for kernel tuning in CentOS 7, it is by
 # default on. This is a security measure, as documented in the RHEL 7 Security Guide.
 # See http://centosfaq.org/centos/execshield-in-c6-or-c7-kernels/
 
-#echo "1.6.2 Configure ExecShield"
+#echo "Configure ExecShield"
 #echo "____CHECK____"
 #if [ "$(sysctl kernel.exec-shield)" = "kernel.exec-shield = 1" ]; then
 #  echo "Check PASSED"
@@ -153,6 +243,13 @@
 #  sed -i '/kernel.exec-shield =/d' /etc/security/limits.conf
 #  echo "kernel.exec-shield = 1" >> /etc/security/limits.conf
 #fi
+#printf "\n\n"
+
+#
+#echo "Restrict root Login to System Console"
+#cat /etc/securetty
+#echo "NEEDS INSPECTION:"
+#echo "Remove entries for any consoles that are not in a physically secure location."
 #printf "\n\n"
 
 #endregion

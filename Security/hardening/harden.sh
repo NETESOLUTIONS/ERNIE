@@ -128,210 +128,12 @@ for f in "$SCRIPT_DIR"/functions/*.sh; do
 done
 
 # Execute checks
-for f in "$SCRIPT_DIR"/hardening-checks*/*.sh; do
+for f in "$SCRIPT_DIR"/recommendations-*/*.sh; do
   # shellcheck source=hardening-checks*/*.sh
   source "$f"
 done
 
-echo -e '### Logging and Auditing ###\n\n'
-
-echo "5.0.3 Configure logrotate"
-echo "___CHECK 1/6___"
-grep "/var/log/cron" /etc/logrotate.d/syslog
-if [[ "$(grep "/var/log/cron" /etc/logrotate.d/syslog)" == "/var/log/cron" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '1i/var/log/cron' /etc/logrotate.d/syslog
-fi
-echo "___CHECK 2/6___"
-grep "/var/log/maillog" /etc/logrotate.d/syslog
-if [[ "$(grep "/var/log/maillog" /etc/logrotate.d/syslog)" == "/var/log/maillog" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '1i/var/log/maillog' /etc/logrotate.d/syslog
-fi
-echo "___CHECK 3/6___"
-grep "/var/log/messages" /etc/logrotate.d/syslog
-if [[ "$(grep "/var/log/messages" /etc/logrotate.d/syslog)" == "/var/log/messages" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '1i/var/log/messages' /etc/logrotate.d/syslog
-fi
-echo "___CHECK 4/6___"
-grep "/var/log/secure" /etc/logrotate.d/syslog
-if [[ "$(grep "/var/log/secure" /etc/logrotate.d/syslog)" == "/var/log/secure" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '1i/var/log/secure' /etc/logrotate.d/syslog
-fi
-echo "___CHECK 5/6___"
-grep "/var/log/boot.log" /etc/logrotate.d/syslog
-if [[ "$(grep "/var/log/boot.log" /etc/logrotate.d/syslog)" == "/var/log/boot.log" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '1i/var/log/boot.log' /etc/logrotate.d/syslog
-fi
-echo "___CHECK 6/6___"
-grep "/var/log/spooler" /etc/logrotate.d/syslog
-if [[ "$(grep "/var/log/spooler" /etc/logrotate.d/syslog)" == "/var/log/spooler" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '1i/var/log/spooler' /etc/logrotate.d/syslog
-fi
-printf "\n\n"
-
-echo -e '### Configure rsyslog ###\n\n'
-
-echo "5.1.1 Install the rsyslog package"
-echo "___CHECK___"
-rpm -q rsyslog
-if [[ "$(rpm -q rsyslog)" != "package rsyslog is not installed" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  yum install rsyslog
-fi
-printf "\n\n"
-
-echo "5.1.2 Activate the rsyslog Service and disable syslog service if exists"
-disable_sysv_service syslog
-enable_sysv_service rsyslog
-
-echo "& 5.1.3 Configure /etc/rsyslogg.conf; 5.1.4 Create and Set Permissions on rsyslog Log Files"
-echo "___CHECK 1/5___"
-grep "auth,user.* /var/log/messages" /etc/rsyslog.conf
-if [[ "$(grep "auth,user.* /var/log/messages" /etc/rsyslog.conf)" == "auth,user.* /var/log/messages" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  echo "auth,user.* /var/log/messages" >> /etc/rsyslog.conf
-  pkill -HUP rsyslogd
-  touch /var/log/messages
-  chown root:root /var/log/messages
-  chmod og-rwx /var/log/messages
-fi
-echo "___CHECK 2/5___"
-grep "kern.* /var/log/kern.log" /etc/rsyslog.conf
-if [[ "$(grep "kern.* /var/log/kern.log" /etc/rsyslog.conf)" == "kern.* /var/log/kern.log" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  echo "kern.* /var/log/kern.log" >> /etc/rsyslog.conf
-  pkill -HUP rsyslogd
-  touch /var/log/kern.log
-  chown root:root /var/log/kern.log
-  chmod og-rwx /var/log/kern.log
-fi
-echo "___CHECK 3/5___"
-grep "daemon.* /var/log/daemon.log" /etc/rsyslog.conf
-if [[ "$(grep "daemon.* /var/log/daemon.log" /etc/rsyslog.conf)" == "daemon.* /var/log/daemon.log" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  echo "daemon.* /var/log/daemon.log" >> /etc/rsyslog.conf
-  pkill -HUP rsyslogd
-  touch /var/log/daemon.log
-  chown root:root /var/log/daemon.log
-  chmod og-rwx /var/log/daemon.log
-fi
-echo "___CHECK 4/5___"
-grep "syslog.* /var/log/syslog" /etc/rsyslog.conf
-if [[ "$(grep "syslog.* /var/log/syslog" /etc/rsyslog.conf)" == "syslog.* /var/log/syslog" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  echo "syslog.* /var/log/syslog" >> /etc/rsyslog.conf
-  pkill -HUP rsyslogd
-  touch /var/log/syslog
-  chown root:root /var/log/syslog
-  chmod og-rwx /var/log/syslog
-fi
-echo "___CHECK 5/5___"
-grep "lpr,news,uucp,local0,local1,local2,local3,local4,local5,local6.* /var/log/unused.log" /etc/rsyslog.conf
-if [[ "$(grep "lpr,news,uucp,local0,local1,local2,local3,local4,local5,local6.* /var/log/unused.log" /etc/rsyslog.conf)" == "lpr,news,uucp,local0,local1,local2,local3,local4,local5,local6.* /var/log/unused.log" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  echo "lpr,news,uucp,local0,local1,local2,local3,local4,local5,local6.* /var/log/unused.log" >> /etc/rsyslog.conf
-  pkill -HUP rsyslogd
-  touch /var/log/unused.log
-  chown root:root /var/log/unused.log
-  chmod og-rwx /var/log/unused.log
-fi
-printf "\n\n"
-
-echo "5.1.5 Configure rsyslog to Send Logs to a Remote Log Host"
-echo "___CHECK___"
-grep "^*.*[^I][^I]*@" /etc/rsyslog.conf
-if [[ "$(grep "^*.*[^I][^I]*@" /etc/rsyslog.conf | wc -l)" != 0 ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  echo "*.* @@remote-host:514" >> /etc/rsyslog.conf
-  pkill -HUP rsyslogd
-fi
-printf "\n\n"
-
-echo "5.1.6 Accept Remote rsyslog Messages Only on Designated Log Hosts"
-echo "___CHECK 1/2___"
-grep '^$ModLoad imtcp.so' /etc/rsyslog.conf
-if [[ "$(grep '^$ModLoad imtcp.so' /etc/rsyslog.conf)" == "\$ModLoad imtcp.so" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  echo "\$ModLoad imtcp.so" >> /etc/rsyslog.conf
-  pkill -HUP rsyslogd
-fi
-echo "___CHECK 2/2___"
-grep '^$InputTCPServerRun 514' /etc/rsyslog.conf
-if [[ "$(grep '^$InputTCPServerRun 514' /etc/rsyslog.conf)" == "\$InputTCPServerRun 514" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  echo "\$InputTCPServerRun 514" >> /etc/rsyslog.conf
-  pkill -HUP rsyslogd
-fi
-printf "\n\n"
-
 echo -e '### System Access, Authentication and Authorization ###\n\n'
-
-# DISABLED N/A for the Cloud hosting
-#echo "6.0.4 Restrict root Login to System Console"
-#cat /etc/securetty
-#echo "NEEDS INSPECTION:"
-#echo "Remove entries for any consoles that are not in a physically secure location."
-#printf "\n\n"
-
-echo "6.0.5 Restrict Access to the su Command"
-if grep -E '^auth\s+required\s+pam_wheel.so\s+use_uid' /etc/pam.d/su; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  upsert '#*auth\s+required\s+pam_wheel.so' 'auth\t\trequired\tpam_wheel.so use_uid' /etc/pam.d/su
-fi
-printf "\n\n"
 
 echo -e '### Configure cron and anacron ###\n\n'
 
@@ -547,7 +349,7 @@ if ((value > 0 && value <= 4)); then
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  upsert '#*MaxAuthTries ' 'MaxAuthTries 4' /etc/ssh/sshd_config
+  upsert /etc/ssh/sshd_config '#*MaxAuthTries ' 'MaxAuthTries 4'
 fi
 printf "\n\n"
 
@@ -558,7 +360,7 @@ if ! grep -E '^IgnoreRhosts no' /etc/ssh/sshd_config; then
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  upsert 'IgnoreRhosts ' 'IgnoreRhosts yes' /etc/ssh/sshd_config
+  upsert /etc/ssh/sshd_config 'IgnoreRhosts ' 'IgnoreRhosts yes'
 fi
 printf "\n\n"
 
@@ -568,7 +370,7 @@ if ! grep -E '^HostbasedAuthentication yes' /etc/ssh/sshd_config; then
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  upsert 'HostbasedAuthentication ' 'HostbasedAuthentication no' /etc/ssh/sshd_config
+  upsert /etc/ssh/sshd_config 'HostbasedAuthentication ' 'HostbasedAuthentication no'
 fi
 printf "\n\n"
 
@@ -579,7 +381,7 @@ if grep -E '^PermitRootLogin no' /etc/ssh/sshd_config; then
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  upsert '#*PermitRootLogin ' 'PermitRootLogin no' /etc/ssh/sshd_config
+  upsert /etc/ssh/sshd_config '#*PermitRootLogin ' 'PermitRootLogin no'
 fi
 printf "\n\n"
 
@@ -590,7 +392,7 @@ if ! grep -E '^PermitEmptyPasswords yes' /etc/ssh/sshd_config; then
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  upsert 'PermitEmptyPasswords ' 'PermitEmptyPasswords no' /etc/ssh/sshd_config
+  upsert /etc/ssh/sshd_config 'PermitEmptyPasswords ' 'PermitEmptyPasswords no'
 fi
 printf "\n\n"
 
@@ -601,7 +403,7 @@ if ! grep -E '^PermitUserEnvironment yes' /etc/ssh/sshd_config; then
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  upsert 'PermitUserEnvironment ' 'PermitUserEnvironment no' /etc/ssh/sshd_config
+  upsert /etc/ssh/sshd_config 'PermitUserEnvironment ' 'PermitUserEnvironment no'
 fi
 printf "\n\n"
 
@@ -612,7 +414,7 @@ if grep -E '^Ciphers aes128-ctr,aes192-ctr,aes256-ctr' /etc/ssh/sshd_config; the
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  upsert '#*Ciphers ' 'Ciphers aes128-ctr,aes192-ctr,aes256-ctr' /etc/ssh/sshd_config
+  upsert /etc/ssh/sshd_config '#*Ciphers ' 'Ciphers aes128-ctr,aes192-ctr,aes256-ctr'
 fi
 printf "\n\n"
 
@@ -623,7 +425,7 @@ if grep -E '^ClientAliveInterval 3600' /etc/ssh/sshd_config; then
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  upsert '#*ClientAliveInterval ' 'ClientAliveInterval 3600' /etc/ssh/sshd_config
+  upsert /etc/ssh/sshd_config '#*ClientAliveInterval ' 'ClientAliveInterval 3600'
 fi
 echo "____CHECK 2/2____"
 if grep -E '^ClientAliveCountMax 0' /etc/ssh/sshd_config; then
@@ -631,7 +433,7 @@ if grep -E '^ClientAliveCountMax 0' /etc/ssh/sshd_config; then
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  upsert '#*ClientAliveCountMax ' 'ClientAliveCountMax 0' /etc/ssh/sshd_config
+  upsert /etc/ssh/sshd_config '#*ClientAliveCountMax ' 'ClientAliveCountMax 0'
 fi
 printf "\n\n"
 
@@ -669,7 +471,7 @@ else
 ********************************************************************
 HEREDOC
   fi
-  upsert '#*Banner ' 'Banner /etc/issue.net' /etc/ssh/sshd_config
+  upsert /etc/ssh/sshd_config '#*Banner ' 'Banner /etc/issue.net'
   systemctl restart sshd
 fi
 printf "\n\n"
@@ -697,7 +499,7 @@ if grep -F "${PWD_CREATION_REQUIREMENTS}" /etc/pam.d/system-auth-ac; then
 else
   echo "Check FAILED, correcting ..."
   echo "____SET____"
-  upsert 'password\s+requisite\s+pam_pwquality.so' "${PWD_CREATION_REQUIREMENTS}" /etc/pam.d/system-auth-ac
+  upsert /etc/pam.d/system-auth-ac 'password\s+requisite\s+pam_pwquality.so' "${PWD_CREATION_REQUIREMENTS}"
 fi
 printf "\n\n"
 
@@ -831,23 +633,6 @@ fi
 printf "\n\n"
 
 echo -e '### System Maintenance ###\n\n'
-
-echo -e '### Verify System File Permissions ###\n\n'
-
-echo "9.1.2 Verify Permissions on /etc/passwd"
-echo "____CHECK____"
-ls -l /etc/passwd
-access_privileges_line=$(ls -l /etc/passwd)
-access_privileges=${access_privileges_line:0:10}
-if [[ "$access_privileges" == "-rw-r--r--" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  echo "Access mode is changing to u=rw,go=r"
-  chmod u=rw,go=r /etc/passwd
-fi
-printf "\n\n"
 
 echo "9.1.3 Verify Permissions on /etc/shadow"
 echo "____CHECK____"

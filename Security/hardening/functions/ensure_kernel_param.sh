@@ -26,7 +26,7 @@ ensure_kernel_param() {
 
     echo "Correcting ..."
     echo "___SET___"
-    upsert "^$param" "$param = $expected" /etc/sysctl.conf
+    upsert /etc/sysctl.conf "^$param" "$param = $expected"
     sysctl -w "$param=$expected"
     [[ $additional_correction ]] && sysctl -w "$additional_correction"
   fi

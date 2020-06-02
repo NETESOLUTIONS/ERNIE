@@ -7,9 +7,9 @@
 # Returns:
 #   None
 # Examples:
-#   enable_sysv_service chargen-dgram
+#   ensure_service_enabled chargen-dgram
 ########################################
-enable_sysv_service() {
+ensure_service_enabled() {
   echo "___CHECK___"
   # If the service is not present, the check fails
   if systemctl is-enabled "$1"; then
