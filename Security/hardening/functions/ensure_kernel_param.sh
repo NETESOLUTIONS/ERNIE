@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
-########################################
-# Ensure kernel (`sysctl`) parameter is set correctly
+########################################################################################################################
+# Check and set a kernel (`sysctl`) parameter
+#
 # Arguments:
 #   $1  parameter
 #   $2  expected value
 #   $3  optional: additional correction ({flag}={value})
-# Returns:
-#   None
+#
 # Examples:
 #   ensure_kernel_param fs.suid_dumpable 0
 #   ensure_kernel_param net.ipv4.ip_forward 0 net.ipv4.route.flush=1
-########################################
+########################################################################################################################
 ensure_kernel_param() {
   local param="$1"
   local expected="${2}"

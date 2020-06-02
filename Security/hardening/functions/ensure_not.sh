@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ################################################
-# Ensure a value is *not* set in a file
+# Check and remove a property set in a file
 #
 # Arguments:
 #   $1  file

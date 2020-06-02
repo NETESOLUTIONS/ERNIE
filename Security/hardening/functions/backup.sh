@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
 
-########################################
+########################################################################################################################
 # Backup into a unique backup directory if BACKUP_DIR is defined
 #
 # Arguments:
 #   $1 absolute absolute_file_name path
-# Returns:
-#   None
+#
 # Examples:
 #   backup /etc/motd
-########################################
+########################################################################################################################
 backup() {
   local absolute_file_name="$1"
   if [[ $BACKUP_DIR ]]; then

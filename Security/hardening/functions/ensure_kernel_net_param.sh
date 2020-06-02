@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 
-##################################################################################################
-# Ensure kernel `net.` parameter or both `.all` and `.default` params are set and flush the route
+########################################################################################################################
+# Check and set kernel `net.` parameter or both `.all` and `.default` params
+#
 # Arguments:
 #   $1  protocol: `ipv4` or `ipv6`
 #   $2  parameter: in `net.{protocol}.`{parameter}.
 #       `..` placeholder is replaced by `.all.` + `.default.`
 #   $3  expected value
-# Returns:
-#   None
+#
 # Examples:
 #   ensure_kernel_net_param ipv4 ip_forward 0
 #   ensure_kernel_net_param ipv4 conf..log_martians 1
-##################################################################################################
+########################################################################################################################
 ensure_kernel_net_param() {
   local protocol="$1"
   local param="$2"

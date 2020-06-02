@@ -126,7 +126,7 @@
 
 # TODO 4.2.1.2 Ensure logging is configured
 
-#echo "Configure /etc/rsyslog.7conf; Create and Set Permissions on rsyslog Log Files"
+#echo "Configure /etc/rsyslog.conf; Create and Set Permissions on rsyslog Log Files"
 #echo "___CHECK 1/5___"
 #grep "auth,user.* /var/log/messages" /etc/rsyslog.conf
 #if [[ "$(grep "auth,user.* /var/log/messages" /etc/rsyslog.conf)" == "auth,user.* /var/log/messages" ]]; then
@@ -233,23 +233,48 @@
 # default on. This is a security measure, as documented in the RHEL 7 Security Guide.
 # See http://centosfaq.org/centos/execshield-in-c6-or-c7-kernels/
 
-#echo "Configure ExecShield"
-#echo "____CHECK____"
-#if [ "$(sysctl kernel.exec-shield)" = "kernel.exec-shield = 1" ]; then
-#  echo "Check PASSED"
-#else
-#  echo "Check FAILED, correcting ..."
-#  echo "____SET____"
-#  sed -i '/kernel.exec-shield =/d' /etc/security/limits.conf
-#  echo "kernel.exec-shield = 1" >> /etc/security/limits.conf
-#fi
-#printf "\n\n"
+echo "Configure ExecShield"
+echo "____CHECK____"
+if [ "$(sysctl kernel.exec-shield)" = "kernel.exec-shield = 1" ]; then
+  echo "Check PASSED"
+else
+  echo "Check FAILED, correcting ..."
+  echo "____SET____"
+  sed -i '/kernel.exec-shield =/d' /etc/security/limits.conf
+  echo "kernel.exec-shield = 1" >> /etc/security/limits.conf
+fi
+printf "\n\n"
 
 #
 #echo "Restrict root Login to System Console"
-#cat /etc/securetty
-#echo "NEEDS INSPECTION:"
-#echo "Remove entries for any consoles that are not in a physically secure location."
-#printf "\n\n"
+cat /etc/securetty
+echo "NEEDS INSPECTION:"
+echo "Remove entries for any consoles that are not in a physically secure location."
+printf "\n\n"
 
+echo "Enable anacron Daemon"
+echo "___CHECK___"
+rpm -q cronie-anacron
+if [[ "$(rpm -q cronie-anacron)" != "package cronie-anacron is not installed" ]]; then
+  echo "Check PASSED"
+else
+  echo "Check FAILED, correcting ..."
+  echo "___SET___"
+  yum install cronie-anacron
+fi
+printf "\n\n"
+
+echo "Ensure permissions on /etc/anacrontab are configured"
+echo "___CHECK___"
+ensure_permissions
+stat -L -c "%a %u %g" /etc/anacrontab | egrep ".00 0 0"
+if [[ "$(stat -L -c "%a %u %g" /etc/anacrontab | egrep ".00 0 0" | wc -l)" == 1 ]]; then
+  echo "Check PASSED"
+else
+  echo "Check FAILED, correcting ..."
+  echo "___SET___"
+  chown root:root /etc/anacrontab
+  chmod og-rwx /etc/anacrontab
+fi
+printf "\n\n"
 #endregion

@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 
-####################################################
+########################################################################################################################
 # Check and install package(s)
+#
 # Arguments:
 #   $@  YUM package(s)
-# Returns:
-#   None
+#
 # Examples:
 #   ensure_installed ntp
 #   ensure_installed tcp_wrappers tcp_wrappers-libs
-####################################################
+########################################################################################################################
 ensure_installed() {
+  local package
   for package in "$@"; do
     echo "___CHECK___"
     if rpm -q "$package"; then

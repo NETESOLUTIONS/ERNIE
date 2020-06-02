@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-####################################################
-# Check and disabled a kernel module
+########################################################################################################################
+# Check and disable a kernel module
+#
 # Arguments:
 #   $1 kernel module
-# Returns:
-#   None
+#
 # Examples:
 #   ensure_disabled_kernel_module dccp
-####################################################
+########################################################################################################################
 ensure_disabled_kernel_module() {
   local kernel_module="$1"
   echo "___CHECK___"

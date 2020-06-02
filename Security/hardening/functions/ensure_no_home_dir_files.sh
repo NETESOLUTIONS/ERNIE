@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-################################################################
-# Check end user home directories to ensure a file is not there
+##################################################################################
+# Check end user home directories to ensure a file is not there. Fail if it does.
 #
 # Arguments:
 #   $1  file
@@ -10,9 +10,9 @@
 #   None
 #
 # Examples:
-#   ensure_no_home_dir_files .forward
-################################################################
-ensure_no_home_dir_files() {
+#   ensure_no_file /etc/cron.deny
+##################################################################################
+ensure_no_file() {
   local file_name="$1"
 
   echo "____CHECK____"

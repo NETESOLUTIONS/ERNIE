@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-########################################
+########################################################################################################################
 # Ensure configuration value is set in a config file
 # Arguments:
 #   $1  file
@@ -14,20 +14,18 @@
 #
 #   $4 (optional) `^` to prepend the line. Defaults to appending.
 #
-# Returns:
-#   None
 # Examples:
-#   1. Ensure `sulogin` is configured the expected way
+#   1. Check and configure `sulogin`
 #     ensure /usr/lib/systemd/system/rescue.service '/sbin/sulogin' \
 #       'ExecStart=-/bin/sh -c "/sbin/sulogin; /usr/bin/systemctl --fail --no-block default"'
 #
-#   2. Ensure 2 `restrict default` configuration lines
+#   2. Check and configure two `restrict default` properties
 #     ensure /etc/ntp.conf '^restrict.*default' 'restrict default kod nomodify notrap nopeer noquery
 #       restrict -6 default kod nomodify notrap nopeer noquery'
 #
-#  3. Check that `/etc/chrony.conf` has server(s) or pool(s) present, fail if it does not
+#   3. Check that `/etc/chrony.conf` has server(s) or pool(s) present, fail if it does not
 #     ensure /etc/chrony.conf '^(server|pool)' '*'
-########################################
+########################################################################################################################
 ensure() {
   local -r PREPEND_INSERTION='1'
 
