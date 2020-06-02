@@ -7,7 +7,7 @@ echo -e '### 4.2.1 Configure rsyslog ###\n\n'
 # Hence it's preferred over `syslog-ng` (4.2.2)
 echo "4.2.1.1 Ensure rsyslog Service is enabled"
 #ensure_installed rsyslog
-#disable_sysv_service syslog
+#ensure_service_disabled syslog
 ensure_service_enabled rsyslog
 
 echo "4.2.1.3 Ensure rsyslog default file permissions configured"
