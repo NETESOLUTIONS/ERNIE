@@ -2,7 +2,7 @@
 echo "6.2.7 Ensure all users' home directories exist"
 echo "____CHECK____"
 while IFS=: read -r user enc_passwd uid gid full_name home shell; do
-  if (( uid >= MIN_NON_SYSTEM_UID )) && [[ ! -d "$home" && ${user} != "nfsnobody" ]]; then
+  if (( uid >= MIN_NON_SYSTEM_UID )) && [[ "${user}" != "nfsnobody" && ! -d "$home" ]]; then
     cat << HEREDOC
 Check FAILED, correct this!"
 The home directory '$home' of user '$user' (UID=$uid) does not exist.
