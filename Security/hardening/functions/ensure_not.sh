@@ -1,20 +1,24 @@
 #!/usr/bin/env bash
 
-########################################
-# Ensure configuration is *not* set in a config file
+################################################
+# Ensure a value is *not* set in a file
+#
 # Arguments:
 #   $1  file
-#   $2  grep ERE pattern
+#   $2  a PCRE pattern
+#
 # Returns:
 #   None
+#
 # Examples:
 #   ensure_not /etc/motd '(\\v\|\\r\|\\m\|\\s)'
-########################################
-ensure() {
+#   ensure_not /etc/passwd '^+:'
+################################################
+ensure_not() {
   local file="$1"
   local pattern="$2"
   # shellcheck disable=SC2155
-  local actual=$(grep -E "$pattern" "$file")
+  local actual=$(pcregrep "$pattern" "$file")
   if [[ ! "$actual" ]]; then
     echo "Check PASSED"
   else
