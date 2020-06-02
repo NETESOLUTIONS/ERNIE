@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-########################################
+####################################################
 # Check and uninstall a package
 # Arguments:
 #   $1  message
@@ -8,9 +8,9 @@
 # Returns:
 #   None
 # Examples:
-#   uninstall '3.9 Remove DNS Server' bind
-########################################
-uninstall() {
+#   ensure_uninstalled '3.9 Remove DNS Server' bind
+####################################################
+ensure_uninstalled() {
   set -e
   set -o pipefail
 

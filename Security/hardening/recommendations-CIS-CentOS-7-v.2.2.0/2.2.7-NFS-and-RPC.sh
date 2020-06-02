@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 echo "2.2.7 Ensure NFS and RPC are not enabled"
-disable_sysv_service nfs
-disable_sysv_service nfs-server
-disable_sysv_service rpcbind
+ensure_service_disabled nfs
+ensure_service_disabled nfs-server
+ensure_service_disabled rpcbind

@@ -7,9 +7,9 @@
 # Returns:
 #   None
 # Examples:
-#   disable_sysv_service chargen-dgram
+#   ensure_service_disabled chargen-dgram
 ########################################
-disable_sysv_service() {
+ensure_service_disabled() {
   echo "___CHECK___"
   if systemctl is-enabled "$1"; then
 #  output=$(systemctl list-unit-files | grep -w $1.service || echo "")

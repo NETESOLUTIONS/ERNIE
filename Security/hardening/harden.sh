@@ -4,12 +4,12 @@ usage() {
   cat << 'HEREDOC'
 NAME
 
-    harden -- harden a machine semi-automatically per included hardening checks
+    harden -- harden a machine semi-automatically per included hardening recommendation scripts
 
 SYNOPSIS
 
-    sudo harden-CentOS.sh [-k] [-m email] [-e excluded_dir] [-e ...] [-u unsafe_user] [-g unsafe_group] system_user
-    harden-CentOS.sh-h: display this help
+    sudo harden.sh [-k] [-m email] [-e excluded_dir] [-e ...] [-u unsafe_user] [-g unsafe_group] system_user
+    harden.sh -h: display this help
 
 DESCRIPTION
 
