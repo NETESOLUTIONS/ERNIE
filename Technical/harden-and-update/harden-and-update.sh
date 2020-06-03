@@ -4,7 +4,7 @@ usage() {
   cat << 'HEREDOC'
 NAME
 
-    harden-and-update.sh -- harden a machine semi-automatically per included hardening checks and update packages
+    harden-and-update.sh -- harden a server and update packages
 
 SYNOPSIS
 
@@ -13,17 +13,18 @@ SYNOPSIS
 
 DESCRIPTION
 
-    The script automatically makes changes that it can to harden a server. Included hardening checks are based on the
-    Baseline Security Configuration derived from the Center for Internet Security (CIS) Benchmark.
+    The script automatically makes changes that it can to harden a server.
+    Included hardening checks are based on the OS-specific Center for Internet Security (CIS) Benchmark.
 
     WARNING: Some checks incorporate site-specific policies. Review them before running in a new environment.
 
-    The current directory is used for logs, progress, and configuration file backups (e.g. `./2020-05-19-09-33-20.bak/*`).
+    The current directory is used for logs, progress, and configuration file backups (e.g. `./2020-05-19-09-33-20.bak`).
 
-    The script would fail on the first problem that needs to be fixed manually. Correct the problem and re-run.
-    The script should resume at the failing check.
+    The script would fail on the first problem that needs to be fixed manually or on the first error.
+    Correct the problem and re-run. The script should resume at the failed check.
 
-    WARNING: it updates *all* yum packages to their latest versions, including, optionally the kernel.
+    The script patches all yum packages to their latest security patched versions.
+    Optionally, the kernel could be updated to the latest LTS version as well.
 
     Kernel and Jenkins updates are done during automatically determined "safe" periods.
 
@@ -156,12 +157,14 @@ for check_script in "$SCRIPT_DIR"/checks-*/*.sh; do
 done
 
 if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
-  yum --enablerepo=elrepo-kernel install -y kernel-ml python-perf
+  # ELRepo repository must hve been installed
+  # `kernel-lt`: Long Term Support (LTS) kernel
+  yum --enablerepo=elrepo-kernel install -y kernel-lt python-perf
 
   kernel_version=$(uname -r)
-  latest_kernel_package_version=$(rpm --query --last kernel-ml | head -1 | pcregrep -o1 'kernel-ml-([^ ]*)')
+  latest_kernel_package_version=$(rpm --query --last kernel-lt | head -1 | pcregrep -o1 'kernel-lt-([^ ]*)')
   # RPM can't format --last output and
-  #available_kernel_version=$(rpm --query --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}' kernel-ml)
+  #available_kernel_version=$(rpm --query --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}' kernel-lt)
 
   if [[ ${kernel_version} == ${latest_kernel_package_version} ]]; then
     echo "Check PASSED"

@@ -12,6 +12,6 @@ if yum check-update --security --exclude=jenkins; then
 else
   echo "Check FAILED, correcting ..."
   echo "___SET___"
-  ACCEPT_EULA=Y yum -y update ---security -exclude=jenkins
+  ACCEPT_EULA=Y yum -y update --security --exclude=jenkins
 fi
 printf "\n\n"
