@@ -8,7 +8,7 @@ NAME
 
 SYNOPSIS
 
-    sudo harden-and-update.sh [-k] [-m email] [-e excluded_dir] [-e ...] [-u unsafe_user] [-g unsafe_group] system_user
+    sudo harden-and-update.sh [-e excluded_dir] [-e ...] [-k] [-m email] [-u unsafe_user] [-g unsafe_group] system_user
     harden-and-update.sh -h: display this help
 
 DESCRIPTION
@@ -30,18 +30,18 @@ DESCRIPTION
 
     The following options are available:
 
-    -k                      Include Linux kernel in the updates.
-                            Reboot safely and notify `notification_address` by email when kernel is updated.
-
-    -m email                An address to send notification to
-
     -e excluded_dir         Directory(-ies) excluded from the ownership and system executables check.
                             This is needed for mapped Docker container dirs.
                             The Docker home (if Docker is installed) is excluded automatically.
 
-    -u unsafe_user          Check "active" processes of this effective user to determine a "safe" period.
+    -k                      Update Linux kernel to the latest LTS version.
+                            Reboot safely and notify `notification_address` by email when kernel is updated.
 
-    -g unsafe_group         Check "active" processes of this effective group to determine a "safe" period.
+      -m email              An address to send notification to
+
+      -u unsafe_user        Check "active" processes of this effective user to determine a "safe" period.
+
+      -g unsafe_group       Check "active" processes of this effective group to determine a "safe" period.
 
     system_user             User account to assign ownership of unowned files and directories and backups.
                             The primary group of that user account will be used as group owner.
@@ -153,6 +153,7 @@ for check_script in "$SCRIPT_DIR"/checks-*/*.sh; do
     # shellcheck source=checks-*/*.sh
     source "$check_script"
     touch "$progress_file"
+    chown "$DEFAULT_OWNER_USER:$DEFAULT_OWNER_GROUP" "$target_file"
   fi
 done
 
