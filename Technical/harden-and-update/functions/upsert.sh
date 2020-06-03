@@ -24,6 +24,7 @@ upsert() {
   # Escape all `/` as `\/`
   local -r key="${2//\//\/}"
   local value="$3"
+  echo "${file}/'${key}' := '${value}'"
   if [[ -s "$file" ]]; then
     # Escape all `/` as `\/`
     value="${value//\//\/}"
@@ -57,6 +58,6 @@ upsert() {
     fi
   else
     # No file or empty file
-    cho -e "$value" > "$file"
+    echo -e "$value" > "$file"
   fi
 }
