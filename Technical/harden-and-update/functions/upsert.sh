@@ -24,7 +24,7 @@ upsert() {
   # Escape all `/` as `\/`
   local -r key="${2//\//\/}"
   local value="$3"
-  echo "${file}/'${key}' := '${value}'"
+  echo "${file} / '${key}' := '${value}'"
   if [[ -s "$file" ]]; then
     # Escape all `/` as `\/`
     value="${value//\//\/}"
