@@ -158,8 +158,9 @@ done
 
 if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
   # ELRepo repository must hve been installed
-  # `kernel-lt`: Long Term Support (LTS) kernel
-  yum --enablerepo=elrepo-kernel install -y kernel-lt python-perf
+  # `kernel-lt`: Long Term Support (LTS) version, `kernel-ml`: the mainline version
+  # TBD `python-perf` package might be needed
+  yum --enablerepo=elrepo-kernel install -y kernel-lt
 
   kernel_version=$(uname -r)
   latest_kernel_package_version=$(rpm --query --last kernel-lt | head -1 | pcregrep -o1 'kernel-lt-([^ ]*)')
