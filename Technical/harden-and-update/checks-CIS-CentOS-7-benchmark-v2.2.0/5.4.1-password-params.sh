@@ -31,32 +31,3 @@ else
   useradd -D -f 30
 fi
 printf "\n\n"
-
-echo "5.4.2 Ensure system accounts are non-login"
-unset check_failed
-echo "___CHECK___"
-while IFS=: read -r user enc_passwd uid gid full_name home shell; do
-  if [[ "$user" != "root" && "$user" != "sync" && "$user" != "shutdown" && "$user" != "halt" ]] && \
-        ((uid < MIN_NON_SYSTEM_UID)) && [[ "$shell" != "/sbin/nologin" && "$shell" != "/bin/false" ]]; then
-    check_failed=true
-    echo "Check FAILED..."
-    echo "$user:$uid:$gid:$full_name:$home:$shell"
-    echo "___SET___"
-    usermod --lock "${user}"
-    usermod --shell /sbin/nologin "${user}"
-  fi
-done < <(grep -E -v "^\+" /etc/passwd)
-[[ $check_failed == true ]] && exit 1
-echo "Check PASSED"
-printf "\n\n"
-
-echo "5.4.3 Ensure default group for the root account is GID 0"
-echo "___CHECK___"
-if [[ "$(grep "^root:" /etc/passwd | cut -f4 -d:)" == 0 ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  usermod -g 0 root
-fi
-printf "\n\n"

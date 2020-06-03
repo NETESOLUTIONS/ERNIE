@@ -31,6 +31,8 @@ ensure() {
 
   local file="$1"
   local pattern="$2"
+  # FIXME Currently, the exact match is expected
+  #  sometimes a variation of expected could be just fine, e.g. with extra whitespaces
   local expected="$3"
   local insertion_mode="$4"
   # shellcheck disable=SC2155
