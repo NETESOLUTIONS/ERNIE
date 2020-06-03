@@ -127,8 +127,6 @@ readonly BACKUP_DIR
 MIN_NON_SYSTEM_UID=$(pcregrep -o1 '^UID_MIN\s+(\d+)' /etc/login.defs)
 readonly MIN_NON_SYSTEM_UID
 
-yum clean expire-cache
-
 for function_script in "$SCRIPT_DIR"/functions/*.sh; do
   # shellcheck source=functions/*.sh
   source "$function_script"
@@ -160,6 +158,8 @@ for check_script in "$SCRIPT_DIR"/checks-*/*.sh; do
 done
 
 if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
+  yum clean expire-cache
+
   # ELRepo repository must hve been installed
   # `kernel-lt`: Long Term Support (LTS) version, `kernel-ml`: the mainline version
   # TBD `python-perf` package might be needed
