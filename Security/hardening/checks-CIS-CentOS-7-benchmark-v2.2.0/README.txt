@@ -266,23 +266,29 @@ printf "\n\n"
 
 == Other / obsolete checks (not in this CIS version) ==
 
-# TBD DISABLED
-# `Exec-shield` is no longer an option in `sysctl` for kernel tuning in CentOS 7, it is by
-# default on. This is a security measure, as documented in the RHEL 7 Security Guide.
-# See http://centosfaq.org/centos/execshield-in-c6-or-c7-kernels/
+*
+ensure_uninstalled 'Remove LDAP ___CHECK 1/2___' openldap-servers
 
-echo "Configure ExecShield"
-echo "____CHECK____"
-if [ "$(sysctl kernel.exec-shield)" = "kernel.exec-shield = 1" ]; then
+*
+ensure_uninstalled 'Remove DNS Server' bind
+
+*
+ensure_uninstalled 'Remove SNMP Server' net-snmp
+
+*
+echo "Set Daemon umask"
+echo "___CHECK___"
+grep umask /etc/sysconfig/init
+if [[ "$(grep umask /etc/sysconfig/init)" == "umask 027" ]]; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  sed -i '/kernel.exec-shield =/d' /etc/security/limits.conf
-  echo "kernel.exec-shield = 1" >> /etc/security/limits.conf
+  echo "___SET___"
+  echo "umask 027" >> /etc/sysconfig/init
 fi
 printf "\n\n"
 
+*
 echo "Enable anacron Daemon"
 echo "___CHECK___"
 rpm -q cronie-anacron
@@ -295,6 +301,7 @@ else
 fi
 printf "\n\n"
 
+*
 echo "Ensure permissions on /etc/anacrontab are configured"
 echo "___CHECK___"
 ensure_permissions

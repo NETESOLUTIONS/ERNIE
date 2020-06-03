@@ -4,12 +4,12 @@ usage() {
   cat << 'HEREDOC'
 NAME
 
-    harden -- harden a machine semi-automatically per included hardening recommendation scripts
+    harden-and-update.sh.sh -- harden a machine semi-automatically per included hardening checks and update packages
 
 SYNOPSIS
 
-    sudo harden.sh [-k] [-m email] [-e excluded_dir] [-e ...] [-u unsafe_user] [-g unsafe_group] system_user
-    harden.sh -h: display this help
+    sudo harden-and-update.sh [-k] [-m email] [-e excluded_dir] [-e ...] [-u unsafe_user] [-g unsafe_group] system_user
+    harden-and-update.sh.sh.sh -h: display this help
 
 DESCRIPTION
 
@@ -126,6 +126,8 @@ readonly BACKUP_DIR
 MIN_NON_SYSTEM_UID=$(pcregrep -o1 '^UID_MIN\s+(\d+)' /etc/login.defs)
 readonly MIN_NON_SYSTEM_UID
 
+yum clean expire-cache
+
 for f in "$SCRIPT_DIR"/functions/*.sh; do
   # shellcheck source=functions/*.sh
   source "$f"
@@ -137,11 +139,38 @@ for f in "$SCRIPT_DIR"/checks-*/*.sh; do
   source "$f"
 done
 
+if [[ $KERNEL_UPDATE ]]; # Install an updated kernel package if available
+  yum --enablerepo=elrepo-kernel install -y kernel-ml python-perf
+
+  kernel_version=$(uname -r)
+  latest_kernel_package_version=$(rpm --query --last kernel-ml | head -1 | pcregrep -o1 'kernel-ml-([^ ]*)')
+  # RPM can't format --last output and
+  #available_kernel_version=$(rpm --query --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}' kernel-ml)
+
+  if [[ ${kernel_version} == ${latest_kernel_package_version} ]]; then
+    echo "Check PASSED"
+    if [[ $NOTIFICATION_ADDRESS ]]; then
+      echo "The kernel version is up to date: v${kernel_version}" \
+          | mailx -S smtp=localhost -s "Hardening: kernel check" "$NOTIFICATION_ADDRESS"
+    fi
+  else
+    readonly KERNEL_UPDATE_MESSAGE="Kernel update from v${kernel_version} to v${latest_kernel_package_version}"
+    echo "Check FAILED, correcting ..."
+    echo "___SET___"
+
+    # Keep 2 kernels including the current one
+    package-cleanup -y --oldkernels --count=2
+
+    grub2-set-default 0
+    grub2-mkconfig -o /boot/grub2/grub.cfg
+  fi
+fi
+
 if [[ ${KERNEL_UPDATE_MESSAGE} || ${JENKINS_UPDATE} == true ]]; then
-  readonly LOG=${ABSOLUTE_SCRIPT_DIR}/safe_updates.log
+  readonly LOG=${ABSOLUTE_SCRIPT_DIR}/update-reboot-safely.log
   [[ ${KERNEL_UPDATE_MESSAGE} ]] && safe_update_options="-r "$KERNEL_UPDATE_MESSAGE" $safe_update_options"
   # shellcheck disable=SC2086 # Expanding `$safe_update_options` into multiple parameters
-  "$SCRIPT_DIR/safe_updates.sh" $safe_update_options >> "$LOG"
+  "$SCRIPT_DIR/update-reboot-safely.sh" $safe_update_options >> "$LOG"
 fi
 
 exit 0

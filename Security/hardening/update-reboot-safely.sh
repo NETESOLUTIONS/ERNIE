@@ -4,29 +4,28 @@ usage() {
   cat << 'HEREDOC'
 NAME
 
-    safe_updates.sh -- update Jenkins and/or reboot during a quiet (safe) period
+    update-reboot-safely.sh -- update Jenkins and/or reboot during a quiet (safe) period
 
 SYNOPSIS
 
-    sudo safe_updates.sh [-r message] [-m notification_address] [-j] [-g unsafe_group] [-u unsafe_user]
-    safe_updates.sh -h: display this help
+    sudo update-reboot-safely.sh [-r message] [-m notification_address] [-j] [-g unsafe_group] [-u unsafe_user]
+    update-reboot-safely.sh -h: display this help
 
 DESCRIPTION
 
     Update Jenkins when there are no Jenkins jobs running.
 
-    Reboot when there are no:
-      * Jenkins jobs running
-      * "Active" processes owned by the group (EGID) and, optionally, user (EUID). These are all processes excluding:
-        1. `sshd` processes
-        2. Login shells, e.g. `-bash`
-        3. Status `T`: stopped by job control signal
-        4. Status `Z`: defunct ("zombie") process, terminated but not reaped by its parent
-      * Optionally, Postgres active, non-system queries running in the specified DB
-
     The following options are available:
 
-    -r message                  Reboot and email a `message` to `notification_address`
+    -r message                  Reboot and email a `message` to `notification_address` when there are no:
+                                * Jenkins jobs running
+                                * "Active" processes owned by the group (EGID) and, optionally, user (EUID).
+                                  These are all processes excluding:
+                                  1. `sshd` processes
+                                  2. Login shells, e.g. `-bash`
+                                  3. Status `T`: stopped by job control signal
+                                  4. Status `Z`: defunct ("zombie") process, terminated but not reaped by its parent
+                                * Optionally, Postgres active, non-system queries running in the specified DB
 
     -m notification_address     An address to send notification to
 
