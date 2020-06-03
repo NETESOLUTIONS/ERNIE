@@ -5,7 +5,7 @@
 # Arguments:
 #   $1  file
 #
-#   $2  configuration key: a PCRE pattern.
+#   $2  configuration key: a PCRE sub-string pattern.
 #
 #   $3  (optional) expected configuration line(s): a string or a glob pattern
 #       Omitting this or using a glob pattern (`*`, `?`, `[...]` characters) switches function to the assert mode: check

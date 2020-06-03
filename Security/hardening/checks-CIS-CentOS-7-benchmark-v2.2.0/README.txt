@@ -1,4 +1,4 @@
-#region New (not yet implemented) checks, Level 2 and DISABLED checks
+== All new, not yet implemented (TODO) checks, Level 2 (L2) and TBD DISABLED checks ==
 
 # TODO 1.1.1.1 Ensure mounting of cramfs filesystems is disabled
 # TODO 1.1.1.2 Ensure mounting of freevxfs filesystems is disabled
@@ -224,9 +224,47 @@
 #fi
 #printf "\n\n"
 
-#endregion
+# TBD DISABLED 5.3.2 Ensure lockout for failed password attempts is configured
 
-#region Other / obsolete checks (not in this CIS version)
+# TODO 5.4.1.5 Ensure all users last password change date is in the past
+
+# TBD DISABLED 5.4.4 Ensure default user umask is 027 or more restrictive
+# Not recommended in dev environment due to large amount of intersecting users' tasks
+#echo "5.4.4 Ensure default user umask is 027 or more restrictive"
+#printf "\n\n"
+#echo "7.0.4 Set Default umask for Users"
+#echo "___CHECK 1/2___"
+#grep "^umask 077" /etc/profile
+#if [[ "$(grep "^umask 077" /etc/profile | wc -l)" != 0 ]]; then
+#  echo "Check PASSED"
+#else
+#  echo "Check FAILED, correcting ..."
+#  echo "___SET___"
+#  umask 077
+#  echo "umask 077" >> /etc/profile
+#fi
+#echo "___CHECK 2/2___"
+#grep "^umask 077" /etc/bashrc
+#if [[ "$(grep "^umask 077" /etc/bashrc | wc -l)" != 0 ]]; then
+#  echo "Check PASSED"
+#else
+#  echo "Check FAILED, correcting ..."
+#  echo "___SET___"
+#  umask 077
+#  echo "umask 077" >> /etc/bashrc
+#fi
+#printf "\n\n"
+
+# L2 5.4.5 Ensure default user shell timeout is 900 seconds or less
+
+# TBD DISABLED 5.5 Ensure root login is restricted to system console
+#echo "Restrict root Login to System Console"
+cat /etc/securetty
+echo "NEEDS MANUAL INSPECTION:"
+echo "Remove entries for any consoles that are not in a physically secure location."
+printf "\n\n"
+
+== Other / obsolete checks (not in this CIS version) ==
 
 # TBD DISABLED
 # `Exec-shield` is no longer an option in `sysctl` for kernel tuning in CentOS 7, it is by
@@ -243,13 +281,6 @@ else
   sed -i '/kernel.exec-shield =/d' /etc/security/limits.conf
   echo "kernel.exec-shield = 1" >> /etc/security/limits.conf
 fi
-printf "\n\n"
-
-#
-#echo "Restrict root Login to System Console"
-cat /etc/securetty
-echo "NEEDS INSPECTION:"
-echo "Remove entries for any consoles that are not in a physically secure location."
 printf "\n\n"
 
 echo "Enable anacron Daemon"
@@ -277,4 +308,3 @@ else
   chmod og-rwx /etc/anacrontab
 fi
 printf "\n\n"
-#endregion

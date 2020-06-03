@@ -16,6 +16,8 @@ DESCRIPTION
     The script automatically makes changes that it can to harden a server. Included hardening checks are based on the
     Baseline Security Configuration derived from the Center for Internet Security (CIS) Benchmark.
 
+    WARNING: Some checks incorporate site-specific policies. Review them before running in a new environment.
+
     The current directory is used for logs and configuration file backups (e.g. `./2020-05-19-09-33-20.bak/*`).
 
     The script would fail on the first problem that needs to be fixed manually. Correct the problem and re-run.
@@ -61,6 +63,8 @@ EXIT STATUS
 EXAMPLES
 
     sudo ./harden.sh -k -m j5g1e0d8w9w2t7v2@neteteam.slack.com -e /data1/upsource -g endusers admin
+
+Version 2.0                                           June 2020
 HEREDOC
   exit 1
 }
@@ -128,166 +132,10 @@ for f in "$SCRIPT_DIR"/functions/*.sh; do
 done
 
 # Execute checks
-for f in "$SCRIPT_DIR"/recommendations-*/*.sh; do
+for f in "$SCRIPT_DIR"/checks-*/*.sh; do
   # shellcheck source=hardening-checks*/*.sh
   source "$f"
 done
-
-echo -e '### Configure PAM ###\n\n'
-
-echo "6.3.1 Upgrade Password Hashing Algorithm to SHA-512"
-echo "____CHECK____"
-if [[ "$(authconfig --test | grep hashing | grep sha512)" != "" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  echo "authconfig --passalgo=sha512 --update"
-  authconfig --passalgo=sha512 --update
-fi
-printf "\n\n"
-
-echo "6.3.2 Set Password Creation Requirement Parameters Using pam_cracklib"
-echo "____CHECK____"
-PWD_CREATION_REQUIREMENTS="password    requisite     pam_pwquality.so try_first_pass local_users_only retry=3 \
-authtok_type= ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1"
-if grep -F "${PWD_CREATION_REQUIREMENTS}" /etc/pam.d/system-auth-ac; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "____SET____"
-  upsert /etc/pam.d/system-auth-ac 'password\s+requisite\s+pam_pwquality.so' "${PWD_CREATION_REQUIREMENTS}"
-fi
-printf "\n\n"
-
-echo "6.3.3 Set Lockout for Failed Password Attempts"
-echo "____CHECK____"
-echo "Azure already imposed the policy"
-printf "\n\n"
-
-echo "6.3.4 Limit Password Reuse"
-echo "____CHECK____"
-echo "Azure already imposed the policy"
-printf "\n\n"
-
-echo "6.3.4 Limit Password Reuse"
-echo "___CHECK___"
-if grep "remember=5" /etc/pam.d/system-auth-ac; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '/password(\t\| )*sufficient/s/$/ remember=5/' /etc/pam.d/system-auth-ac
-fi
-printf "\n\n"
-
-echo -e '### User Accounts and Environment ###\n\n'
-
-echo "7.0.2 Set System Accounts to Non-Login"
-echo "___CHECK___"
-if grep -E -v "^\+" /etc/passwd \
-  | awk -F: '($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<500 && $7!="/sbin/nologin")'; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  for user in $(awk -F: '($3 < 500) {print $1 }' /etc/passwd); do
-    if [[ "${user}" != "root" ]]; then
-      usermod -L ${user}
-      if [[ ${user} != "sync" && ${user} != "shutdown" && ${user} != "halt" ]]; then
-        usermod -s /sbin/nologin ${user}
-      fi
-    fi
-  done
-fi
-printf "\n\n"
-
-echo "7.0.3 Set Default Group for root Account"
-echo "___CHECK___"
-if [[ "$(grep "^root:" /etc/passwd | cut -f4 -d:)" == 0 ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  usermod -g 0 root
-fi
-printf "\n\n"
-
-# DISABLED Not recommended in dev environment due to large amount of intersecting users' tasks
-#echo "7.0.4 Set Default umask for Users"
-#printf "\n\n"
-#echo "7.0.4 Set Default umask for Users"
-#echo "___CHECK 1/2___"
-#grep "^umask 077" /etc/profile
-#if [[ "$(grep "^umask 077" /etc/profile | wc -l)" != 0 ]]; then
-#  echo "Check PASSED"
-#else
-#  echo "Check FAILED, correcting ..."
-#  echo "___SET___"
-#  umask 077
-#  echo "umask 077" >> /etc/profile
-#fi
-#echo "___CHECK 2/2___"
-#grep "^umask 077" /etc/bashrc
-#if [[ "$(grep "^umask 077" /etc/bashrc | wc -l)" != 0 ]]; then
-#  echo "Check PASSED"
-#else
-#  echo "Check FAILED, correcting ..."
-#  echo "___SET___"
-#  umask 077
-#  echo "umask 077" >> /etc/bashrc
-#fi
-#printf "\n\n"
-
-echo "7.0.5 Lock Inactive User Accounts"
-echo "___CHECK___"
-useradd -D | grep INACTIVE
-if [[ "$(useradd -D | grep INACTIVE)" == "INACTIVE=35" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  useradd -D -f 35
-fi
-printf "\n\n"
-
-echo -e '### Set Shadow Password Suite Parameters (/etc/login.defs) ###\n\n'
-
-echo "7.1.1 Set Password Expiration Days"
-echo "___CHECK___"
-grep '^PASS_MAX_DAYS' /etc/login.defs
-if [[ "$(grep '^PASS_MAX_DAYS' /etc/login.defs | sed 's/\(\t\| \)//g')" == "PASS_MAX_DAYS90" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '/^PASS_MAX_DAYS/c\PASS_MAX_DAYS  90' /etc/login.defs
-fi
-printf "\n\n"
-
-echo "7.1.2 Set Password Change Minimum Number of Days"
-echo "___CHECK___"
-grep '^PASS_MIN_DAYS' /etc/login.defs
-if [[ "$(grep '^PASS_MIN_DAYS' /etc/login.defs | sed 's/\(\t\| \)//g')" == "PASS_MIN_DAYS7" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '/^PASS_MIN_DAYS/c\PASS_MIN_DAYS  7' /etc/login.defs
-fi
-printf "\n\n"
-
-echo "7.1.3 Set Password Expiring Warning Days"
-echo "___CHECK___"
-grep '^PASS_WARN_AGE' /etc/login.defs
-if [[ "$(grep '^PASS_WARN_AGE' /etc/login.defs | sed 's/\t//g')" == "PASS_WARN_AGE7" ]]; then
-  echo "Check PASSED"
-else
-  echo "Check FAILED, correcting ..."
-  echo "___SET___"
-  sed -i '/^PASS_WARN_AGE/c\PASS_WARN_AGE  7' /etc/login.defs
-fi
-printf "\n\n"
 
 if [[ ${KERNEL_UPDATE_MESSAGE} || ${JENKINS_UPDATE} == true ]]; then
   readonly LOG=${ABSOLUTE_SCRIPT_DIR}/safe_updates.log
