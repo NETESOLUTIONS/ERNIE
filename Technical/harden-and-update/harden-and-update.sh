@@ -4,12 +4,12 @@ usage() {
   cat << 'HEREDOC'
 NAME
 
-    harden-and-update.sh.sh -- harden a machine semi-automatically per included hardening checks and update packages
+    harden-and-update.sh -- harden a machine semi-automatically per included hardening checks and update packages
 
 SYNOPSIS
 
     sudo harden-and-update.sh [-k] [-m email] [-e excluded_dir] [-e ...] [-u unsafe_user] [-g unsafe_group] system_user
-    harden-and-update.sh.sh.sh -h: display this help
+    harden-and-update.sh -h: display this help
 
 DESCRIPTION
 
@@ -18,7 +18,7 @@ DESCRIPTION
 
     WARNING: Some checks incorporate site-specific policies. Review them before running in a new environment.
 
-    The current directory is used for logs and configuration file backups (e.g. `./2020-05-19-09-33-20.bak/*`).
+    The current directory is used for logs, progress, and configuration file backups (e.g. `./2020-05-19-09-33-20.bak/*`).
 
     The script would fail on the first problem that needs to be fixed manually. Correct the problem and re-run.
     The script should resume at the failing check.
@@ -107,7 +107,7 @@ shift $((OPTIND - 1))
 # Process positional parameters
 [[ $1 == "" ]] && usage
 readonly DEFAULT_OWNER_USER=$1
-readonly DEFAULT_OWNER_GROUP=$(id --group --name "${DEFAULT_OWNER_USER}")
+readonly DEFAULT_OWNER_GROUP=$(id --group --check_name "${DEFAULT_OWNER_USER}")
 
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
@@ -128,18 +128,34 @@ readonly MIN_NON_SYSTEM_UID
 
 yum clean expire-cache
 
-for f in "$SCRIPT_DIR"/functions/*.sh; do
+for function_script in "$SCRIPT_DIR"/functions/*.sh; do
   # shellcheck source=functions/*.sh
-  source "$f"
+  source "$function_script"
 done
 
 # Execute checks
-for f in "$SCRIPT_DIR"/checks-*/*.sh; do
-  # shellcheck source=hardening-checks*/*.sh
-  source "$f"
+for check_script in "$SCRIPT_DIR"/checks-*/*.sh; do
+  # Remove longest */ prefix
+  check_name_with_ext=${check_script##*/}
+
+  if [[ "${check_name_with_ext}" != *.* ]]; then
+    check_name_with_ext=${check_name_with_ext}.
+  fi
+
+  # Remove shortest .* suffix
+  check_name=${check_name_with_ext%.*}
+
+  progress_file="${check_name}.done"
+  if [[ -f "$progress_file" ]]; then
+    echo "Skipping : DONE"
+  else
+    # shellcheck source=hardening-checks*/*.sh
+    source "$check_script"
+    touch "$progress_file"
+  fi
 done
 
-if [[ $KERNEL_UPDATE ]]; # Install an updated kernel package if available
+if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
   yum --enablerepo=elrepo-kernel install -y kernel-ml python-perf
 
   kernel_version=$(uname -r)
@@ -151,7 +167,7 @@ if [[ $KERNEL_UPDATE ]]; # Install an updated kernel package if available
     echo "Check PASSED"
     if [[ $NOTIFICATION_ADDRESS ]]; then
       echo "The kernel version is up to date: v${kernel_version}" \
-          | mailx -S smtp=localhost -s "Hardening: kernel check" "$NOTIFICATION_ADDRESS"
+        | mailx -S smtp=localhost -s "Hardening: kernel check" "$NOTIFICATION_ADDRESS"
     fi
   else
     readonly KERNEL_UPDATE_MESSAGE="Kernel update from v${kernel_version} to v${latest_kernel_package_version}"
@@ -167,10 +183,12 @@ if [[ $KERNEL_UPDATE ]]; # Install an updated kernel package if available
 fi
 
 if [[ ${KERNEL_UPDATE_MESSAGE} || ${JENKINS_UPDATE} == true ]]; then
-  readonly LOG=${ABSOLUTE_SCRIPT_DIR}/update-reboot-safely.log
+  readonly LOG="${PWD}/update-reboot-safely.log"
   [[ ${KERNEL_UPDATE_MESSAGE} ]] && safe_update_options="-r "$KERNEL_UPDATE_MESSAGE" $safe_update_options"
   # shellcheck disable=SC2086 # Expanding `$safe_update_options` into multiple parameters
   "$SCRIPT_DIR/update-reboot-safely.sh" $safe_update_options >> "$LOG"
 fi
+
+rm -- *.done
 
 exit 0
