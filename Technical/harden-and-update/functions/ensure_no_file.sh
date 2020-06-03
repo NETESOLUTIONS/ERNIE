@@ -17,6 +17,7 @@ ensure_no_file() {
   else
     echo "Check FAILED, correcting ..."
     echo "___SET___"
+    backup "$file"
     rm "$file"
   fi
 }
