@@ -24,7 +24,7 @@ Mounted '${mount_point}' volumes:
 -----
 HEREDOC
     mount | pcregrep "on ${mount_point}"
-    cat << 'HEREDOC'
+    cat << HEREDOC
 -----
   * Add ${mount_option} to the mount options in /etc/fstab or /etc/systemd/system/local-fs.target.wants/{mount}.mount
   * Remount: mount -o remount,${mount_option} ${mount_point}
