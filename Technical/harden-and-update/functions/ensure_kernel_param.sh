@@ -14,7 +14,7 @@
 ########################################################################################################################
 ensure_kernel_param() {
   local param="$1"
-  local expected="${2}"
+  local expected="$param= = ${2}"
   local additional_correction="${3}"
   # shellcheck disable=SC2155
   local actual=$(sysctl "$param")
@@ -22,7 +22,7 @@ ensure_kernel_param() {
     echo "Check PASSED"
   else
     echo "Check FAILED"
-    echo "The actual value for $param: '$actual'"
+    echo "The actual value: '$actual'"
 
     echo "Correcting ..."
     echo "___SET___"

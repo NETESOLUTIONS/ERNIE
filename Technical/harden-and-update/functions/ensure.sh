@@ -47,7 +47,7 @@ ensure() {
       return 1
     fi
 
-    echo "Correcting ..."
+    echo "Correcting to ..."
     echo "___SET___"
     mapfile -t lines <<< "$expected"
     for line in "${lines[@]}"; do

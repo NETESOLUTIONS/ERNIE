@@ -19,7 +19,7 @@ backup() {
     if [[ ! -d "$target_dir" ]]; then
       mkdir -p "$target_dir"
 
-      chown "$DEFAULT_OWNER_USER:$DEFAULT_OWNER_GROUP" "$target_dir"
+      chown -R "$DEFAULT_OWNER_USER:$DEFAULT_OWNER_GROUP" "$BACKUP_DIR"
     fi
 
     # Don't overwrite if the absolute_file_name has been already backed up during the current run
