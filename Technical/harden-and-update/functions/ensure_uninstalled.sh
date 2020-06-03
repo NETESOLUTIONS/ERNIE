@@ -2,11 +2,11 @@
 
 ####################################################
 # Check and uninstall a package
+#
 # Arguments:
 #   $1  message
 #   $2  YUM package name
-# Returns:
-#   None
+#
 # Examples:
 #   ensure_uninstalled '3.9 Remove DNS Server' bind
 ####################################################

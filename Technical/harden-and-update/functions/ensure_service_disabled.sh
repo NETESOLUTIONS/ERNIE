@@ -2,10 +2,10 @@
 
 ##########################################
 # Check and disable system service
+#
 # Arguments:
 #   $1  service name
-# Returns:
-#   None
+#
 # Examples:
 #   ensure_service_disabled chargen-dgram
 ##########################################

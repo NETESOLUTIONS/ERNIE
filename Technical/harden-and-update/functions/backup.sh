@@ -3,6 +3,11 @@
 ########################################################################################################################
 # Backup into a unique backup directory if BACKUP_DIR is defined
 #
+# Globals:
+#   $BACKUP_DIR
+#   $DEFAULT_OWNER_USER
+#   $DEFAULT_OWNER_GROUP
+#
 # Arguments:
 #   $1 absolute absolute_file_name path
 #

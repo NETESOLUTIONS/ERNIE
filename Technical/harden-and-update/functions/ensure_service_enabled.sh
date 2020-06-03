@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 ########################################
-# enable system service
+# Check and enable system service
+#
 # Arguments:
 #   $1  service name
-# Returns:
-#   None
+#
 # Examples:
 #   ensure_service_enabled chargen-dgram
 ########################################
