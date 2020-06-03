@@ -14,7 +14,7 @@
 ########################################################################################################################
 ensure_kernel_param() {
   local param="$1"
-  local expected="$param= = ${2}"
+  local expected="$param = ${2}"
   local additional_correction="${3}"
   # shellcheck disable=SC2155
   local actual=$(sysctl "$param")
@@ -26,8 +26,8 @@ ensure_kernel_param() {
 
     echo "Correcting ..."
     echo "___SET___"
-    upsert /etc/sysctl.conf "^$param" "$param = $expected"
-    sysctl -w "$param=$expected"
+    upsert /etc/sysctl.conf "^$param" "$expected"
+    sysctl -w "$expected"
     [[ $additional_correction ]] && sysctl -w "$additional_correction"
   fi
 }
