@@ -6,7 +6,7 @@ while read -r unique_count uid; do
   if (( unique_count > 1 )); then
     echo "Check FAILED, correct this!"
     echo "Duplicate UID $uid for these users:"
-    gawk -F: '($3 == n) { print $1 }'" "n=$uid" /etc/passwd | xargs
+    gawk -F: '($3 == n) { print $1 }' "n=$uid" /etc/passwd | xargs
     exit 1
   fi
 done < <(cut -f3 -d":" /etc/passwd | sort -n | uniq -c)

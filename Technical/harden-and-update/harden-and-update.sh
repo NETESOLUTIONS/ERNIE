@@ -113,7 +113,7 @@ readonly DEFAULT_OWNER_GROUP=$(id --group --check_name "${DEFAULT_OWNER_USER}")
 readonly SCRIPT_DIR=${0%/*}
 readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 
-echo -e "\n## Running under ${USER}@${HOSTNAME} in ${PWD} ##\n"
+echo -e "\nharden-and-update.sh> running under ${USER}@${HOSTNAME} in ${PWD} \n"
 
 if ! command -v pcregrep > /dev/null; then
   echo "Please install pcregrep"
@@ -133,7 +133,7 @@ for function_script in "$SCRIPT_DIR"/functions/*.sh; do
   source "$function_script"
 done
 
-# Execute checks
+echo -e "\nExecuting checks...\n"
 for check_script in "$SCRIPT_DIR"/checks-*/*.sh; do
   # Remove longest */ prefix
   check_name_with_ext=${check_script##*/}
