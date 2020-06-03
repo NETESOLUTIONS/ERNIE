@@ -152,8 +152,10 @@ for check_script in "$SCRIPT_DIR"/checks-*/*.sh; do
   else
     # shellcheck source=checks-*/*.sh
     source "$check_script"
+
     touch "$progress_file"
-    chown "$DEFAULT_OWNER_USER:$DEFAULT_OWNER_GROUP" "$target_file"
+    chown "$DEFAULT_OWNER_USER:$DEFAULT_OWNER_GROUP" "$progress_file"
+    chmod g+w "$progress_file"
   fi
 done
 
