@@ -26,8 +26,9 @@ ensure_kernel_param() {
 
     echo "Correcting ..."
     echo "___SET___"
-    upsert /etc/sysctl.conf "^$param" "$expected"
-    sysctl -w "$expected"
+    # Spaces must be removed when setting the active kernel parameters: e.g. `sysctl -w net.ipv4.ip_forward=0`
+    sysctl -w "${expected// /}"
     [[ $additional_correction ]] && sysctl -w "$additional_correction"
+    upsert /etc/sysctl.conf "^$param" "$expected"
   fi
 }
