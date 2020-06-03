@@ -10,9 +10,9 @@
 #   ensure_no_file /etc/cron.deny
 ########################################################################################################################
 ensure_no_file() {
-  local file"$1"
+  local file="$1"
 
-  if [[ ! -f "file" ]]; then
+  if [[ ! -f "$file" ]]; then
     echo "Check PASSED"
   else
     echo "Check FAILED, correcting ..."
