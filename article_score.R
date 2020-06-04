@@ -4,6 +4,7 @@
 rm(list=ls())
 library(data.table)
 # read in data casting scp as character
+# for some reason data.table can be funny about bigints.
 x <- fread('xx.csv',colClasses=rep('character',4))
 # Count edges to target
 y <- x[,.(.N),by='target']
