@@ -192,7 +192,7 @@ if [[ $4 ]]; then
 
   declare -xi expected_batches=$((INPUT_RECS / BATCH_SIZE_REC))
   if ((INPUT_RECS % BATCH_SIZE_REC > 0)); then
-    ((expected_batches++))
+    ((++expected_batches))
   fi
   echo -e ", expected batches ≈ $expected_batches"
 
@@ -257,7 +257,7 @@ process_batch() {
   local param_rows cell
   local -i input_batch_recs=0
   while IFS=',' read -ra cells; do
-    ((input_batch_recs++))
+    ((++input_batch_recs))
 
     # Convert one record to a Cypher map
     if [[ $param_rows ]]; then
@@ -272,7 +272,7 @@ process_batch() {
       # Assume numeric input data. String input data should be double-quoted in Cypher.
       param_rows="${param_rows}${INPUT_COLUMNS[$i]}: $cell"
 
-      ((i++))
+      ((++i))
     done
     param_rows="$param_rows}"
   done
