@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="ERNIE2" uuid="df93c060-2be5-4b3f-8571-49aaf9b78609">
+    <data-source source="LOCAL" name="ERNIE2 @ a tunnel" uuid="df93c060-2be5-4b3f-8571-49aaf9b78609">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:55433/ernie</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="ernie2" uuid="a505b369-302e-473b-8555-f843dc69ad71">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>

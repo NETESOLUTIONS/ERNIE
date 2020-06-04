@@ -5,7 +5,7 @@
 SET search_path = :schema;
 \endif
 
-\include_relative ../../../Postgres/DDL/Functions/udf_try_parse.sql
+\include_relative ../../../Postgres/DDL/Functions/try_parse.sql
 
 \include_relative Procedures/stg_scopus_parse_abstracts_and_titles.sql
 \include_relative Procedures/stg_scopus_parse_authors_and_affiliations.sql

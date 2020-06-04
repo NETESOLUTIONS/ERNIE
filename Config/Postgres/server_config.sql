@@ -8,6 +8,7 @@ SET TIMEZONE = 'US/Eastern';
 
 /*
 Specifies the TCP/IP address(es) on which the server is to listen for connections from client applications.
+
 Default = localhost
 */
 ALTER SYSTEM SET listen_addresses = '*';
@@ -17,6 +18,8 @@ This parameter controls the average number of object locks allocated for each tr
 lock more objects as long as the locks of all transactions fit in the lock table.
 The default, 64, has historically proven sufficient, but you might need to raise this value if you have queries that
 touch many different tables in a single transaction, e.g. query of a parent table with many children.
+
+Default = 64
 */
 ALTER SYSTEM SET max_locks_per_transaction = 256;
 
@@ -27,17 +30,34 @@ If you have a dedicated database server with 1GB or more of RAM, a reasonable st
 of the memory in your system. There are some workloads where even large settings for shared_buffers are effective, but
 because PostgreSQL also relies on the operating system cache, it is unlikely that an allocation of more than 40% of RAM
 to shared_buffers will work better than a smaller amount.
+
+Default = 128MB
 */
 ALTER SYSTEM SET shared_buffers = '10 GB';
 
+-- region Logging
+
+ALTER SYSTEM SET log_filename = 'postgresql.log';
+
+-- Default = none
+-- 'mod' would log all DDL statements, plus DML such as INSERT, UPDATE, DELETE, TRUNCATE, and COPY FROM.
+-- It can produce very large logs and should be used only for troubleshooting
+ALTER SYSTEM SET log_statement = 'ddl';
+
+-- Default = %m [%p]
+ALTER SYSTEM SET log_line_prefix = '%m %q%u@%h (%a) ';
+
+-- Logs long lock waits
+-- Default = off
+ALTER SYSTEM SET log_lock_waits = on;
+
+-- endregion
 --endregion
 
 --region Configuration reload is required
 
-ALTER SYSTEM SET log_statement = 'ddl';
-
 /*
-Sets the planner's estimate of the cost of a non-sequentially-fetched disk page. The default is 4.0.
+Sets the planner's estimate of the cost of a non-sequentially-fetched disk page.
 This value can be overridden for tables and indexes in a particular tablespace by setting the tablespace parameter of
 the same name (see ALTER TABLESPACE).
 
@@ -55,12 +75,14 @@ better reflect the true cost of random storage reads. Correspondingly, if your d
 such as when the database is smaller than the total server memory, decreasing random_page_cost can be appropriate.
 Storage that has a low random read cost relative to sequential, e.g. solid-state drives, might also be better modeled
 with a lower value for random_page_cost.
+
+Default = 4
 */
 ALTER SYSTEM SET random_page_cost = 1;
 
 /*
 Specifies the amount of memory to be used by internal sort operations and hash tables before writing to temporary disk
-files. The value defaults to four megabytes (4MB).
+files.
 
 Postgres executor node-based work_mem management means that the peak space usage depends on the number of concurrent queries * number of executor nodes * number of parallel processes allowed * `work_mem`.
 
@@ -68,25 +90,33 @@ High values can cause Shared Memory to overflow on memory-intensive queries.
 Observed shared memory single query consumption max: 8.4 GB for `work_mem` = '512 MB', 8 CPU cores.
 
 The recommended setting ≈ {`/dev/shm` size} / { CPU cores } / 8.
+
+Default = 4MB
 */
 ALTER SYSTEM SET work_mem = '256 MB';
 
 /*
 Specifies the maximum amount of memory to be used by maintenance operations, such as VACUUM, CREATE INDEX, and
-ALTER TABLE ADD FOREIGN KEY. It defaults to 64 megabytes (64MB).
+ALTER TABLE ADD FOREIGN KEY.
+
+Default = 64MB
 */
 ALTER SYSTEM SET maintenance_work_mem = '2 GB';
 
 /*
 Maximum size to let the WAL grow to between automatic WAL checkpoints. This is a soft limit; WAL size can exceed
 max_wal_size under special circumstances, like under heavy load, a failing archive_command, or a high wal_keep_segments
-setting. The default is 1 GB.
+setting.
+
+Default = 1GB
 */
 ALTER SYSTEM SET max_wal_size = '2 GB';
 
+-- Default = ''
 ALTER SYSTEM SET temp_tablespaces = 'temp_tbs';
 
 -- Client Connection Default
+-- Default = ''
 ALTER SYSTEM SET default_tablespace = 'user_tbs';
 
 --endregion
