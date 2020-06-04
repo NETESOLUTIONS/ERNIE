@@ -14,7 +14,7 @@ JetBrains IDEs / Graph Database Support plug-in
 MATCH (p:Publication {node_id: $scp})<--(c:Publication)-[r]->(x:Publication)
 RETURN x.node_id AS scp, count(r) AS co_citations
 ORDER BY co_citations DESC, scp
-LIMIT 10;
+LIMIT 50;
 
 // 0.05s
 MATCH (p:Publication {node_id: $scp})<--(c:Publication)
