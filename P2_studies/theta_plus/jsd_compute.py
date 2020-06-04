@@ -24,6 +24,9 @@ start_cluster_num = argv[2]
 cluster_type = argv[3]
 max_cluster_num = argv[4]
 
+# p = mp.Pool(mp.cpu_count())
+p = mp.Pool(6)
+
 tmp_dir_list = ['imm1985', 'imm1995']
 for dir_name in tmp_dir_list:
 # for dir_name in dir_list[1:2]:
@@ -44,11 +47,7 @@ for dir_name in tmp_dir_list:
         max_val = int(max_cluster_num)
     
     data_text = cluster_df.merge(all_text_data, left_on='scp', right_on='scp', how='left')[['scp', 'title', 'abstract_text', 'cluster_no']]
-    
     save_name = '/home/shreya/mcl_jsd/immunology/JSD_output_' +  dir_name + '_' + cluster_type + ".csv" 
-    
-    # p = mp.Pool(mp.cpu_count())
-    p = mp.Pool(6)
     
     for cluster_num in range(int(start_cluster_num), max_val+1):
         

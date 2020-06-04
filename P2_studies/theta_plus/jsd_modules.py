@@ -20,7 +20,6 @@ from ast import literal_eval
 import multiprocessing as mp
 import time
 from scipy import sparse
-import preprocess_text.py
 
 
 # ------------------------------------------------------------------------------------ #
@@ -369,14 +368,5 @@ def random_jsd_range(row):
     if type(row)==list:
         return np.max(row)-np.min(row)
     
-def add_random_jsd_list(jsd_size):
-    random_jsd_list = jsd_random_output_unshuffled['random_jsd'][jsd_random_output_unshuffled['cluster_size']==jsd_size].values[0]
-    return random_jsd_list
+# ------------------------------------------------------------------------------------ #
 
-def add_mean_random_jsd(jsd_size):
-    random_jsd_list = jsd_random_output_unshuffled['mean_random_jsd'][jsd_random_output_unshuffled['cluster_size']==jsd_size].values[0]
-    return random_jsd_list
-
-def add_random_jsd_range(jsd_size):
-    random_jsd_list = jsd_random_output_unshuffled['random_jsd_range'][jsd_random_output_unshuffled['cluster_size']==jsd_size].values[0]
-    return random_jsd_list

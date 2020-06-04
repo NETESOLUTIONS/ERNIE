@@ -1,19 +1,15 @@
-import numpy as np
-import swifter 
-import glob
 import os
 import pandas as pd
 from sys import argv
-from ast import literal_eval
 
-rootdir = argv[1] # ---> /erniedev_data3/theta_plus/imm/
+rootdir = '/erniedev_data3/theta_plus/imm/'
 dir_list = sorted(os.listdir(rootdir))
-cluster_type = argv[2]
+cluster_type = argv[1]
 
-tmp_dir_list = ['imm1990']
+tmp_dir_list = ['imm1985', 'imm1990', 'imm1995']
 for dir_name in tmp_dir_list:
 # for dir_name in dir_list:
-
+    print(f'Working on {dir_name}')
     if cluster_type == 'unshuffled':
         cluster_path = rootdir + dir_name + '/dump.' + dir_name + '_testcase_asjc2403_citing_cited.mci.I20.csv'
     elif cluster_type == 'shuffled':
@@ -28,7 +24,7 @@ for dir_name in tmp_dir_list:
 
     conductance_data = conductance_data[['citing', 'cited', 'citing_cluster', 'cited_cluster']]
 
-    conductance_counts_data = unshuffled_cluster_data.groupby('cluster_no', as_index=False).agg('count').rename(columns={'cluster_no':'cluster', 'scp':'cluster_counts'})
+    conductance_counts_data = cluster_data.groupby('cluster_no', as_index=False).agg('count').rename(columns={'cluster_no':'cluster', 'scp':'cluster_counts'})
 
     conductance_x1 = conductance_data[conductance_data.cited_cluster != conductance_data.citing_cluster][['citing', 'citing_cluster']].groupby('citing_cluster', as_index=False).agg('count').rename(columns = {'citing': 'ext_out'})
     conductance_x2 = conductance_data[conductance_data.cited_cluster != conductance_data.citing_cluster][['cited', 'cited_cluster']].groupby('cited_cluster', as_index=False).agg('count').rename(columns = {'cited': 'ext_in'})
@@ -52,3 +48,5 @@ for dir_name in tmp_dir_list:
     
     save_name = '/home/shreya/mcl_jsd/immunology/JSD_conductance_output_' + dir_name + '_' + cluster_type + '.csv'
     conductance_x5.to_csv(save_name, index = None, header=True, encoding='utf-8')
+    
+print("All completed.")
