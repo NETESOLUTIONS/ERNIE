@@ -22,8 +22,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS test_one_million_pairs_frequency
 (
   cited_1 BIGINT,
   cited_2 BIGINT,
-  frequency INT,
-  CONSTRAINT test_one_million_pairs_frequency_pk PRIMARY KEY (cited_1, cited_2) USING INDEX TABLESPACE index_tbs
+  frequency INT
 );
 
 DO
