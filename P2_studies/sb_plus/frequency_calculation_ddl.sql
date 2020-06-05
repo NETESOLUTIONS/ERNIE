@@ -1,3 +1,7 @@
+-- Create table for co-cited pairs and another table for storing the result of frequency calculation
+
+SET TIMEZONE = 'US/Eastern';
+
 SET SEARCH_PATH = wenxi;
 
 CREATE UNLOGGED TABLE IF NOT EXISTS test_one_million_pairs
