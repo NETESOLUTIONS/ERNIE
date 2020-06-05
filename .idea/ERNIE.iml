@@ -2,19 +2,18 @@
 <module type="DBE_MODULE" version="4">
   <component name="FacetManager">
     <facet type="Python" name="Python facet">
-      <configuration sdkName="Python 3" />
+      <configuration sdkName="" />
     </facet>
   </component>
   <component name="NewModuleRootManager">
-    <content url="file://$USER_HOME$/Documents/mcl" />
-    <content url="file://$APPLICATION_CONFIG_DIR$/projects/ERNIE" />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/Interfaces/GraphQL/src" isTestSource="false" />
     </content>
+    <content url="file://$USER_HOME$/Documents/mcl" />
+    <content url="file://$APPLICATION_CONFIG_DIR$/projects/ERNIE" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="R User Library" level="project" />
     <orderEntry type="library" name="R Skeletons" level="application" />
-    <orderEntry type="library" name="Python 3 interpreter library" level="application" />
   </component>
 </module>
