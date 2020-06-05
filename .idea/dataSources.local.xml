@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="dataSourceStorageLocal">
-    <data-source name="ERNIE2" uuid="df93c060-2be5-4b3f-8571-49aaf9b78609">
+    <data-source name="ERNIE2" uuid="a747249f-6582-448c-9fc1-e6b0f6ce89cd">
       <database-info product="PostgreSQL" version="12.3" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.5" dbms="POSTGRES" exact-version="12.3" exact-driver-version="42.2">
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>
       <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
       <secret-storage>master_key</secret-storage>
-      <user-name>wenxi</user-name>
+      <user-name>chackoge</user-name>
       <schema-mapping>
         <introspection-scope>
           <node negative="1">
@@ -16,11 +16,8 @@
             </node>
             <node kind="database" qname="ernie">
               <node kind="schema">
-                <name qname="@" />
-                <name qname="cc2" />
-                <name qname="chackoge" />
-                <name qname="jenkins" />
                 <name qname="public" />
+                <name qname="theta_plus" />
               </node>
             </node>
           </node>
