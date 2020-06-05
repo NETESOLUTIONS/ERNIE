@@ -21,6 +21,7 @@ COPY test_one_million_pairs FROM '/erniedev_data2/jenkins_home/workspace/ERNIE-N
 SELECT cited_1, cited_2, COUNT(*) FROM cte
  GROUP BY cited_1, cited_2;*/
 
+
 CREATE OR REPLACE FUNCTION calculate_frequency() RETURNS TABLE (cited_1 BIGINT, cited_2 BIGINT, frequency INT)
   LANGUAGE plpgsql AS
 $func$
