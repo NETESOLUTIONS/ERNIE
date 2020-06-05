@@ -10,16 +10,13 @@ CREATE UNLOGGED TABLE IF NOT EXISTS test_one_million_pairs
 COPY test_one_million_pairs FROM '/erniedev_data2/jenkins_home/workspace/ERNIE-Neo4j-sb-plus/build/test_1000000.csv' CSV HEADER;
 
 -- Query for calculate frequency
-/*  WITH cte AS (
-    SELECT sr.scp, tomp.cited_1, tomp.cited_2 FROM test_one_million_pairs tomp
-    INNER JOIN public.scopus_references sr
-               ON tomp.cited_1 = sr.ref_sgr
-     WHERE (scp, cited_2) IN (SELECT sr.scp, sr.ref_sgr
-                                FROM public.scopus_references sr
-                               WHERE tomp.cited_2 = sr.ref_sgr)
-  )
-SELECT cited_1, cited_2, COUNT(*) FROM cte
- GROUP BY cited_1, cited_2;*/
+/*  SELECT tomp.cited_1, tomp.cited_2, COUNT(1)
+  FROM test_one_million_pairs tomp
+  JOIN scopus_references sr1
+       ON sr1.ref_sgr = tomp.cited_1
+  JOIN scopus_references sr2
+       ON sr2.scp = sr1.scp AND sr2.ref_sgr = tomp.cited_2;
+    */
 
 DO
 $do$
@@ -30,14 +27,12 @@ $do$
     FOR cited_1, cited_2 IN
       SELECT * FROM test_one_million_pairs LIMIT 1000
     LOOP
-      EXECUTE 'WITH cte AS (SELECT sr.scp, tomp.cited_1, tomp.cited_2 FROM test_one_million_pairs tomp
-              INNER JOIN public.scopus_references sr
-              ON tomp.cited_1 = sr.ref_sgr
-              WHERE (scp, cited_2) IN (SELECT sr.scp, sr.ref_sgr
-              FROM public.scopus_references sr
-              WHERE tomp.cited_2 = sr.ref_sgr))
-        SELECT cited_1, cited_2, COUNT(*) FROM cte
-        GROUP BY cited_1, cited_2';
+      EXECUTE 'SELECT tomp.cited_1, tomp.cited_2, COUNT(1)
+              FROM test_one_million_pairs tomp
+              JOIN scopus_references sr1
+              ON sr1.ref_sgr = tomp.cited_1
+              JOIN scopus_references sr2
+              ON sr2.scp = sr1.scp AND sr2.ref_sgr = tomp.cited_2;';
     END LOOP;
   END
 $do$;
