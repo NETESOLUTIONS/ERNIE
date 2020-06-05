@@ -2,8 +2,10 @@
 echo "6.1.11 Ensure no unowned files or directories exist"
 echo "6.1.12 Ensure no ungrouped files or directories exist"
 echo "____CHECK____"
-#rm -f ownership_issues.log
-printf -v EXCLUDE_DIR_OPTION -- '-not -path *%s/* ' "${exclude_dirs[@]}"
+if [[ $exclude_dirs ]]; then
+  echo "Excluding: ${exclude_dirs[*]}"
+  printf -v EXCLUDE_DIR_OPTION -- '-not -path *%s/* ' "${exclude_dirs[@]}"
+fi
 
 unset issues_found
 # -xdev Don't descend directories on other filesystems

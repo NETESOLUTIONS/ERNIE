@@ -133,3 +133,9 @@ P2_studies/theta_plus/.ipynb_checkpoints/jsd_random-checkpoint.py
 P2_studies/theta_plus/.ipynb_checkpoints/conductance-checkpoint.py
 P2_studies/theta_plus/.ipynb_checkpoints/jsd_compute-checkpoint.py
 P2_studies/theta_plus/.ipynb_checkpoints/jsd_modules-checkpoint.py
+P2_studies/theta_plus/.ipynb_checkpoints/jsd_coherence-checkpoint.py
+P2_studies/theta_plus/.ipynb_checkpoints/jsd_conductance-checkpoint.py
+*.pyc
+P2_studies/theta_plus/.ipynb_checkpoints/compute_article_score-checkpoint.py
+P2_studies/theta_plus/.ipynb_checkpoints/compute_conductance-checkpoint.py
+P2_studies/theta_plus/.ipynb_checkpoints/final_output-checkpoint.py

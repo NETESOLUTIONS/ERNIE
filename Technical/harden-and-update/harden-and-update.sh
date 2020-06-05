@@ -32,7 +32,7 @@ DESCRIPTION
 
     -e excluded_dir         Directory(-ies) excluded from the ownership and system executables check.
                             This is needed for mapped Docker container dirs.
-                            The Docker home (if Docker is installed) is excluded automatically.
+                            Docker system directories (if Docker is installed) are excluded automatically.
 
     -k                      Update Linux kernel to the latest LTS version.
                             Reboot safely and notify `notification_address` by email when kernel is updated.
@@ -76,7 +76,8 @@ set -o pipefail
 # Check if Docker is installed
 readonly DOCKER_HOME=$(docker info 2> /dev/null | pcregrep -o1 'Docker Root Dir: (.+)')
 if [[ ${DOCKER_HOME} ]]; then
-  exclude_dirs=("${DOCKER_HOME}")
+  # See https://stackoverflow.com/questions/46672001/is-it-safe-to-clean-docker-overlay2 for more on `/var/lib/docker`
+  exclude_dirs=("${DOCKER_HOME}" /var/lib/docker)
 else
   exclude_dirs=()
 fi

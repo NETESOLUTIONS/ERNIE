@@ -9,18 +9,11 @@ import sklearn
 import numpy as np
 import swifter  # Makes applying to datframe as fast as vectorizing
 from nltk.probability import FreqDist
-import string
-import glob
 import os
 import pandas as pd
 import nltk
-import re
-from sys import argv
 from ast import literal_eval
-import multiprocessing as mp
-import time
 from scipy import sparse
-import preprocess_text.py
 
 
 # ------------------------------------------------------------------------------------ #
@@ -216,10 +209,6 @@ def calculate_jsd(doc_prob_vec, cluster_prob_vec):
     
     return jsd
 
-# ------------------------------------------------------------------------------------ #
-
-def fix_eval_issue(doc):
-    return literal_eval(doc)
 
 # ------------------------------------------------------------------------------------ #
 
@@ -356,3 +345,22 @@ def random_jsd(jsd_size, sample_data, repeat):
         random_jsd = None
     
     return random_jsd
+
+# ------------------------------------------------------------------------------------ #
+
+# ------ Evaluation Functions ------ #
+
+def fix_eval_issue(doc):
+    if doc != 'nan':
+        return literal_eval(doc)
+    
+def compute_mean(row):
+    if type(row)==list:
+        return np.mean(row)
+    
+def random_jsd_range(row):
+    if type(row)==list:
+        return np.max(row)-np.min(row)
+    
+
+

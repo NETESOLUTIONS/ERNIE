@@ -11,16 +11,13 @@
 #   $1  permission mask for `find -perm`
 #   $2  permission name. A whitelist is read from `${ABSOLUTE_SCRIPT_DIR}/server-whitelists/$2-whitelist.txt`.
 #
-# Returns:
-#   None
-#
 # Examples:
 #   ensure_whitelisting_of_special_file_perm 4000 SUID
 #################################################################
 ensure_whitelisting_of_special_file_perm() {
   local perm_mask="$1"
   local perm_name="$2"
-  local whitelist="${ABSOLUTE_SCRIPT_DIR}/server-white-lists/${perm_name}-whitelist.txt"
+  local whitelist="${ABSOLUTE_SCRIPT_DIR}/server-whitelists/${perm_name}-whitelist.txt"
 
   echo "____CHECK____"
   echo "Excluding ${EXCLUDE_DIRS}"
