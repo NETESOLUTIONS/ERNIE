@@ -1,11 +1,8 @@
-import numpy as np
 import swifter
 import jsd_modules as jm
-import glob
 import os
 import pandas as pd
 from sys import argv
-from ast import literal_eval
 
 # -------------------------------------------------------------------------
 
@@ -20,9 +17,9 @@ dir_list = sorted(os.listdir(rootdir))
 
 cluster_type = argv[1]
 
-tmp_dir_list = ['imm1985', 'imm1990', 'imm1995']
-for dir_name in tmp_dir_list:
-# for dir_name in dir_list:
+#tmp_dir_list = ['imm1985', 'imm1990', 'imm1995']
+#for dir_name in tmp_dir_list:
+for dir_name in dir_list:
 
     print(f'Working on {dir_name}')
     jsd_output_name = '/home/shreya/mcl_jsd/immunology/' +dir_name+ '/JSD_output_' + dir_name + '_' + cluster_type + '.csv'
@@ -41,5 +38,7 @@ for dir_name in tmp_dir_list:
     jsd_output_data = jsd_output_data.merge(jsd_random_output, left_on='pre_jsd_size', right_on = 'cluster_size', how='left')
     jsd_output_data['jsd_coherence'] = jsd_output_data['mean_random_jsd'] - jsd_output_data['mean_jsd']
 
-    save_name = '/home/shreya/mcl_jsd/immunology/JSD_final_result_' + dir_name + '_' + cluster_type + '.csv'
+    save_name = '/home/shreya/mcl_jsd/immunology/results/JSD_final_result_' + dir_name + '_' + cluster_type + '.csv'
     jsd_output_data.to_csv(save_name, index = None, header=True, encoding='utf-8')
+
+print("All complete.")

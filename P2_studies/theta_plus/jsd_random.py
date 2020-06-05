@@ -6,6 +6,24 @@ from glob import glob
 from sys import argv
 import os
 
+with open('/home/shreya/mcl_jsd/ernie_password.txt') as f:
+    ernie_password = f.readline()
+
+schema = "theta_plus"
+sql_scheme = 'postgresql://shreya:' + ernie_password + '@localhost:5432/ernie'
+engine = create_engine(sql_scheme)
+
+rootdir = '/erniedev_data3/theta_plus/imm/'
+dir_list = sorted(os.listdir(rootdir))
+
+# name = argv[1]
+# val = argv[2]
+name = 'now'
+val = '20'
+start_cluster_num = int( argv[1])
+max_cluster_num = argv[2]
+cluster_type = argv[3]
+repeat = int(argv[4])
 
 jsd_output_column_names = ['weight', 'inflation', 'cluster', 'total_size', 'pre_jsd_size',
        'missing_values', 'post_jsd_size', 'jsd_nans', 'mean_jsd', 'min_jsd',
@@ -16,33 +34,17 @@ jsd_output_column_names = ['weight', 'inflation', 'cluster', 'total_size', 'pre_
 with open('/home/shreya/mcl_jsd/ernie_password.txt') as f:
     ernie_password = f.readline()
 
-schema = "theta_plus"
-sql_scheme = 'postgresql://shreya:' + ernie_password + '@localhost:5432/ernie'
-engine = create_engine(sql_scheme)
-
-rootdir = argv[1] # ---> /erniedev_data3/theta_plus/imm/
-dir_list = sorted(os.listdir(rootdir))
-
-# name = argv[1]
-# val = argv[2]
-name = 'now'
-val = '20'
-start_cluster_num = int(argv[2])
-cluster_type = argv[3]
-max_cluster_num = argv[4]
-repeat = int(argv[5])
-
 # p = mp.Pool(mp.cpu_count())
 p = mp.Pool(6)
 
-tmp_dir_list = ['imm1985', 'imm1995']
-for dir_name in tmp_dir_list:
-#for dir_name in dir_list[1:2]:
+#tmp_dir_list = ['imm1985', 'imm1995']
+#for dir_name in tmp_dir_list:
+for dir_name in dir_list:
 
     title_abstracts_table = dir_name + '_title_abstracts'
     all_text_data = pd.read_sql_table(table_name=title_abstracts_table, schema=schema, con=engine)
 
-    jsd_output_file_name = '/home/shreya/mcl_jsd/immunology/JSD_output_' + dir_name + '_'  + cluster_type + '.csv'
+    jsd_output_file_name = '/home/shreya/mcl_jsd/immunology/' + dir_name + '/JSD_output_' + dir_name + '_'  + cluster_type + '.csv'
     jsd_output_data = pd.read_csv(jsd_output_file_name, names = jsd_output_column_names)
 
     cluster_counts_table = jsd_output_data[['cluster', 'pre_jsd_size']].groupby('pre_jsd_size', as_index = False).agg('count').rename(columns={'cluster':'frequency', 'pre_jsd_size':'cluster_size'}).sort_values('cluster_size', ascending=False)
@@ -56,7 +58,7 @@ for dir_name in tmp_dir_list:
     # jsd_data = jsd[(jsd['weight'] == name) & (jsd['inflation'] == int(val))]
     # jsd_data['random_jsd'] = 0
 
-    save_name = '/home/shreya/mcl_jsd/immunology/JSD_random_output_' +  dir_name + '_' + cluster_type + '.csv'
+    save_name = '/home/shreya/mcl_jsd/immunology/' + dir_name + '/JSD_random_output_' +  dir_name + '_' + cluster_type + '.csv'
 
     for cluster_num in range(start_cluster_num-1, max_val):
         print("")
