@@ -4,7 +4,7 @@
 # Check for non-whitelisted executables with special permissions
 #
 # Globals:
-#   $EXCLUDE_DIRS
+#   $exclude_dirs array
 #   $ABSOLUTE_SCRIPT_DIR
 #
 # Arguments:
@@ -20,27 +20,21 @@ ensure_whitelisting_of_special_file_perm() {
   local whitelist="${ABSOLUTE_SCRIPT_DIR}/server-whitelists/${perm_name}-whitelist.txt"
 
   echo "____CHECK____"
-  echo "Excluding ${EXCLUDE_DIRS}"
+  echo "Excluding ${exclude_dirs[*]}"
 
-  #  check_home=$(df --local --output=target | tail -n +2 | \
-  #     xargs -I '{}' find '{}' ${EXCLUDE_DIRS} -xdev -type f -perm -$1 -print | \
-  #     grep -e "^/home")
-  #
-  #  for path in $check_home
-  #  do
+  local exclude_dir_option
+  printf -v exclude_dir_option -- '-not -path *%s/* ' "${exclude_dirs[@]}"
   #    parent=$(echo $path | cut -d/ -f 1-4)
   #    if [[ $(stat -c "%a" $parent) == 700 ]]; then
   #      [[ ${FINAL_EXCLUDE_DIRS} ]] && FINAL_EXCLUDE_DIRS="${FINAL_EXCLUDE_DIRS} " || FINAL_EXCLUDE_DIRS="${EXCLUDE_DIRS} "
   #      FINAL_EXCLUDE_DIRS="${FINAL_EXCLUDE_DIRS}-not -path $path"
   #    fi
-  #  done
-  #  [[ -z ${FINAL_EXCLUDE_DIRS} ]] && FINAL_EXCLUDE_DIRS="${EXCLUDE_DIRS}"
 
   unset check_failed
   # -xdev  Don't descend directories on other filesystems
   coproc { df --local --output=target \
     | tail -n +2 \
-    | xargs -I '{}' find '{}' "${FINAL_EXCLUDE_DIRS}" -xdev -type f -perm "-$perm_mask" -print \
+    | xargs -I '{}' find '{}' "${exclude_dir_option}" -xdev -type f -perm "-$perm_mask" -print \
     | grep -F --line-regexp --invert-match "--file=$whitelist" || :; }
   # As of Bash 4, `COPROC_PID` has to be saved before it gets reset on process termination
   _co_pid=$COPROC_PID
