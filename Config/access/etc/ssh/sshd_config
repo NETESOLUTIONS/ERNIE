@@ -20,7 +20,7 @@
 #ListenAddress ::
 
 # The default requires explicit activation of protocol 1
-#Protocol 2
+Protocol 2
 
 # HostKey for protocol version 1
 #HostKey /etc/ssh/ssh_host_key
@@ -41,7 +41,7 @@ HostKey /etc/ssh/ssh_host_ed25519_key
 # obsoletes QuietMode and FascistLogging
 #SyslogFacility AUTH
 SyslogFacility AUTHPRIV
-#LogLevel INFO
+LogLevel INFO
 
 # Authentication:
 
@@ -51,7 +51,7 @@ LoginGraceTime 60
 # half this value, additional failures are logged.  The default is 6.
 MaxAuthTries 4
 
-#PermitEmptyPasswords no
+PermitEmptyPasswords no
 #StrictModes yes
 #MaxSessions 10
 
@@ -72,13 +72,13 @@ AuthorizedKeysFile	.ssh/authorized_keys
 
 # Specifies whether rhosts or /etc/hosts.equiv authentication together with successful public key client host
 # authentication is allowed (host-based authentication).  The default is no.
-#HostbasedAuthentication no
+HostbasedAuthentication no
 # Change to yes if you don't trust ~/.ssh/known_hosts for
 # RhostsRSAAuthentication and HostbasedAuthentication
 
 # Specifies that .rhosts and .shosts files will not be used in HostbasedAuthentication. /etc/hosts.equiv and
 # /etc/ssh/shosts.equiv are still used. The default is yes.
-#IgnoreRhosts yes
+IgnoreRhosts yes
 
 # Don't read the user's ~/.rhosts and ~/.shosts files
 #IgnoreUserKnownHosts no
@@ -119,7 +119,7 @@ PermitRootLogin no
 #AllowAgentForwarding yes
 #AllowTcpForwarding yes
 #GatewayPorts no
-X11Forwarding yes
+X11Forwarding no
 X11UseLocalhost no
 #X11DisplayOffset 10
 #PermitTTY yes
@@ -128,7 +128,7 @@ X11UseLocalhost no
 #TCPKeepAlive yes
 #UseLogin no
 UsePrivilegeSeparation sandbox		# Default for new installations.
-#PermitUserEnvironment no
+PermitUserEnvironment no
 #Compression delayed
 ClientAliveInterval 3600
 ClientAliveCountMax 0
@@ -162,7 +162,6 @@ AllowGroups erniecore ernieusers
 
 # Digital Ocean Google  Authenticator Stuff
 #ClientAliveInterval 120
-#ClientAliveCountMax 2
 AuthenticationMethods publickey,password publickey,keyboard-interactive
 GatewayPorts yes
 # Disable 2FA for all intranet private IPs (10.0.0.*) only

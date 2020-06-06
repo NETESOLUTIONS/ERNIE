@@ -32,10 +32,11 @@ ensure_whitelisting_of_special_file_perm() {
 
   unset check_failed
   # -xdev  Don't descend directories on other filesystems
+  # shellcheck disable=SC2086 # Don't quote `exclude_dir_option` to expand it into multiple parameters.
   coproc { df --local --output=target \
     | tail -n +2 \
-    | xargs -I '{}' find '{}' "${exclude_dir_option}" -xdev -type f -perm "-$perm_mask" -print \
-    | grep -F --line-regexp --invert-match "--file=$whitelist" || :; }
+    | xargs -I '{}' find '{}' ${exclude_dir_option} -xdev -type f -perm "-$perm_mask" -print \
+    | grep -F --line-regexp --invert-match "--file=$whitelist"; }
   # As of Bash 4, `COPROC_PID` has to be saved before it gets reset on process termination
   _co_pid=$COPROC_PID
   while IFS= read -r file; do

@@ -5,12 +5,11 @@
 # Arguments:
 #   $1  file
 #
-#   $2  configuration key: a PCRE sub-string pattern.
+#   $2  configuration key: an ERE sub-string pattern.
 #
-#   $3  (optional) expected configuration line(s): a string or a glob pattern
-#       Omitting this or using a glob pattern (`*`, `?`, `[...]` characters) switches function to the assert mode: check
-#       and-fail if the key is not found.
-#       Multiple lines are each checked separately.
+#   $3  (optional) expected configuration line(s): a string or a glob pattern. Multiple lines are each set in the file.
+#       Omitting this or using a glob pattern (`*`, `?`, `[...]` characters) switches function to the assert mode:
+#       assert 1) that the key is there and 2) that is matches the glob pattern when provided.
 #
 #   $4 (optional) `^` to prepend the line. Defaults to appending.
 #
@@ -36,9 +35,9 @@ ensure() {
   local expected="$3"
   local insertion_mode="$4"
   # shellcheck disable=SC2155
-  local actual=$(pcregrep "$pattern" "$file")
+  local actual=$(grep -E "$pattern" "$file")
   # shellcheck disable=SC2053 # Support globs in `$expected`
-  if [[ "$actual" == $expected ]]; then
+  if [[ $expected && "$actual" == $expected || ! $expected && $actual ]]; then
     echo "Check PASSED"
   else
     echo "Check FAILED"
@@ -56,7 +55,7 @@ ensure() {
       if [[ "$insertion_mode" == "$PREPEND_INSERTION" ]]; then
         upsert "$file" '^' "$line"
       else
-        upsert "$file" "^$line$" "$line"
+        upsert "$file" "$pattern" "$line"
       fi
     done
   fi
