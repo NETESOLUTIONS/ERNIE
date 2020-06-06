@@ -157,10 +157,12 @@ for check_script in "$SCRIPT_DIR"/checks-*/*.sh; do
     chmod g+w "$progress_file"
   fi
 done
+echo "All checks PASSED"
 
 if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
-  yum clean expire-cache
+  echo -e "\n Checking for kernel updates"
 
+  yum clean expire-cache
   # ELRepo repository must hve been installed
   # `kernel-lt`: Long Term Support (LTS) version, `kernel-ml`: the mainline version
   # TBD `python-perf` package might be needed

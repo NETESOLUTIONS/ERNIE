@@ -151,23 +151,16 @@ AcceptEnv XMODIFIERS
 # override default of no subsystems
 Subsystem	sftp	/usr/libexec/openssh/sftp-server
 
-# Example of overriding settings on a per-user basis
-#Match User anoncvs
-#	X11Forwarding no
-#	AllowTcpForwarding no
-#	PermitTTY no
-#	ForceCommand cvs server
-
 AllowGroups erniecore ernieusers
 
-# Digital Ocean Google  Authenticator Stuff
-#ClientAliveInterval 120
+## Digital Ocean Google Authenticator ##
 AuthenticationMethods publickey,password publickey,keyboard-interactive
 GatewayPorts yes
 # Disable 2FA for all intranet private IPs (10.0.0.*) only
 Match Address 10.0.0.0/24
         AuthenticationMethods password publickey
 
+# Overriding settings for his group
 Match group ftpusers
 	PasswordAuthentication yes
 	ChrootDirectory /erniedev_data4/ftp
@@ -175,4 +168,3 @@ Match group ftpusers
 	PermitTunnel no
 	AllowAgentForwarding no
 	AllowTcpForwarding no
-	X11Forwarding no
