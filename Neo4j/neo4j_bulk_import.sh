@@ -3,7 +3,7 @@ if [[ $1 == "-h" || $# -lt 5 ]]; then
   cat <<'HEREDOC'
 NAME
 
-  neo4j_bulk_import.sh -- loads CSVs in bulk to Neo4j
+  neo4j_bulk_import.sh -- loads CSVs in bulk to Neo4j 4+
 
 SYNOPSIS
 
@@ -66,8 +66,8 @@ db_name="${DB_PREFIX}v${db_ver}.db"
 # `java.io.FileNotFoundException: import.report (Permission denied)` error
 echo "$USER_PASSWORD" | sudo --stdin -u neo4j bash -c "set -xe
   echo 'Loading data into ${db_name}'
-  neo4j-admin import --nodes:${NODE_LABEL} '${NODES_FILE}' --id-type INTEGER \\
-    --relationships:${EDGE_LABEL} '${EDGES_FILE}' --database='${db_name}'"
+  neo4j-admin import '--nodes=${NODE_LABEL}=${NODES_FILE}' --id-type=INTEGER \\
+    '--relationships=${EDGE_LABEL}=${EDGES_FILE}' '--database=${db_name}'"
 
 "${ABSOLUTE_SCRIPT_DIR}/neo4j_switch_db.sh" "${db_name}" "$USER_PASSWORD"
 
