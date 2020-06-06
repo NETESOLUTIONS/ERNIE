@@ -8,7 +8,7 @@ NAME
 
 SYNOPSIS
 
-    sudo harden-and-update.sh [-e excluded_dir] [-e ...] [-k] [-m email] [-u unsafe_user] [-g unsafe_group] system_user
+    sudo harden-and-update.sh [-e excluded_dir] [-e ...] [-k] [-m email] [-u unsafe_user] [-g unsafe_group] system_usersudo harden-and-update.sh [-e excluded_dir] [-e ...] [-k] [-m email] [-u unsafe_user] [-g unsafe_group] system_user
     harden-and-update.sh -h: display this help
 
 DESCRIPTION
