@@ -31,16 +31,9 @@ ensure_whitelisting_of_special_file_perm() {
   #    fi
 
   unset check_failed
-  # -xdev  Don't descend directories on other filesystems
-   parameters.
-   { df --local --output=target \
-    | tail -n +2 \
-    | xargs -I '{}' find '{}' ${exclude_dir_option} -xdev -type f -perm "-$perm_mask" -print \
-    | grep -F --line-regexp --invert-match "--file=$whitelist" \
-    || (( PIPESTATUS[3] >= 2 ));
-  }
   local -r GREP_PIPELINE_INDEX=3
-  # shellcheck disable=SC2086 # Don't quote `exclude_dir_option` to expand it into multiple
+  # `find -xdev`: don't descend directories on other filesystems
+  # shellcheck disable=SC2086 # Don't quote `exclude_dir_option` to expand it into multiple params
   coproc { if ! df --local --output=target \
     | tail -n +2 \
     | xargs -I '{}' find '{}' ${exclude_dir_option} -xdev -type f -perm "-$perm_mask" -print \
