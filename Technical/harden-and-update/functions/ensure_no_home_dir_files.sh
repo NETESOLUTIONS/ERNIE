@@ -10,9 +10,9 @@
 #   None
 #
 # Examples:
-#   ensure_no_file /etc/cron.deny
+#   ensure_no_home_dir_files /etc/cron.deny
 ##################################################################################
-ensure_no_file() {
+ensure_no_home_dir_files() {
   local file_name="$1"
 
   echo "____CHECK____"
