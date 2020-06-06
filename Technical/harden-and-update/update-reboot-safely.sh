@@ -102,8 +102,9 @@ enable_cron_job() {
 
     # Append the job to `crontab`
     # Use `flock` to prevent launching of additional processes if the first launch hasn't finished for some reason
-    { crontab -l;
-      echo "*/10 * * * * flock --nonblock $ABSOLUTE_SCRIPT_DIR/$SCRIPT_NAME.lock sudo $ABSOLUTE_SCRIPT_DIR/$SCRIPT_NAME_WITH_EXT $* >> $LOG";
+    {
+      crontab -l
+      echo "*/10 * * * * flock --nonblock $ABSOLUTE_SCRIPT_DIR/$SCRIPT_NAME.lock sudo $ABSOLUTE_SCRIPT_DIR/$SCRIPT_NAME_WITH_EXT $* >> $LOG"
     } | crontab -
   fi
 }
@@ -115,24 +116,31 @@ disable_cron_job() {
 
 readonly PROCESS_CHECK="${SCRIPT_DIR}/safe-period-detectors/active-processes.sh"
 
-if ! ${PROCESS_CHECK} -u jenkins 1 && [[ "$REBOOT_MSG" || "$JENKINS_UPDATE" == true ]]; then
-  enable_cron_job "$@"
-  exit 1
-fi
-if [[ "$JENKINS_UPDATE" == true ]]; then
-  echo "Updating Jenkins"
-  if command -v monit > /dev/null; then
-    monit unmonitor Jenkins
+if [[ "$REBOOT_MSG" || "$JENKINS_UPDATE" == true ]]; then
+  set +e
+  ${PROCESS_CHECK} -u jenkins 1
+  if (($? == 1)); then
+    set -e
+    enable_cron_job "$@"
+    exit 1
   fi
-  systemctl stop jenkins
+  set -e
 
-  yum update -y jenkins
+  if [[ "$JENKINS_UPDATE" == true ]]; then
+    echo "Updating Jenkins"
+    if command -v monit > /dev/null; then
+      monit unmonitor Jenkins
+    fi
+    systemctl stop jenkins
 
-  systemctl start jenkins
-  if command -v monit > /dev/null; then
-    # Re-enabling monit shortly after start can crash Jenkins
-    sleep 20
-    monit monitor Jenkins
+    yum update -y jenkins
+
+    systemctl start jenkins
+    if command -v monit > /dev/null; then
+      # Re-enabling monit shortly after start can crash Jenkins
+      sleep 20
+      monit monitor Jenkins
+    fi
   fi
 fi
 
@@ -145,9 +153,9 @@ if [[ "$REBOOT_MSG" ]]; then
     readonly MAX_GROUP_PROCESSES=0
   fi
 
-  if [[ $UNSAFE_GROUP ]] && ! "${PROCESS_CHECK}" -g "${UNSAFE_GROUP}" $MAX_GROUP_PROCESSES || \
-      [[ $UNSAFE_USER ]] && ! ${PROCESS_CHECK} -u "${UNSAFE_USER}" || \
-      [[ $PGDATABASE ]] && ! "${SCRIPT_DIR}/safe-period-detectors/active-postgres-queries.sh" "$POSTGRES_DB"; then
+  if [[ $UNSAFE_GROUP ]] && ! "${PROCESS_CHECK}" -g "${UNSAFE_GROUP}" $MAX_GROUP_PROCESSES \
+    || [[ $UNSAFE_USER ]] && ! ${PROCESS_CHECK} -u "${UNSAFE_USER}" \
+    || [[ $PGDATABASE ]] && ! "${SCRIPT_DIR}/safe-period-detectors/active-postgres-queries.sh" "$POSTGRES_DB"; then
     enable_cron_job "$@"
     exit 1
   fi
