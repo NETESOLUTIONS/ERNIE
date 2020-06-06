@@ -1,14 +1,3 @@
-/anaconda2/libexec/dbus-daemon-launch-helper
-/anaconda3/bin/ksu
-/anaconda3/libexec/dbus-daemon-launch-helper
-/anaconda3/libexec/gstreamer-1.0/gst-ptp-helper
-/anaconda3/pkgs/dbus-1.13.2-h714fa37_1/libexec/dbus-daemon-launch-helper
-/anaconda3/pkgs/gstreamer-1.14.0-hb453b48_1/libexec/gstreamer-1.0/gst-ptp-helper
-/anaconda3/pkgs/krb5-1.16.1-h173b8e3_7/bin/ksu
-/erniedev_data1/AnacondaInstalls/anaconda3/libexec/dbus-daemon-launch-helper
-/erniedev_data1/AnacondaInstalls/anaconda3/libexec/gstreamer-1.0/gst-ptp-helper
-/erniedev_data1/AnacondaInstalls/anaconda3/pkgs/dbus-1.13.2-h714fa37_1/libexec/dbus-daemon-launch-helper
-/erniedev_data1/AnacondaInstalls/anaconda3/pkgs/gstreamer-1.14.0-hb453b48_1/libexec/gstreamer-1.0/gst-ptp-helper
 /opt/rh/devtoolset-7/root/usr/bin/staprun
 /usr/bin/at
 /usr/bin/chage

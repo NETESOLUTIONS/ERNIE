@@ -32,11 +32,25 @@ ensure_whitelisting_of_special_file_perm() {
 
   unset check_failed
   # -xdev  Don't descend directories on other filesystems
-  # shellcheck disable=SC2086 # Don't quote `exclude_dir_option` to expand it into multiple parameters.
-  coproc { df --local --output=target \
+   parameters.
+   { df --local --output=target \
     | tail -n +2 \
     | xargs -I '{}' find '{}' ${exclude_dir_option} -xdev -type f -perm "-$perm_mask" -print \
-    | grep -F --line-regexp --invert-match "--file=$whitelist"; }
+    | grep -F --line-regexp --invert-match "--file=$whitelist" \
+    || (( PIPESTATUS[3] >= 2 ));
+  }
+  local -r GREP_PIPELINE_INDEX=3
+  # shellcheck disable=SC2086 # Don't quote `exclude_dir_option` to expand it into multiple
+  coproc { if ! df --local --output=target \
+    | tail -n +2 \
+    | xargs -I '{}' find '{}' ${exclude_dir_option} -xdev -type f -perm "-$perm_mask" -print \
+    | grep -F --line-regexp --invert-match "--file=$whitelist"; then
+      # Fail only on pipeline failures, not on grep exit code 1 = nothing is found
+      if (( PIPESTATUS[GREP_PIPELINE_INDEX] >= 2 )); then
+        exit "${PIPESTATUS[$GREP_PIPELINE_INDEX]}"
+      fi
+  fi
+  }
   # As of Bash 4, `COPROC_PID` has to be saved before it gets reset on process termination
   _co_pid=$COPROC_PID
   while IFS= read -r file; do
