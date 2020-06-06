@@ -22,6 +22,9 @@
 # The default requires explicit activation of protocol 1
 Protocol 2
 
+# Specifies the available MAC (message authentication code) algorithms
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
+
 # HostKey for protocol version 1
 #HostKey /etc/ssh/ssh_host_key
 # HostKeys for protocol version 2
@@ -156,6 +159,7 @@ AllowGroups erniecore ernieusers
 ## Digital Ocean Google Authenticator ##
 AuthenticationMethods publickey,password publickey,keyboard-interactive
 GatewayPorts yes
+
 # Disable 2FA for all intranet private IPs (10.0.0.*) only
 Match Address 10.0.0.0/24
         AuthenticationMethods password publickey
@@ -168,3 +172,6 @@ Match group ftpusers
 	PermitTunnel no
 	AllowAgentForwarding no
 	AllowTcpForwarding no
+
+# End of conditional blocks
+Match All

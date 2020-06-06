@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 echo -e '## 5.2 SSH Server Configuration ##\n\n'
 
+# Make sure that new configurations keys are not appended to a conditional block at the end of file
+ensure /etc/ssh/sshd_config '^\s*Match All'
+
 echo "5.2.1 Ensure permissions on /etc/ssh/sshd_config are configured"
 echo "____CHECK____"
 ensure_permissions /etc/ssh/sshd_config

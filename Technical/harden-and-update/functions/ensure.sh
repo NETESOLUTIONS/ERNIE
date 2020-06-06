@@ -41,10 +41,11 @@ ensure() {
     echo "Check PASSED"
   else
     echo "Check FAILED"
-    echo "The actual value in $1: '$actual'"
+    echo "The actual value in $1 for the expected pattern '$expected': '$actual'"
 
     # Check for glob pattern special characters: `*?[` (not checking for `extglob` patterns)
     if [[ ! $expected || "$expected" == *[*?[]* ]]; then
+      echo "This has to be fixed manually."
       return 1
     fi
 
