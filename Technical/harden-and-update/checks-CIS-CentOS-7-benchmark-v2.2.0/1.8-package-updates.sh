@@ -2,12 +2,6 @@
 echo "1.8 Ensure updates, patches, and additional security software are installed"
 
 echo "___CHECK___"
-yum clean expire-cache
-if ! yum check-update jenkins; then
-  # When Jenkins is not installed, this is false
-  readonly JENKINS_UPDATE=true
-fi
-
 if yum check-update --security --exclude=jenkins; then
   echo "Check PASSED"
 else

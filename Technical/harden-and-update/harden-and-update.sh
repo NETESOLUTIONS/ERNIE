@@ -159,10 +159,11 @@ for check_script in "$SCRIPT_DIR"/checks-*/*.sh; do
 done
 echo "All checks PASSED"
 
+yum clean expire-cache
+
 if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
   echo -e "\n Checking for kernel updates"
 
-  yum clean expire-cache
   # ELRepo repository must hve been installed
   # `kernel-lt`: Long Term Support (LTS) version, `kernel-ml`: the mainline version
   # TBD `python-perf` package might be needed
@@ -192,9 +193,21 @@ if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
   fi
 fi
 
+if ! yum check-update jenkins; then
+  # When Jenkins is not installed, this is false
+  readonly JENKINS_UPDATE=true
+fi
+
 if [[ ${KERNEL_UPDATE_MESSAGE} || ${JENKINS_UPDATE} == true ]]; then
   readonly LOG="${PWD}/update-reboot-safely.log"
-  [[ ${KERNEL_UPDATE_MESSAGE} ]] && safe_update_options="-r "$KERNEL_UPDATE_MESSAGE" $safe_update_options"
+  if [[ ${KERNEL_UPDATE_MESSAGE} ]]; then
+    echo "Rebooting safely..."
+    safe_update_options="$safe_update_options -r '$KERNEL_UPDATE_MESSAGE'"
+  fi
+  if [[ $JENKINS_UPDATE == true ]]; then
+    echo "Updating Jenkins safely..."
+    safe_update_options="$safe_update_options -j"
+  fi
   # shellcheck disable=SC2086 # Expanding `$safe_update_options` into multiple parameters
   "$SCRIPT_DIR/update-reboot-safely.sh" $safe_update_options >> "$LOG"
 fi
