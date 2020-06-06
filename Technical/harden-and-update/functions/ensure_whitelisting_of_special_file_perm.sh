@@ -38,7 +38,12 @@ ensure_whitelisting_of_special_file_perm() {
 
   unset check_failed
   # -xdev  Don't descend directories on other filesystems
-  # Non-zero exit codes in the sub-shell are intentionally suppressed using this variable declaration
+  coproc { df --local --output=target \
+    | tail -n +2 \
+    | xargs -I '{}' find '{}' "${FINAL_EXCLUDE_DIRS}" -xdev -type f -perm "-$perm_mask" -print \
+    | grep -F --line-regexp --invert-match "--file=$whitelist" || :; }
+  # As of Bash 4, `COPROC_PID` has to be saved before it gets reset on process termination
+  _co_pid=$COPROC_PID
   while IFS= read -r file; do
     if [[ ! $check_failed ]]; then
       check_failed=true
@@ -49,11 +54,8 @@ Check FAILED...
 HEREDOC
     fi
     echo "$file"
-  done < <(df --local --output=target \
-    | tail -n +2 \
-    | xargs -I '{}' find '{}' "${FINAL_EXCLUDE_DIRS}" -xdev -type f -perm "-$perm_mask" -print \
-    | grep -F --line-regexp --invert-match "--file=$whitelist")
-
+  done <& "${COPROC[0]}"
+  wait "$_co_pid"
   if [[ $check_failed ]]; then
     exit 1
   else

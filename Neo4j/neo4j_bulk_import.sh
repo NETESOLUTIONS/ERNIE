@@ -59,7 +59,7 @@ if [[ ${file_date1} > ${file_date2} ]]; then
 else
   db_ver="${file_date2}"
 fi
-db_name="${DB_PREFIX}v${db_ver}.db"
+db_name="${DB_PREFIX}v${db_ver}"
 # endregion
 
 # The current directory must be writeable for the neo4j user. Otherwise, it'd fail with the

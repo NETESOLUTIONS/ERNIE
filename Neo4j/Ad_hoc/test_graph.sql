@@ -1,6 +1,7 @@
 CREATE OR REPLACE VIEW edges AS
-SELECT scp AS from_node_id, ref_sgr AS to_node_id
+SELECT sr.scp AS from_node_id, sr.ref_sgr AS to_node_id
   FROM scopus_references sr
+  JOIN scopus_publications sp ON sp.scp = sr.ref_sgr
   -- Use any order for determinism
   ORDER BY sr.scp, sr.ref_sgr
   LIMIT 1000;
@@ -14,10 +15,10 @@ SELECT sp.scp AS "node_id:ID", spg.pub_year, sp.citation_type, (ss.issn_main != 
             ON ss.ernie_source_id = sp.ernie_source_id
   WHERE sp.scp IN (SELECT from_node_id FROM edges) OR sp.scp IN (SELECT to_node_id FROM edges);
 
--- 3m:16s
 SELECT *
 FROM nodes;
+-- 3m:34s
 
--- 0.1s
 SELECT *
 FROM edges;
+-- 0.1s

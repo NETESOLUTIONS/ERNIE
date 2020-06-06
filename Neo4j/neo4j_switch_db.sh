@@ -37,7 +37,7 @@ readonly DB_NAME="$1"
 
 # region Hide password from the output
 echo "$2" | sudo --stdin -u neo4j bash -c "set -xe
-  sed --in-place --expression='s/dbms.default_database=.*/dbms.default_database=${DB_NAME}/' /etc/neo4j/neo4j.conf"
+  sed --in-place --expression='s/^dbms.default_database=.*/dbms.default_database=${DB_NAME}/' /etc/neo4j/neo4j.conf"
 
 echo "Restarting Neo4j with a new active database ..."
 echo "$2" | sudo --stdin systemctl restart neo4j
