@@ -29,3 +29,4 @@ ensure_not() {
     sed --in-place --regexp-extended "/$pattern/d" "$file"
   fi
 }
+export -f ensure_not

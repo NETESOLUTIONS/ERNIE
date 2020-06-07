@@ -33,3 +33,5 @@ HEREDOC
   fi
   printf "\n\n"
 }
+export -f ensure_mount_option
+

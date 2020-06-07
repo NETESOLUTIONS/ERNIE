@@ -25,3 +25,4 @@ ensure_installed() {
   done
   printf "\n\n"
 }
+export -f ensure_installed

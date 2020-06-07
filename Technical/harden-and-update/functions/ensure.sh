@@ -41,7 +41,7 @@ ensure() {
     echo "Check PASSED"
   else
     echo "Check FAILED"
-    echo "The actual value in $1 for the expected pattern '$expected': '$actual'"
+    echo "The actual value in $1 for the expected pattern '$expected' = '$actual'"
 
     # Check for glob pattern special characters: `*?[` (not checking for `extglob` patterns)
     if [[ ! $expected || "$expected" == *[*?[]* ]]; then
@@ -49,7 +49,7 @@ ensure() {
       return 1
     fi
 
-    echo "Correcting to ..."
+    echo "Correcting to '$expected'"
     echo "___SET___"
     mapfile -t lines <<< "$expected"
     for line in "${lines[@]}"; do
@@ -61,3 +61,4 @@ ensure() {
     done
   fi
 }
+export -f ensure

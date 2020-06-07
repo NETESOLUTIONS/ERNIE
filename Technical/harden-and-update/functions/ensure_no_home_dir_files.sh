@@ -30,3 +30,5 @@ ensure_no_home_dir_files() {
   echo "Check PASSED"
   printf "\n\n"
 }
+export -f ensure_no_home_dir_files
+

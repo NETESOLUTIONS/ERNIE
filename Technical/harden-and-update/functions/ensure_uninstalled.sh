@@ -28,3 +28,4 @@ ensure_uninstalled() {
   fi
   printf "\n\n"
 }
+export -f ensure_uninstalled

@@ -31,3 +31,5 @@ ensure_kernel_net_param() {
   fi
   printf "\n\n"
 }
+export -f ensure_kernel_net_param
+

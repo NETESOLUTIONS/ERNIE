@@ -61,3 +61,5 @@ upsert() {
     echo -e "$value" > "$file"
   fi
 }
+export -f upsert
+

@@ -76,6 +76,7 @@ HEREDOC
 
 set -e
 set -o pipefail
+shopt -s extglob
 
 # Check if Docker is installed
 readonly DOCKER_HOME=$(docker info 2> /dev/null | pcregrep -o1 'Docker Root Dir: (.+)')
@@ -153,8 +154,7 @@ for check_script in "$SCRIPT_DIR"/checks-*/*.sh "$SCRIPT_DIR"/checks-*/site-spec
   if [[ -f "$progress_file" ]]; then
     echo "Skipping '${check_name}': DONE"
   else
-    # shellcheck source=checks-*/*.sh
-    source "$check_script"
+    "$check_script"
 
     touch "$progress_file"
     chown "$DEFAULT_OWNER_USER:$DEFAULT_OWNER_GROUP" "$progress_file"

@@ -23,3 +23,4 @@ enable_cron_job() {
     } | crontab -
   fi
 }
+export -f enable_cron_job
