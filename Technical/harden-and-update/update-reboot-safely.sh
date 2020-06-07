@@ -8,7 +8,7 @@ NAME
 
 SYNOPSIS
 
-    sudo update-reboot-safely.sh [-r message] [-m notification_address] [-j] [-g unsafe_group] [-u unsafe_user]
+    sudo update-reboot-safely.sh [-j] [-r message] [-m email] [-g unsafe_group] [-u unsafe_user] [-d postgres_DB]
     update-reboot-safely.sh -h: display this help
 
 DESCRIPTION
@@ -17,6 +17,8 @@ DESCRIPTION
     Disables a cron job for this script when safe.
 
     The following options are available:
+
+    -j                          Update Jenkins
 
     -r message                  Reboot and email a `message` to `notification_address` when there are no:
                                 * Jenkins jobs running
@@ -28,23 +30,20 @@ DESCRIPTION
                                   4. Status `Z`: defunct ("zombie") process, terminated but not reaped by its parent
                                 * Optionally, Postgres active, non-system queries running in the specified DB
 
-    -m notification_address     An address to send notification to
+        -m email                An address to send notification to
 
-    -j                          Update Jenkins
+        -g unsafe_group         Owned (under EGID) processes are considered unsafe for reboot
 
-    -g unsafe_group             Owned (under EGID) processes are considered unsafe for reboot
-
-    -u unsafe_user              Owned (under EUID) processes are considered unsafe for reboot.
+        -u unsafe_user          Owned (under EUID) processes are considered unsafe for reboot.
                                 `jenkins` user is automatically unsafe when there are more than 1 active processes.
+
+        -d postgres_DB          When defined, check Postgres DB for active, non-system queries
 
 ENVIRONMENT
 
-    Pre-requisite dependencies:
+    Pre-requisite dependency:
 
       # `pcregrep`
-
-    PGDATABASE             When defined, check Postgres DB for active, non-system queries
-
 
 EXIT STATUS
 
@@ -61,22 +60,25 @@ set -e
 set -o pipefail
 
 # If a character is followed by a colon, the option is expected to have an argument
-while getopts r:m:jd:g:u:h OPT; do
+while getopts jr:m:g:u:d:h OPT; do
   case "$OPT" in
+    j)
+      readonly JENKINS_UPDATE="true"
+      ;;
     r)
       readonly REBOOT_MSG="$OPTARG"
       ;;
     m)
       readonly NOTIFICATION_ADDRESS="$OPTARG"
       ;;
-    j)
-      readonly JENKINS_UPDATE="true"
-      ;;
     g)
       readonly UNSAFE_USER="$OPTARG"
       ;;
     u)
       readonly UNSAFE_GROUP="$OPTARG"
+      ;;
+    d)
+      readonly POSTGRES_DB="$OPTARG"
       ;;
     *) # -h or `?`: an unknown option
       usage
@@ -106,8 +108,8 @@ if [[ "$REBOOT_MSG" || "$JENKINS_UPDATE" == true ]]; then
   set +e
   ${PROCESS_CHECK} -u jenkins 1
   if (($? == 1)); then
-#    set -e
-#    enable_cron_job "$@"
+    #    set -e
+    #    enable_cron_job "$@"
     exit 1
   fi
   set -e
@@ -140,9 +142,9 @@ if [[ "$REBOOT_MSG" ]]; then
   fi
 
   if [[ $UNSAFE_GROUP ]] && ! "${PROCESS_CHECK}" -g "${UNSAFE_GROUP}" $MAX_GROUP_PROCESSES \
-    || [[ $UNSAFE_USER ]] && ! ${PROCESS_CHECK} -u "${UNSAFE_USER}" \
-    || [[ $PGDATABASE ]] && ! "${SCRIPT_DIR}/safe-period-detectors/active-postgres-queries.sh" "$POSTGRES_DB"; then
-#    enable_cron_job "$@"
+      || [[ $UNSAFE_USER ]] && ! ${PROCESS_CHECK} -u "${UNSAFE_USER}" \
+      || [[ $POSTGRES_DB ]] && ! "${SCRIPT_DIR}/safe-period-detectors/active-postgres-queries.sh" "$POSTGRES_DB"; then
+    #    enable_cron_job "$@"
     exit 1
   fi
 

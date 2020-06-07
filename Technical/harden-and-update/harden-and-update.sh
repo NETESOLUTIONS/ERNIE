@@ -8,7 +8,7 @@ NAME
 
 SYNOPSIS
 
-    sudo harden-and-update.sh [-e excluded_dir] [-e ...] [-k] [-m email] [-u unsafe_user] [-g unsafe_group] system_usersudo harden-and-update.sh [-e excluded_dir] [-e ...] [-k] [-m email] [-u unsafe_user] [-g unsafe_group] system_user
+    sudo [--preserve-env=PGDATABASE] harden-and-update.sh [OPTION]... system_user
     harden-and-update.sh -h: display this help
 
 DESCRIPTION
@@ -208,6 +208,10 @@ if [[ ${KERNEL_UPDATE_MESSAGE} || ${JENKINS_UPDATE} == true ]]; then
   if [[ $JENKINS_UPDATE == true ]]; then
     echo "Updating Jenkins safely..."
     safe_update_options+=(-j)
+  fi
+  if [[ $PGDATABASE ]]; then
+    echo "Will check $PGDATABASE Postgres DB for active, non-system queries"
+    safe_update_options+=(-d "$PGDATABASE")
   fi
 
   readonly CRON_JOB="${ABSOLUTE_SCRIPT_DIR}/update-reboot-safely.sh"
