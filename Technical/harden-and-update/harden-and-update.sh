@@ -175,13 +175,14 @@ if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
   #available_kernel_version=$(rpm --query --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}' kernel-lt)
 
   if [[ ${kernel_version} == ${latest_kernel_package_version} ]]; then
-    echo "Check PASSED"
+    readonly KERNEL_UPDATE_MESSAGE="The kernel version is up to date: v${kernel_version}"
+
     if [[ $NOTIFICATION_ADDRESS ]]; then
-      echo "The kernel version is up to date: v${kernel_version}" \
-        | mailx -S smtp=localhost -s "Hardening: kernel check" "$NOTIFICATION_ADDRESS"
+      echo "$KERNEL_UPDATE_MESSAGE" | mailx -S smtp=localhost -s "Hardening: kernel check" "$NOTIFICATION_ADDRESS"
     fi
   else
-    readonly KERNEL_UPDATE_MESSAGE="Kernel update from v${kernel_version} to v${latest_kernel_package_version}"
+    readonly KERNEL_UPDATE_MESSAGE="Kernel is updated from v${kernel_version} to v${latest_kernel_package_version}"
+    readonly KERNEL_UPDATE_AVAILABLE=true
     echo "Check FAILED, correcting ..."
     echo "___SET___"
 
@@ -191,21 +192,22 @@ if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
     grub2-set-default 0
     grub2-mkconfig -o /boot/grub2/grub.cfg
   fi
+  echo "$KERNEL_UPDATE_MESSAGE"
 fi
 
 if ! yum check-update jenkins; then
   echo -e "Jenkins update is available"
 
   # When Jenkins is not installed, this is false
-  readonly JENKINS_UPDATE=true
+  readonly JENKINS_UPDATE_AVAILABLE=true
 fi
 
-if [[ ${KERNEL_UPDATE_MESSAGE} || ${JENKINS_UPDATE} == true ]]; then
-  if [[ ${KERNEL_UPDATE_MESSAGE} ]]; then
+if [[ ${KERNEL_UPDATE_AVAILABLE} == true || ${JENKINS_UPDATE_AVAILABLE} == true ]]; then
+  if [[ ${KERNEL_UPDATE_AVAILABLE} == true ]]; then
     echo "Rebooting safely..."
-    safe_update_options+=(-r "$KERNEL_UPDATE_MESSAGE")
+    safe_update_options+=(-r "'$KERNEL_UPDATE_MESSAGE'")
   fi
-  if [[ $JENKINS_UPDATE == true ]]; then
+  if [[ $JENKINS_UPDATE_AVAILABLE == true ]]; then
     echo "Updating Jenkins safely..."
     safe_update_options+=(-j)
   fi
