@@ -13,7 +13,8 @@ SYNOPSIS
 
 DESCRIPTION
 
-    Update Jenkins when there are no Jenkins jobs running.
+    Update Jenkins and/or reboot when there are no Jenkins jobs or processes owned by unsafe user/group running.
+    Disables a cron job for this script when safe.
 
     The following options are available:
 
@@ -47,7 +48,7 @@ ENVIRONMENT
 
 EXIT STATUS
 
-    The safe_updates.sh utility exits with one of the following values:
+    The utility exits with one of the following values:
 
     0   In the quiet period
     1   Not in the quiet period
@@ -89,29 +90,14 @@ readonly SCRIPT_DIR=${0%/*}
 readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 # Remove longest */ prefix
 readonly SCRIPT_NAME_WITH_EXT=${0##*/}
-# Remove shortest .* suffix
-readonly SCRIPT_NAME=${name_with_ext%.*}
+readonly CRON_JOB="${ABSOLUTE_SCRIPT_DIR}/${SCRIPT_NAME_WITH_EXT}"
+#readonly CRON_LOG=${ABSOLUTE_SCRIPT_DIR}/${SCRIPT_NAME}.log
 
-declare -rx LOG=${ABSOLUTE_SCRIPT_DIR}/${SCRIPT_NAME}.log
-
-echo -e "\n$(TZ=America/New_York date) ## Running $SCRIPT_NAME_WITH_EXT under ${USER}@${HOSTNAME} in ${PWD} ##\n"
-
-enable_cron_job() {
-  if ! crontab -l | grep -F "$SCRIPT_NAME_WITH_EXT"; then
-    echo "Scheduling to check for a safe period every 10 minutes"
-
-    # Append the job to `crontab`
-    # Use `flock` to prevent launching of additional processes if the first launch hasn't finished for some reason
-    {
-      crontab -l
-      echo "*/10 * * * * flock --nonblock $ABSOLUTE_SCRIPT_DIR/$SCRIPT_NAME.lock sudo $ABSOLUTE_SCRIPT_DIR/$SCRIPT_NAME_WITH_EXT $* >> $LOG"
-    } | crontab -
-  fi
-}
+echo -e "\n$(TZ=America/New_York date) ## Running $SCRIPT_NAME_WITH_EXT $* under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
 disable_cron_job() {
   echo "Disabling the cron job"
-  crontab -l | grep --invert-match -F "$SCRIPT_NAME_WITH_EXT" | crontab -
+  crontab -l | grep --invert-match -F "$CRON_JOB" | crontab -
 }
 
 readonly PROCESS_CHECK="${SCRIPT_DIR}/safe-period-detectors/active-processes.sh"
@@ -120,8 +106,8 @@ if [[ "$REBOOT_MSG" || "$JENKINS_UPDATE" == true ]]; then
   set +e
   ${PROCESS_CHECK} -u jenkins 1
   if (($? == 1)); then
-    set -e
-    enable_cron_job "$@"
+#    set -e
+#    enable_cron_job "$@"
     exit 1
   fi
   set -e
@@ -156,7 +142,7 @@ if [[ "$REBOOT_MSG" ]]; then
   if [[ $UNSAFE_GROUP ]] && ! "${PROCESS_CHECK}" -g "${UNSAFE_GROUP}" $MAX_GROUP_PROCESSES \
     || [[ $UNSAFE_USER ]] && ! ${PROCESS_CHECK} -u "${UNSAFE_USER}" \
     || [[ $PGDATABASE ]] && ! "${SCRIPT_DIR}/safe-period-detectors/active-postgres-queries.sh" "$POSTGRES_DB"; then
-    enable_cron_job "$@"
+#    enable_cron_job "$@"
     exit 1
   fi
 

@@ -82,7 +82,7 @@ else
   exclude_dirs=()
 fi
 
-safe_update_options=""
+declare -a safe_update_options
 # If a character is followed by a colon, the option is expected to have an argument
 while getopts km:e:u:g:h OPT; do
   case "$OPT" in
@@ -97,7 +97,7 @@ while getopts km:e:u:g:h OPT; do
       ;&
     m | u | g)
       # Pass-through options
-      safe_update_options="$safe_update_options -$OPT $OPTARG"
+      safe_update_options+=(-$OPT $OPTARG)
       ;;
     *) # -h or `?`: an unknown option
       usage
@@ -162,7 +162,7 @@ echo "All checks PASSED"
 yum clean expire-cache
 
 if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
-  echo -e "\n Checking for kernel updates"
+  echo -e "\nChecking for kernel updates"
 
   # ELRepo repository must hve been installed
   # `kernel-lt`: Long Term Support (LTS) version, `kernel-ml`: the mainline version
@@ -194,22 +194,26 @@ if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
 fi
 
 if ! yum check-update jenkins; then
+  echo -e "Jenkins update is available"
+
   # When Jenkins is not installed, this is false
   readonly JENKINS_UPDATE=true
 fi
 
 if [[ ${KERNEL_UPDATE_MESSAGE} || ${JENKINS_UPDATE} == true ]]; then
-  readonly LOG="${PWD}/update-reboot-safely.log"
   if [[ ${KERNEL_UPDATE_MESSAGE} ]]; then
     echo "Rebooting safely..."
-    safe_update_options="$safe_update_options -r '$KERNEL_UPDATE_MESSAGE'"
+    safe_update_options+=(-r "$KERNEL_UPDATE_MESSAGE")
   fi
   if [[ $JENKINS_UPDATE == true ]]; then
     echo "Updating Jenkins safely..."
-    safe_update_options="$safe_update_options -j"
+    safe_update_options+=(-j)
   fi
-  # shellcheck disable=SC2086 # Expanding `$safe_update_options` into multiple parameters
-  "$SCRIPT_DIR/update-reboot-safely.sh" $safe_update_options >> "$LOG"
+
+  readonly CRON_JOB="${ABSOLUTE_SCRIPT_DIR}/update-reboot-safely.sh"
+  readonly CRON_LOG="${PWD}/update-reboot-safely.log"
+  # Schedule safe reboot or update and let the current script finish successfully
+  enable_cron_job "${safe_update_options[@]}"
 fi
 
 rm -- *.done
