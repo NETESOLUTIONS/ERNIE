@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '## 6.1 System File Permissions ##\n\n'
 
 echo "6.1.2 Ensure permissions on /etc/passwd are configured"

@@ -1,4 +1,6 @@
-!/usr/bin/env bash
+#!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "6.1.10 Ensure no world writable files exists"
 echo "6.1.11 Ensure no unowned files or directories exist"
 echo "6.1.12 Ensure no ungrouped files or directories exist"

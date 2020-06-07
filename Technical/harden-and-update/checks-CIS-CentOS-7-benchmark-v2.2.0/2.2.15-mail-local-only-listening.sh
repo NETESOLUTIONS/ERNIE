@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "2.2.15 Ensure mail transfer agent is configured for local-only mode"
 echo "___CHECK___"
 declare -ra EXPECTED_MAIL_LISTENING_CONFIG=('tcp        0      0 127.0.0.1:25            0.0.0.0:*               LISTEN'
@@ -10,7 +12,7 @@ coproc { netstat -an | grep -E ':25 .*LISTEN'; }
 _co_pid=$COPROC_PID
 while IFS= read -r line; do
   # Trim trailing spaces
-  actual_mail_listening_config+=(${line%%+( )})
+  actual_mail_listening_config+=("${line%%+( )}")
 done <&"${COPROC[0]}"
 wait "$_co_pid"
 

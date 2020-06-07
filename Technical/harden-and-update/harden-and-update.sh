@@ -82,9 +82,9 @@ shopt -s extglob
 readonly DOCKER_HOME=$(docker info 2> /dev/null | pcregrep -o1 'Docker Root Dir: (.+)')
 if [[ ${DOCKER_HOME} ]]; then
   # See https://stackoverflow.com/questions/46672001/is-it-safe-to-clean-docker-overlay2 for more on `/var/lib/docker`
-  exclude_dirs=("${DOCKER_HOME}" /var/lib/docker)
+  export exclude_dirs=("${DOCKER_HOME}" /var/lib/docker)
 else
-  exclude_dirs=()
+  export exclude_dirs=()
 fi
 
 declare -a safe_update_options
@@ -113,8 +113,8 @@ shift $((OPTIND - 1))
 
 # Process positional parameters
 [[ $1 == "" ]] && usage
-readonly DEFAULT_OWNER_USER=$1
-readonly DEFAULT_OWNER_GROUP=$(id --group --check_name "${DEFAULT_OWNER_USER}")
+declare -rx DEFAULT_OWNER_USER=$1
+declare -rx DEFAULT_OWNER_GROUP=$(id --group --check_name "${DEFAULT_OWNER_USER}")
 
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
@@ -128,11 +128,12 @@ if ! command -v pcregrep > /dev/null; then
 fi
 
 BACKUP_DIR=$(date "+%F-%H-%M-%S").bak
-readonly BACKUP_DIR
+declare -rx BACKUP_DIR
 
 MIN_NON_SYSTEM_UID=$(pcregrep -o1 '^UID_MIN\s+(\d+)' /etc/login.defs)
-readonly MIN_NON_SYSTEM_UID
+declare -rx MIN_NON_SYSTEM_UID
 
+# Source and export all functions to make them available to all check scripts
 for function_script in "$SCRIPT_DIR"/functions/*.sh; do
   # shellcheck source=functions/*.sh
   source "$function_script"

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '# 5 Access, Authentication and Authorization #\n\n'
 
 echo -e '## 5.1 Configure cron ##\n\n'

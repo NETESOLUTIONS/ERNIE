@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '## 1.2 Configure Software Updates ##\n\n'
 
 echo "1.2.2 Ensure GPG keys are configured"

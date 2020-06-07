@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "1.4.3 Ensure authentication required for single user mode"
 
 # /sbin is sym-linked to /usr/sbin

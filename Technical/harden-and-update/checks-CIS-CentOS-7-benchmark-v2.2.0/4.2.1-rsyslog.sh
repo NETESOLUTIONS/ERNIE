@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '## 4.2 Configure Logging ##\n\n'
 
 echo -e '### 4.2.1 Configure rsyslog ###\n\n'

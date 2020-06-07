@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '## 3.4 TCP Wrappers ##\n\n'
 
 echo "3.4.1 Ensure TCP Wrappers is installed"

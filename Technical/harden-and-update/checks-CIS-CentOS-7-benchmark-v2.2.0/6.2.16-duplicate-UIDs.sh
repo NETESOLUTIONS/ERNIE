@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "6.2.16 Ensure no duplicate UIDs exist"
 echo "____CHECK____"
 cut -f3 -d":" /etc/passwd | sort -n | uniq -c | while read -r unique_count uid; do

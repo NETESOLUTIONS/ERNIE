@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "6.2.17 Ensure no duplicate GIDs exist"
 echo "____CHECK____"
 cut -f3 -d":" /etc/group | sort -n | uniq -c | while read -r unique_count gid; do

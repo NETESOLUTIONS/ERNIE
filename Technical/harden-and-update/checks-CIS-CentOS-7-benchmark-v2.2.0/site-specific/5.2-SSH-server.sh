@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '## 5.2 SSH Server Configuration ##\n\n'
 
 # Make sure that new configurations keys are not appended to a conditional block at the end of file

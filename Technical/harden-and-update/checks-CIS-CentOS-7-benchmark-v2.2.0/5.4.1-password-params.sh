@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '## 5.4 User Accounts and Environment ##\n\n'
 
 echo -e '### 5.4.1 Set Shadow Password Suite Parameters ###'

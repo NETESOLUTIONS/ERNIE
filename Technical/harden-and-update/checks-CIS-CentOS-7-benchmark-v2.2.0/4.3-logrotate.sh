@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 # The configuration below is site policy and is not specified by the benchmark
 echo "4.3 Ensure logrotate is configured"
 

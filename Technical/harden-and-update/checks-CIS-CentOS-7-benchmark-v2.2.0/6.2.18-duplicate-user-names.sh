@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "6.2.18 Ensure no duplicate user names exist"
 echo "____CHECK____"
 cut -f1 -d":" /etc/passwd | sort -n | uniq -c | while read -r unique_count username; do

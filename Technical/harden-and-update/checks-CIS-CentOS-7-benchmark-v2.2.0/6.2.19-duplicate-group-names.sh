@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "6.2.19 Ensure no duplicate group names exist"
 echo -e "____CHECK____"
 cut -f1 -d":" /etc/group | sort -n | uniq -c | while read -r unique_count group_name; do

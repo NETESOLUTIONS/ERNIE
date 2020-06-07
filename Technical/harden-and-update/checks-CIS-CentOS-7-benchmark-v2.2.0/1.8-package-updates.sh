@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "1.8 Ensure updates, patches, and additional security software are installed"
 
 echo "___CHECK___"

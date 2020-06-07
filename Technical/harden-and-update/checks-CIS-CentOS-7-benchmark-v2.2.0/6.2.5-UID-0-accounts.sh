@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "6.2.5 Ensure root is the only UID 0 account"
 echo "____CHECK____"
 readonly UID_0_ACCOUNTS=$(awk -F: '($3 == 0) { print $1 }' < /etc/passwd)

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "6.2.10 Ensure users' dot files are not group or world writable"
 echo -e "____CHECK____"
 unset check_failed

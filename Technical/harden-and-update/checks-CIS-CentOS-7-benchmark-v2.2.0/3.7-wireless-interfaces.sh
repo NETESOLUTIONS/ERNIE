@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo '## 3.7 Ensure wireless interfaces are disabled ##'
 echo "___CHECK___"
 if command -v iwconfig 2> /dev/null && ! iwconfig; then

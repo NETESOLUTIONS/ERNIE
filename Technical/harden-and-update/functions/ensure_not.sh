@@ -5,7 +5,7 @@
 #
 # Arguments:
 #   $1  file
-#   $2  a PCRE pattern
+#   $2  an ERE pattern
 #
 # Returns:
 #   None
@@ -18,7 +18,8 @@ ensure_not() {
   local file="$1"
   local pattern="$2"
   # shellcheck disable=SC2155
-  local actual=$(pcregrep "$pattern" "$file")
+  local actual=$(grep -E "$pattern" "$file")
+#  local actual=$(pcregrep "$pattern" "$file")
   if [[ ! "$actual" ]]; then
     echo "Check PASSED"
   else

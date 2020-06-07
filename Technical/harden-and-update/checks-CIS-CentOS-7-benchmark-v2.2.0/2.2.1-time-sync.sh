@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '## 2.2 Special Purpose Services ##\n\n'
 
 echo "## 2.2.1 Time Synchronization ##"
