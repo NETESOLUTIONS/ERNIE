@@ -4,7 +4,7 @@ usage() {
   cat << 'HEREDOC'
 NAME
 
-    harden-and-update.sh -- harden a server and update packages
+    harden-and-update.sh -- harden a Red Hat / CentOS Linux family server and update packages
 
 SYNOPSIS
 
@@ -17,8 +17,10 @@ DESCRIPTION
     Included hardening checks are based on the OS-specific Center for Internet Security (CIS) Benchmark.
 
     WARNING: Some checks incorporate site-specific policies. Review them before running in a new environment.
+    WARNING: When the SSH config is hardened, test SSH connectivity after the change.
 
-    The current directory is used for logs, progress, and configuration file backups (e.g. `./2020-05-19-09-33-20.bak`).
+    Any changed config files are backed up on each run.
+    The current directory is used for the log, progress, and backups (e.g. `./2020-05-19-09-33-20.bak/**`).
 
     The script would fail on the first problem that needs to be fixed manually or on the first error.
     Correct the problem and re-run. The script should resume at the failed check.
@@ -63,7 +65,9 @@ EXIT STATUS
 
 EXAMPLES
 
-    sudo ./harden.sh -k -m j5g1e0d8w9w2t7v2@neteteam.slack.com -e /data1/upsource -g endusers admin
+    sudo ./harden-and-update.sh -e /data1/upsource -k -m j5g1e0d8w9w2t7v2@neteteam.slack.com -g endusers admin
+
+    sudo --preserve-env=PGDATABASE ./harden-and-update.sh -e /data1/upsource admin
 
 Version 2.0                                           June 2020
 HEREDOC
@@ -134,7 +138,7 @@ for function_script in "$SCRIPT_DIR"/functions/*.sh; do
 done
 
 echo -e "\nExecuting checks...\n"
-for check_script in "$SCRIPT_DIR"/checks-*/*.sh; do
+for check_script in "$SCRIPT_DIR"/checks-*/*.sh "$SCRIPT_DIR"/checks-*/site-specific/*.sh; do
   # Remove longest */ prefix
   check_name_with_ext=${check_script##*/}
 
@@ -190,6 +194,7 @@ if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
     package-cleanup -y --oldkernels --count=2
 
     grub2-set-default 0
+    backup /boot/grub2/grub.cfg
     grub2-mkconfig -o /boot/grub2/grub.cfg
   fi
   echo "$KERNEL_UPDATE_MESSAGE"

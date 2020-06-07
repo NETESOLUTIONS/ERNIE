@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# TBD DISABLED This might be problematic for VMs
 echo "1.4.2 Ensure bootloader password is set"
 
 echo "___CHECK___"
