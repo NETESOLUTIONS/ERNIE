@@ -183,19 +183,23 @@ if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
   # TBD `python-perf` package might be needed
   yum --enablerepo=elrepo-kernel install -y kernel-lt
 
-  kernel_version=$(uname -r)
-  latest_kernel_package_version=$(rpm --query --last kernel-lt | head -1 | pcregrep -o1 'kernel-lt-([^ ]*)')
-  # RPM can't format --last output and
-  #available_kernel_version=$(rpm --query --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}' kernel-lt)
-
-  if [[ ${kernel_version} == ${latest_kernel_package_version} ]]; then
-    readonly KERNEL_UPDATE_MESSAGE="The kernel version is up to date: v${kernel_version}"
+  installed_kernel_full_version=$(uname -r)
+  installed_kernel_version=${installed_kernel_full_version%%-*}
+  kernel_package_version=$(rpm --query --queryformat '%{VERSION}' kernel-lt)
+  #kernel_package_version=$(rpm --query --last kernel-lt | head -1 | pcregrep -o1 'kernel-lt-([^-]*)')
+  set +e
+  vercomp "${installed_kernel_version}" "${kernel_package_version}"
+  # 2: installed_kernel_version < kernel_package_version
+  declare -i comparison_result=$?
+  set -e
+  if ((comparison_result < 2)); then
+    readonly KERNEL_UPDATE_MESSAGE="The kernel version is up to date: v${installed_kernel_version}"
 
     if [[ $NOTIFICATION_ADDRESS ]]; then
       echo "$KERNEL_UPDATE_MESSAGE" | mailx -S smtp=localhost -s "Hardening: kernel check" "$NOTIFICATION_ADDRESS"
     fi
   else
-    readonly KERNEL_UPDATE_MESSAGE="Kernel is updated from v${kernel_version} to v${latest_kernel_package_version}"
+    readonly KERNEL_UPDATE_MESSAGE="Kernel update: from v${installed_kernel_version} to v${kernel_package_version}"
     readonly KERNEL_UPDATE_AVAILABLE=true
     echo "Check FAILED, correcting ..."
     echo "___SET___"
