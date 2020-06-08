@@ -51,6 +51,8 @@ DESCRIPTION
                             2. The total number of output records = the total number of input records.
 
     -v                    Verbose diagnostics.
+    
+    -n parallel_jobs      Maximum number of jobs to run in parallel, # of CPU cores by default
 
 ENVIRONMENT
 
