@@ -17,6 +17,7 @@ for file in /etc/rsyslog.conf /etc/rsyslog.d/*.conf; do
   # shellcheck disable=SC2016 # `$` is a part of property key
   ensure "$file" '^#*\s*\$FileCreateMode' '$FileCreateMode 0640'
 done
+printf "\n\n"
 
 # Assumes the hardened server is *not* the log host
 echo "4.2.1.5 Ensure remote rsyslog messages are only accepted on designated log hosts."
