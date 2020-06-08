@@ -7,7 +7,7 @@
 #
 #   $2  configuration key: an ERE sub-string pattern.
 #
-#   $3  (optional) expected configuration line(s): a string or a glob pattern. Multiple lines are each set in the file.
+#   $3  (optional) expected configuration line: a string or a glob pattern.
 #       Omitting this or using a glob pattern (`*`, `?`, `[...]` characters) switches function to the assert mode:
 #       assert 1) that the key is there and 2) that it matches the glob pattern when provided.
 #
@@ -64,14 +64,14 @@ ensure() {
     fi
 
     echo "___SET___"
-    mapfile -t expected_lines <<< "$expected"
-    for expected_line in "${expected_lines[@]}"; do
-      if [[ "$insertion_mode" == "$PREPEND_INSERTION" ]]; then
-        upsert "$file" '^' "$expected_line"
-      else
-        upsert "$file" "$pattern" "$expected_line"
-      fi
-    done
+    #mapfile -t expected_lines <<< "$expected"
+    #for expected_line in "${expected_lines[@]}"; do
+    if [[ "$insertion_mode" == "$PREPEND_INSERTION" ]]; then
+      upsert "$file" '^' "$expected"
+    else
+      upsert "$file" "$pattern" "$expected"
+    fi
+    #done
     return
   fi
 

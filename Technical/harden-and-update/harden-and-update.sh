@@ -214,8 +214,10 @@ if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
   echo "$KERNEL_UPDATE_MESSAGE"
 fi
 
-if ! yum check-update jenkins; then
-  echo -e "Jenkins update is available"
+if yum check-update jenkins; then
+  echo "Jenkins is up to date"
+else
+  echo "Jenkins update is available"
 
   # When Jenkins is not installed, this is false
   readonly JENKINS_UPDATE_AVAILABLE=true
@@ -223,17 +225,17 @@ fi
 
 if [[ ${KERNEL_UPDATE_AVAILABLE} == true || ${JENKINS_UPDATE_AVAILABLE} == true ]]; then
   if [[ ${KERNEL_UPDATE_AVAILABLE} == true ]]; then
-    echo "Rebooting safely..."
+    echo "Scheduling a safe reboot"
     safe_update_options+=(-r "'$KERNEL_UPDATE_MESSAGE'")
   fi
   if [[ $JENKINS_UPDATE_AVAILABLE == true ]]; then
-    echo "Updating Jenkins safely..."
+    echo "Scheduling a safe Jenkins update"
     safe_update_options+=(-j)
   fi
   if [[ $PGDATABASE ]]; then
-    echo "Will check $PGDATABASE Postgres DB for active, non-system queries"
     safe_update_options+=(-d "$PGDATABASE")
   fi
+  echo "Safe update/reboot options: ${safe_update_options[*]}"
 
   readonly CRON_JOB="${ABSOLUTE_SCRIPT_DIR}/update-reboot-safely.sh"
   readonly CRON_LOG="${PWD}/update-reboot-safely.log"
