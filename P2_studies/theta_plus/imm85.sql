@@ -1,59 +1,84 @@
 DROP TABLE IF EXISTS theta_plus.imm1985_testcase_asjc2403;
-CREATE TABLE theta_plus.imm1985_testcase_asjc2403
+DROP TABLE IF EXISTS theta_plus.imm1985;
+CREATE TABLE theta_plus.imm1985
 TABLESPACE theta_plus_tbs AS
-SELECT sp.scp FROM scopus_publications sp
-INNER JOIN scopus_publication_groups spg
+SELECT sp.scp FROM public.scopus_publications sp
+INNER JOIN public.scopus_publication_groups spg
 ON sp.scp=spg.sgr
 AND spg.pub_year=1985
 AND sp.citation_type='ar'
 AND sp.citation_language='English'
+AND sp.pub_type='core'
 INNER JOIN scopus_classes sc
 ON sp.scp=sc.scp
 AND sc.class_code='2403';
-CREATE INDEX imm1985_testcase_asjc_idx
-ON theta_plus.imm1985_testcase_asjc2403(scp)
+CREATE INDEX imm1985_idx
+ON theta_plus.imm1985(scp)
 TABLESPACE index_tbs;
 
 DROP TABLE IF EXISTS theta_plus.imm1985_testcase_cited;
-CREATE TABLE theta_plus.imm1985_testcase_cited
+DROP TABLE IF EXISTS theta_plus.imm1985_testcase_cited;
+DROP TABLE IF EXISTS theta_plus.imm1985_cited;
+CREATE TABLE theta_plus.imm1985_cited
 TABLESPACE theta_plus_tbs AS
 SELECT tp.scp as citing,sr.ref_sgr AS cited
-FROM theta_plus.imm1985_testcase_asjc2403 tp
+FROM theta_plus.imm1985 tp
 INNER JOIN scopus_references sr on tp.scp = sr.scp;
-CREATE INDEX imm1985_testcase_cited_idx
-ON theta_plus.imm1985_testcase_cited(citing,cited)
+CREATE INDEX imm1985_cited_idx
+ON theta_plus.imm1985_cited(citing,cited)
 TABLESPACE index_tbs;
 
 DROP TABLE IF EXISTS theta_plus.imm1985_testcase_citing;
-CREATE TABLE theta_plus.imm1985_testcase_citing TABLESPACE theta_plus_tbs AS
-SELECT sr.scp as citing,tp.scp as cited FROM theta_plus.imm1985_testcase_asjc2403 tp
+DROP TABLE IF EXISTS theta_plus.imm1985_citing;
+CREATE TABLE theta_plus.imm1985_citing TABLESPACE theta_plus_tbs AS
+SELECT sr.scp as citing,tp.scp as cited FROM theta_plus.imm1985 tp
 INNER JOIN scopus_references sr on tp.scp=sr.ref_sgr;
-CREATE INDEX imm1985_testcase_citing_idx ON theta_plus.imm1985_testcase_citing(citing,cited)
+CREATE INDEX imm1985_citing_idx ON theta_plus.imm1985_citing(citing,cited)
 TABLESPACE index_tbs;
 
-select count(1) from imm1985_testcase_asjc2403;
-select count(1) from imm1985_testcase_cited;
-select count(1) from imm1985_testcase_citing;
+select count(1) from imm1985;
+select count(1) from imm1985_cited;
+select count(1) from imm1985_citing;
 
-DROP TABLE IF EXISTS theta_plus.imm1985_testcase_asjc2403_citing_cited;
-CREATE TABLE theta_plus.imm1985_testcase_asjc2403_citing_cited
+DROP TABLE IF EXISTS theta_plus.imm1985_citing_cited;
+CREATE TABLE theta_plus.imm1985_citing_cited
 TABLESPACE theta_plus_tbs AS
-SELECT DISTINCT citing,cited from imm1985_testcase_cited UNION
-SELECT DISTINCT citing,cited from imm1985_testcase_citing;
-SELECT count(1) from imm1985_testcase_asjc2403_citing_cited;
+SELECT DISTINCT citing,cited from imm1985_cited UNION
+SELECT DISTINCT citing,cited from imm1985_citing;
+SELECT count(1) from imm1985_citing_cited;
 
 -- clean up Scopus data
-DELETE FROM theta_plus.imm1985_testcase_asjc2403_citing_cited
+DELETE FROM theta_plus.imm1985_citing_cited
 WHERE citing=cited;
+
+--remove all non-core publications by joining against
+-- scopus publications and requiring type = core
+-- and language = English
+DROP TABLE IF EXISTS XX;
+ALTER TABLE theta_plus.imm1985_citing_cited
+RENAME TO XX;
+
+CREATE TABLE theta_plus.imm1985_citing_cited AS
+WITH cte AS(SELECT citing,cited FROM XX
+INNER JOIN scopus_publications sp
+ON XX.citing=sp.scp
+AND sp.citation_language='English'
+AND sp.pub_type='core')
+SELECT citing,cited FROM cte
+INNER JOIN scopus_publications sp2
+ON cte.cited=sp2.scp
+AND sp2.citation_language='English'
+AND sp2.pub_type='core';
+DROP TABLE XX;
 
 DROP TABLE IF EXISTS theta_plus.imm1985_nodes;
 CREATE TABLE theta_plus.imm1985_nodes
 TABLESPACE theta_plus_tbs AS
 SELECT distinct citing as scp
-FROM theta_plus.imm1985_testcase_asjc2403_citing_cited
+FROM theta_plus.imm1985_citing_cited
 UNION
 SELECT distinct cited
-FROM theta_plus.imm1985_testcase_asjc2403_citing_cited;
+FROM theta_plus.imm1985_citing_cited;
 
 DROP TABLE IF EXISTS theta_plus.imm1985_title_abstracts;
 CREATE TABLE theta_plus.imm1985_title_abstracts
