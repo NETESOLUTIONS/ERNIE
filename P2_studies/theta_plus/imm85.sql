@@ -1,4 +1,3 @@
-DROP TABLE IF EXISTS theta_plus.imm1985_testcase_asjc2403;
 DROP TABLE IF EXISTS theta_plus.imm1985;
 CREATE TABLE theta_plus.imm1985
 TABLESPACE theta_plus_tbs AS
@@ -17,7 +16,6 @@ ON theta_plus.imm1985(scp)
 TABLESPACE index_tbs;
 
 DROP TABLE IF EXISTS theta_plus.imm1985_testcase_cited;
-DROP TABLE IF EXISTS theta_plus.imm1985_testcase_cited;
 DROP TABLE IF EXISTS theta_plus.imm1985_cited;
 CREATE TABLE theta_plus.imm1985_cited
 TABLESPACE theta_plus_tbs AS
@@ -28,7 +26,6 @@ CREATE INDEX imm1985_cited_idx
 ON theta_plus.imm1985_cited(citing,cited)
 TABLESPACE index_tbs;
 
-DROP TABLE IF EXISTS theta_plus.imm1985_testcase_citing;
 DROP TABLE IF EXISTS theta_plus.imm1985_citing;
 CREATE TABLE theta_plus.imm1985_citing TABLESPACE theta_plus_tbs AS
 SELECT sr.scp as citing,tp.scp as cited FROM theta_plus.imm1985 tp
