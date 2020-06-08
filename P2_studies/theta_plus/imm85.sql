@@ -76,7 +76,7 @@ FROM theta_plus.imm1985_citing_cited
 UNION
 SELECT distinct cited
 FROM theta_plus.imm1985_citing_cited;
-CREATE INDEX imm1990_nodes_idx ON theta_plus.imm1985_nodes(scp);
+CREATE INDEX imm1985_nodes_idx ON theta_plus.imm1985_nodes(scp);
 
 DROP TABLE IF EXISTS theta_plus.imm1985_title_abstracts;
 CREATE TABLE theta_plus.imm1985_title_abstracts
