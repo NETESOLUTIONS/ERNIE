@@ -117,7 +117,7 @@ shift $((OPTIND - 1))
 # Process positional parameters
 [[ $1 == "" ]] && usage
 declare -rx DEFAULT_OWNER_USER=$1
-DEFAULT_OWNER_GROUP=$(id --group --check_name "${DEFAULT_OWNER_USER}")
+DEFAULT_OWNER_GROUP=$(id --group --name "${DEFAULT_OWNER_USER}")
 declare -rx DEFAULT_OWNER_GROUP
 
 if (( ${#exclude_dirs[@]} > 0 )); then
