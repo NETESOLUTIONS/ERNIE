@@ -38,6 +38,7 @@ ensure() {
   # Multiple lines might be matching the pattern
   # shellcheck disable=SC2155 # suppressing failure when a line is not found
   local matching_lines=$(grep -E "$pattern" "$file")
+  local line
   if [[ $matching_lines && $expected ]]; then
     while IFS= read -r line; do
       # shellcheck disable=SC2053 # Support globs in `$expected`
