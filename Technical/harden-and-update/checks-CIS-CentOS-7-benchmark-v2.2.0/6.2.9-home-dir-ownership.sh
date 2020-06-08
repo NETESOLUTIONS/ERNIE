@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "6.2.9 Ensure users own their home directories"
 echo "____CHECK____"
 while IFS=: read -r user enc_passwd uid gid full_name home shell; do

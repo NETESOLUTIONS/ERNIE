@@ -2,14 +2,13 @@
 if [[ $1 == "-h" || $# -lt 2 ]]; then
   cat <<'HEREDOC'
 NAME
-  neo4j_switch_db.sh -- switches Neo4j active DB and restarts Neo4j
+  neo4j_switch_db.sh -- switches Neo4j 4 default DB and restarts Neo4j
 
 SYNOPSIS
   neo4j_load.sh neo4j_db current_user_password
   neo4j_load.sh -h: display this help
 
-DESCRIPTION
-  # See available DBs in `/var/lib/neo4j/data/databases`
+ENVIRONMENT
   # Current user must be a sudoer
 HEREDOC
   exit 1
@@ -38,7 +37,7 @@ readonly DB_NAME="$1"
 
 # region Hide password from the output
 echo "$2" | sudo --stdin -u neo4j bash -c "set -xe
-  sed --in-place --expression='s/dbms.active_database=.*/dbms.active_database=${DB_NAME}/' /etc/neo4j/neo4j.conf"
+  sed --in-place --expression='s/^dbms.default_database=.*/dbms.default_database=${DB_NAME}/' /etc/neo4j/neo4j.conf"
 
 echo "Restarting Neo4j with a new active database ..."
 echo "$2" | sudo --stdin systemctl restart neo4j

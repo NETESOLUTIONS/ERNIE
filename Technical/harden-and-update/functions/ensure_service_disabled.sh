@@ -11,7 +11,7 @@
 ##########################################
 ensure_service_disabled() {
   echo "___CHECK___"
-  if systemctl is-enabled "$1"; then
+  if systemctl is-enabled "$1" 2> /dev/null; then
 #  output=$(systemctl list-unit-files | grep -w $1.service || echo "")
 #  if [[ ${output} && "$(systemctl is-enabled $1.service)" == "enabled" ]]; then
     echo "Check FAILED, correcting ..."
@@ -22,3 +22,5 @@ ensure_service_disabled() {
   fi
   printf "\n\n"
 }
+export -f ensure_service_disabled
+

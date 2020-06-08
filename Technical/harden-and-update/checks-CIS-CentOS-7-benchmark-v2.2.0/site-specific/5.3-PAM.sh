@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '## 5.3 Configure PAM ##\n\n'
 
 echo "5.3.1 Ensure password creation requirements are configured"

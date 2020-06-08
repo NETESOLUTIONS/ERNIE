@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '### Warning Banners ###\n\n'
 
 echo "1.7.1.1 Ensure message of the day is configured properly"

@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "1.8 Ensure updates, patches, and additional security software are installed"
 
 echo "___CHECK___"
-yum clean expire-cache
-if ! yum check-update jenkins; then
-  # When Jenkins is not installed, this is false
-  readonly JENKINS_UPDATE=true
-fi
-
-if yum check-update --security --exclude=jenkins; then
+echo "Checking for all package security patch updates, excluding Jenkins. Please, wait..."
+if yum check-update --security --exclude=jenkins --quiet; then
   echo "Check PASSED"
 else
   echo "Check FAILED, correcting ..."

@@ -21,3 +21,5 @@ ensure_no_file() {
     rm "$file"
   fi
 }
+export -f ensure_no_file
+

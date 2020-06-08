@@ -5,12 +5,11 @@
 # Arguments:
 #   $1  file
 #
-#   $2  configuration key: a PCRE sub-string pattern.
+#   $2  configuration key: an ERE sub-string pattern.
 #
-#   $3  (optional) expected configuration line(s): a string or a glob pattern
-#       Omitting this or using a glob pattern (`*`, `?`, `[...]` characters) switches function to the assert mode: check
-#       and-fail if the key is not found.
-#       Multiple lines are each checked separately.
+#   $3  (optional) expected configuration line: a string or a glob pattern.
+#       Omitting this or using a glob pattern (`*`, `?`, `[...]` characters) switches function to the assert mode:
+#       assert 1) that the key is there and 2) that it matches the glob pattern when provided.
 #
 #   $4 (optional) `^` to prepend the line. Defaults to appending.
 #
@@ -35,29 +34,48 @@ ensure() {
   #  sometimes a variation of expected could be just fine, e.g. with extra whitespaces
   local expected="$3"
   local insertion_mode="$4"
-  # shellcheck disable=SC2155
-  local actual=$(pcregrep "$pattern" "$file")
-  # shellcheck disable=SC2053 # Support globs in `$expected`
-  if [[ "$actual" == $expected ]]; then
-    echo "Check PASSED"
-  else
+
+  # Multiple lines might be matching the pattern
+  # shellcheck disable=SC2155 # suppressing failure when a line is not found
+  local matching_lines=$(grep -E "$pattern" "$file")
+  local line
+  if [[ $matching_lines && $expected ]]; then
+    while IFS= read -r line; do
+      # shellcheck disable=SC2053 # Support globs in `$expected`
+      if [[ "$line" != $expected ]]; then
+        local check_failed=true
+        break
+      fi
+    done <<< "$matching_lines"
+  fi
+
+  if [[ ! $matching_lines || "$check_failed" == true ]]; then
     echo "Check FAILED"
-    echo "The actual value in $1: '$actual'"
+    if [[ $line ]]; then
+      echo "The actual value in $file for the pattern '$pattern' = '$line'"
+    else
+      echo "No match found in $file for the pattern '$pattern'"
+    fi
+    echo "Expected: '$expected'"
 
     # Check for glob pattern special characters: `*?[` (not checking for `extglob` patterns)
     if [[ ! $expected || "$expected" == *[*?[]* ]]; then
+      echo "This has to be fixed manually."
       return 1
     fi
 
-    echo "Correcting to ..."
     echo "___SET___"
-    mapfile -t lines <<< "$expected"
-    for line in "${lines[@]}"; do
-      if [[ "$insertion_mode" == "$PREPEND_INSERTION" ]]; then
-        upsert "$file" '^' "$line"
-      else
-        upsert "$file" "^$line$" "$line"
-      fi
-    done
+    #mapfile -t expected_lines <<< "$expected"
+    #for expected_line in "${expected_lines[@]}"; do
+    if [[ "$insertion_mode" == "$PREPEND_INSERTION" ]]; then
+      upsert "$file" '^' "$expected"
+    else
+      upsert "$file" "$pattern" "$expected"
+    fi
+    #done
+    return
   fi
+
+  echo "Check PASSED"
 }
+export -f ensure

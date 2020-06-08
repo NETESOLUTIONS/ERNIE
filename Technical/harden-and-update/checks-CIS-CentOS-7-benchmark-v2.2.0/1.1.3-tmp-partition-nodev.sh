@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '# 1. Initial Setup #\n\n'
 
 echo -e '## 1.1 Filesystem Configuration ##\n\n'

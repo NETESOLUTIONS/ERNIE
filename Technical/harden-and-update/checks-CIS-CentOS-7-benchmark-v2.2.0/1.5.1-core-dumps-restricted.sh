@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '## 1.5 Additional Process Hardening ##\n\n'
 
 echo "1.5.1 Ensure core dumps are restricted"

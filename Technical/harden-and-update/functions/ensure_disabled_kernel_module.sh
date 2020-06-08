@@ -13,9 +13,10 @@ ensure_disabled_kernel_module() {
   local kernel_module="$1"
   echo "___CHECK___"
   local modprobe_actual
+  # The result may include a trailing space, e.g. `install /bin/true `
   modprobe_actual=$(modprobe -n -v "$kernel_module")
   local lsmod_actual=$(lsmod | grep "$kernel_module")
-  if [[ "$modprobe_actual" == "install /bin/true" && ! "$lsmod_actual" ]]; then
+  if [[ "$modprobe_actual" == "install /bin/true"*( ) && ! "$lsmod_actual" ]]; then
     echo "Check PASSED"
   else
     echo "Check FAILED, correcting ..."
@@ -28,3 +29,5 @@ ensure_disabled_kernel_module() {
   fi
   printf "\n\n"
 }
+export -f ensure_disabled_kernel_module
+

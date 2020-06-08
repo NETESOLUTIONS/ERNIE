@@ -8,14 +8,17 @@ NAME
 
 SYNOPSIS
 
-    sudo update-reboot-safely.sh [-r message] [-m notification_address] [-j] [-g unsafe_group] [-u unsafe_user]
+    sudo update-reboot-safely.sh [-j] [-r message] [-m email] [-g unsafe_group] [-u unsafe_user] [-d postgres_DB]
     update-reboot-safely.sh -h: display this help
 
 DESCRIPTION
 
-    Update Jenkins when there are no Jenkins jobs running.
+    Update Jenkins and/or reboot when there are no Jenkins jobs or processes owned by unsafe user/group running.
+    Disables a cron job for this script when safe.
 
     The following options are available:
+
+    -j                          Update Jenkins
 
     -r message                  Reboot and email a `message` to `notification_address` when there are no:
                                 * Jenkins jobs running
@@ -27,27 +30,24 @@ DESCRIPTION
                                   4. Status `Z`: defunct ("zombie") process, terminated but not reaped by its parent
                                 * Optionally, Postgres active, non-system queries running in the specified DB
 
-    -m notification_address     An address to send notification to
+        -m email                An address to send notification to
 
-    -j                          Update Jenkins
+        -g unsafe_group         Owned (under EGID) processes are considered unsafe for reboot
 
-    -g unsafe_group             Owned (under EGID) processes are considered unsafe for reboot
-
-    -u unsafe_user              Owned (under EUID) processes are considered unsafe for reboot.
+        -u unsafe_user          Owned (under EUID) processes are considered unsafe for reboot.
                                 `jenkins` user is automatically unsafe when there are more than 1 active processes.
+
+        -d postgres_DB          When defined, check Postgres DB for active, non-system queries
 
 ENVIRONMENT
 
-    Pre-requisite dependencies:
+    Pre-requisite dependency:
 
       # `pcregrep`
 
-    PGDATABASE             When defined, check Postgres DB for active, non-system queries
-
-
 EXIT STATUS
 
-    The safe_updates.sh utility exits with one of the following values:
+    The utility exits with one of the following values:
 
     0   In the quiet period
     1   Not in the quiet period
@@ -59,23 +59,28 @@ HEREDOC
 set -e
 set -o pipefail
 
+echo -e "\n$(TZ=America/New_York date) ## Running $0 $* under ${USER}@${HOSTNAME} in ${PWD} ##\n"
+
 # If a character is followed by a colon, the option is expected to have an argument
-while getopts r:m:jd:g:u:h OPT; do
+while getopts jr:m:g:u:d:h OPT; do
   case "$OPT" in
+    j)
+      readonly JENKINS_UPDATE="true"
+      ;;
     r)
       readonly REBOOT_MSG="$OPTARG"
       ;;
     m)
       readonly NOTIFICATION_ADDRESS="$OPTARG"
       ;;
-    j)
-      readonly JENKINS_UPDATE="true"
-      ;;
     g)
       readonly UNSAFE_USER="$OPTARG"
       ;;
     u)
       readonly UNSAFE_GROUP="$OPTARG"
+      ;;
+    d)
+      readonly POSTGRES_DB="$OPTARG"
       ;;
     *) # -h or `?`: an unknown option
       usage
@@ -89,50 +94,42 @@ readonly SCRIPT_DIR=${0%/*}
 readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 # Remove longest */ prefix
 readonly SCRIPT_NAME_WITH_EXT=${0##*/}
-# Remove shortest .* suffix
-readonly SCRIPT_NAME=${name_with_ext%.*}
-
-declare -rx LOG=${ABSOLUTE_SCRIPT_DIR}/${SCRIPT_NAME}.log
-
-echo -e "\n$(TZ=America/New_York date) ## Running $SCRIPT_NAME_WITH_EXT under ${USER}@${HOSTNAME} in ${PWD} ##\n"
-
-enable_cron_job() {
-  if ! crontab -l | grep -F "$SCRIPT_NAME_WITH_EXT"; then
-    echo "Scheduling to check for a safe period every 10 minutes"
-
-    # Append the job to `crontab`
-    # Use `flock` to prevent launching of additional processes if the first launch hasn't finished for some reason
-    { crontab -l;
-      echo "*/10 * * * * flock --nonblock $ABSOLUTE_SCRIPT_DIR/$SCRIPT_NAME.lock sudo $ABSOLUTE_SCRIPT_DIR/$SCRIPT_NAME_WITH_EXT $* >> $LOG";
-    } | crontab -
-  fi
-}
 
 disable_cron_job() {
+  local -r CRON_JOB="${ABSOLUTE_SCRIPT_DIR}/${SCRIPT_NAME_WITH_EXT}"
+
   echo "Disabling the cron job"
-  crontab -l | grep --invert-match -F "$SCRIPT_NAME_WITH_EXT" | crontab -
+  crontab -l | grep --invert-match -F "$CRON_JOB" | crontab -
+  rm -f "$CRON_JOB.lock"
 }
 
-readonly PROCESS_CHECK="${SCRIPT_DIR}/safe_period_detectors/active-processes.sh"
+readonly PROCESS_CHECK="${SCRIPT_DIR}/safe-period-detectors/active-processes.sh"
 
-if ! ${PROCESS_CHECK} -u jenkins 1 && [[ "$REBOOT_MSG" || "$JENKINS_UPDATE" == true ]]; then
-  enable_cron_job "$@"
-  exit 1
-fi
-if [[ "$JENKINS_UPDATE" == true ]]; then
-  echo "Updating Jenkins"
-  if command -v monit > /dev/null; then
-    monit unmonitor Jenkins
+if [[ "$REBOOT_MSG" || "$JENKINS_UPDATE" == true ]]; then
+  set +e
+  ${PROCESS_CHECK} -u jenkins 1
+  if (($? == 1)); then
+    #    set -e
+    #    enable_cron_job "$@"
+    exit 1
   fi
-  systemctl stop jenkins
+  set -e
 
-  yum update -y jenkins
+  if [[ "$JENKINS_UPDATE" == true ]]; then
+    echo "Updating Jenkins"
+    if command -v monit > /dev/null; then
+      monit unmonitor Jenkins
+    fi
+    systemctl stop jenkins
 
-  systemctl start jenkins
-  if command -v monit > /dev/null; then
-    # Re-enabling monit shortly after start can crash Jenkins
-    sleep 20
-    monit monitor Jenkins
+    yum update -y jenkins
+
+    systemctl start jenkins
+    if command -v monit > /dev/null; then
+      # Re-enabling monit shortly after start can crash Jenkins
+      sleep 20
+      monit monitor Jenkins
+    fi
   fi
 fi
 
@@ -145,10 +142,10 @@ if [[ "$REBOOT_MSG" ]]; then
     readonly MAX_GROUP_PROCESSES=0
   fi
 
-  if [[ $UNSAFE_GROUP ]] && ! "${PROCESS_CHECK}" -g "${UNSAFE_GROUP}" $MAX_GROUP_PROCESSES || \
-      [[ $UNSAFE_USER ]] && ! ${PROCESS_CHECK} -u "${UNSAFE_USER}" || \
-      [[ $PGDATABASE ]] && ! "${SCRIPT_DIR}/safe_period_detectors/active-postgres-queries.sh" "$POSTGRES_DB"; then
-    enable_cron_job "$@"
+  if [[ $UNSAFE_GROUP ]] && ! "${PROCESS_CHECK}" -g "${UNSAFE_GROUP}" $MAX_GROUP_PROCESSES \
+      || [[ $UNSAFE_USER ]] && ! ${PROCESS_CHECK} -u "${UNSAFE_USER}" \
+      || [[ $POSTGRES_DB ]] && ! "${SCRIPT_DIR}/safe-period-detectors/active-postgres-queries.sh" "$POSTGRES_DB"; then
+    #    enable_cron_job "$@"
     exit 1
   fi
 

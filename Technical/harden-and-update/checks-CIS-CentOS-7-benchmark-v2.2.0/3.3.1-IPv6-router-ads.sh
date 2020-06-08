@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo '## 3.3 IPv6 ##'
 
 echo "3.3.1 Ensure IPv6 router advertisements are not accepted"

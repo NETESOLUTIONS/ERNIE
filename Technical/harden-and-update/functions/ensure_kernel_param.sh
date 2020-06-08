@@ -32,3 +32,5 @@ ensure_kernel_param() {
     upsert /etc/sysctl.conf "^$param" "$expected"
   fi
 }
+export -f ensure_kernel_param
+

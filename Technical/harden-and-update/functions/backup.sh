@@ -36,3 +36,4 @@ backup() {
     fi
   fi
 }
+export -f backup

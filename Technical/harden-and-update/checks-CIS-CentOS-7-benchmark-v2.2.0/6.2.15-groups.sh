@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "6.2.15 Ensure all groups in /etc/passwd exist in /etc/group"
 echo -e "____CHECK____"
 for group in $(cut -s -d: -f4 /etc/passwd | sort -u); do
