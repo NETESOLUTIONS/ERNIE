@@ -108,5 +108,6 @@ if (( process_count > MAX_PROCESSES)); then
   printf '%s\n' "${active_processes[@]}"
   exit 1
 fi
+echo "In a quiet period"
 
 exit 0

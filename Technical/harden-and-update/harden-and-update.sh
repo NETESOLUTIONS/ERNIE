@@ -17,18 +17,20 @@ DESCRIPTION
     Included hardening checks are based on the OS-specific Center for Internet Security (CIS) Benchmark.
 
     WARNING: Some checks incorporate site-specific policies. Review them before running in a new environment.
-    WARNING: When the SSH config is hardened, test SSH connectivity after the change.
 
-    Any changed config files are backed up on each run.
-    The current directory is used for the log, progress, and backups (e.g. `./2020-05-19-09-33-20.bak/**`).
+    WARNING: SSH into a server before running on a new server. After the SSH config is hardened, test SSH connectivity.
 
-    The script would fail on the first problem that needs to be fixed manually or on the first error.
+    The script fails on the first problem that needs to be fixed manually or on the first script error.
     Correct the problem and re-run. The script should resume at the failed check.
 
-    The script patches all yum packages to their latest security patched versions.
+    The script patches all yum packages to their latest security patches.
     Optionally, the kernel could be updated to the latest LTS version as well.
 
     Kernel and Jenkins updates are done during automatically determined "safe" periods.
+
+    All changed config files are backed up for each run.
+    The working directory is used to write the safe update log, progress files, and backups.
+    The script directory is used to write the safe update lock file.
 
     The following options are available:
 

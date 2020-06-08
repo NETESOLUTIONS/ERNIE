@@ -95,5 +95,6 @@ HEREDOC
   echo "-----"
   exit 1
 fi
+echo "In a quiet period"
 
 exit 0

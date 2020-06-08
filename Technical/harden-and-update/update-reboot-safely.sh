@@ -59,6 +59,8 @@ HEREDOC
 set -e
 set -o pipefail
 
+echo -e "\n$(TZ=America/New_York date) ## Running $0 $* under ${USER}@${HOSTNAME} in ${PWD} ##\n"
+
 # If a character is followed by a colon, the option is expected to have an argument
 while getopts jr:m:g:u:d:h OPT; do
   case "$OPT" in
@@ -92,14 +94,13 @@ readonly SCRIPT_DIR=${0%/*}
 readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 # Remove longest */ prefix
 readonly SCRIPT_NAME_WITH_EXT=${0##*/}
-readonly CRON_JOB="${ABSOLUTE_SCRIPT_DIR}/${SCRIPT_NAME_WITH_EXT}"
-#readonly CRON_LOG=${ABSOLUTE_SCRIPT_DIR}/${SCRIPT_NAME}.log
-
-echo -e "\n$(TZ=America/New_York date) ## Running $SCRIPT_NAME_WITH_EXT $* under ${USER}@${HOSTNAME} in ${PWD} ##\n"
 
 disable_cron_job() {
+  local -r CRON_JOB="${ABSOLUTE_SCRIPT_DIR}/${SCRIPT_NAME_WITH_EXT}"
+
   echo "Disabling the cron job"
   crontab -l | grep --invert-match -F "$CRON_JOB" | crontab -
+  rm -f "$CRON_JOB.lock"
 }
 
 readonly PROCESS_CHECK="${SCRIPT_DIR}/safe-period-detectors/active-processes.sh"
