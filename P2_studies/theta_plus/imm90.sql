@@ -81,7 +81,7 @@ CREATE INDEX imm1990_nodes_idx ON theta_plus.imm1990_nodes(scp);
 DROP TABLE IF EXISTS theta_plus.imm1990_title_abstracts;
 CREATE TABLE theta_plus.imm1990_title_abstracts
 TABLESPACE theta_plus_tbs AS
-SELECT tpin.scp,st.title,sa.abstract_text
+SELECT tpin.scp,st.title,sa.abstract_tex
 FROM theta_plus.imm1990_nodes tpin
 INNER JOIN scopus_titles st ON tpin.scp=st.scp
 INNER JOIN scopus_abstracts sa ON tpin.scp=sa.scp
