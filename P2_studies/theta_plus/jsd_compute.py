@@ -9,16 +9,16 @@ import os
 # val = argv[2]
 name = 'now'
 val = '20'
-rootdir = argv[1] # ---> /erniedev_data3/theta_plus/imm/
+rootdir = argv[1] # ---> /erniedev_data3/theta_plus/imm
 dir_list = sorted(os.listdir(rootdir))
 start_cluster_num = argv[2]
-max_cluster_num = argv[4]
+end_cluster_num = argv[4]
 cluster_type = argv[4]
-ernie_username = argv[5]
-ernie_password = argv[6]
+user_name = argv[5]
+password = argv[6]
 
 schema = "theta_plus"
-sql_scheme = 'postgresql://' + ernie_username + ':' + ernie_password + '@localhost:5432/ernie'
+sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
 for dir_name in dir_list[1:2]:
@@ -26,20 +26,20 @@ for dir_name in dir_list[1:2]:
     title_abstracts_table = dir_name + '_title_abstracts'
     all_text_data = pd.read_sql_table(table_name=title_abstracts_table, schema=schema, con=engine)
     if cluster_type == 'unshuffled':
-        cluster_path = rootdir + dir_name + '/dump.' + dir_name + '_citing_cited.mci.I20.csv'
+        cluster_path = rootdir + '/' + dir_name + '/dump.' + dir_name + '_citing_cited.mci.I20.csv'
         cluster_df = pd.read_csv(cluster_path)
     elif cluster_type == 'shuffled':
-        cluster_path = rootdir + dir_name + '/dump.' + dir_name + '_citing_cited_shuffled_1million.I20.csv'
+        cluster_path = rootdir + '/' + dir_name + '/dump.' + dir_name + '_citing_cited_shuffled_1million.I20.csv'
         cluster_df = pd.read_csv(cluster_path)
 
-    if max_cluster_num == 'max':
+    if end_cluster_num == 'max':
         max_val = cluster_df['cluster_no'].max()
     else:
         max_val = int(max_cluster_num)
     
     data_text = cluster_df.merge(all_text_data, left_on='scp', right_on='scp', how='left')[['scp', 'title', 'abstract_text', 'cluster_no']]
     
-    save_name = rootdir + 'output/' +  dir_name + '_' + cluster_type + ".csv"
+    save_name = rootdir + '/output/' +  dir_name + '_' + cluster_type + ".csv"
     
     # p = mp.Pool(mp.cpu_count())
     p = mp.Pool(6)
