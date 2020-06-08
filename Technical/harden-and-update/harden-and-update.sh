@@ -84,9 +84,9 @@ shopt -s extglob
 readonly DOCKER_HOME=$(docker info 2> /dev/null | pcregrep -o1 'Docker Root Dir: (.+)')
 if [[ ${DOCKER_HOME} ]]; then
   # See https://stackoverflow.com/questions/46672001/is-it-safe-to-clean-docker-overlay2 for more on `/var/lib/docker`
-  export exclude_dirs=("${DOCKER_HOME}" /var/lib/docker)
+  exclude_dirs=("${DOCKER_HOME}" /var/lib/docker)
 else
-  export exclude_dirs=()
+  exclude_dirs=()
 fi
 
 declare -a safe_update_options
@@ -104,7 +104,8 @@ while getopts km:e:u:g:h OPT; do
       ;&
     m | u | g)
       # Pass-through options
-      safe_update_options+=(-$OPT $OPTARG)
+      # shellcheck disable=SC2206 # no need to quote `$OPT`
+      safe_update_options+=(-$OPT "$OPTARG")
       ;;
     *) # -h or `?`: an unknown option
       usage
@@ -116,7 +117,13 @@ shift $((OPTIND - 1))
 # Process positional parameters
 [[ $1 == "" ]] && usage
 declare -rx DEFAULT_OWNER_USER=$1
-declare -rx DEFAULT_OWNER_GROUP=$(id --group --check_name "${DEFAULT_OWNER_USER}")
+DEFAULT_OWNER_GROUP=$(id --group --check_name "${DEFAULT_OWNER_USER}")
+declare -rx DEFAULT_OWNER_GROUP
+
+if (( ${#exclude_dirs[@]} > 0 )); then
+  printf -v FIND_EXCLUDE_DIR_OPTION -- '-not -path *%s/* ' "${exclude_dirs[@]}"
+  export FIND_EXCLUDE_DIR_OPTION
+fi
 
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}

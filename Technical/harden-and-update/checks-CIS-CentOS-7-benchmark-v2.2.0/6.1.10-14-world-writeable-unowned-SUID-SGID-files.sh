@@ -11,8 +11,8 @@ readonly SUID_WHITELIST="${ABSOLUTE_SCRIPT_DIR}/server-whitelists/SUID-whitelist
 readonly SGID_WHITELIST="${ABSOLUTE_SCRIPT_DIR}/server-whitelists/SGID-whitelist.txt"
 
 echo "____CHECK____"
-echo "Scanning all drives, excluding ${exclude_dirs[*]}. Please, wait..."
-printf -v exclude_dir_option -- '-not -path *%s/* ' "${exclude_dirs[@]}"
+echo "Scanning all drives. Please, wait..."
+[[ "$FIND_EXCLUDE_DIR_OPTION" ]] && echo "(excluding the directories via: '${FIND_EXCLUDE_DIR_OPTION}')"
 
 unset check_failed
 unset check_failed_fatally
@@ -22,7 +22,7 @@ readonly GREP_PIPELINE_INDEX=3
 # shellcheck disable=SC2086 # Don't quote `exclude_dir_option` to expand it into multiple params
 coproc { df --local --output=target \
   | tail -n +2 \
-  | xargs -I '{}' find '{}' ${exclude_dir_option} -xdev -type f \
+  | xargs -I '{}' find '{}' ${FIND_EXCLUDE_DIR_OPTION} -xdev -type f \
         \( -perm "/u=s,g=s,o=w" -or -nouser -or -nogroup \) -ls 2> /dev/null;
 }
 # As of Bash 4, `COPROC_PID` has to be saved before it gets reset on process termination
