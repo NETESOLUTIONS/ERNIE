@@ -34,32 +34,47 @@ ensure() {
   #  sometimes a variation of expected could be just fine, e.g. with extra whitespaces
   local expected="$3"
   local insertion_mode="$4"
+
   # Multiple lines might be matching the pattern
-  grep -E "$pattern" "$file" | while IFS= read -r line; do
-    # shellcheck disable=SC2053 # Support globs in `$expected`
-    if [[ ( $expected && "$line" != $expected ) || ( ! $expected && $line ) ]]; then
-      echo "Check FAILED"
-      echo "The actual value in $file for the pattern '$pattern' = '$line'"
-      echo "Expected: '$expected'"
-
-      # Check for glob pattern special characters: `*?[` (not checking for `extglob` patterns)
-      if [[ ! $expected || "$expected" == *[*?[]* ]]; then
-        echo "This has to be fixed manually."
-        return 1
+  # shellcheck disable=SC2155 # suppressing failure when a line is not found
+  local matching_lines=$(grep -E "$pattern" "$file")
+  if [[ $matching_lines ]]; then
+    while IFS= read -r line; do
+      # shellcheck disable=SC2053 # Support globs in `$expected`
+      if [[ ( $expected && "$line" != $expected ) || ( ! $expected && $line ) ]]; then
+        local check_failed=true
+        break
       fi
+    done <<< "$matching_lines"
+  fi
 
-      echo "___SET___"
-      mapfile -t expected_lines <<< "$expected"
-      for expected_line in "${expected_lines[@]}"; do
-        if [[ "$insertion_mode" == "$PREPEND_INSERTION" ]]; then
-          upsert "$file" '^' "$expected_line"
-        else
-          upsert "$file" "$pattern" "$expected_line"
-        fi
-      done
-      return
+  if [[ ! $matching_lines || "$check_failed" == true ]]; then
+    echo "Check FAILED"
+    if [[ $line ]]; then
+      echo "The actual value in $file for the pattern '$pattern' = '$line'"
+    else
+      echo "No match found in $file for the pattern '$pattern'"
     fi
-  done
+    echo "Expected: '$expected'"
+
+    # Check for glob pattern special characters: `*?[` (not checking for `extglob` patterns)
+    if [[ ! $expected || "$expected" == *[*?[]* ]]; then
+      echo "This has to be fixed manually."
+      return 1
+    fi
+
+    echo "___SET___"
+    mapfile -t expected_lines <<< "$expected"
+    for expected_line in "${expected_lines[@]}"; do
+      if [[ "$insertion_mode" == "$PREPEND_INSERTION" ]]; then
+        upsert "$file" '^' "$expected_line"
+      else
+        upsert "$file" "$pattern" "$expected_line"
+      fi
+    done
+    return
+  fi
+
   echo "Check PASSED"
 }
 export -f ensure
