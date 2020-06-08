@@ -6,21 +6,23 @@
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>
       <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
-      <secret-storage>master_key</secret-storage>
-      <user-name>chackoge</user-name>
+      <user-name>dk</user-name>
       <schema-mapping>
         <introspection-scope>
           <node negative="1">
+            <node kind="database" qname="@">
+              <node kind="schema" qname="@" />
+            </node>
             <node kind="database" qname="ernie">
               <node kind="schema">
-                <name qname="cc2" />
-                <name qname="chackoge" />
+                <name qname="@" />
+                <name qname="information_schema" />
+                <name qname="jenkins" />
+                <name qname="pg_catalog" />
                 <name qname="public" />
                 <name qname="theta_plus" />
+                <name qname="wenxi" />
               </node>
-            </node>
-            <node kind="database" qname="postgres">
-              <node kind="schema" negative="1" />
             </node>
           </node>
         </introspection-scope>

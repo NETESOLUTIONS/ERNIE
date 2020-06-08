@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '## 3.5 Uncommon Network Protocols ##\n\n'
 
 echo "3.5.1 Ensure DCCP is disabled"

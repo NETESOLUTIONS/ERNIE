@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '## 5.2 SSH Server Configuration ##\n\n'
+
+# Make sure that new configurations keys are not appended to a conditional block at the end of file
+ensure /etc/ssh/sshd_config '^\s*Match All' 'Match All'
 
 echo "5.2.1 Ensure permissions on /etc/ssh/sshd_config are configured"
 echo "____CHECK____"
@@ -14,6 +19,7 @@ printf "\n\n"
 echo "5.2.3 Ensure SSH LogLevel is set to INFO"
 echo "____CHECK____"
 ensure /etc/ssh/sshd_config '^#*\s*LogLevel' 'LogLevel INFO'
+printf "\n\n"
 
 # WARNING: X11 is needed to run DataGrip and other GUI apps on the server
 echo "5.2.4 Ensure SSH X11 forwarding is disabled"

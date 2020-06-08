@@ -1,4 +1,5 @@
-== All new, not yet implemented (TODO) checks, Level 2 (L2) and TBD DISABLED checks ==
+== New, not yet implemented (TODO) checks, Level 2 (L2) and TBD DISABLED checks ==
+* Also see disabled check scripts moved to this directory
 
 # TODO 1.1.1.1 Ensure mounting of cramfs filesystems is disabled
 # TODO 1.1.1.2 Ensure mounting of freevxfs filesystems is disabled

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "6.2.8 Ensure users' home directories permissions are 750 or more restrictive"
 echo "____CHECK____"
 

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '## 6.1 System File Permissions ##\n\n'
 
 echo "6.1.2 Ensure permissions on /etc/passwd are configured"
@@ -8,7 +10,7 @@ printf "\n\n"
 
 echo "6.1.3 Ensure permissions on /etc/shadow are configured"
 echo "____CHECK____"
-ensure_permissions /etc/shadow 000
+ensure_permissions /etc/shadow 0
 printf "\n\n"
 
 echo "6.1.4 Ensure permissions on /etc/group are configured5"
@@ -18,7 +20,7 @@ printf "\n\n"
 
 echo "6.1.5 Ensure permissions on /etc/gshadow are configured"
 echo "____CHECK____"
-ensure_permissions /etc/gshadow 000
+ensure_permissions /etc/gshadow 0
 printf "\n\n"
 
 echo "6.1.6 Ensure permissions on /etc/passwd- are configured"
@@ -28,7 +30,7 @@ printf "\n\n"
 
 echo "6.1.7 Ensure permissions on /etc/shadow- are configured"
 echo "____CHECK____"
-ensure_permissions /etc/shadow- 644
+ensure_permissions /etc/shadow- 0
 printf "\n\n"
 
 echo "6.1.8 Ensure permissions on /etc/group- are configured"
@@ -38,5 +40,5 @@ printf "\n\n"
 
 echo "6.1.9 Ensure permissions on /etc/gshadow- are configured"
 echo "____CHECK____"
-ensure_permissions /etc/gshadow- 000
+ensure_permissions /etc/gshadow- 0
 printf "\n\n"

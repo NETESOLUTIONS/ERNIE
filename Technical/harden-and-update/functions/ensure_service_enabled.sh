@@ -23,3 +23,4 @@ ensure_service_enabled() {
   fi
   printf "\n\n"
 }
+export -f ensure_service_enabled

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '## 6.2 User and Group Settings ##\n\n'
 
 echo "6.2.1 Ensure password fields are not empty"

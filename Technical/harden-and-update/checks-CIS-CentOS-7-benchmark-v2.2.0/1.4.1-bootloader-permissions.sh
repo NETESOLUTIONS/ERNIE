@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo -e '## 1.4 Secure Boot Settings ##\n\n'
 
 echo "1.4.1 Ensure permissions on bootloader config are configured"

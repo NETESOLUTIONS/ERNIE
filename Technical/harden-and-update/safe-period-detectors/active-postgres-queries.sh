@@ -4,11 +4,11 @@ usage() {
   cat << 'HEREDOC'
 NAME
 
-    active_postgres_queries.sh -- check the running non-system Postgres queries
+    active_postgres_queries.sh -- check the running non-system Postgres queries in a Postgres DB
 
 SYNOPSIS
 
-    active_postgres_queries.sh [-v]
+    active_postgres_queries.sh [-v] postgres_DB
     active_postgres_queries.sh -h: display this help
 
 DESCRIPTION
@@ -29,8 +29,6 @@ ENVIRONMENT
     Pre-requisite dependencies:
 
       # `pcregrep`
-
-    PGDATABASE             When defined, check Postgres DB for active, non-system queries
 
 EXIT STATUS
 
@@ -61,7 +59,9 @@ while getopts vh OPT; do
   esac
 done
 shift $((OPTIND - 1))
+# Positional parameters
 [[ $1 == "" ]] && usage
+readonly POSTGRES_DB="$1"
 
 [[ "${VERBOSE}" == true ]] && set -x
 
@@ -70,18 +70,13 @@ if ! command -v pcregrep >/dev/null; then
   exit 1
 fi
 
-if [[ ! $PGDATABASE ]]; then
-  echo "Please define PGDATABASE environment variable"
-  exit 1
-fi
-
-echo "Checking active Postgres queries in the $PGDATABASE DB".
+echo "Checking active Postgres queries in the $POSTGRES_DB DB".
 
 readonly QUERIES=$(
   # Avoid any directory permission warning
   cd /tmp
   # language=PostgresPLSQL
-  sudo -u jenkins psql -v ON_ERROR_STOP=on "$PGDATABASE" << 'HEREDOC'
+  sudo -u jenkins psql -v ON_ERROR_STOP=on "$POSTGRES_DB" << 'HEREDOC'
 SELECT *
 FROM pg_stat_activity
 WHERE pid <> pg_backend_pid() and state <> 'idle' and usename != 'postgres';
@@ -100,5 +95,6 @@ HEREDOC
   echo "-----"
   exit 1
 fi
+echo "In a quiet period"
 
 exit 0

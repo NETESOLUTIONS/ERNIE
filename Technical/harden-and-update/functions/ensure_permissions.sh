@@ -31,3 +31,5 @@ ensure_permissions() {
     chmod "${permissions}" "${file}"
   fi
 }
+export -f ensure_permissions
+

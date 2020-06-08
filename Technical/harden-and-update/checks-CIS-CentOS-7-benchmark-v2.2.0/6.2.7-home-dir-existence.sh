@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "6.2.7 Ensure all users' home directories exist"
 echo "____CHECK____"
 while IFS=: read -r user enc_passwd uid gid full_name home shell; do

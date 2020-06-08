@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-####################################################################################################################
+########################################################################################################################
 # Update or insert a property value in a file. The inserted line could be appended or prepended.
 #
 # Arguments:
 #   $1     file
 #   $2     key: an ERE expression. It is matched at the beginning of a file line: as `^{key}`.
 #          When key = `^` no matching is done and the replacement line is *prepended*.
-#   $3     replacement line
+#   $3     property value line. All matching lines get replaced with this.
 #
 # Returns:
 #   None
@@ -17,8 +17,9 @@
 #   upsert /etc/ssh/sshd_config '#*Banner ' 'Banner /etc/issue.net'
 #   upsert /etc/logrotate.d/syslog ^ /var/log/cron
 #
-# See https://superuser.com/questions/590630/sed-how-to-replace-line-if-found-or-append-to-end-of-file-if-not-found
-####################################################################################################################
+# Author: Dmitriy "DK" Korobskiy
+# Credits: https://superuser.com/questions/590630/sed-how-to-replace-line-if-found-or-append-to-end-of-file-if-not-found
+########################################################################################################################
 upsert() {
   local file="$1"
   # Escape all `/` as `\/`
@@ -61,3 +62,5 @@ upsert() {
     echo -e "$value" > "$file"
   fi
 }
+export -f upsert
+

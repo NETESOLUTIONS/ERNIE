@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 echo "6.2.6 Ensure root PATH Integrity"
 echo -e "____CHECK____"
 if [[ "$PATH" == *::* ]]; then
