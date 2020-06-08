@@ -9,7 +9,7 @@
 #
 #   $3  (optional) expected configuration line(s): a string or a glob pattern. Multiple lines are each set in the file.
 #       Omitting this or using a glob pattern (`*`, `?`, `[...]` characters) switches function to the assert mode:
-#       assert 1) that the key is there and 2) that is matches the glob pattern when provided.
+#       assert 1) that the key is there and 2) that it matches the glob pattern when provided.
 #
 #   $4 (optional) `^` to prepend the line. Defaults to appending.
 #
@@ -38,10 +38,10 @@ ensure() {
   # Multiple lines might be matching the pattern
   # shellcheck disable=SC2155 # suppressing failure when a line is not found
   local matching_lines=$(grep -E "$pattern" "$file")
-  if [[ $matching_lines ]]; then
+  if [[ $matching_lines && $expected ]]; then
     while IFS= read -r line; do
       # shellcheck disable=SC2053 # Support globs in `$expected`
-      if [[ ( $expected && "$line" != $expected ) || ( ! $expected && $line ) ]]; then
+      if [[ "$line" != $expected ]]; then
         local check_failed=true
         break
       fi
