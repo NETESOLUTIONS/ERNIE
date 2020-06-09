@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 
 from textblob import TextBlob, Word
 import nltk
@@ -7,7 +6,7 @@ from scipy.spatial import distance
 from sklearn.feature_extraction.text import CountVectorizer
 import sklearn
 import numpy as np
-import swifter  # Makes applying to datframe as fast as vectorizing
+import swifter
 from nltk.probability import FreqDist
 import os
 import pandas as pd
@@ -18,7 +17,7 @@ from scipy import sparse
 
 # ------------------------------------------------------------------------------------ #
 
-f = open('/home/shreya/mcl_jsd/stop_words.txt', 'r')
+f = open('/erniedev_data3/theta_plus/scripts/stop_words.txt', 'r')
 stop_words = [word.rstrip('\n') for word in f]
 
 
@@ -156,7 +155,7 @@ def merge_vocab_dictionary(vocab_column):
 # ------------------------------------------------------------------------------------ #
 
 def remove_less_than(frequency_dict, less_than = 1):
-    
+
     """
     We use the 
     
@@ -166,15 +165,15 @@ def remove_less_than(frequency_dict, less_than = 1):
     
     Output: 'retained' - a dictionary of
     """
-   
+
     retained_dict = {key : value for key, value in frequency_dict.items() if (value > less_than)}
-    
+
     return retained_dict
 
 # ------------------------------------------------------------------------------------ #
 
 def filter_after_preprocess(processed_tokens, retained_dict):
-    
+
     """
     We use the 
     
@@ -194,19 +193,19 @@ def filter_after_preprocess(processed_tokens, retained_dict):
 # ------------------------------------------------------------------------------------ #
 
 def vectorize(text, corpus_by_cluster, count_vectorizer):
-    
+
     article_count_mat = count_vectorizer.transform([' '.join(text)])
     article_sum = sparse.diags(1/article_count_mat.sum(axis=1).A.ravel())
     article_prob_vec = (article_sum @ article_count_mat).toarray()
-    
+
     return article_prob_vec
 
 # ------------------------------------------------------------------------------------ #
 
 def calculate_jsd(doc_prob_vec, cluster_prob_vec):
-    
+
     jsd = distance.jensenshannon(doc_prob_vec.tolist()[0], cluster_prob_vec)
-    
+
     return jsd
 
 
@@ -214,35 +213,35 @@ def calculate_jsd(doc_prob_vec, cluster_prob_vec):
 
 
 def compute_jsd(data_text, name, val, cluster_num):
-   
+
     original_cluster_size = len(data_text)
     data_text = data_text.dropna()
     final_cluster_size = len(data_text)
-    
+
     if final_cluster_size < 10:
-            
+
         result_dict = {
-            'weight': name, 
+            'weight': name,
             'inflation': val,
             'cluster': cluster_num,
-            'total_size': original_cluster_size, 
+            'total_size': original_cluster_size,
             'pre_jsd_size': final_cluster_size,
             'missing_values': (original_cluster_size-final_cluster_size),
             'post_jsd_size': None,
-            'jsd_nans': None, 
-            'mean_jsd': None, 
+            'jsd_nans': None,
+            'mean_jsd': None,
             'min_jsd': None,
-            'percentile_25_jsd': None, 
+            'percentile_25_jsd': None,
             'median_jsd': None,
-            'percentile_75_jsd': None, 
-            'max_jsd': None, 
+            'percentile_75_jsd': None,
+            'max_jsd': None,
             'std_dev_jsd': None,
             'total_unique_unigrams': None,
             'final_unique_unigrams':  None,
             'size_1_unigram_prop': None}
-        
+
     else:
-        
+
         data_text['all_text'] = data_text["title"] + data_text["abstract_text"]
         data_text['processed_all_text'] = data_text["all_text"].swifter.apply(preprocess_text)
         data_text['processed_all_text_frequencies'] = data_text['processed_all_text'].swifter.apply(get_frequency)
@@ -280,44 +279,45 @@ def compute_jsd(data_text, name, val, cluster_num):
 
 
         result_dict = {
-            'weight': name, 
+            'weight': name,
             'inflation': val,
             'cluster': cluster_num,
-            'total_size': original_cluster_size, 
+            'total_size': original_cluster_size,
             'pre_jsd_size': final_cluster_size,
             'missing_values': (original_cluster_size-final_cluster_size),
             'post_jsd_size': jsd_cluster_size,
-            'jsd_nans': (final_cluster_size-jsd_cluster_size), 
-            'mean_jsd': jsd_mean, 
+            'jsd_nans': (final_cluster_size-jsd_cluster_size),
+            'mean_jsd': jsd_mean,
             'min_jsd': jsd_min,
-            'percentile_25_jsd': jsd_25_percentile, 
+            'percentile_25_jsd': jsd_25_percentile,
             'median_jsd': jsd_median,
-            'percentile_75_jsd': jsd_75_percentile, 
-            'max_jsd': jsd_max, 
+            'percentile_75_jsd': jsd_75_percentile,
+            'max_jsd': jsd_max,
             'std_dev_jsd': jsd_std,
             'total_unique_unigrams': len(data_all_text_frequency),
             'final_unique_unigrams': len(retained_dict),
             'size_1_unigram_prop': (1-(len(retained_dict)/len(data_all_text_frequency)))}
-        
-        
-    return result_df
+
+
+    return result_dict
+
 
 # ------------------------------------------------------------------------------------ #
 
 def random_jsd(jsd_size, sample_data, repeat):
-    
+
     random_jsd = []
-    
+
     if int(jsd_size) >= 10:
-    
+
         for i in range(repeat):
-            
+
             data_text = sample_data.sample(n = int(jsd_size))
-            
+
             data_text['all_text'] = data_text["title"] + data_text["abstract_text"]
             data_text['processed_all_text'] = data_text["all_text"].swifter.apply(preprocess_text)
             data_text['processed_all_text_frequencies'] = data_text['processed_all_text'].swifter.apply(get_frequency)
-            
+
             data_all_text_frequency = merge_vocab_dictionary(data_text['processed_all_text_frequencies'])
             retained_dict = remove_less_than(data_all_text_frequency)
             data_text['filtered_text'] = data_text['processed_all_text'].swifter.apply(filter_after_preprocess, args = (retained_dict,))
@@ -338,12 +338,12 @@ def random_jsd(jsd_size, sample_data, repeat):
 
             data_text = data_text.dropna()
             data_text['JS_divergence'] = np.square(data_text['JS_distance'])
-            
+
             random_jsd.append(data_text['JS_divergence'].mean())
-            
+
     else:
         random_jsd = None
-    
+
     return random_jsd
 
 # ------------------------------------------------------------------------------------ #
@@ -353,14 +353,12 @@ def random_jsd(jsd_size, sample_data, repeat):
 def fix_eval_issue(doc):
     if doc != 'nan':
         return literal_eval(doc)
-    
+
 def compute_mean(row):
     if type(row)==list:
         return np.mean(row)
-    
+
 def random_jsd_range(row):
     if type(row)==list:
         return np.max(row)-np.min(row)
-    
-
 
