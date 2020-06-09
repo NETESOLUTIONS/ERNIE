@@ -15,7 +15,7 @@ ensure_service_enabled rsyslog
 echo "4.2.1.3 Ensure rsyslog default file permissions configured"
 for file in /etc/rsyslog.conf /etc/rsyslog.d/*.conf; do
   # shellcheck disable=SC2016 # `$` is a part of property key
-  ensure "$file" '^#*\s*\$FileCreateMode' '$FileCreateMode 0640'
+  ensure "$file" '^\s*\$FileCreateMode' '$FileCreateMode 0640'
 done
 printf "\n\n"
 
@@ -23,11 +23,11 @@ printf "\n\n"
 echo "4.2.1.5 Ensure remote rsyslog messages are only accepted on designated log hosts."
 echo "___CHECK 1/2___"
 # shellcheck disable=SC2016 # `$` is a part of property key
-ensure /etc/rsyslog.conf '^#*\s*\$ModLoad.*imtcp' '#$ModLoad imtcp'
+ensure /etc/rsyslog.conf '^\s*\$ModLoad.*imtcp' '#$ModLoad imtcp'
 
 echo "___CHECK 2/2___"
 # shellcheck disable=SC2016 # `$` is a part of property key
-ensure /etc/rsyslog.conf '^#*\s*\$InputTCPServerRun 514' '#$InputTCPServerRun 514'
+ensure /etc/rsyslog.conf '^\s*\$InputTCPServerRun 514' '#$InputTCPServerRun 514'
 
 # TBD This could be done only when the configuration is changed
 pkill -HUP rsyslogd

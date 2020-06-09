@@ -5,7 +5,7 @@
 #
 # Arguments:
 #   $1     file
-#   $2     key: an ERE expression. It is matched at the beginning of a file line: as `^{key}`.
+#   $2     key: an ERE expression. It is matched as a line substring.
 #          When key = `^` no matching is done and the replacement line is *prepended*.
 #   $3     property value line. All matching lines get replaced with this.
 #
@@ -37,16 +37,18 @@ upsert() {
 
       sed --in-place "1i${value}" "$file"
     else
-      # If a line matches just copy it to the hold space (`h`) then substitute the value (`s`).
+      # For each matching line (`/.../`), copy it to the hold space (`h`) then substitute the whole line with the
+      # `value` (`s`). If the `key` is anchored (`^prefix`), the key line is still matched via `^.*${key}.*`: the second
+      # anchor gets ignored.
       #
       # On the last line (`$`): exchange (`x`) hold space and pattern space then check if the latter is empty. If it's
       # empty, that means no match was found so replace the pattern space with the desired value (`s`) then append
       # (`H`) to the current line in the hold buffer. If it's not empty, it means the substitution was already made.
       #
       # Finally, exchange again (`x`).
-      sed --in-place --regexp-extended "/^${key}/{
+      sed --in-place --regexp-extended "/${key}/{
           h
-          s/${key}.*/${value}/
+          s/^.*${key}.*/${value}/
         }
         \${
           x

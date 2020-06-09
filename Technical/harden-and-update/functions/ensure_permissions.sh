@@ -17,7 +17,7 @@ ensure_permissions() {
   local permissions="${2:-600}"
 
   # shellcheck disable=SC2155 # intentionally suppress failures for non-existent files
-  local actual=$(stat --format="%U:%G %a" "${file}" 2> /dev/null)
+  local actual=$(stat --format="%U:%G %a" --dereference "${file}" 2> /dev/null)
   if [[ "$actual" == "$OWNERSHIP $permissions" ]]; then
     echo "Check PASSED"
   else
