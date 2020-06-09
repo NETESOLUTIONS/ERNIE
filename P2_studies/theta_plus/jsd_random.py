@@ -58,8 +58,8 @@ for dir_name in tmp_dir_list:
     #     print(f'Working on Cluster: {name} {val}.')
         print(f'The Cluster Size Number is {cluster_num+1} of {max_val} in {dir_name}')
         result_df = cluster_counts_table[cluster_num:cluster_num+1]
-        print(f'The Cluster Size is {result_df['cluster_size'].values[0]}')
-        result_df['random_jsd'] = p.starmap(jm.random_jsd, [(result_df['cluster_size'], all_text_data, repeat)])
+        print(f'The Cluster Size is {result_df["cluster_size"].values[0]}')
+        result_df['random_jsd'] = p.starmap(jm.random_jsd, [(result_df["cluster_size"], all_text_data, repeat)])
         result_df.to_csv(save_name, mode = 'a', index = None, header=False, encoding='utf-8')
         print(f'Done with Cluster Size Number {cluster_num+1}')
         print("")
