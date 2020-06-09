@@ -1,0 +1,9 @@
+auth        include       system-auth-ac
+
+account     include       system-auth-ac
+
+password    requisite     pam_pwquality.so try_first_pass local_users_only retry=3 authtok_type=
+password    sufficient    pam_unix.so remember=5
+password    include       system-auth-ac
+
+session     include       system-auth-ac
