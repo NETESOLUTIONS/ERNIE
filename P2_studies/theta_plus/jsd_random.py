@@ -6,7 +6,6 @@ from glob import glob
 from sys import argv
 import os
 
-# val = argv[2]
 jsd_output_column_names = ['weight', 'inflation', 'cluster', 'total_size', 'pre_jsd_size',
        'missing_values', 'post_jsd_size', 'jsd_nans', 'mean_jsd', 'min_jsd',
        'percentile_25_jsd', 'median_jsd', 'percentile_75_jsd', 'max_jsd',
