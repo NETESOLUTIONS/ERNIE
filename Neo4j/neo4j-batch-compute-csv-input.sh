@@ -358,7 +358,7 @@ HEREDOC
   # When performing calculations `/` will truncate the result and should be done last
   printf "%d records exported in %dh:%02dm:%02d.%ds at %.1f records/min (this thread)." "$num_of_recs" \
       $((delta_s / 3600)) $(((delta_s / 60) % 60)) $((delta_s % 60)) $((delta_ms % 1000)) \
-      "$((10 ** 7 * num_of_recs * 1000 * 60 / delta_ms))e-7"
+      "$((10 ** 6 * num_of_recs * 1000 * 60 / delta_ms))e-6"
 
   if [[ $ASSERT_NUM_REC_EQUALITY == true ]]; then
     if (( num_of_recs != input_batch_recs )); then
@@ -385,7 +385,7 @@ HEREDOC
   # When performing calculations `/` will truncate the result and should be done last
   printf " ETA ≈ %s at ≈ %.1f records/min overall.\n" \
       "$(TZ=America/New_York date --date=@$(((START_TIME + est_total_time_ms) / 1000)))" \
-      "$((10 ** 7 * appr_processed_records * 1000 * 60 / elapsed_ms))e-7"
+      "$((10 ** 6 * appr_processed_records * 1000 * 60 / elapsed_ms))e-6"
 }
 export -f process_batch
 
