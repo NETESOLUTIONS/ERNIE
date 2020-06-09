@@ -16,5 +16,5 @@ HEREDOC
     exit 1
   fi
 done
-echo -e "\nCheck PASSED: No Duplicate User Name"
+echo "Check PASSED"
 printf "\n\n"

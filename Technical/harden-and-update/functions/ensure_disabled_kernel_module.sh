@@ -12,11 +12,14 @@
 ensure_disabled_kernel_module() {
   local kernel_module="$1"
   echo "___CHECK___"
-  local modprobe_actual
+
+  # `modprobe` might not found such a module and error out with `modprobe: FATAL: Module {module} not found.`
   # The result may include a trailing space, e.g. `install /bin/true `
-  modprobe_actual=$(modprobe -n -v "$kernel_module")
+  # shellcheck disable=SC2155 # intentionally suppressing failures
+  local modprobe_actual=$(modprobe -n -v "$kernel_module" 2> /dev/null)
+  # shellcheck disable=SC2155 # intentionally suppressing modules not found by `lsmod`
   local lsmod_actual=$(lsmod | grep "$kernel_module")
-  if [[ "$modprobe_actual" == "install /bin/true"*( ) && ! "$lsmod_actual" ]]; then
+  if [[ ( ! "$modprobe_actual" || "$modprobe_actual" == "install /bin/true"*( ) ) && ! "$lsmod_actual" ]]; then
     echo "Check PASSED"
   else
     echo "Check FAILED, correcting ..."

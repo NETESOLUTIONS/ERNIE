@@ -14,23 +14,33 @@ while IFS=: read -r user enc_passwd uid gid full_name home shell; do
       if [[ ! -h "$file" && -f "$file" ]]; then
         # if file exists and is not a symbolic link
 
-        perm=$(ls -ld "$file" | cut -f1 -d" ")
-        if [ $(echo $perm | cut -c6) != "-" ]; then
-          echo "Group Write permission set on file $file"
-          echo "Check FAILED, correct this!"
-          check_failed=true
+        perms=$(stat --format="%A" --dereference "$file")
+        if [[ "$perms" == ?????w?* ]]; then
+          if [[ ! $check_failed ]]; then
+            check_failed=true
+            echo "Check FAILED"
+            echo "___SET___"
+          fi
+#          echo "Group write permission set on file $file"
+          chmod -v g-w "$file"
         fi
-        if [ $(echo $perm | cut -c9) != "-" ]; then
-          echo "Other Write permission set on file $file"
-          echo "Check FAILED, correct this!"
-          check_failed=true
+        if [[ "$perms" == ????????w? ]]; then
+          if [[ ! $check_failed ]]; then
+            check_failed=true
+            echo "Check FAILED"
+            echo "___SET___"
+          fi
+#          echo "Other write permission set on file $file"
+          chmod -v o-w "$file"
         fi
       fi
     done
   fi
 done <& "${COPROC[0]}"
 wait "$_co_pid"
-[[ $check_failed == true ]] && exit 1
-echo "Check PASSED"
+
+if [[ ! $check_failed ]]; then
+  echo "Check PASSED"
+fi
 
 printf "\n\n"

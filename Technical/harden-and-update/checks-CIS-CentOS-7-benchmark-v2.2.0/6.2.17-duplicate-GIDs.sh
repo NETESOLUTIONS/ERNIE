@@ -16,5 +16,5 @@ HEREDOC
     exit 1
   fi
 done
-echo -e "\nCheck PASSED: No Duplicate GIDs"
+echo -e "Check PASSED"
 printf "\n\n"

@@ -8,7 +8,7 @@ NAME
 
 SYNOPSIS
 
-    sudo [--preserve-env=PGDATABASE] harden-and-update.sh [OPTION]... system_user
+    sudo [--preserve-env=PGDATABASE] harden-and-update.sh [OPTION]...
     harden-and-update.sh -h: display this help
 
 DESCRIPTION
@@ -34,8 +34,7 @@ DESCRIPTION
 
     The following options are available:
 
-    -e excluded_dir         Directory(-ies) excluded from the ownership and system executables check.
-                            This is needed for mapped Docker container dirs.
+    -e excluded_dir         Directory(-ies) excluded from the SUID/SGID checks.
                             Docker system directories (if Docker is installed) are excluded automatically.
 
     -k                      Update Linux kernel to the latest LTS version.
@@ -43,12 +42,13 @@ DESCRIPTION
 
       -m email              An address to send notification to
 
-      -u unsafe_user        Check "active" processes of this effective user to determine a "safe" period.
+    -u unsafe_user          Check "active" processes of this effective user to determine a "safe" period.
 
-      -g unsafe_group       Check "active" processes of this effective group to determine a "safe" period.
+    -g unsafe_group         Check "active" processes of this effective group to determine a "safe" period.
 
-    system_user             User account to assign ownership of unowned files and directories and backups.
+    -o system_user          User account to assign ownership of backups and progress files.
                             The primary group of that user account will be used as group owner.
+                            Defaults to `jenkins`.
 
 ENVIRONMENT
 
@@ -71,7 +71,7 @@ EXAMPLES
 
     sudo --preserve-env=PGDATABASE ./harden-and-update.sh -e /data1/upsource admin
 
-Version 2.0                                           June 2020
+Version 2.1                                           June 2020
 HEREDOC
   exit 1
 }
@@ -89,15 +89,16 @@ else
   exclude_dirs=()
 fi
 
+DEFAULT_OWNER_USER="jenkins"
 declare -a safe_update_options
 # If a character is followed by a colon, the option is expected to have an argument
-while getopts km:e:u:g:h OPT; do
+while getopts e:km:u:g:o:h OPT; do
   case "$OPT" in
-    k)
-      readonly KERNEL_UPDATE=true
-      ;;
     e)
       exclude_dirs+=("$OPTARG")
+      ;;
+    k)
+      readonly KERNEL_UPDATE=true
       ;;
     m)
       readonly NOTIFICATION_ADDRESS="$OPTARG"
@@ -107,18 +108,21 @@ while getopts km:e:u:g:h OPT; do
       # shellcheck disable=SC2206 # no need to quote `$OPT`
       safe_update_options+=(-$OPT "$OPTARG")
       ;;
+    o)
+      DEFAULT_OWNER_USER="$OPTARG"
+      DEFAULT_OWNER_GROUP=$(id --group --name "${DEFAULT_OWNER_USER}")
+      declare -rx DEFAULT_OWNER_GROUP
+      ;&
     *) # -h or `?`: an unknown option
       usage
       ;;
   esac
 done
 shift $((OPTIND - 1))
+declare -rx DEFAULT_OWNER_USER
 
-# Process positional parameters
-[[ $1 == "" ]] && usage
-declare -rx DEFAULT_OWNER_USER=$1
-DEFAULT_OWNER_GROUP=$(id --group --name "${DEFAULT_OWNER_USER}")
-declare -rx DEFAULT_OWNER_GROUP
+#Process positional parameters
+#[[ $1 == "" ]] && usage
 
 if (( ${#exclude_dirs[@]} > 0 )); then
   printf -v FIND_EXCLUDE_DIR_OPTION -- '-not -path *%s/* ' "${exclude_dirs[@]}"
@@ -141,6 +145,7 @@ declare -rx BACKUP_DIR
 
 MIN_NON_SYSTEM_UID=$(pcregrep -o1 '^UID_MIN\s+(\d+)' /etc/login.defs)
 declare -rx MIN_NON_SYSTEM_UID
+echo "Regular user UIDs start at $MIN_NON_SYSTEM_UID (per /etc/login.defs)"
 
 # Source and export all functions to make them available to all check scripts
 for function_script in "$SCRIPT_DIR"/functions/*.sh; do
@@ -148,7 +153,7 @@ for function_script in "$SCRIPT_DIR"/functions/*.sh; do
   source "$function_script"
 done
 
-echo -e "\nExecuting checks...\n"
+echo -e "Executing checks...\n"
 for check_script in "$SCRIPT_DIR"/checks-*/*.sh "$SCRIPT_DIR"/checks-*/site-specific/*.sh; do
   # Remove longest */ prefix
   check_name_with_ext=${check_script##*/}

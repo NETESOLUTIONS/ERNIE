@@ -1,10 +1,15 @@
+/usr/bin/cgclassify
+/usr/bin/cgexec
 /usr/bin/locate
+/usr/bin/lockfile
 /usr/bin/ssh-agent
 /usr/bin/wall
 /usr/bin/write
+/usr/lib64/vte-2.91/gnome-pty-helper
 /usr/libexec/abrt-action-install-debuginfo-to-abrt-cache
 /usr/libexec/openssh/ssh-keysign
 /usr/libexec/utempter/utempter
 /usr/sbin/netreport
 /usr/sbin/postdrop
 /usr/sbin/postqueue
+/usr/sbin/sendmail.sendmail
