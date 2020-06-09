@@ -90,4 +90,3 @@ AND st.language='English';
 
 select scp,title from theta_plus.imm1994_title_abstracts limit 5;
 select count(1) from theta_plus.imm1994_title_abstracts;
-
