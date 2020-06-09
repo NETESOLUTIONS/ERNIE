@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
+# TBD These checks could break functionality
+# CIS: "always consult relevant vendor documentation to avoid breaking any application dependencies on a given file"
 set -e
 set -o pipefail
 echo "6.1.10 Ensure no world writable files exists"
 echo "6.1.11 Ensure no unowned files or directories exist"
 echo "6.1.12 Ensure no ungrouped files or directories exist"
-echo "6.1.13 Audit SUID executables"
-echo "6.1.14 Audit SGID executables"
+#echo "6.1.13 Audit SUID executables"
+#echo "6.1.14 Audit SGID executables"
 
 readonly SUID_WHITELIST="${ABSOLUTE_SCRIPT_DIR}/server-whitelists/SUID-whitelist.txt"
 readonly SGID_WHITELIST="${ABSOLUTE_SCRIPT_DIR}/server-whitelists/SGID-whitelist.txt"
@@ -14,8 +16,6 @@ echo "____CHECK____"
 echo "Scanning all drives. Please, wait..."
 [[ "$FIND_EXCLUDE_DIR_OPTION" ]] && echo "(excluding the directories via: '${FIND_EXCLUDE_DIR_OPTION}')"
 
-unset check_failed
-unset check_failed_fatally
 readonly GREP_PIPELINE_INDEX=3
 # `find -xdev`: don't descend directories on other filesystems
 # `find -perm /{bits}`: *any* of the permission bits mode are set for the file.
@@ -61,7 +61,7 @@ while read -r inode blocks perms number_of_links_or_dirs owner group size month 
   # TBD Grepping each failed file is not very efficient
   if [[ "$suid_file" == true ]] && ! grep -F --line-regexp --quiet "$file" "${SUID_WHITELIST}" || \
      [[ "$sgid_file" == true ]] && ! grep -F --line-regexp --quiet "$file" "${SGID_WHITELIST}"; then
-    if [[ ! $check_failed ]]; then
+    if [[ ! $check_failed_fatally ]]; then
       check_failed_fatally=true
       cat << HEREDOC
 Check FAILED...

@@ -26,4 +26,6 @@ dt2 <- rbind(mdf,dt)
 setkeyv(dt2,keyCols)
 # remove duplicates
 dt3 <- dt2[,.N,by=keyCols][N==1]
+# remove column 'N'
+dt3[,N:=NULL]
 fwrite(dt3,file='sbp_1986_1995_minus1985.csv')
