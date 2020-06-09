@@ -18,7 +18,7 @@ from scipy import sparse
 
 # ------------------------------------------------------------------------------------ #
 
-f = open('/home/shreya/mcl_jsd/stop_words.txt', 'r')
+f = open('/erniedev_data3/theta_plus/scripts/stop_words.txt', 'r')
 stop_words = [word.rstrip('\n') for word in f]
 
 
