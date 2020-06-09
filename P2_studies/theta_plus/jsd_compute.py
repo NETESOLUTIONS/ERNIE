@@ -1,5 +1,6 @@
 import jsd_modules as jm
 import pandas as pd
+pd.options.mode.chained_assignment = None
 import multiprocessing as mp
 from sqlalchemy import create_engine
 from sys import argv
@@ -21,7 +22,7 @@ schema = "theta_plus"
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
-tmp_dir_list = ['imm1986']
+tmp_dir_list = ['imm1986', 'imm1987', 'imm1988']
 for dir_name in tmp_dir_list:
 #for dir_name in dir_list:
     print(f'Working on {dir_name}')
@@ -49,7 +50,7 @@ for dir_name in tmp_dir_list:
 
         print(f'Working on Cluster Number {cluster_num} of {cluster_df["cluster_no"].max()} in {dir_name}_{cluster_type}')
         print(cluster_path)
-        jsd_dict = p.starmap(jm.compute_jsd, [(data_text[data_text['cluster_no']==cluster_num].copy(), name, val, cluster_num)])
+        jsd_dict = p.starmap(jm.compute_jsd, [(data_text[data_text['cluster_no']==cluster_num], name, val, cluster_num)])
         jsd_df = pd.DataFrame(jsd_dict)
         jsd_df.to_csv(save_name, mode = 'a', index = None, header=False, encoding='utf-8')
 
