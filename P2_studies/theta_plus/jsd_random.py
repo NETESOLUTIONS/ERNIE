@@ -1,5 +1,6 @@
 import jsd_modules as jm
 import pandas as pd
+pd.options.mode.chained_assignment = None
 import multiprocessing as mp
 from sqlalchemy import create_engine
 from glob import glob
@@ -32,7 +33,7 @@ engine = create_engine(sql_scheme)
 # p = mp.Pool(mp.cpu_count())
 p = mp.Pool(6)
 
-tmp_dir_list = ['imm1985', 'imm1990', 'imm1995']
+tmp_dir_list = ['imm1986', 'imm1987', 'imm1988']
 for dir_name in tmp_dir_list:
 #for dir_name in dir_list:    
 
