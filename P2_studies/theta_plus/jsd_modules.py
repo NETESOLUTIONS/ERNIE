@@ -316,7 +316,7 @@ def random_jsd(jsd_size, sample_data, repeat):
 
             data_text['all_text'] = data_text["title"] + data_text["abstract_text"]
             data_text['processed_all_text'] = data_text["all_text"].swifter.progress_bar(False).apply(preprocess_text)
-            data_text['processed_all_text_frequencies'] = data_text['processed_all_text'].swifter.apply(get_frequency)
+            data_text['processed_all_text_frequencies'] = data_text['processed_all_text'].swifter.progress_bar(False).apply(get_frequency)
 
             data_all_text_frequency = merge_vocab_dictionary(data_text['processed_all_text_frequencies'])
             retained_dict = remove_less_than(data_all_text_frequency)
