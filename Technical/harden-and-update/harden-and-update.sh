@@ -112,13 +112,13 @@ while getopts e:km:u:g:o:h OPT; do
       DEFAULT_OWNER_USER="$OPTARG"
       DEFAULT_OWNER_GROUP=$(id --group --name "${DEFAULT_OWNER_USER}")
       declare -rx DEFAULT_OWNER_GROUP
-      ;&
+      ;;
     *) # -h or `?`: an unknown option
       usage
       ;;
   esac
 done
-shift $((OPTIND - 1))
+#shift $((OPTIND - 1))
 declare -rx DEFAULT_OWNER_USER
 
 #Process positional parameters
