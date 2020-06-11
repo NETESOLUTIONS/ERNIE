@@ -26,7 +26,7 @@ CREATE INDEX imm1994_citing_cited_idx ON theta_plus.imm1994_citing_cited(citing,
 CREATE INDEX imm1995_citing_cited_idx ON theta_plus.imm1995_citing_cited(citing,cited) TABLESPACE index_tbs;
 -- create union of edge lists across 11 years
 
-DROP TABLE IF EXISTS theta_plus.imm_85_95_citing_cited;
+DROP TABLE IF EXISTS theta_plus.imm1985_1995_citing_cited;
 CREATE TABLE theta_plus.imm_85_95_citing_cited TABLESPACE theta_plus_tbs AS
 SELECT * FROM imm1985_citing_cited UNION
 SELECT * FROM imm1986_citing_cited UNION
@@ -44,7 +44,7 @@ DROP TABLE IF EXISTS theta_plus.imm1985_1995_title_abstracts;
 CREATE TABLE theta_plus.imm1985_1995_title_abstracts
 TABLESPACE theta_plus_tbs AS
 SELECT tpin.scp,st.title,sa.abstract_text
-FROM theta_plus.imm_85_95_common_scps tpin
+FROM theta_plus.imm1985_1995_common_scps tpin
 INNER JOIN scopus_titles st ON tpin.scp=st.scp
 INNER JOIN scopus_abstracts sa ON tpin.scp=sa.scp
 AND sa.abstract_language='eng'
