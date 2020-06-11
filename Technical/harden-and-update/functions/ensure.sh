@@ -4,10 +4,12 @@
 # Ensure configuration value is set in a config file
 #
 # Arguments:
-#   $1  file
+#   $1  file: if it does not exist, and the expected line is set, the file is going to be created.
 #   $2  configuration key: an ERE sub-string pattern
 #   $3  (optional) expected configuration line. Omitting this would switch to asserting simply that the key is present.
-#   $4  (optional) `^` to prepend the line. Defaults to appending.
+#       TBD Currently, the exact match is expected. Sometimes, a variation of expected could be just fine, e.g. with
+#       extra whitespaces.
+#   $4  (optional) insertion mode: `^` to prepend the line. Defaults to appending.
 #
 # Examples:
 #   1. Check and configure `sulogin`:
@@ -22,8 +24,6 @@ ensure() {
 
   local file="$1"
   local pattern="$2"
-  # FIXME Currently, the exact match is expected
-  #  sometimes a variation of expected could be just fine, e.g. with extra whitespaces
   local expected="$3"
   local insertion_mode="$4"
 
