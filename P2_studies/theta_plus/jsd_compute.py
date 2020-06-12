@@ -30,10 +30,10 @@ for dir_name in tmp_dir_list:
     all_text_data = pd.read_sql_table(table_name=title_abstracts_table, schema=schema, con=engine)
     if cluster_type == 'unshuffled':
         cluster_path = rootdir + '/' + dir_name + '/dump.' + dir_name + '_citing_cited.mci.I20.csv'
-        cluster_df = pd.read_csv(cluster_path)
     elif cluster_type == 'shuffled':
         cluster_path = rootdir + '/' + dir_name + '/dump.' + dir_name + '_citing_cited_shuffled_1million.I20.csv'
-        cluster_df = pd.read_csv(cluster_path)
+    
+    cluster_df = pd.read_csv(cluster_path)
 
     if end_cluster_num == 'max':
         max_val = cluster_df['cluster_no'].max()

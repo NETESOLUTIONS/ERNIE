@@ -2,22 +2,20 @@ import os
 import pandas as pd
 from sys import argv
 
-rootdir = '/erniedev_data3/theta_plus/imm/'
+rootdir = '/erniedev_data3/theta_plus/imm'
 dir_list = sorted(os.listdir(rootdir))
 cluster_type = argv[1]
 
-#tmp_dir_list = ['imm1985', 'imm1990', 'imm1995']
-#for dir_name in tmp_dir_list:
 for dir_name in dir_list:
     print(f'Working on {dir_name}')
     if cluster_type == 'unshuffled':
-        cluster_path = rootdir + dir_name + '/dump.' + dir_name + '_testcase_asjc2403_citing_cited.mci.I20.csv'
+        cluster_path = rootdir + '/' + dir_name + '/dump.' + dir_name + '_citing_cited.mci.I20.csv'
     elif cluster_type == 'shuffled':
-        cluster_path = rootdir + dir_name + '/dump.' + dir_name + '_testcase_asjc2403_citing_cited_shuffled_1million.I20.csv'
+        cluster_path = rootdir + '/' + dir_name + '/dump.' + dir_name + '_citing_cited_shuffled_1million.I20.csv'
 
     cluster_data = pd.read_csv(cluster_path)
 
-    nodes_data_name = rootdir + dir_name + '/' + dir_name + '_testcase_asjc2403_citing_cited.csv'
+    nodes_data_name = rootdir + '/' + dir_name + '/' + dir_name + '_citing_cited.csv'
     nodes_data = pd.read_csv(nodes_data_name)
 
     conductance_data = nodes_data.merge(cluster_data, left_on='citing', right_on='scp', how='inner').rename(columns={'cluster_no':'citing_cluster'}).merge(cluster_data, left_on='cited', right_on='scp', how='inner').rename(columns={'cluster_no':'cited_cluster'})
@@ -46,7 +44,7 @@ for dir_name in dir_list:
     conductance_x5['denom'] = conductance_x5[['alt_denom', 'volume']].min(axis=1)
     conductance_x5['conductance'] = round((conductance_x5['boundary']/conductance_x5['denom']), 3)
 
-    save_name = '/home/shreya/mcl_jsd/immunology/results/JSD_conductance_output_' + dir_name + '_' + cluster_type + '.csv'
+    save_name = '/erniedev_data3/theta_plus/imm_output/' + dir_name + '/' +  dir_name + '_conductance_' + cluster_type + '.csv'
     conductance_x5.to_csv(save_name, index = None, header=True, encoding='utf-8')
 
 print("All completed.")
