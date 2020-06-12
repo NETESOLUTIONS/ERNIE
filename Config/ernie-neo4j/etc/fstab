@@ -1,0 +1,26 @@
+#
+# /etc/fstab
+# Created by anaconda on Wed Aug 15 19:30:54 2018
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+
+# == System Volumes ==
+
+UUID=12907c8a-6b2f-4981-b94c-f3cd772270a7 	/		xfs	defaults			0 0
+UUID=fa2f8157-21c9-43b6-85e3-ff04422dfa00 	/boot		xfs     defaults			0 0
+tmpfs						/dev/shm	tmpfs	defaults,noexec,nosuid,nodev	0 0
+
+# == Temporary Volumes ==
+
+/tmp						/var/tmp	none	bind				0 0
+/tmp/tmp_fs 					/tmp		ext3	nosuid,nodev,loop		1 1
+
+# == Data Volumes ==
+
+ßUUID=8b2eacee-c819-4873-bb20-93ab26857bd2 	/neo4j_data1	ext4	defaults,nofail			1 2
+
+# == Swap Volumes ==
+
+/neo4j_data1/swapfile				none		swap	sw
