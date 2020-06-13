@@ -29,6 +29,7 @@ COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Type to indicate fam
 -- endregion
 
 -- region lexis_nexis_patents
+
 -- DROP TABLE IF EXISTS lexis_nexis_patents CASCADE;
 CREATE TABLE lexis_nexis_patents (
   country_code TEXT NOT NULL,
@@ -79,6 +80,7 @@ COMMENT ON COLUMN lexis_nexis_patents.main_national_classification_class IS '';
 COMMENT ON COLUMN lexis_nexis_patents.main_national_classification_subclass IS '';
 COMMENT ON COLUMN lexis_nexis_patents.number_of_claims IS 'Number of claims';
 COMMENT ON COLUMN lexis_nexis_patents.last_updated_time IS '';
+
 -- endregion
 
 -- DROP TABLE IF EXISTS lexis_nexis_patents_family_link;
@@ -89,13 +91,15 @@ CREATE TABLE lexis_nexis_patents_family_link (
   kind_code TEXT NOT NULL,
   CONSTRAINT lexis_nexis_patents_family_link_pk
     PRIMARY KEY (family_id, country_code, doc_number, kind_code) USING INDEX TABLESPACE index_tbs,
-  CONSTRAINT lexis_nexis_patents_family_link_fk
+  CONSTRAINT lnpfl_family_id_fk
     FOREIGN KEY (family_id)
       REFERENCES lexis_nexis_patent_families ON DELETE CASCADE,
-  FOREIGN KEY (country_code, doc_number, kind_code)
+  CONSTRAINT lnpfl_country_code_doc_number_kind_code_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
     REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
+
 -- endregion
 
 -- region lexis_nexis_patent_titles
