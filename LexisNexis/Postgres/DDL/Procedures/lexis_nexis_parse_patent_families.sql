@@ -3,7 +3,7 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
-SET search_path TO public;
+
 
 CREATE OR REPLACE PROCEDURE lexis_nexis_parse_patent_families(input_xml xml) AS
 $$

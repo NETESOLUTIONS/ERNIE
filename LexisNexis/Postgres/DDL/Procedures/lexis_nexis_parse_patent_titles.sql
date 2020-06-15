@@ -9,7 +9,7 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
-SET search_path TO public;
+
 
 -- Parse base patent title data
 CREATE OR REPLACE PROCEDURE lexis_nexis_parse_patent_titles(input_xml XML) AS

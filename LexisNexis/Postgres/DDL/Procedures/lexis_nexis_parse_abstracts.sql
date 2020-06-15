@@ -9,7 +9,7 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
-SET search_path TO public;
+
 
 -- Abstract parsing
 CREATE OR REPLACE PROCEDURE lexis_nexis_parse_abstracts(input_xml XML) AS

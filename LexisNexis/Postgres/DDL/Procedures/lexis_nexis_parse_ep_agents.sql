@@ -3,7 +3,7 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
-SET search_path TO public;
+
 
 --Parse ep agents
 CREATE OR REPLACE PROCEDURE lexis_nexis_parse_ep_agents(input_xml XML) AS

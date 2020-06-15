@@ -3,7 +3,6 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
-SET search_path TO public;
 
 --Parse examiners
 CREATE OR REPLACE PROCEDURE lexis_nexis_parse_examiners(input_xml XML) AS
