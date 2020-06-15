@@ -1,5 +1,5 @@
 /var/log/cron
-/var/log/daemon
+/var/log/daemon.log
 /var/log/maillog
 /var/log/messages
 /var/log/secure
