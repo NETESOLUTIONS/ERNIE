@@ -21,7 +21,7 @@ CREATE TABLE lexis_nexis_patent_families (
 )
 TABLESPACE lexis_nexis_tbs;
 
-COMMENT ON TABLE lexis_nexis_patent_families IS 'Patent Family which contains four family types';
+COMMENT ON TABLE lexis_nexis_patent_families IS 'Patent Family which contains four family types';COMMENT ON TABLE lexis_nexis_patent_families IS 'Patent Family which contains four family types';
 COMMENT ON COLUMN lexis_nexis_patent_families.earliest_date IS 'Earliest date';
 COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Id for each family type';
 COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Type to indicate family type';
@@ -54,16 +54,19 @@ CREATE TABLE lexis_nexis_patents (
   number_of_claims INT,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT lexis_nexis_patents_pk
-    PRIMARY KEY (country_code, doc_number, kind_code) USING INDEX TABLESPACE index_tbs,
+    PRIMARY KEY (country_code, doc_number, kind_code) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
 
 COMMENT ON TABLE lexis_nexis_patents IS 'Main table for Lexis Nexis patents';
-COMMENT ON COLUMN lexis_nexis_patents.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patents.country_code IS --
+  'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
 COMMENT ON COLUMN lexis_nexis_patents.doc_number IS 'Document number';
 COMMENT ON COLUMN lexis_nexis_patents.kind_code IS 'Document kind';
-COMMENT ON COLUMN lexis_nexis_patents.language_of_filing IS 'Filing language, ISO639 language code, e.g, en,de,ja, etc.';
-COMMENT ON COLUMN lexis_nexis_patents.language_of_publication IS 'Publication language, ISO639 language code, e.g, en,de,ja, etc.';
+COMMENT ON COLUMN lexis_nexis_patents.language_of_filing IS --
+  'Filing language, ISO639 language code, e.g, en,de,ja, etc.';
+COMMENT ON COLUMN lexis_nexis_patents.language_of_publication IS --
+  'Publication language, ISO639 language code, e.g, en,de,ja, etc.';
 COMMENT ON COLUMN lexis_nexis_patents.date_of_public_availability_unexamined_printed_wo_grant IS '';
 COMMENT ON COLUMN lexis_nexis_patents.date_of_public_availability_printed_w_grant IS '';
 COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_text IS '';
@@ -96,7 +99,7 @@ CREATE TABLE lexis_nexis_patents_family_link (
       REFERENCES lexis_nexis_patent_families ON DELETE CASCADE,
   CONSTRAINT lnpfl_country_code_doc_number_kind_code_fk
     FOREIGN KEY (country_code, doc_number, kind_code)
-    REFERENCES lexis_nexis_patents ON DELETE CASCADE
+      REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
 
@@ -847,7 +850,8 @@ CREATE TABLE lexis_nexis_us_agents (
 )
 TABLESPACE lexis_nexis_tbs;
 COMMENT ON TABLE lexis_nexis_us_agents IS 'Information regarding Agents or common representatives for US patents';
-COMMENT ON COLUMN lexis_nexis_us_agents.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_us_agents.country_code IS --
+  'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
 COMMENT ON COLUMN lexis_nexis_us_agents.doc_number IS 'Document number';
 COMMENT ON COLUMN lexis_nexis_us_agents.kind_code IS 'Document kind';
 COMMENT ON COLUMN lexis_nexis_us_agents.language IS 'Document language';

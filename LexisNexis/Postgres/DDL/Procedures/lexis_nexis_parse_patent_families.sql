@@ -5,7 +5,7 @@
 SET TIMEZONE = 'US/Eastern';
 SET search_path TO public;
 
-CREATE PROCEDURE lexis_nexis_parse_patent_families(input_xml xml) AS
+CREATE OR REPLACE PROCEDURE lexis_nexis_parse_patent_families(input_xml xml) AS
 $$
 BEGIN
     INSERT INTO lexis_nexis_patent_families(earliest_date, family_id, family_type)
