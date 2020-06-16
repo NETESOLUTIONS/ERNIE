@@ -1,12 +1,16 @@
 /var/log/cron
-/var/log/daemon.log
+/var/log/kern.log
 /var/log/maillog
 /var/log/messages
 /var/log/secure
 /var/log/spooler
+/var/log/syslog
 {
-    missingok
+    # If sharedscripts is specified, the scripts are only run once, no matter how many logs match the wildcarded
+    # pattern, and whole pattern is passed to them. However, if none of the logs in the pattern require rotating,
+    # the scripts will not be run at all.
     sharedscripts
+
     postrotate
 	/bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
     endscript
