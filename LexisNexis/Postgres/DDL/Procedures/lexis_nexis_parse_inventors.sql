@@ -9,7 +9,7 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
-SET search_path TO public;
+
 
 -- Inventors parsing
 CREATE OR REPLACE PROCEDURE lexis_nexis_parse_inventors(input_xml XML) AS

@@ -1,12 +1,26 @@
+\set ON_ERROR_STOP on
+\set ECHO all
+
+\if :{?schema}
+SET search_path = :schema;
+\endif
+
 \include_relative lexis_nexis_tables.sql
 \include_relative lexis_nexis_views.sql
 
+\include_relative Procedures/lexis_nexis_applicants_data.sql
 \include_relative Procedures/lexis_nexis_parse_abstracts.sql
-\include_relative Procedures/lexis_nexis_parse_bibliographic_data.sql
-\include_relative Procedures/lexis_nexis_parser_examiners.sql
+\include_relative Procedures/lexis_nexis_parse_ep_agents.sql
+\include_relative Procedures/lexis_nexis_parse_examiners.sql
+\include_relative Procedures/lexis_nexis_parse_inventors.sql
 \include_relative Procedures/lexis_nexis_parse_legal_data.sql
 \include_relative Procedures/lexis_nexis_parse_nonpatent_citations.sql
-\include_relative Procedures/lexis_nexis_parse_patent_citations.sql
+\include_relative Procedures/lexis_nexis_parse_patent_families.sql
+\include_relative Procedures/lexis_nexis_parse_patent_priority_claims.sql
+\include_relative Procedures/lexis_nexis_parse_patent_titles.sql
+\include_relative Procedures/lexis_nexis_parse_patents.sql
+\include_relative Procedures/lexis_nexis_parse_patents_family_link.sql
 \include_relative Procedures/lexis_nexis_parse_related_documents.sql
-\include_relative Procedures/lexis_nexis_parse_application_references.sql
-\include_relative Procedures/lexis_nexis_parse_priority_claims.sql
+\include_relative Procedures/lexis_nexis_parse_us_agents.sql
+\include_relative Procedures/lexis_nexis_patent_application_reference_data.sql
+\include_relative Procedures/lexis_nexis_patent_citations_data.sql

@@ -3,7 +3,7 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
-SET search_path TO public;
+
 
 
 CREATE OR REPLACE PROCEDURE lexis_nexis_applicants_data(input_xml xml) AS

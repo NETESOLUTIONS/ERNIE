@@ -6,7 +6,7 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
-SET search_path TO public;
+
 
 CREATE OR REPLACE PROCEDURE lexis_nexis_patent_citations_data(input_xml XML) AS
 $$

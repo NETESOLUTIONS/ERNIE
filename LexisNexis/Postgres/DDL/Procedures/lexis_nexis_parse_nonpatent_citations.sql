@@ -3,7 +3,7 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
-SET search_path TO public;
+
 
 --Parse non-patent literature citations
 CREATE OR REPLACE PROCEDURE lexis_nexis_parse_nonpatent_citations(input_xml XML) AS

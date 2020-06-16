@@ -10,7 +10,7 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
-SET search_path TO public;
+
 
  ---- region lexis_nexis_patent_priority_claims_parser
 

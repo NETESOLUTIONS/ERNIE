@@ -3,11 +3,11 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
-SET search_path TO public;
+
 
 --Parse us agents
-CREATE PROCEDURE lexis_nexis_parse_patents_family_link(input_xml xml)
-  LANGUAGE plpgsql AS $$
+CREATE OR REPLACE PROCEDURE lexis_nexis_parse_patents_family_link(input_xml xml) AS
+$$
 BEGIN
     INSERT INTO lexis_nexis_patents_family_link(family_id, country_code, doc_number, kind_code)
     SELECT

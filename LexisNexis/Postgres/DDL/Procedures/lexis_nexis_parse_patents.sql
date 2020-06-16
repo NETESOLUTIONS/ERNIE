@@ -1,8 +1,20 @@
-create procedure lexis_nexis_parse_patents(input_xml xml)
-    language plpgsql
-as
+/*
+  Author: VJ Davey
+  This script is part of a set that defines several procedures for XMLTABLE based parsing of LexisNexis XML patent files.
+  This section covers base patent data and patent title data.
+*/
+
+\set ON_ERROR_STOP on
+\set ECHO all
+
+-- DataGrip: start execution from here
+SET TIMEZONE = 'US/Eastern';
+
+
+--Parse base patent data
+CREATE OR REPLACE PROCEDURE lexis_nexis_parse_patents(input_xml XML) AS
 $$
-BEGIN
+  BEGIN
     INSERT INTO lexis_nexis_patents(country_code,doc_number,kind_code,language_of_filing,language_of_publication,
                       date_of_public_availability_unexamined_printed_wo_grant,date_of_public_availability_printed_w_grant,
                       main_ipc_classification_text,main_ipc_classification_edition,main_ipc_classification_section,
@@ -70,7 +82,5 @@ BEGIN
     main_national_classification_text=excluded.main_national_classification_text,main_national_classification_class=excluded.main_national_classification_class,
     main_national_classification_subclass=excluded.main_national_classification_subclass,number_of_claims=excluded.number_of_claims,last_updated_time=now();
   END;
-$$;
-
-alter procedure lexis_nexis_parse_patents(xml) owner to avon;
-
+$$
+LANGUAGE plpgsql;

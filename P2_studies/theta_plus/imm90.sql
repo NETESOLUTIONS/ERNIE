@@ -91,3 +91,11 @@ AND st.language='English';
 select scp,title from theta_plus.imm1990_title_abstracts limit 5;
 select count(1) from theta_plus.imm1990_title_abstracts;
 
+-- Merging with the citation counts table
+DROP TABLE IF EXISTS theta_plus.imm1990_citation_counts;
+CREATE TABLE theta_plus.imm1990_citation_counts
+TABLESPACE theta_plus_tbs AS
+SELECT ielu.scp, scc.citation_count, ielu.cluster_no
+FROM theta_plus.imm1990_edge_list_unshuffled ielu
+LEFT JOIN public.scopus_citation_counts scc
+  ON ielu.scp = scc.scp;
