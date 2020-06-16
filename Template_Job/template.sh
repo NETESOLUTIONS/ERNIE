@@ -58,7 +58,7 @@ fi
 
 if [[ "${HOSTNAME}" == *neo4j* ]]; then
   echo "Executing a Cypher script ..."
-  cypher-shell <"${absolute_script_dir}/template_cypher_script.cql"
+  cypher-shell <"${absolute_script_dir}/template_cypher_script.cypher"
 fi
 
 echo -e "Done on this server.\n"
