@@ -10,6 +10,8 @@ SET SEARCH_PATH  = sb_plus;
 --- cited_1_pub_year, cited_2_pub_year (both >= 1970)
 --- peak_count (how many peaks does each pair has)
 
+DROP TABLE IF EXISTS sb_plus_complete_kinetics;
+
 CREATE TABLE sb_plus_complete_kinetics TABLESPACE sb_plus_tbs AS
 
   WITH cte1 AS(
@@ -20,7 +22,7 @@ CREATE TABLE sb_plus_complete_kinetics TABLESPACE sb_plus_tbs AS
       FROM sb_plus_all_kinetics
   )
 SELECT cte1.cited_1, cte1.cited_2, cte1.co_cited_year, cte1.frequency,
-  cte1.max_frequency, cte1.min_frequency,
+  cte1.max_frequency, cte1.min_frequency, cte1.first_co_cited_year,
   GREATEST(spg1.pub_year, spg2.pub_year) AS first_possible_year,
   cte2.peak_year, cte2.peak_count,
   spg1.pub_year AS cited_1_pub_year, spg2.pub_year AS cited_2_pub_year
