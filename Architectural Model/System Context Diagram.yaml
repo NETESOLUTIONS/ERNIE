@@ -4,63 +4,56 @@ elements:
     type: 'Software System'
     name: 'Clinical Guidelines (CG)'
     description: 'AHRQ''s National Guideline Clearinghouse data mapped to PubMed, WoS and NIH projects'
-    tags: ""
-    position: '15,20'
-    containers: []
+    tags: old
+    position: '10,50'
   -
     type: 'Software System'
     name: 'Clinical Trials (CT)'
     description: 'clinicaltrials.gov data'
-    tags: ""
-    position: '10,350'
-    containers: []
+    tags: current
+    position: '10,420'
   -
     type: 'Software System'
     name: ERNIE
     description: 'Enhanced Research Network Informatics Environment'
-    tags: Internal
-    position: '1015,664'
-    containers: []
+    tags: 'Internal, current'
+    position: '1080,335'
   -
     type: Person
     name: 'ERNIE staff'
     description: ""
-    tags: Internal
-    position: '535,1185'
+    tags: 'Internal, Person'
+    position: '740,965'
   -
     type: Person
     name: 'External Collaborator'
     description: ""
-    tags: Internal
-    position: '1395,1185'
+    tags: 'Internal, Person'
+    position: '1420,965'
+  -
+    type: 'Software System'
+    name: 'IP DataDirect (LexisNexis)'
+    description: 'Worldwide Patent Information'
+    tags: current
+    position: '10,795'
   -
     type: 'Software System'
     name: 'NIH Projects'
     description: 'Data on funded NIH grants and other projects from NIH ExPORTER'
-    tags: ""
-    position: '1985,1055'
-    containers: []
+    tags: current
+    position: '2020,1050'
   -
     type: 'Software System'
-    name: 'Publications and Citations (WoS)'
-    description: 'Web of Science Core Collection data leased from Clarivate Analytics'
-    tags: ""
-    position: '1985,35'
-    containers: []
+    name: 'Scopus (Elsevier)'
+    description: 'Abstract and Citation Database'
+    tags: current
+    position: '2020,50'
   -
     type: 'Software System'
     name: 'US Drugs and Biological Products (FDA)'
     description: 'FDA Orange and Purple Books'
-    tags: ""
-    position: '15,1030'
-    containers: []
-  -
-    type: 'Software System'
-    name: 'US Patents (Derwent)'
-    description: 'Derwent data leased from Clarivate Analytics'
-    tags: ""
-    position: '10,685'
-    containers: []
+    tags: current
+    position: '10,1190'
 relationships:
   -
     source: ERNIE
@@ -80,23 +73,25 @@ relationships:
     technology: 'Jenkins, Bash, HTTP, CSV, SQL, Postgres, Python'
     destination: 'NIH Projects'
     tags: ""
-  -
-    source: ERNIE
-    description: ETL
-    technology: 'Jenkins, Bash, FTP, XML, SQL, Postgres, Python, Java'
-    destination: 'US Patents (Derwent)'
-    tags: ""
-  -
-    source: ERNIE
-    description: ETL
-    technology: 'Jenkins, Bash, FTP, XML, SOAP Web Services, SQL, Postgres, Python, Java'
-    destination: 'Publications and Citations (WoS)'
-    tags: ""
+    vertices:
+      - '1535,575'
   -
     source: ERNIE
     description: ETL
     technology: 'Jenkins, Bash, HTTP, XML, SQL, Postgres, Python, Java'
     destination: 'Clinical Guidelines (CG)'
+    tags: old
+  -
+    source: ERNIE
+    description: ETL
+    technology: 'Jenkins, Bash, HTTP, XML, SQL, Postgres, Python'
+    destination: 'Scopus (Elsevier)'
+    tags: ""
+  -
+    source: ERNIE
+    description: ETL
+    technology: 'Jenkins, Bash, HTTP, XML, SQL, Postgres, Python'
+    destination: 'IP DataDirect (LexisNexis)'
     tags: ""
   -
     source: 'ERNIE staff'
@@ -113,15 +108,41 @@ relationships:
 styles:
   -
     type: element
-    tag: future-or-ad-hoc
+    tag: current
     width: ""
     height: ""
-    background: '#d89333'
+    background: '#1168bd'
     color: '#ffffff'
     border: ""
     opacity: ""
     fontSize: ""
     shape: ""
+    metadata: ""
+    description: ""
+  -
+    type: element
+    tag: old
+    width: ""
+    height: ""
+    background: '#1168bd'
+    color: '#ffffff'
+    border: ""
+    opacity: '40'
+    fontSize: ""
+    shape: ""
+    metadata: ""
+    description: ""
+  -
+    type: relationship
+    tag: old
+    thickness: ""
+    color: ""
+    opacity: '40'
+    routing: ""
+    fontSize: ""
+    width: ""
+    position: ""
+    dashed: ""
   -
     type: element
     tag: Person
@@ -133,17 +154,8 @@ styles:
     opacity: ""
     fontSize: ""
     shape: Person
-  -
-    type: element
-    tag: 'Software System'
-    width: ""
-    height: ""
-    background: '#1168bd'
-    color: '#ffffff'
-    border: ""
-    opacity: ""
-    fontSize: ""
-    shape: ""
+    metadata: ""
+    description: ""
 type: 'System Context'
 scope: ERNIE
 description: 'Dashed boundary = ERNIE project.'
