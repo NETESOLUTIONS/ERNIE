@@ -59,3 +59,13 @@ UNION
 SELECT distinct cited
 FROM theta_plus.imm1985_1995_citing_cited_union;
 CREATE INDEX imm1985_1995_nodes_idx ON theta_plus.imm1985_1995_nodes_union(scp);
+
+DROP TABLE IF EXISTS theta_plus.imm1985_1995_union_title_abstracts;
+CREATE TABLE theta_plus.imm1985_1995_union_title_abstracts
+TABLESPACE theta_plus_tbs AS
+SELECT tpin.scp,st.title,sa.abstract_text
+FROM theta_plus.imm1985_1995_nodes_union tpin
+INNER JOIN public.scopus_titles st ON tpin.scp=st.scp
+INNER JOIN public.scopus_abstracts sa ON tpin.scp=sa.scp
+AND sa.abstract_language='eng'
+AND st.language='English';
