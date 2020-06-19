@@ -1,5 +1,6 @@
 /opt/google/chrome/chrome-sandbox
 /opt/rh/devtoolset-7/root/usr/bin/staprun
+/opt/rh/devtoolset-9/root/usr/bin/staprun
 /usr/bin/at
 /usr/bin/cgclassify
 /usr/bin/cgexec
