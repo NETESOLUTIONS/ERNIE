@@ -48,7 +48,7 @@ CREATE TABLE :dataset_graclus_coded TABLESPACE theta_plus_tbs AS
         FROM :dataset
         WHERE citing != cited
     )
-    SELECT citing as scp,
+    SELECT citing,
            dense_rank() OVER (ORDER BY citing)        AS citing_id
 --            dense_rank() OVER (ORDER BY cited) AS cited_id
     FROM combined_data
