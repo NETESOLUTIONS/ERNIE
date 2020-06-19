@@ -56,7 +56,7 @@ for dir_name in dir_list:
     conductance_x5['denom'] = conductance_x5[['alt_denom', 'volume']].min(axis=1)
     conductance_x5['conductance'] = round((conductance_x5['boundary']/conductance_x5['denom']), 3)
 
-    save_name = '/erniedev_data3/theta_plus/imm_output/' + dir_name + '/' +  dir_name + '_conductance_' + cluster_type + '.csv'
+    save_name = rootdir + '_output/' + dir_name + '/' +  dir_name + '_conductance_' + cluster_type + '.csv'
     conductance_x5.to_csv(save_name, index = None, header=True, encoding='utf-8')
 
 print("All completed.")
