@@ -57,12 +57,12 @@ DELETE FROM sb_plus_complete_kinetics
    (SELECT cited_1, cited_2
       FROM sb_plus_complete_kinetics
      GROUP BY cited_1, cited_2
-    HAVING SUM(frequency) < 100 AND MAX(frequency) < 20);
+    HAVING SUM(frequency) < 100 OR MAX(frequency) < 20);
 
---- 1,235,795 rows : removed 1 pair
+--- 1,235,573 rows: 13 pairs have been removed 
 
 -- SELECT cited_1, cited_2
 -- FROM sb_plus_complete_kinetics
 -- GROUP BY cited_1, cited_2;
 
---- 51,626 distinct pairs in total
+--- 51,613 distinct pairs in total

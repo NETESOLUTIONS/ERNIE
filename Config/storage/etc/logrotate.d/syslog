@@ -1,8 +1,13 @@
+# default
 /var/log/cron
 /var/log/kern.log
+# default
 /var/log/maillog
+# default
 /var/log/messages
+# default
 /var/log/secure
+# default
 /var/log/spooler
 /var/log/syslog
 {
