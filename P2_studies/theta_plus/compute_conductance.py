@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 from sys import argv
+from glob import glob
 
 rootdir = '/erniedev_data3/theta_plus/imm'
 dir_list = sorted(os.listdir(rootdir))
@@ -10,10 +11,21 @@ for dir_name in dir_list:
     print(f'Working on {dir_name}')
     if cluster_type == 'unshuffled':
         cluster_path = rootdir + '/' + dir_name + '/dump.' + dir_name + '_citing_cited.mci.I20.csv'
+        cluster_data = pd.read_csv(cluster_path)
     elif cluster_type == 'shuffled':
         cluster_path = rootdir + '/' + dir_name + '/dump.' + dir_name + '_citing_cited_shuffled_1million.I20.csv'
-
-    cluster_data = pd.read_csv(cluster_path)
+        cluster_data = pd.read_csv(cluster_path)
+    elif cluster_type == 'graclus':
+        graclus_coded_cluster_num_path = rootdir + '/' + dir_name + '/graclus_' + dir_name + '_citing_cited.csv.part.*'
+        graclus_coded_cluster_num = pd.read_csv(glob(graclus_coded_cluster_num_path)[0], header=None)
+        graclus_coded_cluster_num.columns = ['cluster_no']
+        graclus_coded_cluster_num['citing_id'] = range(1, len(graclus_coded_cluster_num)+1)
+        graclus_nodes_path = rootdir + '/' + dir_name + '/graclus_coded_' + dir_name + '_citing_cited.csv'
+        graclus_nodes = pd.read_csv(graclus_nodes_path)
+        
+        graclus_clusters = graclus_nodes.merge(graclus_coded_cluster_num)
+        graclus_clusters = graclus_clusters.astype({'citing':object, 'citing_id':object, 'cluster_no':object}) 
+        cluster_data = graclus_clusters[['citing', 'cluster_no']].rename(columns={'citing':'scp'})
 
     nodes_data_name = rootdir + '/' + dir_name + '/' + dir_name + '_citing_cited.csv'
     nodes_data = pd.read_csv(nodes_data_name)
