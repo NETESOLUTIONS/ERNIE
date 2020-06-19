@@ -34,7 +34,7 @@ CREATE TABLE :dataset_graclus_data TABLESPACE theta_plus_tbs AS
     SELECT citing_id, string_agg(cited_id::text, E'\t')
     FROM combined_rank
     GROUP BY citing_id
-    ORDER BY cited_id;
+    ORDER BY citing_id;
 
 DROP TABLE IF EXISTS :dataset_graclus_coded;
 CREATE TABLE :dataset_graclus_coded TABLESPACE theta_plus_tbs AS
