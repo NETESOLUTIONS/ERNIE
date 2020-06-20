@@ -40,11 +40,11 @@ SELECT * FROM imm1993_citing_cited UNION
 SELECT * FROM imm1994_citing_cited UNION
 SELECT * FROM imm1995_citing_cited;
 
-DROP TABLE IF EXISTS theta_plus.imm1985_1995_title_abstracts_common;
+DROP TABLE IF EXISTS theta_plus.imm1985_1995_title_abstracts_intersection;
 CREATE TABLE theta_plus.imm1985_1995_title_abstracts
 TABLESPACE theta_plus_tbs AS
 SELECT tpin.scp,st.title,sa.abstract_text
-FROM theta_plus.imm1985_1995_common_scps tpin
+FROM theta_plus.imm1985_1995_nodes_intersection tpin
 INNER JOIN scopus_titles st ON tpin.scp=st.scp
 INNER JOIN scopus_abstracts sa ON tpin.scp=sa.scp
 AND sa.abstract_language='eng'
