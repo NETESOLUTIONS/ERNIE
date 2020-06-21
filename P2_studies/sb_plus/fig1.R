@@ -17,7 +17,7 @@ library(data.table; library(ggplot2)
 x <- fread('all940.csv')
 p <- ggplot(x,aes(scopus_frequency)) +
 stat_ecdf(geom="step") +
-labs(y="F(Co-citation Frequency",x="Co-citation Frequency") +
+labs(y="F(Co-citation Frequency)",x="Co-citation Frequency") +
 scale_x_continuous(trans='log2') +
 theme_bw() +
 theme(text=element_text(family="Arial",size=20))
