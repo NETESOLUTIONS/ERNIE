@@ -2,7 +2,7 @@
 # George Chacko 6/20/2020
 setwd('~/Desktop/sb_plus')
 rm(list=ls())
-library(data.table; library(ggplot2)
+library(data.table); library(ggplot2)
 
 # Import data
 x <- fread('all940.csv')
