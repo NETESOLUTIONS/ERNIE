@@ -146,7 +146,7 @@ CREATE TABLE lexis_nexis_patent_citations (
   cited_published_date DATE,
   last_updated_time TIMESTAMP DEFAULT now(),
   CONSTRAINT lexis_nexis_patent_citations_pk
-    PRIMARY KEY (country_code, doc_number, kind_code, seq_num, cited_doc_number) USING INDEX TABLESPACE index_tbs,
+    PRIMARY KEY (country_code, doc_number, kind_code, seq_num) USING INDEX TABLESPACE index_tbs,
   CONSTRAINT lexis_nexis_patent_citations_fk
     FOREIGN KEY (country_code, doc_number, kind_code)
       REFERENCES lexis_nexis_patents ON DELETE CASCADE
