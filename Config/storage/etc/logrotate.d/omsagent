@@ -1,4 +1,4 @@
-/var/log/azure/Microsoft.EnterpriseCloud.Monitoring.OmsAgentForLinux/watcher.log
+/var/log/azure/Microsoft.EnterpriseCloud.Monitoring.OmsAgentForLinux/*
 {
     # Truncate the original log file to zero size in place after creating a copy, instead of moving the old log file and
     # optionally creating a new one. It can be used when some program cannot be told to close its logfile and thus might
