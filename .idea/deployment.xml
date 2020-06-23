@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="ERNIE Neo4j" stopOnFirstError="true" overwriteAll="false" deleteMissingItems="true" exclude=".svn;.cvs;.DS_Store;.git;.hg;*.hprof;*.pyc" preserveFilePermissions="true">
+  <component name="PublishConfigData" serverName="ERNIE2" stopOnFirstError="true" overwriteAll="false" deleteMissingItems="true" exclude=".svn;.cvs;.DS_Store;.git;.hg;*.hprof;*.pyc" preserveFilePermissions="true">
     <serverData>
       <paths name="ERNIE Neo4j">
         <serverdata>

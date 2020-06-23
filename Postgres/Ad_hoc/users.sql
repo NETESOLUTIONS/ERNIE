@@ -49,7 +49,7 @@ ALTER USER :account WITH PASSWORD :'password';
 
 -- region User decommissioning
 --@formatter:off
-SET script.dropped_user = :'dropped_user';
+SET script.dropped_user = :'user';
 
 DO $block$ --
   DECLARE
@@ -67,8 +67,8 @@ DO $block$ --
 --@formatter:on
 
 REASSIGN OWNED BY :user TO ernie_admin;
-DROP SCHEMA :enduser;
-DROP USER :enduser;
+DROP SCHEMA :user;
+DROP USER :user;
 -- endregion
 
 -- region Graceful user removal
