@@ -1,8 +1,0 @@
-/var/log/azure/Microsoft.EnterpriseCloud.Monitoring.OmsAgentForLinux/*
-{
-    # Truncate the original log file to zero size in place after creating a copy, instead of moving the old log file and
-    # optionally creating a new one. It can be used when some program cannot be told to close its logfile and thus might
-    # continue writing (appending) to the previous log file forever. Note that there is a very small time slice between
-    # copying the file and truncating it, so some logging data might be lost.
-    copytruncate
-}
