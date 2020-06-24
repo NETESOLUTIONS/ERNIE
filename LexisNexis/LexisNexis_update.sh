@@ -9,26 +9,26 @@ NAME
 
 SYNOPSIS
 
-   LexisNexis_update.sh [ -e ] [ -f failed_files_directory ] [ -p processed_log ] [ -s subset_SP ]
-                        [ -t tmp_dir ] [ -v ] [ -v ] [ -w data_directory ]
+   LexisNexis_update.sh [ -e max_errors ] [ -f failed_files_dir ] [ -p processed_log ] [ -s subset_SP ]
+                        [ -t tmp_dir ] [ -v ] [ -v ] [ -w work_dir ]
 
    LexisNexis_update.sh -h: display this help
 
 DESCRIPTION
 
-   Extract all publication ZIP files from the `{working_dir}` (`.` by default) into the tmp_dir.
+   Extract all ZIP files from the `{work_dir}/API_downloads/` (`./API_downloads/` by default) into the `{tmp_dir}/`.
    Process extracted ZIPs one-by-one.
    Produce an error log in `{tmp_dir}/errors.log`.
 
    The following options are available:
 
-    -w  work_dir        directory where IPDD data is stored
-    -s  subset_SP       parse a subset of data via the specified subset parsing Stored Procedure (SP)
-    -t  tmp_dir        `tmp` or `tmp-{SP_name}` (for subsets) by default
+    -w work_dir         directory where IPDD data is stored
+    -s subset_SP        parse a subset of data via the specified subset parsing Stored Procedure (SP)
+    -t tmp_dir          defaults to `{work_dir}/tmp` or `{work_dir}/tmp-{SP_name}` for subsets
                         WARNING: be aware that `{tmp_dir}` is removed before processing and on success.
-    -p processed_log    log successfully completed publication ZIPs and skip already processed files
+    -p processed_log    record file for successfully completed data ZIPs, defaults to `{work_dir}/processed.log`
     -e max_errors       stop when the error number reaches this threshold, 101 by default
-    -f failed_files_dir set directory where failed files should be stored, else stored in the failed directory by default
+    -f failed_files_dir set directory where failed files should be stored, defaults to `{work_dir}/failed/`
     -v                  verbose output: print processed XML files
     -v -v               extra-verbose output: print all lines (`set -x`)
 
@@ -192,7 +192,7 @@ for zip in API_downloads/*.zip; do
       fi
     done < <(awk 'NR>1{print $7}' "${PARALLEL_LOG}")
     rm -rf "${PARALLEL_LOG}"
-    cd ../
+    cd - >/dev/null
     rm -rf ${tmp}
 
     # Status report
