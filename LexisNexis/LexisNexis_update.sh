@@ -3,24 +3,37 @@ if [[ $1 == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
 
-  LexisNexis_update.sh -- update LexisNexis data in a PostgreSQL database using zipped (*.zip) LexisNexis XMLs downloaded via the IPDD API
-  Note that clean mode is NOT available with this script.
+   LexisNexis_update.sh -- update LexisNexis data in a PostgreSQL database using zipped (*.zip)
+                           LexisNexis XMLs downloaded via the IPDD API
+                           Note that clean mode is NOT available with this script.
 
 SYNOPSIS
 
-  LexisNexis_update.sh [-s subset_SP] -w data_directory
-  LexisNexis_update.sh -h: display this help
+   LexisNexis_update.sh [ -e ] [ -f failed_files_directory ] [ -p processed_log ] [ -s subset_SP ]
+                        [ -t tmp_dir ] [ -v ] [ -v ] [ -w data_directory ]
+
+   LexisNexis_update.sh -h: display this help
 
 DESCRIPTION
 
-  Download zip files into the working directory and then process those zip files.
+   Extract all publication ZIP files from the `{working_dir}` (`.` by default) into the tmp_dir.
+   Process extracted ZIPs one-by-one.
+   Produce an error log in `{tmp_dir}/errors.log`.
 
-  The following options are available:
+   The following options are available:
 
-    -s subset_SP: parse a subset of data via the specified subset parsing Stored Procedure (SP)
+    -w  work_dir        directory where IPDD data is stored
+    -s  subset_SP       parse a subset of data via the specified subset parsing Stored Procedure (SP)
+    -t  tmp_dir        `tmp` or `tmp-{SP_name}` (for subsets) by default
+                        WARNING: be aware that `{tmp_dir}` is removed before processing and on success.
+    -p processed_log    log successfully completed publication ZIPs and skip already processed files
+    -e max_errors       stop when the error number reaches this threshold, 101 by default
+    -f failed_files_dir set directory where failed files should be stored, else stored in the failed directory by default
+    -v                  verbose output: print processed XML files
+    -v -v               extra-verbose output: print all lines (`set -x`)
 
-  To stop process gracefully after the current ZIP is processed, create a `{working_dir}/.stop` signal file.
-  This file is automatically removed
+    To stop process gracefully after the current ZIP is processed, create a `{working_dir}/.stop` signal file.
+    This file is automatically removed
 
 HEREDOC
   exit 1
@@ -42,6 +55,9 @@ while (( $# > 0 )); do
   echo "Using CLI arg '$1'"
   case "$1" in
     -e)
+      shift
+      declare -ri MAX_ERRORS=$1
+      (( MAX_ERRORS > 0 )) && readonly PARALLEL_HALT_OPTION="--halt soon,fail=${MAX_ERRORS}"
       readonly STOP_ON_THE_FIRST_ERROR=true
       ;;
     -f)
@@ -64,7 +80,6 @@ while (( $# > 0 )); do
       tmp=$1
       ;;
     -v)
-      # Second "-v" = extra verbose?
       if [[ "$VERBOSE" == "true" ]]; then
         set -x
       else
@@ -97,6 +112,7 @@ if ! which parallel >/dev/null; then
   exit 1
 fi
 
+mkdir -p "${FAILED_FILES_DIR}"
 parse_xml() {
   local xml="$1"
   [[ $2 ]] && local subset_option="-v subset_sp=$2"
@@ -141,12 +157,12 @@ HEREDOC
   fi
 }
 
-declare -i num_zips=$(ls API_downloads/*.zip | wc -l)
+declare -i num_zips=$(find . -name "*.zip" -type f | wc -l)
 declare -i failed_xml_counter=0 failed_xml_counter_total=0 processed_xml_counter=0 processed_xml_counter_total=0
 declare -i process_start_time i=0 start_time stop_time delta delta_s delta_m della_h elapsed=0 est_total eta
 process_start_time=$(date '+%s')
 
-for zip in $(ls API_downloads/*.zip) ; do
+for zip in API_downloads/*.zip; do
   start_time=$(date '+%s')
   if grep -q "^${zip}$" "${PROCESSED_LOG}"; then
     echo "Skipping file ${zip} ( zip file #$((++i)) out of ${num_zips} ). It is already marked as completed."
@@ -223,11 +239,11 @@ else
   echo "FAILED PARSING ${failed_xml_counter_total} XML FILES"
 fi
 
-for directory in "${FAILED_FILES_DIR}"; do
-  cd $directory
-  check_errors # Exits here if errors occurred
-  cd
-done
+
+cd "${FAILED_FILES_DIR}"
+check_errors # Exits here if errors occurred
+cd
+
 
 declare -i days_to_keep_zip_files=90
 echo "Removing files older than ${days_to_keep_zip_files} days ..."

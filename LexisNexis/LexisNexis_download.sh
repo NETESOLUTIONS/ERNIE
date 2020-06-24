@@ -3,20 +3,34 @@ if [[ $1 == "-h" ]]; then
   cat <<'HEREDOC'
 NAME
 
-  LexisNexis_download.sh -- download LexisNexis XMLs via the IPDD API
-  Note that clean mode is NOT available with this script.
+   LexisNexis_download.sh -- download LexisNexis XMLs via the IPDD API
+                             Note that clean mode is NOT available with this script.
 
 SYNOPSIS
 
-  LexisNexis_download.sh -w data_directory
-  LexisNexis_download.sh -h: display this help
+   LexisNexis_download.sh [ -p processed_log ] [ -w data_directory ] [ -U username ]
+                          [ -W password ] [ -R service_reference ]
+
+   LexisNexis_download.sh -h: display this help
 
 DESCRIPTION
 
-  Download zip files into the working directory.
+   Download zip files into the working directory.
+   The following options are available:
+
+    -w  work_dir           directory where IPDD data is stored
+    -p  processed_log      log successfully completed publication ZIPs and skip already processed files
+    -U  username           IPDD username
+    -W  password           IPDD password
+    -R  service_reference  IPDD service reference
 
 HEREDOC
   exit 1
+fi
+
+if [[ ! -f /anaconda3/bin/python ]]; then
+    echo "/anaconda3/bin/python does not exist."
+    exit 1
 fi
 
 set -e
@@ -29,16 +43,10 @@ declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 declare -rx ERROR_LOG=error.log
 declare -rx PARALLEL_LOG=parallel.log
 PROCESSED_LOG="processed.log"
-FAILED_FILES_DIR="failed"
 
 while (( $# > 0 )); do
   echo "Using CLI arg '$1'"
   case "$1" in
-    -f)
-      shift
-      echo "Using CLI arg '$1'"
-      readonly FAILED_FILES_DIR="$1"
-      ;;
     -p)
       shift
       echo "Using CLI arg '$1'"
@@ -75,7 +83,6 @@ if ! which parallel >/dev/null; then
 fi
 
 # Use API access scripts to download XMLs into Zip files in a local storage directory
-mkdir -p "${FAILED_FILES_DIR}"
 mkdir -p API_downloads
 # Ping API to produce update files for us
 echo "Starting IPDD API update script..."
@@ -92,7 +99,7 @@ cat >group_download.sh <<HEREDOC
 lftp -u ${IPDD_USERNAME},${IPDD_PASSWORD} ftp-ipdatadirect.lexisnexis.com <<SCRIPTEND
 lcd API_downloads/
 HEREDOC
-grep -F -x -v --file=processed.log ftp_filelist.txt | \
+grep -F -x -v --file="${PROCESSED_LOG}" ftp_filelist.txt | \
    sed 's/.*/mirror -v --use-pget -i &/' >>group_download.sh || { echo "Nothing to download" && exit 0; }
 cat >>group_download.sh <<HEREDOC
 quit
