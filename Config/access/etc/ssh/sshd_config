@@ -22,7 +22,8 @@
 # The default requires explicit activation of protocol 1
 Protocol 2
 
-# Specifies the available MAC (message authentication code) algorithms
+# Specifies the available MAC (message authentication code) algorithms per CIS Hardening Benchmark v2.2.0
+# Note: Windows 10 SSH built-in clients will have to specify one of these MACs via `.ssh\config` or `-m`
 MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
 
 # HostKey for protocol version 1
