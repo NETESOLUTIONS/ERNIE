@@ -24,7 +24,7 @@ This folder contains code relevant to analyzing the observed co-citation frequen
   - This file reports Kullback-Leibler Divergence for the empirical frequency distribution versus the best-fit lognormal and power law distributions.
 - Results database (MySQL)
   - cocit.sql
-    - Dump file of resutls database
+    - Dump file of results database
   - cocit_data_dict.pdf (not yest posted)
     - Data dictionary for cocit.sql
 
