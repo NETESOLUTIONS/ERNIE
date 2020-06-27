@@ -22,11 +22,11 @@ schema = "theta_plus"
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
-tmp_dir_list = ['imm1985_1995']
+tmp_dir_list = ['imm1985']
 for dir_name in tmp_dir_list:
 #for dir_name in dir_list:
     print(f'Working on {dir_name}')
-    title_abstracts_table = dir_name + '_union_title_abstracts_processed'
+    title_abstracts_table = 'imm1985_1995_union_title_abstracts_processed'
     all_text_data = pd.read_sql_table(table_name=title_abstracts_table, schema=schema, con=engine)
     if cluster_type == 'unshuffled':
         cluster_path = rootdir + '/' + dir_name + '/dump.' + dir_name + '_citing_cited.mci.I20.csv'
