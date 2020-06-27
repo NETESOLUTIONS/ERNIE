@@ -4,7 +4,7 @@
 Created on Wed Fed 12 14:27:12 2019
 @author: Wenxi
 
-Run citation count job modified to count citations accumulated in the first 8 years since publication
+Run citation count job modified to count citations accumulated in the first since publication
 """
 
 from __future__ import print_function
@@ -53,6 +53,7 @@ if __name__ == "__main__":
     # Read in tables from PostgreSQL
     print("STARTED: READING TABLES FROM POSTGRES INTO HDFS")
     input_tables = {'scopus_references':"(SELECT scp,ref_sgr FROM scopus_references) foo",
+                    'scopus_publications':"(SELECT scp,sgr,citation_type FROM scopus_publications) foo",
                     'scopus_publication_groups':"(SELECT sgr,pub_year FROM scopus_publication_groups) foo"}
     for table in input_tables:
         print('STARTED: IMPORT FOR {}'.format(table))
@@ -69,30 +70,25 @@ if __name__ == "__main__":
     # Salvage data in the cited_source_uid column where possible by prepending 'WOS:' to those IDs which are simply chains of numbers via a CASE statement
 
     citation_counts=spark.sql('''
-                                SELECT scp, scp_pub_year, COUNT(*) AS citation_count FROM (
-                                    SELECT c.*, d.pub_year AS scp_pub_year  
-                                        FROM (
-                                            SELECT a.scp, a.ref_sgr, b.pub_year AS ref_pub_year
-                                                 FROM scopus_references a
-                                                 INNER JOIN scopus_publication_groups b
-                                                 ON a.ref_sgr = b.sgr
-                                             ) c
-                                        LEFT JOIN scopus_publication_groups d
-                                        ON c.scp = d.sgr
-                                        WHERE d.pub_year - c.ref_pub_year <= 8
+                                SELECT d.ref_sgr, d.ref_pub_year, COUNT(*) AS citation_count FROM (
+                                      SELECT a.scp, a.ref_sgr, b.pub_year AS ref_pub_year
+                                         FROM scopus_references a
+                                           INNER JOIN scopus_publication_groups b
+                                           ON a.ref_sgr = b.sgr
+                                             INNER JOIN scopus_publications c
+                                             ON a.ref_sgr = c.sgr
+                                        WHERE a.ref_sgr = 439 and b.pub_year between 1970 and 1995 and c.citation_type = 'ar') d
+                                GROUP BY d.ref_sgr, d.ref_pub_year''')
 
-                                        ) e
-                                  GROUP BY scp, scp_pub_year''')
-
-    citation_counts.write.mode("overwrite").saveAsTable("scopus_citation_counts_accumulated_first_8_years")
+    citation_counts.write.mode("overwrite").saveAsTable("scopus_citation_counts_1970_1995")
 
 
-    spark.sql("select count(*) FROM scopus_citation_counts_accumulated_first_8_years ").show()
+    spark.sql("select count(*) FROM scopus_citation_counts_1970_1995").show()
 
 
     # Export the final tables to PostgreSQL
     print("STARTED: WRITING TABLES FROM HDFS INTO POSTGRES")
-    output_tables = ['scopus_citation_counts_accumulated_first_8_years']
+    output_tables = ['scopus_citation_counts_1970_1995']
     for table in output_tables:
         print('STARTED: EXPORT FOR {}'.format(table))
         write_table_to_postgres(table,table,url,properties)
