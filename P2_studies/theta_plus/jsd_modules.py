@@ -261,7 +261,7 @@ def compute_jsd(data_text, name, val, cluster_num):
         count_vectorizer = CountVectorizer(lowercase=False, vocabulary=list(set(corpus_by_cluster[0].split())))
         cluster_count_mat = count_vectorizer.fit_transform(corpus_by_cluster)
 
-        data_text['probability_vector'] = data_text['processed_all_text'].swifter.progress_bar(False).apply(vectorize, args=(corpus_by_cluster, count_vectorizer,))
+        data_text['probability_vector'] = data_text['filtered_text'].swifter.progress_bar(False).apply(vectorize, args=(corpus_by_cluster, count_vectorizer,))
 
         cluster_sum = sparse.diags(1/cluster_count_mat.sum(axis=1).A.ravel())
         cluster_prob_vec = (cluster_sum @ cluster_count_mat).toarray().tolist()[0]
