@@ -40,7 +40,7 @@ for dir_name in tmp_dir_list:
     else:
         max_val = int(end_cluster_num)
 
-    data_text = cluster_df.merge(all_text_data, left_on='scp', right_on='scp', how='left')[['scp', 'title', 'abstract_text', 'cluster_no']]
+    data_text = cluster_df.merge(all_text_data, left_on='scp', right_on='scp', how='left')[['scp', 'title', 'abstract_text', 'cluster_no', 'processed_all_text']]
 
     save_name = rootdir + '_output/' + dir_name + '/' + dir_name + '_JSD_' + cluster_type + ".csv"
     # p = mp.Pool(mp.cpu_count())
