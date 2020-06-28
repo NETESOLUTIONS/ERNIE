@@ -242,7 +242,7 @@ def compute_jsd(data_text, name, val, cluster_num):
 
     else:
 
-#         data_text['all_text'] = data_text["title"] + data_text["abstract_text"]
+#         data_text['all_text'] = data_text["title"] + " " + data_text["abstract_text"]
 #         data_text['processed_all_text'] = data_text["all_text"].swifter.progress_bar(False).apply(preprocess_text)
         
         # If pre-processing is already done:
@@ -318,11 +318,12 @@ def random_jsd(jsd_size, sample_data, repeat):
 
             data_text = sample_data.sample(n = int(jsd_size))
 
-#             data_text['all_text'] = data_text["title"] + data_text["abstract_text"]
+#             data_text['all_text'] = data_text["title"] + " " + data_text["abstract_text"]
 #             data_text['processed_all_text'] = data_text["all_text"].swifter.progress_bar(False).apply(preprocess_text)
 
             # If pre-processing is already done:
             data_text['processed_all_text'] = data_text['processed_all_text'].str.split()
+            
             data_text['processed_all_text_frequencies'] = data_text['processed_all_text'].swifter.progress_bar(False).apply(get_frequency)
 
             data_all_text_frequency = merge_vocab_dictionary(data_text['processed_all_text_frequencies'])

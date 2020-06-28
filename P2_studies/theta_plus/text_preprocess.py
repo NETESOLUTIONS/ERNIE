@@ -13,7 +13,7 @@ engine = create_engine(sql_scheme)
 
 data_text = pd.read_sql_table(table_name=title_abstracts_table, schema=schema, con=engine)
 
-data_text['all_text'] = data_text["title"] + data_text["abstract_text"]
+data_text['all_text'] = data_text["title"] + " " + data_text["abstract_text"]
 data_text['processed_all_text'] = data_text["all_text"].swifter.apply(jm.preprocess_text)
 data_text['processed_all_text'] = data_text["processed_all_text"].swifter.progress_bar(False).apply(' '.join)
 # Use pandas.Series.str.split() to get back original form
