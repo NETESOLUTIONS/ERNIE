@@ -22,7 +22,8 @@ schema = "theta_plus"
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
-tmp_dir_list = ['imm1985']
+tmp_dir_list = ['imm1986', 'imm1987', 'imm1988', 'imm1989', 'imm1990',
+                'imm1991', 'imm1992', 'imm1993', 'imm1994', 'imm1995']
 for dir_name in tmp_dir_list:
 #for dir_name in dir_list:
     print(f'Working on {dir_name}')
