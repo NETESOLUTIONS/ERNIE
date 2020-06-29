@@ -30,20 +30,13 @@ for dir_name in tmp_dir_list:
 #for dir_name in dir_list:
     print(f'Working on {dir_name}')
     title_abstracts_table = 'imm1985_1995_union_title_abstracts_processed'
-    all_text_data = pd.read_sql_table(table_name=title_abstracts_table, schema=schema, con=engine)
-    if cluster_type == 'unshuffled':
-        cluster_path = rootdir + '/' + dir_name + '/dump.' + dir_name + '_citing_cited.mci.I20.csv'
-    elif cluster_type == 'shuffled':
-        cluster_path = rootdir + '/' + dir_name + '/dump.' + dir_name + '_citing_cited_shuffled_1million.I20.csv'
+    query = "SELECT edge.*, tat.processed_all_text FROM theta_plus." + dir_name + "_edge_list_" + cluster_type + " edge LEFT JOIN theta_plus." + title_abstracts_table + " tat ON edge.scp = tat.scp;"
+    data_text = pd.read_sql(query, con=engine)
     
-    cluster_df = pd.read_csv(cluster_path)
-
     if end_cluster_num == 'max':
         max_val = cluster_df['cluster_no'].max()
     else:
         max_val = int(end_cluster_num)
-
-    data_text = cluster_df.merge(all_text_data, left_on='scp', right_on='scp', how='left')[['scp', 'title', 'abstract_text', 'cluster_no', 'processed_all_text']]
 
     save_name = rootdir + '_output/' + dir_name + '/' + dir_name + '_JSD_' + cluster_type + ".csv"
     # p = mp.Pool(mp.cpu_count())
