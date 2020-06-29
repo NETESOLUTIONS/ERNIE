@@ -33,7 +33,7 @@ engine = create_engine(sql_scheme)
 # p = mp.Pool(mp.cpu_count())
 p = mp.Pool(6)
 
-tmp_dir_list = ['imm1985']
+tmp_dir_list = ['imm1985_1995']
 for dir_name in tmp_dir_list:
 #for dir_name in dir_list:    
     print(f'Working on {dir_name}')
