@@ -33,12 +33,13 @@ engine = create_engine(sql_scheme)
 # p = mp.Pool(mp.cpu_count())
 p = mp.Pool(6)
 
-tmp_dir_list = ['imm1985_1995']
+tmp_dir_list = ['imm1985']
 for dir_name in tmp_dir_list:
 #for dir_name in dir_list:    
     print(f'Working on {dir_name}')
-    title_abstracts_table = dir_name + '_union_title_abstracts_processed'
-    all_text_data = pd.read_sql_table(table_name=title_abstracts_table, schema=schema, con=engine)
+    title_abstracts_table = 'imm1985_1995_union_title_abstracts_processed'
+    query = "SELECT edge.*, tat.processed_all_text FROM theta_plus." + dir_name + "_edge_list_" + cluster_type + " edge LEFT JOIN theta_plus." + title_abstracts_table + " tat ON edge.scp = tat.scp;"
+    all_text_data = pd.read_sql(query, con=engine)
 
     jsd_output_file_name = rootdir + '_output/' + dir_name + '/' + dir_name + '_JSD_' + cluster_type + ".csv"
     jsd_output_data = pd.read_csv(jsd_output_file_name, names = jsd_output_column_names)
