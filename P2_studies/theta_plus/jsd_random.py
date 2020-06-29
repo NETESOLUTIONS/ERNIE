@@ -38,7 +38,7 @@ for dir_name in tmp_dir_list:
 #for dir_name in dir_list:    
     print(f'Working on {dir_name}')
     title_abstracts_table = 'imm1985_1995_union_title_abstracts_processed'
-    query = "SELECT edge.*, tat.processed_all_text FROM theta_plus." + dir_name + "_edge_list_" + cluster_type + " edge LEFT JOIN theta_plus." + title_abstracts_table + " tat ON edge.scp = tat.scp;"
+    query = "SELECT edge.*, tat.processed_all_text FROM theta_plus." + dir_name + "_edge_list_" + cluster_type + " edge LEFT JOIN theta_plus." + title_abstracts_table + " tat ON edge.scp = tat.scp WHERE tat.processed_all_text is NOT NULL;"
     all_text_data = pd.read_sql(query, con=engine)
 
     jsd_output_file_name = rootdir + '_output/' + dir_name + '/' + dir_name + '_JSD_' + cluster_type + ".csv"
