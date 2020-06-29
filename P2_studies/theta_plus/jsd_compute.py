@@ -22,8 +22,6 @@ schema = "theta_plus"
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
-
-
 tmp_dir_list = ['imm1985','imm1986', 'imm1987', 'imm1988', 'imm1989', 'imm1990',
                 'imm1991', 'imm1992', 'imm1993', 'imm1994', 'imm1995']
 for dir_name in tmp_dir_list:
@@ -34,7 +32,7 @@ for dir_name in tmp_dir_list:
     data_text = pd.read_sql(query, con=engine)
     
     if end_cluster_num == 'max':
-        max_val = cluster_df['cluster_no'].max()
+        max_val = data_text['cluster_no'].max()
     else:
         max_val = int(end_cluster_num)
 
@@ -44,7 +42,7 @@ for dir_name in tmp_dir_list:
 
     for cluster_num in range(int(start_cluster_num), max_val+1):
 
-        print(f'Working on Cluster Number {cluster_num} of {cluster_df["cluster_no"].max()} in {dir_name}_{cluster_type}')
+        print(f'Working on Cluster Number {cluster_num} of {max_val} in {dir_name}_{cluster_type}')
         print(cluster_path)
         jsd_dict = p.starmap(jm.compute_jsd, [(data_text[data_text['cluster_no']==cluster_num], name, val, cluster_num)])
         jsd_df = pd.DataFrame(jsd_dict)
