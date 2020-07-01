@@ -22,7 +22,6 @@ for dir_name in dir_list:
         graclus_coded_cluster_num['citing_id'] = range(1, len(graclus_coded_cluster_num)+1)
         graclus_nodes_path = rootdir + '/' + dir_name + '/graclus_coded_' + dir_name + '_citing_cited.csv'
         graclus_nodes = pd.read_csv(graclus_nodes_path)
-        
         graclus_clusters = graclus_nodes.merge(graclus_coded_cluster_num)
         graclus_clusters = graclus_clusters.astype({'citing':object, 'citing_id':object, 'cluster_no':object}) 
         cluster_data = graclus_clusters[['citing', 'cluster_no']].rename(columns={'citing':'scp'})

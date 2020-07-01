@@ -24,7 +24,7 @@ for dir_name in dir_list:
     
     conductance_file = conductance_file.rename(columns={'cluster':'cluster_no', 'cluster_counts':'cluster_size'})
     coherence_file = coherence_file.rename(columns={'cluster':'cluster_no', 'jsd_coherence':'coherence', 'pre_jsd_size':'jsd_size'})
-    all_merged = conductance_file[['cluster_no', 'cluster_size', 'conductance']].merge(grouped_article_score, how='left').merge(coherence_file[['cluster_no', 'jsd_size', 'mean_jsd', 'coherence']], how ='left')
+    all_merged = conductance_file[['cluster_no', 'cluster_size', 'int_edges', 'boundary', 'conductance']].merge(grouped_article_score, how='left').merge(coherence_file[['cluster_no', 'jsd_size', 'mean_jsd', 'coherence']], how ='left')
     
     save_name = rootdir + '/' + dir_name + '/' + dir_name + '_all_merged_' + cluster_type + '.csv'
     

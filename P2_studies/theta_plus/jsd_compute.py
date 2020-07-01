@@ -28,7 +28,7 @@ for dir_name in tmp_dir_list:
 #for dir_name in dir_list:
     print(f'Working on {dir_name}')
     title_abstracts_table = 'imm1985_1995_union_title_abstracts_processed'
-    query = "SELECT edge.*, tat.processed_all_text FROM theta_plus." + dir_name + "_edge_list_" + cluster_type + " edge LEFT JOIN theta_plus." + title_abstracts_table + " tat ON edge.scp = tat.scp;"
+    query = "SELECT edge.*, tat.processed_all_text FROM theta_plus." + dir_name + "_edge_list_" + cluster_type + " edge LEFT JOIN theta_plus." + title_abstracts_table + " tat ON edge.scp = tat.scp;"  
     data_text = pd.read_sql(query, con=engine)
     
     if end_cluster_num == 'max':
@@ -46,7 +46,6 @@ for dir_name in tmp_dir_list:
         jsd_dict = p.starmap(jm.compute_jsd, [(data_text[data_text['cluster_no']==cluster_num], name, val, cluster_num)])
         jsd_df = pd.DataFrame(jsd_dict)
         jsd_df.to_csv(save_name, mode = 'a', index = None, header=False, encoding='utf-8')
-
 
     print(f'{dir_name} Completed.')
     print("")
