@@ -122,7 +122,11 @@ SELECT extract('year' FROM time_series)::int as budget_start_year,
        count(application_id)                 as project_count,
        coalesce(count(application_id) -
                 lag(count(application_id)) over (order by extract('year' FROM time_series)::int),
-                '0')                         as difference
+                '0')                         as difference,
+
+      coalesce(round(100.0 * (count(application_id) -
+                lag(count(application_id)) over (order by extract('year' FROM time_series)::int)) / lag(count(application_id)) over (order by extract('year' FROM time_series)::int),2),
+                '0')                         as percent_difference
 FROM exporter_projects,
      generate_series(
              date_trunc('year', to_date(budget_start,
@@ -130,7 +134,7 @@ FROM exporter_projects,
              date_trunc('year', to_date(regexp_replace(budget_start, 'Approved Prior to ', '', 'g'),
                                         'MM DD YYYY')),
              interval '1 year') time_series
-WHERE budget_start <= '2019'
+WHERE budget_start <= extract(year FROM current_date)::CHAR
 GROUP BY time_series, budget_start_year
 ORDER BY budget_start_year;
 --endregion
@@ -139,7 +143,10 @@ ORDER BY budget_start_year;
 with cte as (SELECT extract('year' FROM time_series)::int as budget_start_year,
                     coalesce(count(application_id) -
                              lag(count(application_id)) over (order by extract('year' FROM time_series)::int),
-                             '0')                         as difference
+                             '0')                         as difference,
+                    coalesce(round(100.0 * (count(application_id) -
+                            lag(count(application_id)) over (order by extract('year' FROM time_series)::int)) / lag(count(application_id)) over (order by extract('year' FROM time_series)::int),2),
+                            '0')                         as percent_difference
              FROM exporter_projects,
                   generate_series(
                           date_trunc('year', to_date(budget_start,
@@ -147,12 +154,12 @@ with cte as (SELECT extract('year' FROM time_series)::int as budget_start_year,
                           date_trunc('year', to_date(regexp_replace(budget_start, 'Approved Prior to ', '', 'g'),
                                                      'MM DD YYYY')),
                           interval '1 year') time_series
-             WHERE budget_start <= '2019'
+             WHERE budget_start <= extract(year from current_date)::CHAR
              GROUP BY time_series, budget_start_year
              ORDER BY budget_start_year)
-SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
-              CAST(:min_yearly_difference as BIGINT),
-              format('%s.tables should increase at least %s record', 'FDA', :min_yearly_difference))
+SELECT cmp_ok(CAST(cte.percent_difference as REAL), '>=',
+              CAST(:min_yearly_difference as REAL),
+              format('ExPORTER tables should increase by at least %s per cent of records', :min_yearly_difference))
 from cte;
 -- endregion
 
@@ -168,9 +175,9 @@ SELECT is_empty($$SELECT extract('year' FROM time_series)::int as budget_start_y
                           date_trunc('year', to_date(regexp_replace(budget_start, 'Approved Prior to ', '', 'g'),
                                                      'MM DD YYYY')),
                           interval '1 year') time_series
-             WHERE time_series::date >= '2021 01 01'
+             WHERE time_series::date >= date_trunc('year', current_date)::date
              GROUP BY time_series, budget_start_year
-             ORDER BY budget_start_year;$$ , 'There should be no exporter records two years from present');
+             ORDER BY budget_start_year;$$ , 'There should be no exporter records two years from present in the exporter_projects table');
 -- endregion
 
 SELECT *

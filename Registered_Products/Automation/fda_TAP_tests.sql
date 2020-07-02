@@ -145,7 +145,9 @@ FROM cte;
 SELECT extract('year' FROM time_series)::int AS approval_year,
        count(appl_no)                        as product_count,
        coalesce(count(appl_no) - lag(count(appl_no)) over (order by extract('year' FROM time_series)::int),
-                '0')                         as difference
+                '0')                         as difference,
+       coalesce(round(100.0*(count(appl_no) - lag(count(appl_no)) over (order by extract('year' FROM time_series)::int))/lag(count(appl_no)) over (order by extract('year' FROM time_series)::int),2),
+                             '0')                         as percent_difference
 FROM fda_products,
      generate_series(
              date_trunc('year', to_date(regexp_replace(approval_date, 'Approved Prior to ', '', 'g'),
@@ -159,20 +161,23 @@ ORDER BY approval_year;
 
 --region is there increase year by year in fda products
 with cte as (SELECT extract('year' FROM time_series)::int AS approval_year,
-                    coalesce(count(appl_no) - lag(count(appl_no)) over (order by extract('year' FROM time_series)::int),
-                             '0')                         as difference
-             FROM fda_products,
-                  generate_series(
-                          date_trunc('year', to_date(regexp_replace(approval_date, 'Approved Prior to ', '', 'g'),
-                                                     'Mon DD YYYY')),
-                          date_trunc('year', to_date(regexp_replace(approval_date, 'Approved Prior to ', '', 'g'),
-                                                     'Mon DD YYYY')),
-                          interval '1 year') time_series
-             GROUP BY time_series, approval_year
-             ORDER BY approval_year)
-SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
-              CAST(:min_yearly_difference as BIGINT),
-              format('%s.tables should increase at least %s record', 'FDA', :min_yearly_difference))
+            count(appl_no)                        as product_count,
+            coalesce(count(appl_no) - lag(count(appl_no)) over (order by extract('year' FROM time_series)::int),
+                '0')                         as difference,
+            coalesce(round(100.0*(count(appl_no) - lag(count(appl_no)) over (order by extract('year' FROM time_series)::int))/lag(count(appl_no)) over (order by extract('year' FROM time_series)::int),2),
+                             '0')                         as percent_difference
+            FROM fda_products,
+                generate_series(
+                  date_trunc('year', to_date(regexp_replace(approval_date, 'Approved Prior to ', '', 'g'),
+                                        'Mon DD YYYY')),
+                  date_trunc('year', to_date(regexp_replace(approval_date, 'Approved Prior to ', '', 'g'),
+                                        'Mon DD YYYY')),
+                  interval '1 year') time_series
+            GROUP BY time_series, approval_year
+            ORDER BY approval_year)
+            SELECT cmp_ok(CAST(cte.percent_difference as REAL), '>=',
+                          CAST(:min_yearly_difference as REAL),
+                           format('%s.tables should increase by at least %s per cent of records', 'FDA', :min_yearly_difference))
 from cte;
 -- endregion
 
@@ -187,7 +192,7 @@ SELECT is_empty($$SELECT extract('year' FROM time_series)::int AS approval_year,
                           date_trunc('year', to_date(regexp_replace(approval_date, 'Approved Prior to ', '', 'g'),
                                                      'Mon DD YYYY')),
                           interval '1 year') time_series
-             WHERE time_series::date > '2019 01 01'
+             WHERE time_series::date > date_trunc('year', current_date)::date
              GROUP BY time_series, approval_year
              ORDER BY approval_year;$$, 'There should be no FDA records two years from present');
 -- endregion
