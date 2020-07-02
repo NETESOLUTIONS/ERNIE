@@ -1,1 +1,0 @@
-wos_process_new_data_to_log
