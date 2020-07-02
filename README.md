@@ -1,6 +1,7 @@
 # Welcome to ERNIE
 <img align="left" src="ERNIE.png" width="250" height="200" border="120">
 
+Cite us:
 ```
 @article{keserci_ernie:_2018,
 	title = {{ERNIE}: {A} {Data} {Platform} for {Research} {Assessment}},
@@ -14,6 +15,4 @@
 }
 ```
 
-
-
-Folder for "Frequently Co-cited Publications: Features and Kinetics" code is https://github.com/NETESOLUTIONS/ERNIE/tree/master/P2_studies/cc2
+[See ERNIE Wiki for details](https://github.com/NETESOLUTIONS/ERNIE/wiki)
