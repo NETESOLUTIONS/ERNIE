@@ -1,16 +1,24 @@
 #!/usr/bin/env python3
+
+"""
+@author: Shreya Chandrasekharan
+"""
+
+"""
+This script contains all functions used for text pre-processing and 
+for computing Jensen-Shannon Divergence (JSD), Random JSD, and
+Coherence. 
+"""
+
 from textblob import TextBlob, Word
-import nltk
 from nltk.util import ngrams
+from nltk.probability import FreqDist
 from scipy.spatial import distance
 from sklearn.feature_extraction.text import CountVectorizer
 import sklearn
 import numpy as np
 import swifter
-from nltk.probability import FreqDist
-import os
 import pandas as pd
-import nltk
 from ast import literal_eval
 from scipy import sparse
 
@@ -22,6 +30,7 @@ stop_words = [word.rstrip('\n') for word in f]
 
 
 def preprocess_text(doc, n_grams='one'):
+    
     """
     Pre-processing using TextBlob: 
     tokenizing, converting to lower-case, and lemmatization based on POS tagging, 
@@ -29,15 +38,15 @@ def preprocess_text(doc, n_grams='one'):
 
     We can also choose to include n_grams (n = 1,2,3) in the final output
 
-    Argument(s): 'doc' - a string of words or sentences.
-                 'n_grams' - one: only unigrams (tokens consisting of one word each)
-                           - two: only bigrams
-                           - two_plus: unigrams + bigrams
-                           - three: only trigrams 
-                           - three_plus: unigrams + bigrams + trigrams
+    Argument(s): 'doc'        - a string of words or sentences.
+                 'n_grams'    - one: only unigrams (tokens consisting of one word each)
+                              - two: only bigrams
+                              - two_plus: unigrams + bigrams
+                              - three: only trigrams 
+                              - three_plus: unigrams + bigrams + trigrams
 
-    Output: 'reuslt_singles' - a list of pre-processed tokens (individual words) of each sentence in 'doc'
-            'result_ngrams' - a list of pre-processed tokens (including n-grams) of each sentence in 'doc'
+    Output: 'reuslt_singles'  - a list of pre-processed tokens (individual words) of each sentence in 'doc'
+            'result_ngrams'   - a list of pre-processed tokens (including n-grams) of each sentence in 'doc'
 
     """
 
@@ -94,6 +103,7 @@ def preprocess_text(doc, n_grams='one'):
 # ------------------------------------------------------------------------------------ #
 
 def get_frequency(processed_text_list):
+    
     """
     Using a built-in NLTK function that generates tuples
     We get the frequency distribution of all words/n-grams in a tokenized list
@@ -102,7 +112,8 @@ def get_frequency(processed_text_list):
 
     Argument(s): 'processed_text_list' - A list of pre-processed tokens
 
-    Output(s): freq_dict - A dictionary of tokens and their respective frequencies in descending order
+    Output(s): freq_dict               - A dictionary of tokens and their respective 
+                                         frequencies in descending order
     """
     # prop_dict - A dictionary of tokens and their respective proportions as a fraction of the total corpus
     # combined_dict - A dictionary whose values are both frequencies and proportions combined within a list
@@ -122,16 +133,16 @@ def get_frequency(processed_text_list):
 # ------------------------------------------------------------------------------------ #
 
 def merge_vocab_dictionary(vocab_column):
+    
     """
     Takes any number of token frequency dictionaries and merges them while summing 
     the respective frequencies and then calculates the proportion of the the tokens 
     as a fraction of the total corpus size and saves to text and CSV files
 
+    Argument(s): vocab_column    - A list/pandas column of dictionary objects
 
-    Argument(s): vocab_column - A column of dictionary objects
-
-    Output(s): merged_combined_dict - A list object containing the frequencies of all
-               merged dictionary tokens along with their respective proportions
+    Output(s): merged_freq_dict  - A list object containing the frequencies of all
+                                   merged dictionary tokens 
     """
 
     merged_freq_dict = {}
@@ -141,10 +152,8 @@ def merge_vocab_dictionary(vocab_column):
 
     for key, value in merged_freq_dict.items():
         merged_freq_dict[key] = sum(value)
-
-#     sorted_merged_freq_dict = sorted(
-#         merged_freq_dict.items(), key=lambda x: x[1], reverse=True)
-
+        
+#     # In case we also want proportion of frequency along with counts
 #     total_sum = sum(merged_freq_dict.values())
 #     merged_prop_dict = {key : merged_freq_dict[key] * 1.0 / total_sum for key, value in merged_freq_dict.items()}
 #     merged_combined_dict = {key : [merged_freq_dict[key], (merged_freq_dict[key] * 1.0 / total_sum)] for key, value in merged_freq_dict.items()}
@@ -154,19 +163,19 @@ def merge_vocab_dictionary(vocab_column):
 
 # ------------------------------------------------------------------------------------ #
 
-def remove_less_than(frequency_dict, less_than = 1):
+def remove_less_than(frequency_dict, min_threshold = 1):
 
     """
-    We use the 
+    Remove any tokens that appear fewer than the min_threshold number of 
+    times in a token-frequency dictionary
     
-    Argument(s): 'frequency_dict' - a dictionary 
-                 'max_frequency' - 
-                 'less_than' - 
+    Argument(s): 'frequency_dict'   - a dictionary of token-frequency pairs
+                 'min_threshold'    - Minimum threshold of token frequency to be retained
     
-    Output: 'retained' - a dictionary of
+    Output: 'retained'              - a dictionary of all token-frequency pairs after removing
+                                      tokens with frequency less than min_threshold
     """
-
-    retained_dict = {key : value for key, value in frequency_dict.items() if (value > less_than)}
+    retained_dict = {key : value for key, value in frequency_dict.items() if (value > min_threshold)}
 
     return retained_dict
 
@@ -175,12 +184,14 @@ def remove_less_than(frequency_dict, less_than = 1):
 def filter_after_preprocess(processed_tokens, retained_dict):
 
     """
-    We use the 
+    Removes any tokens not in the retained_dict from a list of processed tokens 
     
-    Argument(s): processed_tokens  -
-                 vocabulary_dict -
+    Argument(s): processed_tokens  - a list of pre-processed token
+                 retained_dict     - a token-frequency dictionary of tokens retained 
+                                          after removing tokens up to min_threshold frequency
     
-    Output: filtered 
+    Output:      filtered          - a list of tokens remaining after filtering out those that
+                                     are absent from retained_dict
     """
     filtered = []
 
@@ -193,6 +204,17 @@ def filter_after_preprocess(processed_tokens, retained_dict):
 # ------------------------------------------------------------------------------------ #
 
 def vectorize(text, corpus_by_cluster, count_vectorizer):
+    
+    """
+    Takes a list and converts it into a vector of document-term probability 
+    based on the given corpus
+    
+    Argument(s): text                - a list of pre-processed tokens
+                 corpus_by_cluster   - a list of the corpus tokens
+                 count_vectorizer    - scikit-learn's Countvectorizer()
+    
+    Output:      article_prob_vec    - a list of document-term probabilities
+    """
 
     article_count_mat = count_vectorizer.transform([' '.join(text)])
     article_sum = sparse.diags(1/article_count_mat.sum(axis=1).A.ravel())
@@ -203,6 +225,15 @@ def vectorize(text, corpus_by_cluster, count_vectorizer):
 # ------------------------------------------------------------------------------------ #
 
 def calculate_jsd(doc_prob_vec, cluster_prob_vec):
+    
+    """
+    Computes the Jensen-Shannon Distance (square root of Jensen-Shannon Divergence)
+    
+    Argument(s): doc_prob_vec       - a list of document-term probabilites
+                 cluster_prob_vec   - a list of corpus-term probabilites
+    
+    Output:      jsd                - Jensen-Shannon Distance between the doc_prob_vec and cluster_prob_vec
+    """
 
     jsd = distance.jensenshannon(doc_prob_vec.tolist()[0], cluster_prob_vec)
 
@@ -213,6 +244,18 @@ def calculate_jsd(doc_prob_vec, cluster_prob_vec):
 
 
 def compute_jsd(data_text, name, val, cluster_num):
+    
+    """
+    Computes the JSD for a cluster dataframe where each row is an article
+    
+    Argument(s): data_text    - an article cluster dataframe
+                 name         - type of edge-weight used 
+                                (no-weight, scopus frequency weight, normalized cluster frequency)
+                 val          - inflation value used (for MCL)
+                 cluster_num  - cluster number to compute JSD for 
+    
+    Output:      result_dict - a dictionary of JSD output for one cluster     
+    """
 
     original_cluster_size = len(data_text)
     data_text = data_text.dropna()
@@ -309,6 +352,16 @@ def compute_jsd(data_text, name, val, cluster_num):
 # ------------------------------------------------------------------------------------ #
 
 def random_jsd(jsd_size, sample_data, repeat):
+    
+    """
+    Computes the Random JSD from a randomly sampled set of articles based on a given size
+    
+    Argument(s): jsd_size     - sample size
+                 sample_data  - an article cluster dataframe which was randomly selected
+                 repeat       - number of iterations of Random JSD to compute 
+    
+    Output:      random_jsd   - a list of all iterations of Random JSD values 
+    """
 
     random_jsd = []
 

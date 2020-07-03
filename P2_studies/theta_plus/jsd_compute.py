@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+
+"""
+@author: Shreya Chandrasekharan
+"""
+
+"""
+This script contains all functions used for text pre-processing and 
+for computing Jensen-Shannon Divergence (JSD), Random JSD, and
+Coherence. 
+"""
+
 import jsd_modules as jm
 import pandas as pd
 pd.options.mode.chained_assignment = None
