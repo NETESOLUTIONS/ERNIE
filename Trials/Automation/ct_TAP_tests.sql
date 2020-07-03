@@ -139,7 +139,10 @@ SELECT extract('year' FROM time_series)::int AS verification_year,
        count(nct_id)                            count_nct,
        coalesce(count(nct_id) -
                 lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),
-                '0')                         as difference
+                '0')                         as difference,
+       coalesce(round(100.0*(count(nct_id) -
+                lag(count(nct_id)) over (order by extract('year' FROM time_series)::int))/ lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),2),
+                '0')                         as percent_difference
 FROM ct_clinical_studies,
      generate_series(
              date_trunc('year', to_date(
@@ -149,22 +152,37 @@ FROM ct_clinical_studies,
              date_trunc('year', to_date(regexp_replace(verification_date, '[0-9]{2},', '', 'g'),
                                         'Month YYYY')),
              interval '1 year') time_series
-where time_series::date >= '01 01 1981' and verification_date NOT LIKE '%2020%'
+WHERE time_series::date >= '01 01 1981'
+  AND verification_date NOT LIKE '%' || extract(year from current_date + INTERVAL '1 year') || '%'
 GROUP BY time_series, verification_year
 ORDER BY verification_year;
 --endregion
 
 --region do clinical trials increase year by year
-WITH cte as (SELECT substring(verification_date, '[0-9]{4}') AS verification_year,
-                    count(verification_date) -
-                    lag(count(verification_date)) over (order by substring(verification_date, '[0-9]{4}')) as difference
-             FROM ct_clinical_studies
-             WHERE substring(verification_date, '[0-9]{4}') is not null and verification_date NOT LIKE '%2020%'
-             GROUP BY verification_year
-             ORDER BY verification_year)
-SELECT cmp_ok(CAST(cte.difference as BIGINT), '>=',
-              CAST(:min_yearly_difference as BIGINT),
-              format('%s.tables should increase at least %s record', 'CT', :min_yearly_difference))
+WITH cte as (SELECT extract('year' FROM time_series)::int AS verification_year,
+                    count(nct_id)                            count_nct,
+                    coalesce(count(nct_id) -
+                        lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),
+                        '0')                         as difference,
+                    coalesce(round(100.0*(count(nct_id) -
+                        lag(count(nct_id)) over (order by extract('year' FROM time_series)::int))/ lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),2),
+                        '0')                         as percent_difference
+              FROM ct_clinical_studies,
+                  generate_series(
+                           date_trunc('year', to_date(
+                                   regexp_replace(verification_date, '[0-9]{2},', '', 'g'), -- there are different data formats , normal is Month YYYY,
+                               -- but there are some Month DD YYYY, were changed to normal format
+                                  'Month YYYY')),
+                           date_trunc('year', to_date(regexp_replace(verification_date, '[0-9]{2},', '', 'g'),
+                                        'Month YYYY')),
+                           interval '1 year') time_series
+              WHERE time_series::date >= '01 01 1981'
+                 AND verification_date NOT LIKE '%' || extract(year from current_date + INTERVAL '1 year') || '%'
+              GROUP BY time_series, verification_year
+              ORDER BY verification_year)
+              SELECT cmp_ok(CAST(cte.difference AS BIGINT), '>=',
+              CAST(:min_yearly_difference AS BIGINT),
+              format(' %s.tables should increase by at least %s per cent of records', 'CT', :min_yearly_difference))
 FROM cte
 where CAST(verification_year AS INT) >= 1981;
 -- some of the dates for verification are 0Y instead of YYYY in terms of date and so were eliminated
@@ -184,9 +202,11 @@ SELECT is_empty($$SELECT extract('year' FROM time_series)::int AS verification_y
                           date_trunc('year', to_date(regexp_replace(verification_date, '[0-9]{2},', '', 'g'),
                                                      'Month YYYY')),
                           interval '1 year') time_series
-             WHERE time_series::date > '2021 01 01' and verification_date NOT LIKE '%2020%'
+             WHERE time_series::date > date_trunc('year', current_date)::date
+                AND verification_date NOT LIKE '%' || extract(year from current_date + INTERVAL '1 year') || '%'
              GROUP BY time_series, verification_year
-             ORDER BY verification_year)$$, 'There should be no CT records two years from present');
+             ORDER BY verification_year;$$, 'There should be no CT records two years from present');
+
 -- endregion
 
 SELECT *

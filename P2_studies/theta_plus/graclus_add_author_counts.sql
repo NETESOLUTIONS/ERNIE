@@ -1,3 +1,4 @@
+SET search_path = "theta_plus";
 ----------- imm1985 ----------------
 
 ALTER TABLE imm1985_all_merged_graclus
