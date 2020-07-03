@@ -1,3 +1,25 @@
+#!/usr/bin/env python3
+"""
+@author: Shreya Chandrasekharan
+
+This script computes Random JSD for all clusters within a clustering.
+We have the option to process the data in batches by providing cluster numbers.
+
+Argument(s): rootdir               - The directory where all edge list information is stored
+                                     If Random JSD is being computed from data stored in a database,
+                                     this argument is used to identify the cluster name (year)
+             start_cluster_num     - The cluster number to start from in a clustering
+             end_cluster_num       - The cluster number to process up to.
+                                     If there is no specific value, use 'max'
+             cluster_type          - The type of cluster to process - (shuffled, unshuffled, graclus)
+             repeat                - Number of iterations of Random JSD to be computed
+             user_name             - Database username
+             password              - Database password
+             
+Output:      result_df             - Rows to be appended in the final output file (one at a time)
+                                     correspoding to the number of clusters processed
+"""
+
 import jsd_modules as jm
 import pandas as pd
 pd.options.mode.chained_assignment = None

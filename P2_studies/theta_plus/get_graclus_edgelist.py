@@ -1,3 +1,18 @@
+#!/usr/bin/env python3
+"""
+@author: Shreya Chandrasekharan
+
+This script outputs the edge-list of graclus clusters.
+The final output has two columns - cluster number and scp which is 
+then stored both in the database and on the sevrer.
+
+Argument(s): rootdir               - The directory where all graclus data are stored
+             user_name             - Database username
+             password              - Database password
+ 
+Output:      cluster_data          - Final edge-list
+"""
+
 import os
 import pandas as pd
 from sys import argv

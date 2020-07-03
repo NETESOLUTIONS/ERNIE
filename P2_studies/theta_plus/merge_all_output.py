@@ -1,3 +1,20 @@
+#!/usr/bin/env python3
+"""
+@author: Shreya Chandrasekharan
+
+This script combines all evaluation metrics - coherence, conductance, article
+scores - computed for given clusters. We need the output from jsd_coherence.py, 
+compute_conductance.py, and compute_article_score.py to run this script for 
+any clustering. The final output is stored both on the database and the server.
+
+Argument(s): rootdir          - The directory where all edge list information is stored
+             cluster_type     - The type of cluster to process - (shuffled, unshuffled, graclus)
+             user_name        - Database username
+             password         - Database password
+             
+Output:      all_merged       - Final dataframe of all evaluation metrics for a clustering
+"""
+
 import pandas as pd
 import os
 from sys import argv

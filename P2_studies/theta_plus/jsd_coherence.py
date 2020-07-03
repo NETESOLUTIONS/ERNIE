@@ -1,3 +1,16 @@
+#!/usr/bin/env python3
+"""
+@author: Shreya Chandrasekharan
+
+This script computes coherence for given clusters. We need the output from
+jsd_compute.py and jsd_random.py to run this script for any clustering.
+
+Argument(s): rootdir               - The directory where all edge list information is stored
+             cluster_type          - The type of cluster to process - (shuffled, unshuffled, graclus)
+             
+Output:      jsd_output_data       - Final dataframe of complete coherence computation
+"""
+
 import swifter
 import jsd_modules as jm
 import os

@@ -1,28 +1,31 @@
+#!/usr/bin/env python3
+
+"""
+@author: Shreya Chandrasekharan
+
+This script includes any ad hoc computation used for theta_plus
+"""
 
 # Finding the intersection/union between all 11 years
 
 import pandas as pd
+from glob import glob
 
-imm85 = pd.read_csv("dump.imm1985_citing_cited.mci.I20.csv")
-imm86 = pd.read_csv("dump.imm1986_citing_cited.mci.I20.csv")
-imm87 = pd.read_csv("dump.imm1987_citing_cited.mci.I20.csv")
-imm88 = pd.read_csv("dump.imm1988_citing_cited.mci.I20.csv")
-imm89 = pd.read_csv("dump.imm1989_citing_cited.mci.I20.csv")
-imm90 = pd.read_csv("dump.imm1990_citing_cited.mci.I20.csv")
-imm91 = pd.read_csv("dump.imm1991_citing_cited.mci.I20.csv")
-imm92 = pd.read_csv("dump.imm1992_citing_cited.mci.I20.csv")
-imm93 = pd.read_csv("dump.imm1993_citing_cited.mci.I20.csv")
-imm94 = pd.read_csv("dump.imm1994_citing_cited.mci.I20.csv")
-imm95 = pd.read_csv("dump.imm1995_citing_cited.mci.I20.csv")
-imm85_95 = pd.read_csv("dump.imm1985_1995_citing_cited.mci.I20.csv")
 
-year_list = [imm85,imm86,imm87,imm88,imm89,imm90,imm91,imm92,imm93,imm94,imm95]
-name_list = []
+year_list = []
+
+for file_name in glob('dump.*.mci.I20.csv'):
+    if len(file_name) == 37:
+        vars()[file_name[5:12]] = pd.read_csv(file_name)
+        year_list.append(vars()[file_name[5:12]])
+    elif len(file_name) == 42: # ---> imm1985_1995
+        vars()[file_name[5:17]] = pd.read_csv(file_name) # ---> Not appending to year_list
+
 for i in range(len(year_list)):
     name = 'imm' + str(85+i)
     year_list[i].name = name
-    name_list.append(name)
-imm85_95.name = 'imm85_95'    
+
+imm1985_1995.name = 'imm85_95'  
 
 # Intersection/Union as absolute values
 df = pd.DataFrame(columns = [i.name for i in year_list], index = [i.name for i in year_list])

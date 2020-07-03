@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+"""
+@author: Shreya Chandrasekharan
+
+This script computes article scores for given clusters. 
+
+Argument(s): rootdir               - The directory where all edge list information is stored
+             cluster_type          - The type of cluster to process - (shuffled, unshuffled, graclus)
+             
+Output:      cluster_scores        - Final data frame of complete article score computation
+"""
+
 import os
 import pandas as pd
 from sys import argv

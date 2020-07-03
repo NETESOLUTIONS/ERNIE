@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+"""
+@author: Shreya Chandrasekharan
+
+This script computes conductance for given clusters. 
+
+Argument(s): rootdir               - The directory where all edge list information is stored
+             cluster_type          - The type of cluster to process - (shuffled, unshuffled, graclus)
+             
+Output:      conductance_x5        - Final data frame of complete conductance computation
+"""
+
 import os
 import pandas as pd
 from sys import argv

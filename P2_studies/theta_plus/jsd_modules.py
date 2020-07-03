@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
-
 """
 @author: Shreya Chandrasekharan
-"""
 
-"""
 This script contains all functions used for text pre-processing and 
-for computing Jensen-Shannon Divergence (JSD), Random JSD, and
-Coherence. 
+for computing Jensen-Shannon Divergence (JSD), Random JSD, and Coherence. 
 """
 
 from textblob import TextBlob, Word
@@ -21,7 +17,6 @@ import swifter
 import pandas as pd
 from ast import literal_eval
 from scipy import sparse
-
 
 # ------------------------------------------------------------------------------------ #
 
@@ -409,17 +404,41 @@ def random_jsd(jsd_size, sample_data, repeat):
 
 # ------------------------------------------------------------------------------------ #
 
-# ------ Evaluation Functions ------ #
+# Coherence Functions
 
 def fix_eval_issue(doc):
+    """
+    Fixes the string literal evalutation issue when reading and writing a
+    column of lists to a database table.
+    
+    Argument(s): doc - a list in a table column
+    
+    Output:      doc - literal evalutation corrected list
+    """
     if doc != 'nan':
         return literal_eval(doc)
 
+    
 def compute_mean(row):
+    """
+    Computes the arithmetic mean of a list using NumPy
+    
+    Argument(s): row - a list of float values
+    
+    Output:      mean - arithmetic mean of the list
+    """
     if type(row)==list:
         return np.mean(row)
 
+    
 def random_jsd_range(row):
+    """
+    Computes the range of values in a list using NumPy
+    
+    Argument(s): row   - a list of float values
+    
+    Output:      range - range of values in the list
+    """
     if type(row)==list:
         return np.max(row)-np.min(row)
 
