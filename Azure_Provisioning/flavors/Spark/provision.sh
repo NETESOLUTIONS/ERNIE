@@ -74,7 +74,7 @@ then
 fi
 # Set the default subscription id
 az account set --subscription "${AZURE_SUBSCRIPTION_ID}"
-set +e
+# set +e
 
 #Start deployment
 echo "Starting deployment..."
