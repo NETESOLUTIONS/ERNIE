@@ -139,6 +139,9 @@ GROUP BY time_series, budget_start_year
 ORDER BY budget_start_year;
 --endregion
 
+
+/* The following test has been disabled until the the ticket - https://jira.nete.com/browse/ER-583 -  is resolved.
+
 --region is there increase year by year in projects
 with cte as (SELECT extract('year' FROM time_series)::int as budget_start_year,
                     coalesce(count(application_id) -
@@ -162,6 +165,8 @@ SELECT cmp_ok(CAST(cte.percent_difference as REAL), '>=',
               format('ExPORTER tables should increase by at least %s per cent of records year on year', :min_yearly_difference))
 from cte;
 -- endregion
+*/
+
 
 -- region there should be no future records
 SELECT is_empty($$SELECT extract('year' FROM time_series)::int as budget_start_year,

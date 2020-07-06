@@ -158,6 +158,8 @@ GROUP BY time_series, verification_year
 ORDER BY verification_year;
 --endregion
 
+/* The following test has been disabled until the the ticket - https://jira.nete.com/browse/ER-588 -  is resolved.
+
 --region do clinical trials increase year by year
 WITH cte as (SELECT extract('year' FROM time_series)::int AS verification_year,
                     count(nct_id)                            count_nct,
@@ -187,6 +189,7 @@ FROM cte
 where CAST(verification_year AS INT) >= 1981;
 -- some of the dates for verification are 0Y instead of YYYY in terms of date and so were eliminated
 --endregion
+*/
 
 -- region are there records in the future
 SELECT is_empty($$SELECT extract('year' FROM time_series)::int AS verification_year,
