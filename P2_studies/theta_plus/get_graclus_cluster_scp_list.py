@@ -2,7 +2,7 @@
 """
 @author: Shreya Chandrasekharan
 
-This script outputs the edge-list of graclus clusters.
+This script outputs the cluster-scp list of graclus clusters.
 The final output has two columns - cluster number and scp which is 
 then stored both in the database and on the sevrer.
 
@@ -10,7 +10,7 @@ Argument(s): rootdir               - The directory where all graclus data are st
              user_name             - Database username
              password              - Database password
  
-Output:      cluster_data          - Final edge-list
+Output:      cluster_data          - Final cluster-scp list
 """
 
 import os
@@ -41,7 +41,7 @@ for dir_name in dir_list:
     graclus_clusters = graclus_clusters.astype({'citing':object, 'citing_id':object, 'cluster_no':object}) 
     cluster_data = graclus_clusters[['citing', 'cluster_no']].rename(columns={'citing':'scp'})
     
-    save_name = dir_name + '_edge_list_graclus'
+    save_name = dir_name + '_cluster_scp_list_graclus'
     cluster_data.to_sql(save_name, con=engine, schema=schema, index=False, if_exists='fail')
 
 print("All Completed.")

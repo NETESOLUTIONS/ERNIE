@@ -7,7 +7,7 @@ scores - computed for given clusters. We need the output from jsd_coherence.py,
 compute_conductance.py, and compute_article_score.py to run this script for 
 any clustering. The final output is stored both on the database and the server.
 
-Argument(s): rootdir          - The directory where all edge list information is stored
+Argument(s): rootdir          - The directory where all cluster-scp list information is stored
              cluster_type     - The type of cluster to process - (shuffled, unshuffled, graclus)
              user_name        - Database username
              password         - Database password
