@@ -177,7 +177,7 @@ with cte as (SELECT extract('year' FROM time_series)::int AS approval_year,
             ORDER BY approval_year)
             SELECT cmp_ok(CAST(cte.percent_difference as REAL), '>=',
                           CAST(:min_yearly_difference as REAL),
-                           format('%s.tables should increase by at least %s per cent of records', 'FDA', :min_yearly_difference))
+                           format('FDA Products table should increase by at least %s per cent of records year on year', :min_yearly_difference))
 from cte;
 -- endregion
 

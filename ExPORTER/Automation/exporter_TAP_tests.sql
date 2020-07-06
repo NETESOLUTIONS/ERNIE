@@ -159,7 +159,7 @@ with cte as (SELECT extract('year' FROM time_series)::int as budget_start_year,
              ORDER BY budget_start_year)
 SELECT cmp_ok(CAST(cte.percent_difference as REAL), '>=',
               CAST(:min_yearly_difference as REAL),
-              format('ExPORTER tables should increase by at least %s per cent of records', :min_yearly_difference))
+              format('ExPORTER tables should increase by at least %s per cent of records year on year', :min_yearly_difference))
 from cte;
 -- endregion
 

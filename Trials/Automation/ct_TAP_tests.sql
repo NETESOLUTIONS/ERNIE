@@ -182,7 +182,7 @@ WITH cte as (SELECT extract('year' FROM time_series)::int AS verification_year,
               ORDER BY verification_year)
               SELECT cmp_ok(CAST(cte.difference AS BIGINT), '>=',
               CAST(:min_yearly_difference AS BIGINT),
-              format(' %s.tables should increase by at least %s per cent of records', 'CT', :min_yearly_difference))
+              format(' %CT Clinical Studies table should increase by at least %s per cent of records year on year', :min_yearly_difference))
 FROM cte
 where CAST(verification_year AS INT) >= 1981;
 -- some of the dates for verification are 0Y instead of YYYY in terms of date and so were eliminated
