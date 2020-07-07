@@ -65,3 +65,23 @@ for dir_name in tmp_dir_list:
     new_table_name = dir_name + "_cluster_scp_list_" + cluster_type
     query = 'ALTER TABLE IF EXISTS ' + table_name + ' RENAME TO ' + new_table_name + ';'
     curs.execute(query)
+    
+    
+# Get a sample from a shuffled cluster-scp list
+
+import pandas as pd
+from sqlalchemy import create_engine
+rootdir = '/erniedev_data3/theta_plus/imm'
+# user_name 
+# password 
+schema = "theta_plus"
+sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
+engine = create_engine(sql_scheme)
+year = '1990'
+shuffled_file_name = rootdir + '/imm' + year + '/dump.imm' + year + '_citing_cited_shuffled_1million.I20.csv'
+shuffled_file = pd.read_csv(shuffled_file_name)
+grouped_shuffled_file = shuffled_file.groupby('cluster_no', as_index=False).agg('count').rename(columns={'scp':'cluster_counts'})
+sample = grouped_shuffled_file[(grouped_shuffled_file['cluster_counts'] >= 30) & (grouped_shuffled_file['cluster_counts'] <= 350) ].sample(n=1000, random_state=2020)['cluster_no'].to_list()
+shuffled_sample = shuffled_file[shuffled_file['cluster_no'].isin(sample)]
+save_name = 'imm' + year + '_cluster_scp_list_shuffled_sample'
+shuffled_sample.to_sql(save_name, con=engine, schema=schema, index=False, if_exists='fail')
