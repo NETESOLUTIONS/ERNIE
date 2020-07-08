@@ -19,7 +19,9 @@ rootdir = '/erniedev_data3/theta_plus/imm'
 dir_list = sorted(os.listdir(rootdir))
 cluster_name = argv[1] # ---> re-indexed/original
 
-for dir_name in dir_list:
+tmp_dir = ['imm1990']
+for dir_name in tmp_dir:
+# for dir_name in dir_list:
     print(f'Working on {dir_name}')
     
     shuffled_cluster_path = rootdir + '/' + dir_name + '/dump.' + dir_name + '_citing_cited_shuffled_1million.I20.csv'
@@ -30,8 +32,11 @@ for dir_name in dir_list:
     grouped_sample['temp_cluster_no'] = grouped_sample.index + 1
     sample = grouped_sample['cluster_no'].to_list()
     shuffled_sample = shuffled_file[shuffled_file['cluster_no'].isin(sample)] 
+    shuffled_sample = shuffled_sample.merge(grouped_sample[['cluster_no', 'temp_cluster_no']], how='left')
+    shuffled_sample = shuffled_sample.rename(columns={'cluster_no':'1990_cluster_no', 'temp_cluster_no':'cluster_no'})
+    
     shuffled_sample_scp = shuffled_sample['scp'].to_list()
-    cluster_data = shuffled_sample.reset_index(drop=True)
+    cluster_data = shuffled_sample[['cluster_no', 'scp']]
     
     nodes_data_name = rootdir + '/' + dir_name + '/' + dir_name + '_citing_cited.csv'
     nodes_data = pd.read_csv(nodes_data_name)
