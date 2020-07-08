@@ -30,12 +30,12 @@ BEGIN
 
   -- scopus_titles
   INSERT INTO stg_scopus_titles(scp, title, language)
-  SELECT scp, max(title) AS title, max(language) AS language
+  SELECT scp, MAX(title) AS title, coalesce(language, '') AS language
     FROM
       xmltable(XMLNAMESPACES ('http://www.elsevier.com/xml/ani/common' AS ce),
                '//bibrecord/head/citation-title/titletext' PASSING scopus_doc_xml COLUMNS --
                  scp BIGINT PATH '../../../item-info/itemidlist/itemid[@idtype="SCP"]', --
                  title TEXT PATH 'normalize-space()', --
                  language TEXT PATH '@language')
-   GROUP BY scp;
+   GROUP BY scp, language;
 END; $$
