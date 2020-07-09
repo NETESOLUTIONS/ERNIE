@@ -67,10 +67,8 @@ cat parameters.json
 echo "**************************************"
 
 # Login to azure using saved credentials
-az account show 1> /dev/null
-if [ $? != 0 ];
-then
-	az login
+if ! az account show; then
+    az login
 fi
 # Set the default subscription id
 az account set --subscription "${AZURE_SUBSCRIPTION_ID}"

@@ -442,3 +442,41 @@ def random_jsd_range(row):
     if type(row)==list:
         return np.max(row)-np.min(row)
 
+
+# ------------------------------------------------------------------------------------ #    
+    
+def match_mcl_to_graclus(imm1985_1995_cluster_no, rated_data):
+    
+    match_year = '19' + str(rated_data.set_index('imm1985_1995_cluster_no').at[int(imm1985_1995_cluster_no), 'match_year'])
+    mcl_cluster_no = rated_data.set_index('imm1985_1995_cluster_no').at[int(imm1985_1995_cluster_no), 'match_cluster_no']
+    mcl_match_year = 'imm' + match_year + '_cluster_scp_list_unshuffled'
+    graclus_match_year = 'imm' + match_year + '_cluster_scp_list_graclus'
+
+    mcl_query = "SELECT * FROM theta_plus." + mcl_match_year + " AS mmy WHERE mmy.cluster_no = " + str(mcl_cluster_no) + ';'
+    mcl_data = pd.read_sql(mcl_query, con=engine)
+    mcl_cluster_size = len(mcl_data)
+    common_nodes = mcl_data['scp'].to_list()
+    graclus_query = "SELECT * FROM theta_plus." + graclus_match_year + ';'
+    graclus_data = pd.read_sql(graclus_query, con=engine)
+
+    common_graclus_clusters = list(set(graclus_data['cluster_no'][graclus_data['scp'].isin(common_nodes)].to_list()))
+    merged_data = mcl_data[['scp']].merge(graclus_data[graclus_data['cluster_no'].isin(common_graclus_clusters)], how='inner')
+    total_intersection = len(merged_data)
+    grouped_merged_data = merged_data.groupby(by='cluster_no', as_index=False).agg('count')
+    max_match_count = grouped_merged_data['scp'].max()
+    max_match_prop = round(max_match_count/mcl_cluster_size, 3)
+    graclus_cluster_no = grouped_merged_data.set_index('scp').at[max_match_count, 'cluster_no']
+    graclus_cluster_size = len(graclus_data[graclus_data['cluster_no'] == graclus_cluster_no])
+
+    result_dict = {'imm1985_1995_cluster_no':[int(imm1985_1995_cluster_no)], 
+                   'match_year': match_year, 
+                   'mcl_cluster_no':mcl_cluster_no, 
+                   'mcl_cluster_size':mcl_cluster_size, 
+                   'total_intersection': total_intersection, 
+                   'max_match_count': max_match_count, 
+                   'max_match_prop':max_match_prop, 
+                   'graclus_cluster_no':graclus_cluster_no, 
+                   'graclus_cluster_size':graclus_cluster_size}
+    
+    return result_dict
+

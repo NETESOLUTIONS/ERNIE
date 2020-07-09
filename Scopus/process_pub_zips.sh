@@ -189,6 +189,7 @@ parse_pub() {
     cd "${WORKING_DIR}"
     [[ ! -d "${failed_files_dir}" ]] && mkdir -p "${failed_files_dir}"
     mv -f "$full_xml_path" "${failed_files_dir}/"
+    chmod -R g+w "${failed_files_dir}"
     cd "${TMP_DIR}"
     return 1
   fi

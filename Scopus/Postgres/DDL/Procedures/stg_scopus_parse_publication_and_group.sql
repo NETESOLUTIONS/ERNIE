@@ -22,10 +22,10 @@ BEGIN
               pub_year SMALLINT PATH 'bibrecord/head/source/publicationyear/@first', --
               scp BIGINT PATH 'bibrecord/item-info/itemidlist/itemid[@idtype="SCP"]', --
           -- noramlize-space() converts NULLs to empty strings
-              correspondence_person_indexed_name TEXT PATH 'bibrecord/head/correspondence/person/ce:indexed-name', --
-              correspondence_city TEXT PATH 'bibrecord/head/correspondence/affiliation/city', --
-              correspondence_country TEXT PATH 'bibrecord/head/correspondence/affiliation/country', --
-              correspondence_e_address TEXT PATH 'bibrecord/head/correspondence/ce:e-address', --
+              correspondence_person_indexed_name TEXT PATH 'bibrecord/head/correspondence[1]/person/ce:indexed-name', --
+              correspondence_city TEXT PATH 'bibrecord/head/correspondence[1]/affiliation/city', --
+              correspondence_country TEXT PATH 'bibrecord/head/correspondence[1]/affiliation/country', --
+              correspondence_e_address TEXT PATH 'bibrecord/head/correspondence[1]/ce:e-address', --
               citation_type TEXT PATH 'bibrecord/head/citation-info/citation-type/@code', --
               citation_language XML PATH 'bibrecord/head/citation-info/citation-language/@language')
   ) LOOP

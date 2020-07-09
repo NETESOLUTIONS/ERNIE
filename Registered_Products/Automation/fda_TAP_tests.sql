@@ -159,6 +159,8 @@ GROUP BY time_series, approval_year
 ORDER BY approval_year;
 --endregion
 
+/* The following test has been disabled until the the ticket - https://jira.nete.com/browse/ER-587 -  is resolved.
+
 --region is there increase year by year in fda products
 with cte as (SELECT extract('year' FROM time_series)::int AS approval_year,
             count(appl_no)                        as product_count,
@@ -196,7 +198,7 @@ SELECT is_empty($$SELECT extract('year' FROM time_series)::int AS approval_year,
              GROUP BY time_series, approval_year
              ORDER BY approval_year;$$, 'There should be no FDA records two years from present');
 -- endregion
-
+*/
 
 SELECT *
 FROM finish();

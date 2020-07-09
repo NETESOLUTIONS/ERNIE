@@ -5,7 +5,7 @@
 This script computes JSD for all clusters within a clustering.
 We have the option to process the data in batches by providing cluster numbers.
 
-Argument(s): rootdir               - The directory where all edge list information is stored
+Argument(s): rootdir               - The directory where all cluster-scp list information is stored
                                      If JSD is being computed from data stored in a database,
                                      this argument is used to identify the cluster name (year)
              start_cluster_num     - The cluster number to start from in a clustering
@@ -43,13 +43,12 @@ schema = "theta_plus"
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
-tmp_dir_list = ['imm1985','imm1986', 'imm1987', 'imm1988', 'imm1989', 'imm1990',
-                'imm1991', 'imm1992', 'imm1993', 'imm1994', 'imm1995']
+tmp_dir_list = ['imm1990']
 for dir_name in tmp_dir_list:
 #for dir_name in dir_list:
     print(f'Working on {dir_name}')
     title_abstracts_table = 'imm1985_1995_union_title_abstracts_processed'
-    query = "SELECT edge.*, tat.processed_all_text FROM theta_plus." + dir_name + "_edge_list_" + cluster_type + " edge LEFT JOIN theta_plus." + title_abstracts_table + " tat ON edge.scp = tat.scp;"  
+    query = "SELECT csl.*, tat.processed_all_text FROM theta_plus." + dir_name + "_cluster_scp_list_" + cluster_type + " csl LEFT JOIN theta_plus." + title_abstracts_table + " tat ON csl.scp = tat.scp;"  
     data_text = pd.read_sql(query, con=engine)
     
     if end_cluster_num == 'max':
