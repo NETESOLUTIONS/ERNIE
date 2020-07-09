@@ -20,11 +20,11 @@ DO $block$
     scopus_doc_xml XML;
     -- pub zip name TEXT;
     pub_zip VARCHAR(100);
-    
+
   BEGIN
     SELECT xmlparse(DOCUMENT convert_from(pg_read_binary_file(current_setting('script.xml_file')), 'UTF8'))
       INTO scopus_doc_xml;
-      
+
     pub_zip := current_setting('script.pub_zip');
 
     IF current_setting('script.subset_sp')='' THEN -- Execute all parsing SPs
@@ -39,18 +39,18 @@ DO $block$
       CALL stg_scopus_parse_grants(scopus_doc_xml);
       CALL stg_scopus_parse_references(scopus_doc_xml);
     ELSE -- Execute only the selected SP
-      -- Make sure that parent records are present
+    -- Make sure that parent records are present
       CALL stg_scopus_parse_publication_and_group(scopus_doc_xml, pub_zip);
 
       EXECUTE format('CALL %I($1)',current_setting('script.subset_sp')) using scopus_doc_xml;
     END IF;
 
-  /*
-  EXCEPTION handling is not feasible with COMMITing procedures: causes `[2D000] ERROR: invalid transaction termination`
+    /*
+    EXCEPTION handling is not feasible with COMMITing procedures: causes `[2D000] ERROR: invalid transaction termination`
 
-  EXCEPTION
-    WHEN OTHERS THEN --
-      RAISE NOTICE E'Processing of % FAILED', current_setting('script.xml_file');
-      --  RAISE NOTICE E'ERROR during processing of:\n-----\n%\n-----', scopus_doc_xml;
-      RAISE;*/
+    EXCEPTION
+      WHEN OTHERS THEN --
+        RAISE NOTICE E'Processing of % FAILED', current_setting('script.xml_file');
+        --  RAISE NOTICE E'ERROR during processing of:\n-----\n%\n-----', scopus_doc_xml;
+        RAISE;*/
   END $block$;
