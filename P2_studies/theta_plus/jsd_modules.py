@@ -17,10 +17,11 @@ import swifter
 import pandas as pd
 from ast import literal_eval
 from scipy import sparse
+from sqlalchemy import create_engine
 
 # ------------------------------------------------------------------------------------ #
 
-f = open('/erniedev_data3/theta_plus/scripts/stop_words.txt', 'r')
+f = open('stop_words.txt', 'r')
 stop_words = [word.rstrip('\n') for word in f]
 
 
@@ -445,7 +446,11 @@ def random_jsd_range(row):
 
 # ------------------------------------------------------------------------------------ #    
     
-def match_mcl_to_graclus(imm1985_1995_cluster_no, rated_data):
+schema = "theta_plus"
+sql_scheme = 'postgresql://' + "user_name" + ':' + "password" + '@localhost:5432/ernie' # ---> supply credentials
+engine = create_engine(sql_scheme)
+    
+def match_mcl_to_graclus(imm1985_1995_cluster_no, rated_data, user_name, password):
     
     match_year = '19' + str(rated_data.set_index('imm1985_1995_cluster_no').at[int(imm1985_1995_cluster_no), 'match_year'])
     mcl_cluster_no = rated_data.set_index('imm1985_1995_cluster_no').at[int(imm1985_1995_cluster_no), 'match_cluster_no']
@@ -468,15 +473,16 @@ def match_mcl_to_graclus(imm1985_1995_cluster_no, rated_data):
     graclus_cluster_no = grouped_merged_data.set_index('scp').at[max_match_count, 'cluster_no']
     graclus_cluster_size = len(graclus_data[graclus_data['cluster_no'] == graclus_cluster_no])
 
-    result_dict = {'imm1985_1995_cluster_no':[int(imm1985_1995_cluster_no)], 
+    result_dict = {'imm1985_1995_cluster_no': int(imm1985_1995_cluster_no), 
                    'match_year': match_year, 
-                   'mcl_cluster_no':mcl_cluster_no, 
-                   'mcl_cluster_size':mcl_cluster_size, 
+                   'mcl_cluster_no': mcl_cluster_no, 
+                   'mcl_cluster_size': mcl_cluster_size, 
                    'total_intersection': total_intersection, 
                    'max_match_count': max_match_count, 
-                   'max_match_prop':max_match_prop, 
-                   'graclus_cluster_no':graclus_cluster_no, 
-                   'graclus_cluster_size':graclus_cluster_size}
+                   'max_match_prop': max_match_prop, 
+                   'graclus_cluster_no': graclus_cluster_no, 
+                   'graclus_cluster_size' : graclus_cluster_size}
     
     return result_dict
+
 
