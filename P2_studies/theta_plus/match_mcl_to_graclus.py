@@ -15,13 +15,25 @@ engine = create_engine(sql_scheme)
 
 rated_data = pd.read_sql_table(table_name=rated_table, schema=schema, con=engine)
 p = mp.Pool(6)
-save_name = rootdir + '/imm1985_1995/rated_mcl_match_graclus.csv'   
-match_dict = p.starmap(jm.match_mcl_to_graclus, [(rated_data['imm1985_1995_cluster_no'], rated_data)])
-match_df = pd.DataFrame(match_dict)
-match_df.to_csv(save_name, mode = 'a', index = None, header=False, encoding='utf-8')
-print("All Completed.")  
+save_name = rootdir + '/imm1985_1995/rated_mcl_match_graclus.csv'
+
+columns = ['imm1985_1995_cluster_no', 'match_year', 'mcl_cluster_no', 
+           'mcl_cluster_size', 'total_intersection', 'max_match_count', 
+           'max_match_prop', 'graclus_cluster_no', 'graclus_cluster_size']
+final_df = pd.DataFrame(columns=columns)
+
+for i in range(len(rated_data)):
+    
+    result_df = rated_data[i:i+1]
+    match_dict = p.starmap(jm.match_mcl_to_graclus, [(result_df['imm1985_1995_cluster_no'], rated_data, user_name, password)])
+    match_df = pd.DataFrame.from_dict(match_dict)
+    final_df = final_df.append(match_df, ignore_index=True)
+
+final_df.to_csv(save_name, index = None, header=True, encoding='utf-8')
+print("All Completed.") 
     
 # In case the connection times out:
-# engine = create_engine(sql_scheme)
+engine = create_engine(sql_scheme)
 
-# match_df.to_sql(save_name, con=engine, schema=schema, index=False, if_exists='fail')
+save_name_sql = 'rated_to_graclus'
+final_df.to_sql(save_name, con=engine, schema=schema, index=False, if_exists='fail')

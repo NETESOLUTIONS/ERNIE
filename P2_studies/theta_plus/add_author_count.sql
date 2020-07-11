@@ -11,6 +11,10 @@ ADD COLUMN p_100_author_count BIGINT,
 ADD COLUMN num_authors BIGINT,
 ADD COLUMN num_authors_95 BIGINT,
 ADD COLUMN num_articles_95 BIGINT,
+ADD COLUMN coauthor_counts_95 BIGINT,
+ADD COLUMN distinct_coauthor_counts_95 BIGINT,
+ADD COLUMN coauthor_prop_95 DOUBLE PRECISION,
+ADD COLUMN coauthorship_ratio_95 DOUBLE PRECISION,
 ADD COLUMN coauthor_counts BIGINT,
 ADD COLUMN distinct_coauthor_counts BIGINT,
 ADD COLUMN coauthor_prop DOUBLE PRECISION,
@@ -198,7 +202,7 @@ WHERE imm1985_1995_all_merged_unshuffled.cluster_no = percentile_val.cluster_no
 
 
 UPDATE imm1985_1995_all_merged_unshuffled
-SET coauthor_counts = coauthor.coauthor_counts
+SET coauthor_counts_95 = coauthor.coauthor_counts
 FROM
               (SELECT set1.cluster_no, COUNT(set2.scp) as coauthor_counts
               FROM
@@ -244,7 +248,7 @@ FROM
                           ON scps.auid = authors_95.auid and
                              scps.cluster_no = authors_95.cluster_no ) set2
 
-                      ON set1.scp=set2.scp AND set1.auid!=set2.auid
+                      ON set1.scp=set2.scp AND set1.auid<set2.auid
 
               GROUP BY set1.cluster_no) coauthor
 WHERE imm1985_1995_all_merged_unshuffled.cluster_no = coauthor.cluster_no;
@@ -252,7 +256,7 @@ WHERE imm1985_1995_all_merged_unshuffled.cluster_no = coauthor.cluster_no;
 
 
 UPDATE imm1985_1995_all_merged_unshuffled
-SET distinct_coauthor_counts = dist_coauthors.distinct_coauthor_counts
+SET distinct_coauthor_counts_95 = dist_coauthors.distinct_coauthor_counts
 FROM
       (SELECT coauthors_distinct.cluster_no, count(*) as distinct_coauthor_counts
       FROM
@@ -311,12 +315,85 @@ WHERE imm1985_1995_all_merged_unshuffled.cluster_no = dist_coauthors.cluster_no;
 
 
 UPDATE imm1985_1995_all_merged_unshuffled
+SET coauthor_prop_95 = prop.prop
+FROM
+      (SELECT *,
+          coalesce(round(1.0*distinct_coauthor_counts_95 / ((num_authors_95*(num_authors_95-1))/2), 3), 0) as prop
+      FROM imm1985_1995_all_merged_unshuffled ) prop
+WHERE imm1985_1995_all_merged_unshuffled.cluster_no = prop.cluster_no;
+
+
+
+UPDATE imm1985_1995_all_merged_unshuffled
+SET coauthorship_ratio_95 = prop.prop
+FROM
+      (SELECT *,
+          coalesce(round(1.0*coauthor_counts_95 / distinct_coauthor_counts_95, 3), 0) as prop
+      FROM imm1985_1995_all_merged_unshuffled ) prop
+WHERE imm1985_1995_all_merged_unshuffled.cluster_no = prop.cluster_no;
+
+
+
+
+UPDATE imm1985_1995_all_merged_unshuffled
+SET coauthor_counts = coauthor.coauthor_counts
+FROM
+              (SELECT set1.cluster_no, COUNT(set2.scp) as coauthor_counts
+              FROM
+                        (SELECT cslu.cluster_no, cslu.scp, sa.auid
+                                  FROM imm1985_1995_cluster_scp_list_unshuffled cslu
+                                  LEFT JOIN public.scopus_authors sa
+                                      ON cslu.scp = sa.scp)  set1
+                    JOIN
+
+                          (SELECT cslu.cluster_no, cslu.scp, sa.auid
+                                  FROM imm1985_1995_cluster_scp_list_unshuffled cslu
+                                  LEFT JOIN public.scopus_authors sa
+                                      ON cslu.scp = sa.scp)  set2
+
+                      ON set1.scp=set2.scp AND set1.auid<set2.auid
+
+              GROUP BY set1.cluster_no) coauthor
+
+WHERE imm1985_1995_all_merged_unshuffled.cluster_no = coauthor.cluster_no;
+
+
+
+UPDATE imm1985_1995_all_merged_unshuffled
+SET distinct_coauthor_counts = dist_coauthors.distinct_coauthor_counts
+FROM
+      (SELECT coauthors_distinct.cluster_no, count(*) as distinct_coauthor_counts
+      FROM
+        (SELECT DISTINCT coauthors.cluster_no, coauthors.auid_1, coauthors.auid_2
+          FROM
+              (SELECT set1.cluster_no, set1.scp, set1.auid auid_1, set2.auid auid_2
+              FROM
+                        (SELECT cslu.cluster_no, cslu.scp, sa.auid
+                        FROM imm1985_1995_cluster_scp_list_unshuffled cslu
+                        LEFT JOIN public.scopus_authors sa
+                            ON cslu.scp = sa.scp) set1
+              JOIN
+                        (SELECT cslu.cluster_no, cslu.scp, sa.auid
+                        FROM imm1985_1995_cluster_scp_list_unshuffled cslu
+                        LEFT JOIN public.scopus_authors sa
+                            ON cslu.scp = sa.scp) set2
+
+                      ON set1.scp=set2.scp AND set1.auid < set2.auid ) coauthors
+
+                        ) coauthors_distinct
+              GROUP BY coauthors_distinct.cluster_no) dist_coauthors
+WHERE imm1985_1995_all_merged_unshuffled.cluster_no = dist_coauthors.cluster_no;
+
+
+
+UPDATE imm1985_1995_all_merged_unshuffled
 SET coauthor_prop = prop.prop
 FROM
       (SELECT *,
-          coalesce(round(1.0*distinct_coauthor_counts / ((num_authors_95*(num_authors_95-1))/2), 3), 0) as prop
+          coalesce(round(1.0*distinct_coauthor_counts / ((num_authors*(num_authors-1))/2), 3), 0) as prop
       FROM imm1985_1995_all_merged_unshuffled ) prop
 WHERE imm1985_1995_all_merged_unshuffled.cluster_no = prop.cluster_no;
+
 
 UPDATE imm1985_1995_all_merged_unshuffled
 SET coauthorship_ratio = prop.prop
@@ -325,6 +402,14 @@ FROM
           coalesce(round(1.0*coauthor_counts / distinct_coauthor_counts, 3), 0) as prop
       FROM imm1985_1995_all_merged_unshuffled ) prop
 WHERE imm1985_1995_all_merged_unshuffled.cluster_no = prop.cluster_no;
+
+
+
+
+
+
+
+
 
 
 
