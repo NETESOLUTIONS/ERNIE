@@ -56,7 +56,7 @@ TABLESPACE theta_plus_tbs AS
 SELECT DISTINCT citing,cited from imm1990_cited UNION
 SELECT DISTINCT citing,cited from imm1990_citing UNION
 SELECT DISTINCT citing,cited from imm1990_citing_allrefs;
-SELECT count(1) from imm1990_citing_cited;
+SELECT count(1) from imm1990_citing_cited_enriched;
 
 -- clean up Scopus data
 DELETE FROM theta_plus.imm1990_citing_cited_enriched
@@ -102,8 +102,8 @@ INNER JOIN scopus_abstracts sa ON tpin.scp=sa.scp
 AND sa.abstract_language='eng'
 AND st.language='English';
 
-select scp,title from theta_plus.imm1990_title_abstracts limit 5;
-select count(1) from theta_plus.imm1990_title_abstracts;
+select scp,title from theta_plus.imm1990_title_abstracts_enriched limit 5;
+select count(1) from theta_plus.imm1990_title_abstracts_enriched;
 
 -- commenting out the section below July 9, 2020 George Chacko
 -- citation data to be replaced with Wenxi Zhao's Neo4j calculations
