@@ -486,3 +486,45 @@ def match_mcl_to_graclus(imm1985_1995_cluster_no, rated_data, user_name, passwor
     return result_dict
 
 
+
+# ------------------------------------------------------------------------------------ #    
+
+def match_superset_year(current_cluster_no, current_year, compare_year, current_year_name, compare_year_name):
+
+        current_cluster_size = len(current_year[current_year["cluster_no"]==current_cluster_no])
+
+        current_grouped = current_year[current_year['cluster_no']==current_cluster_no].merge(compare_year, 
+                                                          left_on = 'scp', 
+                                                          right_on = 'scp', 
+                                                          how='inner')[['cluster_no_y', 'scp']].groupby('cluster_no_y', as_index = False).agg('count')
+        current_total_intersection = current_grouped["scp"].sum()
+        current_max_count = current_grouped["scp"].max()
+        current_max_prop = round(current_max_count/current_cluster_size, 3)
+
+        if (current_total_intersection > 0):#and max_prop >= 0.4:
+            compare_cluster_no = current_grouped["cluster_no_y"][current_grouped["scp"] == current_max_count].values[0]
+            compare_cluster_size = len(compare_year[compare_year["cluster_no"]==compare_cluster_no])
+            compare_max_prop = round(current_max_count/compare_cluster_size, 3)
+        else:
+            compare_cluster_no = None
+            compare_cluster_size = None
+            compare_max_prop = None
+
+        current_cluster_number_key = current_year_name + '_cluster_number'
+        current_cluster_size_key = current_year_name + '_cluster_size'
+        compare_cluster_number_key = compare_year_name + '_cluster_number'
+        compare_cluster_prop_key = compare_year_name+ '_max_prop'
+        compare_cluster_size_key = compare_year_name+ '_cluster_size'
+        compare_to_current_cluster_prop_key = compare_year_name + '_' + current_year_name + '_max_prop'
+
+        match_dict = {
+                'current_year': current_year_name,
+                current_cluster_number_key: current_cluster_no,
+                current_cluster_size_key: current_cluster_size,
+                compare_cluster_number_key: compare_cluster_no,
+                compare_cluster_size_key: compare_cluster_size,
+                compare_cluster_prop_key: current_max_prop,
+                compare_to_current_cluster_prop_key: compare_max_prop
+                        }
+
+        return match_dict
