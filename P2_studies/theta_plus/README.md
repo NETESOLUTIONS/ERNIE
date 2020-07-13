@@ -4,7 +4,7 @@ For details on the Markov Clustering Algorithm, please refer to [this wiki](http
 
 For details on the analysis of MCL clustersm please refer to [this wiki](https://github.com/NETESOLUTIONS/ERNIE/wiki/Markov-Clustering-Analysis).
 
-####Here is a brief description of the files in this folder:
+#### Here is a brief description of the files in this folder:
 
 [ad_hoc.py](ad_hoc.py) - Not part of the pipeline, but may come in handy
 
