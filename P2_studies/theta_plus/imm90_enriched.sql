@@ -41,7 +41,7 @@
 -- new table compared to imm90.sql
 DROP TABLE IF EXISTS theta_plus.imm1990_citing_allrefs;
 CREATE TABLE theta_plus.imm1990_citing_allrefs TABLESPACE theta_plus_tbs AS
-SELECT tpic.citing as citing, sr.ref_sgr as cited FROM theta_plus.imm1990_citing tpic
+SELECT tpic.citing, sr.ref_sgr as cited FROM theta_plus.imm1990_citing tpic
 INNER JOIN public.scopus_references sr
 ON tpic.citing=sr.scp;
 CREATE INDEX imm1990_citing_allrefs_idx ON theta_plus.imm1990_citing_allrefs(citing,cited);
@@ -54,9 +54,9 @@ DROP TABLE IF EXISTS theta_plus.imm1990_citing_cited_enriched;
 CREATE TABLE theta_plus.imm1990_citing_cited_enriched
 TABLESPACE theta_plus_tbs AS
 SELECT DISTINCT citing,cited from imm1990_cited UNION
-SELECT DISTINCT citing,cited from imm1990_citing;
+SELECT DISTINCT citing,cited from imm1990_citing UNION
 SELECT DISTINCT citing,cited from imm1990_citing_allrefs;
-SELECT count(1) from imm1990_citing_cited;
+SELECT count(1) from imm1990_citing_cited_enriched;
 
 -- clean up Scopus data
 DELETE FROM theta_plus.imm1990_citing_cited_enriched
@@ -102,8 +102,8 @@ INNER JOIN scopus_abstracts sa ON tpin.scp=sa.scp
 AND sa.abstract_language='eng'
 AND st.language='English';
 
-select scp,title from theta_plus.imm1990_title_abstracts limit 5;
-select count(1) from theta_plus.imm1990_title_abstracts;
+select scp,title from theta_plus.imm1990_title_abstracts_enriched limit 5;
+select count(1) from theta_plus.imm1990_title_abstracts_enriched;
 
 -- commenting out the section below July 9, 2020 George Chacko
 -- citation data to be replaced with Wenxi Zhao's Neo4j calculations
@@ -116,3 +116,4 @@ select count(1) from theta_plus.imm1990_title_abstracts;
 -- FROM theta_plus.imm1990_edge_list_unshuffled ielu
 -- LEFT JOIN public.scopus_citation_counts scc
 -- ON ielu.scp = scc.scp;
+
