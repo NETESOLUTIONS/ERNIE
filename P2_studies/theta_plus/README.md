@@ -1,10 +1,10 @@
-### Welcome to the Theta+ Repository!
+## Welcome to the Theta+ Repository!
 
-For details on the Markov Clustering Algorithm, please refer to [this wiki]().
+For details on the Markov Clustering Algorithm, please refer to [this wiki](https://github.com/NETESOLUTIONS/ERNIE/wiki/Markov-Clustering).
 
-For details on the analysis of MCL clustersm please refer to [this wiki]().
+For details on the analysis of MCL clustersm please refer to [this wiki](https://github.com/NETESOLUTIONS/ERNIE/wiki/Markov-Clustering-Analysis).
 
-Here is a **brief description** of the files in this folder:
+####Here is a brief description of the files in this folder:
 
 [ad_hoc.py](ad_hoc.py) - Not part of the pipeline, but may come in handy
 
@@ -12,13 +12,13 @@ Here is a **brief description** of the files in this folder:
 
 [all_years_intersect_union.sql](all_years_intersect_union.sql) - Get superset of all MCL year slices
 
-[bib_coupling.sql](bib_coupling.sql) - 
+[bib_coupling.sql](bib_coupling.sql) - Identify instances of bibliographic coupling between two members of a co-cited pair
 
 [compute_article_score.py](compute_article_score.py) - Compute article score within cluster
 
 [compute_conductance.py](compute_conductance.py) - Compute conductance within cluster
 
-[gc_misc_sql](gc_misc_sql) - 
+[gc_misc_sql](gc_misc_sql) - Generate SCPs with concat title and abstract
 
 [generic_mcl_pipeline.sh](generic_mcl_pipeline.sh) - End-to-end MCL cluster-generation pipeline
 
