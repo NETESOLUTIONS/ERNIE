@@ -25,7 +25,7 @@ final_df = pd.DataFrame(columns=columns)
 for i in range(len(rated_data)):
     
     result_df = rated_data[i:i+1]
-    match_dict = p.starmap(jm.match_mcl_to_graclus, [(result_df['imm1985_1995_cluster_no'], rated_data, user_name, password)])
+    match_dict = p.starmap(jm.match_mcl_to_graclus, [(result_df['imm1985_1995_cluster_no'], rated_data)])
     match_df = pd.DataFrame.from_dict(match_dict)
     final_df = final_df.append(match_df, ignore_index=True)
 
@@ -36,4 +36,4 @@ print("All Completed.")
 engine = create_engine(sql_scheme)
 
 save_name_sql = 'rated_to_graclus'
-final_df.to_sql(save_name, con=engine, schema=schema, index=False, if_exists='fail')
+final_df.to_sql(save_name_sql, con=engine, schema=schema, index=False, if_exists='replace')
