@@ -78,13 +78,17 @@ for cluster_num in imm1985_1995_all_merged['cluster_no'][start_cluster_num-1:]:
     
     cited_articles = pd.read_sql(cited_articles_query, con=engine)
     imm1985_1995_all_merged.at[cluster_num-1, 'count_cited_articles'] = len(cited_articles)
-    max_val_articles = int(cited_articles['count_cited'].max())
-    imm1985_1995_all_merged.at[cluster_num-1, 'max_count_cited_articles'] = max_val_articles
-    if type(cited_articles.set_index('count_cited').at[max_val_articles, 'cited']) == numpy.int64:
-        max_cited_article = int(cited_articles.set_index('count_cited').at[max_val_articles, "cited"])
-    elif type(cited_articles.set_index('count_cited').at[max_val_articles, 'cited']) == numpy.ndarray:
-        max_cited_article = ' '.join(str(article) for article in cited_articles.set_index('count_cited').at[max_val_articles, "cited"])   
-    imm1985_1995_all_merged.at[cluster_num-1, 'max_cited_article'] = max_cited_article
+    if len(cited_authors) > 0:
+        max_val_articles = int(cited_articles['count_cited'].max())
+        imm1985_1995_all_merged.at[cluster_num-1, 'max_count_cited_articles'] = max_val_articles
+        if type(cited_articles.set_index('count_cited').at[max_val_articles, 'cited']) == numpy.int64:
+            max_cited_article = int(cited_articles.set_index('count_cited').at[max_val_articles, "cited"])
+        elif type(cited_articles.set_index('count_cited').at[max_val_articles, 'cited']) == numpy.ndarray:
+            max_cited_article = ' '.join(str(article) for article in cited_articles.set_index('count_cited').at[max_val_articles, "cited"])
+        imm1985_1995_all_merged.at[cluster_num-1, 'max_cited_article'] = max_cited_article
+    else:
+        imm1985_1995_all_merged.at[cluster_num-1, 'max_count_cited_article'] = None
+        imm1985_1995_all_merged.at[cluster_num-1, 'max_cited_article'] = None
     
     cited_authors_query =("""
         SELECT num_authors.author_cited, count(author_cited) count_cited
@@ -149,13 +153,17 @@ for cluster_num in imm1985_1995_all_merged['cluster_no'][start_cluster_num-1:]:
                 """)
     cited_authors = pd.read_sql(cited_authors_query, con=engine)
     imm1985_1995_all_merged.at[cluster_num-1, 'count_cited_authors'] = len(cited_authors)
-    max_val_authors = int(cited_authors['count_cited'].max())
-    imm1985_1995_all_merged.at[cluster_num-1, 'max_count_cited_authors'] = max_val_authors
-    if type(cited_authors.set_index('count_cited').at[max_val_authors, 'author_cited']) == numpy.ndarray:
-        max_cited_authors = ' '.join(str(author) for author in cited_authors.set_index('count_cited').at[max_val_authors, 'author_cited'])
-    elif type(cited_authors.set_index('count_cited').at[max_val_authors, 'author_cited']) == numpy.int64:
-        max_cited_authors = int(cited_authors.set_index('count_cited').at[max_val_authors, 'author_cited'])
-    imm1985_1995_all_merged.at[cluster_num-1, 'max_cited_authors'] = max_cited_authors
+    if len(cited_authors) > 0:
+        max_val_authors = int(cited_authors['count_cited'].max())
+        imm1985_1995_all_merged.at[cluster_num-1, 'max_count_cited_authors'] = max_val_authors
+        if type(cited_authors.set_index('count_cited').at[max_val_authors, 'author_cited']) == numpy.ndarray:
+            max_cited_authors = ' '.join(str(author) for author in cited_authors.set_index('count_cited').at[max_val_authors, 'author_cited'])
+        elif type(cited_authors.set_index('count_cited').at[max_val_authors, 'author_cited']) == numpy.int64:
+            max_cited_authors = int(cited_authors.set_index('count_cited').at[max_val_authors, 'author_cited'])
+        imm1985_1995_all_merged.at[cluster_num-1, 'max_cited_authors'] = max_cited_authors
+    else:
+        imm1985_1995_all_merged.at[cluster_num-1, 'max_count_cited_authors'] = None
+        imm1985_1995_all_merged.at[cluster_num-1, 'max_cited_authors'] = None
     
     imm1985_1995_all_merged[cluster_num-1:cluster_num].to_sql(save_name_sql, con=engine, schema=schema, index=False, if_exists='append')
     
