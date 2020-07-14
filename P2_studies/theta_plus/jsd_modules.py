@@ -450,7 +450,7 @@ schema = "theta_plus"
 sql_scheme = 'postgresql://' + "user_name" + ':' + "password" + '@localhost:5432/ernie' # ---> supply credentials
 engine = create_engine(sql_scheme)
     
-def match_mcl_to_graclus(imm1985_1995_cluster_no, rated_data, user_name, password):
+def match_rated_mcl_to_graclus(imm1985_1995_cluster_no, rated_data):
     
     match_year = '19' + str(rated_data.set_index('imm1985_1995_cluster_no').at[int(imm1985_1995_cluster_no), 'match_year'])
     mcl_cluster_no = rated_data.set_index('imm1985_1995_cluster_no').at[int(imm1985_1995_cluster_no), 'match_cluster_no']
@@ -541,3 +541,44 @@ def match_superset_year(current_cluster_no, current_year, compare_year, current_
                         }
 
         return match_dict
+    
+    
+# ------------------------------------------------------------------------------------ #    
+    
+    
+def match_mcl_to_graclus(dir_name, cluster_num):
+    
+    mcl_data_query = "SELECT * FROM theta_plus." + dir_name + "_cluster_scp_list_unshuffled WHERE cluster_no = " + str(cluster_num) + ";"
+    mcl_data = pd.read_sql(mcl_data_query, con=engine)
+    mcl_cluster_size = len(mcl_data)
+    common_nodes = mcl_data['scp'].to_list()
+    graclus_query = "SELECT * FROM theta_plus." + dir_name + '_cluster_scp_list_graclus;'
+    graclus_data = pd.read_sql(graclus_query, con=engine)
+
+    common_graclus_clusters = list(set(graclus_data['cluster_no'][graclus_data['scp'].isin(common_nodes)].to_list()))
+    merged_data_intersect = mcl_data[['scp']].merge(graclus_data[graclus_data['cluster_no'].isin(common_graclus_clusters)], how='inner')
+
+    grouped_merged_data_intersect = merged_data_intersect.groupby(by='cluster_no', as_index=False).agg('count')
+    max_match_count = int(grouped_merged_data_intersect['scp'].max())
+
+    graclus_cluster_no = grouped_merged_data_intersect.set_index('scp').at[max_match_count, 'cluster_no']
+    graclus_cluster_size = len(graclus_data[graclus_data['cluster_no'] == graclus_cluster_no])
+
+    graclus_to_mcl_ratio = round(graclus_cluster_size/mcl_cluster_size, 3)
+
+    graclus_cluster_query = "SELECT * FROM theta_plus." + dir_name + "_cluster_scp_list_graclus WHERE cluster_no = " + str(graclus_cluster_no) + ";"
+    graclus_cluster_data = pd.read_sql(graclus_cluster_query, con=engine)
+
+    merged_data_union = mcl_data[['scp']].merge(graclus_cluster_data[['scp']], how='outer')
+        
+    result_dict = {'mcl_cluster_no': int(cluster_num), 
+                   'mcl_cluster_size': int(mcl_cluster_size),
+                   'graclus_cluster_no': int(graclus_cluster_no), 
+                   'graclus_cluster_size' : int(graclus_cluster_size),
+                   'graclus_to_mcl_ratio': graclus_to_mcl_ratio,
+                   'total_intersection': max_match_count,
+                   'total_union': len(merged_data_union),
+                   'intersect_union_ratio': round(max_match_count/len(merged_data_union), 4)
+                   }
+
+    return result_dict
