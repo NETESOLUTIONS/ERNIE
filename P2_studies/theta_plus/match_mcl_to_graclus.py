@@ -7,33 +7,30 @@ import multiprocessing as mp
 
 user_name = argv[1]
 password = argv[2]
-rootdir = "/erniedev_data3/theta_plus/imm_output"
+start_cluster_num = int(argv[3])
+rootdir = "/erniedev_data3/theta_plus/imm"
 rated_table = "expert_ratings"
 schema = "theta_plus"
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
-rated_data = pd.read_sql_table(table_name=rated_table, schema=schema, con=engine)
 p = mp.Pool(6)
-save_name = rootdir + '/imm1985_1995/rated_mcl_match_graclus.csv'
 
-columns = ['imm1985_1995_cluster_no', 'match_year', 'mcl_cluster_no', 
-           'mcl_cluster_size', 'total_intersection', 'max_match_count', 
-           'max_match_prop', 'graclus_cluster_no', 'graclus_cluster_size']
-final_df = pd.DataFrame(columns=columns)
-
-for i in range(len(rated_data)):
+tmp_dir_list = ['imm1986','imm1987','imm1988','imm1989','imm1990',
+                'imm1991','imm1992','imm1993','imm1994','imm1995']
+for dir_name in tmp_dir_list:
+#for dir_name in dir_list:
+    print(f'Working on {dir_name}')
+    mcl_clusters_query = "SELECT cluster_no FROM theta_plus." + dir_name + "_all_merged_unshuffled;"
+    mcl_clusters = pd.read_sql(mcl_clusters_query, con=engine)
     
-    result_df = rated_data[i:i+1]
-    match_dict = p.starmap(jm.match_mcl_to_graclus, [(result_df['imm1985_1995_cluster_no'], rated_data, user_name, password)])
-    match_df = pd.DataFrame.from_dict(match_dict)
-    final_df = final_df.append(match_df, ignore_index=True)
+    for cluster_num in range(start_cluster_num, len(mcl_clusters)+1):
+        match_dict = p.starmap(jm.match_mcl_to_graclus, [(dir_name, cluster_num)])
+        match_df = pd.DataFrame.from_dict(match_dict)
+        # In case the connection times out:
+        #engine = create_engine(sql_scheme)
+        save_name_sql = dir_name + '_match_to_graclus'
+        match_df.to_sql(save_name_sql, con=engine, schema=schema, index=False, if_exists='append')
+    print(f'Done with {dir_name}.')
 
-final_df.to_csv(save_name, index = None, header=True, encoding='utf-8')
 print("All Completed.") 
-    
-# In case the connection times out:
-engine = create_engine(sql_scheme)
-
-save_name_sql = 'rated_to_graclus'
-final_df.to_sql(save_name, con=engine, schema=schema, index=False, if_exists='fail')
