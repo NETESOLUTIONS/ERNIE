@@ -78,7 +78,7 @@ declare -ri EXIT_CODE=$?
 set -e
 
 if (( EXIT_CODE == 0 )); then
-  echo "Linux user ${DELETED_USER} has been removed along with their home directory."
+  echo "The Linux user '${DELETED_USER}' has been removed along with their home directory."
   exit 0
 fi
 

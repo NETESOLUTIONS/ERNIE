@@ -13,7 +13,7 @@ DO $block$
               WHERE
                 rolname = current_setting('script.deleted_user')
               LIMIT 1) THEN
-      EXECUTE format($$DROP SCHEMA IF EXISTS %s$$, current_setting('script.deleted_user'));
+      EXECUTE format($$DROP SCHEMA IF EXISTS %s CASCADE$$, current_setting('script.deleted_user'));
 
       EXECUTE format($$REASSIGN OWNED BY %s TO ernie_admin$$, current_setting('script.deleted_user'));
 
