@@ -562,7 +562,13 @@ def match_mcl_to_graclus(dir_name, cluster_num):
     max_match_count = int(grouped_merged_data_intersect['scp'].max())
 
     graclus_cluster_no = grouped_merged_data_intersect.set_index('scp').at[max_match_count, 'cluster_no']
-    graclus_cluster_size = len(graclus_data[graclus_data['cluster_no'] == graclus_cluster_no])
+    if type(graclus_cluster_no) == np.int64:
+        graclus_cluster_size = len(graclus_data[graclus_data['cluster_no'] == graclus_cluster_no])
+        indicator = 0
+    elif type(graclus_cluster_no) == np.ndarray:
+        graclus_cluster_no = graclus_cluster_no[0]
+        graclus_cluster_size = len(graclus_data[graclus_data['cluster_no'] == graclus_cluster_no])
+        indicator = 1
 
     graclus_to_mcl_ratio = round(graclus_cluster_size/mcl_cluster_size, 3)
 
@@ -578,7 +584,8 @@ def match_mcl_to_graclus(dir_name, cluster_num):
                    'graclus_to_mcl_ratio': graclus_to_mcl_ratio,
                    'total_intersection': max_match_count,
                    'total_union': len(merged_data_union),
-                   'intersect_union_ratio': round(max_match_count/len(merged_data_union), 4)
+                   'intersect_union_ratio': round(max_match_count/len(merged_data_union), 4),
+                   'multiple_options': indicator
                    }
 
     return result_dict
