@@ -15,17 +15,13 @@ DO $block$
               LIMIT 1) THEN
       EXECUTE format($$DROP SCHEMA IF EXISTS %s CASCADE$$, current_setting('script.deleted_user'));
 
-      EXECUTE format($$REASSIGN OWNED BY %s TO ernie_admin$$, current_setting('script.deleted_user'));
+      EXECUTE format($$REASSIGN OWNED BY %s TO postgres$$, current_setting('script.deleted_user'));
 
-      EXECUTE format($$REVOKE ALL ON ALL TABLES IN SCHEMA public FROM %s$$, current_setting('script.deleted_user'));
-      EXECUTE format($$REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM %s$$, current_setting('script.deleted_user'));
-
-      EXECUTE format($$ALTER DEFAULT PRIVILEGES
-                FOR USER %s IN SCHEMA public
-                REVOKE ALL ON TABLES FROM PUBLIC$$, current_setting('script.deleted_user'));
-      EXECUTE format($$ALTER DEFAULT PRIVILEGES
-                FOR USER %s IN SCHEMA public
-                REVOKE ALL ON SEQUENCES FROM PUBLIC$$, current_setting('script.deleted_user'));
+      /*
+      Any privileges granted to the given roles on objects in the current database and on shared objects
+      (databases, tablespaces) will be revoked.
+      */
+      EXECUTE format($$DROP OWNED BY %s$$, current_setting('script.deleted_user'));
 
       EXECUTE format($$DROP USER %s$$, current_setting('script.deleted_user'));
     ELSE

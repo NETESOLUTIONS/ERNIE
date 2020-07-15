@@ -11,10 +11,26 @@ SELECT *
  WHERE table_schema = 'public' AND table_name = :table_name
  ORDER BY grantee;
 
--- List grants ny grantee and privilege
+-- List table grants ny grantee and privilege
 SELECT grantee, privilege_type, string_agg(table_name, ', ') AS tables
   FROM information_schema.role_table_grants
  WHERE table_schema = 'public'
+ GROUP BY grantee, privilege_type
+ ORDER BY grantee, privilege_type;
+
+-- List sequence grants ny grantee and privilege
+SELECT grantee, privilege_type, string_agg(object_name, ', ') AS objects
+-- SELECT grantee, privilege_type, string_agg(object_schema || '.' || object_name, ', ') AS objects
+  FROM information_schema.role_usage_grants rug
+ WHERE object_schema = 'public'
+ GROUP BY grantee, privilege_type
+ ORDER BY grantee, privilege_type;
+
+-- List SP/UDF grants ny grantee and privilege
+SELECT grantee, privilege_type, string_agg(routine_name, ', ') AS routines
+-- SELECT grantee, privilege_type, string_agg(object_schema || '.' || object_name, ', ') AS objects
+  FROM information_schema.role_routine_grants rrg
+ WHERE routine_schema = 'public'
  GROUP BY grantee, privilege_type
  ORDER BY grantee, privilege_type;
 
@@ -34,4 +50,4 @@ SELECT rolname
     pg_user
       JOIN pg_auth_members ON (pg_user.usesysid = pg_auth_members.member)
       JOIN pg_roles ON (pg_roles.oid = pg_auth_members.roleid)
- WHERE pg_user.usename = :user;
+ WHERE pg_user.usename = :'user';

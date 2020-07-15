@@ -51,8 +51,23 @@ ALTER USER :account WITH PASSWORD :'password';
 
 DROP SCHEMA IF EXISTS :deletedUser CASCADE;
 REASSIGN OWNED BY :deletedUser TO ernie_admin;
+
+/*
+Any privileges granted to the given roles on objects in the current database and on shared objects
+(databases, tablespaces) will be revoked.
+*/
+DROP OWNED BY :deletedUser;
+
+/*
+REVOKE ALL ON ALL TABLES IN SCHEMA public FROM :deletedUser;
+REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM :deletedUser;
+REVOKE ALL ON ALL FUNCTIONS IN SCHEMA public FROM :deletedUser;
+
 ALTER DEFAULT PRIVILEGES FOR USER :deletedUser IN SCHEMA public REVOKE ALL ON TABLES FROM PUBLIC;
 ALTER DEFAULT PRIVILEGES FOR USER :deletedUser IN SCHEMA public REVOKE ALL ON SEQUENCES FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR USER :deletedUser IN SCHEMA public REVOKE ALL ON FUNCTIONS FROM PUBLIC;
+*/
+
 DROP USER :deletedUser;
 
 -- endregion
