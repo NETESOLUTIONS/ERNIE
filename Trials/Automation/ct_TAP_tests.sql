@@ -182,26 +182,26 @@ WITH cte as (SELECT clinical_studies.study_start_year,
               format('CT Clinical Studies table should increase by at least %s per cent of records year on year', :min_yearly_difference))
 FROM cte;
 --endregion
-*/
+
 
 -- region are there records in the future
-SELECT is_empty($$SELECT extract('year' FROM time_series)::int AS verification_year,
-                    coalesce(count(nct_id) -
-                             lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),
-                             '0')                         as difference
-             FROM ct_clinical_studies,
-                  generate_series(
-                          date_trunc('year', to_date(
-                                  regexp_replace(verification_date, '[0-9]{2},', '', 'g'), -- there are different data formats , normal is Month YYYY,
-                              -- but there are some Month DD YYYY, were changed to normal format
-                                  'Month YYYY')),
-                          date_trunc('year', to_date(regexp_replace(verification_date, '[0-9]{2},', '', 'g'),
-                                                     'Month YYYY')),
-                          interval '1 year') time_series
-             WHERE time_series::date > date_trunc('year', current_date)::date
-                AND verification_date NOT LIKE '%' || extract(year from current_date + INTERVAL '1 year') || '%'
-             GROUP BY time_series, verification_year
-             ORDER BY verification_year;$$, 'There should be no CT records two years from present');
+SELECT is_empty($$SELECT clinical_studies.verify_year,
+                           coalesce(count(clinical_studies.nct_id) -
+                                    lag(count(clinical_studies.nct_id)) over (order by clinical_studies.verify_year),
+                                                 '0')         as difference
+                    FROM
+                          (SELECT ccs.*, start_year.verify_year
+                          FROM ct_clinical_studies ccs
+                          JOIN (SELECT nct_id,
+                                CASE
+                                WHEN (verification_date ~ ',') THEN extract('year' FROM to_date(verification_date, 'Month DD, YYYY'))::int
+                                WHEN (verification_date !~ ',') THEN extract('year' FROM to_date(verification_date, 'Month YYYY'))::int END verify_year
+                                FROM ct_clinical_studies) start_year
+                              ON ccs.nct_id = start_year.nct_id) clinical_studies
+                    WHERE clinical_studies.verify_year >= extract(YEAR FROM date_trunc('year', current_date + INTERVAL '2 year')::date)
+                    GROUP BY clinical_studies.verify_year
+                    ORDER BY clinical_studies.verify_year;$$,
+                  'There should be no CT records two years from present');
 
 -- endregion
 
