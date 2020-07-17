@@ -589,3 +589,51 @@ def match_mcl_to_graclus(dir_name, cluster_num):
                    }
 
     return result_dict
+
+
+# ------------------------------------------------------------------------------------ #    
+    
+    
+def match_mcl_to_enriched(dir_name, cluster_num):
+    
+    mcl_data_query = "SELECT * FROM theta_plus." + dir_name + "_cluster_scp_list_unshuffled WHERE cluster_no = " + str(cluster_num) + ";"
+    mcl_data = pd.read_sql(mcl_data_query, con=engine)
+    mcl_cluster_size = len(mcl_data)
+    common_nodes = mcl_data['scp'].to_list()
+    enriched_query = "SELECT * FROM theta_plus." + dir_name + '_enriched_cluster_scp_list_unshuffled;'
+    enriched_data = pd.read_sql(enriched_query, con=engine)
+
+    common_enriched_clusters = list(set(enriched_data['cluster_no'][enriched_data['scp'].isin(common_nodes)].to_list()))
+    merged_data_intersect = mcl_data[['scp']].merge(enriched_data[enriched_data['cluster_no'].isin(common_enriched_clusters)], how='inner')
+
+    grouped_merged_data_intersect = merged_data_intersect.groupby(by='cluster_no', as_index=False).agg('count')
+    max_match_count = int(grouped_merged_data_intersect['scp'].max())
+
+    enriched_cluster_no = grouped_merged_data_intersect.set_index('scp').at[max_match_count, 'cluster_no']
+    if type(enriched_cluster_no) == np.int64:
+        enriched_cluster_size = len(enriched_data[enriched_data['cluster_no'] == enriched_cluster_no])
+        indicator = 0
+    elif type(enriched_cluster_no) == np.ndarray:
+        enriched_cluster_no = enriched_cluster_no[0]
+        enriched_cluster_size = len(enriched_data[enriched_data['cluster_no'] == enriched_cluster_no])
+        indicator = 1
+
+    enriched_to_mcl_ratio = round(enriched_cluster_size/mcl_cluster_size, 3)
+
+    enriched_cluster_query = "SELECT * FROM theta_plus." + dir_name + "_enriched_cluster_scp_list_unshuffled WHERE cluster_no = " + str(enriched_cluster_no) + ";"
+    enriched_cluster_data = pd.read_sql(enriched_cluster_query, con=engine)
+
+    merged_data_union = mcl_data[['scp']].merge(enriched_cluster_data[['scp']], how='outer')
+        
+    result_dict = {'mcl_cluster_no': int(cluster_num), 
+                   'mcl_cluster_size': int(mcl_cluster_size),
+                   'enriched_cluster_no': int(enriched_cluster_no), 
+                   'enriched_cluster_size' : int(enriched_cluster_size),
+                   'enriched_to_mcl_ratio': enriched_to_mcl_ratio,
+                   'total_intersection': max_match_count,
+                   'total_union': len(merged_data_union),
+                   'intersect_union_ratio': round(max_match_count/len(merged_data_union), 4),
+                   'multiple_options': indicator
+                   }
+
+    return result_dict
