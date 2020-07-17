@@ -135,7 +135,7 @@ FROM cte;
 -- endregion
 
 --region show rows per year
-SELECT extract('year' FROM time_series)::int AS verification_year,
+SELECT extract('year' FROM time_series)::int AS study_start_year,
        count(nct_id)                            count_nct,
        coalesce(count(nct_id) -
                 lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),
@@ -146,48 +146,45 @@ SELECT extract('year' FROM time_series)::int AS verification_year,
 FROM ct_clinical_studies,
      generate_series(
              date_trunc('year', to_date(
-                     regexp_replace(verification_date, '[0-9]{2},', '', 'g'), -- there are different data formats , normal is Month YYYY,
+                     regexp_replace(start_date, '[0-9]{2},', '', 'g'), -- there are different data formats , normal is Month YYYY,
                  -- but there are some Month DD YYYY, were changed to normal format
                      'Month YYYY')),
-             date_trunc('year', to_date(regexp_replace(verification_date, '[0-9]{2},', '', 'g'),
+             date_trunc('year', to_date(regexp_replace(start_date, '[0-9]{2},', '', 'g'),
                                         'Month YYYY')),
              interval '1 year') time_series
-WHERE time_series::date >= '01 01 1981'
-  AND verification_date NOT LIKE '%' || extract(year from current_date + INTERVAL '1 year') || '%'
-GROUP BY time_series, verification_year
-ORDER BY verification_year;
+WHERE time_series::date >= '01 01 1981' AND  time_series::date < date_trunc('year', current_date)
+
+GROUP BY time_series, study_start_year
+ORDER BY study_start_year;
 --endregion
 
-/* The following test has been disabled until the the ticket - https://jira.nete.com/browse/ER-588 -  is resolved.
-
 --region do clinical trials increase year by year
-WITH cte as (SELECT extract('year' FROM time_series)::int AS verification_year,
-                    count(nct_id)                            count_nct,
-                    coalesce(count(nct_id) -
-                        lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),
-                        '0')                         as difference,
-                    coalesce(round(100.0*(count(nct_id) -
-                        lag(count(nct_id)) over (order by extract('year' FROM time_series)::int))/ lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),2),
-                        '0')                         as percent_difference
-              FROM ct_clinical_studies,
-                  generate_series(
-                           date_trunc('year', to_date(
-                                   regexp_replace(verification_date, '[0-9]{2},', '', 'g'), -- there are different data formats , normal is Month YYYY,
-                               -- but there are some Month DD YYYY, were changed to normal format
-                                  'Month YYYY')),
-                           date_trunc('year', to_date(regexp_replace(verification_date, '[0-9]{2},', '', 'g'),
-                                        'Month YYYY')),
-                           interval '1 year') time_series
-              WHERE time_series::date >= '01 01 1981'
-                 AND verification_date NOT LIKE '%' || extract(year from current_date + INTERVAL '1 year') || '%'
-              GROUP BY time_series, verification_year
-              ORDER BY verification_year)
+WITH cte as (SELECT extract('year' FROM time_series)::int AS study_start_year,
+             count(nct_id)                            count_nct,
+             coalesce(count(nct_id) -
+                      lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),
+                      '0')                         as difference,
+             coalesce(round(100.0*(count(nct_id) -
+                      lag(count(nct_id)) over (order by extract('year' FROM time_series)::int))/ lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),2),
+                      '0')                         as percent_difference
+            FROM ct_clinical_studies,
+                 generate_series(
+                         date_trunc('year', to_date(
+                                 regexp_replace(start_date, '[0-9]{2},', '', 'g'), -- there are different data formats , normal is Month YYYY,
+                             -- but there are some Month DD YYYY, were changed to normal format
+                                 'Month YYYY')),
+                         date_trunc('year', to_date(regexp_replace(start_date, '[0-9]{2},', '', 'g'),
+                                                    'Month YYYY')),
+                         interval '1 year') time_series
+            WHERE time_series::date >= '01 01 1981' AND  time_series::date < date_trunc('year', current_date)
+
+            GROUP BY time_series, study_start_year
+            ORDER BY study_start_year)
               SELECT cmp_ok(CAST(cte.difference AS BIGINT), '>=',
               CAST(:min_yearly_difference AS BIGINT),
               format(' %CT Clinical Studies table should increase by at least %s per cent of records year on year', :min_yearly_difference))
 FROM cte
-where CAST(verification_year AS INT) >= 1981;
--- some of the dates for verification are 0Y instead of YYYY in terms of date and so were eliminated
+where CAST(study_start_year AS INT) >= 1981;
 --endregion
 */
 
