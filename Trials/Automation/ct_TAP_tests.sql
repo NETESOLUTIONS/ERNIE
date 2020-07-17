@@ -5,7 +5,6 @@
  Purpose: Develop a TAP protocol to test if the scopus_update parser is behaving as intended.
  TAP protocol specifies that you determine a set of assertions with binary-semantics. The assertion is evaluated either true or false.
  The evaluation should allow the client or user to understand what the problem is and to serve as a guide for diagnostics.
-
  The assertions to test are:
  1. do expected tables exist
  2. do all tables have at least a UNIQUE INDEX
@@ -135,31 +134,7 @@ FROM cte;
 -- endregion
 
 --region show rows per year
-SELECT extract('year' FROM time_series)::int AS study_start_year,
-       count(nct_id)                            count_nct,
-       coalesce(count(nct_id) -
-                lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),
-                '0')                         as difference,
-       coalesce(round(100.0*(count(nct_id) -
-                lag(count(nct_id)) over (order by extract('year' FROM time_series)::int))/ lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),2),
-                '0')                         as percent_difference
-FROM ct_clinical_studies,
-     generate_series(
-             date_trunc('year', to_date(
-                     regexp_replace(start_date, '[0-9]{2},', '', 'g'), -- there are different data formats , normal is Month YYYY,
-                 -- but there are some Month DD YYYY, were changed to normal format
-                     'Month YYYY')),
-             date_trunc('year', to_date(regexp_replace(start_date, '[0-9]{2},', '', 'g'),
-                                        'Month YYYY')),
-             interval '1 year') time_series
-WHERE time_series::date >= '01 01 1981' AND  time_series::date < date_trunc('year', current_date)
-
-GROUP BY time_series, study_start_year
-ORDER BY study_start_year;
---endregion
-
---region do clinical trials increase year by year
-WITH cte as (SELECT clinical_studies.study_start_year,
+SELECT clinical_studies.study_start_year,
        count(clinical_studies.nct_id )  count_nct,
        coalesce(count(nct_id) -
                 lag(count(nct_id)) over (order by clinical_studies.study_start_year),
@@ -178,14 +153,36 @@ FROM
           ON ccs.nct_id = start_year.nct_id) clinical_studies
 WHERE clinical_studies.study_start_year BETWEEN 1981 AND extract(YEAR FROM current_date - INTERVAL '1 year')::INT
 GROUP BY clinical_studies.study_start_year
-ORDER BY clinical_studies.study_start_year)
-              SELECT cmp_ok(CAST(cte.difference AS BIGINT), '>=',
-              CAST(:min_yearly_difference AS BIGINT),
-              format(' %CT Clinical Studies table should increase by at least %s per cent of records year on year', :min_yearly_difference))
-FROM cte
-where CAST(study_start_year AS INT) >= 1981;
+ORDER BY clinical_studies.study_start_year;
 --endregion
 
+--region do clinical trials increase year by year
+WITH cte as (SELECT clinical_studies.study_start_year,
+                     count(clinical_studies.nct_id )  count_nct,
+                     coalesce(count(nct_id) -
+                              lag(count(nct_id)) over (order by clinical_studies.study_start_year),
+                              '0')                         as difference,
+                     coalesce(round(100.0*(count(nct_id) -
+                              lag(count(nct_id)) over (order by clinical_studies.study_start_year))/ lag(count(nct_id)) over (order by clinical_studies.study_start_year),2),
+                              '0')                         as percent_difference
+              FROM
+                    (SELECT ccs.*, start_year.study_start_year
+                    FROM ct_clinical_studies ccs
+                    JOIN (SELECT nct_id,
+                          CASE
+                          WHEN (start_date ~ ',') THEN extract('year' FROM to_date(start_date, 'Month DD, YYYY'))::int
+                          WHEN (start_date !~ ',') THEN extract('year' FROM to_date(start_date, 'Month YYYY'))::int END study_start_year
+                          FROM ct_clinical_studies) start_year
+                        ON ccs.nct_id = start_year.nct_id) clinical_studies
+              WHERE clinical_studies.study_start_year BETWEEN 1981 AND extract(YEAR FROM current_date - INTERVAL '1 year')::INT
+              GROUP BY clinical_studies.study_start_year
+              ORDER BY clinical_studies.study_start_year)
+              SELECT cmp_ok(CAST(cte.percent_difference AS BIGINT), '>=',
+              CAST(:min_yearly_difference AS BIGINT),
+              format('CT Clinical Studies table should increase by at least %s per cent of records year on year', :min_yearly_difference))
+FROM cte;
+--endregion
+*/
 
 -- region are there records in the future
 SELECT is_empty($$SELECT extract('year' FROM time_series)::int AS verification_year,
