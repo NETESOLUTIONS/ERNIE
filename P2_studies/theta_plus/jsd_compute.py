@@ -8,7 +8,7 @@ We have the option to process the data in batches by providing cluster numbers.
 Argument(s): rootdir               - The directory where all cluster-scp list information is stored
                                      If JSD is being computed from data stored in a database,
                                      this argument is used to identify the cluster name (year)
-             start_cluster_num     - The cluster number to start from in a clustering
+             start_cluster_num     - The cluster number to start from in a clustering (0 for Graclus, 1 for MCL)
              end_cluster_num       - The cluster number to process up to.
                                      If there is no specific value, use 'max'
              cluster_type          - The type of cluster to process - (shuffled, unshuffled, graclus)
@@ -43,7 +43,8 @@ schema = "theta_plus"
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
-tmp_dir_list = ['imm1990']
+tmp_dir_list = ['imm1985', 'imm1986','imm1987','imm1988','imm1989','imm1990',
+                'imm1991','imm1992','imm1993','imm1994','imm1995']
 for dir_name in tmp_dir_list:
 #for dir_name in dir_list:
     print(f'Working on {dir_name}')

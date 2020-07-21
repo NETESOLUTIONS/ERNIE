@@ -37,6 +37,10 @@ for dir_name in dir_list:
         graclus_clusters = graclus_nodes.merge(graclus_coded_cluster_num)
         graclus_clusters = graclus_clusters.astype({'citing':object, 'citing_id':object, 'cluster_no':object}) 
         cluster_data = graclus_clusters[['citing', 'cluster_no']].rename(columns={'citing':'scp'})
+    elif cluster_type == 'graclus_half_mclsize':
+        cluster_path = rootdir + '_output/' + dir_name + '/' +  dir_name + '_cluster_scp_list_graclus_half_mclsize.csv'
+        columns = ['scp', 'cluster_no']
+        cluster_data = pd.read_csv(cluster_path, names=columns)
     
     nodes_path = rootdir + '/' + dir_name + '/' + dir_name + '_citing_cited.csv'
     nodes = pd.read_csv(nodes_path)

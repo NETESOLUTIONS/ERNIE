@@ -19,7 +19,10 @@ rootdir = '/erniedev_data3/theta_plus/imm'
 dir_list = sorted(os.listdir(rootdir))
 cluster_type = argv[1]
 
-for dir_name in dir_list:
+tmp_dir_list = ['imm1985', 'imm1986','imm1987','imm1988','imm1989','imm1990',
+                'imm1991','imm1992','imm1993','imm1994','imm1995']
+for dir_name in tmp_dir_list:
+# for dir_name in dir_list:
     print(f'Working on {dir_name}')
     if cluster_type == 'unshuffled':
         cluster_path = rootdir + '/' + dir_name + '/dump.' + dir_name + '_citing_cited.mci.I20.csv'
@@ -37,6 +40,10 @@ for dir_name in dir_list:
         graclus_clusters = graclus_nodes.merge(graclus_coded_cluster_num)
         graclus_clusters = graclus_clusters.astype({'citing':object, 'citing_id':object, 'cluster_no':object}) 
         cluster_data = graclus_clusters[['citing', 'cluster_no']].rename(columns={'citing':'scp'})
+    elif cluster_type == 'graclus_half_mclsize':
+        cluster_path = rootdir + '_output/' + dir_name + '/' +  dir_name + '_cluster_scp_list_graclus_half_mclsize.csv'
+        columns = ['scp', 'cluster_no']
+        cluster_data = pd.read_csv(cluster_path, names=columns)
 
     nodes_data_name = rootdir + '/' + dir_name + '/' + dir_name + '_citing_cited.csv'
     nodes_data = pd.read_csv(nodes_data_name)
