@@ -985,15 +985,3 @@ FROM
       FROM imm1985_all_merged_unshuffled ) prop
 WHERE imm1985_all_merged_unshuffled.cluster_no = prop.cluster_no;
 
-
-
-
-
-
-
-
-
-
-
-
-
