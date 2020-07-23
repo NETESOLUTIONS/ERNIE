@@ -21,46 +21,10 @@ JOIN theta_plus.superset_to_year_match_30_350 s
 main_table = pd.read_sql(main_table_query, con=engine)
 main_table.name = 'rated_mcl_graclus_all_data'
 
-main_table['mcl_year_cluster_size'] = None
-main_table['mcl_year_conductance'] = None
-main_table['mcl_year_coherence'] = None
-main_table['mcl_year_int_edges'] = None
-main_table['mcl_year_boundary'] = None
-main_table['mcl_year_sum_article_score'] = None
-main_table['mcl_year_max_article_score'] = None
-main_table['mcl_year_median_article_score'] = None
+new_columns = ['mcl_year_cluster_size', 'mcl_year_conductance','mcl_year_coherence', 'mcl_year_int_edges', 'mcl_year_boundary', 'mcl_year_sum_article_score', 'mcl_year_max_article_score','mcl_year_median_article_score', 'graclus_100_cluster_no', 'graclus_100_cluster_size', 'graclus_100_to_mcl_ratio', 'graclus_100_total_intersection', 'graclus_100_total_union', 'graclus_100_intersection_union_ratio', 'graclus_100_multiple_options','graclus_100_conductance','graclus_100_coherence', 'graclus_100_int_edges', 'graclus_100_boundary', 'graclus_100_sum_article_score', 'graclus_100_max_article_score', 'graclus_100_median_article_score', 'graclus_half_mclsize_cluster_no', 'graclus_half_mclsize_cluster_size', 'graclus_half_mclsize_to_mcl_ratio', 'graclus_half_mclsize_total_intersection', 'graclus_half_mclsize_total_union', 'graclus_half_mclsize_intersection_union_ratio', 'graclus_half_mclsize_multiple_options', 'graclus_half_mclsize_conductance', 'graclus_half_mclsize_coherence', 'graclus_half_mclsize_int_edges', 'graclus_half_mclsize_boundary', 'graclus_half_mclsize_sum_article_score','graclus_half_mclsize_max_article_score','graclus_half_mclsize_median_article_score']
 
-main_table['graclus_100_cluster_no'] = None
-main_table['graclus_100_cluster_size'] = None
-main_table['graclus_100_to_mcl_ratio'] = None
-main_table['graclus_100_total_intersection'] = None
-main_table['graclus_100_total_union'] = None
-main_table['graclus_100_intersection_union_ratio'] = None
-main_table['graclus_100_multiple_options'] = None
-
-main_table['graclus_100_conductance'] = None
-main_table['graclus_100_coherence'] = None
-main_table['graclus_100_int_edges'] = None
-main_table['graclus_100_boundary'] = None
-main_table['graclus_100_sum_article_score'] = None
-main_table['graclus_100_max_article_score'] = None
-main_table['graclus_100_median_article_score'] = None
-
-main_table['graclus_half_mclsize_cluster_no'] = None
-main_table['graclus_half_mclsize_cluster_size'] = None
-main_table['graclus_half_mclsize_to_mcl_ratio'] = None
-main_table['graclus_half_mclsize_total_intersection'] = None
-main_table['graclus_half_mclsize_total_union'] = None
-main_table['graclus_half_mclsize_intersection_union_ratio'] = None
-main_table['graclus_half_mclsize_multiple_options'] = None
-
-main_table['graclus_half_mclsize_conductance'] = None
-main_table['graclus_half_mclsize_coherence'] = None
-main_table['graclus_half_mclsize_int_edges'] = None
-main_table['graclus_half_mclsize_boundary'] = None
-main_table['graclus_half_mclsize_sum_article_score'] = None
-main_table['graclus_half_mclsize_max_article_score'] = None
-main_table['graclus_half_mclsize_median_article_score'] = None
+for column in new_columns:
+    main_table[column] = None
 
 
 print(f'Working on table: {schema}.{main_table.name}')
