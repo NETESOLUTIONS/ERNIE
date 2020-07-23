@@ -9,7 +9,7 @@
 \set dataset_graclus_data 'graclus_':dataset
 \set dataset_graclus_coded 'graclus_coded_':dataset
 
-SET SEARCH_PATH TO theta_plus;
+SET SEARCH_PATH TO sbplus;
 
 DROP TABLE IF EXISTS :dataset_graclus_data;
 CREATE TABLE :dataset_graclus_data TABLESPACE theta_plus_tbs AS
