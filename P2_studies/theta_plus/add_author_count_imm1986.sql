@@ -8,6 +8,8 @@ This script is particularly written for the imm1986 table
 
 */
 
+-- set schema
+SET search_path = theta_plus;
 -- Add author count info for the imm1986 table
 
 -- region: add columns
