@@ -8,9 +8,7 @@ CREATE OR REPLACE PROCEDURE stg_scopus_parse_references(input_xml XML)
   LANGUAGE plpgsql AS $$
 BEGIN
   INSERT INTO stg_scopus_references(scp, ref_sgr, citation_text)
-  SELECT
-    scp AS scp, ref_sgr AS ref_sgr,
-    max(coalesce(ref_fulltext, ref_text)) AS citation_text
+  SELECT scp, ref_sgr, max(coalesce(ref_fulltext, ref_text)) AS citation_text
     FROM xmltable('//bibrecord/tail/bibliography/reference' PASSING input_xml COLUMNS --
       scp BIGINT PATH '//itemidlist/itemid[@idtype="SCP"]/text()', --
       ref_sgr BIGINT PATH 'ref-info/refd-itemidlist/itemid[@idtype="SGR"]/text()',
