@@ -71,7 +71,7 @@ EXAMPLES
 
     sudo --preserve-env=PGDATABASE ./harden-and-update.sh -e /data1/upsource admin
 
-Version 2.1                                           June 2020
+Version 2.1.1                                           July 2020
 HEREDOC
   exit 1
 }
@@ -219,18 +219,20 @@ if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
   echo "$KERNEL_UPDATE_MESSAGE"
 fi
 
-if yum check-update jenkins; then
-  echo "Jenkins is up to date"
-else
-  echo "Jenkins update is available"
+if yum list installed jenkins &>/dev/null; then
+  if yum check-update jenkins; then
+    echo -e "\nJenkins is up to date"
+  else
+    echo -e "\nJenkins update is available"
 
-  # When Jenkins is not installed, this is false
-  readonly JENKINS_UPDATE_AVAILABLE=true
+    # When Jenkins is not installed, this is false
+    readonly JENKINS_UPDATE_AVAILABLE=true
+  fi
 fi
 
 if [[ ${KERNEL_UPDATE_AVAILABLE} == true || ${JENKINS_UPDATE_AVAILABLE} == true ]]; then
   if [[ ${KERNEL_UPDATE_AVAILABLE} == true ]]; then
-    echo "Scheduling a safe reboot"
+    echo "Scheduling a safe reboot for the kernel update"
     safe_update_options+=(-r "'$KERNEL_UPDATE_MESSAGE'")
   fi
   if [[ $JENKINS_UPDATE_AVAILABLE == true ]]; then
