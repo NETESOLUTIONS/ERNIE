@@ -47,7 +47,7 @@ done
 
 # pre-process by casting scps as character prefixed by 'a' to avoid
 # unfortunate bigint events and export as tsv without colnames and rownames
-Rscript ~/ERNIE/P2_studies/theta_plus/pre_process.R --args "$FILE_NAME"
+Rscript ~/ERNIE/P2_studies/theta_plus/pre_process.R --args ./"$FILE_NAME"
 # generate MCL output
 source ~/ERNIE/P2_studies/theta_plus/mcl_script.sh -i "$INFLATION_VAL"
 # postprocess mcloutput as csv
