@@ -43,7 +43,7 @@ done
 first_val="$(cut -d'.' -f1 <<<"$i")"
 second_val="$(cut -d'.' -f2 <<<"$i")"
 
-I_suffix="$first_val$second_val"
+I_suffix="I$first_val$second_val"
 
 #clean up any leftovers from previous runs
 rm *jU0YWEwOWE3*
