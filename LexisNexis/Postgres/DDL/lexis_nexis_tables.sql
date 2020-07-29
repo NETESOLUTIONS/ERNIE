@@ -279,6 +279,11 @@ CREATE TABLE lexis_nexis_patent_related_document_additions (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_additions
+ADD CONSTRAINT lexis_nexis_patent_related_document_additions_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 -- region lexis_nexis_patent_related_document_divisions
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_divisions;
@@ -312,6 +317,11 @@ CREATE TABLE lexis_nexis_patent_related_document_divisions (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_divisions
+ADD CONSTRAINT lexis_nexis_patent_related_document_divisions_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 -- region lexis_nexis_patent_related_document_continuations
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_continuations;
@@ -345,6 +355,11 @@ CREATE TABLE lexis_nexis_patent_related_document_continuations (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_continuations
+ADD CONSTRAINT lexis_nexis_patent_related_document_continuations_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 -- region lexis_nexis_patent_related_document_continuation_in_parts
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_continuation_in_parts;
@@ -378,6 +393,11 @@ CREATE TABLE lexis_nexis_patent_related_document_continuation_in_parts (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_continuation_in_parts
+ADD CONSTRAINT lexis_nexis_patent_related_document_continuation_in_parts_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 -- region lexis_nexis_patent_related_document_continuing_reissues
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_continuing_reissues;
@@ -411,6 +431,11 @@ CREATE TABLE lexis_nexis_patent_related_document_continuing_reissues (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_continuing_reissues
+ADD CONSTRAINT lexis_nexis_patent_related_document_continuing_reissues_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 -- region lexis_nexis_patent_related_document_reissues
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_reissues;
@@ -444,6 +469,11 @@ CREATE TABLE lexis_nexis_patent_related_document_reissues (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_reissues
+ADD CONSTRAINT lexis_nexis_patent_related_document_reissues_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 -- region lexis_nexis_patent_related_document_divisional_reissues
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_divisional_reissues;
@@ -477,6 +507,11 @@ CREATE TABLE lexis_nexis_patent_related_document_divisional_reissues (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_divisional_reissues
+ADD CONSTRAINT lexis_nexis_patent_related_document_divisional_reissues_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 -- region lexis_nexis_patent_related_document_reexaminations
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_reexaminations;
@@ -510,6 +545,11 @@ CREATE TABLE lexis_nexis_patent_related_document_reexaminations (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_reexaminations
+ADD CONSTRAINT lexis_nexis_patent_related_document_reexaminations_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 /* Name too long here, need a shorter name to avoid truncation warnings/error on PK creation
 -- region lexis_nexis_patent_related_document_reexamination_reissue_mergers
@@ -577,6 +617,11 @@ CREATE TABLE lexis_nexis_patent_related_document_substitutions (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_substitutions
+ADD CONSTRAINT lexis_nexis_patent_related_document_substitutions_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 -- region lexis_nexis_patent_related_document_provisional_applications
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_provisional_applications;
@@ -595,6 +640,11 @@ CREATE TABLE lexis_nexis_patent_related_document_provisional_applications (
     PRIMARY KEY (country_code, doc_number, kind_code, related_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_provisional_applications
+ADD CONSTRAINT lexis_nexis_patent_related_document_provisional_applications_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 -- region lexis_nexis_patent_related_document_utility_model_basis
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_utility_model_basis;
@@ -628,6 +678,11 @@ CREATE TABLE lexis_nexis_patent_related_document_utility_model_basis (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_utility_model_basis
+ADD CONSTRAINT lexis_nexis_patent_related_document_utility_model_basis_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 -- region lexis_nexis_patent_related_corrections
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_corrections;
@@ -649,6 +704,11 @@ CREATE TABLE lexis_nexis_patent_related_corrections (
     PRIMARY KEY (country_code, doc_number, kind_code, corrected_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_corrections
+ADD CONSTRAINT lexis_nexis_patent_related_corrections_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 -- region lexis_nexis_patent_related_publications
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_publications;
@@ -666,6 +726,11 @@ CREATE TABLE lexis_nexis_patent_related_publications (
     PRIMARY KEY (country_code, doc_number, kind_code, related_pub_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_publications
+ADD CONSTRAINT lexis_nexis_patent_related_publications_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 -- region lexis_nexis_patent_related_document_371_international
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_371_international;
@@ -699,6 +764,11 @@ CREATE TABLE lexis_nexis_patent_related_document_371_international (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_371_international
+ADD CONSTRAINT lexis_nexis_patent_related_document_371_international_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 --TODO: flesh out comments
 --COMMENT ON TABLE lexis_nexis_patent_related_documents IS 'Various relationships between the patent in hand and other patent grants or applications. Contains either an additional application, a divisional application, continuations, reissues, divisional reissues, reexamination, merged reissues reexamination, substitute, or provisional application';
