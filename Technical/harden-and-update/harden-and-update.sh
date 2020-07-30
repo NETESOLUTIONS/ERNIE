@@ -50,6 +50,8 @@ DESCRIPTION
                             The primary group of that user account will be used as group owner.
                             Defaults to `jenkins`.
 
+    -v                      Verbose mode
+
 ENVIRONMENT
 
     Pre-requisite dependencies:
@@ -92,7 +94,7 @@ fi
 DEFAULT_OWNER_USER="jenkins"
 declare -a safe_update_options
 # If a character is followed by a colon, the option is expected to have an argument
-while getopts e:km:u:g:o:h OPT; do
+while getopts e:km:u:g:o:vh OPT; do
   case "$OPT" in
     e)
       exclude_dirs+=("$OPTARG")
@@ -112,6 +114,9 @@ while getopts e:km:u:g:o:h OPT; do
       DEFAULT_OWNER_USER="$OPTARG"
       DEFAULT_OWNER_GROUP=$(id --group --name "${DEFAULT_OWNER_USER}")
       declare -rx DEFAULT_OWNER_GROUP
+      ;;
+    v)
+      set -x
       ;;
     *) # -h or `?`: an unknown option
       usage
