@@ -176,3 +176,9 @@ P2_studies/theta_plus/.ipynb_checkpoints/get_in_cluster_author_citations-checkpo
 P2_studies/theta_plus/.ipynb_checkpoints/get_rated_author_95_citing-checkpoint.py
 P2_studies/sb_plus_triplets/.ipynb_checkpoints/sb_plus_triplets DDL-checkpoint.sql
 P2_studies/theta_plus/.ipynb_checkpoints/cluster_comparison-checkpoint.R
+P2_studies/sb_plus_triplets/.ipynb_checkpoints/compute_article_score-checkpoint.py
+P2_studies/sb_plus_triplets/.ipynb_checkpoints/compute_conductance-checkpoint.py
+P2_studies/sb_plus_triplets/.ipynb_checkpoints/get_graclus_cluster_scp_list-checkpoint.py
+P2_studies/sb_plus_triplets/.ipynb_checkpoints/match_mcl_to_graclus-checkpoint.py
+P2_studies/sb_plus_triplets/.ipynb_checkpoints/merge_all_output-checkpoint.py
+P2_studies/sb_plus_triplets/.ipynb_checkpoints/sb_plus_triplets_DDL-checkpoint.sql
