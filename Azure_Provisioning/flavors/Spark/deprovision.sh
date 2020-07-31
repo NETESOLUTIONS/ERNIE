@@ -24,10 +24,11 @@ HEREDOC
   exit 1
 fi
 
-declare -n env_var
+# Bash 4.3+ is required in order to use nameref-s. We're not quite there yet.
+#declare -n env_var
 for env_var in AZURE_SERVICE_PRINCIPAL_APP_ID AZURE_SERVICE_PRINCIPAL_PASSWORD AZURE_TENANT_ID; do
-  if [[ ! $env_var ]]; then
-    echo "Please, define ${!env_var}"
+  if [[ ! ${!env_var} ]]; then
+    echo "Please, define ${env_var}"
     exit 1
   fi
 done
