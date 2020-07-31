@@ -17,7 +17,7 @@ DESCRIPTION
 
 ENVIRONMENT
 
-  Azure pre-requisite:
+  Azure pre-requisites:
     ERNIE-Spark         resource group
       / erniesparkstg   storage account, standard storage (HDInsight supports only general-purpose storage accounts
                         with standard tier)
