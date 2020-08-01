@@ -1,0 +1,94 @@
+-- Ecology DDL
+
+SELECT count(*)
+FROM public.scopus_asjc_pubs
+WHERE class_code ='1105'; -- Ecology, Evolution, Behavior and Systematics
+
+SELECT count(*)
+FROM public.scopus_asjc_pubs
+WHERE class_code ='2302'; -- Ecological Modelling
+
+SELECT count(*)
+FROM public.scopus_asjc_pubs
+WHERE class_code ='2303'; -- Ecology
+
+DROP TABLE IF EXISTS theta_plus_ecology.ecology;
+CREATE TABLE theta_plus_ecology.ecology
+TABLESPACE theta_plus_tbs AS
+SELECT sp.scp FROM public.scopus_publications sp
+INNER JOIN public.scopus_publication_groups spg
+ON sp.scp=spg.sgr
+AND sp.citation_type='ar'
+AND sp.citation_language='English'
+AND sp.pub_type='core'
+INNER JOIN public.scopus_classes sc
+ON sp.scp=sc.scp
+AND sc.class_code IN ('1105', '2302', '2303');
+CREATE INDEX ecology_idx
+ON theta_plus_ecology.ecology(scp)
+TABLESPACE index_tbs;
+
+DROP TABLE IF EXISTS theta_plus_ecology.ecology_cited;
+CREATE TABLE theta_plus_ecology.ecology_cited
+TABLESPACE theta_plus_tbs AS
+SELECT eco.scp as citing,sr.ref_sgr AS cited
+FROM theta_plus_ecology.ecology eco
+INNER JOIN public.scopus_references sr on eco.scp = sr.scp;
+CREATE INDEX ecology_cited_idx
+ON theta_plus_ecology.ecology_cited(citing,cited)
+TABLESPACE index_tbs;
+
+DROP TABLE IF EXISTS theta_plus_ecology.ecology_citing;
+CREATE TABLE theta_plus_ecology.ecology_citing 
+TABLESPACE theta_plus_tbs AS
+SELECT sr.scp as citing,eco.scp as cited 
+FROM theta_plus_ecology.ecology eco
+INNER JOIN public.scopus_references sr on eco.scp=sr.ref_sgr;
+CREATE INDEX ecology_citing_idx 
+ON theta_plus_ecology.ecology_citing(citing,cited)
+TABLESPACE index_tbs;
+
+select count(1) from theta_plus_ecology.ecology;
+select count(1) from theta_plus_ecology.ecology_cited;
+select count(1) from theta_plus_ecology.ecology_citing;
+
+DROP TABLE IF EXISTS theta_plus_ecology.ecology_citing_cited;
+CREATE TABLE theta_plus_ecology.ecology_citing_cited
+TABLESPACE theta_plus_tbs AS
+SELECT DISTINCT citing,cited from theta_plus_ecology.ecology_cited UNION
+SELECT DISTINCT citing,cited from theta_plus_ecology.ecology_citing;
+SELECT count(1) from theta_plus_ecology.ecology_citing_cited;
+
+-- clean up Scopus data
+DELETE FROM theta_plus_ecology.ecology_citing_cited
+WHERE citing=cited;
+
+--remove all non-core publications by joining against
+-- scopus publications and requiring type = core
+-- and language = English
+DROP TABLE IF EXISTS XX;
+ALTER TABLE theta_plus_ecology.ecology_citing_cited
+RENAME TO XX;
+
+CREATE TABLE theta_plus_ecology.ecology_citing_cited AS
+WITH cte AS(SELECT citing,cited FROM XX
+INNER JOIN public.scopus_publications sp
+ON XX.citing=sp.scp
+AND sp.citation_language='English'
+AND sp.pub_type='core')
+SELECT citing,cited FROM cte
+INNER JOIN public.scopus_publications sp2
+ON cte.cited=sp2.scp
+AND sp2.citation_language='English'
+AND sp2.pub_type='core';
+DROP TABLE XX;
+
+DROP TABLE IF EXISTS theta_plus_ecology.ecology_nodes;
+CREATE TABLE theta_plus_ecology.ecology_nodes
+TABLESPACE theta_plus_tbs AS
+SELECT distinct citing as scp
+FROM theta_plus_ecology.ecology_citing_cited
+UNION
+SELECT distinct cited
+FROM theta_plus_ecology.ecology_citing_cited;
+CREATE INDEX ecology_nodes_idx ON theta_plus_ecology.ecology_nodes(scp);
