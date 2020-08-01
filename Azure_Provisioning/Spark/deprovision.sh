@@ -37,7 +37,7 @@ az login --service-principal --username "$AZURE_SERVICE_PRINCIPAL_APP_ID" \
   --password "$AZURE_SERVICE_PRINCIPAL_PASSWORD" --tenant "$AZURE_TENANT_ID"
 
 # Deprovision cluster using ID saved in the home directory
-az resource delete --ids $(jq -r ".properties.outputResources[0].id" ~/spark_cluster_id.txt )
+az resource delete --ids $(cat ~/spark_cluster_id.txt)
 # TODO: ADD GROOVY DEPROVISIONING STEPS FOR HEAD NODES SAVED IN PUBISH OVER SSH CONFIG
 #name=${VIRTUAL_MACHINE_NAME}
 #sed -i "s/def name = \"\"/def name = \"${VIRTUAL_MACHINE_NAME}\"/g" remove_server_from_config.groovy

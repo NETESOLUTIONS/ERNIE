@@ -4,7 +4,7 @@ if [[ $1 == "-h" ]]; then
   cat << 'HEREDOC'
 NAME
 
-  provision.sh -- Automated provisioning of a Spark server
+  provision.sh -- Automated provisioning of an Azure HDInsight Spark cluster
 
 SYNOPSIS
 
@@ -17,8 +17,10 @@ DESCRIPTION
 
 ENVIRONMENT
 
-  Azure pre-requisite:
-    ERNIE-Spark resource group
+  Azure pre-requisites:
+    ERNIE-Spark         resource group
+      / erniesparkstg   storage account, standard storage (HDInsight supports only general-purpose storage accounts
+                        with standard tier)
 
   Required env. variables:
     ADMIN_USERNAME
