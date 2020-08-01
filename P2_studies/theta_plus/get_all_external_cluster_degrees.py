@@ -9,15 +9,13 @@ password = "Akshay<3"
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
-cluster_query = """SELECT imm1985_1995_cluster_no
-FROM theta_plus.superset_30_350_mcl_graclus_all_data
-WHERE graclus_half_mclsize_intersection_union_ratio >= 0.9
-  AND mcl_year_conductance <= 0.5
-ORDER BY imm1985_1995_cluster_no;"""
+cluster_query = """SELECT cluster_no
+FROM theta_plus.imm1985_1995_all_merged_unshuffled
+ORDER BY cluster_no;"""
 
 clusters = pd.read_sql(cluster_query, con=engine)
-clusters_list = clusters['imm1985_1995_cluster_no'].astype(int).tolist()
-clusters_list = [1673]
+clusters_list = clusters['cluster_no'].astype(int).tolist()
+
 for cluster_num in clusters_list:
     
     citing_cited_query="""
@@ -66,7 +64,7 @@ for cluster_num in clusters_list:
     scp_all = this_cluster.merge(total_deg, how='left').merge(total_in_deg, how='left').merge(total_out_deg, how='left').sort_values(by=['ext_cluster_total_degrees'], ascending=False).fillna(0)
     scp_all = scp_all[['cluster_no', 'scp', 'ext_cluster_total_degrees', 'ext_cluster_in_degrees', 'ext_cluster_out_degrees']]
 
-    scp_all.to_sql('superset_90_iu_external_cluster_degrees', con=engine, schema=schema, if_exists='append', index=False)
+    scp_all.to_sql('imm1985_1995_external_cluster_degrees', con=engine, schema=schema, if_exists='append', index=False)
 
 print("All Completed.")
 
