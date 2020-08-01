@@ -42,7 +42,6 @@ for cluster_num in clusters_list:
     total_deg = pd.DataFrame.from_dict(degrees, orient='index', columns=['int_cluster_total_degrees'])
     total_deg['scp'] = total_deg.index
     total_deg = total_deg.reset_index(drop=True)
-    max_deg = max(degrees.values())
 
     deg_cent = pd.DataFrame.from_dict(nx.degree_centrality(G), orient='index', columns=['int_cluster_total_degree_centrality'])
     deg_cent['scp'] = deg_cent.index
@@ -52,7 +51,6 @@ for cluster_num in clusters_list:
     total_in_deg = pd.DataFrame.from_dict(indegrees, orient='index', columns=['int_cluster_in_degrees'])
     total_in_deg['scp'] = total_in_deg.index
     total_in_deg = total_in_deg.reset_index(drop=True)
-    max_in = max(indegrees.values())
 
     in_deg_cent = pd.DataFrame.from_dict(nx.in_degree_centrality(G), orient='index', columns=[ 'int_cluster_in_degree_centrality'])
     in_deg_cent['scp'] = in_deg_cent.index
@@ -62,7 +60,6 @@ for cluster_num in clusters_list:
     total_out_deg = pd.DataFrame.from_dict(outdegrees, orient='index', columns=['int_cluster_out_degrees'])
     total_out_deg['scp'] = total_out_deg.index
     total_out_deg = total_out_deg.reset_index(drop=True)
-    max_out = max(outdegrees.values())
 
     out_deg_cent = pd.DataFrame.from_dict(nx.out_degree_centrality(G), orient='index', columns=[ 'int_cluster_out_degree_centrality'])
     out_deg_cent['scp'] = out_deg_cent.index
