@@ -12,4 +12,4 @@ This directory contains the scripts related to mapping one type of clusters to a
 
 [match_rated_mcl_to_graclus.py](match_rated_mcl_to_graclus.py) - Map MCL yearly slices to Graclus clusters for the rated clusters
 
-[match_superset_years.py](match_superset_years.py) - Match the combined clusters (superset) to their cognate yearly slices
+[match_superset_years.py](match_superset_years.py) - Map the combined clusters (superset) to their cognate yearly slices
