@@ -7,8 +7,11 @@ scores - computed for given clusters. We need the output from jsd_coherence.py,
 compute_conductance.py, and compute_article_score.py to run this script for 
 any clustering. The final output is stored both on the database and the server.
 
-Argument(s): rootdir          - The directory where all cluster-scp list information is stored
+Argument(s): field                 - The field to compute conductance for - 'imm' or 'eco'
+                                     'imm': immunology
+                                     'eco': ecology
              cluster_type     - The type of cluster to process - (shuffled, unshuffled, graclus)
+             schema           - The schema in which the resulting table should be saved
              user_name        - Database username
              password         - Database password
              
@@ -20,12 +23,14 @@ import os
 from sys import argv
 from sqlalchemy import create_engine
 
-rootdir = '/erniedev_data3/theta_plus/imm_output'
+
+field = argv[1]
+cluster_type = argv[2]
+schema = argv[3]
+user_name = argv[3]
+password = argv[4]
+rootdir = '/erniedev_data3/theta_plus/' + field + '_output'
 dir_list = sorted(os.listdir(rootdir))
-cluster_type = argv[1]
-user_name = argv[2]
-password = argv[3]
-schema = "theta_plus"
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 

@@ -4,10 +4,12 @@
 
 This script computes conductance for given clusters. 
 
-Argument(s): rootdir               - The directory where all cluster-scp list information is stored
-             cluster_type          - The type of cluster to process - (shuffled, unshuffled, graclus)
+Argument(s): field               - The field to compute conductance for - 'imm' or 'eco'
+                                   'imm': immunology
+                                   'eco': ecology
+             cluster_type        - The type of cluster to process - (shuffled, unshuffled, graclus)
              
-Output:      conductance_x5        - Final data frame of complete conductance computation
+Output:      conductance_x5      - Final data frame of complete conductance computation
 """
 
 import os
@@ -15,14 +17,12 @@ import pandas as pd
 from sys import argv
 from glob import glob
 
-rootdir = '/erniedev_data3/theta_plus/imm'
+field = argv[1]
+cluster_type = argv[2]
+rootdir = '/erniedev_data3/theta_plus/' + field
 dir_list = sorted(os.listdir(rootdir))
-cluster_type = argv[1]
 
-tmp_dir_list = ['imm1985', 'imm1986','imm1987','imm1988','imm1989','imm1990',
-                'imm1991','imm1992','imm1993','imm1994','imm1995']
-for dir_name in tmp_dir_list:
-# for dir_name in dir_list:
+for dir_name in dir_list:
     print(f'Working on {dir_name}')
     if cluster_type == 'unshuffled':
         cluster_path = rootdir + '/' + dir_name + '/dump.' + dir_name + '_citing_cited.mci.I20.csv'

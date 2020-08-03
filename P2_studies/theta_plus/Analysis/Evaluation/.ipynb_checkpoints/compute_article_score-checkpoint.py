@@ -4,7 +4,9 @@
 
 This script computes article scores for given clusters. 
 
-Argument(s): rootdir               - The directory where all cluster-scp list information is stored
+Argument(s): field                 - The field to compute conductance for - 'imm' or 'eco'
+                                     'imm': immunology
+                                     'eco': ecology
              cluster_type          - The type of cluster to process - (shuffled, unshuffled, graclus)
              
 Output:      cluster_scores        - Final data frame of complete article score computation
@@ -15,9 +17,10 @@ import pandas as pd
 from sys import argv
 from glob import glob
 
-rootdir = '/erniedev_data3/theta_plus/imm'
+field = argv[1]
+cluster_type = argv[2]
+rootdir = '/erniedev_data3/theta_plus/' + field
 dir_list = sorted(os.listdir(rootdir))
-cluster_type = argv[1]
 
 for dir_name in dir_list:
     print(f'Working on {dir_name}')
@@ -37,6 +40,10 @@ for dir_name in dir_list:
         graclus_clusters = graclus_nodes.merge(graclus_coded_cluster_num)
         graclus_clusters = graclus_clusters.astype({'citing':object, 'citing_id':object, 'cluster_no':object}) 
         cluster_data = graclus_clusters[['citing', 'cluster_no']].rename(columns={'citing':'scp'})
+    elif cluster_type == 'graclus_half_mclsize':
+        cluster_path = rootdir + '_output/' + dir_name + '/' +  dir_name + '_cluster_scp_list_graclus_half_mclsize.csv'
+        columns = ['scp', 'cluster_no']
+        cluster_data = pd.read_csv(cluster_path, names=columns)
     
     nodes_path = rootdir + '/' + dir_name + '/' + dir_name + '_citing_cited.csv'
     nodes = pd.read_csv(nodes_path)
@@ -53,7 +60,7 @@ for dir_name in dir_list:
 
     cluster_scores = nodes_final.merge(cluster_data, left_on='scp', right_on='scp', how='inner').sort_values(by='cluster_no')
 
-    save_name = '/erniedev_data3/theta_plus/imm_output/' + dir_name + '/' +  dir_name + '_article_score_' + cluster_type + '.csv'
+    save_name =  rootdir + '_output/' + dir_name + '/' +  dir_name + '_article_score_' + cluster_type + '.csv'
 
     cluster_scores.to_csv(save_name, index = None, header=True, encoding='utf-8')
 
