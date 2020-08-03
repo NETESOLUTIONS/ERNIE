@@ -1,6 +1,6 @@
 ## Welcome to the Theta+ Repository!
 
-For details on the Markov Clustering Algorithm (MCL), please refer to [this wiki](https://github.com/NETESOLUTIONS/ERNIE/wiki/Markov-Clustering).
+For details on the Markov Clustering (MCL) Algorithm, please refer to [this wiki](https://github.com/NETESOLUTIONS/ERNIE/wiki/Markov-Clustering).
 
 For details on the analysis of MCL clusters please refer to [this wiki](https://github.com/NETESOLUTIONS/ERNIE/wiki/Markov-Clustering-Analysis).
 
