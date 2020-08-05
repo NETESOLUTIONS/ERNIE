@@ -19,7 +19,7 @@ enable_cron_job() {
     # Use `flock` to prevent launching of additional processes if the first launch hasn't finished for some reason
     {
       crontab -l
-      echo "*/10 * * * * flock --nonblock '$CRON_JOB.lock' sudo '$CRON_JOB' $* >> $CRON_LOG"
+      echo "*/10 * * * * flock --nonblock '$CRON_JOB.lock' sudo '$CRON_JOB' $* ls &>> $CRON_LOG"
     } | crontab -
   fi
 }
