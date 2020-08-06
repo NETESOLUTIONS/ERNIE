@@ -6,7 +6,8 @@
 import pandas as pd
 import sys
 
-csv_file_path=str(sys.argv[1]); print 'Working with CSV file located at %s' %(csv_file_path)
+csv_file_path=str(sys.argv[1]); 
+print(f'Working with CSV file located at {csv_file_path}')
 keep_headers = ['APPLICATION_ID','ACTIVITY','ADMINISTERING_IC','APPLICATION_TYPE','ARRA_FUNDED','AWARD_NOTICE_DATE','BUDGET_START',
 'BUDGET_END','CFDA_CODE','CORE_PROJECT_NUM','ED_INST_TYPE','FOA_NUMBER','FULL_PROJECT_NUM','SUBPROJECT_ID','FUNDING_ICs','FY','IC_NAME',
 'NIH_SPENDING_CATS','ORG_CITY','ORG_COUNTRY','ORG_DEPT','ORG_DISTRICT','ORG_DUNS','ORG_FIPS','ORG_NAME','ORG_STATE','ORG_ZIPCODE','PHR',
