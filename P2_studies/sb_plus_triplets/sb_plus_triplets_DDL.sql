@@ -31,7 +31,7 @@ DELETE
 
 -- 8m:08s
 ALTER TABLE sb_plus_triplets.triplets_unique
-  ADD PRIMARY KEY (scp1, scp2, scp3);
+  ADD PRIMARY KEY (scp1, scp2, scp3) USING INDEX TABLESPACE index_tbs;
 
 CREATE OR REPLACE VIEW sb_plus_triplets.triplets_direct_citations AS
 (
