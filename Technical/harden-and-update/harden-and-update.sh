@@ -73,7 +73,7 @@ EXAMPLES
 
     sudo --preserve-env=PGDATABASE ./harden-and-update.sh -e /data1/upsource admin
 
-Version 2.1.1                                           July 2020
+Version 2.1.2                                           August 2020
 HEREDOC
   exit 1
 }

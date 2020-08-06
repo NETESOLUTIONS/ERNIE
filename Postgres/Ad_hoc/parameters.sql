@@ -24,7 +24,7 @@ SHOW default_tablespace;
 SELECT current_setting('temp_tablespaces');
 SELECT current_setting('search_path');
 
--- Server configuration
+--region Server configuration
 SELECT seqno, name, setting, applied, error
 FROM pg_file_settings
 ORDER BY name;
@@ -59,6 +59,7 @@ ALTER SYSTEM SET default_tablespace = 'user_tbs';
 ALTER SYSTEM RESET TimeZone;
 
 SELECT now();
+--endregion
 --endregion
 --endregion
 
