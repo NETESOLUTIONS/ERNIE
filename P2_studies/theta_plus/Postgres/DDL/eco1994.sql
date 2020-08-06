@@ -80,14 +80,14 @@ WHERE citing=cited;
 --remove all non-core publications by joining against
 -- scopus publications and requiring type = core
 -- and language = English
-DROP TABLE IF EXISTS XX;
+DROP TABLE IF EXISTS XX_eco1994;
 ALTER TABLE theta_plus_ecology.eco1994_citing_cited
-RENAME TO XX;
+RENAME TO XX_eco1994;
 
 CREATE TABLE theta_plus_ecology.eco1994_citing_cited AS
-WITH cte AS(SELECT citing,cited FROM XX
+WITH cte AS(SELECT citing,cited FROM XX_eco1994
 INNER JOIN public.scopus_publications sp
-ON XX.citing=sp.scp
+ON XX_eco1994.citing=sp.scp
 AND sp.citation_language='English'
 AND sp.pub_type='core')
 SELECT citing,cited FROM cte
@@ -95,7 +95,7 @@ INNER JOIN public.scopus_publications sp2
 ON cte.cited=sp2.scp
 AND sp2.citation_language='English'
 AND sp2.pub_type='core';
-DROP TABLE XX;
+DROP TABLE XX_eco1994;
 
 -- Get all nodes in the 1994 dataset
 DROP TABLE IF EXISTS theta_plus_ecology.eco1994_nodes;
