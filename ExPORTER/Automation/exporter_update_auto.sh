@@ -52,4 +52,4 @@ mv $file_extract $c_dir/csv_files; mv $file $c_dir/csv_files; rm $c_dir/*.csv ; 
 
 ## update the exporter log
 
-psql -f exporter_update_log.sql
+psql -f ../exporter_update_log.sql
