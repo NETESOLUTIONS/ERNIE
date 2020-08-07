@@ -16,7 +16,7 @@ SYNOPSIS
 
 DESCRIPTION
 
-   Extract all ZIP files from the `{work_dir}/API_downloads/` (`./API_downloads/` by default) into the `{tmp_dir}/`.aaaa12345
+   Extract all ZIP files from the `{work_dir}/API_downloads/` (`./API_downloads/` by default) into the `{tmp_dir}/`.
    Process extracted ZIPs one-by-one.
    Produce an error log in `{tmp_dir}/errors.log`.
 
