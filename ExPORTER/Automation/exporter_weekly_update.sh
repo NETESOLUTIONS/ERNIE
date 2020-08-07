@@ -96,7 +96,7 @@ do
 
     ## update the exporter log
 
-    psql -f exporter_update_log.sql
+    psql -f ../exporter_update_log.sql
 
     week=week+1
     if (( week == 53 )); then
