@@ -126,7 +126,12 @@ SELECT fy as financial_year, count(application_id) as project_count,
                 lag(count(application_id)) over (order by fy)) / lag(count(application_id)) over (order by fy),2),
                 '0')                         as percent_difference
 FROM exporter_projects
-WHERE fy::INT < extract('year' FROM current_date)::INT
+WHERE fy !='2003'
+      -- Skipping year-on-year change between 2002 and 2003
+      -- There is a discrepancy in the upstream data (inflated records for the year 2002)
+      -- Records as per RePORTER website: 68332 (Actual)
+      -- Records as per upstream download data: 83423 (Incorrect)
+      AND fy::INT < extract('year' FROM current_date)::INT
 GROUP BY fy ORDER BY fy;
 --endregion
 
@@ -135,7 +140,7 @@ with cte as (SELECT fy as financial_year, count(application_id) as project_count
        coalesce(count(application_id) - lag(count(application_id)) over (order by fy), '0') as difference,
       coalesce(round(100.0 * (count(application_id) - lag(count(application_id)) over (order by fy)) / lag(count(application_id)) over (order by fy),2), '0')  as percent_difference
 FROM exporter_projects
-WHERE fy::INT < extract('year' FROM current_date)::INT
+WHERE fy !='2003' AND fy::INT < extract('year' FROM current_date)::INT
 GROUP BY fy ORDER BY fy)
 SELECT cmp_ok(CAST(cte.percent_difference as REAL), '>=',
               CAST(:min_yearly_difference as REAL),
@@ -155,7 +160,7 @@ SELECT is_empty($$SELECT extract('year' FROM time_series)::int as budget_start_y
                           date_trunc('year', to_date(regexp_replace(budget_start, 'Approved Prior to ', '', 'g'),
                                                      'MM DD YYYY')),
                           interval '1 year') time_series
-             WHERE time_series::date >= date_trunc('year', current_date)::date
+             WHERE time_series::date >= date_trunc('year', current_date + INTERVAL '2 years')::date
              GROUP BY time_series, budget_start_year
              ORDER BY budget_start_year;$$ , 'There should be no exporter records two years from present in the exporter_projects table');
 -- endregion
