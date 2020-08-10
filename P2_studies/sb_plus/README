@@ -7,3 +7,4 @@ calculate_kinetics.cypher: Calculating kinetics for data generated with frequenc
 calculate_kinetics_single_pub.cypher: Calculating kinetics for individual publications that composed of sb pairs. In jenkins: ERNIE-Neo4j-sb-plus-kinetics-single-pub
 SQL_query.sql: SQL code for testing the code of calculating 1985-1995 pairs in Neo4j
 Cypher_query.cypher: Cypher code for calculating 1985-1995 pairs in Neo4j
+Aug 10, 2020: Added t3.csv file that contains metadata of 1196 pairs without any Scopus UIDs.
