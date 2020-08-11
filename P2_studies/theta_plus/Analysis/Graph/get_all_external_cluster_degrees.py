@@ -4,8 +4,8 @@ from sqlalchemy import create_engine
 from sys import argv
 
 schema = "theta_plus"
-user_name = "shreya"
-password = "Akshay<3"
+user_name = argv[1]
+password = argv[2]
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
