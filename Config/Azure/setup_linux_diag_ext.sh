@@ -29,7 +29,7 @@ ENVIRONMENT
 
     Requires manual Azure login for the target subscription.
 
-    Uses `./portal_public_settings.json` or downloads sample settings if the file does not exist.
+    Uses \`./portal_public_settings.json\` or downloads sample settings if the file does not exist.
 
 AUTHOR(S)
 
