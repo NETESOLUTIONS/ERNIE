@@ -95,6 +95,25 @@ SELECT is_empty($$
 
 
 -- region are all tables populated
+
+DO
+$block$
+    DECLARE
+        tab RECORD;
+    BEGIN
+        FOR tab IN (
+            SELECT table_name
+            FROM information_schema.tables --
+            WHERE table_schema = current_schema
+              AND table_name LIKE current_setting('script.module_name') || '%'
+        )
+            LOOP
+                EXECUTE format('ANALYZE VERBOSE %I;', tab.table_name);
+            END LOOP;
+    END
+$block$;
+
+
 WITH cte AS (
     SELECT parent_pc.relname, sum(coalesce(partition_pc.reltuples, parent_pc.reltuples)) AS total_rows
     FROM pg_class parent_pc
