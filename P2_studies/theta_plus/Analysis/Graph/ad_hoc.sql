@@ -23,3 +23,16 @@ FROM (SELECT cluster_no, auid, count(cluster_in_degrees) count_cited_articles
     GROUP BY cluster_no, auid) cited_articles
  WHERE imm1985_1995_authors_clusters.auid = cited_articles.auid
    AND imm1985_1995_authors_clusters.cluster_no=cited_articles.cluster_no;
+
+
+-- Get proportion of tier 1 articles per cluster
+
+CREATE TABLE  tier_1_proportions AS
+(SELECT cluster_no,
+  1.0*sum(case WHEN tier = 1 then 1 ELSE 0 END )/ count(cluster_no) as tier_1_prop
+FROM
+(SELECT cluster_no,scp, max(tier) as tier
+  FROM imm1985_1995_article_tiers
+group by cluster_no, scp) total
+GROUP BY cluster_no
+ORDER BY cluster_no);
