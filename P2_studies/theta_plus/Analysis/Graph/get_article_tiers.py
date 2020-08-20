@@ -65,12 +65,3 @@ for cluster_num in cluster_number_list[start_num:]:
         tier_cluster.to_sql('imm1985_1995_article_tiers', con=engine, schema=schema, index=False, if_exists='append')
 
 print("Article Tiers: All Completed.")
-
-
-Article Tiers:
-    
-    For each cluster, we take the top ten percent of articles by citations received. The citation count at the tenth pecent is our threshold value and the number of articles at the tenth percent (ten percent of cluster size) is the threshold count. We then calculate the total number of articles in the cluster that have received citations greater than or equal to the threshold value. If the number of articles exceeds the threshold count, we increase the threshold value by 1 and denote it by final threshold value. Any article that receives citations greater than or equal to the final threshold value is labelled as Tier 1, any article that receives no citation at all in the cluster is labelled at Tier 3, and all articles in between that receive at least 1 citation, but fewer than the threshold value are labelled as Tier 2. Note that, in this method, we may have articles that receive only one citation under Tier 1.
-    
-Author Tiers:
-    
-    For each author in each cluster, we take the minimum value tier value received by the author as their tier value for that cluster.  
