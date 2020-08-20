@@ -77,7 +77,7 @@ EXAMPLES
 
     sudo --preserve-env=PGDATABASE ./harden-and-update.sh -e /data1/upsource admin
 
-Version 2.2.0                                           August 2020
+Version 2.2.1                                           August 2020
 HEREDOC
   exit 1
 }
@@ -95,7 +95,7 @@ else
   exclude_dirs=()
 fi
 
-readonly OS_NAME=$(pcregrep -o1 '^NAME=(.*)' /etc/os-release)
+readonly OS_NAME=$(pcregrep -o1 '^NAME="(.*)"' /etc/os-release)
 if [[ $OS_NAME != "Red Hat Enterprise Linux Server" && $OS_NAME != "CentOS Linux" ]]; then
   # shellcheck disable=SC2016
   echo 'WARNING: YMMV. This script is designed for RHEL or CentOS only. It might still work if `yum` is used.'
