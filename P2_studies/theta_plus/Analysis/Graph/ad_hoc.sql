@@ -6,7 +6,7 @@ CREATE TABLE theta_plus.imm1985_1995_authors_clusters AS
     SELECT auid, cluster_no, count(scp) count_articles
     FROM
         (SELECT DISTINCT scp, cluster_no, auid
-        FROM theta_plus.imm1985_1995_all_authors ac) distinct_authors
+        FROM theta_plus.imm1985_1995_all_authors_full_graph ac) distinct_authors
     GROUP BY auid, cluster_no
     ORDER BY auid ASC;
 
@@ -36,3 +36,41 @@ FROM
 group by cluster_no, scp) total
 GROUP BY cluster_no
 ORDER BY cluster_no);
+
+
+-- Get author tiers
+
+DROP VIEW IF EXISTS author_tiers_view;
+CREATE VIEW author_tiers_view
+  (auid, cluster_no, tier) AS
+    WITH cte AS (SELECT cluster_no, auid, min(tier) as tier
+                 FROM imm1985_1995_article_tiers
+                 GROUP BY cluster_no, auid)
+    SELECT auid, cluster_no, CASE
+        WHEN tier = 1 THEN 'tier_1'
+        WHEN tier = 2 THEN 'tier_2'
+        WHEN tier = 3 THEN 'tier_3' END AS tier
+    FROM cte
+    ORDER BY tier ASC;
+
+-- Add count of clusters to author tiers
+DROP TABLE IF EXISTS imm1985_1995_author_tiers;
+CREATE TABLE imm1985_1995_author_tiers AS
+  SELECT cc.auid, cc.total_num_clusters, icc.num_clusters_int_edges, aut.tier_1, aut.tier_2, aut.tier_3
+  FROM
+     (SELECT auid, count(cluster_no) as total_num_clusters                    -- total number of clusters
+      FROM imm1985_1995_authors_clusters
+      GROUP BY auid
+      ORDER BY total_num_clusters DESC) cc
+
+  LEFT JOIN (SELECT aai.auid, count(aai.cluster_no) as num_clusters_int_edges -- clusters with internal edges
+             FROM (SELECT DISTINCT auid, cluster_no                           -- based on which article tiers were
+                   FROM imm1985_1995_all_authors_internal) aai                -- computed
+                   GROUP BY aai.auid) icc ON cc.auid = icc.auid
+
+  LEFT JOIN (SELECT auid,
+             count(CASE WHEN tier = 'tier_1' THEN 1 END) AS tier_1,
+             count(CASE WHEN tier = 'tier_2' THEN 1 END) AS tier_2,
+             count(CASE WHEN tier = 'tier_3' THEN 1 END) AS tier_3
+             FROM author_tiers_view
+             GROUP BY auid) aut ON cc.auid = aut.auid;
