@@ -24,7 +24,7 @@ Modified:
 \set ECHO all
 
 SELECT upsert_file('fda_exclusivities', :'work_dir' || '/exclusivity.csv', TRUE, '~');
-SELECT upsert_file('fda_patents', :'work_dir' || '/patent.csv', TRUE, '~');
+SELECT upsert_file('fda_patents', :'work_dir' || '/patent.csv', TRUE, '~', 'CSV', NULL, 'patent_use_code');
 SELECT upsert_file('fda_products', :'work_dir' || '/products.csv', TRUE, '~');
 
 -- Update log file.
