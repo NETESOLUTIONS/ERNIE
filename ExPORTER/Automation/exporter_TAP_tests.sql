@@ -118,55 +118,35 @@ FROM cte;
 -- endregion
 
 --region show publications per year
-SELECT extract('year' FROM time_series)::int as budget_start_year,
-       count(application_id)                 as project_count,
+SELECT fy as financial_year, count(application_id) as project_count,
        coalesce(count(application_id) -
-                lag(count(application_id)) over (order by extract('year' FROM time_series)::int),
+                lag(count(application_id)) over (order by fy),
                 '0')                         as difference,
-
       coalesce(round(100.0 * (count(application_id) -
-                lag(count(application_id)) over (order by extract('year' FROM time_series)::int)) / lag(count(application_id)) over (order by extract('year' FROM time_series)::int),2),
+                lag(count(application_id)) over (order by fy)) / lag(count(application_id)) over (order by fy),2),
                 '0')                         as percent_difference
-FROM exporter_projects,
-     generate_series(
-             date_trunc('year', to_date(budget_start,
-                                        'MM DD YYYY')),
-             date_trunc('year', to_date(regexp_replace(budget_start, 'Approved Prior to ', '', 'g'),
-                                        'MM DD YYYY')),
-             interval '1 year') time_series
-WHERE budget_start <= extract(year FROM current_date)::CHAR
-GROUP BY time_series, budget_start_year
-ORDER BY budget_start_year;
+FROM exporter_projects
+WHERE fy !='2003'
+      -- Skipping year-on-year change between 2002 and 2003
+      -- There is a discrepancy in the upstream data (inflated records for the year 2002)
+      -- Records as per RePORTER website: 68332 (Actual)
+      -- Records as per upstream download data: 83423 (Incorrect)
+      AND fy::INT < extract('year' FROM current_date)::INT
+GROUP BY fy ORDER BY fy;
 --endregion
 
-
-/* The following test has been disabled until the the ticket - https://jira.nete.com/browse/ER-583 -  is resolved.
-
 --region is there increase year by year in projects
-with cte as (SELECT extract('year' FROM time_series)::int as budget_start_year,
-                    coalesce(count(application_id) -
-                             lag(count(application_id)) over (order by extract('year' FROM time_series)::int),
-                             '0')                         as difference,
-                    coalesce(round(100.0 * (count(application_id) -
-                            lag(count(application_id)) over (order by extract('year' FROM time_series)::int)) / lag(count(application_id)) over (order by extract('year' FROM time_series)::int),2),
-                            '0')                         as percent_difference
-             FROM exporter_projects,
-                  generate_series(
-                          date_trunc('year', to_date(budget_start,
-                                                     'MM DD YYYY')),
-                          date_trunc('year', to_date(regexp_replace(budget_start, 'Approved Prior to ', '', 'g'),
-                                                     'MM DD YYYY')),
-                          interval '1 year') time_series
-             WHERE budget_start <= extract(year from current_date)::CHAR
-             GROUP BY time_series, budget_start_year
-             ORDER BY budget_start_year)
+with cte as (SELECT fy as financial_year, count(application_id) as project_count,
+       coalesce(count(application_id) - lag(count(application_id)) over (order by fy), '0') as difference,
+      coalesce(round(100.0 * (count(application_id) - lag(count(application_id)) over (order by fy)) / lag(count(application_id)) over (order by fy),2), '0')  as percent_difference
+FROM exporter_projects
+WHERE fy !='2003' AND fy::INT < extract('year' FROM current_date)::INT
+GROUP BY fy ORDER BY fy)
 SELECT cmp_ok(CAST(cte.percent_difference as REAL), '>=',
               CAST(:min_yearly_difference as REAL),
               format('ExPORTER tables should increase by at least %s per cent of records year on year', :min_yearly_difference))
 from cte;
 -- endregion
-*/
-
 
 -- region there should be no future records
 SELECT is_empty($$SELECT extract('year' FROM time_series)::int as budget_start_year,
@@ -180,7 +160,7 @@ SELECT is_empty($$SELECT extract('year' FROM time_series)::int as budget_start_y
                           date_trunc('year', to_date(regexp_replace(budget_start, 'Approved Prior to ', '', 'g'),
                                                      'MM DD YYYY')),
                           interval '1 year') time_series
-             WHERE time_series::date >= date_trunc('year', current_date)::date
+             WHERE time_series::date >= date_trunc('year', current_date + INTERVAL '2 years')::date
              GROUP BY time_series, budget_start_year
              ORDER BY budget_start_year;$$ , 'There should be no exporter records two years from present in the exporter_projects table');
 -- endregion

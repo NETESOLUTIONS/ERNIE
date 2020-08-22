@@ -21,10 +21,10 @@ CREATE TABLE lexis_nexis_patent_families (
 )
 TABLESPACE lexis_nexis_tbs;
 
-COMMENT ON TABLE lexis_nexis_patent_families IS 'Patent Family which contains four family types';COMMENT ON TABLE lexis_nexis_patent_families IS 'Patent Family which contains four family types';
+COMMENT ON TABLE lexis_nexis_patent_families IS 'Patent Family which contains four family types';
 COMMENT ON COLUMN lexis_nexis_patent_families.earliest_date IS 'Earliest date';
-COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Id for each family type';
-COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'Type to indicate family type';
+COMMENT ON COLUMN lexis_nexis_patent_families.family_id IS 'ID for each family type';
+COMMENT ON COLUMN lexis_nexis_patent_families.family_type IS 'Type to indicate family type';
 
 -- endregion
 
@@ -67,22 +67,24 @@ COMMENT ON COLUMN lexis_nexis_patents.language_of_filing IS --
   'Filing language, ISO639 language code, e.g, en,de,ja, etc.';
 COMMENT ON COLUMN lexis_nexis_patents.language_of_publication IS --
   'Publication language, ISO639 language code, e.g, en,de,ja, etc.';
-COMMENT ON COLUMN lexis_nexis_patents.date_of_public_availability_unexamined_printed_wo_grant IS '';
-COMMENT ON COLUMN lexis_nexis_patents.date_of_public_availability_printed_w_grant IS '';
-COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_text IS '';
-COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_edition IS '';
-COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_section IS '';
-COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_class IS '';
-COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_subclass IS '';
-COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_main_group IS '';
-COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_subgroup IS '';
-COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_qualifying_character IS '';
-COMMENT ON COLUMN lexis_nexis_patents.main_national_classification_country IS '';
-COMMENT ON COLUMN lexis_nexis_patents.main_national_classification_text IS '';
-COMMENT ON COLUMN lexis_nexis_patents.main_national_classification_class IS '';
-COMMENT ON COLUMN lexis_nexis_patents.main_national_classification_subclass IS '';
+COMMENT ON COLUMN lexis_nexis_patents.date_of_public_availability_unexamined_printed_wo_grant IS --
+  'Date of public availability of patent - un-examined printed without grant, e.g., 1980-06-25';
+COMMENT ON COLUMN lexis_nexis_patents.date_of_public_availability_printed_w_grant IS --
+  'Date of public availability of patent - printed with grant, e.g., 2003-08-06';
+COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_text IS 'Classification IPC - main text';
+COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_edition IS 'Classification IPC - main edition';
+COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_section IS 'Classification IPC - main section';
+COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_class IS 'Classification IPC - main class';
+COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_subclass IS 'Classification IPC - main sub-class';
+COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_main_group IS 'Classification IPC - main group';
+COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_subgroup IS 'Classification IPC - main subgroup';
+COMMENT ON COLUMN lexis_nexis_patents.main_ipc_classification_qualifying_character IS 'Classification IPC - main qualifying character';
+COMMENT ON COLUMN lexis_nexis_patents.main_national_classification_country IS 'Classification national - main country';
+COMMENT ON COLUMN lexis_nexis_patents.main_national_classification_text IS 'Classification national - main text';
+COMMENT ON COLUMN lexis_nexis_patents.main_national_classification_class IS 'Classification national - main class';
+COMMENT ON COLUMN lexis_nexis_patents.main_national_classification_subclass IS 'Classification national - main subclass';
 COMMENT ON COLUMN lexis_nexis_patents.number_of_claims IS 'Number of claims';
-COMMENT ON COLUMN lexis_nexis_patents.last_updated_time IS '';
+COMMENT ON COLUMN lexis_nexis_patents.last_updated_time IS 'Timestamp of particular record last updated';
 
 -- endregion
 
@@ -102,6 +104,13 @@ CREATE TABLE lexis_nexis_patents_family_link (
       REFERENCES lexis_nexis_patents ON DELETE CASCADE
 )
 TABLESPACE lexis_nexis_tbs;
+
+COMMENT ON TABLE lexis_nexis_patents_family_link IS 'Table linking patent family to patent table and family type table';
+COMMENT ON COLUMN lexis_nexis_patents_family_link.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patents_family_link.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patents_family_link.country_code IS --
+  'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patents_family_link.family_id IS 'ID for each family type';
 
 -- endregion
 
@@ -128,7 +137,7 @@ COMMENT ON COLUMN lexis_nexis_patent_titles.doc_number IS 'Document number';
 COMMENT ON COLUMN lexis_nexis_patent_titles.kind_code IS 'Document kind';
 COMMENT ON COLUMN lexis_nexis_patent_titles.invention_title IS 'Preferably two to seven words when in English or translated into English and precise';
 COMMENT ON COLUMN lexis_nexis_patent_titles.language IS 'Title text language';
-COMMENT ON COLUMN lexis_nexis_patent_titles.last_updated_time IS '';
+COMMENT ON COLUMN lexis_nexis_patent_titles.last_updated_time IS 'Timestamp of particular record last updated';
 -- endregion
 
 -- region lexis_nexis_patent_citations
@@ -186,10 +195,15 @@ CREATE TABLE lexis_nexis_nonpatent_literature_citations (
 )
 TABLESPACE lexis_nexis_tbs;
 
---TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_nonpatent_literature_citations IS 'Citations of non-patent publications';
+COMMENT ON COLUMN lexis_nexis_nonpatent_literature_citations.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_nonpatent_literature_citations.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_nonpatent_literature_citations.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_nonpatent_literature_citations.citation_number IS 'Citation number';
+COMMENT ON COLUMN lexis_nexis_nonpatent_literature_citations.citation_text IS 'Citation text';
+COMMENT ON COLUMN lexis_nexis_nonpatent_literature_citations.scopus_url IS 'Scopus URL';
+COMMENT ON COLUMN lexis_nexis_nonpatent_literature_citations.last_updated_time IS 'Timestamp of particular record last updated';
 
--- 3m:16s
 CREATE INDEX IF NOT EXISTS lnnlc_fun_scp_i ON --
   lexis_nexis_nonpatent_literature_citations(CAST(substring(scopus_url FROM 'eid=2-s2.0-(\d+)') AS BIGINT)) --
   TABLESPACE index_tbs;
@@ -218,7 +232,6 @@ CREATE TABLE lexis_nexis_patent_priority_claims (
 )
 TABLESPACE lexis_nexis_tbs;
 
---TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_patent_priority_claims IS 'Priority claim information for a patent';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claims.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claims.doc_number IS 'Document number';
@@ -226,11 +239,11 @@ COMMENT ON COLUMN lexis_nexis_patent_priority_claims.kind_code IS 'Document kind
 COMMENT ON COLUMN lexis_nexis_patent_priority_claims.sequence_id IS 'Priority claim sequence id in list';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_data_format IS 'Priority claim data format';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_date IS 'Priority claim date';
-COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_country IS 'Prioirty claim country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
-COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_doc_number IS 'Prioirty claim document number';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_country IS 'Priority claim country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_doc_number IS 'Priority claim document number';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_claim_kind IS 'Priority claim document kind';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claims.priority_active_indicator IS 'Priority active indicator';
-COMMENT ON COLUMN lexis_nexis_patent_priority_claims.last_updated_time IS '';
+COMMENT ON COLUMN lexis_nexis_patent_priority_claims.last_updated_time IS 'Timestamp of particular record last updated';
 -- endregion
 
 /*-- region lexis_nexis_patent_priority_claim_ib_info
@@ -241,7 +254,6 @@ CREATE TABLE lexis_nexis_patent_priority_claim_ib_info (
 )
 TABLESPACE lexis_nexis_tbs;
 
---TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_patent_priority_claim_ib_info IS 'Additional priority claim information by IB';
 COMMENT ON COLUMN lexis_nexis_patent_priority_claim_ib_info.last_updated_time IS '';
 -- endregion*/
@@ -279,6 +291,13 @@ CREATE TABLE lexis_nexis_patent_related_document_additions (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_additions
+ADD CONSTRAINT lexis_nexis_patent_related_document_additions_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
+
+-- end region
 
 -- region lexis_nexis_patent_related_document_divisions
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_divisions;
@@ -312,6 +331,15 @@ CREATE TABLE lexis_nexis_patent_related_document_divisions (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_divisions
+ADD CONSTRAINT lexis_nexis_patent_related_document_divisions_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
+
+
+-- end region
+
 
 -- region lexis_nexis_patent_related_document_continuations
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_continuations;
@@ -345,6 +373,14 @@ CREATE TABLE lexis_nexis_patent_related_document_continuations (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_continuations
+ADD CONSTRAINT lexis_nexis_patent_related_document_continuations_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
+
+
+-- end region
 
 -- region lexis_nexis_patent_related_document_continuation_in_parts
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_continuation_in_parts;
@@ -378,6 +414,14 @@ CREATE TABLE lexis_nexis_patent_related_document_continuation_in_parts (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_continuation_in_parts
+ADD CONSTRAINT lexis_nexis_patent_related_document_continuation_in_parts_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
+
+
+-- end region
 
 -- region lexis_nexis_patent_related_document_continuing_reissues
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_continuing_reissues;
@@ -411,6 +455,14 @@ CREATE TABLE lexis_nexis_patent_related_document_continuing_reissues (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_continuing_reissues
+ADD CONSTRAINT lexis_nexis_patent_related_document_continuing_reissues_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
+
+
+-- end region
 
 -- region lexis_nexis_patent_related_document_reissues
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_reissues;
@@ -444,6 +496,14 @@ CREATE TABLE lexis_nexis_patent_related_document_reissues (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_reissues
+ADD CONSTRAINT lexis_nexis_patent_related_document_reissues_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
+
+
+-- end region
 
 -- region lexis_nexis_patent_related_document_divisional_reissues
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_divisional_reissues;
@@ -477,6 +537,14 @@ CREATE TABLE lexis_nexis_patent_related_document_divisional_reissues (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_divisional_reissues
+ADD CONSTRAINT lexis_nexis_patent_related_document_divisional_reissues_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
+
+
+-- end region
 
 -- region lexis_nexis_patent_related_document_reexaminations
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_reexaminations;
@@ -510,6 +578,11 @@ CREATE TABLE lexis_nexis_patent_related_document_reexaminations (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_reexaminations
+ADD CONSTRAINT lexis_nexis_patent_related_document_reexaminations_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 /* Name too long here, need a shorter name to avoid truncation warnings/error on PK creation
 -- region lexis_nexis_patent_related_document_reexamination_reissue_mergers
@@ -544,6 +617,7 @@ CREATE TABLE lexis_nexis_patent_related_document_reexamination_reissue_mergers (
 )
 TABLESPACE lexis_nexis_tbs;
 */
+-- end region
 
 -- region lexis_nexis_patent_related_document_substitutions
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_substitutions;
@@ -577,6 +651,14 @@ CREATE TABLE lexis_nexis_patent_related_document_substitutions (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_substitutions
+ADD CONSTRAINT lexis_nexis_patent_related_document_substitutions_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
+
+
+-- end region
 
 -- region lexis_nexis_patent_related_document_provisional_applications
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_provisional_applications;
@@ -595,6 +677,14 @@ CREATE TABLE lexis_nexis_patent_related_document_provisional_applications (
     PRIMARY KEY (country_code, doc_number, kind_code, related_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_provisional_applications
+ADD CONSTRAINT lexis_nexis_patent_related_document_provisional_applications_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
+
+
+-- end region
 
 -- region lexis_nexis_patent_related_document_utility_model_basis
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_utility_model_basis;
@@ -628,6 +718,14 @@ CREATE TABLE lexis_nexis_patent_related_document_utility_model_basis (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_utility_model_basis
+ADD CONSTRAINT lexis_nexis_patent_related_document_utility_model_basis_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
+
+
+-- end region
 
 -- region lexis_nexis_patent_related_corrections
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_corrections;
@@ -649,6 +747,14 @@ CREATE TABLE lexis_nexis_patent_related_corrections (
     PRIMARY KEY (country_code, doc_number, kind_code, corrected_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_corrections
+ADD CONSTRAINT lexis_nexis_patent_related_corrections_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
+
+
+-- end region
 
 -- region lexis_nexis_patent_related_publications
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_publications;
@@ -666,6 +772,14 @@ CREATE TABLE lexis_nexis_patent_related_publications (
     PRIMARY KEY (country_code, doc_number, kind_code, related_pub_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_publications
+ADD CONSTRAINT lexis_nexis_patent_related_publications_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
+
+
+-- end region
 
 -- region lexis_nexis_patent_related_document_371_international
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_371_international;
@@ -699,8 +813,12 @@ CREATE TABLE lexis_nexis_patent_related_document_371_international (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+-- Add foreign key
+ALTER TABLE lexis_nexis_patent_related_document_371_international
+ADD CONSTRAINT lexis_nexis_patent_related_document_371_international_fk
+    FOREIGN KEY (country_code, doc_number, kind_code)
+    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
---TODO: flesh out comments
 --COMMENT ON TABLE lexis_nexis_patent_related_documents IS 'Various relationships between the patent in hand and other patent grants or applications. Contains either an additional application, a divisional application, continuations, reissues, divisional reissues, reexamination, merged reissues reexamination, substitute, or provisional application';
 --COMMENT ON COLUMN lexis_nexis_patent_related_documents.last_updated_time IS '';
 -- endregion
@@ -777,7 +895,7 @@ COMMENT ON COLUMN lexis_nexis_applicants.organization_city IS 'Organization city
 COMMENT ON COLUMN lexis_nexis_applicants.organization_address IS 'Address of the Organization ';
 COMMENT ON COLUMN lexis_nexis_applicants.registered_number IS 'Registered number of the organization';
 COMMENT ON COLUMN lexis_nexis_applicants.issuing_office IS 'Office issuing registered number Ex: European Patent Office';
-COMMENT ON COLUMN lexis_nexis_applicants.last_updated_time IS 'Time record was last updated';
+COMMENT ON COLUMN lexis_nexis_applicants.last_updated_time IS 'Timestamp of particular record last updated';
 -- endregion
 
 -- region lexis_nexis_inventors
@@ -813,10 +931,8 @@ CREATE TABLE lexis_nexis_inventors (
 )
 TABLESPACE lexis_nexis_tbs;
 
--- 7m:05s
 CREATE INDEX lni_name_i ON lexis_nexis_inventors(name) TABLESPACE index_tbs;
 
---TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_inventors IS 'Inventors information';
 COMMENT ON COLUMN lexis_nexis_inventors.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
 COMMENT ON COLUMN lexis_nexis_inventors.doc_number IS 'Document number';
@@ -826,7 +942,7 @@ COMMENT ON COLUMN lexis_nexis_inventors.language IS 'Document language';
 COMMENT ON COLUMN lexis_nexis_inventors.name IS 'The name of the inventor';
 COMMENT ON COLUMN lexis_nexis_inventors.city IS 'The city of the inventor';
 COMMENT ON COLUMN lexis_nexis_inventors.country IS 'The country of the inventor';
-COMMENT ON COLUMN lexis_nexis_inventors.last_updated_time IS '';
+COMMENT ON COLUMN lexis_nexis_inventors.last_updated_time IS 'Timestamp of particular record last updated';
 -- endregion
 
 -- region lexis_nexis_us_agents
@@ -860,7 +976,7 @@ COMMENT ON COLUMN lexis_nexis_us_agents.agent_name IS 'The name of the agent';
 COMMENT ON COLUMN lexis_nexis_us_agents.agent_type IS 'The kind of representative';
 COMMENT ON COLUMN lexis_nexis_us_agents.last_name IS 'Last name of the agent';
 COMMENT ON COLUMN lexis_nexis_us_agents.first_name IS 'First name of the agent';
-COMMENT ON COLUMN lexis_nexis_us_agents.last_updated_time IS '';
+COMMENT ON COLUMN lexis_nexis_us_agents.last_updated_time IS 'Timestamp of particular record last updated';
 
 -- region lexis_nexis_ep_agents
 -- DROP TABLE IF EXISTS lexis_nexis_ep_agents;
@@ -899,7 +1015,7 @@ COMMENT ON COLUMN lexis_nexis_ep_agents.issuing_office IS 'The issuing office th
 COMMENT ON COLUMN lexis_nexis_ep_agents.agent_address IS 'The address of the representative';
 COMMENT ON COLUMN lexis_nexis_ep_agents.agent_city IS 'The city of the representative';
 COMMENT ON COLUMN lexis_nexis_ep_agents.agent_country IS 'The country of the representative';
-COMMENT ON COLUMN lexis_nexis_ep_agents.last_updated_time IS '';
+COMMENT ON COLUMN lexis_nexis_ep_agents.last_updated_time IS 'Timestamp of particular record last updated';
 -- endregion
 
 -- region lexis_nexis_examiners
@@ -923,9 +1039,8 @@ CREATE TABLE lexis_nexis_examiners (
 )
 TABLESPACE lexis_nexis_tbs;
 
---TODO: flesh out comments
 COMMENT ON TABLE lexis_nexis_examiners IS 'Persons acting on the document';
-COMMENT ON COLUMN lexis_nexis_examiners.last_updated_time IS '';
+COMMENT ON COLUMN lexis_nexis_examiners.last_updated_time IS 'Timestamp of particular record last updated';
 -- endregion
 
 -- region lexis_nexis_patent_legal_data
@@ -996,7 +1111,7 @@ COMMENT ON COLUMN lexis_nexis_patent_legal_data.corresponding_publication_number
 COMMENT ON COLUMN lexis_nexis_patent_legal_data.corresponding_authority IS 'Legal corresponding authority';
 COMMENT ON COLUMN lexis_nexis_patent_legal_data.corresponding_publication_date IS 'Legal corresponding publication date';
 COMMENT ON COLUMN lexis_nexis_patent_legal_data.corresponding_kind IS 'Legal corresponding kind';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.legal_designated_states IS '';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.legal_designated_states IS 'Legal designated states';
 COMMENT ON COLUMN lexis_nexis_patent_legal_data.extension_state_authority IS 'Legal extension state authority';
 COMMENT ON COLUMN lexis_nexis_patent_legal_data.new_owner IS 'Legal new owner';
 COMMENT ON COLUMN lexis_nexis_patent_legal_data.free_text_description IS 'Legal free text description';
@@ -1013,7 +1128,7 @@ COMMENT ON COLUMN lexis_nexis_patent_legal_data.requester_name IS 'Legal request
 COMMENT ON COLUMN lexis_nexis_patent_legal_data.countries_concerned IS 'Legal countries concerned';
 COMMENT ON COLUMN lexis_nexis_patent_legal_data.effective_date IS 'Legal effective date';
 COMMENT ON COLUMN lexis_nexis_patent_legal_data.withdrawn_date IS 'Legal withdrawn date';
-COMMENT ON COLUMN lexis_nexis_patent_legal_data.last_updated_time IS '';
+COMMENT ON COLUMN lexis_nexis_patent_legal_data.last_updated_time IS 'Timestamp of particular record last updated';
 -- endregion
 
 -- region lexis_nexis_patent_abstracts
@@ -1042,7 +1157,7 @@ COMMENT ON COLUMN lexis_nexis_patent_abstracts.kind_code IS 'Document kind';
 COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_language IS 'Language used in the abstract';
 COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_date_changed IS 'Date the abstract was last changed at the source data end';
 COMMENT ON COLUMN lexis_nexis_patent_abstracts.abstract_text IS 'Abstract text';
-COMMENT ON COLUMN lexis_nexis_patent_abstracts.last_updated_time IS '';
+COMMENT ON COLUMN lexis_nexis_patent_abstracts.last_updated_time IS 'Timestamp of particular record last updated';
 
 -- endregion
 

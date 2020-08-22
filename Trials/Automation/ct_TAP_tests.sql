@@ -5,7 +5,6 @@
  Purpose: Develop a TAP protocol to test if the scopus_update parser is behaving as intended.
  TAP protocol specifies that you determine a set of assertions with binary-semantics. The assertion is evaluated either true or false.
  The evaluation should allow the client or user to understand what the problem is and to serve as a guide for diagnostics.
-
  The assertions to test are:
  1. do expected tables exist
  2. do all tables have at least a UNIQUE INDEX
@@ -96,6 +95,25 @@ SELECT is_empty($$
 
 
 -- region are all tables populated
+
+DO
+$block$
+    DECLARE
+        tab RECORD;
+    BEGIN
+        FOR tab IN (
+            SELECT table_name
+            FROM information_schema.tables --
+            WHERE table_schema = current_schema
+              AND table_name LIKE current_setting('script.module_name') || '%'
+        )
+            LOOP
+                EXECUTE format('ANALYZE VERBOSE %I;', tab.table_name);
+            END LOOP;
+    END
+$block$;
+
+
 WITH cte AS (
     SELECT parent_pc.relname, sum(coalesce(partition_pc.reltuples, parent_pc.reltuples)) AS total_rows
     FROM pg_class parent_pc
@@ -135,80 +153,74 @@ FROM cte;
 -- endregion
 
 --region show rows per year
-SELECT extract('year' FROM time_series)::int AS verification_year,
-       count(nct_id)                            count_nct,
+SELECT clinical_studies.study_start_year,
+       count(clinical_studies.nct_id )  count_nct,
        coalesce(count(nct_id) -
-                lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),
+                lag(count(nct_id)) over (order by clinical_studies.study_start_year),
                 '0')                         as difference,
        coalesce(round(100.0*(count(nct_id) -
-                lag(count(nct_id)) over (order by extract('year' FROM time_series)::int))/ lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),2),
+                lag(count(nct_id)) over (order by clinical_studies.study_start_year))/ lag(count(nct_id)) over (order by clinical_studies.study_start_year),2),
                 '0')                         as percent_difference
-FROM ct_clinical_studies,
-     generate_series(
-             date_trunc('year', to_date(
-                     regexp_replace(verification_date, '[0-9]{2},', '', 'g'), -- there are different data formats , normal is Month YYYY,
-                 -- but there are some Month DD YYYY, were changed to normal format
-                     'Month YYYY')),
-             date_trunc('year', to_date(regexp_replace(verification_date, '[0-9]{2},', '', 'g'),
-                                        'Month YYYY')),
-             interval '1 year') time_series
-WHERE time_series::date >= '01 01 1981'
-  AND verification_date NOT LIKE '%' || extract(year from current_date + INTERVAL '1 year') || '%'
-GROUP BY time_series, verification_year
-ORDER BY verification_year;
+FROM
+      (SELECT ccs.*, start_year.study_start_year
+      FROM ct_clinical_studies ccs
+      JOIN (SELECT nct_id,
+            CASE
+            WHEN (start_date ~ ',') THEN extract('year' FROM to_date(start_date, 'Month DD, YYYY'))::int
+            WHEN (start_date !~ ',') THEN extract('year' FROM to_date(start_date, 'Month YYYY'))::int END study_start_year
+            FROM ct_clinical_studies) start_year
+          ON ccs.nct_id = start_year.nct_id) clinical_studies
+WHERE clinical_studies.study_start_year BETWEEN 1981 AND extract(YEAR FROM current_date - INTERVAL '1 year')::INT
+GROUP BY clinical_studies.study_start_year
+ORDER BY clinical_studies.study_start_year;
 --endregion
-
-/* The following test has been disabled until the the ticket - https://jira.nete.com/browse/ER-588 -  is resolved.
 
 --region do clinical trials increase year by year
-WITH cte as (SELECT extract('year' FROM time_series)::int AS verification_year,
-                    count(nct_id)                            count_nct,
-                    coalesce(count(nct_id) -
-                        lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),
-                        '0')                         as difference,
-                    coalesce(round(100.0*(count(nct_id) -
-                        lag(count(nct_id)) over (order by extract('year' FROM time_series)::int))/ lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),2),
-                        '0')                         as percent_difference
-              FROM ct_clinical_studies,
-                  generate_series(
-                           date_trunc('year', to_date(
-                                   regexp_replace(verification_date, '[0-9]{2},', '', 'g'), -- there are different data formats , normal is Month YYYY,
-                               -- but there are some Month DD YYYY, were changed to normal format
-                                  'Month YYYY')),
-                           date_trunc('year', to_date(regexp_replace(verification_date, '[0-9]{2},', '', 'g'),
-                                        'Month YYYY')),
-                           interval '1 year') time_series
-              WHERE time_series::date >= '01 01 1981'
-                 AND verification_date NOT LIKE '%' || extract(year from current_date + INTERVAL '1 year') || '%'
-              GROUP BY time_series, verification_year
-              ORDER BY verification_year)
-              SELECT cmp_ok(CAST(cte.difference AS BIGINT), '>=',
+WITH cte as (SELECT clinical_studies.study_start_year,
+                     count(clinical_studies.nct_id )  count_nct,
+                     coalesce(count(nct_id) -
+                              lag(count(nct_id)) over (order by clinical_studies.study_start_year),
+                              '0')                         as difference,
+                     coalesce(round(100.0*(count(nct_id) -
+                              lag(count(nct_id)) over (order by clinical_studies.study_start_year))/ lag(count(nct_id)) over (order by clinical_studies.study_start_year),2),
+                              '0')                         as percent_difference
+              FROM
+                    (SELECT ccs.*, start_year.study_start_year
+                    FROM ct_clinical_studies ccs
+                    JOIN (SELECT nct_id,
+                          CASE
+                          WHEN (start_date ~ ',') THEN extract('year' FROM to_date(start_date, 'Month DD, YYYY'))::int
+                          WHEN (start_date !~ ',') THEN extract('year' FROM to_date(start_date, 'Month YYYY'))::int END study_start_year
+                          FROM ct_clinical_studies) start_year
+                        ON ccs.nct_id = start_year.nct_id) clinical_studies
+              WHERE clinical_studies.study_start_year BETWEEN 1981 AND extract(YEAR FROM current_date - INTERVAL '1 year')::INT
+              GROUP BY clinical_studies.study_start_year
+              ORDER BY clinical_studies.study_start_year)
+              SELECT cmp_ok(CAST(cte.percent_difference AS BIGINT), '>=',
               CAST(:min_yearly_difference AS BIGINT),
-              format(' %CT Clinical Studies table should increase by at least %s per cent of records year on year', :min_yearly_difference))
-FROM cte
-where CAST(verification_year AS INT) >= 1981;
--- some of the dates for verification are 0Y instead of YYYY in terms of date and so were eliminated
+              format('CT Clinical Studies table should increase by at least %s per cent of records year on year', :min_yearly_difference))
+FROM cte;
 --endregion
-*/
+
 
 -- region are there records in the future
-SELECT is_empty($$SELECT extract('year' FROM time_series)::int AS verification_year,
-                    coalesce(count(nct_id) -
-                             lag(count(nct_id)) over (order by extract('year' FROM time_series)::int),
-                             '0')                         as difference
-             FROM ct_clinical_studies,
-                  generate_series(
-                          date_trunc('year', to_date(
-                                  regexp_replace(verification_date, '[0-9]{2},', '', 'g'), -- there are different data formats , normal is Month YYYY,
-                              -- but there are some Month DD YYYY, were changed to normal format
-                                  'Month YYYY')),
-                          date_trunc('year', to_date(regexp_replace(verification_date, '[0-9]{2},', '', 'g'),
-                                                     'Month YYYY')),
-                          interval '1 year') time_series
-             WHERE time_series::date > date_trunc('year', current_date)::date
-                AND verification_date NOT LIKE '%' || extract(year from current_date + INTERVAL '1 year') || '%'
-             GROUP BY time_series, verification_year
-             ORDER BY verification_year;$$, 'There should be no CT records two years from present');
+SELECT is_empty($$SELECT clinical_studies.verify_year,
+                           coalesce(count(clinical_studies.nct_id) -
+                                    lag(count(clinical_studies.nct_id)) over (order by clinical_studies.verify_year),
+                                                 '0')         as difference
+                    FROM
+                          (SELECT ccs.*, start_year.verify_year
+                          FROM ct_clinical_studies ccs
+                          JOIN (SELECT nct_id,
+                                CASE
+                                WHEN (verification_date ~ ',') THEN extract('year' FROM to_date(verification_date, 'Month DD, YYYY'))::int
+                                WHEN (verification_date !~ ',') THEN extract('year' FROM to_date(verification_date, 'Month YYYY'))::int END verify_year
+                                FROM ct_clinical_studies) start_year
+                              ON ccs.nct_id = start_year.nct_id) clinical_studies
+                    WHERE clinical_studies.verify_year >= extract(YEAR FROM date_trunc('year', current_date + INTERVAL '2 year')::date)
+                    GROUP BY clinical_studies.verify_year
+                    ORDER BY clinical_studies.verify_year;$$,
+                  'There should be no CT records two years from present');
 
 -- endregion
 

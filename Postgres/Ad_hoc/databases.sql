@@ -9,6 +9,8 @@ JOIN pg_database AS pd
 ORDER BY db
 ;
 
-ALTER DATABASE ernie OWNER TO ernie_admin;
+CREATE DATABASE root OWNER root;
+
+ALTER DATABASE :db OWNER TO :user;
 
 DROP DATABASE :db;

@@ -37,7 +37,7 @@ DESCRIPTION
     -e excluded_dir         Directory(-ies) excluded from the SUID/SGID checks.
                             Docker system directories (if Docker is installed) are excluded automatically.
 
-    -k                      Update Linux kernel to the latest LTS version.
+    -k                      (CentOS only) Update Linux kernel to the latest LTS version.
                             Reboot safely and notify `notification_address` by email when kernel is updated.
 
       -m email              An address to send notification to
@@ -50,11 +50,14 @@ DESCRIPTION
                             The primary group of that user account will be used as group owner.
                             Defaults to `jenkins`.
 
+    -v                      Verbose mode
+
 ENVIRONMENT
 
     Pre-requisite dependencies:
 
       # `pcregrep`
+      # (CentOS) ELRepo repository must be installed
 
     PGDATABASE             When defined, used to include "active" non-system Postgres queries in the
 
@@ -63,7 +66,10 @@ EXIT STATUS
     The harden.sh utility exits with one of the following values:
 
     0   All hardening checks passed pending unsafe actions: kernel and Jenkins updates.
-    >1  A hardening check failed, which could not be automatically corrected.
+
+    1   Pre-requisite check failed.
+
+    >=1 A hardening check failed, which could not be automatically corrected.
 
 EXAMPLES
 
@@ -71,7 +77,7 @@ EXAMPLES
 
     sudo --preserve-env=PGDATABASE ./harden-and-update.sh -e /data1/upsource admin
 
-Version 2.1                                           June 2020
+Version 2.2.1                                           August 2020
 HEREDOC
   exit 1
 }
@@ -89,15 +95,25 @@ else
   exclude_dirs=()
 fi
 
+readonly OS_NAME=$(pcregrep -o1 '^NAME="(.*)"' /etc/os-release)
+if [[ $OS_NAME != "Red Hat Enterprise Linux Server" && $OS_NAME != "CentOS Linux" ]]; then
+  # shellcheck disable=SC2016
+  echo 'WARNING: YMMV. This script is designed for RHEL or CentOS only. It might still work if `yum` is used.'
+fi
+
 DEFAULT_OWNER_USER="jenkins"
 declare -a safe_update_options
 # If a character is followed by a colon, the option is expected to have an argument
-while getopts e:km:u:g:o:h OPT; do
+while getopts e:km:u:g:o:vh OPT; do
   case "$OPT" in
     e)
       exclude_dirs+=("$OPTARG")
       ;;
     k)
+      if [[ $OS_NAME != "CentOS Linux" ]]; then
+        echo "Kernel update is supported on CentOS only"
+        exit 1
+      fi
       readonly KERNEL_UPDATE=true
       ;;
     m)
@@ -112,6 +128,9 @@ while getopts e:km:u:g:o:h OPT; do
       DEFAULT_OWNER_USER="$OPTARG"
       DEFAULT_OWNER_GROUP=$(id --group --name "${DEFAULT_OWNER_USER}")
       declare -rx DEFAULT_OWNER_GROUP
+      ;;
+    v)
+      set -x
       ;;
     *) # -h or `?`: an unknown option
       usage
@@ -131,9 +150,11 @@ fi
 
 # Get a script directory, same as by $(dirname $0)
 readonly SCRIPT_DIR=${0%/*}
-declare -rx ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
+ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
+declare -rx ABSOLUTE_SCRIPT_DIR
 
-echo -e "\nharden-and-update.sh> running under ${USER}@${HOSTNAME} in ${PWD} \n"
+echo
+echo "harden-and-update.sh> running under ${USER}@${HOSTNAME} in ${PWD} \n"
 
 if ! command -v pcregrep > /dev/null; then
   echo "Please install pcregrep"
@@ -180,17 +201,22 @@ echo "All checks PASSED"
 
 yum clean expire-cache
 
+# TODO Implement Red Hat 7 kernel update per https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/kernel_administration_guide/ch-manually_upgrading_the_kernel
 if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
   echo -e "\nChecking for kernel updates"
 
-  # ELRepo repository must hve been installed
-  # `kernel-lt`: Long Term Support (LTS) version, `kernel-ml`: the mainline version
-  # TBD `python-perf` package might be needed
-  yum --enablerepo=elrepo-kernel install -y kernel-lt
-
   installed_kernel_full_version=$(uname -r)
   installed_kernel_version=${installed_kernel_full_version%%-*}
-  kernel_package_version=$(rpm --query --queryformat '%{VERSION}' kernel-lt)
+
+  if [[ $OS_NAME == "CentOS Linux" ]]; then
+    # Pre-requisite: ELRepo repository must be installed
+    # `kernel-lt`: Long Term Support (LTS) version, `kernel-ml`: the mainline version
+    # TBD `python-perf` package might be needed
+    yum --enablerepo=elrepo-kernel install -y kernel-lt
+
+    kernel_package_version=$(rpm --query --queryformat '%{VERSION}' kernel-lt)
+  fi
+
   #kernel_package_version=$(rpm --query --last kernel-lt | head -1 | pcregrep -o1 'kernel-lt-([^-]*)')
   set +e
   vercomp "${installed_kernel_version}" "${kernel_package_version}"
@@ -206,31 +232,35 @@ if [[ $KERNEL_UPDATE ]]; then # Install an updated kernel package if available
   else
     readonly KERNEL_UPDATE_MESSAGE="Kernel update: from v${installed_kernel_version} to v${kernel_package_version}"
     readonly KERNEL_UPDATE_AVAILABLE=true
-    echo "Check FAILED, correcting ..."
-    echo "___SET___"
+    if [[ $OS_NAME == "CentOS Linux" ]]; then
+      echo "Check FAILED, correcting ..."
+      echo "___SET___"
 
-    # Keep 2 kernels including the current one
-    package-cleanup -y --oldkernels --count=2
+      # Keep 2 kernels including the current one
+      package-cleanup -y --oldkernels --count=2
 
-    grub2-set-default 0
-    backup /boot/grub2/grub.cfg
-    grub2-mkconfig -o /boot/grub2/grub.cfg
+      grub2-set-default 0
+      backup /boot/grub2/grub.cfg
+      grub2-mkconfig -o /boot/grub2/grub.cfg
+    fi
   fi
   echo "$KERNEL_UPDATE_MESSAGE"
 fi
 
-if yum check-update jenkins; then
-  echo "Jenkins is up to date"
-else
-  echo "Jenkins update is available"
+if yum list installed jenkins &>/dev/null; then
+  if yum check-update jenkins; then
+    echo -e "\nJenkins is up to date"
+  else
+    echo -e "\nJenkins update is available"
 
-  # When Jenkins is not installed, this is false
-  readonly JENKINS_UPDATE_AVAILABLE=true
+    # When Jenkins is not installed, this is false
+    readonly JENKINS_UPDATE_AVAILABLE=true
+  fi
 fi
 
 if [[ ${KERNEL_UPDATE_AVAILABLE} == true || ${JENKINS_UPDATE_AVAILABLE} == true ]]; then
   if [[ ${KERNEL_UPDATE_AVAILABLE} == true ]]; then
-    echo "Scheduling a safe reboot"
+    echo "Scheduling a safe reboot for the kernel update"
     safe_update_options+=(-r "'$KERNEL_UPDATE_MESSAGE'")
   fi
   if [[ $JENKINS_UPDATE_AVAILABLE == true ]]; then

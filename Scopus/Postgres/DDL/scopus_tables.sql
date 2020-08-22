@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS scopus_publication_groups (
   sgr BIGINT,
   pub_year SMALLINT,
   pub_zip VARCHAR(100),
-  CONSTRAINT scopus_publication_groups_pk PRIMARY KEY (sgr) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_publication_groups_pk
+    PRIMARY KEY (sgr) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -49,7 +50,8 @@ CREATE TABLE IF NOT EXISTS scopus_sources (
   publisher_e_address TEXT,
   pub_date DATE,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_sources_pk PRIMARY KEY (ernie_source_id) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_sources_pk
+    PRIMARY KEY (ernie_source_id) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -88,13 +90,15 @@ COMMENT ON COLUMN scopus_sources.publisher_e_address IS 'Example: acmhelp@acm.or
 -- region scopus_isbns
 CREATE TABLE IF NOT EXISTS scopus_isbns (
   ernie_source_id INTEGER
-    CONSTRAINT sconf_ernie_source_id_fk REFERENCES scopus_sources(ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT sconf_ernie_source_id_fk
+      REFERENCES scopus_sources(ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED,
   isbn TEXT,
   isbn_length TEXT,
   isbn_type TEXT,
   isbn_level TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_isbns_pk PRIMARY KEY (ernie_source_id, isbn, isbn_type) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_isbns_pk
+    PRIMARY KEY (ernie_source_id, isbn, isbn_type) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -114,12 +118,14 @@ COMMENT ON COLUMN scopus_isbns.isbn_type IS 'Example: print or electronic';
 -- region scopus_issns
 CREATE TABLE IF NOT EXISTS scopus_issns (
   ernie_source_id INTEGER
-    CONSTRAINT scopus_issn_scp_fk REFERENCES scopus_sources(ernie_source_id) --
+    CONSTRAINT scopus_issn_scp_fk
+      REFERENCES scopus_sources(ernie_source_id) --
       ON DELETE CASCADE ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED,
   issn TEXT,
   issn_type TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_issns_pk PRIMARY KEY (ernie_source_id, issn, issn_type) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_issns_pk
+    PRIMARY KEY (ernie_source_id, issn, issn_type) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 -- endregion
@@ -137,7 +143,8 @@ CREATE TABLE IF NOT EXISTS scopus_conference_events (
   conf_catalog_number TEXT,
   conf_sponsor TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_conference_events_pk PRIMARY KEY (conf_code, conf_name) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_conference_events_pk
+    PRIMARY KEY (conf_code, conf_name) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -167,9 +174,11 @@ COMMENT ON COLUMN scopus_conference_events.conf_sponsor IS 'Conference sponsor n
 -- region scopus_publications
 CREATE TABLE IF NOT EXISTS scopus_publications (
   scp BIGINT
-    CONSTRAINT scopus_publications_pk PRIMARY KEY USING INDEX TABLESPACE index_tbs,
+    CONSTRAINT scopus_publications_pk
+      PRIMARY KEY USING INDEX TABLESPACE index_tbs,
   sgr BIGINT
-    CONSTRAINT sp_sgr_fk REFERENCES scopus_publication_groups ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT sp_sgr_fk
+      REFERENCES scopus_publication_groups ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   correspondence_person_indexed_name TEXT,
   correspondence_orgs TEXT,
   correspondence_city TEXT,
@@ -188,8 +197,9 @@ CREATE TABLE IF NOT EXISTS scopus_publications (
 TABLESPACE scopus_tbs;
 
 ALTER TABLE scopus_publications
-  ADD CONSTRAINT spub_source_id_issn_fk FOREIGN KEY (ernie_source_id) --
-    REFERENCES scopus_sources(ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT spub_source_id_issn_fk
+    FOREIGN KEY (ernie_source_id) --
+      REFERENCES scopus_sources(ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 CREATE INDEX IF NOT EXISTS sp_sgr_i ON scopus_publications(sgr) TABLESPACE index_tbs;
 
@@ -254,7 +264,8 @@ The following values are supported:
 -- region scopus_authors
 CREATE TABLE IF NOT EXISTS scopus_authors (
   scp BIGINT
-    CONSTRAINT sauth_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT sauth_scp_fk
+      REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   author_seq SMALLINT,
   auid BIGINT,
   author_indexed_name TEXT,
@@ -264,11 +275,14 @@ CREATE TABLE IF NOT EXISTS scopus_authors (
   author_e_address TEXT,
   author_rank TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_authors_pk PRIMARY KEY (scp, author_seq) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_authors_pk
+    PRIMARY KEY (scp, author_seq) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
 CREATE INDEX IF NOT EXISTS sa_author_indexed_name_i ON scopus_authors(author_indexed_name) TABLESPACE index_tbs;
+
+CREATE INDEX IF NOT EXISTS scopus_authors_auid_scp_idx ON scopus_authors(auid, scp) TABLESPACE index_tbs;
 
 COMMENT ON TABLE scopus_authors IS 'Scopus authors information of publications';
 
@@ -292,7 +306,8 @@ COMMENT ON COLUMN scopus_authors.author_e_address IS 'biyant@psych.stanford.edu'
 -- region scopus_affiliations
 CREATE TABLE IF NOT EXISTS scopus_affiliations (
   scp BIGINT
-    CONSTRAINT saff_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT saff_scp_fk
+      REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   affiliation_no SMALLINT,
   afid BIGINT,
   dptid BIGINT,
@@ -303,7 +318,8 @@ CREATE TABLE IF NOT EXISTS scopus_affiliations (
   country_code TEXT,
   country TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_affiliations_pk PRIMARY KEY (scp, affiliation_no) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_affiliations_pk
+    PRIMARY KEY (scp, affiliation_no) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -333,19 +349,25 @@ COMMENT ON COLUMN scopus_affiliations.country IS 'Country name. Example: United 
 -- region scopus_author_affiliations
 CREATE TABLE IF NOT EXISTS scopus_author_affiliations (
   scp BIGINT
-    CONSTRAINT saff_mapping_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT saff_mapping_scp_fk
+      REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   author_seq SMALLINT,
   affiliation_no SMALLINT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_author_affiliations_pk PRIMARY KEY (scp, author_seq, affiliation_no) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_author_affiliations_pk
+    PRIMARY KEY (scp, author_seq, affiliation_no) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
 ALTER TABLE scopus_author_affiliations
-  ADD CONSTRAINT scopus_scp_author_seq_fk FOREIGN KEY (scp, author_seq) REFERENCES scopus_authors(scp, author_seq) ON DELETE CASCADE;
+  ADD CONSTRAINT scopus_scp_author_seq_fk
+    FOREIGN KEY (scp, author_seq)
+      REFERENCES scopus_authors(scp, author_seq) ON DELETE CASCADE;
 
 ALTER TABLE scopus_author_affiliations
-  ADD CONSTRAINT scopus_scp_affiliation_no_fk FOREIGN KEY (scp, affiliation_no) REFERENCES scopus_affiliations(scp, affiliation_no) ON DELETE CASCADE;
+  ADD CONSTRAINT scopus_scp_affiliation_no_fk
+    FOREIGN KEY (scp, affiliation_no)
+      REFERENCES scopus_affiliations(scp, affiliation_no) ON DELETE CASCADE;
 
 COMMENT ON TABLE scopus_author_affiliations IS 'Mapping table for scopus_authors and scopus_affiliations';
 
@@ -359,7 +381,8 @@ COMMENT ON COLUMN scopus_author_affiliations.affiliation_no IS 'Affiliation sequ
 -- region scopus_source_publication_details
 CREATE TABLE IF NOT EXISTS scopus_source_publication_details (
   scp BIGINT
-    CONSTRAINT spub_sources_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT spub_sources_scp_fk
+      REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   issue TEXT,
   volume TEXT,
   first_page TEXT,
@@ -370,12 +393,15 @@ CREATE TABLE IF NOT EXISTS scopus_source_publication_details (
   conf_code TEXT,
   conf_name TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_source_publication_details_pk PRIMARY KEY (scp) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_source_publication_details_pk
+    PRIMARY KEY (scp) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
 ALTER TABLE scopus_source_publication_details
-  ADD CONSTRAINT spub_conf_code_conf_name_fk FOREIGN KEY (conf_code, conf_name) REFERENCES scopus_conference_events(conf_code, conf_name) ON DELETE CASCADE;
+  ADD CONSTRAINT spub_conf_code_conf_name_fk
+    FOREIGN KEY (conf_code, conf_name)
+      REFERENCES scopus_conference_events(conf_code, conf_name) ON DELETE CASCADE;
 
 --@formatter:off
 CREATE INDEX IF NOT EXISTS sspd_conf_name_fti
@@ -409,10 +435,12 @@ COMMENT ON COLUMN scopus_source_publication_details.conf_name IS 'Conference nam
 -- region scopus_subjects
 CREATE TABLE IF NOT EXISTS scopus_subjects (
   scp BIGINT
-    CONSTRAINT ssubj_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT ssubj_scp_fk
+      REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   subj_abbr SCOPUS_SUBJECT_ABBRE_TYPE,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_subjects_pk PRIMARY KEY (scp, subj_abbr) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_subjects_pk
+    PRIMARY KEY (scp, subj_abbr) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -426,10 +454,12 @@ COMMENT ON COLUMN scopus_subjects.subj_abbr IS 'Example: CHEM';
 -- region scopus_subject_keywords
 CREATE TABLE IF NOT EXISTS scopus_subject_keywords (
   scp BIGINT
-    CONSTRAINT ssubj_keywords_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT ssubj_keywords_scp_fk
+      REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   subject TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_subject_keywords_pk PRIMARY KEY (scp, subject) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_subject_keywords_pk
+    PRIMARY KEY (scp, subject) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -446,7 +476,8 @@ CREATE TABLE IF NOT EXISTS scopus_classification_lookup (
   class_code TEXT,
   description TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_classification_lookup_pk PRIMARY KEY (class_type, class_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_classification_lookup_pk
+    PRIMARY KEY (class_type, class_code) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -462,11 +493,13 @@ COMMENT ON COLUMN scopus_classification_lookup.description IS 'Example: Public H
 -- region scopus_classes
 CREATE TABLE IF NOT EXISTS scopus_classes (
   scp BIGINT
-    CONSTRAINT sclass_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT sclass_scp_fk
+      REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   class_type TEXT,
   class_code TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_classes_pk PRIMARY KEY (scp, class_type, class_code) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_classes_pk
+    PRIMARY KEY (scp, class_type, class_code) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -489,19 +522,23 @@ COMMENT ON COLUMN scopus_classes.class_code IS 'Example: 23.2.2';
 -- region scopus_conf_proceedings
 CREATE TABLE IF NOT EXISTS scopus_conf_proceedings (
   ernie_source_id INTEGER
-    CONSTRAINT sconf_ernie_source_id_fk REFERENCES scopus_sources(ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT sconf_ernie_source_id_fk
+      REFERENCES scopus_sources(ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED,
   conf_code TEXT,
   conf_name TEXT,
   proc_part_no TEXT,
   proc_page_range TEXT,
   proc_page_count SMALLINT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_conf_proceedings_pk PRIMARY KEY (ernie_source_id, conf_code, conf_name) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_conf_proceedings_pk
+    PRIMARY KEY (ernie_source_id, conf_code, conf_name) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
 ALTER TABLE scopus_conf_proceedings
-  ADD CONSTRAINT sconf_code_name_fk FOREIGN KEY (conf_code, conf_name) REFERENCES scopus_conference_events(conf_code, conf_name) ON DELETE CASCADE;
+  ADD CONSTRAINT sconf_code_name_fk
+    FOREIGN KEY (conf_code, conf_name)
+      REFERENCES scopus_conference_events(conf_code, conf_name) ON DELETE CASCADE;
 
 CREATE INDEX IF NOT EXISTS scp_conf_code_conf_name_i ON scopus_conf_proceedings(conf_code, conf_name) --
   TABLESPACE index_tbs;
@@ -525,7 +562,8 @@ COMMENT ON COLUMN scopus_conf_proceedings.proc_page_count IS 'Number of pages in
 -- region scopus_conf_editors
 CREATE TABLE IF NOT EXISTS scopus_conf_editors (
   ernie_source_id INTEGER
-    CONSTRAINT seditor_ernie_source_id_fk REFERENCES scopus_sources(ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT seditor_ernie_source_id_fk
+      REFERENCES scopus_sources(ernie_source_id) ON DELETE CASCADE ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED,
   conf_code TEXT,
   conf_name TEXT,
   indexed_name TEXT,
@@ -534,13 +572,16 @@ CREATE TABLE IF NOT EXISTS scopus_conf_editors (
   address TEXT,
   organization TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_conf_editors_pk PRIMARY KEY (ernie_source_id, conf_code, conf_name, indexed_name) --
-    USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_conf_editors_pk
+    PRIMARY KEY (ernie_source_id, conf_code, conf_name, indexed_name) --
+      USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
 ALTER TABLE scopus_conf_editors
-  ADD CONSTRAINT seditor_code_name_fk FOREIGN KEY (conf_code, conf_name) REFERENCES scopus_conference_events(conf_code, conf_name) ON DELETE CASCADE;
+  ADD CONSTRAINT seditor_code_name_fk
+    FOREIGN KEY (conf_code, conf_name)
+      REFERENCES scopus_conference_events(conf_code, conf_name) ON DELETE CASCADE;
 
 CREATE INDEX IF NOT EXISTS sce_conf_code_conf_name_i ON scopus_conf_editors(conf_code, conf_name) TABLESPACE index_tbs;
 -- 0.3s
@@ -567,14 +608,16 @@ COMMENT ON COLUMN scopus_conf_editors.organization IS 'The organization of the e
 -- region scopus_references
 CREATE TABLE IF NOT EXISTS scopus_references (
   scp BIGINT
-    CONSTRAINT sr_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT sr_source_scp_fk
+      REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   ref_sgr BIGINT,
   -- FK is possible to enable only after the complete data load
   -- CONSTRAINT sr_ref_sgr_fk REFERENCES scopus_publication_groups ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   --pub_ref_id SMALLINT,
   --citation_language TEXT,
   citation_text TEXT,
-  CONSTRAINT scopus_references_pk PRIMARY KEY (scp, ref_sgr) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_references_pk
+    PRIMARY KEY (scp, ref_sgr) USING INDEX TABLESPACE index_tbs
 ) PARTITION BY RANGE (scp)
 TABLESPACE scopus_tbs;
 
@@ -622,12 +665,14 @@ COMMENT ON COLUMN scopus_references.citation_text IS --
 
 CREATE TABLE IF NOT EXISTS scopus_publication_identifiers (
   scp BIGINT
-    CONSTRAINT spi_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT spi_source_scp_fk
+      REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   document_id TEXT NOT NULL,
   document_id_type TEXT NOT NULL,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_publiaction_identifiers_pk PRIMARY KEY (scp, document_id_type, document_id) --
-    USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_publiaction_identifiers_pk
+    PRIMARY KEY (scp, document_id_type, document_id) --
+      USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -648,11 +693,13 @@ COMMENT ON COLUMN scopus_publication_identifiers.document_id_type IS 'Document i
 -- region scopus_abstracts
 CREATE TABLE IF NOT EXISTS scopus_abstracts (
   scp BIGINT
-    CONSTRAINT sa_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT sa_source_scp_fk
+      REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   abstract_text TEXT,
   abstract_language TEXT NOT NULL,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_abstracts_pk PRIMARY KEY (scp, abstract_language) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_abstracts_pk
+    PRIMARY KEY (scp, abstract_language) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -669,16 +716,17 @@ COMMENT ON COLUMN scopus_abstracts.abstract_language IS 'Contains the language o
 -- region scopus_titles
 CREATE TABLE IF NOT EXISTS scopus_titles (
   scp BIGINT
-    CONSTRAINT st_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT st_source_scp_fk
+      REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   title TEXT NOT NULL,
   language TEXT NOT NULL,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_titles_pk PRIMARY KEY (scp, language) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_titles_pk
+    PRIMARY KEY (scp, language) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
-CREATE INDEX IF NOT EXISTS st_title_fti ON scopus_titles USING gin(to_tsvector('english', title))
-  TABLESPACE index_tbs;
+CREATE INDEX IF NOT EXISTS st_title_fti ON scopus_titles USING gin(to_tsvector('english', title)) TABLESPACE index_tbs;
 
 COMMENT ON TABLE scopus_titles IS 'ELSEVIER: Scopus title of publications';
 
@@ -693,10 +741,12 @@ COMMENT ON COLUMN scopus_titles.language IS 'Language of the title Ex: eng,esp';
 -- region scopus_keywords
 CREATE TABLE IF NOT EXISTS scopus_keywords (
   scp BIGINT
-    CONSTRAINT sk_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT sk_source_scp_fk
+      REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   keyword TEXT NOT NULL,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_keywords_pk PRIMARY KEY (scp, keyword) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_keywords_pk
+    PRIMARY KEY (scp, keyword) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -711,13 +761,15 @@ COMMENT ON COLUMN scopus_keywords.keyword IS --
 -- region scopus_chemical_groups
 CREATE TABLE IF NOT EXISTS scopus_chemical_groups (
   scp BIGINT
-    CONSTRAINT sc_source_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT sc_source_scp_fk
+      REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   chemicals_source TEXT NOT NULL,
   chemical_name TEXT NOT NULL,
   cas_registry_number TEXT NOT NULL DEFAULT ' ',
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_chemical_groups_pk PRIMARY KEY (scp, chemical_name, cas_registry_number) --
-    USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_chemical_groups_pk
+    PRIMARY KEY (scp, chemical_name, cas_registry_number) --
+      USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -735,14 +787,16 @@ COMMENT ON COLUMN scopus_chemical_groups.cas_registry_number IS 'CAS registry nu
 -- region scopus_grants
 CREATE TABLE IF NOT EXISTS scopus_grants (
   scp BIGINT
-    CONSTRAINT sg_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT sg_scp_fk
+      REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   grant_id TEXT,
   grantor_acronym TEXT,
   grantor TEXT NOT NULL,
   grantor_country_code CHAR(3),
   grantor_funder_registry_id TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_grants_pk PRIMARY KEY (scp, grant_id, grantor) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_grants_pk
+    PRIMARY KEY (scp, grant_id, grantor) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -764,10 +818,12 @@ COMMENT ON COLUMN scopus_grants.grantor_funder_registry_id IS 'Funder Registry I
 -- region scopus_grant_acknowledgments
 CREATE TABLE IF NOT EXISTS scopus_grant_acknowledgments (
   scp BIGINT
-    CONSTRAINT sga_scp_fk REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT sga_scp_fk
+      REFERENCES scopus_publications ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
   grant_text TEXT,
   last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT scopus_grant_acknowledgement_pk PRIMARY KEY (scp) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT scopus_grant_acknowledgement_pk
+    PRIMARY KEY (scp) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -784,7 +840,8 @@ CREATE TABLE IF NOT EXISTS update_log_scopus (
   update_time TIMESTAMP,
   num_scopus_pub INTEGER,
   num_delete INTEGER,
-  CONSTRAINT update_log_scopus_pk PRIMARY KEY (id) USING INDEX TABLESPACE index_tbs
+  CONSTRAINT update_log_scopus_pk
+    PRIMARY KEY (id) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE scopus_tbs;
 
@@ -794,7 +851,8 @@ COMMENT ON TABLE update_log_scopus IS 'Update log table for Scopus';
 -- region del_scps
 CREATE TABLE IF NOT EXISTS del_scps (
   scp BIGINT NOT NULL
-    CONSTRAINT del_scps_pk PRIMARY KEY,
+    CONSTRAINT del_scps_pk
+      PRIMARY KEY,
   last_updated_time TIMESTAMP DEFAULT now()
 );
 -- endregion
