@@ -74,3 +74,13 @@ CREATE TABLE imm1985_1995_author_tiers AS
              count(CASE WHEN tier = 'tier_3' THEN 1 END) AS tier_3
              FROM author_tiers_view
              GROUP BY auid) aut ON cc.auid = aut.auid;
+
+-- External degrees by authors table with cluster sizes -
+
+CREATE TABLE imm1985_1995_all_authors_external AS
+SELECT ecd.*, aafg.auid, amu.cluster_size
+FROM imm1985_1995_external_cluster_degrees ecd
+JOIN imm1985_1995_all_authors_full_graph aafg ON ecd.scp = aafg.scp
+    AND ecd.cluster_no = aafg.cluster_no
+JOIN imm1985_1995_all_merged_unshuffled amu ON ecd.cluster_no = amu.cluster_no
+ORDER BY cluster_no ASC, ext_cluster_total_degrees DESC , scp ASC;
