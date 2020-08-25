@@ -54,6 +54,7 @@ geom_bar(position = "dodge", stat = "identity") +
 labs(y = "bottom 100 authors", x = "gp") + 
 ylim(0, 200) + theme_bw() + theme(legend.position = "none")
 
+library(patchwork)
 p5 <- p2 | (p3/p4)
 
 setwd('~/ERNIE_tp/tpp/')
@@ -66,4 +67,18 @@ dev.off()
 pdf('p5.pdf')
 print(p5)
 dev.off()
+
+# Get citation data for authors
+y <- fread('~/Desktop/theta_plus/auth_cit.csv')
+# merge y and x
+yx <- merge(y,x,by.x='auid',by.y='auid')
+yx[,tier_1perc:=round(100*tier_1/(tier_1+tier_2+tier_3),2)]
+
+p6 <- ggplot(yx, aes(tier_1perc)) + stat_ecdf(geom="point") + facet_wrap(~ gp) + theme_bw() + labs(x="tier_1 percentage", y='cumulative density')
+
+pdf('p6.pdf')
+print(p6)
+dev.off()
+
+
 
