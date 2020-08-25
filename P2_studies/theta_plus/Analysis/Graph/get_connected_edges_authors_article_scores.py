@@ -59,7 +59,7 @@ for cluster_num in clusters_list[start_num:]:
 
     reduced_cluster_query = """
         SELECT count(DISTINCT aa.scp) as count_articles, count(DISTINCT auid) as count_authors
-        FROM theta_plus.imm1985_1995_all_authors aa
+        FROM theta_plus.imm1985_1995_all_authors_full_graph aa
         JOIN theta_plus.imm1985_1995_article_score_unshuffled asu on asu.scp = aa.scp
         WHERE asu.article_score >= 1 AND aa.cluster_no=""" +str(cluster_num)+ """;"""
 
@@ -80,14 +80,14 @@ for cluster_num in clusters_list[start_num:]:
 
                 author_union_query = """
                     SELECT DISTINCT aa.auid, aa.cluster_no, count(aa.scp) as count_articles
-                    FROM theta_plus.imm1985_1995_all_authors aa
+                    FROM theta_plus.imm1985_1995_all_authors_full_graph aa
                     JOIN theta_plus.imm1985_1995_article_score_unshuffled asu ON asu.scp = aa.scp
                     WHERE asu.article_score >= 1
                     GROUP BY aa.auid, aa.cluster_no
                     HAVING aa.cluster_no=""" + str(cluster_num) + """
                     UNION
                     SELECT DISTINCT aa.auid, aa.cluster_no, count(aa.scp) as count_articles
-                    FROM theta_plus.imm1985_1995_all_authors aa
+                    FROM theta_plus.imm1985_1995_all_authors_full_graph aa
                     JOIN theta_plus.imm1985_1995_article_score_unshuffled asu ON asu.scp = aa.scp
                     WHERE asu.article_score >= 1
                     GROUP BY aa.auid, aa.cluster_no
@@ -124,7 +124,7 @@ for cluster_num in clusters_list[start_num:]:
 
                 connected_reduced_cluster_query = """
                     SELECT count(DISTINCT aa.scp) as count_articles, count(DISTINCT aa.auid) as count_authors
-                    FROM theta_plus.imm1985_1995_all_authors aa
+                    FROM theta_plus.imm1985_1995_all_authors_full_graph aa
                     JOIN theta_plus.imm1985_1995_article_score_unshuffled asu on asu.scp = aa.scp
                     WHERE asu.article_score >= 1 AND aa.cluster_no=""" +str(k)+ """;"""
 

@@ -58,11 +58,11 @@ for cluster_num in clusters_list[start_num:]:
 
                 author_union_query = """
                     SELECT DISTINCT auid, cluster_no, count(scp) as count_articles
-                    FROM theta_plus.imm1985_1995_all_authors GROUP BY auid, cluster_no
+                    FROM theta_plus.imm1985_1995_all_authors_full_graph GROUP BY auid, cluster_no
                     HAVING cluster_no=""" + str(cluster_num) + """
                     UNION
                     SELECT DISTINCT auid, cluster_no, count(scp) as count_articles
-                    FROM theta_plus.imm1985_1995_all_authors GROUP BY auid, cluster_no
+                    FROM theta_plus.imm1985_1995_all_authors_full_graph GROUP BY auid, cluster_no
                     HAVING cluster_no=""" + str(k) + """;"""
 
                 author_union = pd.read_sql(author_union_query, con=engine)
