@@ -291,6 +291,34 @@ CREATE TABLE lexis_nexis_patent_related_document_additions (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+
+-- All columns in this table are extracted from .../addition elements
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_doc_country IS 'Country for parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_doc_number IS 'Parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_doc_kind IS 'Parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_doc_name IS 'Parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_doc_date IS 'Date for parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_status IS 'Parent document status';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_grant_document_country IS 'Country for granted parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_grant_document_number IS 'Granted parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_grant_document_kind IS 'Granted parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_grant_document_name IS 'Granted parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_grant_document_date IS 'Date for granted parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_pct_document_country IS 'Country for Parent Patent Cooperation Treaty (PCT) document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_pct_document_number IS 'Parent Patent Cooperation Treaty (PCT) document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_pct_document_kind IS 'Parent Patent Cooperation Treaty (PCT) document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_pct_document_name IS 'Parent Patent Cooperation Treaty (PCT) document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.parent_pct_document_date IS 'Date for Parent Patent Cooperation Treaty (PCT) document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.child_doc_country IS 'Country for child document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.child_doc_number IS 'Child document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.child_doc_kind IS 'Child document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.child_doc_name IS 'Child document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.child_doc_date IS 'Date for child document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_additions.last_updated_time IS 'Timestamp of particular record last updated';
+
 -- Add foreign key
 ALTER TABLE lexis_nexis_patent_related_document_additions
 ADD CONSTRAINT lexis_nexis_patent_related_document_additions_fk
@@ -331,6 +359,34 @@ CREATE TABLE lexis_nexis_patent_related_document_divisions (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+
+-- All columns in this table are extracted from .../division elements
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_doc_country IS 'Country for parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_doc_number IS 'Parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_doc_kind IS 'Parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_doc_name IS 'Parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_doc_date IS 'Date for parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_status IS 'Parent document status';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_grant_document_country IS 'Country for granted parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_grant_document_number IS 'Granted parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_grant_document_kind IS 'Granted parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_grant_document_name IS 'Granted parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_grant_document_date IS 'Date for granted parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_pct_document_country IS 'Country for Parent Patent Cooperation Treaty (PCT) document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_pct_document_number IS 'Parent Patent Cooperation Treaty (PCT) document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_pct_document_kind IS 'Parent Patent Cooperation Treaty (PCT) document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_pct_document_name IS 'Parent Patent Cooperation Treaty (PCT) document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.parent_pct_document_date IS 'Date for Parent Patent Cooperation Treaty (PCT) document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.child_doc_country IS 'Country for child document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.child_doc_number IS 'Child document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.child_doc_kind IS 'Child document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.child_doc_name IS 'Child document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.child_doc_date IS 'Date for child document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisions.last_updated_time IS 'Timestamp of particular record last updated';
+
 -- Add foreign key
 ALTER TABLE lexis_nexis_patent_related_document_divisions
 ADD CONSTRAINT lexis_nexis_patent_related_document_divisions_fk
@@ -373,6 +429,34 @@ CREATE TABLE lexis_nexis_patent_related_document_continuations (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+
+-- All columns in this table are extracted from .../continuation elements
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_doc_country IS 'Country for parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_doc_number IS 'Parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_doc_kind IS 'Parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_doc_name IS 'Parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_doc_date IS 'Date for parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_status IS 'Parent document status';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_grant_document_country IS 'Country for granted parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_grant_document_number IS 'Granted parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_grant_document_kind IS 'Granted parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_grant_document_name IS 'Granted parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_grant_document_date IS 'Date for granted parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_pct_document_country IS 'Country for Parent Patent Cooperation Treaty (PCT) document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_pct_document_number IS 'Parent Patent Cooperation Treaty (PCT) document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_pct_document_kind IS 'Parent Patent Cooperation Treaty (PCT) document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_pct_document_name IS 'Parent Patent Cooperation Treaty (PCT) document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.parent_pct_document_date IS 'Date for Parent Patent Cooperation Treaty (PCT) document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.child_doc_country IS 'Country for child document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.child_doc_number IS 'Child document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.child_doc_kind IS 'Child document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.child_doc_name IS 'Child document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.child_doc_date IS 'Date for child document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuations.last_updated_time IS 'Timestamp of particular record last updated';
+
 -- Add foreign key
 ALTER TABLE lexis_nexis_patent_related_document_continuations
 ADD CONSTRAINT lexis_nexis_patent_related_document_continuations_fk
@@ -414,6 +498,34 @@ CREATE TABLE lexis_nexis_patent_related_document_continuation_in_parts (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+
+-- All columns in this table are extracted from .../continuation-in-part elements
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_doc_country IS 'Country for parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_doc_number IS 'Parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_doc_kind IS 'Parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_doc_name IS 'Parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_doc_date IS 'Date for parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_status IS 'Parent document status';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_grant_document_country IS 'Country for granted parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_grant_document_number IS 'Granted parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_grant_document_kind IS 'Granted parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_grant_document_name IS 'Granted parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_grant_document_date IS 'Date for granted parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_pct_document_country IS 'Country for Parent Patent Cooperation Treaty (PCT) document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_pct_document_number IS 'Parent Patent Cooperation Treaty (PCT) document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_pct_document_kind IS 'Parent Patent Cooperation Treaty (PCT) document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_pct_document_name IS 'Parent Patent Cooperation Treaty (PCT) document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.parent_pct_document_date IS 'Date for Parent Patent Cooperation Treaty (PCT) document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.child_doc_country IS 'Country for child document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.child_doc_number IS 'Child document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.child_doc_kind IS 'Child document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.child_doc_name IS 'Child document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.child_doc_date IS 'Date for child document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuation_in_parts.last_updated_time IS 'Timestamp of particular record last updated';
+
 -- Add foreign key
 ALTER TABLE lexis_nexis_patent_related_document_continuation_in_parts
 ADD CONSTRAINT lexis_nexis_patent_related_document_continuation_in_parts_fk
@@ -455,6 +567,34 @@ CREATE TABLE lexis_nexis_patent_related_document_continuing_reissues (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+
+-- All columns in this table are extracted from .../continuing-reissue elements
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_doc_country IS 'Country for parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_doc_number IS 'Parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_doc_kind IS 'Parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_doc_name IS 'Parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_doc_date IS 'Date for parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_status IS 'Parent document status';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_grant_document_country IS 'Country for granted parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_grant_document_number IS 'Granted parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_grant_document_kind IS 'Granted parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_grant_document_name IS 'Granted parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_grant_document_date IS 'Date for granted parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_pct_document_country IS 'Country for Parent Patent Cooperation Treaty (PCT) document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_pct_document_number IS 'Parent Patent Cooperation Treaty (PCT) document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_pct_document_kind IS 'Parent Patent Cooperation Treaty (PCT) document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_pct_document_name IS 'Parent Patent Cooperation Treaty (PCT) document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.parent_pct_document_date IS 'Date for Parent Patent Cooperation Treaty (PCT) document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.child_doc_country IS 'Country for child document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.child_doc_number IS 'Child document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.child_doc_kind IS 'Child document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.child_doc_name IS 'Child document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.child_doc_date IS 'Date for child document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_continuing_reissues.last_updated_time IS 'Timestamp of particular record last updated';
+
 -- Add foreign key
 ALTER TABLE lexis_nexis_patent_related_document_continuing_reissues
 ADD CONSTRAINT lexis_nexis_patent_related_document_continuing_reissues_fk
@@ -496,6 +636,34 @@ CREATE TABLE lexis_nexis_patent_related_document_reissues (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+
+-- All columns in this table are extracted from .../reissue elements
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_doc_country IS 'Country for parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_doc_number IS 'Parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_doc_kind IS 'Parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_doc_name IS 'Parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_doc_date IS 'Date for parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_status IS 'Parent document status';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_grant_document_country IS 'Country for granted parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_grant_document_number IS 'Granted parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_grant_document_kind IS 'Granted parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_grant_document_name IS 'Granted parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_grant_document_date IS 'Date for granted parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_pct_document_country IS 'Country for Parent Patent Cooperation Treaty (PCT) document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_pct_document_number IS 'Parent Patent Cooperation Treaty (PCT) document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_pct_document_kind IS 'Parent Patent Cooperation Treaty (PCT) document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_pct_document_name IS 'Parent Patent Cooperation Treaty (PCT) document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.parent_pct_document_date IS 'Date for Parent Patent Cooperation Treaty (PCT) document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.child_doc_country IS 'Country for child document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.child_doc_number IS 'Child document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.child_doc_kind IS 'Child document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.child_doc_name IS 'Child document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.child_doc_date IS 'Date for child document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reissues.last_updated_time IS 'Timestamp of particular record last updated';
+
 -- Add foreign key
 ALTER TABLE lexis_nexis_patent_related_document_reissues
 ADD CONSTRAINT lexis_nexis_patent_related_document_reissues_fk
@@ -537,6 +705,34 @@ CREATE TABLE lexis_nexis_patent_related_document_divisional_reissues (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+
+-- All columns in this table are extracted from .../divisional-reissue elements
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_doc_country IS 'Country for parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_doc_number IS 'Parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_doc_kind IS 'Parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_doc_name IS 'Parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_doc_date IS 'Date for parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_status IS 'Parent document status';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_grant_document_country IS 'Country for granted parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_grant_document_number IS 'Granted parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_grant_document_kind IS 'Granted parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_grant_document_name IS 'Granted parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_grant_document_date IS 'Date for granted parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_pct_document_country IS 'Country for Parent Patent Cooperation Treaty (PCT) document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_pct_document_number IS 'Parent Patent Cooperation Treaty (PCT) document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_pct_document_kind IS 'Parent Patent Cooperation Treaty (PCT) document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_pct_document_name IS 'Parent Patent Cooperation Treaty (PCT) document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.parent_pct_document_date IS 'Date for Parent Patent Cooperation Treaty (PCT) document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.child_doc_country IS 'Country for child document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.child_doc_number IS 'Child document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.child_doc_kind IS 'Child document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.child_doc_name IS 'Child document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.child_doc_date IS 'Date for child document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_divisional_reissues.last_updated_time IS 'Timestamp of particular record last updated';
+
 -- Add foreign key
 ALTER TABLE lexis_nexis_patent_related_document_divisional_reissues
 ADD CONSTRAINT lexis_nexis_patent_related_document_divisional_reissues_fk
@@ -578,6 +774,34 @@ CREATE TABLE lexis_nexis_patent_related_document_reexaminations (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+
+-- All columns in this table are extracted from .../reexamination elements
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_doc_country IS 'Country for parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_doc_number IS 'Parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_doc_kind IS 'Parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_doc_name IS 'Parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_doc_date IS 'Date for parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_status IS 'Parent document status';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_grant_document_country IS 'Country for granted parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_grant_document_number IS 'Granted parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_grant_document_kind IS 'Granted parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_grant_document_name IS 'Granted parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_grant_document_date IS 'Date for granted parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_pct_document_country IS 'Country for Parent Patent Cooperation Treaty (PCT) document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_pct_document_number IS 'Parent Patent Cooperation Treaty (PCT) document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_pct_document_kind IS 'Parent Patent Cooperation Treaty (PCT) document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_pct_document_name IS 'Parent Patent Cooperation Treaty (PCT) document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.parent_pct_document_date IS 'Date for Parent Patent Cooperation Treaty (PCT) document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.child_doc_country IS 'Country for child document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.child_doc_number IS 'Child document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.child_doc_kind IS 'Child document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.child_doc_name IS 'Child document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.child_doc_date IS 'Date for child document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexaminations.last_updated_time IS 'Timestamp of particular record last updated';
+
 -- Add foreign key
 ALTER TABLE lexis_nexis_patent_related_document_reexaminations
 ADD CONSTRAINT lexis_nexis_patent_related_document_reexaminations_fk
@@ -651,6 +875,34 @@ CREATE TABLE lexis_nexis_patent_related_document_substitutions (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+
+-- All columns in this table are extracted from .../substitution elements
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_doc_country IS 'Country for parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_doc_number IS 'Parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_doc_kind IS 'Parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_doc_name IS 'Parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_doc_date IS 'Date for parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_status IS 'Parent document status';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_grant_document_country IS 'Country for granted parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_grant_document_number IS 'Granted parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_grant_document_kind IS 'Granted parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_grant_document_name IS 'Granted parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_grant_document_date IS 'Date for granted parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_pct_document_country IS 'Country for Parent Patent Cooperation Treaty (PCT) document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_pct_document_number IS 'Parent Patent Cooperation Treaty (PCT) document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_pct_document_kind IS 'Parent Patent Cooperation Treaty (PCT) document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_pct_document_name IS 'Parent Patent Cooperation Treaty (PCT) document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.parent_pct_document_date IS 'Date for Parent Patent Cooperation Treaty (PCT) document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.child_doc_country IS 'Country for child document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.child_doc_number IS 'Child document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.child_doc_kind IS 'Child document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.child_doc_name IS 'Child document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.child_doc_date IS 'Date for child document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_substitutions.last_updated_time IS 'Timestamp of particular record last updated';
+
 -- Add foreign key
 ALTER TABLE lexis_nexis_patent_related_document_substitutions
 ADD CONSTRAINT lexis_nexis_patent_related_document_substitutions_fk
@@ -677,6 +929,19 @@ CREATE TABLE lexis_nexis_patent_related_document_provisional_applications (
     PRIMARY KEY (country_code, doc_number, kind_code, related_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+
+-- All columns in this table are extracted from .../provisional-application elements
+COMMENT ON COLUMN lexis_nexis_patent_related_document_provisional_applications.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_provisional_applications.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_provisional_applications.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_provisional_applications.related_doc_country IS 'Country for related document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_provisional_applications.related_doc_number IS 'Related document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_provisional_applications.related_doc_kind IS 'Related document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_provisional_applications.related_doc_name IS 'Related document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_provisional_applications.related_doc_date IS 'Date for related document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_provisional_applications.provisional_application_status IS 'Status for provisional application';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_provisional_applications.last_updated_time IS 'Timestamp of particular record last updated';
+
 -- Add foreign key
 ALTER TABLE lexis_nexis_patent_related_document_provisional_applications
 ADD CONSTRAINT lexis_nexis_patent_related_document_provisional_applications_fk
@@ -718,6 +983,34 @@ CREATE TABLE lexis_nexis_patent_related_document_utility_model_basis (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+
+-- All columns in this table are extracted from .../utility-model-basis elements
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_doc_country IS 'Country for parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_doc_number IS 'Parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_doc_kind IS 'Parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_doc_name IS 'Parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_doc_date IS 'Date for parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_status IS 'Parent document status';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_grant_document_country IS 'Country for granted parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_grant_document_number IS 'Granted parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_grant_document_kind IS 'Granted parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_grant_document_name IS 'Granted parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_grant_document_date IS 'Date for granted parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_pct_document_country IS 'Country for Parent Patent Cooperation Treaty (PCT) document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_pct_document_number IS 'Parent Patent Cooperation Treaty (PCT) document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_pct_document_kind IS 'Parent Patent Cooperation Treaty (PCT) document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_pct_document_name IS 'Parent Patent Cooperation Treaty (PCT) document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.parent_pct_document_date IS 'Date for Parent Patent Cooperation Treaty (PCT) document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.child_doc_country IS 'Country for child document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.child_doc_number IS 'Child document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.child_doc_kind IS 'Child document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.child_doc_name IS 'Child document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.child_doc_date IS 'Date for child document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_utility_model_basis.last_updated_time IS 'Timestamp of particular record last updated';
+
 -- Add foreign key
 ALTER TABLE lexis_nexis_patent_related_document_utility_model_basis
 ADD CONSTRAINT lexis_nexis_patent_related_document_utility_model_basis_fk
@@ -727,31 +1020,33 @@ ADD CONSTRAINT lexis_nexis_patent_related_document_utility_model_basis_fk
 
 -- end region
 
+--  *** haven't found any sample data yet so remove this empty table temporarily ***
 -- region lexis_nexis_patent_related_corrections
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_corrections;
-CREATE TABLE lexis_nexis_patent_related_corrections (
-  country_code TEXT,
-  doc_number TEXT,
-  kind_code TEXT,
-  corrected_doc_country TEXT,
-  corrected_doc_number TEXT,
-  corrected_doc_kind TEXT,
-  corrected_doc_name TEXT,
-  corrected_doc_date TEXT,
-  correction_type TEXT,
-  gazette_num TEXT,
-  gazette_reference_date TEXT,
-  gazette_text TEXT,
-  last_updated_time TIMESTAMP DEFAULT now(),
-  CONSTRAINT lexis_nexis_patent_related_corrections_pk
-    PRIMARY KEY (country_code, doc_number, kind_code, corrected_doc_number) USING INDEX TABLESPACE index_tbs
-)
-TABLESPACE lexis_nexis_tbs;
--- Add foreign key
-ALTER TABLE lexis_nexis_patent_related_corrections
-ADD CONSTRAINT lexis_nexis_patent_related_corrections_fk
-    FOREIGN KEY (country_code, doc_number, kind_code)
-    REFERENCES lexis_nexis_patents ON DELETE CASCADE;
+-- CREATE TABLE lexis_nexis_patent_related_corrections (
+--   country_code TEXT,
+--   doc_number TEXT,
+--   kind_code TEXT,
+--   corrected_doc_country TEXT,
+--   corrected_doc_number TEXT,
+--   corrected_doc_kind TEXT,
+--   corrected_doc_name TEXT,
+--   corrected_doc_date TEXT,
+--   correction_type TEXT,
+--   gazette_num TEXT,
+--   gazette_reference_date TEXT,
+--   gazette_text TEXT,
+--   last_updated_time TIMESTAMP DEFAULT now(),
+--   CONSTRAINT lexis_nexis_patent_related_corrections_pk
+--     PRIMARY KEY (country_code, doc_number, kind_code, corrected_doc_number) USING INDEX TABLESPACE index_tbs
+-- )
+-- TABLESPACE lexis_nexis_tbs;
+--
+-- -- Add foreign key
+-- ALTER TABLE lexis_nexis_patent_related_corrections
+-- ADD CONSTRAINT lexis_nexis_patent_related_corrections_fk
+--     FOREIGN KEY (country_code, doc_number, kind_code)
+--     REFERENCES lexis_nexis_patents ON DELETE CASCADE;
 
 
 -- end region
@@ -772,6 +1067,18 @@ CREATE TABLE lexis_nexis_patent_related_publications (
     PRIMARY KEY (country_code, doc_number, kind_code, related_pub_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+
+-- All columns in this table are extracted from .../related-publication elements
+COMMENT ON COLUMN lexis_nexis_patent_related_publications.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_publications.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_publications.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_publications.related_pub_country IS 'Country for related document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_publications.related_pub_number IS 'Related document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_publications.related_pub_kind IS 'Related document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_publications.related_pub_name IS 'Related document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_publications.related_pub_date IS 'Date for related document';
+COMMENT ON COLUMN lexis_nexis_patent_related_publications.last_updated_time IS 'Timestamp of particular record last updated';
+
 -- Add foreign key
 ALTER TABLE lexis_nexis_patent_related_publications
 ADD CONSTRAINT lexis_nexis_patent_related_publications_fk
@@ -813,6 +1120,33 @@ CREATE TABLE lexis_nexis_patent_related_document_371_international (
     PRIMARY KEY (country_code, doc_number, kind_code, parent_doc_number) USING INDEX TABLESPACE index_tbs
 )
 TABLESPACE lexis_nexis_tbs;
+
+-- All columns in this table are extracted from .../a-371-of-international elements
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_doc_country IS 'Country for parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_doc_number IS 'Parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_doc_kind IS 'Parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_doc_name IS 'Parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_doc_date IS 'Date for parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_status IS 'Parent document status';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_grant_document_country IS 'Country for granted parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_grant_document_number IS 'Granted parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_grant_document_kind IS 'Granted parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_grant_document_name IS 'Granted parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_grant_document_date IS 'Date for granted parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_pct_document_country IS 'Country for Parent Patent Cooperation Treaty (PCT) document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_pct_document_number IS 'Parent Patent Cooperation Treaty (PCT) document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_pct_document_kind IS 'Parent Patent Cooperation Treaty (PCT) document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_pct_document_name IS 'Parent Patent Cooperation Treaty (PCT) document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.parent_pct_document_date IS 'Date for Parent Patent Cooperation Treaty (PCT) document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.child_doc_country IS 'Country for child document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.child_doc_number IS 'Child document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.child_doc_kind IS 'Child document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.child_doc_name IS 'Child document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.child_doc_date IS 'Date for child document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_371_international.last_updated_time IS 'Timestamp of particular record last updated';
 -- Add foreign key
 ALTER TABLE lexis_nexis_patent_related_document_371_international
 ADD CONSTRAINT lexis_nexis_patent_related_document_371_international_fk
