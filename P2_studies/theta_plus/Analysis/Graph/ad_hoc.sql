@@ -84,3 +84,12 @@ JOIN imm1985_1995_all_authors_full_graph aafg ON ecd.scp = aafg.scp
     AND ecd.cluster_no = aafg.cluster_no
 JOIN imm1985_1995_all_merged_unshuffled amu ON ecd.cluster_no = amu.cluster_no
 ORDER BY cluster_no ASC, ext_cluster_total_degrees DESC , scp ASC;
+
+-- Add cluster size
+
+ALTER TABLE imm1985_1995_authors_clusters
+ADD COLUMN cluster_size BIGINT;
+UPDATE imm1985_1995_authors_clusters
+SET cluster_size = amu.cluster_size
+FROM imm1985_1995_all_merged_unshuffled amu
+WHERE amu.cluster_no = imm1985_1995_authors_clusters.cluster_no;
