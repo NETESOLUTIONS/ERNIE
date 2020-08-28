@@ -8,7 +8,7 @@ SELECT *
 SELECT
   pc.relname, coalesce(obj_pt.spcname, db_pt.spcname) AS tablespace, pc.reltype, pc.reloftype, pc.relowner, pc.relam,
   pc.relfilenode, pc.reltablespace, pc.relpages, pc.reltuples, pc.relallvisible, pc.reltoastrelid, pc.relhasindex,
-  pc.relisshared, pc.relpersistence, pc.relkind, pc.relnatts, pc.relchecks, pc.relhasoids, pc.relhasrules,
+  pc.relisshared, pc.relpersistence, pc.relkind, pc.relnatts, pc.relchecks, pc.relhasrules,
   pc.relhastriggers, pc.relhassubclass, pc.relrowsecurity, pc.relforcerowsecurity, pc.relispopulated, pc.relreplident,
   pc.relispartition, pc.relrewrite, pc.relfrozenxid, pc.relminmxid, pc.relacl, pc.reloptions, pc.relpartbound
   FROM
