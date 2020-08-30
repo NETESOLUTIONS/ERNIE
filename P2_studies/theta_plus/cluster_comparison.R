@@ -64,3 +64,5 @@ pdf('fig2.pdf')
 print(pq)
 dev.off()
 system('cp fig2.pdf ~/ERNIE_tp/')
+
+dbDisconnect(con);

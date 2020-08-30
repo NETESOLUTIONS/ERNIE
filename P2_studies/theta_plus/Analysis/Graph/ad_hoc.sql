@@ -84,3 +84,37 @@ JOIN imm1985_1995_all_authors_full_graph aafg ON ecd.scp = aafg.scp
     AND ecd.cluster_no = aafg.cluster_no
 JOIN imm1985_1995_all_merged_unshuffled amu ON ecd.cluster_no = amu.cluster_no
 ORDER BY cluster_no ASC, ext_cluster_total_degrees DESC , scp ASC;
+
+-- Add cluster size to imm1985_1995_author_clusters
+
+ALTER TABLE imm1985_1995_authors_clusters
+ADD COLUMN cluster_size BIGINT;
+UPDATE imm1985_1995_authors_clusters
+SET cluster_size = amu.cluster_size
+FROM imm1985_1995_all_merged_unshuffled amu
+WHERE amu.cluster_no = imm1985_1995_authors_clusters.cluster_no;
+
+-- Add cluster size and cluster size tiers to imm1985_1995_article_tiers
+
+ALTER TABLE imm1985_1995_article_tiers
+ADD COLUMN cluster_size BIGINT,
+ADD COLUMN cluster_size_groups text;
+
+UPDATE imm1985_1995_article_tiers
+SET cluster_size = amu.cluster_size
+FROM imm1985_1995_all_merged_unshuffled amu
+WHERE amu.cluster_no = imm1985_1995_article_tiers.cluster_no;
+
+UPDATE imm1985_1995_article_tiers
+SET cluster_size_groups = cluster_tiers.cluster_size_groups
+FROM (SELECT cluster_no, scp, cluster_total_degrees, cluster_in_degrees, cluster_out_degrees, auid, tier, cluster_size,
+  CASE
+    WHEN cluster_size < 30 THEN 3
+    WHEN cluster_size >= 30 AND cluster_size < 300 THEN 2
+    WHEN cluster_size >= 300 THEN 1 END AS cluster_size_groups
+FROM imm1985_1995_article_tiers
+GROUP BY cluster_no, scp, cluster_total_degrees,
+         cluster_in_degrees, cluster_out_degrees, auid, tier, cluster_size) cluster_tiers
+WHERE cluster_tiers.scp = imm1985_1995_article_tiers.scp AND
+      cluster_tiers.auid = imm1985_1995_article_tiers.auid AND
+      cluster_tiers.cluster_no = cluster_tiers.cluster_no;

@@ -19,7 +19,7 @@ tmpfs						/dev/shm	tmpfs	defaults,noexec,nosuid,nodev	0 0
 
 # == Data Volumes ==
 
-ßUUID=8b2eacee-c819-4873-bb20-93ab26857bd2 	/neo4j_data1	ext4	defaults,nofail			1 2
+UUID=8b2eacee-c819-4873-bb20-93ab26857bd2 	/neo4j_data1	ext4	defaults,nofail			1 2
 
 # == Swap Volumes ==
 
