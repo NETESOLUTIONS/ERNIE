@@ -810,7 +810,7 @@ ADD CONSTRAINT lexis_nexis_patent_related_document_reexaminations_fk
 
 -- region lexis_nexis_patent_related_document_reexamination_reissue_mergers
 -- DROP TABLE IF EXISTS lexis_nexis_patent_related_document_reexamination_reissue_mergers;
-CREATE TABLE lexis_nexis_patent_related_document_reexamination_reissue (
+CREATE TABLE lexis_nexis_patent_related_document_reexamination_reissues (
   country_code TEXT,
   doc_number TEXT,
   kind_code TEXT,
@@ -841,34 +841,34 @@ CREATE TABLE lexis_nexis_patent_related_document_reexamination_reissue (
 TABLESPACE lexis_nexis_tbs;
 
 -- All columns in this table are extracted from .../reexamination-reissue-merge elements
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.doc_number IS 'Document number';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.kind_code IS 'Document kind';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_doc_country IS 'Country for merge doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_doc_number IS 'Merge document number';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_doc_kind IS 'Merge document kind';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_doc_name IS 'Merge document name';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_doc_date IS 'Date for Merge document';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_status IS 'Merge document status';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_grant_document_country IS 'Country for granted parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_grant_document_number IS 'Granted parent document number';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_grant_document_kind IS 'Granted parent document kind';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_grant_document_name IS 'Granted parent document name';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_grant_document_date IS 'Date for granted parent document';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_pct_document_country IS 'Country for Parent Patent Cooperation Treaty (PCT) document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_pct_document_number IS 'Parent Patent Cooperation Treaty (PCT) document number';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_pct_document_kind IS 'Parent Patent Cooperation Treaty (PCT) document kind';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_pct_document_name IS 'Parent Patent Cooperation Treaty (PCT) document name';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.parent_pct_document_date IS 'Date for Parent Patent Cooperation Treaty (PCT) document';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.child_doc_country IS 'Country for child document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.child_doc_number IS 'Child document number';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.child_doc_kind IS 'Child document kind';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.child_doc_name IS 'Child document name';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.child_doc_date IS 'Date for child document';
-COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissue.last_updated_time IS 'Timestamp of particular record last updated';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.country_code IS 'Country: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.doc_number IS 'Document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.kind_code IS 'Document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_doc_country IS 'Country for merge doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_doc_number IS 'Merge document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_doc_kind IS 'Merge document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_doc_name IS 'Merge document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_doc_date IS 'Date for Merge document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_status IS 'Merge document status';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_grant_document_country IS 'Country for granted parent doc: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_grant_document_number IS 'Granted parent document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_grant_document_kind IS 'Granted parent document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_grant_document_name IS 'Granted parent document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_grant_document_date IS 'Date for granted parent document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_pct_document_country IS 'Country for Parent Patent Cooperation Treaty (PCT) document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_pct_document_number IS 'Parent Patent Cooperation Treaty (PCT) document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_pct_document_kind IS 'Parent Patent Cooperation Treaty (PCT) document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_pct_document_name IS 'Parent Patent Cooperation Treaty (PCT) document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.parent_pct_document_date IS 'Date for Parent Patent Cooperation Treaty (PCT) document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.child_doc_country IS 'Country for child document: use ST.3 country code, e.g. DE, FR, GB, NL, etc. Also includes EP, WO, etc.';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.child_doc_number IS 'Child document number';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.child_doc_kind IS 'Child document kind';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.child_doc_name IS 'Child document name';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.child_doc_date IS 'Date for child document';
+COMMENT ON COLUMN lexis_nexis_patent_related_document_reexamination_reissues.last_updated_time IS 'Timestamp of particular record last updated';
 
 -- Add foreign key
-ALTER TABLE lexis_nexis_patent_related_document_reexamination_reissue
+ALTER TABLE lexis_nexis_patent_related_document_reexamination_reissues
   ADD CONSTRAINT lexis_nexis_patent_related_document_reexamination_reissue_fk
     FOREIGN KEY (country_code, doc_number, kind_code)
       REFERENCES lexis_nexis_patents ON DELETE CASCADE;
