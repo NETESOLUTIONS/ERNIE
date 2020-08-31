@@ -490,7 +490,7 @@ $$
     ON CONFLICT DO NOTHING;
 
     -- lexis_nexis_patent_related_document_reexamination_reissue_mergers
-    INSERT INTO lexis_nexis_patent_related_document_reexamination_reissue(country_code,doc_number,kind_code,parent_doc_country,parent_doc_number,parent_doc_kind,
+    INSERT INTO lexis_nexis_patent_related_document_reexamination_reissues(country_code,doc_number,kind_code,parent_doc_country,parent_doc_number,parent_doc_kind,
                                                               parent_doc_name,parent_doc_date,parent_status,parent_grant_document_country,parent_grant_document_number,
                                                               parent_grant_document_kind,parent_grant_document_name,parent_grant_document_date,
                                                               parent_pct_document_country,parent_pct_document_number,parent_pct_document_kind,parent_pct_document_name,
