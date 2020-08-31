@@ -5,7 +5,6 @@
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
 
-
 SET script.xml_file = :'xml_file';
 \if :{?subset_sp}
   SET script.subset_sp = :'subset_sp';

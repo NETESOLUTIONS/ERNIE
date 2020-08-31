@@ -1,4 +1,5 @@
 -- SQl ad-hoc script
+SET SEARCH_PATH = theta_plus;
 
 -- Get cluster number and number of articles per cluster for each author
 
@@ -118,3 +119,30 @@ GROUP BY cluster_no, scp, cluster_total_degrees,
 WHERE cluster_tiers.scp = imm1985_1995_article_tiers.scp AND
       cluster_tiers.auid = imm1985_1995_article_tiers.auid AND
       cluster_tiers.cluster_no = cluster_tiers.cluster_no;
+
+
+
+-- author tiers venn diagram
+
+ALTER TABLE imm1985_1995_author_tiers
+ADD COLUMN venn_tiers text;
+
+UPDATE imm1985_1995_author_tiers
+SET venn_tiers = venn.venn_tiers_column
+FROM
+(WITH cte AS  (SELECT *, CASE
+                      WHEN tier_1 > 0 AND tier_2 > 0 AND tier_3 > 0 THEN 'all_3_tiers'
+                      WHEN tier_1 > 0 AND tier_2 > 0 AND tier_3 = 0 THEN 'tiers_1_2'
+                      WHEN tier_1 > 0 AND tier_2 = 0 AND tier_3 > 0 THEN 'tiers_1_3'
+                      WHEN tier_1 = 0 AND tier_2 > 0 AND tier_3 > 0 THEN 'tiers_2_3'
+                      WHEN tier_1 > 0 AND tier_2 = 0 AND tier_3 = 0 THEN 'tier_1_only'
+                      WHEN tier_1 = 0 AND tier_2 > 0 AND tier_3 = 0 THEN 'tier_2_only'
+                      WHEN tier_1 = 0 AND tier_2 = 0 AND tier_3 > 0 THEN 'tier_3_only'
+                      WHEN tier_1 IS NULL AND tier_2 IS NULL AND tier_3 IS NULL THEN NULL
+                      END AS venn_tiers_column
+          FROM theta_plus.imm1985_1995_author_tiers)
+
+SELECT at.*, cte.venn_tiers_column
+FROM theta_plus.imm1985_1995_article_tiers at
+LEFT JOIN cte on cte.auid = at.auid) venn
+WHERE venn.auid = imm1985_1995_author_tiers.auid;

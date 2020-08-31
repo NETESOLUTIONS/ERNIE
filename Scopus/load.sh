@@ -73,6 +73,8 @@ readonly STOP_FILE=".stop"
 readonly SCRIPT_DIR=${0%/*}
 readonly ABSOLUTE_SCRIPT_DIR=$(cd "${SCRIPT_DIR}" && pwd)
 readonly FAILED_FILES_DIR=../failed
+declare -i ERROR_COUNT=0
+declare -i ERROR_LIMIT=1
 
 while (($# > 0)); do
   case "$1" in
@@ -97,6 +99,7 @@ while (($# > 0)); do
       ;;
     -e)
       readonly MAX_ERRORS_OPTION="$1 $2"
+      readonly ERROR_LIMIT=$2
       shift
       ;;
     -v)
@@ -209,10 +212,20 @@ for data_dir in "${SORTED_ARGS[@]}"; do
         rm -rf "${UPDATE_DIR}"
         mv -v "${zip_data}" "${processed_archive_dir}"
       else
-        # Fatal error?
-        ((result_code == FATAL_FAILURE_CODE)) && exit $FATAL_FAILURE_CODE
+        case $result_code in
+          255)
+            echo "FATAL ERROR" && exit $FATAL_FAILURE_CODE #Terminate
+            ;;
+          *)
+            echo "Error: $result_code"
+            ((ERROR_COUNT = ERROR_COUNT+1))
+            ;;
+        esac
 
         failures_occurred="true"
+        if ((ERROR_COUNT >= ERROR_LIMIT)); then
+          exit $FATAL_FAILURE_CODE
+        fi
       fi
       file_stop_time=$(date '+%s')
 
