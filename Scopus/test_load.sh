@@ -32,7 +32,7 @@ DESCRIPTION
     -e max_errors     stop when the error number per a directory or an update super-ZIP reaches this threshold
                       101 by default.
 
-    -l error_limit    error threshold for load.sh
+    -g error_limit    error threshold for load.sh
                       01 by default.
 
     -v                verbose output: print processed XML files
@@ -104,7 +104,7 @@ while (($# > 0)); do
       readonly MAX_ERRORS_OPTION="$1 $2"
       shift
       ;;
-    -l)
+    -g)
       readonly ERROR_LIMIT=$1
       ;;
     -v)
