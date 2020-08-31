@@ -4,7 +4,6 @@
 
 -- DataGrip: start execution from here
 SET TIMEZONE = 'US/Eastern';
-SET search_path = jenkins;
 
 SET script.xml_file = :'xml_file';
 SET script.file_name = :'file_name';
