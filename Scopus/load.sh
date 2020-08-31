@@ -30,7 +30,7 @@ DESCRIPTION
     -s subset_SP      parse a subset of data via the specified parsing Stored Procedure (SP)
 
     -e max_errors     stop when the error number per a directory or an update super-ZIP reaches this threshold
-                      101 by default.
+                      01 by default.
 
     -v                verbose output: print processed XML files
 
@@ -213,7 +213,7 @@ for data_dir in "${SORTED_ARGS[@]}"; do
         mv -v "${zip_data}" "${processed_archive_dir}"
       else
         case $result_code in
-          255)
+          $FATAL_FAILURE_CODE)
             echo "FATAL ERROR" && exit $FATAL_FAILURE_CODE #Terminate
             ;;
           *)
@@ -224,7 +224,7 @@ for data_dir in "${SORTED_ARGS[@]}"; do
 
         failures_occurred="true"
         if ((ERROR_COUNT >= ERROR_LIMIT)); then
-          exit $FATAL_FAILURE_CODE
+          echo "Terminating. Error count has reached a limit $ERROR_LIMIT" && exit $FATAL_FAILURE_CODE
         fi
       fi
       file_stop_time=$(date '+%s')

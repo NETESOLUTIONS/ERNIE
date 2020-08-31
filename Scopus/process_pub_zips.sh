@@ -31,7 +31,7 @@ DESCRIPTION
 
     -s subset_SP      parse a subset of data via the specified subset parsing Stored Procedure (SP)
 
-    -e max_errors     stop when the error number reaches this threshold, 101 by default
+    -e max_errors     stop when the error number reaches this threshold, 01 by default
 
     -v                verbose output: print processed XML files
 
@@ -84,7 +84,7 @@ readonly ABSOLUTE_SCRIPT_DIR
 export ABSOLUTE_SCRIPT_DIR
 declare -rx ERROR_LOG=error.log
 declare -rx TMP_OUT=/tmp/ERNIE-Scopus-process_pub_zips.out
-declare -i MAX_ERRORS=101
+declare -i MAX_ERRORS=1
 
 FAILED_FILES_DIR="../failed"
 REPROCESS=false
