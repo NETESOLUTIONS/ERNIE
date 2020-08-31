@@ -226,7 +226,6 @@ for data_dir in "${SORTED_ARGS[@]}"; do
         if ((ERROR_COUNT >= ERROR_LIMIT)); then
           exit $FATAL_FAILURE_CODE
         fi
-
       fi
       file_stop_time=$(date '+%s')
 
