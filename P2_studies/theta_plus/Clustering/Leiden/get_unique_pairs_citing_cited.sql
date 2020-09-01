@@ -16,5 +16,3 @@ DELETE FROM :unique_pairs_table a
 USING  :unique_pairs_table b
 WHERE  (a.citing, a.cited) = (b.cited, b.citing)
     AND a.cited > a.citing;
-
-    

@@ -34,10 +34,22 @@ while (( $# > 0 )); do
       shift
       readonly working_dir=$1
       ;;
-    -r)
+    -q)
       shift
-      readonly resolution_param="$1"
+      readonly quality_func=$1
+      ;;  
+    -r1)
+      shift
+      readonly start_res="$1"
       ;;
+    -r2)
+      shift
+      readonly stop_res="$1"
+      ;;
+    -r3)
+      shift
+      readonly step_res="$1"
+      ;;  
     -l)
       shift
       readonly seed="$1"
@@ -52,6 +64,8 @@ done
 # Call script that creates table with unique undirected edges
 
 citing_cited_table=${year_table}'_citing_cited'
+
+echo "Getting unique undirected edges of ${citing_cited_table} ..."
 
 psql -f get_unique_pairs_citing_cited.sql -v schema=${schema} -v citing_cited_table=${citing_cited_table}
 
@@ -68,14 +82,35 @@ psql << HEREDOC
 \copy ${schema}.${year_nodes_table} TO '${year_nodes_table}.csv' CSV HEADER
 HEREDOC
 
-
 # Convert SCPs to 0-indexed values 
+
+echo "Converting nodes to 0-indexed values..."
 
 python convert_to_leiden_input.py ${year_table} ${citing_cited_unique_pairs_table} ${year_nodes_table}
 
 leiden_input=${year_table}'_leiden_input.txt'
-leiden_output=${year_table}'_leiden_clusters.txt'
+
+echo "Leiden input file ready."
 
 # Get Leiden clusters
 
-java -jar /usr/local/bin/RunNetworkClustering.jar -r ${resolution_param} --seed ${seed} -o ${leiden_output} ${leiden_input}
+for i in $(seq $start_res $step_res $stop_res)
+do 
+    echo "Resolution Parameter is $i"
+    
+    first_val="$(cut -d'.' -f1 <<<"$i")"
+    second_val="$(cut -d'.' -f2 <<<"$i")"
+    res_suffix="R$first_val$second_val"
+    
+    leiden_output=${year_table}'_leiden_clusters_'${res_suffix}'.txt'
+
+    java -jar /usr/local/bin/RunNetworkClustering.jar -q ${quality_func} -r ${i} --seed ${seed} -o ${leiden_output} ${leiden_input}
+    
+    echo "Done with Resolution $i"
+    echo "Leiden clusters ready."
+    echo "Cluster file: ${leiden_output}"
+
+done
+
+echo "All Leiden clusters generated."
+echo "All complete."
