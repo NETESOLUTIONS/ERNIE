@@ -1,5 +1,5 @@
 import pandas as pd
-import jsd_modules as jm
+import mapping_module as mm
 import multiprocessing as mp
 from sqlalchemy import create_engine
 from sys import argv
@@ -32,7 +32,7 @@ for compare_year in year_list[:1]:
     print(f'Working on {compare_year.name}')
     for current_cluster_no in range(1, len(current_year)):
         print(current_cluster_no)
-        match_dict = p.starmap(jm.match_superset_year, [(current_cluster_no, current_year, compare_year, current_year.name, compare_year.name)])
+        match_dict = p.starmap(mm.match_superset_year, [(current_cluster_no, current_year, compare_year, current_year.name, compare_year.name)])
         match_df = pd.DataFrame.from_dict(match_dict)
         final_df = final_df.append(match_df, ignore_index=True)
         

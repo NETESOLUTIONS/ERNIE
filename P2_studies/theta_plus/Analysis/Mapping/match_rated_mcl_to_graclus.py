@@ -2,7 +2,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from sys import argv
 import swifter
-import jsd_modules as jm
+import mapping_module as mm
 import multiprocessing as mp
 
 user_name = argv[1]
@@ -25,7 +25,7 @@ final_df = pd.DataFrame(columns=columns)
 for i in range(len(rated_data)):
     
     result_df = rated_data[i:i+1]
-    match_dict = p.starmap(jm.match_mcl_to_graclus, [(result_df['imm1985_1995_cluster_no'], rated_data)])
+    match_dict = p.starmap(mm.match_mcl_to_graclus, [(result_df['imm1985_1995_cluster_no'], rated_data)])
     match_df = pd.DataFrame.from_dict(match_dict)
     final_df = final_df.append(match_df, ignore_index=True)
 

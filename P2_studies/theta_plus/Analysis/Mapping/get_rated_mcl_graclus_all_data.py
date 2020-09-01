@@ -2,8 +2,8 @@ import pandas as pd
 from sqlalchemy import create_engine
 from sys import argv
 
-user_name = "shreya"
-password = "Akshay<3"
+user_name = argv[1]
+password = arv[2]
 schema = "theta_plus"
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
