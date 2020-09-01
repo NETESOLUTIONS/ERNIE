@@ -2,7 +2,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from sys import argv
 import swifter
-import jsd_modules as jm
+import mapping_module as mm
 import multiprocessing as mp
 
 user_name = argv[1]
@@ -15,7 +15,8 @@ engine = create_engine(sql_scheme)
 
 p = mp.Pool(6)
 
-tmp_dir_list = ['imm1986']
+tmp_dir_list = ['imm1986','imm1987','imm1988','imm1989','imm1990',
+                'imm1991','imm1992','imm1993','imm1994','imm1995']
 for dir_name in tmp_dir_list:
 #for dir_name in dir_list:
     print(f'Working on {dir_name}')
@@ -23,7 +24,7 @@ for dir_name in tmp_dir_list:
     mcl_clusters = pd.read_sql(mcl_clusters_query, con=engine)
     
     for cluster_num in range(start_cluster_num, len(mcl_clusters)+1):
-        match_dict = p.starmap(jm.match_mcl_to_graclus, [(dir_name, cluster_num)])
+        match_dict = p.starmap(mm.match_mcl_to_graclus, [(dir_name, cluster_num)])
         match_df = pd.DataFrame.from_dict(match_dict)
         # In case the connection times out:
         #engine = create_engine(sql_scheme)
