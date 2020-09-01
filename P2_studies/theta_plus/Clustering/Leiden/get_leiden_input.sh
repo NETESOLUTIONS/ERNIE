@@ -53,7 +53,9 @@ citing_cited_unique_pairs_table=${citing_cited_table}'_unique_pairs'
 year_nodes_table=${year_table}'_nodes'
 
 psql -c "COPY (SELECT * FROM ${citing_cited_unique_pairs_table}) TO ${working_dir}'/'${citing_cited_unique_pairs_table}'.csv' CSV HEADER;" 
-psql -c "COPY (SELECT * FROM ${year_nodes_table}) TO ${working_dir}'/'${year_nodes_table}.csv' CSV HEADER;" 
+psql -c << HEREDOC
+\copy ${year_nodes_table} TO ${year_nodes_table}.csv FORMAT CSV WITH HEADER
+HEREDOC
 
 
 # Convert SCPs to 0-indexed values 
