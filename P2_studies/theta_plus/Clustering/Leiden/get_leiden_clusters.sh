@@ -102,13 +102,13 @@ do
     second_val="$(cut -d'.' -f2 <<<"$i")"
     res_suffix="R$first_val$second_val"
     
-    leiden_output=${year_table}'_leiden_clusters_'${res_suffix}'.txt'
+    leiden_output=${year_table}'_cluster_scp_list_leiden_'${quality_func}'_'${res_suffix}'.txt'
 
     java -jar /usr/local/bin/RunNetworkClustering.jar -q ${quality_func} -r ${i} --seed ${seed} -o ${leiden_output} ${leiden_input}
     
+    python convert_to_cluster_output.py ${leiden_output}
+    
     echo "Done with Resolution $i"
-    echo "Leiden clusters ready."
-    echo "Cluster file: ${leiden_output}"
 
 done
 
