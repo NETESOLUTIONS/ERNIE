@@ -10,7 +10,7 @@ This directory contains the scripts related to evaluating clusters.
 
 [jsd_compute.py](jsd_compute.py) - Compute Cluster Jensen-Shannon Divergence (JSD)
 
-[jsd_modules.py](jsd_modules.py) - Defines all functions used in most of the Python pipeline
+[jsd_modules.py](jsd_modules.py) - Defines all functions used in most of the evaluation pipeline
 
 [jsd_random.py](jsd_random.py) - Compute Random JSD
 
