@@ -3,12 +3,13 @@ from sys import argv
 from tabulate import tabulate
 
 leiden_output = argv[1]
+nodes_coded = argv[2]
 
 clusters = pd.read_csv(leiden_output, sep='\t', names=['new_scp', 'cluster_no'])
 clusters = clusters.astype('object')
-nodes_coded = pd.read_csv("imm1985_nodes_coded.csv")
-nodes_coded = nodes_coded.astype('object')
-final_clusters = clusters.merge(nodes_coded, left_on='new_scp', right_on='new_scp', how='inner').drop(columns='new_scp')
+nodes = pd.read_csv(nodes_coded)
+nodes = nodes.astype('object')
+final_clusters = clusters.merge(nodes, left_on='new_scp', right_on='new_scp', how='inner').drop(columns='new_scp')
 
 name = leiden_output[:-4]
 save_name = name + '.csv'

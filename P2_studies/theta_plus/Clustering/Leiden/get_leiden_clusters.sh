@@ -89,6 +89,7 @@ echo "Converting nodes to 0-indexed values..."
 python convert_to_leiden_input.py ${year_table} ${citing_cited_unique_pairs_table} ${year_nodes_table}
 
 leiden_input=${year_table}'_leiden_input.txt'
+nodes_coded=${year_nodes_table}'_coded.csv'
 
 echo "Leiden input file ready."
 
@@ -106,7 +107,7 @@ do
 
     java -jar /usr/local/bin/RunNetworkClustering.jar -q ${quality_func} -r ${i} --seed ${seed} -o ${leiden_output} ${leiden_input}
     
-    python convert_to_cluster_output.py ${leiden_output}
+    python convert_to_cluster_output.py ${leiden_output} ${nodes_coded}
     
     echo "Done with Resolution $i"
 
