@@ -1,3 +1,8 @@
+from sqlalchemy import create_engine
+import pandas as pd
+import numpy as np
+import swifter
+
 # ------------------------------------------------------------------------------------ #    
     
 schema = "theta_plus"
@@ -56,46 +61,75 @@ def match_rated_mcl_to_graclus(imm1985_1995_cluster_no, rated_data):
 
 # ------------------------------------------------------------------------------------ #    
 
-def match_superset_year(current_cluster_no, current_year, compare_year, current_year_name, compare_year_name):
+def match_superset_year(superset_cluster_no, superset, compare_year, superset_name, compare_year_name):
 
-        current_cluster_size = len(current_year[current_year["cluster_no"]==current_cluster_no])
+    superset_cluster = superset[superset["cluster_no"]==superset_cluster_no]
+    superset_cluster_size = len(superset_cluster)
+    superset_cluster = superset_cluster.rename(columns={'cluster_no':'superset_cluster_no'})
+    compare_year = compare_year.rename(columns={'cluster_no':'compare_cluster_no'})
+    superset_grouped = superset_cluster[['scp']].merge(compare_year, 
+                                              left_on = 'scp', 
+                                              right_on = 'scp', 
+                                              how='inner').groupby('compare_cluster_no', as_index = False).agg('count')
 
-        current_grouped = current_year[current_year['cluster_no']==current_cluster_no].merge(compare_year, 
-                                                          left_on = 'scp', 
-                                                          right_on = 'scp', 
-                                                          how='inner')[['cluster_no_y', 'scp']].groupby('cluster_no_y', as_index = False).agg('count')
-        current_total_intersection = current_grouped["scp"].sum()
-        current_max_count = current_grouped["scp"].max()
-        current_max_prop = round(current_max_count/current_cluster_size, 3)
+    if len(superset_grouped) > 0:
+        superset_nodes_found = superset_grouped["scp"].sum()
+        superset_max_count = superset_grouped["scp"].max()
 
-        if (current_total_intersection > 0):#and max_prop >= 0.4:
-            compare_cluster_no = current_grouped["cluster_no_y"][current_grouped["scp"] == current_max_count].values[0]
-            compare_cluster_size = len(compare_year[compare_year["cluster_no"]==compare_cluster_no])
-            compare_max_prop = round(current_max_count/compare_cluster_size, 3)
-        else:
-            compare_cluster_no = None
-            compare_cluster_size = None
-            compare_max_prop = None
+        # Proportion of nodes in the superset cluster that are found in the best-matching 
+        # compare year cluster
+        superset_max_overlap_prop = round(superset_max_count/superset_cluster_size, 3)
 
-        current_cluster_number_key = current_year_name + '_cluster_number'
-        current_cluster_size_key = current_year_name + '_cluster_size'
-        compare_cluster_number_key = compare_year_name + '_cluster_number'
-        compare_cluster_prop_key = compare_year_name+ '_max_prop'
-        compare_cluster_size_key = compare_year_name+ '_cluster_size'
-        compare_to_current_cluster_prop_key = compare_year_name + '_' + current_year_name + '_max_prop'
+        compare_cluster_no = superset_grouped.set_index('scp').at[superset_max_count, 'compare_cluster_no']
+        if type(compare_cluster_no) == np.ndarray:
+            compare_cluster_no = compare_cluster_no[0] # Choosing the first cluster that matches
+            indicator = 1 # More than one best-matching option
+        elif type(compare_cluster_no) == np.int64:
+            indicator = 0 # Only one best-matching option
 
-        match_dict = {
-                'current_year': current_year_name,
-                current_cluster_number_key: current_cluster_no,
-                current_cluster_size_key: current_cluster_size,
-                compare_cluster_number_key: compare_cluster_no,
-                compare_cluster_size_key: compare_cluster_size,
-                compare_cluster_prop_key: current_max_prop,
-                compare_to_current_cluster_prop_key: compare_max_prop
-                        }
+        compare_cluster = compare_year[compare_year["compare_cluster_no"]==compare_cluster_no]
+        compare_cluster_size = len(compare_cluster)
 
-        return match_dict
+        total_intersection = len(superset_cluster.merge(compare_cluster, left_on='scp', right_on='scp', how='inner'))
+        total_union = len(superset_cluster.merge(compare_cluster, left_on='scp', right_on='scp', how='outer'))
+        intersect_union_ratio = round(total_intersection/total_union, 3)
+
+    else:
+        superset_nodes_found = None
+        superset_max_count = None
+        superset_max_overlap_prop = None
+        compare_cluster_no = None
+        compare_cluster_size = None
+        total_intersection = None
+        total_union = None
+        intersect_union_ratio = None
+        indicator = None        
+
+    superset_cluster_number_key = superset_name + '_cluster_number'
+    superset_cluster_size_key = superset_name + '_cluster_size'
+    compare_cluster_number_key = compare_year_name + '_cluster_number'
+    compare_cluster_size_key = compare_year_name + '_cluster_size'
+    compare_superset_nodes_found_key = compare_year_name + '_superset_nodes_found'
+    compare_cluster_max_overlap_prop_key = compare_year_name + '_max_overlap_prop'
+    compare_cluster_intersection_key = compare_year_name + '_intersection'
+    compare_cluster_union_key = compare_year_name + '_union'
+    compare_cluster_intersect_union_ratio_key = compare_year_name + '_intersect_union_ratio'
     
+#     nonlocal superset_max_overlap_prop # mitigate UnboundLocalError
+    match_dict = {
+            'superset': superset_name,
+            superset_cluster_number_key: superset_cluster_no,
+            superset_cluster_size_key: superset_cluster_size,
+            compare_cluster_number_key: compare_cluster_no,
+            compare_cluster_size_key: compare_cluster_size,
+            compare_superset_nodes_found_key: superset_nodes_found,
+            compare_cluster_max_overlap_prop_key: superset_max_overlap_prop,
+            compare_cluster_intersection_key: total_intersection,
+            compare_cluster_union_key: total_union,
+            compare_cluster_intersect_union_ratio_key: intersect_union_ratio,
+            'multiple_options': indicator}
+
+    return match_dict
     
 # ------------------------------------------------------------------------------------ #    
     

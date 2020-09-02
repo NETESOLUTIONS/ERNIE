@@ -17,7 +17,6 @@ import swifter
 import pandas as pd
 from ast import literal_eval
 from scipy import sparse
-from sqlalchemy import create_engine
 
 # ------------------------------------------------------------------------------------ #
 

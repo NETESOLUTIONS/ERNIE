@@ -6,38 +6,44 @@ from sys import argv
 
 user_name = argv[1]
 password = argv[2]
-rootdir = "/erniedev_data3/theta_plus/imm_output"
+data_type = argv[3]
+start_year = int(argv[4])
+end_year = int(argv[5])
+rootdir = "/erniedev_data3/theta_plus/" + data_type + "_output"
 schema = "theta_plus"
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
-year_names_list = ['imm1985','imm1986','imm1987','imm1988','imm1989','imm1990',
-                   'imm1991','imm1992','imm1993','imm1994','imm1995']
+year_names_list = []
+for year in range(start_year, end_year+1):
+    name = data_type + str(year)
+    year_names_list.append(name)
 
 year_list = []
 
-current_year = pd.read_sql_table(table_name='imm1985_1995_cluster_scp_list_unshuffled', 
-                                 schema=schema, con=engine)
-current_year.name = 'imm1985_1995'   
+superset_name = data_type + str(start_year) + '_' + str(end_year)
+superset_cluster_scp_table = superset_name + '_cluster_scp_list_unshuffled'
+
+superset = pd.read_sql_table(table_name=superset_cluster_scp_table, schema=schema, con=engine)
 
 for i in range(len(year_names_list)):
     table_name = year_names_list[i] + '_cluster_scp_list_unshuffled'
     year_list.append(pd.read_sql_table(table_name=table_name, schema=schema, con=engine))
-    name = 'imm19' + str(85+i) # ---> year starts from 1985
-    year_list[i].name = name
+    year_list[i].name = year_names_list[i]
 
 p = mp.Pool(6)    
 for compare_year in year_list[:1]:
     final_df = pd.DataFrame()
     print(f'Working on {compare_year.name}')
-    for current_cluster_no in range(1, len(current_year)):
-        print(current_cluster_no)
-        match_dict = p.starmap(mm.match_superset_year, [(current_cluster_no, current_year, compare_year, current_year.name, compare_year.name)])
+    for superset_cluster_no in range(1, len(superset)):
+
+        match_dict = p.starmap(mm.match_superset_year, [(superset_cluster_no, superset, compare_year, superset_name, compare_year.name)])
         match_df = pd.DataFrame.from_dict(match_dict)
         final_df = final_df.append(match_df, ignore_index=True)
-        
-    save_name = rootdir + '/imm1985_1995/match_to_' + compare_year.name + '.csv'
+    
+    save_name = rootdir + '/' + superset_name + '/match_to_' + compare_year.name + '.csv'
     final_df.to_csv(save_name, index = None, header=True, encoding='utf-8')
+    
     # In case the connection times out:
     engine = create_engine(sql_scheme)
     save_name_sql = compare_year.name + '_superset_match'
