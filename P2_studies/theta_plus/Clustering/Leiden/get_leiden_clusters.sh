@@ -18,9 +18,9 @@ DESCRIPTION
     For the data name (year_table e.g., imm1985) supplied, get unique undirected edges and copy
     the table along with its corresponding nodes table to working directory. Convert the nodes
     to 0-indexed integers and save edge output (Leiden input) as a tab-separated file. Run the
-    Leiden algrithm with required parameters using this output and save leiden output. Convert
+    Leiden algorithm with required parameters using this output and save leiden output. Convert
     the Leiden output into SCP form and save corresponding cluster-SCP CSV. The standard output 
-    also displays cluster size distribtuion information.
+    also displays cluster size distribution information.
     
     The Leiden resolution parameter is set to 1.0 by default and can be changed to any float value
     by using the -r1 option. This script also allows the user to input a desired range of values
@@ -51,9 +51,9 @@ fi
 set -e
 set -o pipefail
 
-declare r1="1.0"
-declare r2=$r1
-declare r3="1.0"
+declare start_res="1.0"
+declare stop_res=$start_res
+declare step_res="1.0"
 declare quality_func="CPM"
 script_dir="/erniedev_data3/theta_plus/Leiden"
 declare -i seed=2020
