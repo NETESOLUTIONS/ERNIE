@@ -78,7 +78,7 @@ def match_superset_year(superset_cluster_no, superset, compare_year, superset_na
 
         # Proportion of nodes in the superset cluster that are found in the best-matching 
         # compare year cluster
-        superset_max_overlap_prop = round(superset_max_count/superset_cluster_size, 3)
+        superset_max_overlap_prop = round(superset_max_count/superset_cluster_size, 4)
 
         compare_cluster_no = superset_grouped.set_index('scp').at[superset_max_count, 'compare_cluster_no']
         if type(compare_cluster_no) == np.ndarray:
@@ -92,7 +92,7 @@ def match_superset_year(superset_cluster_no, superset, compare_year, superset_na
 
         total_intersection = len(superset_cluster.merge(compare_cluster, left_on='scp', right_on='scp', how='inner'))
         total_union = len(superset_cluster.merge(compare_cluster, left_on='scp', right_on='scp', how='outer'))
-        intersect_union_ratio = round(total_intersection/total_union, 3)
+        intersect_union_ratio = round(total_intersection/total_union, 4)
 
     else:
         superset_nodes_found = None
@@ -225,3 +225,63 @@ def match_mcl_to_enriched(dir_name, cluster_num):
                    }
 
     return result_dict
+
+# ------------------------------------------------------------------------------------ #    
+
+def match_mcl_to_leiden(mcl_cluster_no, mcl, leiden):
+
+    mcl_cluster = mcl[mcl["cluster_no"]==mcl_cluster_no]
+    mcl_cluster_size = len(mcl_cluster)
+    mcl_cluster = mcl_cluster.rename(columns={'cluster_no':'mcl_cluster_no'})
+    leiden = leiden.rename(columns={'cluster_no':'leiden_cluster_no'})
+    mcl_grouped = mcl_cluster[['scp']].merge(leiden, 
+                                              left_on = 'scp', 
+                                              right_on = 'scp', 
+                                              how='inner').groupby('leiden_cluster_no', as_index = False).agg('count')
+
+    if len(mcl_grouped) > 0:
+        mcl_max_count = mcl_grouped["scp"].max()
+
+        # Proportion of nodes in the mcl cluster that are found in the best-matching 
+        # leiden cluster
+        mcl_max_overlap_prop = round(mcl_max_count/mcl_cluster_size, 4)
+
+        leiden_cluster_no = mcl_grouped.set_index('scp').at[mcl_max_count, 'leiden_cluster_no']
+        if type(leiden_cluster_no) == np.ndarray:
+            leiden_cluster_no = leiden_cluster_no[0] # Choosing the first cluster that matches
+            indicator = 1 # More than one best-matching option
+        elif type(leiden_cluster_no) == np.int64:
+            indicator = 0 # Only one best-matching option
+
+        leiden_cluster = leiden[leiden["leiden_cluster_no"]==leiden_cluster_no]
+        leiden_cluster_size = len(leiden_cluster)
+
+        total_intersection = len(mcl_cluster.merge(leiden_cluster, left_on='scp', right_on='scp', how='inner'))
+        total_union = len(mcl_cluster.merge(leiden_cluster, left_on='scp', right_on='scp', how='outer'))
+        intersect_union_ratio = round(total_intersection/total_union, 4)
+
+    else:
+        mcl_max_count = None
+        mcl_max_overlap_prop = None
+        leiden_cluster_no = None
+        leiden_cluster_size = None
+        total_intersection = None
+        total_union = None
+        intersect_union_ratio = None
+        indicator = None        
+    
+    match_dict = {
+            'mcl_cluster_number': mcl_cluster_no,
+            'mcl_cluster_size': mcl_cluster_size,
+            'leiden_cluster_number': leiden_cluster_no,
+            'leiden_cluster_size_key': leiden_cluster_size,
+            'ledien_cluster_max_overlap_prop': mcl_max_overlap_prop,
+            'total_intersection': total_intersection,
+            'total_union': total_union,
+            'intersect_union_ratio': intersect_union_ratio,
+            'multiple_options': indicator}
+
+    return match_dict
+    
+# ------------------------------------------------------------------------------------ #    
+    
