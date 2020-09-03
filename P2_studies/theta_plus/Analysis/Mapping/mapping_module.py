@@ -1,7 +1,6 @@
 from sqlalchemy import create_engine
 import pandas as pd
 import numpy as np
-import swifter
 
 # ------------------------------------------------------------------------------------ #    
     
@@ -62,7 +61,7 @@ def match_rated_mcl_to_graclus(imm1985_1995_cluster_no, rated_data):
 # ------------------------------------------------------------------------------------ #    
 
 def match_superset_year(superset_cluster_no, superset, compare_year, superset_name, compare_year_name):
-
+    
     superset_cluster = superset[superset["cluster_no"]==superset_cluster_no]
     superset_cluster_size = len(superset_cluster)
     superset_cluster = superset_cluster.rename(columns={'cluster_no':'superset_cluster_no'})
@@ -274,8 +273,8 @@ def match_mcl_to_leiden(mcl_cluster_no, mcl, leiden):
             'mcl_cluster_number': mcl_cluster_no,
             'mcl_cluster_size': mcl_cluster_size,
             'leiden_cluster_number': leiden_cluster_no,
-            'leiden_cluster_size_key': leiden_cluster_size,
-            'ledien_cluster_max_overlap_prop': mcl_max_overlap_prop,
+            'leiden_cluster_size': leiden_cluster_size,
+            'leiden_cluster_max_overlap_prop': mcl_max_overlap_prop,
             'total_intersection': total_intersection,
             'total_union': total_union,
             'intersect_union_ratio': intersect_union_ratio,
