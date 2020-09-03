@@ -23,16 +23,26 @@ leiden_name = data_name + '_cluster_scp_list_leiden_' + leiden_input + '.csv'
 # mcl = pd.read_sql_table(table_name= mcl_name, schema=schema, con=engine)
 mcl = pd.read_csv(mcl_name)
 leiden = pd.read_csv(leiden_name)
+
+mcl_grouped = mcl.groupby(by='cluster_no', 
+                          as_index=False).agg('count').sort_values(by='cluster_no', ascending=True)
+
+# To match clusters between size 30 and 350 only:
+mcl_grouped = mcl_grouped[(mcl_grouped['scp'] >= 30) & (mcl_grouped['scp'] <= 350)]
+
+mcl_cluster_list = mcl_grouped['cluster_no'].tolist()
+
 print("Running...")
 p = mp.Pool(6)
 final_df = pd.DataFrame()
-for mcl_cluster_no in range(1, len(mcl)):
+
+for mcl_cluster_no in mcl_cluster_list[:20]:
 
     match_dict = p.starmap(mm.match_mcl_to_leiden, [(mcl_cluster_no, mcl, leiden)])
     match_df = pd.DataFrame.from_dict(match_dict)
     final_df = final_df.append(match_df, ignore_index=True)
 
-save_name = rootdir + '/' + data_name  + '_match_to_leiden' + leiden_input + '.csv'
+save_name = rootdir + '/' + data_name + '_match_to_' + leiden_input + '.csv'   
 final_df.to_csv(save_name, index = None, header=True, encoding='utf-8')
 
 ## In case the connection times out:

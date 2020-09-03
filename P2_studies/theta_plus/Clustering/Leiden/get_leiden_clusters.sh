@@ -4,7 +4,7 @@ if [[ $1 == "-h" ]]; then
 NAME
 
     get_leiden_clusters.sh - Takes input data name and Leiden parameters to output 
-                            a CSV file of Leiden clusters along with SCPS
+                            a CSV file of Leiden clusters along with SCPs
 
 SYNOPSIS
 
