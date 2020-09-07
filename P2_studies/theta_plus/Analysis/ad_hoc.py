@@ -43,6 +43,14 @@ for i in year_list:
 
         df2[i.name][j.name] = df[i.name][j.name][0]/df[i.name][j.name][1]
         
+# Intersection as a percentage of total number of records in year (row-wise)
+df3 = pd.DataFrame(columns = [i.name for i in year_list], index = [i.name for i in year_list])
+for i in year_list:
+    for j in year_list:
+        intersection = len(i.merge(j, left_on = 'scp', right_on = 'scp', how = 'inner'))
+        
+        df3[i.name][j.name] =round((intersection/ len(i)), 3)
+        
 
 # ------------------------------------------------------------------------------------------- #      
 
@@ -76,3 +84,72 @@ shuffled_sample[['1990_cluster_no', 'scp']].to_sql(save_name_original, con=engin
 
 
 # ------------------------------------------------------------------------------------------- #      
+
+# Code to generate 'table 1' in the paper:
+
+import pandas as pd
+from sqlalchemy import create_engine
+from tabulate import tabulate
+import numpy as np
+
+schema = "theta_plus"
+user_name = ""
+password = ""
+data_type = "imm"
+start_year = 1985
+end_year = 1995
+
+sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
+engine = create_engine(sql_scheme)
+
+year_names_list = []
+for year in range(start_year, end_year+1):
+    name = data_type + str(year)
+    year_names_list.append(name)
+superset_name = data_type + str(start_year) + '_' + str(end_year)
+year_names_list.append(superset_name)
+year_all_merged_list = []
+year_citing_cited_list = []
+
+for i in range(len(year_names_list)):
+   # Read from Postgres
+    table_all_merged_name = year_names_list[i] + '_all_merged_unshuffled'
+    year_all_merged_list.append(pd.read_sql_table(table_name=table_all_merged_name, schema=schema, con=engine))   
+    year_all_merged_list[i].name = year_names_list[i]
+    
+    table_citing_cited_name = year_names_list[i] + '_citing_cited'
+    year_citing_cited_list.append(pd.read_sql_table(table_name=table_citing_cited_name, schema=schema, con=engine))   
+    year_citing_cited_list[i].name = year_names_list[i]
+
+
+name = []
+num_clusters = [] 
+num_articles = [] 
+num_edges = []
+mean_size = [] 
+median_size = [] 
+mean_cond = []
+mean_coh = []
+
+year_names_list[-1] = '   combined'
+
+for i in range(len(year_names_list)):
+    
+    name.append(year_names_list[i][3:])
+    num_clusters.append(len(year_all_merged_list[i]))
+    num_articles.append(sum(year_all_merged_list[i]['cluster_size']))
+    num_edges.append(len(year_citing_cited_list[i]))
+    mean_size.append(round(np.mean(year_all_merged_list[i]['cluster_size']), 3))
+    median_size.append(round(np.median(year_all_merged_list[i]['cluster_size']), 3))
+    mean_cond.append(round(np.mean(year_all_merged_list[i]['conductance']), 3))
+    
+    at_least_ten = year_all_merged_list[i][year_all_merged_list[i]['jsd_size'] >= 10]
+    weighted_coherence = round(sum(at_least_ten['coherence'] * at_least_ten['cluster_size'])/sum(at_least_ten['cluster_size']), 3)
+    mean_coh.append(weighted_coherence)
+
+all_lists = [name, num_clusters, num_articles, num_edges, mean_size, median_size, mean_cond, mean_coh]
+
+
+headers=['Dataset', 'num_clusters', 'num_articles', 'num_edges', 'mean_size', 
+        'median_size', 'mean_conductance', 'mean_coherence*']
+print(tabulate(pd.DataFrame(all_lists).transpose(), headers=headers, tablefmt='latex', showindex=False))
