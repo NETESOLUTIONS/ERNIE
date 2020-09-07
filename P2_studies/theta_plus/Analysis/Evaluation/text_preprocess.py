@@ -6,7 +6,8 @@ This script pre-processes all text based information (title and abstracts)
 for any clustering and outputs tokens correspoding to each document.
 These tokens may then be used for any NLP computation.
 
-Argument(s): title_abstracts_table - a database table containing all titles and abstracts
+Argument(s): schema                - database schema containing the table
+             title_abstracts_table - a database table containing all titles and abstracts
                                      to be pre-processed 
              user_name             - database username
              password              - database password
@@ -20,11 +21,11 @@ import pandas as pd
 from sqlalchemy import create_engine
 from sys import argv
 
-title_abstracts_table = argv[1]
-user_name = argv[2]
-password = argv[3]
+schema = argv[1]
+title_abstracts_table = argv[2]
+user_name = argv[3]
+password = argv[4]
 
-schema = "theta_plus"
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
