@@ -4,20 +4,30 @@ from sys import argv
 
 user_name = argv[1]
 password = argv[2]
-start_val = int(argv[3])
-schema = "theta_plus"
+data_type = argv[3] # 'imm' or 'eco'
+start_year = argv[4]
+end_year = argv[5]
+start_val = int(argv[6])
+match_type = argv[7] # 'overlap' or 'jaccard'
+schema = argv[8]
 sql_scheme= 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
+table_name = data_type + start_year + '_' + end_year
+
 main_table_query = """
-SELECT s.current_cluster_number AS imm1985_1995_cluster_no, s.current_cluster_size AS imm1985_1995_cluster_size, 
-       s.match_year, s.match_cluster_no AS mcl_year_cluster_no
+SELECT s.""" + table_name + """_cluster_number, s.""" + table_name + """_cluster_size,
+       s.""" + match_type + """_match_year AS mcl_match_year, s.""" + match_type + """_match_cluster_no 
+       AS mcl_year_cluster_no, s.""" + match_type + """_match_proportion 
+       AS superset_year_""" + match_type + """_match_prop
 FROM theta_plus.superset_to_year_match_30_350 s
-ORDER BY s.current_cluster_number ASC;
+ORDER BY s.""" + table_name + """_cluster_number ASC
 """
 
 main_table = pd.read_sql(main_table_query, con=engine)
-main_table.name = 'superset_30_350_mcl_graclus_all_data'
+main_table.name = 'superset_30_350_mcl_graclus_all_data' + match_type 
+
+main_table['mcl_match_year'] = main_table['mcl_match_year'].str[3:7]
 
 new_columns = ['mcl_year_cluster_size', 'mcl_year_conductance','mcl_year_coherence', 'mcl_year_int_edges', 
                'mcl_year_boundary', 'mcl_year_sum_article_score', 'mcl_year_max_article_score',
@@ -35,10 +45,11 @@ for column in new_columns:
 print(f'Working on table: {schema}.{main_table.name}')
 print(f'The size of the table is {len(main_table)}')
 
+save_name = main_table.name
+
 for i in range(start_val, len(main_table)):
     
-    match_year = 'imm' +  str(main_table.at[i, 'match_year'])
-    
+    match_year = 'imm' + str(main_table.at[i, 'mcl_match_year'])
     mcl_year_table_name = match_year + "_all_merged_unshuffled"
     mcl_year_cluster_no = str(main_table.at[ i, 'mcl_year_cluster_no'])
     mcl_year_query = "SELECT cluster_size, conductance, coherence, int_edges, boundary, sum_article_score, max_article_score, median_article_score FROM theta_plus." + mcl_year_table_name + " WHERE cluster_no=" + mcl_year_cluster_no + ";"
@@ -79,7 +90,7 @@ for i in range(start_val, len(main_table)):
 
     result_df = main_table[i:i+1]
     result_df = result_df.astype(float)
-    result_df.to_sql('superset_30_350_mcl_graclus_all_data', schema=schema, con=engine, if_exists='append', index=False)
+    result_df.to_sql(save_name, schema=schema, con=engine, if_exists='append', index=False)
 
 print("Done updating table.")
 print("All completed.")
