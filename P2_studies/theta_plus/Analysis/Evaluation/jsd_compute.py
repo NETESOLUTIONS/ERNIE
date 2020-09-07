@@ -31,25 +31,31 @@ import os
 # val = argv[2]
 name = 'now'
 val = '20'
-rootdir = argv[1] # ---> /erniedev_data3/theta_plus/imm
+rootdir = '/erniedev_data3/theta_plus'
+data_type = argv[1] # 'imm' or 'eco'
+start_year = argv[2]
+end_year = argv[3]
+data_path = rootdir + '/' + data_type
 dir_list = sorted(os.listdir(rootdir))
-start_cluster_num = argv[2]
-end_cluster_num = argv[3]
-cluster_type = argv[4]
-user_name = argv[5]
-password = argv[6]
+start_cluster_num = argv[4]
+end_cluster_num = argv[5]
+schema = argv[6]
+cluster_type = argv[7]
+user_name = argv[8]
+password = argv[9]
 
-schema = "theta_plus"
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
-tmp_dir_list = ['imm1985', 'imm1986','imm1987','imm1988','imm1989','imm1990',
-                'imm1991','imm1992','imm1993','imm1994','imm1995']
+tmp_dir_list = ['imm1985_1995']
 for dir_name in tmp_dir_list:
 #for dir_name in dir_list:
     print(f'Working on {dir_name}')
-    title_abstracts_table = 'imm1985_1995_union_title_abstracts_processed'
-    query = "SELECT csl.*, tat.processed_all_text FROM theta_plus." + dir_name + "_cluster_scp_list_" + cluster_type + " csl LEFT JOIN theta_plus." + title_abstracts_table + " tat ON csl.scp = tat.scp;"  
+    title_abstracts_table = data_type + start_year + '_' + end_year + '_union_title_abstracts_processed'
+    query = """SELECT csl.*, tat.processed_all_text 
+            FROM """ + schema + """.""" + dir_name + """_cluster_scp_list_""" + cluster_type + """ csl 
+            LEFT JOIN """ + schema + """."""  + title_abstracts_table + """ tat 
+            ON csl.scp = tat.scp;"""  
     data_text = pd.read_sql(query, con=engine)
     
     if end_cluster_num == 'max':
@@ -57,7 +63,7 @@ for dir_name in tmp_dir_list:
     else:
         max_val = int(end_cluster_num)
 
-    save_name = rootdir + '_output/' + dir_name + '/' + dir_name + '_JSD_' + cluster_type + ".csv"
+    save_name = rootdir + '/' + data_type + '_output/' + dir_name + '/' + dir_name + '_JSD_' + cluster_type + ".csv"
     # p = mp.Pool(mp.cpu_count())
     p = mp.Pool(6)
 
