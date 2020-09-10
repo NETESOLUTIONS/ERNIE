@@ -8,3 +8,4 @@ calculate_kinetics_single_pub.cypher: Calculating kinetics for individual public
 SQL_query.sql: SQL code for testing the code of calculating 1985-1995 pairs in Neo4j
 Cypher_query.cypher: Cypher code for calculating 1985-1995 pairs in Neo4j
 Aug 10, 2020: Added t3.csv file that contains metadata of 1196 pairs without any Scopus UIDs.
+sb_plus_revision.py: the python script for sb_plus project; develping algorithms to find sleeping beauties and data manipulation + preprocessing + visualization
