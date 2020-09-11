@@ -2,39 +2,39 @@
 
 SET SEARCH_PATH = theta_plus;
 
--- create list of scps common to all 5 years (intersection)
-DROP TABLE IF EXISTS theta_plus.imm2000_2004_common_scps;
-CREATE TABLE theta_plus.imm2000_2004_common_scps tablespace theta_plus_tbs AS
-WITH cte AS (SELECT scp FROM imm2000_nodes INTERSECT
-             SELECT scp FROM imm2001_nodes INTERSECT
-             SELECT scp FROM imm2002_nodes INTERSECT
-             SELECT scp FROM imm2003_nodes INTERSECT
-             SELECT scp FROM imm2004_nodes INTERSECT) 
- SELECT * FROM cte;
+-- -- create list of scps common to all 5 years (intersection)
+-- DROP TABLE IF EXISTS theta_plus.imm2000_2004_common_scps;
+-- CREATE TABLE theta_plus.imm2000_2004_common_scps tablespace theta_plus_tbs AS
+-- WITH cte AS (SELECT scp FROM imm2000_nodes INTERSECT
+--              SELECT scp FROM imm2001_nodes INTERSECT
+--              SELECT scp FROM imm2002_nodes INTERSECT
+--              SELECT scp FROM imm2003_nodes INTERSECT
+--              SELECT scp FROM imm2004_nodes INTERSECT) 
+--  SELECT * FROM cte;
 
-CREATE INDEX IF NOT EXISTS imm2000_citing_cited_idx 
-ON theta_plus.imm2000_citing_cited(citing,cited) 
-TABLESPACE index_tbs;
+-- CREATE INDEX IF NOT EXISTS imm2000_citing_cited_idx 
+-- ON theta_plus.imm2000_citing_cited(citing,cited) 
+-- TABLESPACE index_tbs;
 
-CREATE INDEX IF NOT EXISTS imm2001_citing_cited_idx 
-ON theta_plus.imm2001_citing_cited(citing,cited) 
-TABLESPACE index_tbs;
+-- CREATE INDEX IF NOT EXISTS imm2001_citing_cited_idx 
+-- ON theta_plus.imm2001_citing_cited(citing,cited) 
+-- TABLESPACE index_tbs;
 
-CREATE INDEX IF NOT EXISTS imm2002_citing_cited_idx 
-ON theta_plus.imm2002_citing_cited(citing,cited) 
-TABLESPACE index_tbs;
+-- CREATE INDEX IF NOT EXISTS imm2002_citing_cited_idx 
+-- ON theta_plus.imm2002_citing_cited(citing,cited) 
+-- TABLESPACE index_tbs;
 
-CREATE INDEX IF NOT EXISTS imm2003_citing_cited_idx 
-ON theta_plus.imm2003_citing_cited(citing,cited) 
-TABLESPACE index_tbs;
+-- CREATE INDEX IF NOT EXISTS imm2003_citing_cited_idx 
+-- ON theta_plus.imm2003_citing_cited(citing,cited) 
+-- TABLESPACE index_tbs;
 
-CREATE INDEX IF NOT EXISTS imm2004_citing_cited_idx 
-ON theta_plus.imm2004_citing_cited(citing,cited) 
-TABLESPACE index_tbs;
+-- CREATE INDEX IF NOT EXISTS imm2004_citing_cited_idx 
+-- ON theta_plus.imm2004_citing_cited(citing,cited) 
+-- TABLESPACE index_tbs;
 
-CREATE INDEX IF NOT EXISTS imm2005_citing_cited_idx 
-ON theta_plus.imm2005_citing_cited(citing,cited) 
-TABLESPACE index_tbs;
+-- CREATE INDEX IF NOT EXISTS imm2005_citing_cited_idx 
+-- ON theta_plus.imm2005_citing_cited(citing,cited) 
+-- TABLESPACE index_tbs;
 
 
 
