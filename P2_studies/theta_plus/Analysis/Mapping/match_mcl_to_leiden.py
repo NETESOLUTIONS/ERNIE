@@ -10,8 +10,9 @@ data_type = argv[3]
 start_year = int(argv[4])
 end_year = int(argv[5])
 leiden_input = argv[6] #quality_func_Res --> CPM_R001
-rootdir = argv[7] # "/erniedev_data3/theta_plus/Leiden/"
-schema = "theta_plus"
+schema = argv[7]
+rootdir = argv[8] # "/erniedev_data3/theta_plus/Leiden/"
+
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
@@ -40,7 +41,7 @@ print("Running...")
 p = mp.Pool(6)
 final_df = pd.DataFrame()
 
-for mcl_cluster_no in mcl_cluster_list[:20]:
+for mcl_cluster_no in mcl_cluster_list:
 
     match_dict = p.starmap(mm.match_mcl_to_leiden, [(mcl_cluster_no, mcl, leiden)])
     match_df = pd.DataFrame.from_dict(match_dict)
