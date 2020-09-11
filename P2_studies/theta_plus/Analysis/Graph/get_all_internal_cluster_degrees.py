@@ -3,9 +3,12 @@ import networkx as nx
 from sqlalchemy import create_engine
 from sys import argv
 
-schema = "theta_plus"
-user_name = argv[1]
-password = argv[2]
+data_type = argv[1] # 'imm' or 'eco'
+start_year = argv[2]
+end_year = argv[3]
+schema = argv[4]
+user_name = argv[5]
+password = argv[6]
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
@@ -16,6 +19,8 @@ engine = create_engine(sql_scheme)
 # ORDER BY imm1985_1995_cluster_no;"""
 
 # For all superset clusters
+table_name = data_type + 
+full_table_name = schema + '.' + 
 cluster_query = """SELECT cluster_no
 FROM theta_plus.imm1985_1995_all_merged_unshuffled
 ORDER BY cluster_no;"""
@@ -26,12 +31,12 @@ clusters_list = clusters['cluster_no'].astype(int).tolist()
 for cluster_num in clusters_list:
     
     citing_cited_query="""
-    SELECT cslu1.cluster_no , ccu.citing, ccu.cited
-    FROM theta_plus.imm1985_1995_citing_cited_union ccu
+    SELECT cslu1.cluster_no , cc.citing, cc.cited
+    FROM theta_plus.imm1985_1995_citing_cited cc
     JOIN theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu1
-        ON cslu1.scp = ccu.citing
+        ON cslu1.scp = cc.citing
     JOIN theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu2
-        ON cslu2.scp = ccu.cited
+        ON cslu2.scp = cc.cited
     WHERE cslu1.cluster_no=""" +str(cluster_num)+ """ AND cslu1.cluster_no=cslu2.cluster_no;"""
 
     citing_cited = pd.read_sql(citing_cited_query, con=engine)
