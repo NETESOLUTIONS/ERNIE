@@ -146,3 +146,24 @@ SELECT at.*, cte.venn_tiers_column
 FROM theta_plus.imm1985_1995_article_tiers at
 LEFT JOIN cte on cte.auid = at.auid) venn
 WHERE venn.auid = imm1985_1995_author_tiers.auid;
+
+
+
+-- add cluster number to full graph degrees table
+ALTER TABLE theta_plus.imm2000_2004_full_graph_degrees
+ADD COLUMN mcl_cluster_no BIGINT;
+
+UPDATE theta_plus.imm2000_2004_full_graph_degrees
+SET mcl_cluster_no = cslu.cluster_no
+FROM theta_plus.imm2000_2004_cluster_scp_list_unshuffled cslu
+WHERE cslu.scp = theta_plus.imm2000_2004_full_graph_degrees.scp;
+
+-- add AUID to full graph degrees table
+
+CREATE TABLE imm2000_2004_all_authors_full_graph AS
+    SELECT fgd.*, sa.auid
+    FROM theta_plus.imm2000_2004_full_graph_degrees fgd
+    JOIN public.scopus_authors sa
+        ON fgd.scp = sa.scp
+
+
