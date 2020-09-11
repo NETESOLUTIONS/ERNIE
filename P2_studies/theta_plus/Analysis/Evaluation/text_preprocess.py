@@ -38,7 +38,7 @@ data_text['processed_all_text'] = data_text["processed_all_text"].swifter.progre
 
 # In case the connection times out:
 engine = create_engine(sql_scheme)
-save_name = title_abstracts_table + '_processed_test'
+save_name = title_abstracts_table + '_processed'
 data_text.to_sql(save_name, con=engine, schema=schema, index=False, if_exists='fail')
 
 print("All Completed.")

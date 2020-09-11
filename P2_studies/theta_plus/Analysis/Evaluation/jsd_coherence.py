@@ -24,21 +24,23 @@ jsd_output_column_names = ['weight', 'inflation', 'cluster', 'total_size', 'pre_
 
 jsd_random_output_column_names = ['cluster_size', 'frequency', 'random_jsd']
 
+rootdir = "/erniedev_data3/theta_plus"
+data_type = argv[1]
+data_path = rootdir + '/' + data_type
+dir_list = sorted(os.listdir(data_path))
+cluster_type = argv[2]
 
-rootdir = '/erniedev_data3/theta_plus/imm'
-dir_list = sorted(os.listdir(rootdir))
-
-cluster_type = argv[1]
-
-for dir_name in dir_list:
+tmp_dir = ['imm1985_1995']
+for dir_name in tmp_dir:
+# for dir_name in dir_list:
 
     print(f'Working on {dir_name}')
-    jsd_output_name = rootdir + '_output/' + dir_name + '/' + dir_name + '_JSD_' + cluster_type + '.csv'
+    jsd_output_name = data_path + '_output/' + dir_name + '/' + dir_name + '_JSD_' + cluster_type + '.csv'
     jsd_output_data = pd.read_csv(jsd_output_name, names=jsd_output_column_names)
     jsd_output_data = jsd_output_data.sort_values(by='cluster')
     jsd_output_data = jsd_output_data.reset_index(drop=True)
 
-    jsd_random_output_name = rootdir + '_output/' + dir_name + '/' +  dir_name + '_JSD_random_' + cluster_type + '.csv'
+    jsd_random_output_name = data_path + '_output/' + dir_name + '/' +  dir_name + '_JSD_random_' + cluster_type + '.csv'
     jsd_random_output = pd.read_csv(jsd_random_output_name, names=jsd_random_output_column_names)
     jsd_random_output = jsd_random_output.sort_values(by='cluster_size',ascending=False).reset_index(drop=True).fillna('nan')
 
@@ -49,7 +51,7 @@ for dir_name in dir_list:
     jsd_output_data = jsd_output_data.merge(jsd_random_output, left_on='pre_jsd_size', right_on = 'cluster_size', how='left')
     jsd_output_data['jsd_coherence'] = jsd_output_data['mean_random_jsd'] - jsd_output_data['mean_jsd']
 
-    save_name = rootdir + '_output/' + dir_name + '/' +  dir_name + '_JSD_final_result_' + cluster_type + '.csv'
+    save_name = data_path + '_output/' + dir_name + '/' +  dir_name + '_JSD_final_result_' + cluster_type + '.csv'
     jsd_output_data.to_csv(save_name, index = None, header=True, encoding='utf-8')
 
 print("All complete.")

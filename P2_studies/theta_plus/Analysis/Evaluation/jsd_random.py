@@ -39,31 +39,35 @@ jsd_output_column_names = ['weight', 'inflation', 'cluster', 'total_size', 'pre_
 # val = argv[2]
 name = 'now'
 val = '20'
-rootdir = argv[1] # ---> /erniedev_data3/theta_plus/imm
-dir_list = sorted(os.listdir(rootdir))
-start_cluster_num = int(argv[2])
-end_cluster_num = argv[3]
-cluster_type = argv[4]
-repeat = int(argv[5])
-user_name = argv[6]
-password = argv[7]
+rootdir = "/erniedev_data3/theta_plus"
+data_type = argv[1]
+data_path = rootdir + '/' + data_type
+dir_list = sorted(os.listdir(data_path))
+start_year = argv[2]
+end_year = argv[3]
+schema = argv[4]
+start_cluster_num = int(argv[5])
+end_cluster_num = argv[6]
+cluster_type = argv[7]
+repeat = int(argv[8])
+user_name = argv[9]
+password = argv[10]
 
-schema = "theta_plus"
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
 # p = mp.Pool(mp.cpu_count())
 p = mp.Pool(6)
 
-tmp_dir_list = ['imm1990']
+tmp_dir_list = ['imm2000_2004']
 for dir_name in tmp_dir_list:
 #for dir_name in dir_list:    
     print(f'Working on {dir_name}')
-    title_abstracts_table = 'imm1985_1995_union_title_abstracts_processed'
-    query = "SELECT csl.*, tat.processed_all_text FROM theta_plus." + dir_name + "_cluster_scp_list_" + cluster_type + " csl LEFT JOIN theta_plus." + title_abstracts_table + " tat ON csl.scp = tat.scp WHERE tat.processed_all_text is NOT NULL;"
+    title_abstracts_table = data_type + start_year + '_' + end_year + '_union_title_abstracts_processed'
+    query = "SELECT csl.*, tat.processed_all_text FROM " + schema + "." + dir_name + "_cluster_scp_list_" + cluster_type + " csl LEFT JOIN " + schema + "." + title_abstracts_table + " tat ON csl.scp = tat.scp WHERE tat.processed_all_text is NOT NULL;"
     all_text_data = pd.read_sql(query, con=engine)
 
-    jsd_output_file_name = rootdir + '_output/' + dir_name + '/' + dir_name + '_JSD_' + cluster_type + ".csv"
+    jsd_output_file_name = data_path + '_output/' + dir_name + '/' + dir_name + '_JSD_' + cluster_type + ".csv"
     jsd_output_data = pd.read_csv(jsd_output_file_name, names = jsd_output_column_names)
 
     cluster_counts_table = jsd_output_data[['cluster', 'pre_jsd_size']].groupby('pre_jsd_size', as_index = False).agg('count').rename(columns={'cluster':'frequency', 'pre_jsd_size':'cluster_size'}).sort_values('cluster_size', ascending=False)
@@ -74,7 +78,7 @@ for dir_name in tmp_dir_list:
     else:
         max_val = int(end_cluster_num)
 
-    save_name = rootdir + '_output/' + dir_name + '/' +  dir_name + '_JSD_random_' + cluster_type + '.csv'
+    save_name = data_path + '_output/' + dir_name + '/' +  dir_name + '_JSD_random_' + cluster_type + '.csv'
 
     for cluster_num in range(start_cluster_num-1, max_val):
         print("")
