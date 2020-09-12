@@ -92,7 +92,7 @@ conductances[V2=='imm_s_mcl',c('gp','col'):= list('imm_2','mcl')]
 conductances[V2=='imm_s_leiden',c('gp','col'):= list('imm_2','leiden')]
 
 
-pdf('fig2.pdf')
+pdf('fig3.pdf')
 qplot(conductance,data=conductances,geom='density',group=V2,color=col,facets=.~gp) +  theme_bw() + 
 theme(legend.title = element_blank()) 
 dev.off()
@@ -116,7 +116,7 @@ sizes[V2=='imm_l_leiden',c('gp','col'):= list('imm_1','leiden')]
 sizes[V2=='imm_s_mcl',c('gp','col'):= list('imm_2','mcl')]
 sizes[V2=='imm_s_leiden',c('gp','col'):= list('imm_2','leiden')]
 
-pdf('fig3.pdf')
+pdf('fig2.pdf')
 qplot(cluster_counts,data=sizes,geom='density',group=V2,color=col,facets=.~gp)+  theme_bw()  + 
 theme(legend.title = element_blank()) 
 dev.off()
