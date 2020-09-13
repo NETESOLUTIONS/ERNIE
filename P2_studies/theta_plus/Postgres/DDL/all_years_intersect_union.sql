@@ -1,6 +1,6 @@
 -- create list of scps common to all 11 years (intersection)
-CREATE TABLE theta_plus.imm_85_95_common_scps tablespace theta_plus_tbs AS
-with cte as (select scp from imm1985_nodes INTERSECT
+CREATE TABLE theta_plus.imm1985_1995_common_scps tablespace theta_plus_tbs AS
+with cte as (select scp from imm1985_nodes
 select scp from imm1986_nodes INTERSECT
 select scp from imm1987_nodes INTERSECT
 select scp from imm1988_nodes INTERSECT
@@ -51,7 +51,7 @@ AND sa.abstract_language='eng'
 AND st.language='English';
 
 DROP TABLE IF EXISTS theta_plus.imm1985_1995_nodes_union;
-CREATE TABLE theta_plus.imm1985_1995_nodes
+CREATE TABLE theta_plus.imm1985_1995_nodes_union
 TABLESPACE theta_plus_tbs AS
 SELECT distinct citing as scp
 FROM theta_plus.imm1985_1995_citing_cited_union
