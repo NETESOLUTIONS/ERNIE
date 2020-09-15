@@ -104,3 +104,9 @@ TABLESPACE theta_plus_tbs AS
             ON tpin.scp=sa.scp
             AND sa.abstract_language='eng'
             AND st.language='English';
+
+
+-- Total seed set count:
+
+-- eco2000_2010
+-- [29111, 30240, 30976, 31945, 31788, 34773, 38498, 42820, 46437, 50262, 52460]

@@ -72,3 +72,7 @@ TABLESPACE theta_plus_tbs AS
             ON tpin.scp=sa.scp
             AND sa.abstract_language='eng'
             AND st.language='English';
+
+-- total seed set count
+-- imm2000_2004
+-- [18395, 17114, 16550, 16291, 17323]

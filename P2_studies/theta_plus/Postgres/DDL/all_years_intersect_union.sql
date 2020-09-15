@@ -69,3 +69,8 @@ INNER JOIN public.scopus_titles st ON tpin.scp=st.scp
 INNER JOIN public.scopus_abstracts sa ON tpin.scp=sa.scp
 AND sa.abstract_language='eng'
 AND st.language='English';
+
+
+-- total seed set count
+-- imm1985_1995
+-- [11220, 11206, 11534, 12302, 13128, 13207, 13624, 14372, 14654, 15303, 16465]
