@@ -59,10 +59,11 @@ engine = create_engine(sql_scheme)
 # p = mp.Pool(mp.cpu_count())
 p = mp.Pool(6)
 
-tmp_dir_list = ['imm2000_2004']
+tmp_dir_list = ['eco2000_2010']
 for dir_name in tmp_dir_list:
 #for dir_name in dir_list:    
     print(f'Working on {dir_name}')
+    
     title_abstracts_table = data_type + start_year + '_' + end_year + '_union_title_abstracts_processed'
     query = "SELECT csl.*, tat.processed_all_text FROM " + schema + "." + dir_name + "_cluster_scp_list_" + cluster_type + " csl LEFT JOIN " + schema + "." + title_abstracts_table + " tat ON csl.scp = tat.scp WHERE tat.processed_all_text is NOT NULL;"
     all_text_data = pd.read_sql(query, con=engine)
@@ -86,7 +87,10 @@ for dir_name in tmp_dir_list:
         print(f'The Cluster Size Number is {cluster_num+1} of {max_val} in {dir_name}')
         result_df = cluster_counts_table[cluster_num:cluster_num+1]
         print(f'The Cluster Size is {result_df["cluster_size"].values[0]}')
-        result_df['random_jsd'] = p.starmap(jm.random_jsd, [(result_df['cluster_size'], all_text_data, repeat)])
+        
+        # if there is a struct_error:
+        sample_all_text_data = all_text_data.sample(n=2000000) # else use all_text_data
+        result_df['random_jsd'] = p.starmap(jm.random_jsd, [(result_df['cluster_size'], sample_all_text_data, repeat)])
         result_df.to_csv(save_name, mode = 'a', index = None, header=False, encoding='utf-8')
         print(f'Done with Cluster Size Number {cluster_num+1}')
         print("")
