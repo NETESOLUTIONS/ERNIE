@@ -1,6 +1,6 @@
 -- create list of scps common to all 11 years (intersection)
-CREATE TABLE theta_plus.imm_85_95_common_scps tablespace theta_plus_tbs AS
-with cte as (select scp from imm1985_nodes INTERSECT
+CREATE TABLE theta_plus.imm1985_1995_common_scps tablespace theta_plus_tbs AS
+with cte as (select scp from imm1985_nodes
 select scp from imm1986_nodes INTERSECT
 select scp from imm1987_nodes INTERSECT
 select scp from imm1988_nodes INTERSECT
@@ -51,7 +51,7 @@ AND sa.abstract_language='eng'
 AND st.language='English';
 
 DROP TABLE IF EXISTS theta_plus.imm1985_1995_nodes_union;
-CREATE TABLE theta_plus.imm1985_1995_nodes
+CREATE TABLE theta_plus.imm1985_1995_nodes_union
 TABLESPACE theta_plus_tbs AS
 SELECT distinct citing as scp
 FROM theta_plus.imm1985_1995_citing_cited_union
@@ -69,3 +69,8 @@ INNER JOIN public.scopus_titles st ON tpin.scp=st.scp
 INNER JOIN public.scopus_abstracts sa ON tpin.scp=sa.scp
 AND sa.abstract_language='eng'
 AND st.language='English';
+
+
+-- total seed set count
+-- imm1985_1995
+-- [11220, 11206, 11534, 12302, 13128, 13207, 13624, 14372, 14654, 15303, 16465]
