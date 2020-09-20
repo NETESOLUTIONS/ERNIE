@@ -316,6 +316,19 @@ WHERE venn.auid = imm1985_1995_author_tiers.auid;
 
 
 -- imm2000_2004
+
+
+
+ALTER TABLE theta_plus.imm2000_2004_all_merged_unshuffled
+ADD COLUMN int_edge_density_ratio DOUBLE PRECISION;
+
+UPDATE theta_plus.imm2000_2004_all_merged_unshuffled amu
+SET int_edge_density_ratio = amu2.density_ratio
+FROM (SELECT cluster_no, (1.0 * int_edges/cluster_size) density_ratio
+      FROM theta_plus.imm2000_2004_all_merged_unshuffled)  amu2
+WHERE amu2.cluster_no = amu.cluster_no;
+
+
 -- add cluster number to full graph degrees table
 ALTER TABLE theta_plus.imm2000_2004_full_graph_degrees
 ADD COLUMN mcl_cluster_no BIGINT;
@@ -391,6 +404,14 @@ CREATE TABLE theta_plus_ecology.eco2000_2010_all_authors_full_graph AS
     FROM theta_plus_ecology.eco2000_2010_full_graph_degrees fgd
     JOIN public.scopus_authors sa
         ON fgd.scp = sa.scp;
+
+-- add AUID to internal graph degrees table
+
+CREATE TABLE theta_plus_ecology.eco2000_2010_all_authors_internal AS
+    SELECT icd.*, sa.auid
+    FROM theta_plus_ecology.eco2000_2010_internal_cluster_degrees icd
+    JOIN public.scopus_authors sa
+        ON icd.scp = sa.scp;
 
 -- Get cluster number and number of articles per cluster for each author
 CREATE TABLE theta_plus_ecology.eco2000_2010_authors_clusters AS
@@ -542,3 +563,18 @@ WHERE amu.cluster_no = atc.cluster_no;
 --
 --
 
+
+
+
+
+-- eco2000_2010
+
+
+ALTER TABLE theta_plus_ecology.eco2000_2010_all_merged_unshuffled
+ADD COLUMN int_edge_density_ratio DOUBLE PRECISION;
+
+UPDATE theta_plus_ecology.eco2000_2010_all_merged_unshuffled amu
+SET int_edge_density_ratio = amu2.density_ratio
+FROM (SELECT cluster_no, (1.0 * int_edges/cluster_size) density_ratio
+      FROM theta_plus_ecology.eco2000_2010_all_merged_unshuffled)  amu2
+WHERE amu2.cluster_no = amu.cluster_no;
