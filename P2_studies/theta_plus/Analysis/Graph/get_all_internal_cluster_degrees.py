@@ -10,6 +10,8 @@ cluster_type = argv[4]
 schema = argv[5]
 user_name = argv[6]
 password = argv[7]
+start_cluster_num = argv[8]
+end_cluster_num = argv[9]
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
@@ -31,8 +33,19 @@ clusters = pd.read_sql(cluster_table_query, con=engine)
 clusters_grouped = clusters.groupby(by='cluster_no', as_index=False).agg('count')
 clusters_list = clusters_grouped['cluster_no'].astype('object').tolist()
 
+if start_cluster_num == "first":
+    start_num = clusters_list[0]
+else:                     
+    start_num = clusters_list.index(int(start_cluster_num))
+    
+if end_cluster_num == "last":
+    end_num = len(clusters_list)
+else:                     
+    end_num = clusters_list.index(int(end_cluster_num)+1)
+    
 save_name = data_table + '_internal_cluster_degrees'
-for cluster_num in clusters_list:
+df_list = []
+for cluster_num in clusters_list[start_num:end_num]:
     
     citing_cited_query="""
     SELECT cslu1.cluster_no , cc.citing, cc.cited
@@ -78,8 +91,9 @@ for cluster_num in clusters_list:
     scp_all['cluster_no'] = cluster_num
     scp_all = scp_all[['cluster_no', 'scp', 'int_cluster_total_degrees', 'int_cluster_in_degrees', 'int_cluster_out_degrees', 'int_cluster_total_degree_centrality' , 'int_cluster_in_degree_centrality', 'int_cluster_out_degree_centrality']]
     
-    
-    scp_all.to_sql(save_name, con=engine, schema=schema, if_exists='append', index=False)
+    df_list.append(scp_all)
+
+final_df = pd.concat(df_list)
+final_df.to_sql(save_name, con=engine, schema=schema, if_exists='append', index=False)
 
 print("All Completed.")
-
