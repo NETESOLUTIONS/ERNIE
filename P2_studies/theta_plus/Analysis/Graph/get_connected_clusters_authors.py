@@ -25,13 +25,13 @@ else:
 for cluster_num in clusters_list[start_num:]:
     
     common_authors_query = """
-        SELECT cluster_no, count(auid) as count_common_authors
-        FROM theta_plus.imm1985_1995_authors_clusters
-        WHERE cluster_no!=""" +str(cluster_num)+ """ AND
+        SELECT mcl_cluster_no, count(auid) as count_common_authors
+        FROM theta_plus.imm1985_1995_authors_clusters_mcl
+        WHERE mcl_cluster_no!=""" +str(cluster_num)+ """ AND
               auid IN (SELECT auid
-                       FROM theta_plus.imm1985_1995_authors_clusters
-                       WHERE cluster_no=""" +str(cluster_num)+ """)
-        GROUP BY cluster_no;"""
+                       FROM theta_plus.imm1985_1995_authors_clusters_mcl
+                       WHERE mcl_cluster_no=""" +str(cluster_num)+ """)
+        GROUP BY mcl_cluster_no;"""
 
     common_authors = pd.read_sql(common_authors_query, con=engine)
     num_authors = clusters.set_index('cluster_no').at[cluster_num, 'num_authors']

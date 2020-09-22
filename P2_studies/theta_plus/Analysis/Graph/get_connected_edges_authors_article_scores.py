@@ -61,7 +61,7 @@ for cluster_num in clusters_list[start_num:]:
         SELECT count(DISTINCT aa.scp) as count_articles, count(DISTINCT auid) as count_authors
         FROM theta_plus.imm1985_1995_all_authors_full_graph aa
         JOIN theta_plus.imm1985_1995_article_score_unshuffled asu on asu.scp = aa.scp
-        WHERE asu.article_score >= 1 AND aa.cluster_no=""" +str(cluster_num)+ """;"""
+        WHERE asu.article_score >= 1 AND aa.mcl_cluster_no=""" +str(cluster_num)+ """;"""
 
     reduced_cluster = pd.read_sql(reduced_cluster_query, con=engine)
     cluster_size = reduced_cluster.at[0, 'count_articles']
@@ -79,19 +79,19 @@ for cluster_num in clusters_list[start_num:]:
             if v > 1:
 
                 author_union_query = """
-                    SELECT DISTINCT aa.auid, aa.cluster_no, count(aa.scp) as count_articles
+                    SELECT DISTINCT aa.auid, aa.mcl_cluster_no, count(aa.scp) as count_articles
                     FROM theta_plus.imm1985_1995_all_authors_full_graph aa
                     JOIN theta_plus.imm1985_1995_article_score_unshuffled asu ON asu.scp = aa.scp
                     WHERE asu.article_score >= 1
-                    GROUP BY aa.auid, aa.cluster_no
-                    HAVING aa.cluster_no=""" + str(cluster_num) + """
+                    GROUP BY aa.auid, aa.mcl_cluster_no
+                    HAVING aa.mcl_cluster_no=""" + str(cluster_num) + """
                     UNION
-                    SELECT DISTINCT aa.auid, aa.cluster_no, count(aa.scp) as count_articles
+                    SELECT DISTINCT aa.auid, aa.mcl_cluster_no, count(aa.scp) as count_articles
                     FROM theta_plus.imm1985_1995_all_authors_full_graph aa
                     JOIN theta_plus.imm1985_1995_article_score_unshuffled asu ON asu.scp = aa.scp
                     WHERE asu.article_score >= 1
-                    GROUP BY aa.auid, aa.cluster_no
-                    HAVING aa.cluster_no=""" + str(k) + """;"""
+                    GROUP BY aa.auid, aa.mcl_cluster_no
+                    HAVING aa.mcl_cluster_no=""" + str(k) + """;"""
 
                 author_union = pd.read_sql(author_union_query, con=engine)
 
@@ -126,7 +126,7 @@ for cluster_num in clusters_list[start_num:]:
                     SELECT count(DISTINCT aa.scp) as count_articles, count(DISTINCT aa.auid) as count_authors
                     FROM theta_plus.imm1985_1995_all_authors_full_graph aa
                     JOIN theta_plus.imm1985_1995_article_score_unshuffled asu on asu.scp = aa.scp
-                    WHERE asu.article_score >= 1 AND aa.cluster_no=""" +str(k)+ """;"""
+                    WHERE asu.article_score >= 1 AND aa.mcl_cluster_no=""" +str(k)+ """;"""
 
                 connected_reduced_cluster = pd.read_sql(connected_reduced_cluster_query, con=engine)
                 connected_cluster_size = connected_reduced_cluster.at[0, 'count_articles']
