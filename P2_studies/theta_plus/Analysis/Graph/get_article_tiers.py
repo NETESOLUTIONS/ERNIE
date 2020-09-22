@@ -11,7 +11,7 @@ schema = argv[5]
 user_name = argv[6]
 password = argv[7]
 start_cluster_num = argv[8]
-
+end_cluster_num = argv[9]
 sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ernie'
 engine = create_engine(sql_scheme)
 
@@ -22,15 +22,21 @@ cluster_number_query = """SELECT cluster_no
                         ORDER BY cluster_no ASC;"""
 
 cluster_number = pd.read_sql(cluster_number_query, con=engine)
-cluster_number_list = cluster_number['cluster_no'] 
+cluster_number_list = cluster_number['cluster_no'].astype('object').tolist()
 
 if start_cluster_num == "first":
-    start_num = 0
+    start_num = cluster_number_list[0]
 else:                     
     start_num = cluster_number_list.index(int(start_cluster_num))
+    
+if end_cluster_num == "last":
+    end_num = len(cluster_number_list)
+else:                     
+    end_num = cluster_number_list.index(int(end_cluster_num)+1)
 
 save_name = data_table + '_article_tiers'
-for cluster_num in cluster_number_list[start_num:]:
+df_list = []
+for cluster_num in cluster_number_list[start_num:end_num]:
        
     cluster_query = """
         SELECT cluster_no, scp, int_cluster_total_degrees, 
@@ -68,7 +74,10 @@ for cluster_num in cluster_number_list[start_num:]:
                                      right_on = 'scp',
                                      how='left').sort_values(by=['int_cluster_in_degrees', 'scp'],
                                                              ascending=False).reset_index(drop=True)
-
-        tier_cluster.to_sql(save_name, con=engine, schema=schema, index=False, if_exists='append')
+        
+        df_list.append(tier_cluster)
+        
+final_df = pd.concat(df_list)
+final_df.to_sql(save_name, con=engine, schema=schema, if_exists='append', index=False)
 
 print("Article Tiers: All Completed.")
