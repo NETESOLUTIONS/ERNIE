@@ -101,7 +101,6 @@ SELECT DISTINCT citing,cited from theta_plus_ecology_ecology.eco2001_cited
 UNION
 SELECT DISTINCT citing,cited from theta_plus_ecology_ecology.eco2001_citing;
 
-
 -- clean up Scopus data
 DELETE FROM theta_plus_ecology_ecology.eco2001_citing_cited
 WHERE citing=cited;
@@ -125,6 +124,10 @@ ON cte.cited=sp2.scp
 AND sp2.citation_language='English'
 AND sp2.pub_type='core';
 DROP TABLE XX_eco2001;
+
+CREATE INDEX IF NOT EXISTS eco2001_citing_cited_idx 
+ON theta_plus_ecology.eco2001_citing_cited(citing,cited) 
+TABLESPACE index_tbs;
 
 COMMENT ON TABLE theta_plus_ecology.eco2001_citing_cited IS
   'union of theta_plus_ecology.eco2001_citing and theta_plus_ecology.eco2001_cited tables';

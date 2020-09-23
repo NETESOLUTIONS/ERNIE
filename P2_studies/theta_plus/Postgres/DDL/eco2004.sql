@@ -126,6 +126,10 @@ AND sp2.citation_language='English'
 AND sp2.pub_type='core';
 DROP TABLE XX_eco2004;
 
+CREATE INDEX IF NOT EXISTS eco2004_citing_cited_idx 
+ON theta_plus_ecology.eco2004_citing_cited(citing,cited) 
+TABLESPACE index_tbs;
+
 COMMENT ON TABLE theta_plus_ecology.eco2004_citing_cited IS
   'union of theta_plus_ecology.eco2004_citing and theta_plus_ecology.eco2004_cited tables';
 COMMENT ON COLUMN theta_plus_ecology.eco2004_cited.citing IS 'SCP of seed articles from 2004 and their citing references';

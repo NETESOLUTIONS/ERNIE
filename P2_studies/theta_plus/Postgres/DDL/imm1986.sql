@@ -105,6 +105,8 @@ AND sp2.citation_language='English'
 AND sp2.pub_type='core';
 DROP TABLE XX;
 
+CREATE INDEX imm1986_citing_cited_idx ON theta_plus.imm1986_citing_cited(citing,cited) TABLESPACE index_tbs;
+
 COMMENT ON TABLE theta_plus.imm1986_citing_cited IS
   'union of theta_plus.imm1986_citing and theta_plus.imm1986_cited tables';
 COMMENT ON COLUMN theta_plus.imm1986_cited.citing IS 'SCP of seed articles from 1986 and their citing references';
