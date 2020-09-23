@@ -23,8 +23,8 @@ CREATE INDEX imm1985_1995_citing_cited_idx ON theta_plus.imm1985_1995_citing_cit
 
 COMMENT ON TABLE theta_plus.imm1985_1995_citing_cited IS
   'Union of theta_plus.imm1985_citing_cited through theta_plus.imm1995_citing_cited tables';
-COMMENT ON COLUMN theta_plus.imm1985_1995_cited.citing IS 'SCP of seed articles from 1985 to 1995 and their citing references';
-COMMENT ON COLUMN theta_plus.imm1985_1995_cited.cited IS 'SCP of seed articles from 1985 to 1995 and their cited references';
+COMMENT ON COLUMN theta_plus.imm1985_1995_citing_cited.citing IS 'SCP of seed articles from 1985 to 1995 and their citing references';
+COMMENT ON COLUMN theta_plus.imm1985_1995_citing_cited.cited IS 'SCP of seed articles from 1985 to 1995 and their cited references';
 
 --
 -- Get all nodes in the 1985-1995 dataset
