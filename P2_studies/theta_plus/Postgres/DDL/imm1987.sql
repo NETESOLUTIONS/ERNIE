@@ -4,8 +4,8 @@
 
 SET search_path = theta_plus;
 
---
-
+-- 
+-- Get all immunology articles published in the year 1987
 DROP TABLE IF EXISTS theta_plus.imm1987;
 CREATE TABLE theta_plus.imm1987
 TABLESPACE theta_plus_tbs AS
@@ -33,7 +33,7 @@ COMMENT ON TABLE theta_plus.imm1987 IS
 COMMENT ON COLUMN theta_plus.imm1987.scp IS 'SCP of seed articles for the year 1987';
 
 --
-
+-- Get all the cited references of the immunology articles published in 1987
 DROP TABLE IF EXISTS theta_plus.imm1987_cited;
 DROP TABLE IF EXISTS theta_plus.imm1987_cited;
 CREATE TABLE theta_plus.imm1987_cited
@@ -53,7 +53,7 @@ COMMENT ON COLUMN theta_plus.imm1987_cited.citing IS 'SCP of seed articles from 
 COMMENT ON COLUMN theta_plus.imm1987_cited.cited IS 'SCP of cited references of seed articles from 1987';
 
 --
-
+-- Get all the citing references of the immunology articles published in 1987
 DROP TABLE IF EXISTS theta_plus.imm1987_citing;
 CREATE TABLE theta_plus.imm1987_citing TABLESPACE theta_plus_tbs AS
 SELECT sr.scp as citing,tp.scp as cited FROM theta_plus.imm1987 tp
@@ -73,7 +73,7 @@ select count(1) from imm1987_cited;
 select count(1) from imm1987_citing;
 
 --
-
+-- Create table from the union of cited and citing references
 DROP TABLE IF EXISTS theta_plus.imm1987_citing_cited;
 CREATE TABLE theta_plus.imm1987_citing_cited
 TABLESPACE theta_plus_tbs AS
@@ -111,7 +111,7 @@ COMMENT ON COLUMN theta_plus.imm1987_cited.citing IS 'SCP of seed articles from 
 COMMENT ON COLUMN theta_plus.imm1987_cited.cited IS 'SCP of seed articles from 1987 and their cited references';
 
 --
-
+-- Get all nodes in the 1987 dataset
 DROP TABLE IF EXISTS theta_plus.imm1987_nodes;
 CREATE TABLE theta_plus.imm1987_nodes
 TABLESPACE theta_plus_tbs AS
@@ -128,7 +128,6 @@ COMMENT ON COLUMN theta_plus.imm1987_nodes.scp IS
   'SCPs of all seed articles from 1987 and their citing and cited references';
 
 --
-
 -- Merging with the citation counts table
 DROP TABLE IF EXISTS theta_plus.imm1987_citation_counts;
 CREATE TABLE theta_plus.imm1987_citation_counts
@@ -146,3 +145,5 @@ COMMENT ON COLUMN theta_plus.imm1987_citation_counts.citation_count IS
   'Scopus citation count of all seed articles from 1987 and their citing and cited references';
 COMMENT ON COLUMN theta_plus.imm1987_citation_counts.cluster_no IS
   'MCL (unshuffled) cluster number of all seed articles from 1987 and their citing and cited references';
+
+

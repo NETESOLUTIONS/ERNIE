@@ -5,7 +5,7 @@
 SET search_path = theta_plus;
 
 --
-
+-- Get all immunology articles published in the year 1996
 DROP TABLE IF EXISTS theta_plus.imm1996;
 CREATE TABLE theta_plus.imm1996
 TABLESPACE theta_plus_tbs AS
@@ -33,7 +33,7 @@ COMMENT ON TABLE theta_plus.imm1996 IS
 COMMENT ON COLUMN theta_plus.imm1996.scp IS 'SCP of seed articles for the year 1996';
 
 --
-
+-- Get all the cited references of the immunology articles published in 1996
 DROP TABLE IF EXISTS theta_plus.imm1996_cited;
 DROP TABLE IF EXISTS theta_plus.imm1996_cited;
 CREATE TABLE theta_plus.imm1996_cited
@@ -53,7 +53,7 @@ COMMENT ON COLUMN theta_plus.imm1996_cited.citing IS 'SCP of seed articles from 
 COMMENT ON COLUMN theta_plus.imm1996_cited.cited IS 'SCP of cited references of seed articles from 1996';
 
 --
-
+-- Get all the citing references of the immunology articles published in 1996
 DROP TABLE IF EXISTS theta_plus.imm1996_citing;
 CREATE TABLE theta_plus.imm1996_citing TABLESPACE theta_plus_tbs AS
 SELECT sr.scp as citing,tp.scp as cited FROM theta_plus.imm1996 tp
@@ -73,7 +73,7 @@ select count(1) from imm1996_cited;
 select count(1) from imm1996_citing;
 
 --
-
+-- Create table from the union of cited and citing references
 DROP TABLE IF EXISTS theta_plus.imm1996_citing_cited;
 CREATE TABLE theta_plus.imm1996_citing_cited
 TABLESPACE theta_plus_tbs AS
@@ -111,7 +111,7 @@ COMMENT ON COLUMN theta_plus.imm1996_cited.citing IS 'SCP of seed articles from 
 COMMENT ON COLUMN theta_plus.imm1996_cited.cited IS 'SCP of seed articles from 1996 and their cited references';
 
 --
-
+-- Get all nodes in the 1996 dataset
 DROP TABLE IF EXISTS theta_plus.imm1996_nodes;
 CREATE TABLE theta_plus.imm1996_nodes
 TABLESPACE theta_plus_tbs AS

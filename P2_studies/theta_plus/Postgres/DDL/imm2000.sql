@@ -1,7 +1,10 @@
--- Immunology DDL for the year 2000
+-- DDL script for base table:
+-- Field - Immunology
+-- Seed Year - 2000
 
 SET search_path = theta_plus;
 
+-- 
 -- Get all immunology articles published in the year 2000
 DROP TABLE IF EXISTS theta_plus.imm2000;
 
@@ -23,6 +26,16 @@ CREATE INDEX IF NOT EXISTS imm2000_idx
 ON theta_plus.imm2000(scp)
 TABLESPACE index_tbs;
 
+COMMENT ON TABLE theta_plus.imm2000 IS
+  'Seed article set for the year 2000 based on the following criteria:
+   ASJC Code = 2403 (Immunology)
+   Publication/Citation Type = "ar" (article)
+   Language = English
+   Scopus Publication Type = "core"';
+
+COMMENT ON COLUMN theta_plus.imm2000.scp IS 'SCP of seed articles for the year 2000';
+
+--
 -- Get all the cited references of the immunology articles published in 2000
 DROP TABLE IF EXISTS theta_plus.imm2000_cited;
 
@@ -37,6 +50,14 @@ CREATE INDEX IF NOT EXISTS imm2000_cited_idx
 ON theta_plus.imm2000_cited(citing,cited)
 TABLESPACE index_tbs;
 
+COMMENT ON TABLE theta_plus.imm2000_cited IS
+  'Cited references of all seed articles from 2000
+   Note: This set is not limited to the ASJC criteria (field: immunology)';
+
+COMMENT ON COLUMN theta_plus.imm2000_cited.citing IS 'SCP of seed articles from 2000';
+COMMENT ON COLUMN theta_plus.imm2000_cited.cited IS 'SCP of cited references of seed articles from 2000';
+
+--
 -- Get all the citing references of the immunology articles published in 2000
 DROP TABLE IF EXISTS theta_plus.imm2000_citing;
 
@@ -51,6 +72,14 @@ CREATE INDEX IF NOT EXISTS imm2000_citing_idx
 ON theta_plus.imm2000_citing(citing,cited)
 TABLESPACE index_tbs;
 
+COMMENT ON TABLE theta_plus.imm2000_citing IS
+  'Citing references of all seed articles from 2000
+   Note: This set is not limited to the ASJC criteria (field: immunology)';
+
+COMMENT ON COLUMN theta_plus.imm2000_cited.citing IS 'SCP of citing references of seed articles from 2000';
+COMMENT ON COLUMN theta_plus.imm2000_cited.cited IS 'SCP of seed articles from 2000';
+
+--
 -- Create table from the union of cited and citing references
 DROP TABLE IF EXISTS theta_plus.imm2000_citing_cited;
 
@@ -88,6 +117,12 @@ SELECT citing,cited FROM cte
 
 DROP TABLE XX_imm2000;
 
+COMMENT ON TABLE theta_plus.imm2000_citing_cited IS
+  'union of theta_plus.imm2000_citing and theta_plus.imm2000_cited tables';
+COMMENT ON COLUMN theta_plus.imm2000_cited.citing IS 'SCP of seed articles from 2000 and their citing references';
+COMMENT ON COLUMN theta_plus.imm2000_cited.cited IS 'SCP of seed articles from 2000 and their cited references';
+
+--
 -- Get all nodes in the 2000 dataset
 DROP TABLE IF EXISTS theta_plus.imm2000_nodes;
 
@@ -101,28 +136,7 @@ TABLESPACE theta_plus_tbs AS
 
 CREATE INDEX IF NOT EXISTS imm2000_nodes_idx ON theta_plus.imm2000_nodes(scp);
 
--- Get all titles and abstracts
-DROP TABLE IF EXISTS theta_plus.imm2000_title_abstracts;
-
-CREATE TABLE theta_plus.imm2000_title_abstracts
-TABLESPACE theta_plus_tbs AS
-    SELECT tpin.scp,st.title,sa.abstract_text
-    FROM theta_plus.imm2000_nodes tpin
-    INNER JOIN public.scopus_titles st 
-        ON tpin.scp=st.scp
-    INNER JOIN public.scopus_abstracts sa 
-        ON tpin.scp=sa.scp
-        AND sa.abstract_language='eng'
-        AND st.language='English';
-
-/*
--- Merging with the citation counts table
-DROP TABLE IF EXISTS theta_plus.imm2000_citation_counts;
-CREATE TABLE theta_plus.imm2000_citation_counts
-TABLESPACE theta_plus_tbs AS
-SELECT ielu.scp, scc.citation_count, ielu.cluster_no
-FROM theta_plus.imm2000_cluster_scp_list_unshuffled ielu
-LEFT JOIN public.scopus_citation_counts scc
-  ON ielu.scp = scc.scp;
-*/
-
+COMMENT ON TABLE theta_plus.imm2000_nodes IS
+  'All seed articles from 2000 and their citing and cited references';
+COMMENT ON COLUMN theta_plus.imm2000_nodes.scp IS
+  'SCPs of all seed articles from 2000 and their citing and cited references';
