@@ -135,7 +135,7 @@ DROP TABLE IF EXISTS theta_plus.imm1989_citation_counts;
 CREATE TABLE theta_plus.imm1989_citation_counts
 TABLESPACE theta_plus_tbs AS
 SELECT cslu.scp, scc.citation_count, cslu.cluster_no
-FROM theta_plus.imm1989_cluster_scp_list_unshuffled cslu
+FROM theta_plus.imm1989_cluster_scp_list_mcl cslu
 LEFT JOIN public.scopus_citation_counts scc
   ON cslu.scp = scc.scp;
 

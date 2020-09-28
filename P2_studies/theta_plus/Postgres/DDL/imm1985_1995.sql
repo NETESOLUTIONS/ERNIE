@@ -57,7 +57,7 @@ AND st.language='English';
 CREATE INDEX imm1985_1995_title_abstracts_idx ON theta_plus.imm1985_1995_title_abstracts(scp);
 
 COMMENT ON TABLE theta_plus.imm1985_1995_title_abstracts IS
-   'All titles and abstracts for seed articles from 1985 to 1995 and their citing and cited references'
+   'All titles and abstracts for seed articles from 1985 to 1995 and their citing and cited references';
 COMMENT ON COLUMN theta_plus.imm1985_1995_title_abstracts.scp IS
   'SCPs of all seed articles from 1985 to 1995 and their citing and cited references';
 COMMENT ON COLUMN theta_plus.imm1985_1995_title_abstracts.title IS
