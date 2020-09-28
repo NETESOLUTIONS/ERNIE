@@ -1,16 +1,18 @@
--- SQl ad-hoc script
-SET SEARCH_PATH = theta_plus;
+-- Table definition script
 
-ALTER TABLE theta_plus.imm1985_1995_all_merged_unshuffled
+SET SEARCH_PATH = theta_plus, theta_plus_ecology;
+
+ALTER TABLE theta_plus.imm1985_1995_all_merged_mcl
 ADD COLUMN int_edge_density_ratio DOUBLE PRECISION;
 
-UPDATE theta_plus.imm1985_1995_all_merged_unshuffled amu
+UPDATE theta_plus.imm1985_1995_all_merged_mcl amu
 SET int_edge_density_ratio = amu2.density_ratio
 FROM (SELECT cluster_no, (1.0 * int_edges/cluster_size) density_ratio
-      FROM theta_plus.imm1985_1995_all_merged_unshuffled)  amu2
+      FROM theta_plus.imm1985_1995_all_merged_mcl
+)  amu2
 WHERE amu2.cluster_no = amu.cluster_no;
 
--- imm2000_2004
+
 -- add cluster number to full graph degrees table
 ALTER TABLE theta_plus.imm1985_1995_full_graph_degrees
 ADD COLUMN mcl_cluster_no BIGINT,
@@ -18,12 +20,12 @@ ADD COLUMN leiden_cluster_no BIGINT;
 
 UPDATE theta_plus.imm1985_1995_full_graph_degrees
 SET mcl_cluster_no = cslu.cluster_no
-FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu
+FROM theta_plus.imm1985_1995_cluster_scp_list_mcl cslu
 WHERE cslu.scp = theta_plus.imm1985_1995_full_graph_degrees.scp;
 
 UPDATE theta_plus.imm1985_1995_full_graph_degrees
 SET leiden_cluster_no = csll.cluster_no
-FROM theta_plus.imm1985_1995_cluster_scp_list_leiden_cpm_r0002 csll
+FROM theta_plus.imm1985_1995_cluster_scp_list_leiden csll
 WHERE csll.scp = theta_plus.imm1985_1995_full_graph_degrees.scp;
 
 CREATE TABLE theta_plus.imm1985_1995_all_authors_full_graph AS
@@ -43,7 +45,7 @@ WHERE fgd.scp = aafg.scp ;
 
 UPDATE theta_plus.imm1985_1995_all_authors_full_graph aafg
 SET mcl_cluster_size = amu.cluster_size
-FROM theta_plus.imm1985_1995_all_merged_unshuffled amu
+FROM theta_plus.imm1985_1995_all_merged_mcl amu
 WHERE amu.cluster_no = aafg.mcl_cluster_no;
 
 -- Get cluster number and number of articles per cluster for each author
@@ -60,15 +62,15 @@ ALTER TABLE imm1985_1995_authors_clusters_mcl
 ADD COLUMN mcl_count_cited_articles BIGINT;
 
 UPDATE imm1985_1995_authors_clusters_mcl
-   SET mcl_count_cited_articles = cited_articles.count_cited_articles
+   SET count_cited_articles = cited_articles.count_cited_articles
 FROM (SELECT cluster_no, auid, count(cluster_in_degrees) count_cited_articles
       FROM
     (SELECT DISTINCT *
-    FROM theta_plus.imm1985_1995_all_authors_internal
+    FROM theta_plus.imm1985_1995_all_authors_internal_mcl
     WHERE cluster_in_degrees > 0) aai
     GROUP BY cluster_no, auid) cited_articles
  WHERE imm1985_1995_authors_clusters_mcl.auid = cited_articles.auid
-   AND imm1985_1995_authors_clusters_mcl.mcl_cluster_no =cited_articles.cluster_no;
+   AND imm1985_1995_authors_clusters_mcl.cluster_no =cited_articles.cluster_no;
 
 
 
@@ -80,19 +82,19 @@ CREATE TABLE theta_plus.imm1985_1995_authors_clusters_leiden AS
     GROUP BY auid, leiden_cluster_no
     ORDER BY auid ASC;
 
-ALTER TABLE imm1985_1995_authors_clusters_leiden
-ADD COLUMN leiden_count_cited_articles BIGINT;
+-- ALTER TABLE imm1985_1995_authors_clusters_leiden
+-- ADD COLUMN leiden_count_cited_articles BIGINT;
 
-UPDATE imm1985_1995_authors_clusters_leiden
-   SET leiden_count_cited_articles = cited_articles.count_cited_articles
-FROM (SELECT cluster_no, auid, count(cluster_in_degrees) count_cited_articles
-      FROM
-    (SELECT DISTINCT *
-    FROM theta_plus.imm1985_1995_all_authors_internal_leiden
-    WHERE cluster_in_degrees > 0) aai
-    GROUP BY cluster_no, auid) cited_articles
- WHERE imm1985_1995_authors_clusters_leiden.auid = cited_articles.auid
-   AND imm1985_1995_authors_clusters_leiden.leiden_cluster_no =cited_articles.cluster_no;
+-- UPDATE imm1985_1995_authors_clusters_leiden
+--    SET count_cited_articles = cited_articles.count_cited_articles
+-- FROM (SELECT cluster_no, auid, count(cluster_in_degrees) count_cited_articles
+--       FROM
+--     (SELECT DISTINCT *
+--     FROM theta_plus.imm1985_1995_all_authors_internal_leiden
+--     WHERE cluster_in_degrees > 0) aai
+--     GROUP BY cluster_no, auid) cited_articles
+--  WHERE imm1985_1995_authors_clusters_leiden.auid = cited_articles.auid
+--    AND imm1985_1995_authors_clusters_leiden.cluster_no =cited_articles.cluster_no;
 
 
 
@@ -104,7 +106,7 @@ CREATE TABLE  tier_1_proportions AS
   1.0*sum(case WHEN tier = 1 then 1 ELSE 0 END )/ count(cluster_no) as tier_1_prop
 FROM
 (SELECT cluster_no,scp, max(tier) as tier
-  FROM imm1985_1995_article_tiers
+  FROM imm1985_1995_article_tiers_mcl
 group by cluster_no, scp) total
 GROUP BY cluster_no
 ORDER BY cluster_no);
@@ -116,7 +118,7 @@ DROP VIEW IF EXISTS imm1985_1995_author_tiers_view;
 CREATE VIEW author_tiers_view
   (auid, cluster_no, tier) AS
     WITH cte AS (SELECT cluster_no, auid, min(tier) as tier
-                 FROM imm1985_1995_article_tiers
+                 FROM imm1985_1995_article_tiers_mcl
                  GROUP BY cluster_no, auid)
     SELECT auid, cluster_no, CASE
         WHEN tier = 1 THEN 'tier_1'
@@ -126,7 +128,7 @@ CREATE VIEW author_tiers_view
     ORDER BY tier ASC;
 
 -- Add count of clusters to author tiers
-DROP TABLE IF EXISTS imm1985_1995_author_tiers;
+DROP TABLE IF EXISTS imm1985_1995_author_tiers_mcl;
 CREATE TABLE imm1985_1995_author_tiers AS
   SELECT cc.auid, cc.total_num_clusters, icc.num_clusters_int_edges, aut.tier_1, aut.tier_2, aut.tier_3
   FROM
@@ -137,7 +139,8 @@ CREATE TABLE imm1985_1995_author_tiers AS
 
   LEFT JOIN (SELECT aai.auid, count(aai.cluster_no) as num_clusters_int_edges -- clusters with internal edges
              FROM (SELECT DISTINCT auid, cluster_no                           -- based on which article tiers were
-                   FROM imm1985_1995_all_authors_internal) aai                -- computed
+                   FROM imm1985_1995_all_authors_internal_mcl
+             ) aai                -- computed
                    GROUP BY aai.auid) icc ON cc.auid = icc.auid
 
   LEFT JOIN (SELECT auid,
@@ -150,7 +153,7 @@ CREATE TABLE imm1985_1995_author_tiers AS
 
 -- count of authors by tier in each cluster
 
-DROP TABLE IF EXISTS theta_plus.imm1985_1995_cluster_author_tier_counts;
+DROP TABLE IF EXISTS theta_plus.imm1985_1995_cluster_author_tier_counts_mcl;
 CREATE TABLE theta_plus.imm1985_1995_cluster_author_tier_counts AS
   SELECT cluster_no,
              count(CASE WHEN tier = 'tier_1' THEN 1 END) AS tier_1,
@@ -161,31 +164,75 @@ CREATE TABLE theta_plus.imm1985_1995_cluster_author_tier_counts AS
  ORDER BY cluster_no
   ;
 
-ALTER TABLE theta_plus.imm1985_1995_cluster_author_tier_counts
+ALTER TABLE theta_plus.imm1985_1995_cluster_author_tier_counts_mcl
 ADD COLUMN cluster_size BIGINT,
 ADD COLUMN num_authors BIGINT;
 
-UPDATE theta_plus.imm1985_1995_cluster_author_tier_counts atc
+UPDATE theta_plus.imm1985_1995_cluster_author_tier_counts_mcl atc
 SET cluster_size = amu.cluster_size
-FROM theta_plus.imm1985_1995_all_merged_unshuffled amu
+FROM theta_plus.imm1985_1995_all_merged_mcl amu
 WHERE amu.cluster_no = atc.cluster_no;
 
-UPDATE theta_plus.imm1985_1995_cluster_author_tier_counts atc
+UPDATE theta_plus.imm1985_1995_cluster_author_tier_counts_mcl atc
 SET num_authors = amu.num_authors
-FROM theta_plus.imm1985_1995_all_merged_unshuffled amu
+FROM theta_plus.imm1985_1995_all_merged_mcl amu
 WHERE amu.cluster_no = atc.cluster_no;
 
 
 
-DROP TABLE IF EXISTS theta_plus.imm1985_1995_author_tiers_mcl_leiden_ier;
-CREATE TABLE theta_plus.imm1985_1995_author_tiers_mcl_leiden_ier AS
+DROP TABLE IF EXISTS theta_plus.imm1985_1995_author_tiers_mcl_size_30_350_leiden_jc_25p;
+CREATE TABLE theta_plus.imm1985_1995_author_tiers_mcl_leiden_25 AS
   SELECT cc.auid, cc.total_num_clusters, icc.num_clusters_int_edges, aut.tier_1, aut.tier_2, aut.tier_3
   FROM
-     (SELECT auid, count(mcl_cluster_no) as total_num_clusters                    -- total number of clusters
+     (SELECT auid, count(cluster_no) as total_num_clusters                    -- total number of clusters
       FROM theta_plus.imm1985_1995_authors_clusters_mcl
-      WHERE mcl_cluster_no IN (SELECT amu.cluster_no
-                            FROM theta_plus.superset_30_350_match_to_leiden_cpm_r0002 mtl
-                          JOIN theta_plus.imm1985_1995_all_merged_unshuffled amu
+      WHERE cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus.imm1985_1995_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm1985_1995_all_merged_mcl amu
+                              ON amu.cluster_no=mtl.mcl_cluster_number
+                          WHERE mtl.intersect_union_ratio >= 0.20 -- 25th percentile JC
+                                AND amu.cluster_size BETWEEN 30 AND 350)
+      GROUP BY auid
+      ORDER BY total_num_clusters DESC) cc
+
+  LEFT JOIN (SELECT aai.auid, count(aai.cluster_no) as num_clusters_int_edges -- clusters with internal edges
+             FROM (SELECT DISTINCT auid, cluster_no                           -- based on which article tiers were
+                   FROM theta_plus.imm1985_1995_all_authors_internal_mcl
+                   WHERE cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus.imm1985_1995_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm1985_1995_all_merged_mcl amu
+                              ON amu.cluster_no=mtl.mcl_cluster_number
+                          WHERE mtl.intersect_union_ratio >= 0.20 -- 25th percentile JC
+                                AND amu.cluster_size BETWEEN 30 AND 350)) aai                -- computed
+                   GROUP BY aai.auid) icc ON cc.auid = icc.auid
+
+  LEFT JOIN (SELECT auid,
+             count(CASE WHEN tier = 'tier_1' THEN 1 END) AS tier_1,
+             count(CASE WHEN tier = 'tier_2' THEN 1 END) AS tier_2,
+             count(CASE WHEN tier = 'tier_3' THEN 1 END) AS tier_3
+            FROM
+            (SELECT *
+             FROM theta_plus.imm1985_1995_author_tiers_view
+             WHERE cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus.imm1985_1995_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm1985_1995_all_merged_mcl amu
+                              ON amu.cluster_no=mtl.mcl_cluster_number
+                          WHERE mtl.intersect_union_ratio >= 0.20 -- 25th percentile JC
+                                AND amu.cluster_size BETWEEN 30 AND 350)) clusters_30_350
+             GROUP BY auid) aut ON cc.auid = aut.auid;
+
+
+
+
+DROP TABLE IF EXISTS theta_plus.imm1985_1995_author_tiers_mcl_size_30_350_leiden_jc_25p_ier_99p;
+CREATE TABLE theta_plus.imm1985_1995_author_tiers_mcl_leiden_25_ier_99 AS
+  SELECT cc.auid, cc.total_num_clusters, icc.num_clusters_int_edges, aut.tier_1, aut.tier_2, aut.tier_3
+  FROM
+     (SELECT auid, count(cluster_no) as total_num_clusters                    -- total number of clusters
+      FROM theta_plus.imm1985_1995_authors_clusters_mcl
+      WHERE cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus.imm1985_1995_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm1985_1995_all_merged_mcl amu
                               ON amu.cluster_no=mtl.mcl_cluster_number
                           WHERE mtl.intersect_union_ratio >= 0.20 -- 25th percentile JC
                                 AND amu.int_edge_density_ratio >= 1.84 -- 99th percentile IER
@@ -195,10 +242,10 @@ CREATE TABLE theta_plus.imm1985_1995_author_tiers_mcl_leiden_ier AS
 
   LEFT JOIN (SELECT aai.auid, count(aai.cluster_no) as num_clusters_int_edges -- clusters with internal edges
              FROM (SELECT DISTINCT auid, cluster_no                           -- based on which article tiers were
-                   FROM theta_plus.imm1985_1995_all_authors_internal
+                   FROM theta_plus.imm1985_1995_all_authors_internal_mcl
                    WHERE cluster_no IN (SELECT amu.cluster_no
-                            FROM theta_plus.superset_30_350_match_to_leiden_cpm_r0002 mtl
-                          JOIN theta_plus.imm1985_1995_all_merged_unshuffled amu
+                            FROM theta_plus.imm1985_1995_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm1985_1995_all_merged_mcl amu
                               ON amu.cluster_no=mtl.mcl_cluster_number
                           WHERE mtl.intersect_union_ratio >= 0.20 -- 25th percentile JC
                                 AND amu.int_edge_density_ratio >= 1.84 -- 99th percentile IER
@@ -213,8 +260,8 @@ CREATE TABLE theta_plus.imm1985_1995_author_tiers_mcl_leiden_ier AS
             (SELECT *
              FROM theta_plus.imm1985_1995_author_tiers_view
              WHERE cluster_no IN (SELECT amu.cluster_no
-                            FROM theta_plus.superset_30_350_match_to_leiden_cpm_r0002 mtl
-                          JOIN theta_plus.imm1985_1995_all_merged_unshuffled amu
+                            FROM theta_plus.imm1985_1995_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm1985_1995_all_merged_mcl amu
                               ON amu.cluster_no=mtl.mcl_cluster_number
                           WHERE mtl.intersect_union_ratio >= 0.20 -- 25th percentile JC
                                 AND amu.int_edge_density_ratio >= 1.84 -- 99th percentile IER
@@ -223,15 +270,15 @@ CREATE TABLE theta_plus.imm1985_1995_author_tiers_mcl_leiden_ier AS
 
 
 
-DROP TABLE IF EXISTS theta_plus.imm1985_1995_author_tiers_mcl_leiden;
+DROP TABLE IF EXISTS theta_plus.imm1985_1995_author_tiers_mcl_size_30_350_leiden_jc_90;
 CREATE TABLE theta_plus.imm1985_1995_author_tiers_mcl_leiden AS
   SELECT cc.auid, cc.total_num_clusters, icc.num_clusters_int_edges, aut.tier_1, aut.tier_2, aut.tier_3
   FROM
-     (SELECT auid, count(mcl_cluster_no) as total_num_clusters                    -- total number of clusters
+     (SELECT auid, count(cluster_no) as total_num_clusters                    -- total number of clusters
       FROM theta_plus.imm1985_1995_authors_clusters_mcl
-      WHERE mcl_cluster_no IN (SELECT amu.cluster_no
-                            FROM theta_plus.superset_30_350_match_to_leiden_cpm_r0002 mtl
-                          JOIN theta_plus.imm1985_1995_all_merged_unshuffled amu
+      WHERE cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus.imm1985_1995_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm1985_1995_all_merged_mcl amu
                               ON amu.cluster_no=mtl.mcl_cluster_number
                           WHERE mtl.intersect_union_ratio >= 0.9)
       GROUP BY auid
@@ -239,10 +286,10 @@ CREATE TABLE theta_plus.imm1985_1995_author_tiers_mcl_leiden AS
 
   LEFT JOIN (SELECT aai.auid, count(aai.cluster_no) as num_clusters_int_edges -- clusters with internal edges
              FROM (SELECT DISTINCT auid, cluster_no                           -- based on which article tiers were
-                   FROM theta_plus.imm1985_1995_all_authors_internal
+                   FROM theta_plus.imm1985_1995_all_authors_internal_mcl
                    WHERE cluster_no IN (SELECT amu.cluster_no
-                                      FROM theta_plus.superset_30_350_match_to_leiden_cpm_r0002 mtl
-                                    JOIN theta_plus.imm1985_1995_all_merged_unshuffled amu
+                                      FROM theta_plus.imm1985_1995_mcl_size_30_350_match_to_leiden mtl
+                                    JOIN theta_plus.imm1985_1995_all_merged_mcl amu
                                         ON amu.cluster_no=mtl.mcl_cluster_number
                                     WHERE mtl.intersect_union_ratio >= 0.9)) aai                -- computed
                    GROUP BY aai.auid) icc ON cc.auid = icc.auid
@@ -255,29 +302,29 @@ CREATE TABLE theta_plus.imm1985_1995_author_tiers_mcl_leiden AS
             (SELECT *
              FROM theta_plus.imm1985_1995_author_tiers_view
              WHERE cluster_no IN (SELECT amu.cluster_no
-                                  FROM theta_plus.superset_30_350_match_to_leiden_cpm_r0002 mtl
-                                JOIN theta_plus.imm1985_1995_all_merged_unshuffled amu
+                                  FROM theta_plus.imm1985_1995_mcl_size_30_350_match_to_leiden mtl
+                                JOIN theta_plus.imm1985_1995_all_merged_mcl amu
                                     ON amu.cluster_no=mtl.mcl_cluster_number
                                 WHERE mtl.intersect_union_ratio >= 0.9)) clusters_30_350
              GROUP BY auid) aut ON cc.auid = aut.auid;
 
 
 
-DROP TABLE IF EXISTS theta_plus.imm1985_1995_author_tiers_30_350;
+DROP TABLE IF EXISTS theta_plus.imm1985_1995_author_tiers_mcl_size_30_350;
 CREATE TABLE theta_plus.imm1985_1995_author_tiers_30_350 AS
   SELECT cc.auid, cc.total_num_clusters, icc.num_clusters_int_edges, aut.tier_1, aut.tier_2, aut.tier_3
   FROM
-     (SELECT auid, count(mcl_cluster_no) as total_num_clusters                    -- total number of clusters
+     (SELECT auid, count(cluster_no) as total_num_clusters                    -- total number of clusters
       FROM theta_plus.imm1985_1995_authors_clusters_mcl
-      WHERE mcl_cluster_size BETWEEN 30 and 350
+      WHERE cluster_size BETWEEN 30 and 350
       GROUP BY auid
       ORDER BY total_num_clusters DESC) cc
 
   LEFT JOIN (SELECT aai.auid, count(aai.cluster_no) as num_clusters_int_edges -- clusters with internal edges
              FROM (SELECT DISTINCT auid, cluster_no                           -- based on which article tiers were
-                   FROM theta_plus.imm1985_1995_all_authors_internal
+                   FROM theta_plus.imm1985_1995_all_authors_internal_mcl
                    WHERE cluster_no IN (SELECT cluster_no
-                                  FROM theta_plus.imm1985_1995_all_merged_unshuffled
+                                  FROM theta_plus.imm1985_1995_all_merged_mcl
                                   WHERE cluster_size BETWEEN 30 AND 350)) aai                -- computed
                    GROUP BY aai.auid) icc ON cc.auid = icc.auid
 
@@ -289,62 +336,67 @@ CREATE TABLE theta_plus.imm1985_1995_author_tiers_30_350 AS
             (SELECT *
              FROM theta_plus.imm1985_1995_author_tiers_view
              WHERE cluster_no IN (SELECT cluster_no
-                                  FROM theta_plus.imm1985_1995_all_merged_unshuffled
+                                  FROM theta_plus.imm1985_1995_all_merged_mcl
                                   WHERE cluster_size BETWEEN 30 AND 350)) clusters_30_350
              GROUP BY auid) aut ON cc.auid = aut.auid;
 
 -- External degrees by authors table with cluster sizes -
 
-CREATE TABLE imm1985_1995_all_authors_external AS
+CREATE TABLE imm1985_1995_all_authors_external_mcl AS
 SELECT ecd.*, aafg.auid, amu.cluster_size
-FROM imm1985_1995_external_cluster_degrees ecd
+FROM imm1985_1995_external_cluster_degrees_mcl ecd
 JOIN imm1985_1995_all_authors_full_graph aafg ON ecd.scp = aafg.scp
     AND ecd.cluster_no = aafg.mcl_cluster_no
-JOIN imm1985_1995_all_merged_unshuffled amu ON ecd.cluster_no = amu.cluster_no
+JOIN imm1985_1995_all_merged_mcl amu ON ecd.cluster_no = amu.cluster_no
 ORDER BY cluster_no ASC, ext_cluster_total_degrees DESC , scp ASC;
+
+COMMENT ON TABLE imm1985_1995_all_authors_external_mcl IS
+  'table with external cluster degrees for each article in each cluster along with author IDs for clusters generated using MCL';
+COMMENT ON COLUMN imm1985_1995_all_authors_external_mcl.cluster_no IS 'cluster number';
+COMMENT ON COLUMN 
 
 -- Add cluster size to imm1985_1995_author_clusters
 
 ALTER TABLE imm1985_1995_authors_clusters_mcl
 ADD COLUMN cluster_size BIGINT;
 UPDATE imm1985_1995_authors_clusters_mcl
-SET mcl_cluster_size = amu.cluster_size
-FROM imm1985_1995_all_merged_unshuffled amu
-WHERE amu.cluster_no = imm1985_1995_authors_clusters_mcl.mcl_cluster_no;
+SET cluster_size = amu.cluster_size
+FROM imm1985_1995_all_merged_mcl amu
+WHERE amu.cluster_no = imm1985_1995_authors_clusters_mcl.cluster_no;
 
 -- Add cluster size and cluster size tiers to imm1985_1995_article_tiers
 
-ALTER TABLE imm1985_1995_article_tiers
+ALTER TABLE imm1985_1995_article_tiers_mcl
 ADD COLUMN cluster_size BIGINT,
 ADD COLUMN cluster_size_groups text;
 
-UPDATE imm1985_1995_article_tiers
+UPDATE imm1985_1995_article_tiers_mcl
 SET cluster_size = amu.cluster_size
-FROM imm1985_1995_all_merged_unshuffled amu
-WHERE amu.cluster_no = imm1985_1995_article_tiers.cluster_no;
+FROM imm1985_1995_all_merged_mcl amu
+WHERE amu.cluster_no = imm1985_1995_article_tiers_mcl.cluster_no;
 
-UPDATE imm1985_1995_article_tiers
+UPDATE imm1985_1995_article_tiers_mcl
 SET cluster_size_groups = cluster_tiers.cluster_size_groups
 FROM (SELECT cluster_no, scp, cluster_total_degrees, cluster_in_degrees, cluster_out_degrees, auid, tier, cluster_size,
   CASE
     WHEN cluster_size < 30 THEN 3
     WHEN cluster_size >= 30 AND cluster_size < 300 THEN 2
     WHEN cluster_size >= 300 THEN 1 END AS cluster_size_groups
-FROM imm1985_1995_article_tiers
+FROM imm1985_1995_article_tiers_mcl
 GROUP BY cluster_no, scp, cluster_total_degrees,
          cluster_in_degrees, cluster_out_degrees, auid, tier, cluster_size) cluster_tiers
-WHERE cluster_tiers.scp = imm1985_1995_article_tiers.scp AND
-      cluster_tiers.auid = imm1985_1995_article_tiers.auid AND
+WHERE cluster_tiers.scp = imm1985_1995_article_tiers_mcl.scp AND
+      cluster_tiers.auid = imm1985_1995_article_tiers_mcl.auid AND
       cluster_tiers.cluster_no = cluster_tiers.cluster_no;
 
 
 
 -- author tiers venn diagram
 
-ALTER TABLE imm1985_1995_author_tiers
+ALTER TABLE imm1985_1995_author_tiers_mcl
 ADD COLUMN venn_tiers text;
 
-UPDATE imm1985_1995_author_tiers
+UPDATE imm1985_1995_author_tiers_mcl
 SET venn_tiers = venn.venn_tiers_column
 FROM
 (WITH cte AS  (SELECT *, CASE
@@ -357,41 +409,42 @@ FROM
                       WHEN tier_1 = 0 AND tier_2 = 0 AND tier_3 > 0 THEN 'tier_3_only'
                       WHEN tier_1 IS NULL AND tier_2 IS NULL AND tier_3 IS NULL THEN NULL
                       END AS venn_tiers_column
-          FROM theta_plus.imm1985_1995_author_tiers)
+          FROM theta_plus.imm1985_1995_author_tiers_mcl
+)
 
 SELECT at.*, cte.venn_tiers_column
-FROM theta_plus.imm1985_1995_article_tiers at
+FROM theta_plus.imm1985_1995_article_tiers_mcl at
 LEFT JOIN cte on cte.auid = at.auid) venn
-WHERE venn.auid = imm1985_1995_author_tiers.auid;
+WHERE venn.auid = imm1985_1995_author_tiers_mcl.auid;
 
-ALTER TABLE theta_plus.imm1985_1995_all_authors_internal
+ALTER TABLE theta_plus.imm1985_1995_all_authors_internal_mcl
 ADD COLUMN cluster_size BIGINT;
 
-UPDATE theta_plus.imm1985_1995_all_authors_internal aai
+UPDATE theta_plus.imm1985_1995_all_authors_internal_mcl aai
 SET cluster_size = amu.cluster_size
-FROM theta_plus.imm1985_1995_all_merged_unshuffled amu
+FROM theta_plus.imm1985_1995_all_merged_mcl amu
 WHERE amu.cluster_no = aai.cluster_no;
 
 
-ALTER TABLE theta_plus.imm1985_1995_author_tiers
+ALTER TABLE theta_plus.imm1985_1995_author_tiers_mcl
 ADD COLUMN total_internal_citations_received BIGINT;
 
-UPDATE theta_plus.imm1985_1995_author_tiers at
+UPDATE theta_plus.imm1985_1995_author_tiers_mcl at
 SET total_internal_citations_received = counts.total_internal_citations_received
 FROM (SELECT auid, sum(cluster_in_degrees) total_internal_citations_received
-      FROM theta_plus.imm1985_1995_all_authors_internal
+      FROM theta_plus.imm1985_1995_all_authors_internal_mcl
       WHERE auid IS NOT NULL
       GROUP BY auid) counts
 WHERE at.auid = counts.auid;
 
 
-ALTER TABLE theta_plus.imm1985_1995_author_tiers_30_350
+ALTER TABLE theta_plus.imm1985_1995_author_tiers_mcl_size_30_350
 ADD COLUMN total_internal_citations_received BIGINT;
 
-UPDATE theta_plus.imm1985_1995_author_tiers_30_350 at
+UPDATE theta_plus.imm1985_1995_author_tiers_mcl_size_30_350 at
 SET total_internal_citations_received = counts.total_internal_citations_received
 FROM (SELECT auid, sum(cluster_in_degrees) total_internal_citations_received
-      FROM theta_plus.imm1985_1995_all_authors_internal
+      FROM theta_plus.imm1985_1995_all_authors_internal_mcl
       WHERE auid IS NOT NULL
         AND cluster_size BETWEEN 30 AND 350
       GROUP BY auid) counts
@@ -403,7 +456,7 @@ SELECT auid, max(author_indexed_name) author_indexed_name, max(author_given_name
   max(author_surname) author_surname
 FROM public.scopus_authors sa
   WHERE auid IN (SELECT auid
-                 FROM theta_plus.imm1985_1995_author_tiers_30_350
+                 FROM theta_plus.imm1985_1995_author_tiers_mcl_size_30_350
                  WHERE tier_1 IS NOT NULL
                 ORDER BY tier_1 DESC LIMIT 1000)
     AND sa.author_given_name IS NOT NULL
@@ -416,13 +469,14 @@ GROUP BY auid;
 
 
 
-ALTER TABLE theta_plus.imm2000_2004_all_merged_unshuffled
+ALTER TABLE theta_plus.imm2000_2004_all_merged_mcl
 ADD COLUMN int_edge_density_ratio DOUBLE PRECISION;
 
-UPDATE theta_plus.imm2000_2004_all_merged_unshuffled amu
+UPDATE theta_plus.imm2000_2004_all_merged_mcl amu
 SET int_edge_density_ratio = amu2.density_ratio
 FROM (SELECT cluster_no, (1.0 * int_edges/cluster_size) density_ratio
-      FROM theta_plus.imm2000_2004_all_merged_unshuffled)  amu2
+      FROM theta_plus.imm2000_2004_all_merged_mcl
+)  amu2
 WHERE amu2.cluster_no = amu.cluster_no;
 
 
@@ -432,7 +486,7 @@ ADD COLUMN mcl_cluster_no BIGINT;
 
 UPDATE theta_plus.imm2000_2004_full_graph_degrees
 SET mcl_cluster_no = cslu.cluster_no
-FROM theta_plus.imm2000_2004_cluster_scp_list_unshuffled cslu
+FROM theta_plus.imm2000_2004_cluster_scp_list_mcl cslu
 WHERE cslu.scp = theta_plus.imm2000_2004_full_graph_degrees.scp;
 
 -- add AUID to graph degrees tables
@@ -449,7 +503,7 @@ ADD COLUMN mcl_cluster_size BIGINT;
 
 UPDATE theta_plus.imm2000_2004_all_authors_full_graph aafg
 SET mcl_cluster_size = amu.cluster_size
-FROM theta_plus.imm2000_2004_all_merged_unshuffled amu
+FROM theta_plus.imm2000_2004_all_merged_mcl amu
 WHERE amu.cluster_no = aafg.mcl_cluster_no;
 
 -- UPDATE theta_plus.imm2000_2004_all_authors_full_graph aafg
@@ -460,7 +514,7 @@ WHERE amu.cluster_no = aafg.mcl_cluster_no;
 
 CREATE TABLE theta_plus.imm2000_2004_all_authors_internal AS
     SELECT icd.*, sa.auid
-    FROM theta_plus.imm2000_2004_internal_cluster_degrees icd
+    FROM theta_plus.imm2000_2004_internal_cluster_degrees_mcl icd
     JOIN public.scopus_authors sa
         ON icd.scp = sa.scp;
 
@@ -473,28 +527,28 @@ CREATE TABLE theta_plus.imm2000_2004_authors_clusters AS
     GROUP BY auid, mcl_cluster_no
     ORDER BY auid ASC;
 
-ALTER TABLE imm2000_2004_authors_clusters
+ALTER TABLE imm2000_2004_authors_clusters_mcl
 ADD COLUMN count_cited_articles BIGINT;
 
 -- Add cluster size to imm2000_2004_author_clusters
 
-ALTER TABLE imm2000_2004_authors_clusters
+ALTER TABLE imm2000_2004_authors_clusters_mcl
 ADD COLUMN cluster_size BIGINT;
-UPDATE imm2000_2004_authors_clusters
+UPDATE imm2000_2004_authors_clusters_mcl
 SET cluster_size = amu.cluster_size
-FROM imm2000_2004_all_merged_unshuffled amu
-WHERE amu.cluster_no = imm2000_2004_authors_clusters.mcl_cluster_no;
+FROM imm2000_2004_all_merged_mcl amu
+WHERE amu.cluster_no = imm2000_2004_authors_clusters_mcl.mcl_cluster_no;
 
-UPDATE theta_plus.imm2000_2004_authors_clusters
+UPDATE theta_plus.imm2000_2004_authors_clusters_mcl
    SET count_cited_articles = cited_articles.count_cited_articles
 FROM (SELECT cluster_no, auid, count(int_cluster_in_degrees) count_cited_articles
       FROM
     (SELECT DISTINCT *
-    FROM theta_plus.imm2000_2004_all_authors_internal
+    FROM theta_plus.imm2000_2004_all_authors_internal_mcl
     WHERE int_cluster_in_degrees > 0) aai
     GROUP BY cluster_no, auid) cited_articles
- WHERE theta_plus.imm2000_2004_authors_clusters.auid = cited_articles.auid
-   AND theta_plus.imm2000_2004_authors_clusters.mcl_cluster_no=cited_articles.cluster_no;
+ WHERE theta_plus.imm2000_2004_authors_clusters_mcl.auid = cited_articles.auid
+   AND theta_plus.imm2000_2004_authors_clusters_mcl.mcl_cluster_no=cited_articles.cluster_no;
 
 
 CREATE TABLE theta_plus.imm2000_2004_30_350_top_1000_tier_1_author_names AS
@@ -502,7 +556,7 @@ SELECT auid, max(author_indexed_name) author_indexed_name, max(author_given_name
   max(author_surname) author_surname
 FROM public.scopus_authors sa
   WHERE auid IN (SELECT auid
-                 FROM theta_plus.imm2000_2004_author_tiers_30_350
+                 FROM theta_plus.imm2000_2004_author_tiers_mcl_size_30_350
                  WHERE tier_1 IS NOT NULL
                 ORDER BY tier_1 DESC LIMIT 1000)
     AND sa.author_given_name IS NOT NULL
@@ -511,34 +565,34 @@ FROM public.scopus_authors sa
 GROUP BY auid;
 
 
-ALTER TABLE theta_plus.imm2000_2004_all_authors_internal
+ALTER TABLE theta_plus.imm2000_2004_all_authors_internal_mcl
 ADD COLUMN cluster_size BIGINT;
 
-UPDATE theta_plus.imm2000_2004_all_authors_internal aai
+UPDATE theta_plus.imm2000_2004_all_authors_internal_mcl aai
 SET cluster_size = amu.cluster_size
-FROM theta_plus.imm2000_2004_all_merged_unshuffled amu
+FROM theta_plus.imm2000_2004_all_merged_mcl amu
 WHERE amu.cluster_no = aai.cluster_no;
 
 
-ALTER TABLE theta_plus.imm2000_2004_author_tiers
+ALTER TABLE theta_plus.imm2000_2004_author_tiers_mcl
 ADD COLUMN total_internal_citations_received BIGINT;
 
-UPDATE theta_plus.imm2000_2004_author_tiers at
+UPDATE theta_plus.imm2000_2004_author_tiers_mcl at
 SET total_internal_citations_received = counts.total_internal_citations_received
 FROM (SELECT auid, sum(int_cluster_in_degrees) total_internal_citations_received
-      FROM theta_plus.imm2000_2004_all_authors_internal
+      FROM theta_plus.imm2000_2004_all_authors_internal_mcl
       WHERE auid IS NOT NULL
       GROUP BY auid) counts
 WHERE at.auid = counts.auid;
 
 
-ALTER TABLE theta_plus.imm2000_2004_author_tiers_30_350
+ALTER TABLE theta_plus.imm2000_2004_author_tiers_mcl_size_30_350
 ADD COLUMN total_internal_citations_received BIGINT;
 
-UPDATE theta_plus.imm2000_2004_author_tiers_30_350 at
+UPDATE theta_plus.imm2000_2004_author_tiers_mcl_size_30_350 at
 SET total_internal_citations_received = counts.total_internal_citations_received
 FROM (SELECT auid, sum(int_cluster_in_degrees) total_internal_citations_received
-      FROM theta_plus.imm2000_2004_all_authors_internal
+      FROM theta_plus.imm2000_2004_all_authors_internal_mcl
       WHERE auid IS NOT NULL
         AND cluster_size BETWEEN 30 AND 350
       GROUP BY auid) counts
@@ -551,7 +605,7 @@ ADD COLUMN mcl_cluster_no BIGINT;
 
 UPDATE theta_plus_ecology.eco2000_2010_full_graph_degrees
 SET mcl_cluster_no = cslu.cluster_no
-FROM theta_plus_ecology.eco2000_2010_cluster_scp_list_unshuffled cslu
+FROM theta_plus_ecology.eco2000_2010_cluster_scp_list_mcl cslu
 WHERE cslu.scp = theta_plus_ecology.eco2000_2010_full_graph_degrees.scp;
 
 -- add AUID to full graph degrees table
@@ -568,7 +622,7 @@ ADD COLUMN mcl_cluster_size BIGINT;
 
 UPDATE theta_plus_ecology.eco2000_2010_all_authors_full_graph aafg
 SET mcl_cluster_size = amu.cluster_size
-FROM theta_plus_ecology.eco2000_2010_all_merged_unshuffled amu
+FROM theta_plus_ecology.eco2000_2010_all_merged_mcl amu
 WHERE amu.cluster_no = aafg.mcl_cluster_no;
 
 -- UPDATE theta_plus_ecology.eco2000_2010_all_authors_full_graph aafg
@@ -580,7 +634,7 @@ WHERE amu.cluster_no = aafg.mcl_cluster_no;
 
 CREATE TABLE theta_plus_ecology.eco2000_2010_all_authors_internal AS
     SELECT icd.*, sa.auid
-    FROM theta_plus_ecology.eco2000_2010_internal_cluster_degrees icd
+    FROM theta_plus_ecology.eco2000_2010_internal_cluster_degrees_mcl icd
     JOIN public.scopus_authors sa
         ON icd.scp = sa.scp;
 
@@ -591,7 +645,7 @@ CREATE TABLE theta_plus_ecology.eco2000_2010_all_authors_internal AS
 CREATE VIEW theta_plus.imm2000_2004_author_tiers_view
   (auid, cluster_no, tier) AS
     WITH cte AS (SELECT cluster_no, auid, min(tier) as tier
-                 FROM theta_plus.imm2000_2004_article_tiers
+                 FROM theta_plus.imm2000_2004_article_tiers_mcl
                  GROUP BY cluster_no, auid)
     SELECT auid, cluster_no, CASE
         WHEN tier = 1 THEN 'tier_1'
@@ -601,18 +655,19 @@ CREATE VIEW theta_plus.imm2000_2004_author_tiers_view
     ORDER BY tier ASC;
 
 -- Add count of clusters to author tiers
-DROP TABLE IF EXISTS theta_plus.imm2000_2004_author_tiers;
+DROP TABLE IF EXISTS theta_plus.imm2000_2004_author_tiers_mcl;
 CREATE TABLE theta_plus.imm2000_2004_author_tiers AS
   SELECT cc.auid, cc.total_num_clusters, icc.num_clusters_int_edges, aut.tier_1, aut.tier_2, aut.tier_3
   FROM
      (SELECT auid, count(mcl_cluster_no) as total_num_clusters                    -- total number of clusters
-      FROM theta_plus.imm2000_2004_authors_clusters
+      FROM theta_plus.imm2000_2004_authors_clusters_mcl
       GROUP BY auid
       ORDER BY total_num_clusters DESC) cc
 
   LEFT JOIN (SELECT aai.auid, count(aai.cluster_no) as num_clusters_int_edges -- clusters with internal edges
              FROM (SELECT DISTINCT auid, cluster_no                           -- based on which article tiers were
-                   FROM theta_plus.imm2000_2004_all_authors_internal) aai                -- computed
+                   FROM theta_plus.imm2000_2004_all_authors_internal_mcl
+             ) aai                -- computed
                    GROUP BY aai.auid) icc ON cc.auid = icc.auid
 
   LEFT JOIN (SELECT auid,
@@ -624,21 +679,21 @@ CREATE TABLE theta_plus.imm2000_2004_author_tiers AS
 
 -- for cluster size between 30 and 350
 
-DROP TABLE IF EXISTS theta_plus.imm2000_2004_author_tiers_30_350;
+DROP TABLE IF EXISTS theta_plus.imm2000_2004_author_tiers_mcl_size_30_350;
 CREATE TABLE theta_plus.imm2000_2004_author_tiers_30_350 AS
   SELECT cc.auid, cc.total_num_clusters, icc.num_clusters_int_edges, aut.tier_1, aut.tier_2, aut.tier_3
   FROM
      (SELECT auid, count(mcl_cluster_no) as total_num_clusters                    -- total number of clusters
-      FROM theta_plus.imm2000_2004_authors_clusters
+      FROM theta_plus.imm2000_2004_authors_clusters_mcl
       WHERE cluster_size BETWEEN 30 and 350
       GROUP BY auid
       ORDER BY total_num_clusters DESC) cc
 
   LEFT JOIN (SELECT aai.auid, count(aai.cluster_no) as num_clusters_int_edges -- clusters with internal edges
              FROM (SELECT DISTINCT auid, cluster_no                           -- based on which article tiers were
-                   FROM theta_plus.imm2000_2004_all_authors_internal
+                   FROM theta_plus.imm2000_2004_all_authors_internal_mcl
                    WHERE cluster_no IN (SELECT cluster_no
-                                  FROM theta_plus.imm2000_2004_all_merged_unshuffled
+                                  FROM theta_plus.imm2000_2004_all_merged_mcl
                                   WHERE cluster_size BETWEEN 30 AND 350)) aai                -- computed
                    GROUP BY aai.auid) icc ON cc.auid = icc.auid
 
@@ -650,20 +705,111 @@ CREATE TABLE theta_plus.imm2000_2004_author_tiers_30_350 AS
             (SELECT *
              FROM theta_plus.imm2000_2004_author_tiers_view
              WHERE cluster_no IN (SELECT cluster_no
-                                  FROM theta_plus.imm2000_2004_all_merged_unshuffled
+                                  FROM theta_plus.imm2000_2004_all_merged_mcl
                                   WHERE cluster_size BETWEEN 30 AND 350)) clusters_30_350
              GROUP BY auid) aut ON cc.auid = aut.auid;
 
 
-DROP TABLE IF EXISTS theta_plus.imm2000_2004_author_tiers_mcl_leiden;
+DROP TABLE IF EXISTS theta_plus.imm2000_2004_author_tiers_mcl_size_30_350_leiden_jc_25p;
+CREATE TABLE theta_plus.imm2000_2004_author_tiers_mcl_leiden_25 AS
+  SELECT cc.auid, cc.total_num_clusters, icc.num_clusters_int_edges, aut.tier_1, aut.tier_2, aut.tier_3
+  FROM
+     (SELECT auid, count(mcl_cluster_no) as total_num_clusters                    -- total number of clusters
+      FROM theta_plus.imm2000_2004_authors_clusters_mcl
+      WHERE mcl_cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus.imm2000_2004_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm2000_2004_all_merged_mcl amu
+                              ON amu.cluster_no=mtl.mcl_cluster_number
+                          WHERE mtl.intersect_union_ratio >= 0.22 -- 25th percentile JC
+                                AND amu.cluster_size BETWEEN 30 AND 350)
+      GROUP BY auid
+      ORDER BY total_num_clusters DESC) cc
+
+  LEFT JOIN (SELECT aai.auid, count(aai.cluster_no) as num_clusters_int_edges -- clusters with internal edges
+             FROM (SELECT DISTINCT auid, cluster_no                           -- based on which article tiers were
+                   FROM theta_plus.imm2000_2004_all_authors_internal_mcl
+                   WHERE cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus.imm2000_2004_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm2000_2004_all_merged_mcl amu
+                              ON amu.cluster_no=mtl.mcl_cluster_number
+                          WHERE mtl.intersect_union_ratio >= 0.22 -- 25th percentile JC
+                                AND amu.cluster_size BETWEEN 30 AND 350)) aai                -- computed
+                   GROUP BY aai.auid) icc ON cc.auid = icc.auid
+
+  LEFT JOIN (SELECT auid,
+             count(CASE WHEN tier = 'tier_1' THEN 1 END) AS tier_1,
+             count(CASE WHEN tier = 'tier_2' THEN 1 END) AS tier_2,
+             count(CASE WHEN tier = 'tier_3' THEN 1 END) AS tier_3
+            FROM
+            (SELECT *
+             FROM theta_plus.imm2000_2004_author_tiers_view
+             WHERE cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus.imm2000_2004_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm2000_2004_all_merged_mcl amu
+                              ON amu.cluster_no=mtl.mcl_cluster_number
+                          WHERE mtl.intersect_union_ratio >= 0.22 -- 25th percentile JC
+                                AND amu.cluster_size BETWEEN 30 AND 350)) clusters_30_350
+             GROUP BY auid) aut ON cc.auid = aut.auid;
+
+
+
+
+DROP TABLE IF EXISTS theta_plus.imm2000_2004_author_tiers_mcl_size_30_350_leiden_jc_25p_ier_99p;
+CREATE TABLE theta_plus.imm2000_2004_author_tiers_mcl_leiden_25_ier_99 AS
+  SELECT cc.auid, cc.total_num_clusters, icc.num_clusters_int_edges, aut.tier_1, aut.tier_2, aut.tier_3
+  FROM
+     (SELECT auid, count(mcl_cluster_no) as total_num_clusters                    -- total number of clusters
+      FROM theta_plus.imm2000_2004_authors_clusters_mcl
+      WHERE mcl_cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus.imm2000_2004_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm2000_2004_all_merged_mcl amu
+                              ON amu.cluster_no=mtl.mcl_cluster_number
+                          WHERE mtl.intersect_union_ratio >= 0.22 -- 25th percentile JC
+                                AND amu.int_edge_density_ratio >= 1.72 -- 99th percentile IER
+                                AND amu.cluster_size BETWEEN 30 AND 350)
+      GROUP BY auid
+      ORDER BY total_num_clusters DESC) cc
+
+  LEFT JOIN (SELECT aai.auid, count(aai.cluster_no) as num_clusters_int_edges -- clusters with internal edges
+             FROM (SELECT DISTINCT auid, cluster_no                           -- based on which article tiers were
+                   FROM theta_plus.imm2000_2004_all_authors_internal_mcl
+                   WHERE cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus.imm2000_2004_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm2000_2004_all_merged_mcl amu
+                              ON amu.cluster_no=mtl.mcl_cluster_number
+                          WHERE mtl.intersect_union_ratio >= 0.22 -- 25th percentile JC
+                                AND amu.int_edge_density_ratio >= 1.72 -- 99th percentile IER
+                                AND amu.cluster_size BETWEEN 30 AND 350)) aai                -- computed
+                   GROUP BY aai.auid) icc ON cc.auid = icc.auid
+
+  LEFT JOIN (SELECT auid,
+             count(CASE WHEN tier = 'tier_1' THEN 1 END) AS tier_1,
+             count(CASE WHEN tier = 'tier_2' THEN 1 END) AS tier_2,
+             count(CASE WHEN tier = 'tier_3' THEN 1 END) AS tier_3
+            FROM
+            (SELECT *
+             FROM theta_plus.imm2000_2004_author_tiers_view
+             WHERE cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus.imm2000_2004_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm2000_2004_all_merged_mcl amu
+                              ON amu.cluster_no=mtl.mcl_cluster_number
+                          WHERE mtl.intersect_union_ratio >= 0.22 -- 25th percentile JC
+                                AND amu.int_edge_density_ratio >= 1.72 -- 99th percentile IER
+                                AND amu.cluster_size BETWEEN 30 AND 350)) clusters_30_350
+             GROUP BY auid) aut ON cc.auid = aut.auid;
+
+
+
+
+DROP TABLE IF EXISTS theta_plus.imm2000_2004_author_tiers_mcl_size_30_350_leiden_90;
 CREATE TABLE theta_plus.imm2000_2004_author_tiers_mcl_leiden AS
   SELECT cc.auid, cc.total_num_clusters, icc.num_clusters_int_edges, aut.tier_1, aut.tier_2, aut.tier_3
   FROM
      (SELECT auid, count(mcl_cluster_no) as total_num_clusters                    -- total number of clusters
-      FROM theta_plus.imm2000_2004_authors_clusters
+      FROM theta_plus.imm2000_2004_authors_clusters_mcl
       WHERE mcl_cluster_no IN (SELECT amu.cluster_no
-                            FROM theta_plus."imm2000_2004_match_to_leiden_CPM_R0002" mtl
-                          JOIN theta_plus.imm2000_2004_all_merged_unshuffled amu
+                            FROM theta_plus.imm2000_2004_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm2000_2004_all_merged_mcl amu
                               ON amu.cluster_no=mtl.mcl_cluster_number
                           WHERE mtl.intersect_union_ratio >= 0.9)
       GROUP BY auid
@@ -671,10 +817,10 @@ CREATE TABLE theta_plus.imm2000_2004_author_tiers_mcl_leiden AS
 
   LEFT JOIN (SELECT aai.auid, count(aai.cluster_no) as num_clusters_int_edges -- clusters with internal edges
              FROM (SELECT DISTINCT auid, cluster_no                           -- based on which article tiers were
-                   FROM theta_plus.imm2000_2004_all_authors_internal
+                   FROM theta_plus.imm2000_2004_all_authors_internal_mcl
                    WHERE cluster_no IN (SELECT amu.cluster_no
-                            FROM theta_plus."imm2000_2004_match_to_leiden_CPM_R0002" mtl
-                          JOIN theta_plus.imm2000_2004_all_merged_unshuffled amu
+                            FROM theta_plus.imm2000_2004_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm2000_2004_all_merged_mcl amu
                               ON amu.cluster_no=mtl.mcl_cluster_number
                           WHERE mtl.intersect_union_ratio >= 0.9)) aai                -- computed
                    GROUP BY aai.auid) icc ON cc.auid = icc.auid
@@ -687,8 +833,8 @@ CREATE TABLE theta_plus.imm2000_2004_author_tiers_mcl_leiden AS
             (SELECT *
              FROM theta_plus.imm2000_2004_author_tiers_view
              WHERE cluster_no IN (SELECT amu.cluster_no
-                            FROM theta_plus."imm2000_2004_match_to_leiden_CPM_R0002" mtl
-                          JOIN theta_plus.imm2000_2004_all_merged_unshuffled amu
+                            FROM theta_plus.imm2000_2004_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus.imm2000_2004_all_merged_mcl amu
                               ON amu.cluster_no=mtl.mcl_cluster_number
                           WHERE mtl.intersect_union_ratio >= 0.9)) clusters_30_350
              GROUP BY auid) aut ON cc.auid = aut.auid;
@@ -696,7 +842,7 @@ CREATE TABLE theta_plus.imm2000_2004_author_tiers_mcl_leiden AS
 
 -- count of authors by tier in each cluster
 
-DROP TABLE IF EXISTS theta_plus.imm2000_2004_cluster_author_tier_counts;
+DROP TABLE IF EXISTS theta_plus.imm2000_2004_cluster_author_tier_counts_mcl;
 CREATE TABLE theta_plus.imm2000_2004_cluster_author_tier_counts AS
   SELECT cluster_no,
              count(CASE WHEN tier = 'tier_1' THEN 1 END) AS tier_1,
@@ -707,13 +853,13 @@ CREATE TABLE theta_plus.imm2000_2004_cluster_author_tier_counts AS
  ORDER BY cluster_no
   ;
 
-ALTER TABLE theta_plus.imm2000_2004_cluster_author_tier_counts
+ALTER TABLE theta_plus.imm2000_2004_cluster_author_tier_counts_mcl
 ADD COLUMN cluster_size BIGINT,
 ADD COLUMN num_authors BIGINT;
 
-UPDATE theta_plus.imm2000_2004_cluster_author_tier_counts atc
+UPDATE theta_plus.imm2000_2004_cluster_author_tier_counts_mcl atc
 SET cluster_size = amu.cluster_size
-FROM theta_plus.imm2000_2004_all_merged_unshuffled amu
+FROM theta_plus.imm2000_2004_all_merged_mcl amu
 WHERE amu.cluster_no = atc.cluster_no;
 --
 -- UPDATE theta_plus.imm2000_2004_cluster_author_tier_counts atc
@@ -730,13 +876,14 @@ WHERE amu.cluster_no = atc.cluster_no;
 -- eco2000_2010
 
 
-ALTER TABLE theta_plus_ecology.eco2000_2010_all_merged_unshuffled
+ALTER TABLE theta_plus_ecology.eco2000_2010_all_merged_mcl
 ADD COLUMN int_edge_density_ratio DOUBLE PRECISION;
 
-UPDATE theta_plus_ecology.eco2000_2010_all_merged_unshuffled amu
+UPDATE theta_plus_ecology.eco2000_2010_all_merged_mcl amu
 SET int_edge_density_ratio = amu2.density_ratio
 FROM (SELECT cluster_no, (1.0 * int_edges/cluster_size) density_ratio
-      FROM theta_plus_ecology.eco2000_2010_all_merged_unshuffled)  amu2
+      FROM theta_plus_ecology.eco2000_2010_all_merged_mcl
+)  amu2
 WHERE amu2.cluster_no = amu.cluster_no;
 
 -- Get cluster number and number of articles per cluster for each author
@@ -750,12 +897,12 @@ CREATE TABLE theta_plus_ecology.eco2000_2010_authors_clusters AS
 
 -- Add cluster size to imm2000_2004_author_clusters
 
-ALTER TABLE theta_plus_ecology.eco2000_2010_authors_clusters
+ALTER TABLE theta_plus_ecology.eco2000_2010_authors_clusters_mcl
 ADD COLUMN cluster_size BIGINT;
-UPDATE theta_plus_ecology.eco2000_2010_authors_clusters
+UPDATE theta_plus_ecology.eco2000_2010_authors_clusters_mcl
 SET cluster_size = amu.cluster_size
-FROM theta_plus_ecology.eco2000_2010_all_merged_unshuffled amu
-WHERE amu.cluster_no = eco2000_2010_authors_clusters.mcl_cluster_no;
+FROM theta_plus_ecology.eco2000_2010_all_merged_mcl amu
+WHERE amu.cluster_no = eco2000_2010_authors_clusters_mcl.cluster_no;
 
 
 -- Get author tiers
@@ -764,7 +911,7 @@ DROP VIEW IF EXISTS theta_plus_ecology.eco2000_2010_author_tiers_view;
 CREATE VIEW theta_plus_ecology.eco2000_2010_author_tiers_view
   (auid, cluster_no, tier) AS
     WITH cte AS (SELECT cluster_no, auid, min(tier) as tier
-                 FROM theta_plus_ecology.eco2000_2010_article_tiers
+                 FROM theta_plus_ecology.eco2000_2010_article_tiers_mcl
                  GROUP BY cluster_no, auid)
     SELECT auid, cluster_no, CASE
         WHEN tier = 1 THEN 'tier_1'
@@ -775,18 +922,19 @@ CREATE VIEW theta_plus_ecology.eco2000_2010_author_tiers_view
 
 
 -- Add count of clusters to author tiers
-DROP TABLE IF EXISTS theta_plus_ecology.eco2000_2010_author_tiers;
+DROP TABLE IF EXISTS theta_plus_ecology.eco2000_2010_author_tiers_mcl;
 CREATE TABLE theta_plus_ecology.eco2000_2010_author_tiers AS
   SELECT cc.auid, cc.total_num_clusters, icc.num_clusters_int_edges, aut.tier_1, aut.tier_2, aut.tier_3
   FROM
-     (SELECT auid, count(mcl_cluster_no) as total_num_clusters                    -- total number of clusters
-      FROM theta_plus_ecology.eco2000_2010_authors_clusters
+     (SELECT auid, count(cluster_no) as total_num_clusters                    -- total number of clusters
+      FROM theta_plus_ecology.eco2000_2010_authors_clusters_mcl
       GROUP BY auid
       ORDER BY total_num_clusters DESC) cc
 
   LEFT JOIN (SELECT aai.auid, count(aai.cluster_no) as num_clusters_int_edges -- clusters with internal edges
              FROM (SELECT DISTINCT auid, cluster_no                           -- based on which article tiers were
-                   FROM theta_plus_ecology.eco2000_2010_all_authors_internal) aai                -- computed
+                   FROM theta_plus_ecology.eco2000_2010_all_authors_internal_mcl
+             ) aai                -- computed
                    GROUP BY aai.auid) icc ON cc.auid = icc.auid
 
   LEFT JOIN (SELECT auid,
@@ -799,7 +947,7 @@ CREATE TABLE theta_plus_ecology.eco2000_2010_author_tiers AS
 
 -- count of authors by tier in each cluster
 
-DROP TABLE IF EXISTS theta_plus_ecology.eco2000_2010_cluster_author_tier_counts;
+DROP TABLE IF EXISTS theta_plus_ecology.eco2000_2010_cluster_author_tier_counts_mcl;
 CREATE TABLE theta_plus_ecology.eco2000_2010_cluster_author_tier_counts AS
   SELECT cluster_no,
              count(CASE WHEN tier = 'tier_1' THEN 1 END) AS tier_1,
@@ -810,13 +958,13 @@ CREATE TABLE theta_plus_ecology.eco2000_2010_cluster_author_tier_counts AS
  ORDER BY cluster_no
   ;
 
-ALTER TABLE theta_plus_ecology.eco2000_2010_cluster_author_tier_counts
+ALTER TABLE theta_plus_ecology.eco2000_2010_cluster_author_tier_counts_mcl
 ADD COLUMN cluster_size BIGINT,
 ADD COLUMN num_authors BIGINT;
 
-UPDATE theta_plus_ecology.eco2000_2010_cluster_author_tier_counts atc
+UPDATE theta_plus_ecology.eco2000_2010_cluster_author_tier_counts_mcl atc
 SET cluster_size = amu.cluster_size
-FROM theta_plus_ecology.eco2000_2010_all_merged_unshuffled amu
+FROM theta_plus_ecology.eco2000_2010_all_merged_mcl amu
 WHERE amu.cluster_no = atc.cluster_no;
 
 -- UPDATE theta_plus_ecology.eco2000_2010_cluster_author_tier_counts atc
@@ -827,21 +975,21 @@ WHERE amu.cluster_no = atc.cluster_no;
 
 -- for cluster size between 30 and 350
 
-DROP TABLE IF EXISTS theta_plus_ecology.eco2000_2010_author_tiers_30_350;
+DROP TABLE IF EXISTS theta_plus_ecology.eco2000_2010_author_tiers_mcl_size_30_350;
 CREATE TABLE theta_plus_ecology.eco2000_2010_author_tiers_30_350 AS
   SELECT cc.auid, cc.total_num_clusters, icc.num_clusters_int_edges, aut.tier_1, aut.tier_2, aut.tier_3
   FROM
-     (SELECT auid, count(mcl_cluster_no) as total_num_clusters                    -- total number of clusters
-      FROM theta_plus_ecology.eco2000_2010_authors_clusters
+     (SELECT auid, count(cluster_no) as total_num_clusters                    -- total number of clusters
+      FROM theta_plus_ecology.eco2000_2010_authors_clusters_mcl
       WHERE cluster_size BETWEEN 30 and 350
       GROUP BY auid
       ORDER BY total_num_clusters DESC) cc
 
   LEFT JOIN (SELECT aai.auid, count(aai.cluster_no) as num_clusters_int_edges -- clusters with internal edges
              FROM (SELECT DISTINCT auid, cluster_no                           -- based on which article tiers were
-                   FROM theta_plus_ecology.eco2000_2010_all_authors_internal
+                   FROM theta_plus_ecology.eco2000_2010_all_authors_internal_mcl
                    WHERE cluster_no IN (SELECT cluster_no
-                                  FROM theta_plus_ecology.eco2000_2010_all_merged_unshuffled
+                                  FROM theta_plus_ecology.eco2000_2010_all_merged_mcl
                                   WHERE cluster_size BETWEEN 30 AND 350)) aai                -- computed
                    GROUP BY aai.auid) icc ON cc.auid = icc.auid
 
@@ -853,7 +1001,7 @@ CREATE TABLE theta_plus_ecology.eco2000_2010_author_tiers_30_350 AS
             (SELECT *
              FROM theta_plus_ecology.eco2000_2010_author_tiers_view
              WHERE cluster_no IN (SELECT cluster_no
-                                  FROM theta_plus_ecology.eco2000_2010_all_merged_unshuffled
+                                  FROM theta_plus_ecology.eco2000_2010_all_merged_mcl
                                   WHERE cluster_size BETWEEN 30 AND 350)) clusters_30_350
              GROUP BY auid) aut ON cc.auid = aut.auid;
 
@@ -862,7 +1010,7 @@ SELECT auid, max(author_indexed_name) author_indexed_name, max(author_given_name
   max(author_surname) author_surname
 FROM public.scopus_authors sa
   WHERE auid IN (SELECT auid
-                 FROM theta_plus_ecology.eco2000_2010_author_tiers_30_350
+                 FROM theta_plus_ecology.eco2000_2010_author_tiers_mcl_size_30_350
                  WHERE tier_1 IS NOT NULL
                 ORDER BY tier_1 DESC LIMIT 1000)
     AND sa.author_given_name IS NOT NULL
@@ -872,37 +1020,127 @@ GROUP BY auid;
 
 
 
-ALTER TABLE theta_plus_ecology.eco2000_2010_all_authors_internal
+ALTER TABLE theta_plus_ecology.eco2000_2010_all_authors_internal_mcl
 ADD COLUMN cluster_size BIGINT;
 
-UPDATE theta_plus_ecology.eco2000_2010_all_authors_internal aai
+UPDATE theta_plus_ecology.eco2000_2010_all_authors_internal_mcl aai
 SET cluster_size = amu.cluster_size
-FROM theta_plus_ecology.eco2000_2010_all_merged_unshuffled amu
+FROM theta_plus_ecology.eco2000_2010_all_merged_mcl amu
 WHERE amu.cluster_no = aai.cluster_no;
 
 
-ALTER TABLE theta_plus_ecology.eco2000_2010_author_tiers
+ALTER TABLE theta_plus_ecology.eco2000_2010_author_tiers_mcl
 ADD COLUMN total_internal_citations_received BIGINT;
 
-UPDATE theta_plus_ecology.eco2000_2010_author_tiers at
+UPDATE theta_plus_ecology.eco2000_2010_author_tiers_mcl at
 SET total_internal_citations_received = counts.total_internal_citations_received
 FROM (SELECT auid, sum(int_cluster_in_degrees) total_internal_citations_received
-      FROM theta_plus_ecology.eco2000_2010_all_authors_internal
+      FROM theta_plus_ecology.eco2000_2010_all_authors_internal_mcl
       WHERE auid IS NOT NULL
       GROUP BY auid) counts
 WHERE at.auid = counts.auid;
 
 
-ALTER TABLE theta_plus_ecology.eco2000_2010_author_tiers_30_350
+ALTER TABLE theta_plus_ecology.eco2000_2010_author_tiers_mcl_size_30_350
 ADD COLUMN total_internal_citations_received BIGINT;
 
-UPDATE theta_plus_ecology.eco2000_2010_author_tiers_30_350 at
+UPDATE theta_plus_ecology.eco2000_2010_author_tiers_mcl_size_30_350 at
 SET total_internal_citations_received = counts.total_internal_citations_received
 FROM (SELECT auid, sum(int_cluster_in_degrees) total_internal_citations_received
-      FROM theta_plus_ecology.eco2000_2010_all_authors_internal
+      FROM theta_plus_ecology.eco2000_2010_all_authors_internal_mcl
       WHERE auid IS NOT NULL
         AND cluster_size BETWEEN 30 AND 350
       GROUP BY auid) counts
 WHERE at.auid = counts.auid;
+
+
+DROP TABLE IF EXISTS theta_plus_ecology.eco2000_2010_author_tiers_mcl_size_30_350_leiden_jc_25p;
+CREATE TABLE theta_plus_ecology.eco2000_2010_author_tiers_mcl_leiden_25 AS
+  SELECT cc.auid, cc.total_num_clusters, icc.num_clusters_int_edges, aut.tier_1, aut.tier_2, aut.tier_3
+  FROM
+     (SELECT auid, count(cluster_no) as total_num_clusters                    -- total number of clusters
+      FROM theta_plus_ecology.eco2000_2010_authors_clusters_mcl
+      WHERE cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus_ecology.eco2000_2010_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus_ecology.eco2000_2010_all_merged_mcl amu
+                              ON amu.cluster_no=mtl.mcl_cluster_number
+                          WHERE mtl.intersect_union_ratio >= 0.19 -- 25th percentile JC
+                                AND amu.cluster_size BETWEEN 30 AND 350)
+      GROUP BY auid
+      ORDER BY total_num_clusters DESC) cc
+
+  LEFT JOIN (SELECT aai.auid, count(aai.cluster_no) as num_clusters_int_edges -- clusters with internal edges
+             FROM (SELECT DISTINCT auid, cluster_no                           -- based on which article tiers were
+                   FROM theta_plus_ecology.eco2000_2010_all_authors_internal_mcl
+                   WHERE cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus_ecology.eco2000_2010_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus_ecology.eco2000_2010_all_merged_mcl amu
+                              ON amu.cluster_no=mtl.mcl_cluster_number
+                          WHERE mtl.intersect_union_ratio >= 0.19 -- 25th percentile JC
+                                AND amu.cluster_size BETWEEN 30 AND 350)) aai                -- computed
+                   GROUP BY aai.auid) icc ON cc.auid = icc.auid
+
+  LEFT JOIN (SELECT auid,
+             count(CASE WHEN tier = 'tier_1' THEN 1 END) AS tier_1,
+             count(CASE WHEN tier = 'tier_2' THEN 1 END) AS tier_2,
+             count(CASE WHEN tier = 'tier_3' THEN 1 END) AS tier_3
+            FROM
+            (SELECT *
+             FROM theta_plus_ecology.eco2000_2010_author_tiers_view
+             WHERE cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus_ecology.eco2000_2010_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus_ecology.eco2000_2010_all_merged_mcl amu
+                              ON amu.cluster_no=mtl.mcl_cluster_number
+                          WHERE mtl.intersect_union_ratio >= 0.19 -- 25th percentile JC
+                                AND amu.cluster_size BETWEEN 30 AND 350)) clusters_30_350
+             GROUP BY auid) aut ON cc.auid = aut.auid;
+
+
+
+DROP TABLE IF EXISTS theta_plus_ecology.eco2000_2010_author_tiers_mcl_size_30_350_leiden_jc_25p_ier_99p;
+CREATE TABLE theta_plus_ecology.eco2000_2010_author_tiers_mcl_leiden_25_ier_99 AS
+  SELECT cc.auid, cc.total_num_clusters, icc.num_clusters_int_edges, aut.tier_1, aut.tier_2, aut.tier_3
+  FROM
+     (SELECT auid, count(cluster_no) as total_num_clusters                    -- total number of clusters
+      FROM theta_plus_ecology.eco2000_2010_authors_clusters_mcl
+      WHERE cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus_ecology.eco2000_2010_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus_ecology.eco2000_2010_all_merged_mcl amu
+                              ON amu.cluster_no=mtl.mcl_cluster_number
+                          WHERE mtl.intersect_union_ratio >= 0.19 -- 25th percentile JC
+                                AND amu.int_edge_density_ratio >= 2.5 -- 99th percentile IER
+                                AND amu.cluster_size BETWEEN 30 AND 350)
+      GROUP BY auid
+      ORDER BY total_num_clusters DESC) cc
+
+  LEFT JOIN (SELECT aai.auid, count(aai.cluster_no) as num_clusters_int_edges -- clusters with internal edges
+             FROM (SELECT DISTINCT auid, cluster_no                           -- based on which article tiers were
+                   FROM theta_plus_ecology.eco2000_2010_all_authors_internal_mcl
+                   WHERE cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus_ecology.eco2000_2010_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus_ecology.eco2000_2010_all_merged_mcl amu
+                              ON amu.cluster_no=mtl.mcl_cluster_number
+                          WHERE mtl.intersect_union_ratio >= 0.19 -- 25th percentile JC
+                                AND amu.int_edge_density_ratio >= 2.5 -- 99th percentile IER
+                                AND amu.cluster_size BETWEEN 30 AND 350)) aai                -- computed
+                   GROUP BY aai.auid) icc ON cc.auid = icc.auid
+
+  LEFT JOIN (SELECT auid,
+             count(CASE WHEN tier = 'tier_1' THEN 1 END) AS tier_1,
+             count(CASE WHEN tier = 'tier_2' THEN 1 END) AS tier_2,
+             count(CASE WHEN tier = 'tier_3' THEN 1 END) AS tier_3
+            FROM
+            (SELECT *
+             FROM theta_plus_ecology.eco2000_2010_author_tiers_view
+             WHERE cluster_no IN (SELECT amu.cluster_no
+                            FROM theta_plus_ecology.eco2000_2010_mcl_size_30_350_match_to_leiden mtl
+                          JOIN theta_plus_ecology.eco2000_2010_all_merged_mcl amu
+                              ON amu.cluster_no=mtl.mcl_cluster_number
+                          WHERE mtl.intersect_union_ratio >= 0.19 -- 25th percentile JC
+                                AND amu.int_edge_density_ratio >= 2.5 -- 99th percentile IER
+                                AND amu.cluster_size BETWEEN 30 AND 350)) clusters_30_350
+             GROUP BY auid) aut ON cc.auid = aut.auid;
+
+
 
 
