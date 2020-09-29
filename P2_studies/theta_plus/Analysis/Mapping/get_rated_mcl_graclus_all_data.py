@@ -13,7 +13,7 @@ main_table_query = """
 SELECT er.expert_rating, er.imm1985_1995_cluster_no, s.current_cluster_size AS imm1985_1995_cluster_size, 
        s.match_year, s.match_cluster_no mcl_year_cluster_no
 FROM theta_plus.expert_ratings er
-JOIN theta_plus.superset_to_year_match_30_350 s
+JOIN theta_plus.imm1985_1995_mcl_size_30_350_match_to_year_slice s
   ON er.imm1985_1995_cluster_no = s.current_cluster_number;
 """
 

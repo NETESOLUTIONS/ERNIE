@@ -12,7 +12,7 @@ sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ern
 engine = create_engine(sql_scheme)
 save_name_sql = 'imm1985_1995_cited_articles_authors'
 
-imm1985_1995_all_merged = pd.read_sql("SELECT cluster_no from theta_plus.imm1985_1995_all_merged_unshuffled;", con=engine)
+imm1985_1995_all_merged = pd.read_sql("SELECT cluster_no from theta_plus.imm1985_1995_all_merged_mcl;", con=engine)
 imm1985_1995_all_merged = imm1985_1995_all_merged.sort_values('cluster_no').reset_index(drop=True)
 
 imm1985_1995_all_merged['count_cited_articles'] = None
@@ -32,7 +32,7 @@ for cluster_num in imm1985_1995_all_merged['cluster_no'][start_cluster_num-1:]:
 
                     FROM
                           (SELECT cluster_no, scp
-                           FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                           FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                             WHERE cluster_no=
                             """
                          + str(cluster_num) +
@@ -43,7 +43,7 @@ for cluster_num in imm1985_1995_all_merged['cluster_no'][start_cluster_num-1:]:
 
                      ON rated_scp1.scp = ccu1.citing
                      WHERE ccu1.cited in (SELECT scp
-                           FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                           FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                             WHERE cluster_no=
                             """
                          + str(cluster_num) +
@@ -54,7 +54,7 @@ for cluster_num in imm1985_1995_all_merged['cluster_no'][start_cluster_num-1:]:
 
                     FROM
                           (SELECT cluster_no, scp
-                           FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                           FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                             WHERE cluster_no=
                             """
                          + str(cluster_num) +
@@ -65,7 +65,7 @@ for cluster_num in imm1985_1995_all_merged['cluster_no'][start_cluster_num-1:]:
 
                      ON rated_scp1.scp = ccu1.cited
                      WHERE ccu1.citing in (SELECT scp
-                           FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                           FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                             WHERE cluster_no=
                             """
                         + str(cluster_num) +
@@ -100,7 +100,7 @@ for cluster_num in imm1985_1995_all_merged['cluster_no'][start_cluster_num-1:]:
 
                     FROM
                           (SELECT cluster_no, scp
-                           FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                           FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                             WHERE cluster_no=
                             """
                          + str(cluster_num) +
@@ -111,7 +111,7 @@ for cluster_num in imm1985_1995_all_merged['cluster_no'][start_cluster_num-1:]:
 
                      ON rated_scp1.scp = ccu1.citing
                      WHERE ccu1.cited in (SELECT scp
-                           FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                           FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                             WHERE cluster_no=
                             """
                          + str(cluster_num) +
@@ -122,7 +122,7 @@ for cluster_num in imm1985_1995_all_merged['cluster_no'][start_cluster_num-1:]:
 
                     FROM
                           (SELECT cluster_no, scp
-                           FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                           FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                             WHERE cluster_no=
                             """
                          + str(cluster_num) +
@@ -133,7 +133,7 @@ for cluster_num in imm1985_1995_all_merged['cluster_no'][start_cluster_num-1:]:
 
                      ON rated_scp1.scp = ccu1.cited
                      WHERE ccu1.citing in (SELECT scp
-                           FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                           FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                             WHERE cluster_no=
                             """
                         + str(cluster_num) +

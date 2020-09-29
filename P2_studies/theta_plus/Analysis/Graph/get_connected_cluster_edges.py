@@ -12,7 +12,7 @@ sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ern
 engine = create_engine(sql_scheme)
 
 cluster_query = """SELECT cluster_no
-FROM theta_plus.imm1985_1995_all_merged_unshuffled
+FROM theta_plus.imm1985_1995_all_merged_mcl
 WHERE cluster_size BETWEEN 30 AND 350
 ORDER BY cluster_no;"""
 
@@ -28,15 +28,15 @@ for cluster_num in clusters_list[start_num:]:
 
     external_degrees_query = """
         SELECT cslu1.cluster_no as citing_cluster, ccu.citing, ccu.cited, cslu2.cluster_no as cited_cluster
-        FROM theta_plus.imm1985_1995_citing_cited_union ccu
-        JOIN theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu1 ON cslu1.scp = ccu.citing
-        JOIN theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu2 ON cslu2.scp = ccu.cited
+        FROM theta_plus.imm1985_1995_citing_cited ccu
+        JOIN theta_plus.imm1985_1995_cluster_scp_list_mcl cslu1 ON cslu1.scp = ccu.citing
+        JOIN theta_plus.imm1985_1995_cluster_scp_list_mcl cslu2 ON cslu2.scp = ccu.cited
         WHERE cslu1.cluster_no=""" +str(cluster_num)+ """ AND cslu1.cluster_no!=cslu2.cluster_no
         UNION
         SELECT cslu1.cluster_no as citing_cluster, ccu.citing, ccu.cited, cslu2.cluster_no as cited_cluster
-        FROM theta_plus.imm1985_1995_citing_cited_union ccu
-        JOIN theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu1 ON cslu1.scp = ccu.citing
-        JOIN theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu2 ON cslu2.scp = ccu.cited
+        FROM theta_plus.imm1985_1995_citing_cited ccu
+        JOIN theta_plus.imm1985_1995_cluster_scp_list_mcl cslu1 ON cslu1.scp = ccu.citing
+        JOIN theta_plus.imm1985_1995_cluster_scp_list_mcl cslu2 ON cslu2.scp = ccu.cited
         WHERE cslu2.cluster_no=""" +str(cluster_num)+ """ AND cslu1.cluster_no!=cslu2.cluster_no;"""
 
     external_degrees = pd.read_sql(external_degrees_query, con=engine)

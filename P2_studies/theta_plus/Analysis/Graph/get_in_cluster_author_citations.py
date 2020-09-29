@@ -22,17 +22,17 @@ for cluster_num in rated_clusters:
     
     citing_cited_query ="""SELECT cluster_no, citing, cited
                     FROM   (SELECT cluster_no, scp
-                           FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                           FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                             WHERE cluster_no=""" + str(cluster_num) + """ ) rated_scp1
                     JOIN theta_plus.imm1985_1995_citing_cited_union ccu1 ON rated_scp1.scp = ccu1.citing
-                     WHERE ccu1.cited in (SELECT scp FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                     WHERE ccu1.cited in (SELECT scp FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                             WHERE cluster_no=""" + str(cluster_num) + """)
                     UNION SELECT cluster_no, citing, cited
                       FROM (SELECT cluster_no, scp
-                           FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                           FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                             WHERE cluster_no=""" + str(cluster_num) + """) rated_scp1
                       JOIN theta_plus.imm1985_1995_citing_cited_union ccu1 ON rated_scp1.scp = ccu1.cited
-                      WHERE ccu1.citing in (SELECT scp FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                      WHERE ccu1.citing in (SELECT scp FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                             WHERE cluster_no=""" + str(cluster_num) + """) ; """
     
     citing_cited = pd.read_sql(citing_cited_query, con=engine)
@@ -40,12 +40,12 @@ for cluster_num in rated_clusters:
     all_possible_95_query =""" SELECT set_1.cluster_no, set_1.scp scp_1, set_2.scp scp_2
                FROM (SELECT DISTINCT scps.cluster_no, scps.scp
                      FROM (SELECT cslu.cluster_no, cslu.scp, sa.auid
-                           FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu
+                           FROM theta_plus.imm1985_1995_cluster_scp_list_mcl cslu
                            LEFT JOIN public.scopus_authors sa ON cslu.scp = sa.scp
                            WHERE cslu.cluster_no=""" + str(cluster_num) + """) scps
                            JOIN (SELECT authors.cluster_no, authors.auid
                                  FROM (SELECT cslu.cluster_no, sa.auid, count(sa.auid) num_articles
-                                       FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu
+                                       FROM theta_plus.imm1985_1995_cluster_scp_list_mcl cslu
                                         LEFT JOIN public.scopus_authors sa ON cslu.scp = sa.scp
                                         WHERE cslu.cluster_no=""" + str(cluster_num) + """
                                         GROUP BY cslu.cluster_no, sa.auid) authors
@@ -55,12 +55,12 @@ for cluster_num in rated_clusters:
                                 ON scps.auid = authors_95.auid and scps.cluster_no = authors_95.cluster_no) set_1
                             JOIN (SELECT DISTINCT scps.cluster_no, scps.scp
                             FROM (SELECT cslu.cluster_no, cslu.scp, sa.auid
-                                  FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu
+                                  FROM theta_plus.imm1985_1995_cluster_scp_list_mcl cslu
                                   LEFT JOIN public.scopus_authors sa ON cslu.scp = sa.scp
                                   WHERE cslu.cluster_no=""" + str(cluster_num) + """) scps
                                   JOIN(SELECT authors.cluster_no, authors.auid
                                        FROM (SELECT cslu.cluster_no, sa.auid, count(sa.auid) num_articles
-                                             FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu
+                                             FROM theta_plus.imm1985_1995_cluster_scp_list_mcl cslu
                                              LEFT JOIN public.scopus_authors sa ON cslu.scp = sa.scp
                                              WHERE cslu.cluster_no=""" + str(cluster_num) + """
                             GROUP BY cslu.cluster_no, sa.auid) authors

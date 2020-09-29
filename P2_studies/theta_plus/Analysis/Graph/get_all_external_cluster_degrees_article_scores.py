@@ -10,7 +10,7 @@ sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ern
 engine = create_engine(sql_scheme)
 
 cluster_query = """SELECT cluster_no
-FROM theta_plus.imm1985_1995_all_merged_unshuffled
+FROM theta_plus.imm1985_1995_all_merged_mcl
 ORDER BY cluster_no;"""
 
 clusters = pd.read_sql(cluster_query, con=engine)
@@ -20,31 +20,31 @@ for cluster_num in clusters_list:
     
     citing_cited_query="""
     SELECT cslu1.cluster_no AS citing_cluster, ccu.citing, cslu2.cluster_no AS cited_cluster, ccu.cited
-    FROM theta_plus.imm1985_1995_citing_cited_union ccu
+    FROM theta_plus.imm1985_1995_citing_cited ccu
     JOIN (SELECT cslu.*
-          FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu
+          FROM theta_plus.imm1985_1995_cluster_scp_list_mcl cslu
           JOIN theta_plus.imm1985_1995_article_score_unshuffled asu ON asu.scp = cslu.scp
           WHERE asu.article_score >= 1) cslu1 ON cslu1.scp = ccu.citing
     JOIN (SELECT cslu.*
-          FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu
+          FROM theta_plus.imm1985_1995_cluster_scp_list_mcl cslu
           JOIN theta_plus.imm1985_1995_article_score_unshuffled asu ON asu.scp = cslu.scp
           WHERE asu.article_score >= 1) cslu2 ON cslu2.scp = ccu.cited
     WHERE  cslu1.cluster_no!=cslu2.cluster_no AND cslu1.cluster_no= """ + str(cluster_num) + """ -- all external out-degrees
     UNION 
     SELECT cslu1.cluster_no AS citing_cluster, ccu.citing, cslu2.cluster_no AS cited_cluster, ccu.cited
-    FROM theta_plus.imm1985_1995_citing_cited_union ccu
+    FROM theta_plus.imm1985_1995_citing_cited ccu
     JOIN (SELECT cslu.*
-          FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu
+          FROM theta_plus.imm1985_1995_cluster_scp_list_mcl cslu
           JOIN theta_plus.imm1985_1995_article_score_unshuffled asu ON asu.scp = cslu.scp
           WHERE asu.article_score >= 1) cslu1 ON cslu1.scp = ccu.citing
     JOIN (SELECT cslu.*
-          FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu
+          FROM theta_plus.imm1985_1995_cluster_scp_list_mcl cslu
           JOIN theta_plus.imm1985_1995_article_score_unshuffled asu ON asu.scp = cslu.scp
           WHERE asu.article_score >= 1) cslu2 ON cslu2.scp = ccu.cited
     WHERE  cslu1.cluster_no!=cslu2.cluster_no AND cslu2.cluster_no= """ + str(cluster_num) + """; -- all external in-degrees"""
     
     cluster_scp_query="""SELECT * 
-    FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+    FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
     WHERE cluster_no = """ + str(cluster_num) + """;"""
 
     citing_cited = pd.read_sql(citing_cited_query, con=engine)

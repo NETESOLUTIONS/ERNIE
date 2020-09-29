@@ -12,13 +12,13 @@ sql_scheme = 'postgresql://' + user_name + ':' + password + '@localhost:5432/ern
 engine = create_engine(sql_scheme)
 
 cluster_query = """SELECT cluster_no, cluster_size, num_authors
-FROM theta_plus.imm1985_1995_all_merged_unshuffled;"""
+FROM theta_plus.imm1985_1995_all_merged_mcl;"""
 
 clusters = pd.read_sql(cluster_query, con=engine)
 clusters_list = clusters['cluster_no'][(clusters['cluster_size'] >= 30) & (clusters['cluster_size'] <= 350)].astype(int).tolist()
 
 external_cluster_degrees_query = """SELECT cluster_no, sum(ext_cluster_total_degrees) as ext_cluster_total_degrees
-FROM theta_plus.imm1985_1995_external_cluster_degrees GROUP BY cluster_no ORDER BY cluster_no;"""
+FROM theta_plus.imm1985_1995_external_cluster_degrees_mcl GROUP BY cluster_no ORDER BY cluster_no;"""
 
 external_cluster_degrees = pd.read_sql(external_cluster_degrees_query, con=engine)
 
@@ -31,15 +31,15 @@ for cluster_num in clusters_list[start_num:]:
 
     citing_cited_query = """
         SELECT cslu1.cluster_no as citing_cluster, ccu.citing, ccu.cited, cslu2.cluster_no as cited_cluster
-        FROM theta_plus.imm1985_1995_citing_cited_union ccu
-        JOIN theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu1 ON cslu1.scp = ccu.citing
-        JOIN theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu2 ON cslu2.scp = ccu.cited
+        FROM theta_plus.imm1985_1995_citing_cited ccu
+        JOIN theta_plus.imm1985_1995_cluster_scp_list_mcl cslu1 ON cslu1.scp = ccu.citing
+        JOIN theta_plus.imm1985_1995_cluster_scp_list_mcl cslu2 ON cslu2.scp = ccu.cited
         WHERE cslu1.cluster_no=""" +str(cluster_num)+ """ AND cslu1.cluster_no!=cslu2.cluster_no
         UNION
         SELECT cslu1.cluster_no as citing_cluster, ccu.citing, ccu.cited, cslu2.cluster_no as cited_cluster
-        FROM theta_plus.imm1985_1995_citing_cited_union ccu
-        JOIN theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu1 ON cslu1.scp = ccu.citing
-        JOIN theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu2 ON cslu2.scp = ccu.cited
+        FROM theta_plus.imm1985_1995_citing_cited ccu
+        JOIN theta_plus.imm1985_1995_cluster_scp_list_mcl cslu1 ON cslu1.scp = ccu.citing
+        JOIN theta_plus.imm1985_1995_cluster_scp_list_mcl cslu2 ON cslu2.scp = ccu.cited
         WHERE cslu2.cluster_no=""" +str(cluster_num)+ """ AND cslu1.cluster_no!=cslu2.cluster_no;"""
 
     citing_cited = pd.read_sql(citing_cited_query, con=engine)
