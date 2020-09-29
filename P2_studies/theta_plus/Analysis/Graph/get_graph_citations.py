@@ -37,7 +37,7 @@ for cluster_num in rated_clusters:
 
       FROM
               (SELECT *
-              FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+              FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
               WHERE cluster_no=
               """ + str(cluster_num) + """
               ) select_scp
@@ -48,7 +48,7 @@ for cluster_num in rated_clusters:
 
                   FROM
                     (SELECT cluster_no, scp
-                     FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                     FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                      WHERE cluster_no=
                   """ + str(cluster_num) + """
                       ) rated_scp1
@@ -57,7 +57,7 @@ for cluster_num in rated_clusters:
 
                    ON rated_scp1.scp = ccu1.citing
                    WHERE ccu1.cited in (SELECT scp
-                         FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                         FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                          WHERE cluster_no= 
                   """ + str(cluster_num) + """
                           )
@@ -66,7 +66,7 @@ for cluster_num in rated_clusters:
 
                   FROM
                     (SELECT cluster_no, scp
-                     FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                     FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                      WHERE cluster_no=
                   """ + str(cluster_num) + """
                       ) rated_scp1
@@ -75,7 +75,7 @@ for cluster_num in rated_clusters:
 
                    ON rated_scp1.scp = ccu1.cited
                    WHERE ccu1.citing in (SELECT scp
-                     FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+                     FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
                       WHERE cluster_no= 
                   """ + str(cluster_num) + """
                       )
@@ -89,7 +89,7 @@ for cluster_num in rated_clusters:
       (SELECT cluster_no, cited, count(cited) all_cluster_count
       FROM
           (SELECT cluster_no, scp
-           FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled
+           FROM theta_plus.imm1985_1995_cluster_scp_list_mcl
            WHERE cluster_no= 
               """ + str(cluster_num) + """
             ) rated_scp1

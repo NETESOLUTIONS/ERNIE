@@ -17,14 +17,14 @@ for cluster_num in rated_clusters:
     citing_authors_95_query = """SELECT  coalesce(count(DISTINCT citing_author), 0) AS counts
     FROM
             (SELECT cslu.cluster_no, ccu.citing, ccu.cited, sa.auid citing_author
-            FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu
-            LEFT JOIN theta_plus.imm1985_1995_citing_cited_union ccu ON cslu.scp = ccu.citing
+            FROM theta_plus.imm1985_1995_cluster_scp_list_mcl cslu
+            LEFT JOIN theta_plus.imm1985_1995_citing_cited ccu ON cslu.scp = ccu.citing
             LEFT JOIN public.scopus_authors sa ON sa.scp=ccu.citing
             WHERE cslu.cluster_no=""" + str(cluster_num) + """ AND
                   sa.auid IN (SELECT authors.auid
                           FROM
                                 (SELECT cslu.cluster_no, sa.auid, count(sa.auid) num_articles
-                                FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu
+                                FROM theta_plus.imm1985_1995_cluster_scp_list_mcl cslu
                                 LEFT JOIN public.scopus_authors sa
                                     ON cslu.scp = sa.scp
                                 WHERE cslu.cluster_no=""" + str(cluster_num) + """
@@ -36,14 +36,14 @@ for cluster_num in rated_clusters:
 
     JOIN
             (SELECT cslu.cluster_no, ccu.citing, ccu.cited, sa.auid cited_author
-            FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu
-            LEFT JOIN theta_plus.imm1985_1995_citing_cited_union ccu ON cslu.scp = ccu.cited
+            FROM theta_plus.imm1985_1995_cluster_scp_list_mcl cslu
+            LEFT JOIN theta_plus.imm1985_1995_citing_cited ccu ON cslu.scp = ccu.cited
             LEFT JOIN public.scopus_authors sa ON sa.scp=ccu.cited
             WHERE cslu.cluster_no=""" + str(cluster_num) + """ AND
                   sa.auid IN (SELECT authors.auid
                           FROM
                                 (SELECT cslu.cluster_no, sa.auid, count(sa.auid) num_articles
-                                FROM theta_plus.imm1985_1995_cluster_scp_list_unshuffled cslu
+                                FROM theta_plus.imm1985_1995_cluster_scp_list_mcl cslu
                                 LEFT JOIN public.scopus_authors sa
                                     ON cslu.scp = sa.scp
                                 WHERE cslu.cluster_no=""" + str(cluster_num) + """

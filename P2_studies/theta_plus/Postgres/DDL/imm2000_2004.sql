@@ -55,7 +55,7 @@ TABLESPACE theta_plus_tbs AS
             AND st.language='English';
             
 COMMENT ON TABLE theta_plus.imm2000_2004_title_abstracts IS
-   'All titles and abstracts for seed articles from 2000 to 2004 and their citing and cited references'
+   'All titles and abstracts for seed articles from 2000 to 2004 and their citing and cited references';
 COMMENT ON COLUMN theta_plus.imm2000_2004_title_abstracts.scp IS
   'SCPs of all seed articles from 2000 to 2004 and their citing and cited references';
 COMMENT ON COLUMN theta_plus.imm2000_2004_title_abstracts.title IS
