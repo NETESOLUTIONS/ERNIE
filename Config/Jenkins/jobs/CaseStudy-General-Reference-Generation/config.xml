@@ -1,0 +1,101 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>## Find n-generations worth of references for a given topic with lists of PMIDs and/or WoS IDs and create its citation subnetwork  ##</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>5</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>drug_name</name>
+          <description>The name of the drug to run the reference generation for.</description>
+          <defaultValue>ipilimumab</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.FileParameterDefinition>
+          <name>Analysis/baseline_seedset.csv</name>
+          <description>The seed set PMIDs for the drug in question.</description>
+        </hudson.model.FileParameterDefinition>
+        <hudson.model.FileParameterDefinition>
+          <name>Analysis/review_set.csv</name>
+          <description>The review set PMIDs for the drug in question.</description>
+        </hudson.model.FileParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>iters</name>
+          <description>Number of generations to create (iterate through).</description>
+          <defaultValue>1</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.FileParameterDefinition>
+          <name>Analysis/supp_wos_set.csv</name>
+          <description>Supplementary WoS IDs for the drug in question.</description>
+        </hudson.model.FileParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>year_cutoff</name>
+          <description>Cutoff year for document inclusion</description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>analysis</name>
+          <description>Select the type of analysis you wish to run
+
+BACKWARD --&gt; find the documents which are CITED by the documents in your seedset
+FORWARD --&gt; find the documents which are CITING the documents in your seedset
+BOTH --&gt; perform both operations
+BOTH+NETWORK_UNION --&gt; perform both operations and additionally union the citation network table and other related tables.</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>backward</string>
+              <string>forward</string>
+              <string>both</string>
+              <string>both+network_union</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.8.0">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/NETESOLUTIONS/ERNIE</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>sudo chmod -R 777 Analysis; cd Analysis; c_dir=$(pwd);
+ls -l;
+sudo -u ernie_admin sh drug_analysis.sh -b baseline.sql -f baseline_forward.sql -u baseline_union.sql -d $drug_name -s $c_dir/baseline_seedset.csv -r $c_dir/review_set.csv -w $c_dir/supp_wos_set.csv -y &quot;${year_cutoff}&quot; -i &quot;${iters}&quot; -a &quot;${analysis}&quot; 
+rm -f $c_dir/baseline_seedset.csv 
+rm -f $c_dir/review_set.csv 
+rm -f $c_dir/supp_wos_set.csv</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

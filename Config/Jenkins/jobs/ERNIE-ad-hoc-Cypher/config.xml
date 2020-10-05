@@ -1,0 +1,175 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>## Executes a specified ad-hoc Cypher query ##&#xd;
+* Triggerred manually.&#xd;
+* The results are printed to `stdout` and are captured in the build log&#xd;
+* Prevented from running concurrently among the `Neo4j`-throttled jobs&#xd;
+</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.TextParameterDefinition>
+          <name>CYPHER_QUERY</name>
+          <description>Cypher query to execute. ${ERNIE_ADMIN_POSTGRES} expression is expanded. Examples:
+
+* ```
+// 7) Shortest paths among those that pass through at least one nida_support node from startref1 to endref
+MATCH p = shortestPath((a {endpoint: &apos;startref1&apos;})-[*]-&gt;(b {endpoint: &apos;endref&apos;}))
+  WHERE any(x IN nodes(p)
+    WHERE x &lt;&gt; a AND x &lt;&gt; b AND x.nida_support)
+UNWIND nodes(p) AS path_node
+WITH DISTINCT path_node AS n
+RETURN apoc.agg.statistics(n.pagerank);
+```
+* ```
+MATCH (c1:Publication {node_id: &apos;17538003&apos;})&lt;--(p)--&gt;(c2:Publication {node_id: &apos;18983824&apos;}), (p)--&gt;(c3)
+RETURN c1.node_id, c2.node_id, c3.node_id, count(p) AS f
+ORDER BY f DESC;
+```
+* ```
+WITH &apos;jdbc:postgresql://ernie2/ernie?user=ernie_admin&amp;password=${ERNIE_ADMIN_POSTGRES}&apos; AS db,
+&apos;
+SELECT 17538003::varchar AS c1, 18983824::varchar AS c2
+&apos; AS sql
+CALL apoc.load.jdbc(db, sql) YIELD row
+MATCH (c1:Publication {node_id: row.c1})&lt;--(p)--&gt;(c2:Publication {node_id: row.c2}), (p)--&gt;(c3)
+RETURN c1.node_id, c2.node_id, c3.node_id, count(p) AS f
+ORDER BY f DESC;
+```</description>
+          <defaultValue>WITH &apos;jdbc:postgresql://ernie2/ernie?user=ernie_admin&amp;password=${ERNIE_ADMIN_POSTGRES}&apos; AS db,
+&apos;
+SELECT 17538003::varchar AS c1, 18983824::varchar AS c2
+&apos; AS sql
+CALL apoc.load.jdbc(db, sql) YIELD row
+MATCH (c1:Publication {node_id: row.c1})&lt;--(p)--&gt;(c2:Publication {node_id: row.c2}), (p)--&gt;(c3)
+RETURN c1.node_id, c2.node_id, c3.node_id, count(p) AS f
+ORDER BY f DESC;</defaultValue>
+          <trim>false</trim>
+        </hudson.model.TextParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@2.0.2">
+      <maxConcurrentPerNode>0</maxConcurrentPerNode>
+      <maxConcurrentTotal>0</maxConcurrentTotal>
+      <categories class="java.util.concurrent.CopyOnWriteArrayList">
+        <string>Neo4j</string>
+      </categories>
+      <throttleEnabled>true</throttleEnabled>
+      <throttleOption>category</throttleOption>
+      <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
+      <paramsToUseForLimit></paramsToUseForLimit>
+      <configVersion>1</configVersion>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>true</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <jenkins.plugins.publish__over__ssh.BapSshBuilderPlugin plugin="publish-over-ssh@1.20.1">
+      <delegate>
+        <consolePrefix>SSH: </consolePrefix>
+        <delegate plugin="publish-over@0.22">
+          <publishers>
+            <jenkins.plugins.publish__over__ssh.BapSshPublisher plugin="publish-over-ssh@1.20.1">
+              <configName>Neo4j Server</configName>
+              <verbose>false</verbose>
+              <transfers>
+                <jenkins.plugins.publish__over__ssh.BapSshTransfer>
+                  <remoteDirectory>/home/ernie_admin/jenkins_jobs/${JOB_BASE_NAME}</remoteDirectory>
+                  <sourceFiles></sourceFiles>
+                  <excludes></excludes>
+                  <removePrefix></removePrefix>
+                  <remoteDirectorySDF>false</remoteDirectorySDF>
+                  <flatten>false</flatten>
+                  <cleanRemote>false</cleanRemote>
+                  <noDefaultExcludes>false</noDefaultExcludes>
+                  <makeEmptyDirs>false</makeEmptyDirs>
+                  <patternSeparator>[, ]+</patternSeparator>
+                  <execCommand>set -e
+set -o pipefail
+
+# Run
+export ERNIE_ADMIN_POSTGRES=&quot;${ERNIE_ADMIN_POSTGRES}&quot;
+echo &quot;$CYPHER_QUERY&quot; | envsubst | cypher-shell --format verbose &amp;
+pid=$!
+
+# Wait on a background job completion. Query status every 10 minutes.
+declare -i elapsed=0
+# `ps -p ${pid}` works on macOS and CentOS. On both OSes `ps ${pid}` works as well.
+while ps -p ${pid} &gt;/dev/null; do
+  sleep 1
+  if ((++elapsed % 600 == 0)); then
+    echo &quot;Waiting for the completion of the main script. $((elapsed / 60))m and counting ...&quot;
+  fi
+done
+
+# Return the exit code of the terminated background process. This works in Bash 4.4 despite what Bash docs say:
+# &quot;If neither jobspec nor pid specifies an active child process of the shell, the return status is 127.&quot;
+wait ${pid}</execCommand>
+                  <execTimeout>0</execTimeout>
+                  <usePty>false</usePty>
+                  <useAgentForwarding>false</useAgentForwarding>
+                </jenkins.plugins.publish__over__ssh.BapSshTransfer>
+              </transfers>
+              <useWorkspaceInPromotion>false</useWorkspaceInPromotion>
+              <usePromotionTimestamp>false</usePromotionTimestamp>
+            </jenkins.plugins.publish__over__ssh.BapSshPublisher>
+          </publishers>
+          <continueOnError>false</continueOnError>
+          <failOnError>true</failOnError>
+          <alwaysPublishFromMaster>false</alwaysPublishFromMaster>
+          <hostConfigurationAccess class="jenkins.plugins.publish_over_ssh.BapSshPublisherPlugin" reference="../.."/>
+        </delegate>
+      </delegate>
+    </jenkins.plugins.publish__over__ssh.BapSshBuilderPlugin>
+  </builders>
+  <publishers>
+    <jenkins.plugins.slack.SlackNotifier plugin="slack@2.41">
+      <baseUrl></baseUrl>
+      <teamDomain></teamDomain>
+      <authToken></authToken>
+      <tokenCredentialId></tokenCredentialId>
+      <botUser>false</botUser>
+      <room></room>
+      <sendAsText>false</sendAsText>
+      <iconEmoji></iconEmoji>
+      <username></username>
+      <startNotification>true</startNotification>
+      <notifySuccess>true</notifySuccess>
+      <notifyAborted>true</notifyAborted>
+      <notifyNotBuilt>true</notifyNotBuilt>
+      <notifyUnstable>true</notifyUnstable>
+      <notifyRegression>true</notifyRegression>
+      <notifyFailure>true</notifyFailure>
+      <notifyEveryFailure>true</notifyEveryFailure>
+      <notifyBackToNormal>true</notifyBackToNormal>
+      <notifyRepeatedFailure>true</notifyRepeatedFailure>
+      <includeTestSummary>false</includeTestSummary>
+      <includeFailedTests>false</includeFailedTests>
+      <commitInfoChoice>NONE</commitInfoChoice>
+      <includeCustomMessage>false</includeCustomMessage>
+      <customMessage></customMessage>
+      <customMessageSuccess></customMessageSuccess>
+      <customMessageAborted></customMessageAborted>
+      <customMessageNotBuilt></customMessageNotBuilt>
+      <customMessageUnstable></customMessageUnstable>
+      <customMessageFailure></customMessageFailure>
+    </jenkins.plugins.slack.SlackNotifier>
+  </publishers>
+  <buildWrappers>
+    <com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper>
+      <varPasswordPairs/>
+      <varMaskRegexes/>
+    </com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.11.5"/>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.7.2">
+      <colorMapName>Brackets Dark</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

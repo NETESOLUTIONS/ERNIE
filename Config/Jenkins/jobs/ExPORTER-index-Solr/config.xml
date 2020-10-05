@@ -1,0 +1,193 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?><project>
+  <actions/>
+  <description>#### Generate/smokeload Solr Index data directly from Postgres on ernie-solr ####</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.31.0">
+      <projectUrl>https://github.com/NETESOLUTIONS/ERNIE/</projectUrl>
+      <displayName/>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>core</name>
+          <description>Chosen core to examine/recreate</description>
+          <defaultValue>exporter_core</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>fields</name>
+          <description>Solr fields in this core. Use -i to map to the id field. -t to map to table</description>
+          <defaultValue>-i application_id -f abstract_text -f study_section -f study_section_name -f project_title -f core_project_num -f full_project_num -f pi_names -sql " select a.project_title, a.study_section_name, a.study_section, a.application_id, a.core_project_num, a.full_project_num, a.pi_names, b.abstract_text from exporter_projects a left join exporter_project_abstracts b on a.application_id=b.application_id"</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@2.0.3">
+      <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
+      <throttleEnabled>false</throttleEnabled>
+      <throttleOption>project</throttleOption>
+      <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
+      <paramsToUseForLimit/>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+    
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@4.4.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/NETESOLUTIONS/ERNIE</url>
+        <credentialsId>d02dfdd6-1f23-416e-a398-d26accdf9129</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>true</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <jenkins.triggers.ReverseBuildTrigger>
+      <spec/>
+      <upstreamProjects>ExPORTER-update</upstreamProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </jenkins.triggers.ReverseBuildTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#open tunnel -- Note do not delete this line as the remote port redirection on the SSH tunnel allows SOLR to actually connect to Postgres while not violating 2FA requirements 
+ssh -N solr@ernie-solr1.eastus2.cloudapp.azure.com -R 5432:localhost:5432 &amp;
+</command>
+    </hudson.tasks.Shell>
+    <jenkins.plugins.publish__over__ssh.BapSshBuilderPlugin plugin="publish-over-ssh@1.20.1">
+      <delegate>
+        <consolePrefix>SSH: </consolePrefix>
+        <delegate plugin="publish-over@0.22">
+          <publishers>
+            <jenkins.plugins.publish__over__ssh.BapSshPublisher plugin="publish-over-ssh@1.20.1">
+              <configName>erniespark</configName>
+              <verbose>false</verbose>
+              <transfers>
+                <jenkins.plugins.publish__over__ssh.BapSshTransfer>
+                  <remoteDirectory>/home/solr</remoteDirectory>
+                  <sourceFiles>Solr/**</sourceFiles>
+                  <excludes/>
+                  <removePrefix/>
+                  <remoteDirectorySDF>false</remoteDirectorySDF>
+                  <flatten>false</flatten>
+                  <cleanRemote>false</cleanRemote>
+                  <noDefaultExcludes>false</noDefaultExcludes>
+                  <makeEmptyDirs>false</makeEmptyDirs>
+                  <patternSeparator>[, ]+</patternSeparator>
+                  <execCommand>#delete the core if it exists
+#curl http://localhost:8983/solr/admin/cores?action=STATUS | grep -q "\""$core"\":{" &amp;&amp; echo "core exists" || echo "core does not exist" 
+#curl http://localhost:8983/solr/admin/cores?action=STATUS | grep -q "\""$core"\":{" &amp;&amp; /opt/solr/bin/solr delete -c $core || true
+/opt/solr/bin/solr delete -c $core
+
+#create core folder
+rm -rf /var/solr/data/$core
+rm -rf /erniesolr1_data1/solr_data/$core/
+mkdir /var/solr/data/$core
+
+#copy git baseline data and python xml generator into new core directory, cd there and run the python script
+cd Solr
+cp -r VJ_CORE_BASELINE/* /var/solr/data/$core/
+cp solr_xml_generator.py /var/solr/data/$core/conf
+cd /var/solr/data/$core/conf
+#edit this python line below as needed
+python solr_xml_generator.py -d ernie -U ernie_admin -W ${ERNIE_ADMIN_POSTGRES} -p 5432 $fields
+rm managed-schema-temp
+rm solr_xml_generator.py
+rm -rf ~/Solr
+
+#create the core!
+/opt/solr/bin/solr create -c $core
+
+#move data directory to 1TB disk
+mkdir /erniesolr1_data1/solr_data/$core
+mv /var/solr/data/$core/data /erniesolr1_data1/solr_data/$core/
+ln -s /erniesolr1_data1/solr_data/$core/data /var/solr/data/$core/data
+
+#index the data!
+curl -s http://localhost:8983/solr/$core/dataimport?command=full-import &gt; /dev/null
+while true; do
+    curl  http://localhost:8983/solr/$core/dataimport?command=status &gt; status.xml
+    grep -q "Indexing completed" status.xml &amp;&amp; break || echo '***still indexing data...'
+    sleep 30
+done</execCommand>
+                  <execTimeout>0</execTimeout>
+                  <usePty>false</usePty>
+                  <useAgentForwarding>false</useAgentForwarding>
+                </jenkins.plugins.publish__over__ssh.BapSshTransfer>
+              </transfers>
+              <useWorkspaceInPromotion>false</useWorkspaceInPromotion>
+              <usePromotionTimestamp>false</usePromotionTimestamp>
+            </jenkins.plugins.publish__over__ssh.BapSshPublisher>
+          </publishers>
+          <continueOnError>false</continueOnError>
+          <failOnError>false</failOnError>
+          <alwaysPublishFromMaster>false</alwaysPublishFromMaster>
+          <hostConfigurationAccess class="jenkins.plugins.publish_over_ssh.BapSshPublisherPlugin" reference="../.."/>
+        </delegate>
+      </delegate>
+    </jenkins.plugins.publish__over__ssh.BapSshBuilderPlugin>
+  </builders>
+  <publishers>
+    <org.jenkinsci.plugins.github.status.GitHubCommitStatusSetter plugin="github@1.31.0">
+      <commitShaSource class="org.jenkinsci.plugins.github.status.sources.BuildDataRevisionShaSource"/>
+      <reposSource class="org.jenkinsci.plugins.github.status.sources.AnyDefinedRepositorySource"/>
+      <contextSource class="org.jenkinsci.plugins.github.status.sources.DefaultCommitContextSource"/>
+      <statusResultSource class="org.jenkinsci.plugins.github.status.sources.ConditionalStatusResultSource"/>
+      <statusBackrefSource class="org.jenkinsci.plugins.github.status.sources.BuildRefBackrefSource"/>
+      <errorHandlers/>
+    </org.jenkinsci.plugins.github.status.GitHubCommitStatusSetter>
+    <jenkins.plugins.slack.SlackNotifier plugin="slack@2.41">
+      <baseUrl/>
+      <teamDomain/>
+      <authToken/>
+      <tokenCredentialId/>
+      <botUser>false</botUser>
+      <room/>
+      <sendAsText>false</sendAsText>
+      <iconEmoji/>
+      <username/>
+      <startNotification>true</startNotification>
+      <notifySuccess>true</notifySuccess>
+      <notifyAborted>true</notifyAborted>
+      <notifyNotBuilt>true</notifyNotBuilt>
+      <notifyUnstable>true</notifyUnstable>
+      <notifyRegression>true</notifyRegression>
+      <notifyFailure>true</notifyFailure>
+      <notifyEveryFailure>false</notifyEveryFailure>
+      <notifyBackToNormal>true</notifyBackToNormal>
+      <notifyRepeatedFailure>false</notifyRepeatedFailure>
+      <includeTestSummary>false</includeTestSummary>
+      <includeFailedTests>false</includeFailedTests>
+      <commitInfoChoice>NONE</commitInfoChoice>
+      <includeCustomMessage>false</includeCustomMessage>
+      <customMessage/>
+      <customMessageSuccess/>
+      <customMessageAborted/>
+      <customMessageNotBuilt/>
+      <customMessageUnstable/>
+      <customMessageFailure/>
+    </jenkins.plugins.slack.SlackNotifier>
+  </publishers>
+  <buildWrappers>
+    <com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper/>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.11.5"/>
+  </buildWrappers>
+</project>

@@ -1,0 +1,182 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?><project>
+  <actions/>
+  <description>## Execute a long-running SQL and, optionally, export results ##&#13;
+* Ran manually&#13;
+* Example: DB migration&#13;
+&#13;
+```&#13;
+ALTER TABLE lexis_nexis_nonpatent_literature_citations&#13;
+ADD scp BIGINT;&#13;
+&#13;
+ALTER TABLE lexis_nexis_nonpatent_literature_citations&#13;
+ALTER COLUMN scp SET GENERATED ALWAYS AS (CAST(substring(scopus_url FROM 'eid=2-s2.0-(\d+)') AS BIGINT));&#13;
+&#13;
+CREATE INDEX IF NOT EXISTS lnnlc_scp_i ON lexis_nexis_nonpatent_literature_citations(scp) TABLESPACE index_tbs;&#13;
+```&#13;
+&#13;
+* Example: CSV export&#13;
+```&#13;
+SELECT t.cited_1, spg1.pub_year AS pub_year_1, t.cited_2, spg2.pub_year AS pub_year_2, t.first_possible_year&#13;
+  FROM&#13;
+    cc2.timelag1 t&#13;
+      JOIN scopus_publication_groups spg1 ON spg1.sgr = t.cited_1&#13;
+      JOIN scopus_publication_groups spg2 ON spg2.sgr = t.cited_2&#13;
+ WHERE t.first_possible_year &lt;&gt; greatest(spg1.pub_year, spg2.pub_year);&#13;
+} | tee &#13;
+```&#13;
+</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>90</daysToKeep>
+        <numToKeep>-1</numToKeep>
+        <artifactDaysToKeep>30</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.TextParameterDefinition>
+          <name>SQL</name>
+          <description>Query to execute. Results will be exported and archived in Jenkins when OUTPUT_CSV is specified.</description>
+          <defaultValue>SELECT source_id,
+  source_year,
+  source_citation_type,
+  source_have_issn,
+  cited_source_uid,
+  reference_year,
+  reference_have_issn
+INTO wenxi.test_scopus_data_1985
+  FROM (
+    SELECT source_sp.scp                         AS source_id,
+      source_spg.pub_year                        AS source_year,
+      source_sp.citation_type                    AS source_citation_type,
+      ref_sp.scp                                 AS cited_source_uid,
+      ref_spg.pub_year                           AS reference_year,
+      CAST (CASE WHEN source_ss.issn_main != '' THEN 1 ELSE 0 END AS bit) AS source_have_issn,
+      CAST (CASE WHEN ref_ss.issn_main != '' THEN 1 ELSE 0 END AS bit) AS reference_have_issn,
+          count(1) OVER (PARTITION BY source_sp.scp) AS ref_count
+      FROM scopus_publications source_sp
+      JOIN scopus_publication_groups source_spg
+           ON source_spg.sgr = source_sp.sgr AND source_spg.pub_year = 1985
+      LEFT JOIN scopus_sources source_ss
+           ON source_ss.ernie_source_id = source_sp.ernie_source_id
+      JOIN scopus_references sr USING (scp)
+      JOIN scopus_publications ref_sp ON ref_sp.sgr = sr.ref_sgr
+      JOIN scopus_publication_groups ref_spg ON ref_spg.sgr = ref_sp.sgr AND ref_spg.pub_year &lt;= 1985
+      JOIN scopus_sources ref_ss
+           ON ref_ss.ernie_source_id = ref_sp.ernie_source_id
+     WHERE source_sp.citation_type = 'ar'
+  ) sq
+ WHERE ref_count &gt;= 5;</defaultValue>
+          <trim>false</trim>
+        </hudson.model.TextParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>OUTPUT_CSV</name>
+          <description>Optional: omit it to skip export.</description>
+          <defaultValue/>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@2.0.2">
+      <maxConcurrentPerNode>0</maxConcurrentPerNode>
+      <maxConcurrentTotal>0</maxConcurrentTotal>
+      <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
+      <throttleEnabled>false</throttleEnabled>
+      <throttleOption>project</throttleOption>
+      <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
+      <paramsToUseForLimit/>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+    
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>if [[ $OUTPUT_CSV ]]; then
+  echo -e "Executing:\n---\n${SQL}---\n"
+  
+  # Strip trailing ; in $SQL if any
+  { psql -v ON_ERROR_STOP=on &lt;&lt;HEREDOC
+COPY (  
+  ${SQL/%;/}
+) TO STDOUT WITH (FORMAT CSV, HEADER);
+HEREDOC
+  } | tee "$OUTPUT_CSV"
+else
+  psql -v ON_ERROR_STOP=on --echo-all &lt;&lt;HEREDOC
+$SQL
+HEREDOC
+fi</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <jenkins.plugins.slack.SlackNotifier plugin="slack@2.40">
+      <baseUrl/>
+      <teamDomain/>
+      <authToken/>
+      <tokenCredentialId/>
+      <botUser>false</botUser>
+      <room/>
+      <sendAsText>false</sendAsText>
+      <iconEmoji/>
+      <username/>
+      <startNotification>true</startNotification>
+      <notifySuccess>true</notifySuccess>
+      <notifyAborted>true</notifyAborted>
+      <notifyNotBuilt>true</notifyNotBuilt>
+      <notifyUnstable>true</notifyUnstable>
+      <notifyRegression>true</notifyRegression>
+      <notifyFailure>true</notifyFailure>
+      <notifyEveryFailure>true</notifyEveryFailure>
+      <notifyBackToNormal>true</notifyBackToNormal>
+      <notifyRepeatedFailure>true</notifyRepeatedFailure>
+      <includeTestSummary>false</includeTestSummary>
+      <includeFailedTests>false</includeFailedTests>
+      <commitInfoChoice>NONE</commitInfoChoice>
+      <includeCustomMessage>false</includeCustomMessage>
+      <customMessage/>
+      <customMessageSuccess/>
+      <customMessageAborted/>
+      <customMessageNotBuilt/>
+      <customMessageUnstable/>
+      <customMessageFailure/>
+    </jenkins.plugins.slack.SlackNotifier>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>*.csv</artifacts>
+      <allowEmptyArchive>true</allowEmptyArchive>
+      <onlyIfSuccessful>true</onlyIfSuccessful>
+      <fingerprint>true</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+    </hudson.tasks.ArtifactArchiver>
+    <hudson.plugins.ws__cleanup.WsCleanup plugin="ws-cleanup@0.38">
+      <patterns class="empty-list"/>
+      <deleteDirs>false</deleteDirs>
+      <skipWhenFailed>false</skipWhenFailed>
+      <cleanWhenSuccess>true</cleanWhenSuccess>
+      <cleanWhenUnstable>false</cleanWhenUnstable>
+      <cleanWhenFailure>false</cleanWhenFailure>
+      <cleanWhenNotBuilt>false</cleanWhenNotBuilt>
+      <cleanWhenAborted>false</cleanWhenAborted>
+      <notFailBuild>false</notFailBuild>
+      <cleanupMatrixParent>false</cleanupMatrixParent>
+      <externalDelete/>
+      <disableDeferredWipeout>false</disableDeferredWipeout>
+    </hudson.plugins.ws__cleanup.WsCleanup>
+  </publishers>
+  <buildWrappers>
+    <com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper/>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.11.3"/>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.6.3">
+      <colorMapName>Brackets Dark</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

@@ -1,0 +1,130 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?><project>
+  <actions/>
+  <description>## Generates dataset for Graclus Software ##&#13;
+* Triggered manually&#13;
+* Input dataset should have 2 columns source_id and cited_source_uid. i.e publications and all its references&#13;
+* Output files are in /erniedev_data3</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.31.0">
+      <projectUrl>https://github.com/NETESOLUTIONS/ERNIE/</projectUrl>
+      <displayName/>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>dataset</name>
+          <description>dataset table name
+Must contain two columns: 'citing' and 'cited'</description>
+          <defaultValue>eco2000_citing_cited</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>schema</name>
+          <description>schema where "dataset" is in</description>
+          <defaultValue>theta_plus_ecology</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@2.0.2">
+      <maxConcurrentPerNode>0</maxConcurrentPerNode>
+      <maxConcurrentTotal>0</maxConcurrentTotal>
+      <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
+      <throttleEnabled>false</throttleEnabled>
+      <throttleOption>project</throttleOption>
+      <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
+      <paramsToUseForLimit/>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+    
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@4.4.0">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/NETESOLUTIONS/ERNIE</url>
+        <credentialsId>d02dfdd6-1f23-416e-a398-d26accdf9129</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.SparseCheckoutPaths>
+        <sparseCheckoutPaths>
+          <hudson.plugins.git.extensions.impl.SparseCheckoutPath>
+            <path>/P2_studies/comp_case_study/*</path>
+          </hudson.plugins.git.extensions.impl.SparseCheckoutPath>
+        </sparseCheckoutPaths>
+      </hudson.plugins.git.extensions.impl.SparseCheckoutPaths>
+    </extensions>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># Execute
+PGOPTIONS="--search_path=${schema}" psql -f P2_studies/comp_case_study/graclus_input_data_tp.sql -v dataset=$dataset 
+ 
+ #Copying data to /erniedev_data3
+dataset_graclus_data='graclus_'${dataset}
+dataset_graclus_coded='graclus_coded_'${dataset}
+# PGOPTIONS="--search_path=comp,public,cc2" psql -c "COPY (Select string_agg from $dataset_graclus_data) To '/erniedev_data3/$dataset_graclus_data.csv' with (format csv);"
+# PGOPTIONS="--search_path=comp,public,cc2" psql -c "COPY (Select distinct source_id,s_id from $dataset_graclus_coded) To '/erniedev_data3/$dataset_graclus_coded.csv' with (format csv,header);"
+PGOPTIONS="--search_path=${schema}" psql -c "COPY (Select string_agg from $dataset_graclus_data) To '/erniedev_data3/$dataset_graclus_data.csv' with (format csv);"
+PGOPTIONS="--search_path=${schema}" psql -c "COPY (Select distinct citing , citing_id from $dataset_graclus_coded) To '/erniedev_data3/$dataset_graclus_coded.csv' with (format csv,header);"
+
+nodes=$(wc -l /erniedev_data3/$dataset_graclus_data.csv | cut -d ' ' -f 1)
+edges=$(wc -w /erniedev_data3/$dataset_graclus_data.csv | cut -d ' ' -f 1)
+edges=$(($edges/2))
+
+printf "$nodes\t$edges\n"
+sed -i '1 i\'$nodes'\t'$edges'' /erniedev_data3/$dataset_graclus_data.csv</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <jenkins.plugins.slack.SlackNotifier plugin="slack@2.41">
+      <baseUrl/>
+      <teamDomain/>
+      <authToken/>
+      <tokenCredentialId/>
+      <botUser>false</botUser>
+      <room/>
+      <sendAsText>false</sendAsText>
+      <iconEmoji/>
+      <username/>
+      <startNotification>true</startNotification>
+      <notifySuccess>true</notifySuccess>
+      <notifyAborted>true</notifyAborted>
+      <notifyNotBuilt>true</notifyNotBuilt>
+      <notifyUnstable>true</notifyUnstable>
+      <notifyRegression>true</notifyRegression>
+      <notifyFailure>true</notifyFailure>
+      <notifyEveryFailure>false</notifyEveryFailure>
+      <notifyBackToNormal>true</notifyBackToNormal>
+      <notifyRepeatedFailure>true</notifyRepeatedFailure>
+      <includeTestSummary>false</includeTestSummary>
+      <includeFailedTests>false</includeFailedTests>
+      <commitInfoChoice>NONE</commitInfoChoice>
+      <includeCustomMessage>false</includeCustomMessage>
+      <customMessage/>
+      <customMessageSuccess/>
+      <customMessageAborted/>
+      <customMessageNotBuilt/>
+      <customMessageUnstable/>
+      <customMessageFailure/>
+    </jenkins.plugins.slack.SlackNotifier>
+  </publishers>
+  <buildWrappers>
+    <com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper/>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.11.5"/>
+  </buildWrappers>
+</project>

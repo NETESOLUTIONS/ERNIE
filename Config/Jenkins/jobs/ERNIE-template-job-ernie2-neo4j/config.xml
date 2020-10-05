@@ -1,0 +1,253 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>## A template to use for new jobs (New Item &gt; Copy from &gt; type `ER`) ##&#xd;
+* Executes sample Postgres and Python scripts&#xd;
+* Runs daily between 8 AM and 9 AM&#xd;
+* To run job automatically within 2 minutes of commit, add Build Triggers &gt; Poll SCM: `H/2 * * * *`&#xd;
+&#xd;
+## Best Practices ##&#xd;
+* Scripts should stop and return non-zero error code on the first error, which would fail a job:&#xd;
+    * Bash: use `bash -e` option or `set -e` + `set -o pipefail` at the top of your scripts.&#xd;
+    * GNU Parallel:&#xd;
+		1. use `set -e` in compound commands.&#xd;
+        1. use `--halt now,fail=1` if it&apos;s safe to kill jobs and `--halt soon,fail=1` if it&apos;s not safe. With `--halt soon,fail=1` you can wait for a while only to fail the script, and error messages might be difficult to find in the output stream.&#xd;
+    * Postgres `psql`: use `-v ON_ERROR_STOP=on` option or `\set ON_ERROR_STOP on` at the top of your scripts.&#xd;
+    * Oracle `sqlcl`: use `WHENEVER SQLERROR EXIT FAILURE` at the top of your scripts.&#xd;
+	* Python: don&apos;t swallow the exceptions. `raise` in outer `except` blocks. &#xd;
+* Echo script lines to help to watch and capture script progress (unless this produces too much output):&#xd;
+    * Bash: use `bash -x` option or `set -x` at the top of your scripts.&#xd;
+	* GNU Parallel: use `parallel --verbose`&#xd;
+    * Postgres `psql`: use `-a`/`--echo-all`option  or `\set ECHO all` at the top of your scripts.&#xd;
+	* Oracle `sqlcl`: use `SET SERVEROUTPUT ON` + `SET ECHO ON`  at the top of your scripts&#xd;
+    * Python: ad-hoc add `-m trace --trace` option for troubleshooting if you need. This produces a lot of output.&#xd;
+* (default) Log messages to console (`stdout`) and avoid log file redirection to facilitate watching and capturing of the script progress.&#xd;
+Console output is automatically captured by Jenkins for every build.&#xd;
+* Notify via Slack and avoid email notifications&#xd;
+* Use the job workspace to run the job and produce job artifacts (e.g. in the `build/` sub-directory).&#xd;
+These could be then easily archived, downloaded from Jenkins or automatically cleaned (by doing Clean before Checkout in Git) before the next run.&#xd;
+* Write scripts that can be run from any location and take care of changing working directory if needed.&#xd;
+* Use Mask Passwords plug-in to pass and mask sensitive data.&#xd;
+Define either job-specific Name/Password Pairs or global Name/Password Pairs if they are used in many jobs.&#xd;
+	* Pairs are passed implicitly as environment variables to scripts.&#xd;
+&#xd;
+</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.31.0">
+      <projectUrl>https://github.com/NETESOLUTIONS/ERNIE/</projectUrl>
+      <displayName></displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>switches</name>
+          <description></description>
+          <defaultValue>-f foo -b bar</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@2.0.3">
+      <maxConcurrentPerNode>0</maxConcurrentPerNode>
+      <maxConcurrentTotal>0</maxConcurrentTotal>
+      <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
+      <throttleEnabled>false</throttleEnabled>
+      <throttleOption>project</throttleOption>
+      <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
+      <paramsToUseForLimit></paramsToUseForLimit>
+      <configVersion>1</configVersion>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@4.4.2">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/NETESOLUTIONS/ERNIE</url>
+        <credentialsId>d02dfdd6-1f23-416e-a398-d26accdf9129</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.SparseCheckoutPaths>
+        <sparseCheckoutPaths>
+          <hudson.plugins.git.extensions.impl.SparseCheckoutPath>
+            <path>/Template_Job</path>
+          </hudson.plugins.git.extensions.impl.SparseCheckoutPath>
+          <hudson.plugins.git.extensions.impl.SparseCheckoutPath>
+            <path>/Postgres/DDL/Functions</path>
+          </hudson.plugins.git.extensions.impl.SparseCheckoutPath>
+        </sparseCheckoutPaths>
+      </hudson.plugins.git.extensions.impl.SparseCheckoutPaths>
+    </extensions>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>true</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec># Daily between 8 AM and 9 AM
+H 8 * * *</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># Environment
+(set -o posix; set)
+
+# Deploy
+psql -f Postgres/DDL/Functions/upsert_file.sql
+[[ ! -d /erniedev_data1/Template_Job ]] &amp;&amp; mkdir /erniedev_data1/Template_Job
+cp -pv Template_Job/*.csv /erniedev_data1/Template_Job
+
+# Execute
+Template_Job/template.sh /erniedev_data1/Template_Job
+
+# Neo4j part
+###
+###Source files = Template_Job/**
+###
+###Remote directory = /home/ernie_admin/jenkins_jobs/${JOB_BASE_NAME}
+
+#set -e
+#set -o pipefail
+#
+## Deploy
+#cd jenkins_jobs/${JOB_BASE_NAME}
+#chmod ug+x Template_Job/*.sh
+#
+## Run the main script
+#Template_Job/template.sh &amp;
+#pid=$!
+#
+## Wait on a background job completion
+#declare -i elapsed=0
+#declare -i WAIT_MSG_INTERVAL=1200 # Print every 20 minutes (should be &lt; ClientAliveInterval in /etc/ssh/sshd_config)
+## `ps -p ${pid}` works on macOS and CentOS. On both OSes `ps ${pid}` works as well.
+#while ps -p ${pid} &gt;/dev/null; do
+#  sleep 1  
+#  if ((++elapsed % WAIT_MSG_INTERVAL == 0)); then
+#    echo &quot;Waiting for the completion of the main script: $((elapsed / 60))m and counting.&quot;
+#  fi
+#done
+#
+## Return the exit code of the terminated background process. This works in Bash 4.4 despite what Bash docs say:
+## &quot;If neither jobspec nor pid specifies an active child process of the shell, the return status is 127.&quot;
+#wait ${pid}</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+    <jenkins.plugins.publish__over__ssh.BapSshBuilderPlugin plugin="publish-over-ssh@1.20.1">
+      <delegate>
+        <consolePrefix>SSH: </consolePrefix>
+        <delegate plugin="publish-over@0.22">
+          <publishers>
+            <jenkins.plugins.publish__over__ssh.BapSshPublisher plugin="publish-over-ssh@1.20.1">
+              <configName>Neo4j Server</configName>
+              <verbose>true</verbose>
+              <transfers>
+                <jenkins.plugins.publish__over__ssh.BapSshTransfer>
+                  <remoteDirectory>/home/ernie_admin/jenkins_jobs/${JOB_BASE_NAME}</remoteDirectory>
+                  <sourceFiles>Template_Job/**</sourceFiles>
+                  <excludes></excludes>
+                  <removePrefix></removePrefix>
+                  <remoteDirectorySDF>false</remoteDirectorySDF>
+                  <flatten>false</flatten>
+                  <cleanRemote>false</cleanRemote>
+                  <noDefaultExcludes>false</noDefaultExcludes>
+                  <makeEmptyDirs>false</makeEmptyDirs>
+                  <patternSeparator>[, ]+</patternSeparator>
+                  <execCommand>set -e
+set -o pipefail
+
+# Deploy
+cd jenkins_jobs/${JOB_BASE_NAME}
+chmod ug+x Template_Job/*.sh
+
+# Run the main script
+Template_Job/template.sh &amp;
+pid=$!
+
+# Wait on a background job completion
+declare -i elapsed=0
+declare -i WAIT_MSG_INTERVAL=1200 # Print every 20 minutes (should be &lt; ClientAliveInterval in /etc/ssh/sshd_config)
+# `ps -p ${pid}` works on macOS and CentOS. On both OSes `ps ${pid}` works as well.
+while ps -p ${pid} &gt;/dev/null; do
+  sleep 1  
+  if ((++elapsed % WAIT_MSG_INTERVAL == 0)); then
+    echo &quot;Waiting for the completion of the main script: $((elapsed / 60))m and counting.&quot;
+  fi
+done
+
+# Return the exit code of the terminated background process. This works in Bash 4.4 despite what Bash docs say:
+# &quot;If neither jobspec nor pid specifies an active child process of the shell, the return status is 127.&quot;
+wait ${pid}</execCommand>
+                  <execTimeout>0</execTimeout>
+                  <usePty>false</usePty>
+                  <useAgentForwarding>false</useAgentForwarding>
+                </jenkins.plugins.publish__over__ssh.BapSshTransfer>
+              </transfers>
+              <useWorkspaceInPromotion>false</useWorkspaceInPromotion>
+              <usePromotionTimestamp>false</usePromotionTimestamp>
+            </jenkins.plugins.publish__over__ssh.BapSshPublisher>
+          </publishers>
+          <continueOnError>false</continueOnError>
+          <failOnError>true</failOnError>
+          <alwaysPublishFromMaster>false</alwaysPublishFromMaster>
+          <hostConfigurationAccess class="jenkins.plugins.publish_over_ssh.BapSshPublisherPlugin" reference="../.."/>
+        </delegate>
+      </delegate>
+    </jenkins.plugins.publish__over__ssh.BapSshBuilderPlugin>
+  </builders>
+  <publishers>
+    <jenkins.plugins.slack.SlackNotifier plugin="slack@2.42">
+      <baseUrl></baseUrl>
+      <teamDomain></teamDomain>
+      <authToken></authToken>
+      <tokenCredentialId></tokenCredentialId>
+      <botUser>false</botUser>
+      <room></room>
+      <sendAsText>false</sendAsText>
+      <iconEmoji></iconEmoji>
+      <username></username>
+      <startNotification>true</startNotification>
+      <notifySuccess>true</notifySuccess>
+      <notifyAborted>true</notifyAborted>
+      <notifyNotBuilt>true</notifyNotBuilt>
+      <notifyUnstable>true</notifyUnstable>
+      <notifyRegression>true</notifyRegression>
+      <notifyFailure>true</notifyFailure>
+      <notifyEveryFailure>true</notifyEveryFailure>
+      <notifyBackToNormal>true</notifyBackToNormal>
+      <notifyRepeatedFailure>true</notifyRepeatedFailure>
+      <includeTestSummary>false</includeTestSummary>
+      <includeFailedTests>false</includeFailedTests>
+      <uploadFiles>false</uploadFiles>
+      <commitInfoChoice>NONE</commitInfoChoice>
+      <includeCustomMessage>false</includeCustomMessage>
+      <customMessage></customMessage>
+      <customMessageSuccess></customMessageSuccess>
+      <customMessageAborted></customMessageAborted>
+      <customMessageNotBuilt></customMessageNotBuilt>
+      <customMessageUnstable></customMessageUnstable>
+      <customMessageFailure></customMessageFailure>
+    </jenkins.plugins.slack.SlackNotifier>
+  </publishers>
+  <buildWrappers>
+    <com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper>
+      <varPasswordPairs/>
+      <varMaskRegexes/>
+    </com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.11.5"/>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.7.3">
+      <colorMapName>Brackets Dark</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

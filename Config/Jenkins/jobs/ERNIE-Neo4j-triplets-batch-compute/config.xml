@@ -1,0 +1,275 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>## Batches CSV input, executes a specified ad-hoc Cypher query and collects results into a CSV ##&#xd;
+* Triggerred manually&#xd;
+* Prevented from running concurrently with the `Neo4j` jobs</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.31.0">
+      <projectUrl>https://github.com/NETESOLUTIONS/ERNIE/</projectUrl>
+      <displayName></displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>INPUT_DATA</name>
+          <description></description>
+          <defaultValue>/neo4j_data1/sb_plus/triplets_unique1.csv</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>CYPHER_QUERY_FILE</name>
+          <description>A path (absolute or relative to the workspace) to file, containing a Cypher query with the following params:
+1. `$JDBC_conn_string`
+2. `$sql_query ` (expanded via `envsubst`)
+
+The Cypher query should use single quotes and escape double quotes wherever necessary.
+
+Examples:
+* `P2_studies/cc2/Neo4j/jaccard_co_citation_conditional_star_index.cypher`</description>
+          <defaultValue>P2_studies/sb_plus/triplets_frequency_no_limitation.cypher</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BATCH_SIZE</name>
+          <description>An approximate number of records per batch.
+If the number of input records &gt; `BATCH_SIZE`, process in parallel in batches.
+Batches are sliced by GNU Parallel in bytes.
+
+WARNING: `apoc.cypher.mapParallel2()` is unstable as of v3.5.0.6 and may fail (produce incomplete results) on 
+medium-to-large batches. It&apos;s recommended to avoid it in favor of optmizing the batch size.</description>
+          <defaultValue>1000</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>NEO4J_SERVER_TMP_CSV_OUTPUT_FILE</name>
+          <description>Written as an RFC 4180-compliant CSV (with EOLs set to `\n`) containing a header row.
+Temporary CSV files are written into the same directory.
+Make sure you have 2 x {output_size} free space.
+
+WARNING: Without clean start option, the output file, if exists, will be appended to.
+
+The output file should be writeable by both `neo4j` and `ernie_admin` users. Note: `/tmp` disk is limited to 1G.
+Use unique output files per build to enable concurrent execution.
+* The file is deleted after succesful collection (back to the `ernie2` server)</description>
+          <defaultValue>/neo4j_data1/sb_plus/triplets_unique1_frequency.csv</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>OPTIONS</name>
+          <description>Space-separated option(s):
+
+```
+-c                    Clean start. The process normally resumes after failures, skipping over already generated
+                      batches and appending to the output. Clean start would remove leftover batches and the
+                      output first. This assumes that leftover batches if any are writeable by the current user.
+
+                      WARNING: resume doesn&apos;t guarantee to produce clean results because GNU parallel `--halt now`
+                      terminates remaining jobs abnormally. `-ae` is recommended to use when resuming. If the
+                      total number of records in the output is not what&apos;s expected differences could be reconciled
+                      manually.
+
+-ae                   Assert that:
+                            1. The number of output records per batch = the number of batch input records.
+                            2. The total number of output records = the total number of input records.
+
+-v                    verbose diagnostics
+
+-n parallel_jobs      Maximum number of jobs to run in parallel, # of CPU cores by default
+
+```</description>
+          <defaultValue>-c -n 15</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@2.0.2">
+      <maxConcurrentPerNode>0</maxConcurrentPerNode>
+      <maxConcurrentTotal>0</maxConcurrentTotal>
+      <categories class="java.util.concurrent.CopyOnWriteArrayList">
+        <string>Neo4j</string>
+      </categories>
+      <throttleEnabled>false</throttleEnabled>
+      <throttleOption>category</throttleOption>
+      <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
+      <paramsToUseForLimit></paramsToUseForLimit>
+      <configVersion>1</configVersion>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@4.3.0">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/NETESOLUTIONS/ERNIE/</url>
+        <credentialsId>d02dfdd6-1f23-416e-a398-d26accdf9129</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>refs/heads/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.SparseCheckoutPaths>
+        <sparseCheckoutPaths>
+          <hudson.plugins.git.extensions.impl.SparseCheckoutPath>
+            <path>/P2_studies/sb_plus</path>
+          </hudson.plugins.git.extensions.impl.SparseCheckoutPath>
+          <hudson.plugins.git.extensions.impl.SparseCheckoutPath>
+            <path>/Neo4j</path>
+          </hudson.plugins.git.extensions.impl.SparseCheckoutPath>
+        </sparseCheckoutPaths>
+      </hudson.plugins.git.extensions.impl.SparseCheckoutPaths>
+    </extensions>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>true</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># Deploy
+mkdir -p build
+chmod g+w build
+rm -f build/*</command>
+    </hudson.tasks.Shell>
+    <jenkins.plugins.publish__over__ssh.BapSshBuilderPlugin plugin="publish-over-ssh@1.20.1">
+      <delegate>
+        <consolePrefix>SSH: </consolePrefix>
+        <delegate plugin="publish-over@0.22">
+          <publishers>
+            <jenkins.plugins.publish__over__ssh.BapSshPublisher plugin="publish-over-ssh@1.20.1">
+              <configName>Neo4j Server</configName>
+              <verbose>false</verbose>
+              <transfers>
+                <jenkins.plugins.publish__over__ssh.BapSshTransfer>
+                  <remoteDirectory>/home/ernie_admin/jenkins_jobs/${JOB_BASE_NAME}</remoteDirectory>
+                  <sourceFiles>Neo4j/neo4j-batch-compute-csv-input.sh, P2_studies/sb_plus/triplets_frequency_no_limitation.cypher</sourceFiles>
+                  <excludes></excludes>
+                  <removePrefix></removePrefix>
+                  <remoteDirectorySDF>false</remoteDirectorySDF>
+                  <flatten>false</flatten>
+                  <cleanRemote>true</cleanRemote>
+                  <noDefaultExcludes>false</noDefaultExcludes>
+                  <makeEmptyDirs>false</makeEmptyDirs>
+                  <patternSeparator>[, ]+</patternSeparator>
+                  <execCommand>set -e
+set -o pipefail
+
+# Deploy
+cd jenkins_jobs/${JOB_BASE_NAME}
+chmod ug+x Neo4j/*.sh
+
+# Run
+Neo4j/neo4j-batch-compute-csv-input.sh $OPTIONS &quot;$INPUT_DATA&quot; &quot;$NEO4J_SERVER_TMP_CSV_OUTPUT_FILE&quot; &quot;$CYPHER_QUERY_FILE&quot; $BATCH_SIZE &amp;
+pid=$!
+
+# Wait on a background job completion
+declare -i elapsed=0
+declare -i WAIT_MSG_INTERVAL=1200 # Print every 20 minutes (should be &lt; ClientAliveInterval in /etc/ssh/sshd_config)
+# `ps -p ${pid}` works on macOS and CentOS. On both OSes `ps ${pid}` works as well.
+while ps -p ${pid} &gt;/dev/null; do
+  sleep 1
+  
+  if ((++elapsed % WAIT_MSG_INTERVAL == 0)); then
+    echo &quot;Waiting for the completion of the main script: $((elapsed / 60))m and counting.&quot;
+  fi
+done
+# Return the exit code of the terminated background process. This works in Bash 4.4 despite what Bash docs say:
+# &quot;If neither jobspec nor pid specifies an active child process of the shell, the return status is 127.&quot;
+wait ${pid}
+
+#region Parse output filename
+output_file=${NEO4J_SERVER_TMP_CSV_OUTPUT_FILE}
+
+# Remove longest */ prefix
+output_file_name_with_ext=${output_file##*/}
+
+if [[ &quot;${output_file_name_with_ext}&quot; != *.* ]]; then
+  output_file_name_with_ext=${output_file_name_with_ext}.
+fi
+
+# Remove shortest .* suffix
+OUTPUT_FILE_NAME=${output_file_name_with_ext%.*}
+
+if [[ &quot;${output_file}&quot; != */* ]]; then
+  output_file=./${output_file}
+fi
+# Remove shortest /* suffix
+OUTPUT_DIR=${output_file%/*}
+#endregion
+
+
+echo -e &quot;\nCollecting the output ...&quot;
+# Preserve mode (and other attributes) to make generated file(s) group-writable at the target
+scp -p &quot;$NEO4J_SERVER_TMP_CSV_OUTPUT_FILE&quot; ernie_admin@ernie2:${WORKSPACE}/build
+rm -f &quot;$NEO4J_SERVER_TMP_CSV_OUTPUT_FILE&quot;
+# Handle many files potentially causing the command line overflow
+cd $OUTPUT_DIR
+ls | grep -E &quot;${OUTPUT_FILE_NAME}.*\.csv$&quot; | xargs -I &apos;{}&apos; bash -c &quot;echo $ERNIE_NEO4J_ERNIE_ADMIN_PASSWORD | sudo --stdin --prompt= rm -fv {}&quot;</execCommand>
+                  <execTimeout>0</execTimeout>
+                  <usePty>false</usePty>
+                  <useAgentForwarding>false</useAgentForwarding>
+                </jenkins.plugins.publish__over__ssh.BapSshTransfer>
+              </transfers>
+              <useWorkspaceInPromotion>false</useWorkspaceInPromotion>
+              <usePromotionTimestamp>false</usePromotionTimestamp>
+            </jenkins.plugins.publish__over__ssh.BapSshPublisher>
+          </publishers>
+          <continueOnError>false</continueOnError>
+          <failOnError>true</failOnError>
+          <alwaysPublishFromMaster>false</alwaysPublishFromMaster>
+          <hostConfigurationAccess class="jenkins.plugins.publish_over_ssh.BapSshPublisherPlugin" reference="../.."/>
+        </delegate>
+      </delegate>
+    </jenkins.plugins.publish__over__ssh.BapSshBuilderPlugin>
+  </builders>
+  <publishers>
+    <jenkins.plugins.slack.SlackNotifier plugin="slack@2.40">
+      <baseUrl></baseUrl>
+      <teamDomain></teamDomain>
+      <authToken></authToken>
+      <tokenCredentialId></tokenCredentialId>
+      <botUser>false</botUser>
+      <room></room>
+      <sendAsText>false</sendAsText>
+      <iconEmoji></iconEmoji>
+      <username></username>
+      <startNotification>true</startNotification>
+      <notifySuccess>true</notifySuccess>
+      <notifyAborted>true</notifyAborted>
+      <notifyNotBuilt>true</notifyNotBuilt>
+      <notifyUnstable>true</notifyUnstable>
+      <notifyRegression>true</notifyRegression>
+      <notifyFailure>true</notifyFailure>
+      <notifyEveryFailure>true</notifyEveryFailure>
+      <notifyBackToNormal>true</notifyBackToNormal>
+      <notifyRepeatedFailure>true</notifyRepeatedFailure>
+      <includeTestSummary>false</includeTestSummary>
+      <includeFailedTests>false</includeFailedTests>
+      <commitInfoChoice>NONE</commitInfoChoice>
+      <includeCustomMessage>false</includeCustomMessage>
+      <customMessage></customMessage>
+      <customMessageSuccess></customMessageSuccess>
+      <customMessageAborted></customMessageAborted>
+      <customMessageNotBuilt></customMessageNotBuilt>
+      <customMessageUnstable></customMessageUnstable>
+      <customMessageFailure></customMessageFailure>
+    </jenkins.plugins.slack.SlackNotifier>
+  </publishers>
+  <buildWrappers>
+    <com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper>
+      <varPasswordPairs/>
+      <varMaskRegexes/>
+    </com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.11.5"/>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.7.2">
+      <colorMapName>Brackets Dark</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

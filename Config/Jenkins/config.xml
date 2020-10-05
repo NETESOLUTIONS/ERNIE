@@ -1,0 +1,577 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<hudson>
+  <disabledAdministrativeMonitors/>
+  <version>2.249.1</version>
+  <installStateName>RESTART</installStateName>
+  <numExecutors>8</numExecutors>
+  <mode>NORMAL</mode>
+  <useSecurity>true</useSecurity>
+  <authorizationStrategy class="hudson.security.FullControlOnceLoggedInAuthorizationStrategy">
+    <denyAnonymousReadAccess>true</denyAnonymousReadAccess>
+  </authorizationStrategy>
+  <securityRealm class="hudson.security.HudsonPrivateSecurityRealm">
+    <disableSignup>true</disableSignup>
+    <enableCaptcha>false</enableCaptcha>
+  </securityRealm>
+  <disableRememberMe>false</disableRememberMe>
+  <projectNamingStrategy class="jenkins.model.ProjectNamingStrategy$PatternProjectNamingStrategy">
+    <namePattern>(CG|CT|ExPORTER|FDA|LexisNexis|Scopus|CaseStudy|Interface|ERNIE)+(-[A-Za-z0-9]+)+</namePattern>
+    <description>Required to follow the following convention:`module[-branch]-action-[-option 1]...`. module: CG|CT|ExPORTER|FDA|LexisNexis|Scopus|CaseStudy|Interface|ERNIE. Examples: `Scopus-smokeload`, `ERNIE-bulk-import-to-Neo4j`. Each component word consists of alphanumerics only. This name pattern can be changed in Configure System.</description>
+    <forceExistingJobs>true</forceExistingJobs>
+  </projectNamingStrategy>
+  <workspaceDir>${JENKINS_HOME}/workspace/${ITEM_FULLNAME}</workspaceDir>
+  <buildsDir>${ITEM_ROOTDIR}/builds</buildsDir>
+  <markupFormatter class="org.jenkins_ci.plugins.pegdown_formatter.PegDownFormatter" plugin="pegdown-formatter@1.3">
+    <flags>459007</flags>
+    <extensions>
+      <org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+        <name>SUPPRESS_ALL_HTML</name>
+        <flag>196608</flag>
+        <selected>true</selected>
+      </org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+    </extensions>
+    <advancedExtensions>
+      <org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+        <name>ABBREVIATIONS</name>
+        <flag>4</flag>
+        <selected>true</selected>
+      </org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+      <org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+        <name>AUTOLINKS</name>
+        <flag>16</flag>
+        <selected>true</selected>
+      </org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+      <org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+        <name>DEFINITIONS</name>
+        <flag>64</flag>
+        <selected>true</selected>
+      </org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+      <org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+        <name>FENCED_CODE_BLOCKS</name>
+        <flag>128</flag>
+        <selected>true</selected>
+      </org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+      <org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+        <name>HARDWRAPS</name>
+        <flag>8</flag>
+        <selected>true</selected>
+      </org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+      <org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+        <name>NO_FOLLOW_LINKS</name>
+        <flag>262144</flag>
+        <selected>true</selected>
+      </org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+      <org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+        <name>SMARTYPANTS</name>
+        <flag>3</flag>
+        <selected>true</selected>
+      </org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+      <org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+        <name>TABLES</name>
+        <flag>32</flag>
+        <selected>true</selected>
+      </org.jenkins__ci.plugins.pegdown__formatter.PegDownExtension>
+    </advancedExtensions>
+  </markupFormatter>
+  <jdks/>
+  <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
+  <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
+  <clouds/>
+  <quietPeriod>5</quietPeriod>
+  <scmCheckoutRetryCount>0</scmCheckoutRetryCount>
+  <views>
+    <hudson.model.AllView>
+      <owner class="hudson" reference="../../.."/>
+      <name>all</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+    </hudson.model.AllView>
+    <hudson.plugins.view.dashboard.Dashboard plugin="dashboard-view@2.13">
+      <owner class="hudson" reference="../../.."/>
+      <name>- Module Processes</name>
+      <description>### Automated Core ERNIE Processes ###</description>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator"/>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <hudson.plugins.nextexecutions.columns.NextExecutionColumn plugin="next-executions@1.0.15">
+          <triggerClass>hudson.triggers.TimerTrigger</triggerClass>
+        </hudson.plugins.nextexecutions.columns.NextExecutionColumn>
+        <jenkins.branch.DescriptionColumn plugin="branch-api@2.6.0"/>
+        <hudson.views.BuildButtonColumn/>
+      </columns>
+      <includeRegex>(CT|ExPORTER|FDA|LexisNexis|NLM|Scopus|USPTO)(-[A-Za-z0-9]+)+</includeRegex>
+      <recurse>false</recurse>
+      <useCssStyle>false</useCssStyle>
+      <includeStdJobList>true</includeStdJobList>
+      <hideJenkinsPanels>false</hideJenkinsPanels>
+      <leftPortletWidth>50%</leftPortletWidth>
+      <rightPortletWidth>50%</rightPortletWidth>
+      <leftPortlets/>
+      <rightPortlets/>
+      <topPortlets>
+        <hudson.plugins.projectbuildtimes.BuildTimesChart plugin="project-build-times@1.2.1">
+          <name>Build Times</name>
+          <graphWidth>1500</graphWidth>
+          <graphHeight>350</graphHeight>
+          <dateRange>0</dateRange>
+          <dateShift>240</dateShift>
+          <stacked>false</stacked>
+          <jenkinsJobNames></jenkinsJobNames>
+        </hudson.plugins.projectbuildtimes.BuildTimesChart>
+      </topPortlets>
+      <bottomPortlets/>
+    </hudson.plugins.view.dashboard.Dashboard>
+    <hudson.plugins.view.dashboard.Dashboard plugin="dashboard-view@2.13">
+      <owner class="hudson" reference="../../.."/>
+      <name>~ Auxiliary</name>
+      <description>### Monitoring, ad-hoc and auxiliary jobs ###</description>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../hudson.plugins.view.dashboard.Dashboard/jobNames/comparator"/>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <hudson.views.BuildButtonColumn/>
+      </columns>
+      <includeRegex>ERNIE-.*</includeRegex>
+      <recurse>false</recurse>
+      <useCssStyle>false</useCssStyle>
+      <includeStdJobList>true</includeStdJobList>
+      <hideJenkinsPanels>false</hideJenkinsPanels>
+      <leftPortletWidth>50%</leftPortletWidth>
+      <rightPortletWidth>50%</rightPortletWidth>
+      <leftPortlets/>
+      <rightPortlets/>
+      <topPortlets/>
+      <bottomPortlets/>
+    </hudson.plugins.view.dashboard.Dashboard>
+    <hudson.plugins.view.dashboard.Dashboard plugin="dashboard-view@2.13">
+      <owner class="hudson" reference="../../.."/>
+      <name>Case Studies</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../hudson.plugins.view.dashboard.Dashboard/jobNames/comparator"/>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <hudson.plugins.nextexecutions.columns.NextExecutionColumn plugin="next-executions@1.0.15">
+          <triggerClass>hudson.triggers.TimerTrigger</triggerClass>
+        </hudson.plugins.nextexecutions.columns.NextExecutionColumn>
+        <jenkins.branch.DescriptionColumn plugin="branch-api@2.6.0"/>
+        <hudson.views.BuildButtonColumn/>
+      </columns>
+      <includeRegex>CaseStudy-.*</includeRegex>
+      <recurse>false</recurse>
+      <useCssStyle>false</useCssStyle>
+      <includeStdJobList>true</includeStdJobList>
+      <hideJenkinsPanels>false</hideJenkinsPanels>
+      <leftPortletWidth>50%</leftPortletWidth>
+      <rightPortletWidth>50%</rightPortletWidth>
+      <leftPortlets/>
+      <rightPortlets/>
+      <topPortlets>
+        <hudson.plugins.projectbuildtimes.BuildTimesChart plugin="project-build-times@1.2.1">
+          <name>Build Times</name>
+          <graphWidth>1500</graphWidth>
+          <graphHeight>350</graphHeight>
+          <dateRange>0</dateRange>
+          <dateShift>240</dateShift>
+          <stacked>false</stacked>
+          <jenkinsJobNames></jenkinsJobNames>
+        </hudson.plugins.projectbuildtimes.BuildTimesChart>
+      </topPortlets>
+      <bottomPortlets/>
+    </hudson.plugins.view.dashboard.Dashboard>
+    <hudson.plugins.view.dashboard.Dashboard plugin="dashboard-view@2.13">
+      <owner class="hudson" reference="../../.."/>
+      <name>Scopus</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../hudson.plugins.view.dashboard.Dashboard/jobNames/comparator"/>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <hudson.plugins.nextexecutions.columns.NextExecutionColumn plugin="next-executions@1.0.15">
+          <triggerClass>hudson.triggers.TimerTrigger</triggerClass>
+        </hudson.plugins.nextexecutions.columns.NextExecutionColumn>
+        <jenkins.branch.DescriptionColumn plugin="branch-api@2.6.0"/>
+        <hudson.views.BuildButtonColumn/>
+      </columns>
+      <includeRegex>.*Scopus-.*</includeRegex>
+      <recurse>false</recurse>
+      <useCssStyle>false</useCssStyle>
+      <includeStdJobList>true</includeStdJobList>
+      <hideJenkinsPanels>false</hideJenkinsPanels>
+      <leftPortletWidth>50%</leftPortletWidth>
+      <rightPortletWidth>50%</rightPortletWidth>
+      <leftPortlets/>
+      <rightPortlets/>
+      <topPortlets>
+        <hudson.plugins.projectbuildtimes.BuildTimesChart plugin="project-build-times@1.2.1">
+          <name>Build Times</name>
+          <graphWidth>1500</graphWidth>
+          <graphHeight>350</graphHeight>
+          <dateRange>0</dateRange>
+          <dateShift>240</dateShift>
+          <stacked>false</stacked>
+          <jenkinsJobNames></jenkinsJobNames>
+        </hudson.plugins.projectbuildtimes.BuildTimesChart>
+      </topPortlets>
+      <bottomPortlets/>
+    </hudson.plugins.view.dashboard.Dashboard>
+    <hudson.plugins.view.dashboard.Dashboard plugin="dashboard-view@2.13">
+      <owner class="hudson" reference="../../.."/>
+      <name>Interfaces</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../hudson.plugins.view.dashboard.Dashboard/jobNames/comparator"/>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <jenkins.branch.DescriptionColumn plugin="branch-api@2.6.0"/>
+        <hudson.views.BuildButtonColumn/>
+      </columns>
+      <includeRegex>Interface-.*</includeRegex>
+      <recurse>false</recurse>
+      <useCssStyle>false</useCssStyle>
+      <includeStdJobList>true</includeStdJobList>
+      <hideJenkinsPanels>false</hideJenkinsPanels>
+      <leftPortletWidth>50%</leftPortletWidth>
+      <rightPortletWidth>50%</rightPortletWidth>
+      <leftPortlets/>
+      <rightPortlets/>
+      <topPortlets/>
+      <bottomPortlets>
+        <hudson.plugins.projectbuildtimes.BuildTimesChart plugin="project-build-times@1.2.1">
+          <name>Build Times</name>
+          <graphWidth>1500</graphWidth>
+          <graphHeight>350</graphHeight>
+          <dateRange>0</dateRange>
+          <dateShift>240</dateShift>
+          <stacked>false</stacked>
+          <jenkinsJobNames></jenkinsJobNames>
+        </hudson.plugins.projectbuildtimes.BuildTimesChart>
+      </bottomPortlets>
+    </hudson.plugins.view.dashboard.Dashboard>
+    <hudson.plugins.view.dashboard.Dashboard plugin="dashboard-view@2.13">
+      <owner class="hudson" reference="../../.."/>
+      <name>Neo4j</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../hudson.plugins.view.dashboard.Dashboard/jobNames/comparator"/>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <jenkins.branch.DescriptionColumn plugin="branch-api@2.6.0"/>
+        <hudson.views.BuildButtonColumn/>
+      </columns>
+      <includeRegex>(?i).*(Neo4j|Cypher).*</includeRegex>
+      <recurse>false</recurse>
+      <useCssStyle>false</useCssStyle>
+      <includeStdJobList>true</includeStdJobList>
+      <hideJenkinsPanels>false</hideJenkinsPanels>
+      <leftPortletWidth>50%</leftPortletWidth>
+      <rightPortletWidth>50%</rightPortletWidth>
+      <leftPortlets/>
+      <rightPortlets/>
+      <topPortlets/>
+      <bottomPortlets>
+        <hudson.plugins.projectbuildtimes.BuildTimesChart plugin="project-build-times@1.2.1">
+          <name>Build Times</name>
+          <graphWidth>1500</graphWidth>
+          <graphHeight>350</graphHeight>
+          <dateRange>0</dateRange>
+          <dateShift>240</dateShift>
+          <stacked>false</stacked>
+          <jenkinsJobNames></jenkinsJobNames>
+        </hudson.plugins.projectbuildtimes.BuildTimesChart>
+      </bottomPortlets>
+    </hudson.plugins.view.dashboard.Dashboard>
+    <hudson.plugins.view.dashboard.Dashboard plugin="dashboard-view@2.13">
+      <owner class="hudson" reference="../../.."/>
+      <name>Spark</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../hudson.plugins.view.dashboard.Dashboard/jobNames/comparator"/>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <jenkins.branch.DescriptionColumn plugin="branch-api@2.6.0"/>
+        <hudson.views.BuildButtonColumn/>
+      </columns>
+      <includeRegex>(?i).*Spark.*</includeRegex>
+      <recurse>false</recurse>
+      <useCssStyle>false</useCssStyle>
+      <includeStdJobList>true</includeStdJobList>
+      <hideJenkinsPanels>false</hideJenkinsPanels>
+      <leftPortletWidth>50%</leftPortletWidth>
+      <rightPortletWidth>50%</rightPortletWidth>
+      <leftPortlets/>
+      <rightPortlets/>
+      <topPortlets/>
+      <bottomPortlets>
+        <hudson.plugins.projectbuildtimes.BuildTimesChart plugin="project-build-times@1.2.1">
+          <name>RM Build Times Chart</name>
+          <graphWidth>600</graphWidth>
+          <graphHeight>220</graphHeight>
+          <dateRange>0</dateRange>
+          <dateShift>0</dateShift>
+          <stacked>false</stacked>
+          <jenkinsJobNames></jenkinsJobNames>
+        </hudson.plugins.projectbuildtimes.BuildTimesChart>
+      </bottomPortlets>
+    </hudson.plugins.view.dashboard.Dashboard>
+    <hudson.plugins.view.dashboard.Dashboard plugin="dashboard-view@2.13">
+      <owner class="hudson" reference="../../.."/>
+      <name>LexisNexis</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../hudson.plugins.view.dashboard.Dashboard/jobNames/comparator"/>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <jenkins.branch.DescriptionColumn plugin="branch-api@2.6.0"/>
+        <hudson.views.BuildButtonColumn/>
+      </columns>
+      <includeRegex>LexisNexis.*</includeRegex>
+      <recurse>false</recurse>
+      <useCssStyle>false</useCssStyle>
+      <includeStdJobList>true</includeStdJobList>
+      <hideJenkinsPanels>false</hideJenkinsPanels>
+      <leftPortletWidth>50%</leftPortletWidth>
+      <rightPortletWidth>50%</rightPortletWidth>
+      <leftPortlets/>
+      <rightPortlets/>
+      <topPortlets>
+        <hudson.plugins.projectbuildtimes.BuildTimesChart plugin="project-build-times@1.2.1">
+          <name>RM Build Times Chart</name>
+          <graphWidth>1500</graphWidth>
+          <graphHeight>350</graphHeight>
+          <dateRange>0</dateRange>
+          <dateShift>240</dateShift>
+          <stacked>false</stacked>
+          <jenkinsJobNames></jenkinsJobNames>
+        </hudson.plugins.projectbuildtimes.BuildTimesChart>
+      </topPortlets>
+      <bottomPortlets/>
+    </hudson.plugins.view.dashboard.Dashboard>
+    <hudson.plugins.view.dashboard.Dashboard plugin="dashboard-view@2.13">
+      <owner class="hudson" reference="../../.."/>
+      <name>CT</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../hudson.plugins.view.dashboard.Dashboard/jobNames/comparator"/>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <hudson.views.BuildButtonColumn/>
+        <jenkins.branch.DescriptionColumn plugin="branch-api@2.6.0"/>
+      </columns>
+      <includeRegex>CT-.*</includeRegex>
+      <recurse>false</recurse>
+      <useCssStyle>false</useCssStyle>
+      <includeStdJobList>true</includeStdJobList>
+      <hideJenkinsPanels>false</hideJenkinsPanels>
+      <leftPortletWidth>50%</leftPortletWidth>
+      <rightPortletWidth>50%</rightPortletWidth>
+      <leftPortlets/>
+      <rightPortlets/>
+      <topPortlets/>
+      <bottomPortlets>
+        <hudson.plugins.projectbuildtimes.BuildTimesChart plugin="project-build-times@1.2.1">
+          <name>RM Build Times Chart</name>
+          <graphWidth>800</graphWidth>
+          <graphHeight>350</graphHeight>
+          <dateRange>0</dateRange>
+          <dateShift>0</dateShift>
+          <stacked>false</stacked>
+          <jenkinsJobNames></jenkinsJobNames>
+        </hudson.plugins.projectbuildtimes.BuildTimesChart>
+      </bottomPortlets>
+    </hudson.plugins.view.dashboard.Dashboard>
+    <hudson.plugins.view.dashboard.Dashboard plugin="dashboard-view@2.13">
+      <owner class="hudson" reference="../../.."/>
+      <name>FDA</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../hudson.plugins.view.dashboard.Dashboard/jobNames/comparator"/>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <hudson.views.BuildButtonColumn/>
+        <jenkins.branch.DescriptionColumn plugin="branch-api@2.6.0"/>
+      </columns>
+      <includeRegex>^FDA-.*</includeRegex>
+      <recurse>false</recurse>
+      <useCssStyle>false</useCssStyle>
+      <includeStdJobList>true</includeStdJobList>
+      <hideJenkinsPanels>false</hideJenkinsPanels>
+      <leftPortletWidth>50%</leftPortletWidth>
+      <rightPortletWidth>50%</rightPortletWidth>
+      <leftPortlets/>
+      <rightPortlets/>
+      <topPortlets/>
+      <bottomPortlets>
+        <hudson.plugins.projectbuildtimes.BuildTimesChart plugin="project-build-times@1.2.1">
+          <name>RM Build Times Chart</name>
+          <graphWidth>800</graphWidth>
+          <graphHeight>350</graphHeight>
+          <dateRange>0</dateRange>
+          <dateShift>0</dateShift>
+          <stacked>false</stacked>
+          <jenkinsJobNames></jenkinsJobNames>
+        </hudson.plugins.projectbuildtimes.BuildTimesChart>
+      </bottomPortlets>
+    </hudson.plugins.view.dashboard.Dashboard>
+    <hudson.plugins.view.dashboard.Dashboard plugin="dashboard-view@2.13">
+      <owner class="hudson" reference="../../.."/>
+      <name>ExPORTER</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../hudson.plugins.view.dashboard.Dashboard/jobNames/comparator"/>
+      </jobNames>
+      <jobFilters/>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <hudson.views.BuildButtonColumn/>
+        <jenkins.branch.DescriptionColumn plugin="branch-api@2.6.0"/>
+      </columns>
+      <includeRegex>ExPORTER(-[A-Za-z0-9]+)+</includeRegex>
+      <recurse>false</recurse>
+      <useCssStyle>false</useCssStyle>
+      <includeStdJobList>true</includeStdJobList>
+      <hideJenkinsPanels>false</hideJenkinsPanels>
+      <leftPortletWidth>50%</leftPortletWidth>
+      <rightPortletWidth>50%</rightPortletWidth>
+      <leftPortlets/>
+      <rightPortlets/>
+      <topPortlets/>
+      <bottomPortlets>
+        <hudson.plugins.projectbuildtimes.BuildTimesChart plugin="project-build-times@1.2.1">
+          <name>RM Build Times Chart</name>
+          <graphWidth>800</graphWidth>
+          <graphHeight>350</graphHeight>
+          <dateRange>0</dateRange>
+          <dateShift>0</dateShift>
+          <stacked>false</stacked>
+          <jenkinsJobNames></jenkinsJobNames>
+        </hudson.plugins.projectbuildtimes.BuildTimesChart>
+      </bottomPortlets>
+    </hudson.plugins.view.dashboard.Dashboard>
+  </views>
+  <primaryView>- Module Processes</primaryView>
+  <slaveAgentPort>-1</slaveAgentPort>
+  <label></label>
+  <crumbIssuer class="hudson.security.csrf.DefaultCrumbIssuer">
+    <excludeClientIPFromCrumb>false</excludeClientIPFromCrumb>
+  </crumbIssuer>
+  <nodeProperties/>
+  <globalNodeProperties>
+    <hudson.slaves.EnvironmentVariablesNodeProperty>
+      <envVars serialization="custom">
+        <unserializable-parents/>
+        <tree-map>
+          <default>
+            <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../../../../views/hudson.plugins.view.dashboard.Dashboard/jobNames/comparator"/>
+          </default>
+          <int>3</int>
+          <string>PATH</string>
+          <string>/anaconda3/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin</string>
+          <string>PGDATABASE</string>
+          <string>ernie</string>
+          <string>PYTHONUNBUFFERED</string>
+          <string>1</string>
+        </tree-map>
+      </envVars>
+    </hudson.slaves.EnvironmentVariablesNodeProperty>
+  </globalNodeProperties>
+</hudson>

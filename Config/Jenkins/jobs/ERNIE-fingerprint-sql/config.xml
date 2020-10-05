@@ -1,0 +1,98 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>DBNAME</name>
+          <description>The PostgreSQL database to make a peer connection to</description>
+          <defaultValue>ernie</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>INPUT_SQL</name>
+          <description>The SQL query to run to generate input data for the FPE to fingerprint</description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DESCRIPTOR_COLS</name>
+          <description>Space separated list of columns from the INPUT SQL to retain in fingerprint vector creation to identify </description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>OUTPUT_TABLE_NAME</name>
+          <description>The name to save the table as in the public schema</description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>FPE_WORKFLOW</name>
+          <description>the workflow the FingerPrint Engine should use</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>MeSHXmlConceptsOnly</string>
+              <string>UnifiedXmlConceptsOnly</string>
+              <string>EconomicsXmlConceptsOnly</string>
+              <string>ChemistryXmlConceptsOnly</string>
+              <string>MathVocXmlConceptsOnly</string>
+              <string>EmbaseXmlConceptsOnly</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>MINIMUM_FINGERPRINT_CONCEPTS</name>
+          <description>Minimum number of concepts required for each fingerprint. Fingerprints generated with less than the specified number will be omitted.</description>
+          <defaultValue>3</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.10.0">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/NETESOLUTIONS/ERNIE</url>
+        <credentialsId>d02dfdd6-1f23-416e-a398-d26accdf9129</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.SparseCheckoutPaths>
+        <sparseCheckoutPaths>
+          <hudson.plugins.git.extensions.impl.SparseCheckoutPath>
+            <path>FPE/</path>
+          </hudson.plugins.git.extensions.impl.SparseCheckoutPath>
+        </sparseCheckoutPaths>
+      </hudson.plugins.git.extensions.impl.SparseCheckoutPaths>
+    </extensions>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>cp FPE/*/*.py .
+/anaconda3/bin/python FingerprintGeneral.py -fu &quot;${FPE_USER_NAME}&quot; -fp &quot;${FPE_PASSWORD}&quot; -d ${DBNAME} -sql &quot;${INPUT_SQL}&quot; -st &quot;${OUTPUT_TABLE_NAME}&quot; -w &quot;${FPE_WORKFLOW}&quot; -mc &quot;${MINIMUM_FINGERPRINT_CONCEPTS}&quot; -n &quot;${DESCRIPTOR_COLS}&quot; </command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper/>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.9"/>
+  </buildWrappers>
+</project>
