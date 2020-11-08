@@ -130,8 +130,9 @@ qplot(cluster_counts,data=sizes,geom='density',group=V2,color=col,facets=.~gp)+ 
 theme(legend.title = element_blank()) + theme(text = element_text(size=20),axis.text.x = element_text(angle=-90, hjust=1))
 dev.off()
 
-system('cp fig2.pdf ~/ERNIE_tp/tp_combined_rebuttal/fig2.pdf')
-system('cp fig3.pdf ~/ERNIE_tp/tp_combined_rebuttal/fig3.pdf')
+# commented out for now since final versions of the figures have been generated
+# system('cp fig2.pdf ~/ERNIE_tp/tp_combined_rebuttal/fig2.pdf')
+#vsystem('cp fig3.pdf ~/ERNIE_tp/tp_combined_rebuttal/fig3.pdf')
 
 
 
