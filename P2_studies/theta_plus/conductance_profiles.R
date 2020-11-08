@@ -1,7 +1,8 @@
 rm(list = ls())
-setwd("~/Desktop/theta_plus/conductance_6/")
+setwd("~/Desktop/theta_plus")
 library(data.table)
 library(ggplot2)
+library(xtable)
 
 # read in data from Shreya'a analysis on ernie-2
 
@@ -94,8 +95,10 @@ conductances[V2=='imm_s_leiden',c('gp','col'):= list('imm_2','leiden')]
 conductances$color <- factor(conductances$color,levels=c("mcl","leiden"))
 
 pdf('fig3.pdf')
-qplot(conductance,data=conductances,geom='density',group=V2,color=col,facets=.~gp) +  theme_bw() + 
-theme(legend.title = element_blank()) 
+updated per editors request for greater font size
+#qplot(conductance,data=conductances,geom='density',group=V2,color=col,facets=.~gp) +  theme_bw() + 
+#theme(legend.title = element_blank()) + theme(text = element_text(size=20)
+qplot(conductance,data=conductances,geom='density',group=V2,color=col,facets=.~gp) +  theme_bw() + theme(legend.title = element_blank()) + theme(text = element_text(size=20),axis.text.x = element_text(angle=-90, hjust=1))
 dev.off()
 
 # repeat for size distribution
@@ -120,8 +123,11 @@ sizes[V2=='imm_s_leiden',c('gp','col'):= list('imm_2','leiden')]
 sizes$color <- factor(sizes$color,levels=c("mcl","leiden"))
 
 pdf('fig2.pdf')
+# updated per editors request for greater font size
+#qplot(cluster_counts,data=sizes,geom='density',group=V2,color=col,facets=.~gp)+  theme_bw()  + 
+#theme(legend.title = element_blank()) 
 qplot(cluster_counts,data=sizes,geom='density',group=V2,color=col,facets=.~gp)+  theme_bw()  + 
-theme(legend.title = element_blank()) 
+theme(legend.title = element_blank()) + theme(text = element_text(size=20),axis.text.x = element_text(angle=-90, hjust=1))
 dev.off()
 
 system('cp fig2.pdf ~/ERNIE_tp/tp_combined_rebuttal/fig2.pdf')
