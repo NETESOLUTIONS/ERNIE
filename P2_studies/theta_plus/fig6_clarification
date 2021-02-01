@@ -1,0 +1,18 @@
+We note that the caption of Fig 6 of Chandrasekharan comprises the following.
+
+"Figure 6. Article and author citations of a 92 node cluster with 386 authors. The visualization shows citations between clusters, articles, and
+authors as well as co-authorship relationships. A. Inter- and intra-cluster citation activity of a 92 node cluster (orange-brown) with its best
+connected cluster (yellow). Each node is an article and each edge is a citation. B. Intra-cluster citation activity of the 92 node cluster. Each
+node is an article and each edge is a citation. Four articles receive most of the citations. Node size is proportional to citing activity. Color
+intensity is proportional to number of citations received. C. Author network from the same 92 node cluster. Each node is an author. Node size
+is proportional to citing activity. Color intensity is proportional to number of citations received. The cluster comprises 25 Tier 1 authors and
+386 Tier 3 authors. Tier 1 authors are seen as nodes located inside the circumference of the plot. D. Co-authorship network. Each node is an
+author. Each edge is a co-author instance. Color intensity is proportional to the frequency of co-authorship between two authors. Five large 
+coauthor groups can be seen."
+
+The statement "The cluster comprises 25 Tier 1 authors and 386 Tier 3 authors." apparently conflicts with the opening statement "Article and 
+author citations of a 92 node cluster with 386 authors." unless interpreted as all Tier 1 authors also being Tier 3 authors in the same cluster.
+The query written to count the Tier assignment to an author selects the minimum value of Tiers based on the number of articles an author
+has in the cluster. We are unable to offer further clarification because our license to Scopus data expired and we deleted all data from
+this project that contained ScopusIDs and Scopus Author IDs.
+
